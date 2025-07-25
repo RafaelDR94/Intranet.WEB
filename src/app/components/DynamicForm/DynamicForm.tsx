@@ -6,7 +6,7 @@ import { DynamicFormProps } from './types';
 import { useDynamicForm } from './hooks/useDynamicForm';
 import { FieldRenderer } from './components/FieldRenderer';
 import { Button } from '../Button/Button';
-
+import { dynamicFormStyles } from './styles';
 export const DynamicForm: React.FC<DynamicFormProps> = ({
   fields,
   onSubmit,
@@ -25,8 +25,8 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
   } = useDynamicForm(fields);
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 space-y-6">
-      {title && <h2 className="text-2xl font-bold">{title}</h2>}
+    <div className={dynamicFormStyles.container}>
+      {title && <h2 className={dynamicFormStyles.heading}>{title}</h2>}
 
       <Formik
         initialValues={initialValues}
@@ -37,7 +37,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
         }}
       >
         {({ values, errors, touched, handleBlur, setFieldValue }) => (
-          <Form className="space-y-6">
+          <Form className={dynamicFormStyles.form}>
             {fields
               .filter((field) => !field.showIf || field.showIf(values))
               .map((field) => {
@@ -62,7 +62,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
                 );
               })}
 
-            <div className="flex justify-center gap-4">
+            <div className={dynamicFormStyles.actions}>
               {showSecondaryButtonIf?.(values) && onSecondaryButtonClick && (
                 <Button
                   variant="outline"

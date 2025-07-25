@@ -78,7 +78,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
         <Input
           {...baseProps}
           value={value}
-          onChange={onChange}
+          onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
           type={field.type === 'email' ? 'email' : field.type}
         />

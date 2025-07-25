@@ -1,6 +1,6 @@
 {
   "name": "intranet.web",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "formik": "^2.4.6",
     "next": "15.4.3",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
