@@ -58,9 +58,8 @@ Por cada cambio relevante:
    - Añade una sección para la nueva versión.
    - Usa el formato:
      ```markdown
-     ## [X.Y.Z] - YYYY-MM-DD
-
-     ### Feature
+     ## [X.Y.Z] Feature- YYYY-MM-DD
+     Feature: *Fix si es que es que fuese un Error
      - Descripción de la nueva funcionalidad. (Autor) [#123](https://github.com/tu-org/tu-repo/pull/123)
      ```
 3. **Actualiza la versión** en `package.json` (campo `"version"`).
@@ -70,8 +69,7 @@ Por cada cambio relevante:
 ### Ejemplo de entrada en CHANGELOG
 
 ```markdown
-## [6.2.0] - 2025-07-25
-
-### Feature
+## [6.2.0] Feature - 2025-07-25
+ Feature: *Fix si es que es que fuese un Error
 - Registrar errores en el front-end, tanto en peticiones como en componentes, para proporcionar mejor diagnóstico y soluciones. (Bruno Mendoza) [#592](https://github.com/tu-org/tu-repo/pull/592)
 ```

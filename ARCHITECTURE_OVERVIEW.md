@@ -19,7 +19,7 @@ Algunos componentes más complejos, como `DynamicForm`, incluyen además:
 - **hooks/** – hooks personalizados de React relacionados con ese componente (p. ej. `useDynamicForm.tsx`).
 - **utilities/** – funciones auxiliares (helpers) usadas por el componente, como validadores o resolutores de campos.
 - **types.ts** – tipos TypeScript compartidos entre el componente, sus hooks y sus utilidades.
-
+- **styles.ts** – estilos extra del componente.
 El proyecto utiliza el alias de ruta `@/*` definido en `tsconfig.json` para importar archivos desde `src/`.
 
 ---
@@ -47,5 +47,48 @@ Esto mantiene la lógica relacionada cerca de donde se usa, evitando archivos mo
 4. Define interfaces TypeScript reutilizables en `types.ts`.
 5. Coloca los tests unitarios en `ComponentName.test.tsx` dentro de la misma carpeta.
 6. Añade o actualiza un archivo `*Catalog.tsx` para ejemplos manuales, si es necesario.
+7. Para la logica dentro del componente siemore usamos hook personalizados alacenados en `hooks`dentro de la carpeta del componente. 
+
+## Convenciones de nomenclatura
+
+Para mantener la coherencia y facilitar la navegación por el código, seguimos estas reglas:
+
+- **Componentes**  
+  - Nombre en **PascalCase**, por ejemplo `Button`, `DynamicForm`, `Alert`.  
+  - Carpeta: `src/app/components/ComponentName/`.  
+  - Archivo principal: `ComponentName.tsx`.  
+  - Tests co-localizados: `ComponentName.test.tsx`.
+
+- **Hooks personalizados**  
+  - Nombre en **camelCase**, siempre comenzando con `use`, p. ej. `useSelect`, `useDynamicForm`.  
+  - Archivo: `useHookName.ts` dentro de `components/ComponentName/hooks/`.
+
+- **Funciones utilitarias (utilities)**  
+  - Nombre descriptivo en **camelCase**, p. ej. `getInitialValues`, `cleanHiddenFields`, `resolveVariant`.  
+  - Ubicación: `components/ComponentName/utilities/`.
+
+- **Estilos**  
+  - Archivo único `styles.ts` dentro de cada componente.  
+  - Exportar objetos con nombres claros, p. ej. `baseStyles`, `checkboxClasses`, `dynamicFormStyles`.
+
+- **Tipos (types)**  
+  - Archivo `types.ts` en la carpeta del componente.  
+  - Interfaces y tipos en **PascalCase**, p. ej. `ButtonProps`, `SelectOption`, `FieldModel`.
+
+- **Catalogs / ejemplos manuales**  
+  - Archivos `ComponentNameCatalog.tsx` para demos o pruebas manuales, en la misma carpeta del componente.
+
+- **Tests**  
+  - Co-localizados con el componente (`ComponentName.test.tsx`).  
+  - Declarar la suite con el nombre del componente o la funcionalidad, p. ej.  
+    ```js
+    describe('Button component', () => { … })
+    ```
+    o
+    ```js
+    describe('DynamicForm – Escenarios adicionales', () => { … })
+    ```
+
+Estas convenciones ayudan a que cualquier desarrollador encuentre rápidamente dónde buscar o añadir código, manteniendo la base ordenada y predecible.  
 
 Seguir esta guía garantiza una base de código consistente y fácil de mantener.

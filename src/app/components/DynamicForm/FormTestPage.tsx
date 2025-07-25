@@ -1,7 +1,7 @@
 'use client';
 
 // import { DynamicForm, FieldModel } from './DynamicForm(Original)';
-import { SelectOption } from '../Select/Select';
+import { SelectOption } from '../Select/types';
 import { DynamicForm } from './DynamicForm';
 import { FieldModel} from './types';
 
