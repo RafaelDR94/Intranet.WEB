@@ -1,7 +1,9 @@
 'use client';
 
-import { DynamicForm, FieldModel } from './DynamicForm(Original)';
+// import { DynamicForm, FieldModel } from './DynamicForm(Original)';
 import { SelectOption } from '../Select/Select';
+import { DynamicForm } from './DynamicForm';
+import { FieldModel} from './types';
 
 const colorOptions: SelectOption[] = [
     { label: 'Rojo', value: 'rojo' },
