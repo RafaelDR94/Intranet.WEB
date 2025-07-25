@@ -1,0 +1,181 @@
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+
+:root[data-theme='light'] {
+
+  --color-black-100: #000000;
+  --color-black-90:  #000000;
+  --color-black-80:  #000000;
+  --color-black-70:  #000000;
+  --color-black-60:  #000000;
+  --color-black-50:  #000000;
+  --color-black-40:  #000000;
+  --color-black-30:  #000000;
+  --color-black-20:  #000000;
+  --color-black-10:  #000000;
+
+  --color-white-100: #FFFFFF;
+  --color-white-90:  #FFFFFF;
+  --color-white-80:  #FFFFFF;
+  --color-white-70:  #FFFFFF;
+  --color-white-60:  #FFFFFF;
+  --color-white-50:  #FFFFFF;
+  --color-white-40:  #FFFFFF;
+  --color-white-30:  #FFFFFF;
+  --color-white-20:  #FFFFFF;
+  --color-white-10:  #FFFFFF;
+
+  --color-blue-100: #001D2D;
+  --color-blue-90:  #002A41;
+  --color-blue-80:  #004165;
+  --color-blue-70:  #014A73;
+  --color-blue-60:  #2075A6;
+  --color-blue-50:  #4296C5;
+  --color-blue-40:  #6CB6E0;
+  --color-blue-30:  #94C9E8;
+  --color-blue-20:  #AED2E5;
+  --color-blue-10:  #CCE2EE;
+
+  --color-green-100: #1B4653;
+  --color-green-90:  #256F77;
+  --color-green-80:  #33959F;
+  --color-green-70:  #3AABB8;
+  --color-green-60:  #3DB8C0;
+  --color-green-50:  #52DADA;
+  --color-green-40:  #66F3EC;
+  --color-green-30:  #77EEE0;
+  --color-green-20:  #89E6DF;
+  --color-green-10:  #C7EFEA;
+
+  --color-turquoise-100: #0E98AE;
+  --color-turquoise-90:  #11B5CF;
+  --color-turquoise-80:  #15CDEA;
+  --color-turquoise-70:  #21E0FF;
+  --color-turquoise-60:  #58E8FF;
+  --color-turquoise-50:  #86EEFF;
+  --color-turquoise-40:  #97F0FF;
+  --color-turquoise-30:  #A9F3FF;
+  --color-turquoise-20:  #B8F5FF;
+  --color-turquoise-10:  #CFF8FF;
+
+  --color-gray-100: #444545;
+  --color-gray-90:  #555555;
+  --color-gray-80:  #656565;
+  --color-gray-70:  #767676;
+  --color-gray-60:  #8B8B8B;
+  --color-gray-50:  #979797;
+  --color-gray-40:  #AFAFAF;
+  --color-gray-30:  #C4C4C4;
+  --color-gray-20:  #D7D7D7;
+  --color-gray-10:  #F4F4F4;
+
+  --color-alert-green-100: #33CC33;
+  --color-alert-green-50:  #71F58E;
+  --color-alert-green-10:  #C9F8D3;
+
+  --color-alert-yellow-100: #FFBC04;
+  --color-alert-yellow-50:  #FFCE48;
+  --color-alert-yellow-10:  #FFEEBE;
+
+  --color-alert-red-100: #FF0000;
+  --color-alert-red-50:  #FF6363;
+  --color-alert-red-10:  #FFCFCF;
+
+  --color-alert-blue-100: #0077FF;
+  --color-alert-blue-50: #5BA7FF;
+  --color-alert-blue-10: #CEE5FF;
+
+  --color-background: var(--color-white-100);
+  --color-foreground: var(--color-black-100);
+}
+
+:root[data-theme='dark'] {
+  --color-white-100: #171717;
+  --color-white-90:  #1C1C1C;
+  --color-white-80:  #2A2A2A;
+  --color-white-70:  #333333;
+  --color-white-60:  #444444;
+  --color-white-50:  #555555;
+  --color-white-40:  #666666;
+  --color-white-30:  #777777;
+  --color-white-20:  #888888;
+  --color-white-10:  #BEBEBE;
+
+  --color-black-100: #FFFFFF;
+  --color-black-90:  #FFFFFF;
+  --color-black-80:  #FFFFFF;
+  --color-black-70:  #FFFFFF;
+  --color-black-60:  #FFFFFF;
+  --color-black-50:  #FFFFFF;
+  --color-black-40:  #FFFFFF;
+  --color-black-30:  #FFFFFF;
+  --color-black-20:  #FFFFFF;
+  --color-black-10:  #FFFFFF;
+
+  --color-blue-100: #001D2D;
+  --color-blue-90:  #002A41;
+  --color-blue-80:  #3F99CC;
+  --color-blue-70:  #5D94E1;
+  --color-blue-60:  #4B81D7;
+  --color-blue-50:  #3A6DCB;
+  --color-blue-40:  #305BB2;
+  --color-blue-30:  #264799;
+  --color-blue-20:  #1C347F;
+  --color-blue-10:  #142867;
+
+  --color-green-100: #8BBBF4;
+  --color-green-90:  #5AE0D5;
+  --color-green-80:  #51BDB0;
+  --color-green-70:  #5EE3DC;
+  --color-green-60:  #4DCCCC;
+  --color-green-50:  #3DB8C0;
+  --color-green-40:  #24757E;
+  --color-green-30:  #33959F;
+  --color-green-20:  #256F77;
+  --color-green-10:  #1B4653;
+
+  --color-turquoise-100: #7DECF8;
+  --color-turquoise-90:  #69DEEE;
+  --color-turquoise-80:  #56D0E4;
+  --color-turquoise-70:  #42C3DA;
+  --color-turquoise-60:  #2EB6D0;
+  --color-turquoise-50:  #1AA9C6;
+  --color-turquoise-40:  #1090A8;
+  --color-turquoise-30:  #08788A;
+  --color-turquoise-20:  #065F6C;
+  --color-turquoise-10:  #02474E;
+
+  --color-gray-100: #DCDCDC;
+  --color-gray-90:  #C5C5C5;
+  --color-gray-80:  #AEAEAE;
+  --color-gray-70:  #979797;
+  --color-gray-60:  #808080;
+  --color-gray-50:  #696969;
+  --color-gray-40:  #525252;
+  --color-gray-30:  #424242;
+  --color-gray-20:  #323232;
+  --color-gray-10:  #2B2B2B;
+
+  --color-alert-green-100: #35C053;
+  --color-alert-green-50:  #6BDB82;
+  --color-alert-green-10:  #C9F8D3;
+
+  --color-alert-yellow-100: #FFBB00;
+  --color-alert-yellow-50:  #FFDD4D;
+  --color-alert-yellow-10:  #FFEDBD;
+
+  --color-alert-red-100: #FF0000;
+  --color-alert-red-50:  #E85555;
+  --color-alert-red-10:  #C08989;
+
+  --color-alert-blue-100: #1F80EF;
+  --color-alert-blue-50: #4F9AF0;
+  --color-alert-blue-10: #C5E0FF;
+
+}
+
+body {
+  background-color: var(--color-gray-10);
+  color: var(--color-foreground);
+  font-family: var(--font-montserrat), sans-serif;
+}

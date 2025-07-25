@@ -1,0 +1,87 @@
+// DynamicForm/components/FieldRenderer.tsx
+import React from 'react';
+import { FieldModel } from '../types';
+import { Input } from '../../Input/Input';
+import { Select } from '../../Select/Select';
+import { ToggleButton } from '../../ToogleButton.tsx/ToogleButton';
+import { Checkbox } from '../../CheckBox/CheckBox';
+
+interface FieldRendererProps {
+  field: FieldModel;
+  value: any;
+  onChange: (value: any) => void;
+  onBlur?: (e: React.FocusEvent<any>) => void;
+  variant: 'default' | 'success' | 'warning' | 'error' | 'info';
+  helperText?: string;
+}
+
+export const FieldRenderer: React.FC<FieldRendererProps> = ({
+  field,
+  value,
+  onChange,
+  onBlur,
+  variant,
+  helperText,
+}) => {
+  const baseProps = {
+    label: field.label,
+    name: field.name,
+    placeholder: field.placeholder,
+    helperText,
+    variant,
+    inputSize: field.inputSize || 'md',
+  };
+
+  switch (field.type) {
+    case 'select':
+      return (
+        <Select
+          {...baseProps}
+          selected={[value]}
+          onChange={(vals) => onChange(vals[0])}
+          options={field.options || []}
+        />
+      );
+
+    case 'multiSelect':
+      return (
+        <Select
+          {...baseProps}
+          multiple
+          selected={value}
+          onChange={(vals) => onChange(vals)}
+          options={field.options || []}
+        />
+      );
+
+    case 'checkbox':
+      return (
+        <Checkbox
+          checked={value}
+          onChange={onChange}
+          label={field.label}
+          disabled={field.validations?.some((v) => v.type === 'required') && false}
+        />
+      );
+
+    case 'toggle':
+      return (
+        <ToggleButton
+          checked={value}
+          onChange={onChange}
+          label={field.label}
+        />
+      );
+
+    default:
+      return (
+        <Input
+          {...baseProps}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          type={field.type === 'email' ? 'email' : field.type}
+        />
+      );
+  }
+};
