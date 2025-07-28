@@ -6,7 +6,7 @@ Este repositorio contiene el código front-end de **DR Security Intranet**, una 
 
 ## 📋 Requisitos previos
 
-- **Node.js** v20 o superior  
+- **Node.js** v20 o superior
 - Un gestor de paquetes: **npm**, **yarn** o **pnpm**
 
 ---
@@ -54,7 +54,7 @@ npm start
 
 ## ✨ Despliegue
 
-La forma más sencilla de desplegar es usando la [plataforma Vercel](https://vercel.com/new), que detecta automáticamente Next.js y configura el pipeline de CI/CD.
+Pendiente
 
 ---
 
@@ -68,15 +68,45 @@ npm run lint
 
 ---
 
-## 🧪 Pruebas
+## 📘 Storybook – Catálogo de componentes
 
-Este proyecto utiliza **Vitest** para las pruebas unitarias. Ejecuta:
+Este proyecto incluye [Storybook](https://storybook.js.org/) como herramienta de documentación interactiva.
+
+### Ejecutar Storybook localmente
+
+```bash
+npm run storybook
+```
+
+Luego abre [http://localhost:6006](http://localhost:6006)
+
+### Agregar historias nuevas
+
+Crea un archivo `ComponentName.stories.tsx` en formato **CSF3** junto al componente. Asegúrate de incluir variantes con `data-theme="light"` y `"dark"` si el componente depende del color.
+
+Los archivos `.stories.tsx` se documentan automáticamente si las props tienen comentarios JSDoc.
+
+---
+
+## 🧪 Pruebas unitarias con Vitest
+
+El proyecto usa [Vitest](https://vitest.dev/) para pruebas unitarias:
+
+### Ejecutar pruebas
 
 ```bash
 npm run test
 ```
 
----
+### Escribir pruebas
+
+Crea un archivo `ComponentName.test.tsx` junto al componente. Usa `describe`, `it`, y `expect` de Vitest y Testing Library para verificar:
+
+- Renderizado correcto
+- Props y comportamiento
+- Accesibilidad (cuando aplique)
+
+Las pruebas deben mantenerse en la misma carpeta del componente para facilitar el mantenimiento.
 
 ## 📁 Estructura del proyecto
 
@@ -100,8 +130,8 @@ npm run test
         │       └── utilities/          # helpers de validación, initialValues, variantes
         └── page.tsx
 
-- **Alias `@/*`** configurado en `tsconfig.json` para importar desde `src/`.  
-- Todos los componentes usan **PascalCase** y exportan el componente por defecto.  
+- **Alias `@/*`** configurado en `tsconfig.json` para importar desde `src/`.
+- Todos los componentes usan **PascalCase** y exportan el componente por defecto.
 - Los estilos específicos van en el archivo `styles.ts` de cada componente, con clases de Tailwind.
 
 ---
@@ -110,13 +140,15 @@ npm run test
 
 Este proyecto adopta GitFlow:
 
-1. **Ramas principales**  
-   - `main` → producción  
-   - `staging` → preproducción  
-   - `dev` → desarrollo continuo  
+1. **Ramas principales**
+
+   - `main` → producción
+   - `staging` → preproducción
+   - `dev` → desarrollo continuo
 
 2. **Crear ramas de trabajo**  
    Siempre parte de `dev`. Usa prefijos:
+
    - `feature/nueva-funcionalidad`
    - `fix/correccion-error`
 
@@ -137,7 +169,8 @@ Este proyecto adopta GitFlow:
    - NA
    ```
 
-4. **Antes del Pull Request**  
+4. **Antes del Pull Request**
+
    ```bash
    npm install
    npm run lint
@@ -145,8 +178,8 @@ Este proyecto adopta GitFlow:
    npm run test
    ```
 
-5. **Pull Request**  
-   - Base: `dev`  
+5. **Pull Request**
+   - Base: `dev`
    - Tras aprobación, se fusiona en `dev`, luego se promueve a `staging` y finalmente a `main`.
 
 ---
@@ -155,16 +188,19 @@ Este proyecto adopta GitFlow:
 
 Cada vez que prepares un release:
 
-1. Abre el PR y anota su número (p. ej. `#123`).  
+1. Abre el PR y anota su número (p. ej. `#123`).
 2. Edita `CHANGELOG.md`:
+
    ```markdown
    ## [X.Y.Z] - YYYY-MM-DD
 
    ### Feature
+
    - Descripción de la característica. (Autor) [#123](https://github.com/tu-org/tu-repo/pull/123)
    ```
-3. Actualiza la propiedad `version` en `package.json`.  
-4. Haz commit de ambos cambios en la misma rama.  
+
+3. Actualiza la propiedad `version` en `package.json`.
+4. Haz commit de ambos cambios en la misma rama.
 
 ---
 
@@ -174,4 +210,4 @@ Para más detalles sobre cómo contribuir, revisa **CONTRIBUTING.md**.
 
 ---
 
-¡Gracias por tu aporte! 😊  
+¡Gracias por tu aporte! 😊

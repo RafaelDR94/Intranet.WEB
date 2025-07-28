@@ -22,6 +22,17 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "tailwind.config.js", "next.config.js","src","vitest.config.ts","vitest.setup.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "tailwind.config.js",
+    "next.config.js",
+    "src",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "storybook"    // <-- añadida la carpeta de configuración de Storybook
+  ],
   "exclude": ["node_modules"]
 }
