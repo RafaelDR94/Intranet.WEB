@@ -7,6 +7,21 @@ import InfoIcon from '@/assets/icons/acciones/info-empty.svg'
 import SuccessIcon from '@/assets/icons/organization/star.svg'
 import WarningIcon from '@/assets/icons/bussines/high-priority.svg'
 
+/**
+ * Componente de alerta para mostrar mensajes de retroalimentación.
+ *
+ * @param type Tipo de alerta (`default`, `success`, `info`, `warning`, `error`)
+ * @param variant Variante de estilo (`filled` o `subtle`)
+ * @param title Título de la alerta
+ * @param description Descripción opcional
+ * @param showPrimaryButton Mostrar botón principal
+ * @param showSecondaryButton Mostrar botón secundario
+ * @param onPrimaryClick Callback al hacer clic en el botón primario
+ * @param onSecondaryClick Callback al hacer clic en el botón secundario
+ * @param primaryLabel Etiqueta del botón primario
+ * @param secondaryLabel Etiqueta del botón secundario
+ */
+
 export const Alert: React.FC<AlertProps> = ({
   type = 'default',
   variant = 'filled',

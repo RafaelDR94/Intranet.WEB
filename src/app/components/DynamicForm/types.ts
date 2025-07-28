@@ -1,5 +1,6 @@
 // components/DynamicForm/types.ts
 
+/** Tipos de campo soportados por el formulario. */
 export type InputType =
   | 'input'
   | 'email'
@@ -10,8 +11,10 @@ export type InputType =
   | 'checkbox'
   | 'toggle';
 
+/** Estados visuales para campos y helper texts. */
 export type Variant = 'default' | 'success' | 'warning' | 'error' | 'info';
 
+/** Reglas de validación admitidas. */
 export type ValidationRule =
   | { type: 'required' }
   | { type: 'email' }
@@ -22,6 +25,7 @@ export type ValidationRule =
   | { type: 'noInitialSpaces' }
   | { type: 'noNumbers' };
 
+/** Reglas de advertencia no bloqueantes. */
 export interface WarningRule {
   type:
     | 'minLengthWarning'
@@ -34,6 +38,7 @@ export interface WarningRule {
   value?: number;
 }
 
+/** Modelo de definición de un campo del formulario. */
 export interface FieldModel {
   type: InputType;
   name: string;
@@ -49,6 +54,7 @@ export interface FieldModel {
   showIf?: (values: Record<string, any>) => boolean;
 }
 
+/** Props del componente `DynamicForm`. */
 export interface DynamicFormProps {
   fields: FieldModel[];
   onSubmit: (values: { [key: string]: any }) => void;
@@ -59,3 +65,4 @@ export interface DynamicFormProps {
   onSecondaryButtonClick?: (values: Record<string, any>) => void;
   secondaryButtonLabel?: string;
 }
+

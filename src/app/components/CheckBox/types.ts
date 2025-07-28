@@ -1,5 +1,7 @@
+/** Posición de la etiqueta respecto a la casilla */
 export type LabelPosition = 'left' | 'right'
 
+/** Props del componente `Checkbox`. */
 export interface CheckboxProps {
   /** Estado marcado */
   checked: boolean

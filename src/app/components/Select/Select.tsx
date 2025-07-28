@@ -7,6 +7,21 @@ import Check from '@/assets/icons/acciones/check.svg';
 import { SelectProps } from './types';
 import { baseStyles } from './styles';
 import useSelect from './hooks/useSelect';
+
+/**
+ * Componente de selección con soporte para múltiple selección y variantes.
+ *
+ * @param options Opciones disponibles
+ * @param placeholder Texto cuando no hay selección
+ * @param multiple Permitir múltiples opciones
+ * @param selected Valores seleccionados
+ * @param onChange Callback al seleccionar
+ * @param size Tamaño visual (`md` o `lg`)
+ * @param variant Variante de estilo
+ * @param label Etiqueta visible
+ * @param helperText Texto de ayuda
+ * @param disabled Deshabilitar interacción
+ */
 export const Select: React.FC<SelectProps> = ({
     options,
     placeholder = 'Select',
