@@ -1,13 +1,16 @@
 // src/app/components/Select/types.ts
 
+/** Opción disponible para el select. */
 export type SelectOption = {
   label: string
   value: string
   disabled?: boolean
 }
 
+/** Tamaños permitidos para el select. */
 export type SelectSize = 'md' | 'lg'
 
+/** Variantes visuales del select. */
 export type SelectVariant =
   | 'default'
   | 'filled'
@@ -17,6 +20,7 @@ export type SelectVariant =
   | 'warning'
   | 'error'
 
+/** Props del componente `Select`. */
 export interface SelectProps {
   options: SelectOption[]
   placeholder?: string
@@ -29,3 +33,4 @@ export interface SelectProps {
   helperText?: string
   disabled?: boolean
 }
+

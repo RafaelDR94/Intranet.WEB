@@ -1,4 +1,6 @@
+/** Tamaños permitidos para el input. */
 export type InputSize = 'md' | 'lg'
+/** Variantes visuales del input. */
 export type InputVariant =
   | 'default'
   | 'filled'
@@ -8,6 +10,7 @@ export type InputVariant =
   | 'warning'
   | 'error'
 
+/** Props del componente `Input`. */
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   /** Etiqueta descriptiva del campo */
   label: string
@@ -18,3 +21,4 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   /** Variante de estilo */
   variant?: InputVariant
 }
+

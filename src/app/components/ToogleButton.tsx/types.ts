@@ -1,5 +1,7 @@
+/** Posiciones válidas para la etiqueta del toggle. */
 export type LabelPosition = 'left' | 'right'
 
+/** Props del componente `ToggleButton`. */
 export interface ToggleButtonProps {
   /** Estado del toggle */
   checked: boolean
@@ -12,3 +14,4 @@ export interface ToggleButtonProps {
   /** Posición de la etiqueta */
   labelPosition?: LabelPosition
 }
+

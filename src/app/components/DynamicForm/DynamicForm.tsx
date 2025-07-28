@@ -7,6 +7,19 @@ import { useDynamicForm } from './hooks/useDynamicForm';
 import { FieldRenderer } from './components/FieldRenderer';
 import { Button } from '../Button/Button';
 import { dynamicFormStyles } from './styles';
+
+/**
+ * Formulario dinámico que construye campos a partir de un modelo.
+ *
+ * @param fields Definición de campos
+ * @param onSubmit Función que recibe los valores limpios
+ * @param title Título opcional
+ * @param submitLabel Texto del botón de envío
+ * @param showSubmitIf Condición para mostrar el botón submit
+ * @param showSecondaryButtonIf Condición para mostrar el botón secundario
+ * @param onSecondaryButtonClick Acción del botón secundario
+ * @param secondaryButtonLabel Etiqueta del botón secundario
+ */
 export const DynamicForm: React.FC<DynamicFormProps> = ({
   fields,
   onSubmit,

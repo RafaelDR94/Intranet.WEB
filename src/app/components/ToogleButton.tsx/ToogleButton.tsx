@@ -9,6 +9,16 @@ import {
 } from './types'
 import * as styles from './styles'
 
+/**
+ * Botón tipo interruptor para alternar un valor booleano.
+ *
+ * @param checked Valor actual del toggle
+ * @param onChange Callback al cambiar
+ * @param disabled Deshabilitar interacción
+ * @param label Texto de etiqueta opcional
+ * @param labelPosition Posición de la etiqueta (`left` o `right`)
+ */
+
 export const ToggleButton: React.FC<ToggleButtonProps> = ({
   checked,
   onChange,

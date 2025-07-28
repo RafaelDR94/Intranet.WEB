@@ -12,6 +12,18 @@ import {
 } from './styles'
 import { useIndeterminate } from './hooks/useCheckbox'
 
+/**
+ * Casilla de verificación que admite estado indeterminado y posiciones de etiqueta.
+ *
+ * @param checked Si la casilla está marcada
+ * @param onChange Función llamada al cambiar el estado
+ * @param indeterminate Modo indeterminado visual
+ * @param disabled Deshabilitar interacción
+ * @param label Texto de etiqueta
+ * @param labelPosition Posición de la etiqueta (`left` o `right`)
+ * @param name Nombre del input
+ */
+
 export const Checkbox: React.FC<CheckboxProps> = ({
   checked,
   onChange,
