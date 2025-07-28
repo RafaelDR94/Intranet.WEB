@@ -1,6 +1,19 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
 
+:root {
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-nulshock: 'Nulshock', sans-serif;
+}
+
+@font-face {
+  font-family: 'Nulshock';
+  src: url('../assets/fonts/Nulshock-Regular.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+
 :root[data-theme='light'] {
 
   --color-black-100: #000000;

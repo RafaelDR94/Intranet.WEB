@@ -21,7 +21,10 @@ const preview: Preview = {
       }
 
       return (
-        <div className="p-4 min-h-screen bg-[var(--color-gray-10)] text-[var(--color-foreground)]">
+        <div className="p-4 min-h-screen bg-[var(--color-gray-10)] text-[var(--color-foreground)]"
+        style={{
+          fontFamily: 'var(--font-montserrat), var(--font-nulshock)',
+        }}>
           <Story />
         </div>
       );
