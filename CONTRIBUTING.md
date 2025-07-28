@@ -49,6 +49,34 @@
    - Haz push de tu rama y abre el PR **contra** `dev`.  
    - Una vez aprobado, se fusiona en `dev`, luego se promueve a `staging` y finalmente a `main`.
 
+
+## 🧪 Control de calidad por commit
+
+Cada nueva funcionalidad debe incluir los siguientes elementos para ser revisada y aceptada:
+
+### ✅ Test unitario obligatorio
+- Cada nuevo componente debe tener su archivo `ComponentName.test.tsx` usando **Vitest**.
+- Las pruebas deben validarse con:
+  ```bash
+  npm run test
+  ```
+
+### ✅ Documentación con Storybook
+- Agrega o actualiza el archivo `ComponentName.stories.tsx` en formato **CSF3**.
+- Inicia Storybook para verificar:
+  ```bash
+  npm run storybook
+  ```
+
+### ✅ Cobertura de modos claro/oscuro
+- Todas las historias deben mostrar tanto `data-theme="light"` como `data-theme="dark"`.
+- Usa decoradores o componentes de envoltura si es necesario.
+
+### ✅ Tipado y estilo
+- Usa tipos con JSDoc en `types.ts` para permitir la generación automática de documentación (`autodocs`).
+- Mantén los estilos organizados en `styles.ts`.
+
+
 ## Actualización de CHANGELOG y versión
 
 Por cada cambio relevante:
@@ -73,3 +101,5 @@ Por cada cambio relevante:
  Feature: *Fix si es que es que fuese un Error
 - Registrar errores en el front-end, tanto en peticiones como en componentes, para proporcionar mejor diagnóstico y soluciones. (Bruno Mendoza) [#592](https://github.com/tu-org/tu-repo/pull/592)
 ```
+
+Un PR que no incluya pruebas, documentación o typings no será aprobado.

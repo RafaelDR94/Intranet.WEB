@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { DynamicForm } from '../components/DynamicForm/DynamicForm(Original)';
+import { DynamicForm } from '../components/DynamicForm/DynamicForm';
 import type { FieldModel } from '../components/DynamicForm/types';
 import { useTheme } from '../context/ThemeContext/ThemeContext';
 import { ToggleButton } from '../components/ToogleButton.tsx/ToogleButton';

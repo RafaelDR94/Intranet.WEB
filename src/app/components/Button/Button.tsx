@@ -6,6 +6,17 @@ import ArrowUp from '@/assets/icons/navegacion/arrow-up.svg'
 import { ButtonProps } from './types'
 import { baseClasses, sizeMap, variantMap } from './styles'
 
+
+/**
+ * Botón reutilizable con soporte para variantes de tamaño, color y dirección de flecha.
+ * 
+ * @param variant Variante visual del botón (`solid`, `outline`, etc.)
+ * @param size Tamaño del botón (`small`, `medium`, `large`)
+ * @param arrowDirection Dirección del ícono flecha (`right`, `up`)
+ * @param iconOnly Si es solo ícono sin texto
+ * @param disabled Si está deshabilitado
+ */
+
 export const Button: React.FC<ButtonProps> = ({
   variant = 'solid',
   size = 'medium',

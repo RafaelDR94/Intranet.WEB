@@ -10,3 +10,8 @@ Feature:
 Feature:
 -To get all components tested with vitest
 (Bruno Mendoza) [#2](https://github.com/DR-Mexico/dr.intranet.web/pull/2)
+
+### 1.2.0 Story Book configuration 28-07-2024
+Feature:
+-To be able to make components documentation. To have a better quality control
+(Bruno Mendoza) [#3](https://github.com/DR-Mexico/dr.intranet.web/pull/3)

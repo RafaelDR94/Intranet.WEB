@@ -91,4 +91,30 @@ Para mantener la coherencia y facilitar la navegación por el código, seguimos 
 
 Estas convenciones ayudan a que cualquier desarrollador encuentre rápidamente dónde buscar o añadir código, manteniendo la base ordenada y predecible.  
 
+### Control de calidad y validación de componentes
+
+Para que un nuevo componente o funcionalidad sea aceptada en `dev`, debe cumplir con:
+
+1. **Test unitarios con Vitest**  
+   - Cada componente debe incluir un archivo `ComponentName.test.tsx`.
+   - Las pruebas deben cubrir al menos la renderización y comportamiento básico.
+
+2. **Documentación en Storybook**  
+   - Cada componente debe tener un archivo `ComponentName.stories.tsx` en formato CSF3.
+   - Se deben definir al menos una historia en modo claro (`LightMode`) y otra en modo oscuro (`DarkMode`), usando `data-theme`.
+
+3. **Tipado completo con TypeScript**  
+   - Las props deben estar definidas en `types.ts` con JSDoc para autodocs.
+   - No se permiten props `any` o implícitas.
+
+4. **Estilos encapsulados**  
+   - Los estilos deben estar definidos en `styles.ts` como clases de Tailwind.
+5. **Separación de lógica**  
+   - Cada componente debe tener su hook personalizado, para tener el renderizado aparte de la logica. 
+6. **Creación de contexto (En caso de ser una pagina)**  
+   - Al momento de crear una nueva pagina o subpagina debemos de crear un contexto donde se manejaran estados globales que puedan ser integrados en todos los componentes de la página. 
+7. **Funciones reutilizables o muy largas dentro de la carpeta utilites del componente**  
+   - Cuando la lógica es muy compleja, y creemos funciones reutilizables o muy largas deberan ser creadas en la carpeta utilities, y deben ser centralizadas por medio de un hook personalizado. 
+
+
 Seguir esta guía garantiza una base de código consistente y fácil de mantener.
