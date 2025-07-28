@@ -1,6 +1,21 @@
+/**
+ * Tipos de alerta disponibles.
+ * - `default`: Estado neutro
+ * - `success`: Operación exitosa
+ * - `info`: Información adicional
+ * - `warning`: Advertencia al usuario
+ * - `error`: Operación fallida
+ */
 export type AlertType = 'default' | 'success' | 'info' | 'warning' | 'error'
+
+/**
+ * Variantes de estilo de la alerta.
+ * - `filled`: Fondo sólido y texto claro
+ * - `subtle`: Fondo claro y borde
+ */
 export type AlertVariant = 'filled' | 'subtle'
 
+/** Props del componente `Alert`. */
 export interface AlertProps {
   /** Tipo de alerta */
   type?: AlertType
