@@ -1,5 +1,6 @@
 'use client';
 
+import { PopUp } from '../PopUp/PopUp';
 // import { DynamicForm, FieldModel } from './DynamicForm(Original)';
 import { SelectOption } from '../Select/types';
 import { DynamicForm } from './DynamicForm';
@@ -116,7 +117,7 @@ export default function FormTestPage() {
     return (
         <div className="min-h-screen py-10 px-4">
             <DynamicForm
-                title="Formulario de Pruebas con Warnings y Condicionales"
+            
                 fields={fields}
                 submitLabel="Enviar"
                 onSubmit={(values) => {

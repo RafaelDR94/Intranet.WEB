@@ -14,7 +14,7 @@ const montserrat = Montserrat({
 const nulshock = localFont({
   src: [
     {
-      path: '/fonts/Nulshock-Regular.ttf',
+      path: '../assets/fonts/Nulshock-Regular.ttf',
       weight: '600',
       style: 'normal',
     },

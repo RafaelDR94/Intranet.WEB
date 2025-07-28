@@ -10,6 +10,9 @@ vi.mock('@/assets/icons/navegacion/nav-arrow-right.svg', () => ({
 vi.mock('@/assets/icons/navegacion/arrow-up.svg', () => ({
   default: (props: any) => <svg data-testid="icon-up" {...props} />,
 }))
+vi.mock('@/assets/icons/acciones/cancel.svg', () => ({
+  default: (props: any) => <svg data-testid="icon-cancel" {...props} />,
+}))
 
 import { Button } from './Button'
 
@@ -27,7 +30,10 @@ describe('Button component', () => {
     expect(icon).toHaveClass('ml-2')          // ahora pasará
     expect(icon).toHaveClass('transition-transform')
   })
-
+  it('renderiza ícono de cancelar cuando arrowDirection="cancel"', () => {
+  render(<Button arrowDirection="cancel">Cancelar</Button>)
+  expect(screen.getByTestId('icon-cancel')).toBeInTheDocument()
+  })
   it('soporta diferentes variantes y tamaños', () => {
     render(<Button variant="outline" size="large">Hola</Button>)
     const btn = screen.getByRole('button')

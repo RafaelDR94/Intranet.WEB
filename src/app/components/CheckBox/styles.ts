@@ -20,5 +20,5 @@ export function checkboxClasses({ checked, indeterminate, disabled }: Pick<Check
 
 export const indicatorClass = 'w-3 h-0.5 rounded-sm bg-current'
 export const checkmarkClass = 'fill-current text-white-100'
-export const labelTextBase = 'text-b3 select-none'
+export const labelTextBase = 'text-b3 text-green-90 select-none'
 export const labelTextDisabled = 'text-green-90'

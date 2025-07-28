@@ -26,8 +26,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   /** Tamaño del botón (`giant`, `large`, `medium`, `small`, `xsmall`) */
   size?: Size;
 
-  /** Dirección del ícono de flecha (`right` o `up`) */
-  arrowDirection?: 'right' | 'up';
+  /** Dirección del ícono de flecha (`right`, `up` o `cancel`) */
+  arrowDirection?: 'right' | 'up' | 'cancel';
 
   /** Si el botón debe mostrar solo ícono (sin texto) */
   iconOnly?: boolean;

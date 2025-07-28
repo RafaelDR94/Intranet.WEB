@@ -3,7 +3,7 @@ import type { RuleSetRule } from 'webpack';
 
 const config: StorybookConfig = {
   stories: [
-    '../src/app/components/**/*.stories.@(js|jsx|ts|tsx)',
+    '../src/app/**/*.stories.@(js|jsx|ts|tsx)',
   ],
   addons: [
     '@storybook/addon-essentials',
@@ -21,7 +21,7 @@ const config: StorybookConfig = {
       },
     },
   },
-  staticDirs: ['../public'],
+  staticDirs: ['../public', '../src/assets'],
   core: { builder: 'webpack5' },
 
   webpackFinal: async (cfg) => {
