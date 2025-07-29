@@ -4,7 +4,7 @@ import { useState } from "react";
 import { SelectOption } from "../Select/types";
 import { DynamicForm } from "./DynamicForm";
 import { FieldModel } from "./types";
-import { Tab } from "../Tab/Tab";
+import { Tooltip } from "../Tooltip/Tooltip";
 
 const colorOptions: SelectOption[] = [
   { label: "Rojo", value: "rojo" },
@@ -119,10 +119,25 @@ export default function FormTestPage() {
         }}
         secondaryButtonLabel="Previsualizar"
       />
-      <div className="space-x-3 p-4">
-        <Tab label="Label lalalalaa" onClick={() => console.log("Tab clicked")} />
-
-        <Tab label="Disabled" disabled onClick={() => console.log("Tab clicked")}  />
+      <div className="flex items-center">
+        <Tooltip text="Este es un Tooltip" position="bottom">
+          <button className="bg-gray-70 text-white px-4 py-2 rounded">Abajo</button>
+        </Tooltip>
+      </div>
+      <div className="flex items-center mt-4">
+        <Tooltip text="Este es un Tooltip" position="top">
+          <button className="bg-gray-70 text-white px-4 py-2 rounded">Arriba</button>
+        </Tooltip>
+      </div>
+      <div className="flex items-center mt-4">
+        <Tooltip text="Este es un Tooltip" position="right">
+          <button className="bg-gray-70 text-white px-4 py-2 rounded">Izquierda</button>
+        </Tooltip>
+      </div>
+      <div className="flex items-center mt-4">
+        <Tooltip text="Este es un Tooltip" position="left">
+          <button className="bg-gray-70 text-white px-4 py-2 rounded">Derecha</button>
+        </Tooltip>
       </div>
     </div>
   );
