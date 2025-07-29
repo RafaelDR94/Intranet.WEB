@@ -2,6 +2,7 @@
 import * as Yup from 'yup';
 import type { NumberSchema, AnyObject, Flags } from 'yup';
 import { FieldModel } from '../types';
+/** Genera un esquema Yup a partir de los campos. */
 
 export const getValidationSchema = (fields: FieldModel[]) => {
   return Yup.object(

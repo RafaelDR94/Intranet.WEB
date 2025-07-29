@@ -1,5 +1,6 @@
 import { FieldModel } from '../types';
 
+/** Obtiene los valores iniciales para un conjunto de campos. */
 export const getInitialValues = (fields: FieldModel[]) => {
   return fields.reduce((acc, field) => {
     switch (field.type) {

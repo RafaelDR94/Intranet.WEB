@@ -25,3 +25,7 @@ Feature:
 Feature:
 - To have principal proyect configuration and a guide to generate documentation.
 (Bruno Mendoza Ruiz) [#7](https://github.com/DR-Mexico/dr.intranet.web/pull/7)
+### 1.5.0 Hooks and utilities tests 2025-08-30
+Feature:
+- Added tests and MDX documentation for hooks, contexts and utilities.
+(Agente IA) [#8] (https://github.com/DR-Mexico/dr.intranet.web/pull/8)

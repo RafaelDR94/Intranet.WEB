@@ -1,9 +1,14 @@
 import { useState, useEffect, useRef } from "react";
+
+/** Propiedades del hook `useSelect`. */
 interface UseSelectProps {
     multiple: boolean
     onChange: (values: string[]) => void;
     selected: string[];
 }
+/**
+ * Maneja el estado de un componente Select.
+ */
 const useSelect = ({ multiple, onChange, selected }: UseSelectProps) => {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
