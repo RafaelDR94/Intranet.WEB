@@ -104,5 +104,28 @@ Por cada cambio relevante:
 4. **Commit de CHANGELOG y versión** en la misma rama antes de fusión.
 5. **Fusiona** el PR; así el historial refleja el cambio de versión y el registro en el changelog.
 
+# Contributing - PWA
+
+## Para modificar el Service Worker
+
+1. Edita `src/sw.ts` con las rutas y estrategias deseadas.
+2. El build lo transformará automáticamente en `public/sw.js`.
+
+## Notificaciones Push
+
+- El SW ya está preparado para usar Firebase Messaging en background.
+- Asegúrate de tener el SDK cargado y configurado.
+
+## Recomendaciones
+
+- Usa `NetworkFirst` para recursos críticos (API, JS).
+- Usa `StaleWhileRevalidate` para imágenes.
+- Limita el tamaño de caché con `ExpirationPlugin`.
+
+## Debug
+
+- Usa DevTools → Application → Service Workers.
+- Verifica mensajes en consola `[SW]`.
+
 
 Un PR que no incluya pruebas, documentación o typings no será aprobado.

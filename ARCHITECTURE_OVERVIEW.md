@@ -3,6 +3,9 @@
 
 Este proyecto es una aplicación de **Next.js** organizada bajo el directorio `src/`. La carpeta principal `app/` contiene la estructura de rutas, estilos globales y todos los componentes y estructuras que componen la UI y lógica compartida.
 
+Se incluyen configuraciones relevantes para la funcionalidad PWA y uso de `service worker` personalizado.
+
+
 ---
 
 ## 📁 Estructura General del Proyecto
@@ -42,6 +45,34 @@ Contextos globales para compartir estado en la aplicación. Cada contexto puede 
 > También puede incluir ejemplos en `*.stories.tsx` o solo `*.docs.mdx` si es una lógica sin UI.
 
 ---
+
+## Configuración PWA
+```ts
+const withPWA = require("next-pwa")({
+  dest: "public",
+  register: false,
+  skipWaiting: true,
+  disable: false,
+  sw: 'sw.js',
+  swSrc: 'src/sw.ts',
+});
+```
+## Estructura relevante
+- `/public/manifest.webmanifest`: define el manifiesto web PWA.
+- `/public/sw.js`: archivo de salida del service worker.
+- `/src/sw.ts`: archivo fuente del service worker personalizado.
+- `/components/ServiceWorkerRegister/ServiceWorkerRegister.tsx`: registra dinámicamente el SW.
+- `next.config.js`: configuración de `next-pwa` con `injectManifest`.
+
+## Consideraciones importantes
+- Modo `injectManifest` permite controlar completamente el comportamiento del service worker.
+- El SW escucha `CACHE_ONLY_MODE` desde la app para cambiar estrategias de caché.
+- Se usa Workbox con estrategias: `NetworkFirst`, `StaleWhileRevalidate`, `ExpirationPlugin`.
+
+## Firebase
+- Se configura `firebase-messaging` directamente en el SW.
+- Soporte para notificaciones push (background).
+
 
 ### Contextos por página (locales)
 

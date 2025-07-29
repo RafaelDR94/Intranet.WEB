@@ -1,10 +1,11 @@
-import { intranetClient, isProduction } from "../../../Axios/Clients";
+
+import { intranetClient ,isProduction} from "@/app/configurations/Axios/Clients";
 import { FirebaseRealtimeHelper } from "./useFirebaseRealTimeHelpet";
 import { Database } from "firebase/database";
 import { useEffect, useRef } from "react";
 import { User } from "../../AuthContext/types";
-import { currentDateDataBase, getTime } from "../../../Helpers/Dateshelper";
 
+import { currentDateDataBase,getTime } from "@/app/utilities/DatesHelper/Dateshelper";
 interface Uselogsprops {
     firebaserealtime: FirebaseRealtimeHelper;
     database: Database | null

@@ -4,6 +4,8 @@ import localFont from 'next/font/local'
 import './globals.css'
 import { ThemeProvider } from './context/ThemeContext/ThemeContext'
 import ThemeInitializer from './context/ThemeContext/ThemeInitializet'
+import ServiceWorkerRegister from './components/ServiceWorkerRegister/ServiceWorkerRegister'
+import type { Metadata } from 'next'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -22,7 +24,15 @@ const nulshock = localFont({
   ],
   variable: '--font-nulshock',
 })
-
+export const metadata: Metadata = {
+  title: 'Intranet DR',
+  description: 'Esta es la intranet de DR',
+  manifest: '/manifest.webmanifest',
+  icons: [
+    { rel: 'icon', url: '/DRUso2.png' },
+    { rel: 'apple-touch-icon', url: '/DRUso2.png' },
+  ],
+}
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
@@ -30,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           {/* Sincroniza el atributo data-theme en <html> */}
           <ThemeInitializer />
+          <ServiceWorkerRegister/>
           {children}
         </ThemeProvider>
       </body>
