@@ -40,7 +40,6 @@
    Antes de abrir el pull request, ejecuta:
    ```bash
    npm install      # instalar dependencias
-   npm run lint     # revisar estilo de código
    npm run build    # asegurar que el proyecto compile
    npm run test     # ejecutar pruebas con Vitest
    ```
@@ -63,6 +62,7 @@ Cada nueva funcionalidad debe incluir los siguientes elementos para ser revisada
 
 ### ✅ Documentación con Storybook
 - Agrega o actualiza el archivo `ComponentName.stories.tsx` en formato **CSF3**.
+- Para no renderizables como hooks y 
 - Inicia Storybook para verificar:
   ```bash
   npm run storybook
@@ -76,6 +76,16 @@ Cada nueva funcionalidad debe incluir los siguientes elementos para ser revisada
 - Usa tipos con JSDoc en `types.ts` para permitir la generación automática de documentación (`autodocs`).
 - Mantén los estilos organizados en `styles.ts`.
 
+## 🔄 Validación de mappings y tipos
+
+Al agregar un nuevo dominio (como `users`, `projects`, `devices`, etc.), asegúrate de:
+
+1. Crear una carpeta con el nombre del dominio en `mappings/`
+2. Agregar un archivo `*.types.ts` con todos los tipos estrictos necesarios.
+3. Agregar un archivo `*.mapper.ts` con funciones como `mapUserFromApi()` o similares.
+4. Validar que no se utilice `any` implícito en ninguna parte del mapeo.
+5. Importar siempre los tipos desde `*.types.ts`, nunca definir tipos en el archivo de mapper.
+6. Evita archivos `index.ts` en esta estructura, para claridad por dominio.
 
 ## Actualización de CHANGELOG y versión
 
@@ -94,12 +104,5 @@ Por cada cambio relevante:
 4. **Commit de CHANGELOG y versión** en la misma rama antes de fusión.
 5. **Fusiona** el PR; así el historial refleja el cambio de versión y el registro en el changelog.
 
-### Ejemplo de entrada en CHANGELOG
-
-```markdown
-## [6.2.0] Feature - 2025-07-25
- Feature: *Fix si es que es que fuese un Error
-- Registrar errores en el front-end, tanto en peticiones como en componentes, para proporcionar mejor diagnóstico y soluciones. (Bruno Mendoza) [#592](https://github.com/tu-org/tu-repo/pull/592)
-```
 
 Un PR que no incluya pruebas, documentación o typings no será aprobado.

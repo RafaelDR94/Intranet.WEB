@@ -1,0 +1,90 @@
+
+
+
+export const month = () => {
+        const today = new Date();
+        const month = today.getMonth() + 1;
+        return (month < 10) ? ("0" + month) : month
+}
+export const date = () => {
+        const today = new Date();
+        const date = today.getDate();
+        return (date < 10) ? ("0" + date) : date
+}
+export const year = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        return (year < 10) ? ("0" + year) : year
+}
+export const currentDate = () => { return year() + "-" + month() + "-" + date(); }
+export const currentDateDataBase = () => { return year() + "/" + month() + "/" + date(); }
+export const getHour = (): string => {
+        const today = new Date();
+        const hour = today.getHours();
+        return (hour < 10) ? ("0" + hour) : hour.toString();
+}
+export const getMinutes = (): string => {
+        const today = new Date();
+        const minutes = today.getMinutes();
+        return (minutes < 10) ? ("0" + minutes) : minutes.toString();
+}
+
+export const getSeconds = (): string => {
+        const today = new Date();
+        const seconds = today.getSeconds();
+        return (seconds < 10) ? ("0" + seconds) : seconds.toString();
+}
+
+export const getTime = (): string => {
+        return `${getHour()}:${getMinutes()}:${getSeconds()}`;
+}
+
+export const getCurrentDateTime = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+export interface urlsfilterdinterface {
+        onlydates: string;
+        withtimefilter: string;
+        withterminalfilter: string;
+        onlydatesintermedial: string;
+}
+
+export const todayFilters = (): urlsfilterdinterface => {
+        let onlydates = "?StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
+        let onlydatesintermedial = "&StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
+        let withtimefilter = "?StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&filter=H"
+        let withterminalfilter = "?StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&Terminals=1"
+        return { onlydates, withtimefilter, withterminalfilter, onlydatesintermedial }
+}
+
+export const monthFilters = (): urlsfilterdinterface => {
+        let onlydates = "?StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
+        let onlydatesintermedial = "&StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
+        let withtimefilter = "?StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&filter=D"
+        let withterminalfilter = "?StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&Terminals=1"
+        return { onlydates, withtimefilter, withterminalfilter, onlydatesintermedial }
+}
+
+export const yearsFilters = (): urlsfilterdinterface => {
+        let onlydates = "?StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
+        let onlydatesintermedial = "&StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
+        let withtimefilter = "?StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&filter=M"
+        let withterminalfilter = "StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&Terminals=1"
+        return { onlydates, withtimefilter, withterminalfilter, onlydatesintermedial }
+}
+
+export const  formatDateHour=(fechaStr: string): string =>{
+        //Solo para fechas con el siguiente formato 2025-04-23 16:47:20.66"
+        const [fecha, horaCompleta] = fechaStr.split(" ");
+        const [hora, minuto] = horaCompleta.split(":");
+        return `${fecha} ${hora}:${minuto}`;
+      }
+
+
+
