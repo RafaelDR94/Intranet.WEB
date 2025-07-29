@@ -3,6 +3,10 @@ import { getInitialValues } from '../utilities/getInitialValues';
 import { getValidationSchema } from '../utilities/getValidationSchema';
 import { cleanHiddenFields } from '../utilities/cleanHiddenFields';
 import { resolveVariant } from '../utilities/resolveVariant';
+
+/**
+ * Genera utilidades para un formulario dinámico basado en campos.
+ */
 export const useDynamicForm = (fields: FieldModel[]) => {
   // 1) Valores iniciales
   const initialValues = getInitialValues(fields);

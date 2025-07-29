@@ -237,6 +237,166 @@ La arquitectura de estilos utiliza Tailwind CSS extendido con una configuración
 7. Archivo de pruebas `ComponentName.test.tsx`.
 8. Historias de Storybook `ComponentName.stories.tsx`.
 
+## 🤩 Patrones de Composición Recomendados
+
+Estos patrones ayudan a construir componentes más reutilizables, legibles y escalables. A continuación se resumen los principales, indicando si ya se aplican en este proyecto, si se recomienda su uso, y en qué contextos aplican mejor.
+
+### 📊 Tabla Resumen
+
+| Patrón | ¿Aplicado? | ¿Recomendado? | Aplicar en… |
+| ------ | ---------- | ------------- | ----------- |
+|        |            |               |             |
+
+| **Custom Hooks**                  | ✅ Sí       | ✅ Muy alto | Lógica reutilizable: auth, formularios, fetch  |
+| --------------------------------- | ---------- | ---------- | ---------------------------------------------- |
+| **Container-Presenter**           | ✅ Sí       | ✅ Muy alto | Separar lógica y presentación visual           |
+| **Compound Components**           | 🔶 Parcial | ✅ Muy alto | Tabs, Dropdown, Form, Modal, etc.              |
+| **Control Props**                 | 🔶 Parcial | ✅ Muy alto | Modal, Inputs complejos, Select, Toggle        |
+| **Controlled/Uncontrolled**       | ✅ Sí       | ✅ Medio    | Formularios y campos de entrada                |
+| **Higher-Order Components (HOC)** | ❌ No       | ⚠️ Bajo    | Evitar salvo casos excepcionales               |
+| **Render Props**                  | ❌ No       | ⚠️ Bajo    | Solo cuando sea necesaria flexibilidad extrema |
+
+---
+
+### 📘 Descripción de Patrones
+
+#### ✅ 1. **Custom Hooks**
+
+**¿Qué es?**\
+Encapsula lógica reutilizable en funciones `useX()` para separar responsabilidades y evitar duplicación.
+
+**¿Cómo usarlo?**\
+Ubicar los hooks en `hooks/useX/` o dentro del componente/contexto que lo usa.
+
+```tsx
+// hooks/useUser.ts
+export const useUser = () => {
+  const [user, setUser] = useState(null);
+  // lógica...
+  return { user, setUser };
+};
+```
+
+---
+
+#### ✅ 2. **Container-Presenter Pattern**
+
+**¿Qué es?**\
+Separa la lógica del componente (estado, efectos, servicios) del componente de presentación (solo props y JSX).
+
+**¿Cómo usarlo?**
+
+```tsx
+// UserContainer.tsx
+const UserContainer = () => {
+  const { data } = useFetchUsers();
+  return <UserList users={data} />;
+};
+
+// UserList.tsx
+const UserList = ({ users }) => <ul>{users.map(u => <li>{u.name}</li>)}</ul>;
+```
+
+---
+
+#### ✅ 3. **Compound Components**
+
+**¿Qué es?**\
+Agrupa múltiples componentes que comparten un mismo estado/contexto en una API declarativa.
+
+**¿Cómo usarlo?**
+
+```tsx
+<Tabs>
+  <Tabs.List>
+    <Tabs.Trigger value="tab1" />
+    <Tabs.Trigger value="tab2" />
+  </Tabs.List>
+  <Tabs.Content value="tab1" />
+</Tabs>
+```
+
+**¿Dónde aplicarlo?**\
+Ideal en `Tabs`, `Select`, `Accordion`, `Form`.
+
+---
+
+#### ✅ 4. **Control Props**
+
+**¿Qué es?**\
+Permite al consumidor controlar el estado del componente desde afuera (por ejemplo `isOpen`, `value`), manteniendo la opción de control interno por defecto.
+
+**¿Cómo usarlo?**
+
+```tsx
+const Modal = ({ isOpen: controlledOpen, onClose }) => {
+  const [internalOpen, setOpen] = useState(false);
+  const isOpen = controlledOpen ?? internalOpen;
+
+  return isOpen ? <div onClick={onClose}>...</div> : null;
+};
+```
+
+---
+
+#### ✅ 5. **Controlled vs Uncontrolled Components**
+
+**¿Qué es?**
+
+- **Controlado:** el estado lo maneja el padre vía props (`value`, `onChange`).
+- **No controlado:** usa `ref` interno para leer valores.
+
+**Ejemplo controlado:**
+
+```tsx
+<input value={name} onChange={e => setName(e.target.value)} />
+```
+
+**Ejemplo no controlado:**
+
+```tsx
+<input ref={inputRef} />
+```
+
+---
+
+#### ⚠️ 6. **Higher-Order Components (HOC)**
+
+**¿Qué es?**\
+Función que recibe un componente y devuelve un nuevo componente con lógica añadida.
+
+**¿Por qué evitarlo?**\
+Más difícil de testear y tipar que hooks. Usa `useX()` o contextos en su lugar.
+
+**Ejemplo típico (no recomendado hoy):**
+
+```tsx
+const withLogger = (Component) => (props) => {
+  useEffect(() => console.log('Mounted'));
+  return <Component {...props} />;
+};
+```
+
+---
+
+#### ⚠️ 7. **Render Props**
+
+**¿Qué es?**\
+Pasa una función `render` como prop para permitir renderizado personalizado desde el consumidor.
+
+**¿Por qué evitarlo?**\
+Genera nesting excesivo y es menos legible que `custom hooks` o `Compound Components`.
+
+**Ejemplo:**
+
+```tsx
+<MouseTracker render={({ x, y }) => <p>Posición: {x}, {y}</p>} />
+```
+
+---
+
+> ⚠️ Usa HOC y Render Props solo cuando no sea posible lograrlo con `custom hooks` o `context`.
+
 
 ---
 

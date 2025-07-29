@@ -1,40 +1,49 @@
 
 
 
+/** Obtiene el mes actual con dos dígitos. */
 export const month = () => {
         const today = new Date();
         const month = today.getMonth() + 1;
         return (month < 10) ? ("0" + month) : month
 }
+/** Obtiene el día del mes con dos dígitos. */
 export const date = () => {
         const today = new Date();
         const date = today.getDate();
         return (date < 10) ? ("0" + date) : date
 }
+/** Obtiene el año actual. */
 export const year = () => {
         const today = new Date();
         const year = today.getFullYear();
         return (year < 10) ? ("0" + year) : year
 }
+/** Fecha en formato YYYY-MM-DD. */
 export const currentDate = () => { return year() + "-" + month() + "-" + date(); }
+/** Fecha en formato YYYY/MM/DD. */
 export const currentDateDataBase = () => { return year() + "/" + month() + "/" + date(); }
+/** Hora en formato HH. */
 export const getHour = (): string => {
         const today = new Date();
         const hour = today.getHours();
         return (hour < 10) ? ("0" + hour) : hour.toString();
 }
+/** Minutos en formato MM. */
 export const getMinutes = (): string => {
         const today = new Date();
         const minutes = today.getMinutes();
         return (minutes < 10) ? ("0" + minutes) : minutes.toString();
 }
 
+/** Segundos en formato SS. */
 export const getSeconds = (): string => {
         const today = new Date();
         const seconds = today.getSeconds();
         return (seconds < 10) ? ("0" + seconds) : seconds.toString();
 }
 
+/** Hora completa en formato HH:MM:SS. */
 export const getTime = (): string => {
         return `${getHour()}:${getMinutes()}:${getSeconds()}`;
 }

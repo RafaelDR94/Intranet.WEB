@@ -1,4 +1,5 @@
 import { FieldModel } from "../types";
+/** Limpia los valores de campos ocultos. */
 export const cleanHiddenFields = (fields: FieldModel[], values: Record<string, any>) => {
   const cleanedValues = { ...values };
 
