@@ -228,6 +228,35 @@ Cada vez que prepares un release:
 
 ---
 
+# PWA Setup
+
+Este proyecto tiene soporte completo para Progressive Web App (PWA) usando:
+
+- `next-pwa`
+- `Workbox`
+- `custom service worker` (`src/sw.ts`)
+
+## ¿Cómo funciona?
+
+- El `next.config.js` usa `injectManifest` para que `src/sw.ts` sea procesado.
+- El service worker generado se guarda como `public/sw.js`.
+- Se registra dinámicamente en `ServiceWorkerRegister.tsx`.
+
+## Modo desarrollo
+
+En desarrollo, `next-pwa` no cachea por defecto. Se puede activar temporalmente ajustando:
+```ts
+disable: false
+```
+
+## Modo producción (local)
+
+```bash
+npm run build
+npm run start
+```
+
+
 ## 🤝 Contribuir
 
 Para más detalles sobre cómo contribuir, revisa **CONTRIBUTING.md**.

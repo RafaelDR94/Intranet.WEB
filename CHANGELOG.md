@@ -25,7 +25,12 @@ Feature:
 Feature:
 - To have principal proyect configuration and a guide to generate documentation.
 (Bruno Mendoza Ruiz) [#7](https://github.com/DR-Mexico/dr.intranet.web/pull/7)
-### 1.5.0 Hooks and utilities tests 2025-08-30
+### 1.5.0 Hooks and utilities tests 2025-08-29
 Feature:
 - Added tests and MDX documentation for hooks, contexts and utilities.
 (Agente IA) [#8] (https://github.com/DR-Mexico/dr.intranet.web/pull/8)
+
+### 1.6.0 Service Worker configuration 2025-08-29
+Feature:
+- To be able to recibe push notifications and to manage pwa
+(Bruno Mendoza) [#9] (https://github.com/DR-Mexico/dr.intranet.web/pull/9)
