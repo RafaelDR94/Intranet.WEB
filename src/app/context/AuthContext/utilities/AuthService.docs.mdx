@@ -1,0 +1,74 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="Context/AuthContext/AuthService" />
+
+# 🛡️ AuthService
+
+El módulo `AuthService` proporciona funciones auxiliares para autenticar usuarios, gestionar sesiones, OTPs, almacenamiento local y tokens.
+
+---
+
+## 🔐 Autenticación
+
+```ts
+authenticateUser(credentials, rememberMe, offlineMode): Promise<void>
+```
+
+- Inicia sesión desde backend o desde almacenamiento local (modo offline).
+- Guarda usuario actual y recordado si corresponde.
+
+---
+
+## 🔑 OTP
+
+```ts
+validateOTP(token, otp): Promise<User>
+```
+
+- Valida un código OTP contra el backend.
+
+```ts
+sendOTPEmail(token): Promise<User>
+```
+
+- Solicita el envío de OTP por correo electrónico.
+
+---
+
+## 💾 Persistencia
+
+```ts
+saveUser(user): Promise<void>
+readUser(): Promise<UserDoc | null>
+logoutUser(): Promise<void>
+```
+
+```ts
+saveLastUserRemebered(user): Promise<void>
+readUserRemebered(): Promise<UserDoc | null>
+forgetUser(): Promise<void>
+```
+
+- Permite guardar y recuperar usuarios activos o recordados.
+
+---
+
+## 📱 Dispositivo y Firebase
+
+```ts
+getDeviceId(): Promise<string>
+saveFirebaseToken(token): Promise<void>
+readFirebaseToken(): Promise<string | null>
+```
+
+- Identifica el dispositivo local o gestiona el token de Firebase.
+
+---
+
+### 📁 Archivos relacionados
+
+- `AuthContext.tsx`
+- `types.ts`
+- `usePermissions.ts`
+
+> Todas estas funciones están pensadas para ser usadas dentro del contexto de autenticación.

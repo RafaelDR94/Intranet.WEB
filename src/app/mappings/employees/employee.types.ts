@@ -1,0 +1,22 @@
+import { DepartmentType } from "../department/department.types";
+import { WorkPositionType } from "../workposition/workposition.types";
+import { UserType } from "../users/user.types";
+export type EmployeeType = {
+  employee_id: string;
+  employee_number: string;
+  firstname: string;
+  secondname: string;
+  lastname: string;
+  motherlast_name: string | null;
+  gender: string;
+  email: string;
+  phone_number: string;
+  extension: string;
+  image_url: string;
+  manager_id: string;
+  department: DepartmentType;
+  workposition: WorkPositionType;
+  user: UserType | null;
+  is_active: boolean;
+  fullname: string;
+};

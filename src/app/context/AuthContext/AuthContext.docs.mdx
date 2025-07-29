@@ -1,0 +1,89 @@
+import { Meta, Story } from '@storybook/addon-docs';
+
+<Meta title="Context/AuthContext/AuthContext" />
+
+# AuthContext
+
+El `AuthContext` proporciona un sistema de autenticación global para toda la aplicación.  
+Permite iniciar sesión, cerrar sesión, validar OTP, recordar usuarios y habilitar el modo offline persistente.
+
+> Este contexto debe envolver tu aplicación raíz usando el componente `<AuthProvider>`.
+
+---
+
+## 🔧 Uso básico
+
+```tsx
+import { AuthProvider } from '@/app/context/AuthContext';
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <MyRoutes />
+    </AuthProvider>
+  );
+}
+```
+
+---
+
+## ✨ ¿Qué proporciona el hook `useAuth()`?
+
+```ts
+type AuthContextType = {
+  user: User | null;
+  userRemebered: User | null;
+  token: string | null;
+  hasExpired: boolean;
+  remeberMe: boolean;
+  offlineMode: boolean;
+  login: (credentials: { email: string; password: string }) => Promise<void>;
+  logout: () => Promise<void>;
+  verifyOTP: (otp: string) => Promise<void>;
+  askforOTPemail: () => Promise<void>;
+  validLoggin: () => Promise<boolean>;
+  validPermissionsbyroute: (route: string) => boolean;
+  UpdateUser: (user: User) => Promise<void>;
+  setHasExpired: Dispatch<SetStateAction<boolean>>;
+  handleRemeberMe: (remember: boolean) => void;
+  handleForgetUser: () => Promise<void>;
+  handleOfflineMode: (offline: boolean) => void;
+  getRoutePermissions: (route: string) => any;
+  updateUserPermissions: (permissions: string) => Promise<void>;
+}
+```
+
+---
+
+## 🔐 Interceptores HTTP
+
+El contexto inyecta automáticamente el token en todas las peticiones realizadas con `intranetClient`, mediante interceptores de Axios.
+
+---
+
+## 🧠 Modo Offline
+
+El modo offline permite que el usuario pueda autenticarse localmente sin conexión, siempre que su sesión haya sido guardada anteriormente.
+
+```ts
+handleOfflineMode(true); // activa el modo offline
+```
+
+---
+
+## 📬 OTP y doble factor
+
+Funciones para manejo de OTP por correo electrónico:
+
+- `askforOTPemail()` – solicita un código por email.
+- `verifyOTP(code)` – valida el código ingresado.
+
+---
+
+## 🔁 Recordarme
+
+```ts
+handleRemeberMe(true);
+```
+
+Permite recordar al usuario localmente para autologin en modo offline.

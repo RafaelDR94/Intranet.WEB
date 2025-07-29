@@ -1,120 +1,243 @@
-## Visión general de la arquitectura
 
-Este proyecto es una aplicación de Next.js organizada bajo el directorio `src/`. La carpeta `app/` contiene los segmentos de rutas, el estilo global y los componentes de UI utilizados en toda la aplicación.
+# 📐 Architecture Overview
 
----
-
-### Componentes
-
-Los componentes reutilizables de UI viven en `src/app/components`. Cada componente tiene su propia carpeta, por ejemplo `Button/`, `Alert/` o `DynamicForm/`. Una carpeta de componente básica suele contener:
-
-- El archivo principal del componente React (`ComponentName.tsx`).
-- Cuando corresponda, un archivo `*Catalog.tsx` para pruebas manuales o documentación.
-
-**Importante:** en la carpeta de cada componente, los estilos deben ir en el archivo **`styles.ts`**.
-
-Algunos componentes más complejos, como `DynamicForm`, incluyen además:
-
-- **components/** – subcomponentes pequeños usados sólo por el componente padre.
-- **hooks/** – hooks personalizados de React relacionados con ese componente (p. ej. `useDynamicForm.tsx`).
-- **utilities/** – funciones auxiliares (helpers) usadas por el componente, como validadores o resolutores de campos.
-- **types.ts** – tipos TypeScript compartidos entre el componente, sus hooks y sus utilidades.
-- **styles.ts** – estilos extra del componente.
-El proyecto utiliza el alias de ruta `@/*` definido en `tsconfig.json` para importar archivos desde `src/`.
+Este proyecto es una aplicación de **Next.js** organizada bajo el directorio `src/`. La carpeta principal `app/` contiene la estructura de rutas, estilos globales y todos los componentes y estructuras que componen la UI y lógica compartida.
 
 ---
 
-### Estilos con Tailwind CSS
+## 📁 Estructura General del Proyecto
 
-Tailwind está configurado en `tailwind.config.js` e importado en `src/app/globals.css`. Los componentes se construyen con clases utilitarias en lugar de archivos CSS aislados. Los valores personalizados (colores, espaciados, tipografías, etc.) se definen en la configuración de Tailwind. Al crear un nuevo componente, usa clases de Tailwind y coloca cualquier estilo extra en su `styles.ts` dentro de la carpeta del componente.
+### `components/`
+Componentes reutilizables de UI. Cada uno vive en su propia carpeta:
+
+- `ComponentName.tsx`: componente principal.
+- `types.ts`: tipos TypeScript del componente.
+- `styles.ts`: estilos en Tailwind.
+- `hooks/`: hooks específicos del componente.
+- `utilities/`: helpers internos del componente.
+- `*.test.tsx`: pruebas unitarias.
+- `*.stories.tsx`: documentación en Storybook.
+- `*Catalog.tsx`: ejemplos manuales opcionales.
+
+### `configurations/`
+Configuración de librerías externas:
+
+- `Axios/`: cliente HTTP centralizado.
+- `Azure/`: autenticación u otros servicios de Microsoft.
+- `FirebaseContext/`: inicialización y configuración de Firebase.
+- `DataBase/`: configuración local de Dexie para IndexedDB.
+
+> Exponen instancias listas para usarse en cualquier parte de la app.
+
+### `context/`
+Contextos globales para compartir estado en la aplicación. Cada contexto puede incluir:
+
+- `ContextName.tsx`: implementación del `Provider`.
+- `types.ts`: tipos de datos del contexto.
+- `hooks/`: lógica reutilizable relacionada al contexto (`useContextName.ts`, `useLogic.ts`).
+- `utilities/`: funciones auxiliares internas.
+- `*.test.tsx`: pruebas unitarias del contexto.
+- `*.docs.mdx`: documentación técnica en Storybook.
+
+> También puede incluir ejemplos en `*.stories.tsx` o solo `*.docs.mdx` si es una lógica sin UI.
 
 ---
 
-### Hooks y utilidades
+### Contextos por página (locales)
 
-- Los hooks personalizados deben ir en la carpeta `hooks/` dentro del componente que los utiliza.
-- Las funciones o módulos reutilizables independientes deben ir en `utilities/`.
+Cada página en `app/` puede tener su propio contexto localizado en `app/<ruta>/context/`.
 
-Esto mantiene la lógica relacionada cerca de donde se usa, evitando archivos monolíticos.
+Estos contextos locales deben seguir la misma arquitectura modular definida para los contextos globales:
+
+```
+app/
+└── dashboard/
+    ├── context/
+    │   ├── DashboardContext.tsx
+    │   ├── types.ts
+    │   ├── hooks/
+    │   │   └── useDashboard.ts
+    │   └── utilities/
+    │       └── helpers.ts
+    ├── layout.tsx
+    └── page.tsx
+```
+
+
+**Reglas:**
+- Se utiliza solo para manejar estado y lógica que solo aplica a esa página y sus subrutas.
+- No se debe usar para compartir estado entre módulos no relacionados.
+- Puede importar servicios externos, utilidades y mappers según necesidad.
+
+### `hooks/`
+Hooks globales reutilizables independientes de componentes o contextos. Cada hook debe vivir en su propia carpeta:
+
+```
+hooks/
+└── useAuth/
+    ├── useAuth.ts
+    ├── useAuth.test.ts
+    └── useAuth.docs.mdx
+```
+
+> Si el hook es específico de un contexto o componente, colócalo en su carpeta respectiva (`hooks/` local).
+
+Cada hook debe tener:
+
+- `*.ts`: implementación.
+- `*.test.ts`: pruebas unitarias con mocks.
+- `*.docs.mdx`: documentación técnica (uso, props, retorno, errores esperados).
 
 ---
 
-### Cómo añadir nuevos componentes
+### `utilities/`
+Funciones globales reutilizables. Deben ser puras, sin estado y no deben depender de componentes.
 
-1. Crea una carpeta en `src/app/components` con el nombre de tu componente.
-2. Añade el archivo React principal (`ComponentName.tsx`).
-3. Si necesitas estilos extra, crea `styles.ts` que exporte clases de Tailwind o helpers de estilo.
-4. Define interfaces TypeScript reutilizables en `types.ts`.
-5. Coloca los tests unitarios en `ComponentName.test.tsx` dentro de la misma carpeta.
-6. Añade o actualiza un archivo `*Catalog.tsx` para ejemplos manuales, si es necesario.
-7. Para la logica dentro del componente siemore usamos hook personalizados alacenados en `hooks`dentro de la carpeta del componente. 
+- Ej: `dateHelper.ts`, `pictureHelper.ts`, `formatPermissions.ts`.
+- Documentadas con JSDoc.
+- Si son funciones críticas o compartidas, deben tener su archivo `.test.ts` y `.docs.mdx`.
 
-## Convenciones de nomenclatura
+Estructura sugerida para cada utilidad compartida:
 
-Para mantener la coherencia y facilitar la navegación por el código, seguimos estas reglas:
+```
+utilities/
+└── pictureHelper/
+    ├── index.ts
+    ├── pictureHelper.test.ts
+    └── pictureHelper.docs.mdx
+```
 
-- **Componentes**  
-  - Nombre en **PascalCase**, por ejemplo `Button`, `DynamicForm`, `Alert`.  
-  - Carpeta: `src/app/components/ComponentName/`.  
-  - Archivo principal: `ComponentName.tsx`.  
-  - Tests co-localizados: `ComponentName.test.tsx`.
+Cada componente o contexto también puede tener su carpeta `utilities/` si la lógica solo aplica en ese ámbito.
 
-- **Hooks personalizados**  
-  - Nombre en **camelCase**, siempre comenzando con `use`, p. ej. `useSelect`, `useDynamicForm`.  
-  - Archivo: `useHookName.ts` dentro de `components/ComponentName/hooks/`.
+### `mappings/`
+Cada dominio tiene su propia carpeta que contiene:
 
-- **Funciones utilitarias (utilities)**  
-  - Nombre descriptivo en **camelCase**, p. ej. `getInitialValues`, `cleanHiddenFields`, `resolveVariant`.  
-  - Ubicación: `components/ComponentName/utilities/`.
+```
+mappings/
+├── users/
+│   ├── user.types.ts
+│   └── user.mapper.ts
+├── employees/
+│   ├── employee.types.ts
+│   └── employee.mapper.ts
+├── departments/
+│   ├── department.types.ts
+│   └── department.mapper.ts
+...
+```
 
-- **Estilos**  
-  - Archivo único `styles.ts` dentro de cada componente.  
-  - Exportar objetos con nombres claros, p. ej. `baseStyles`, `checkboxClasses`, `dynamicFormStyles`.
+**Ventajas:**
+- Tipos y funciones de mapeo separados.
+- Claridad por dominio.
+- Escalable y mantenible a largo plazo.
 
-- **Tipos (types)**  
-  - Archivo `types.ts` en la carpeta del componente.  
-  - Interfaces y tipos en **PascalCase**, p. ej. `ButtonProps`, `SelectOption`, `FieldModel`.
+> Toda transformación de datos del backend debe hacerse a través de los archivos de `*.mapper.ts`. Los tipos deben ser consumidos desde `*.types.ts`.
 
-- **Catalogs / ejemplos manuales**  
-  - Archivos `ComponentNameCatalog.tsx` para demos o pruebas manuales, en la misma carpeta del componente.
+## 🧪 Testing con Vitest
 
-- **Tests**  
-  - Co-localizados con el componente (`ComponentName.test.tsx`).  
-  - Declarar la suite con el nombre del componente o la funcionalidad, p. ej.  
-    ```js
-    describe('Button component', () => { … })
-    ```
-    o
-    ```js
-    describe('DynamicForm – Escenarios adicionales', () => { … })
-    ```
+Todos los módulos reutilizables deben tener pruebas unitarias:
 
-Estas convenciones ayudan a que cualquier desarrollador encuentre rápidamente dónde buscar o añadir código, manteniendo la base ordenada y predecible.  
+| Tipo               | Archivo requerido      |
+|--------------------|------------------------|
+| Componentes        | `Component.test.tsx`   |
+| Contextos          | `Context.test.tsx`     |
+| Hooks              | `useX.test.ts`         |
+| Utilities críticas | `utility.test.ts`      |
 
-### Control de calidad y validación de componentes
+> Los tests deben incluir mocks necesarios para aislamiento. Usa `vi.mock(...)` para Axios, Dexie, etc.
 
-Para que un nuevo componente o funcionalidad sea aceptada en `dev`, debe cumplir con:
+---
 
-1. **Test unitarios con Vitest**  
-   - Cada componente debe incluir un archivo `ComponentName.test.tsx`.
-   - Las pruebas deben cubrir al menos la renderización y comportamiento básico.
+## 📖 Documentación con Storybook `.docs.mdx`
 
-2. **Documentación en Storybook**  
-   - Cada componente debe tener un archivo `ComponentName.stories.tsx` en formato CSF3.
-   - Se deben definir al menos una historia en modo claro (`LightMode`) y otra en modo oscuro (`DarkMode`), usando `data-theme`.
+Todos los módulos reutilizables deben incluir documentación técnica en Storybook:
 
-3. **Tipado completo con TypeScript**  
-   - Las props deben estar definidas en `types.ts` con JSDoc para autodocs.
-   - No se permiten props `any` o implícitas.
+| Tipo               | Archivo requerido      |
+|--------------------|------------------------|
+| Componentes        | `Component.docs.mdx`   |
+| Contextos          | `Context.docs.mdx`     |
+| Hooks              | `useX.docs.mdx`        |
+| Utilities clave    | `utility.docs.mdx`     |
 
-4. **Estilos encapsulados**  
-   - Los estilos deben estar definidos en `styles.ts` como clases de Tailwind.
-5. **Separación de lógica**  
-   - Cada componente debe tener su hook personalizado, para tener el renderizado aparte de la logica. 
-6. **Creación de contexto (En caso de ser una pagina)**  
-   - Al momento de crear una nueva pagina o subpagina debemos de crear un contexto donde se manejaran estados globales que puedan ser integrados en todos los componentes de la página. 
-7. **Funciones reutilizables o muy largas dentro de la carpeta utilites del componente**  
-   - Cuando la lógica es muy compleja, y creemos funciones reutilizables o muy largas deberan ser creadas en la carpeta utilities, y deben ser centralizadas por medio de un hook personalizado. 
+> Si el módulo no tiene UI (como `AuthService`), se documenta solo con `.docs.mdx`, sin necesidad de `*.stories.tsx`.
+
+---
+
+## 🎨 Estilos con Tailwind CSS
+
+La arquitectura de estilos utiliza Tailwind CSS extendido con una configuración personalizada definida en `tailwind.config.js`. La configuración está vinculada a `globals.css` mediante clases utilitarias, usando variables CSS para los temas `light` y `dark` controlados por `data-theme`.
+
+### Personalizaciones clave:
+
+- **Paleta de colores**: todas las categorías (`black`, `white`, `blue`, `green`, `turquoise`, `gray`, `alert-*`) se definen con niveles (`10` a `100`) y se vinculan con variables CSS para soportar temas.
+- **Tipografías**: se utilizan las fuentes `Montserrat` y `Nulshock`, definidas como variables CSS y aplicadas con la utilidad `fontFamily`.
+- **Sombras, espaciado y radios personalizados**: definidos como `boxShadow`, `spacing` y `borderRadius` en el `theme.extend`.
+- **Tamaños de fuente semánticos**: como `h1`, `h2`, `b1`, `c2`, `cta-large`, etc., definidos en `fontSize` con sus respectivas `lineHeight`.
+
+### Buenas prácticas:
+
+- Cada componente debe usar clases utilitarias de Tailwind para estilos base.
+- Los estilos adicionales deben agruparse en `styles.ts` dentro de la carpeta del componente.
+- Evitar clases CSS globales a menos que sea estrictamente necesario (como fuentes o color de fondo del `body`).
+
+---
+
+## ✍️ Convenciones de Nombres
+
+| Elemento                  | Convención                      | Ejemplo                        |
+|---------------------------|----------------------------------|-------------------------------|
+| Componentes               | `PascalCase`                    | `DynamicForm`, `Alert`        |
+| Hooks                     | `camelCase` con `use`           | `useSelect`, `useAuthContext` |
+| Tipos TypeScript          | `PascalCase`                    | `UserType`, `FieldModel`      |
+| Funciones utilitarias     | `camelCase`                     | `formatDate`, `getInitials`   |
+| Tests                     | `Nombre.test.tsx`               | `Button.test.tsx`             |
+| Ejemplos manuales         | `NombreCatalog.tsx`             | `InputCatalog.tsx`            |
+| Estilos                   | `styles.ts`                     | `checkboxStyles`              |
+
+---
+
+## ✅ Reglas de Calidad y Validación
+
+1. **Tests unitarios con Vitest**
+   - Archivo `*.test.tsx` obligatorio por componente.
+
+2. **Historias en Storybook**
+   - Al menos una en modo claro y otra en modo oscuro usando `data-theme`.
+
+3. **Tipado completo con TypeScript**
+   - Tipos en `types.ts`, sin `any` implícito.
+
+4. **Estilos encapsulados**
+   - Solo Tailwind, con estilos extra en `styles.ts`.
+
+5. **Separación de lógica**
+   - Lógica dentro de hooks (`useX.ts`) separados del render.
+
+6. **Uso de contextos por página o funcionalidad**
+   - Cada página o módulo importante debe tener su propio contexto si maneja estados compartidos.
+
+7. **Funciones reutilizables largas → `utilities/`**
+   - Cuando la lógica es extensa o se reutiliza en varios lugares.
+
+8. **Transformación de datos → `mappings/<dominio>/<dominio>.mapper.ts`**
+   - Toda respuesta del backend debe pasar por su respectivo mapper.
+
+> Para más detalles sobre pruebas, commits y control de calidad por PR, consulta [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+
+---
+
+## 🚀 Cómo crear un nuevo componente
+
+1. Crea una carpeta dentro de `components/`.
+2. Agrega el archivo principal `ComponentName.tsx`.
+3. Define las props en `types.ts`.
+4. Estilos adicionales en `styles.ts`.
+5. Hook personalizado en `hooks/useComponentLogic.ts`.
+6. Helpers extensos en `utilities/` si aplica.
+7. Archivo de pruebas `ComponentName.test.tsx`.
+8. Historias de Storybook `ComponentName.stories.tsx`.
 
 
-Seguir esta guía garantiza una base de código consistente y fácil de mantener.
+---
+
+Seguir esta guía garantiza una base de código modular, coherente y fácil de escalar en el tiempo. 🎯

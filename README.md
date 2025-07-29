@@ -58,15 +58,6 @@ Pendiente
 
 ---
 
-## 🔍 Linting
-
-Revisa el estilo de código y detecta errores estáticos con:
-
-```bash
-npm run lint
-```
-
----
 
 ## 📘 Storybook – Catálogo de componentes
 
@@ -135,6 +126,39 @@ Las pruebas deben mantenerse en la misma carpeta del componente para facilitar e
 - Los estilos específicos van en el archivo `styles.ts` de cada componente, con clases de Tailwind.
 
 ---
+## 🧠 Arquitectura de mapeo de datos
+
+Toda transformación de datos que proviene del backend debe hacerse dentro de la carpeta `mappings/`.
+
+La estructura es por dominio:
+
+```
+mappings/
+├── users/
+│   ├── user.types.ts     # Tipos TypeScript (UserType, etc.)
+│   └── user.mapper.ts    # Funciones de mapeo desde el backend
+├── employees/
+│   ├── employee.types.ts
+│   └── employee.mapper.ts
+...
+```
+
+- No se usan archivos `index.ts` en esta arquitectura.
+- Cada carpeta agrupa el tipo y la lógica de transformación para facilitar la escalabilidad y separación de responsabilidades.
+- No debe haber `any` en los tipos exportados.
+- Todo acceso de datos que viene del backend debe pasar por su `*.mapper.ts`.
+
+**Ejemplo:**
+
+```ts
+// employees/employee.mapper.ts
+
+export const mapEmployee = (data: any): EmployeeType => ({
+  employee_id: data.id,
+  fullname: `${data.firstname} ${data.lastname}`,
+  ...
+});
+```
 
 ## 🔄 Flujo de trabajo (GitFlow)
 

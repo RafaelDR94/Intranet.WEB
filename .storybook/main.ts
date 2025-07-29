@@ -3,15 +3,18 @@ import type { RuleSetRule } from 'webpack';
 
 const config: StorybookConfig = {
   stories: [
-    '../src/app/**/*.stories.@(js|jsx|ts|tsx)',
+    '../src/app/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+    '../src/app/**/*.docs.mdx', 
   ],
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-postcss',
     '@storybook/addon-a11y',
+    '@storybook/addon-docs'
   ],
   docs: {
     autodocs: 'tag', // o 'auto'
+     defaultName: 'Documentación',
   },
   framework: {
     name: '@storybook/nextjs',
