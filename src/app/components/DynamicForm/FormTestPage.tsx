@@ -5,6 +5,10 @@ import { SelectOption } from "../Select/types";
 import { DynamicForm } from "./DynamicForm";
 import { FieldModel } from "./types";
 import { Tooltip } from "../Tooltip/Tooltip";
+import { Control } from "../Control/Control";
+import PaginationDots from "../PaginationDots/PaginationDots";
+import { ProgressBar } from "../ProgressBar/ProgressBar";
+import CustomRadio from "../CustomRadio/CustomRadio";
 
 const colorOptions: SelectOption[] = [
   { label: "Rojo", value: "rojo" },
@@ -16,7 +20,7 @@ const languageOptions: SelectOption[] = [
   { label: "Español", value: "es" },
   { label: "Inglés", value: "en" },
   { label: "Francés", value: "fr" },
-  { label: "Latín", value: "la" }, // Warning esperado
+  { label: "Latín", value: "la" }, 
 ];
 
 const fields: FieldModel[] = [
@@ -102,8 +106,14 @@ const fields: FieldModel[] = [
 
 export default function FormTestPage() {
   const [activeTab, setActiveTab] = useState<number | null>(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const totalPages = 8;
+  const totalPages2 = 4;
+  const levels = [0, 20, 40, 60, 80, 100];
+  const [selected, setSelected] = useState('opcion2');
+
   return (
-    <div className="min-h-screen py-10 px-4">
+    <div className="min-h-screen py-10 px-4 bg-white-100">
       <DynamicForm
         fields={fields}
         submitLabel="Enviar"
@@ -139,6 +149,54 @@ export default function FormTestPage() {
           <button className="bg-gray-70 text-white px-4 py-2 rounded">Derecha</button>
         </Tooltip>
       </div>
+      <div className="mt-10">
+        <Control
+          value={5}
+          onIncrement={() => console.log("Incrementar")}
+          onDecrement={() => console.log("Decrementar")}
+          variant="outlined"
+        />
+      </div>
+      <div className="mt-10">
+        <Control
+          value={5}
+          onIncrement={() => console.log("Incrementar")}
+          onDecrement={() => console.log("Decrementar")}
+          variant="filled"
+        />
+      </div>
+      <div className="mt-10">
+        <PaginationDots
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
+      </div>
+      <div className="mt-10">
+        <PaginationDots
+        totalPages={totalPages2}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
+      </div>
+      <div className="grid grid-cols-2 gap-x-8 mt-10">
+        <ProgressBar value={60} showPercentage={true} />
+        <ProgressBar value={75} label="Avance" />
+    </div>
+    <div className="flex flex-col mt-10">
+      {['opcion1', 'opcion2', 'opcion3', 'opcion4'].map((val, idx) => (
+        <CustomRadio
+          key={val}
+          id={`radio-${val}`}
+          name="grupo1"
+          label={`Texto`}
+          value={val}
+          checked={selected === val}
+          onChange={setSelected}
+          disabled={val === 'opcion4'}
+        />
+      ))}
+    </div>
     </div>
   );
 }
