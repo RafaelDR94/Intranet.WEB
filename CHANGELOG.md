@@ -40,3 +40,8 @@ Feature:
 Feature:
 - To display a tooltip
 (Katherine Negrete A) [#10] (https://github.com/DR-Mexico/dr.intranet.web/pull/10)
+
+### 1.8.0 Creating ProgressBar, PaginationDots, Control, and CustomRadio components 30-07-2025
+Feature:
+- Reusable components were created for page creation.
+(Katherine Negrete A) [#13] (https://github.com/DR-Mexico/dr.intranet.web/pull/13)
