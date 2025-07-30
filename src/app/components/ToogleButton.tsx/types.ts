@@ -13,5 +13,7 @@ export interface ToggleButtonProps {
   label?: string
   /** Posición de la etiqueta */
   labelPosition?: LabelPosition
+  /**Color de la etuqueta */
+  labelColor?:string;
 }
 

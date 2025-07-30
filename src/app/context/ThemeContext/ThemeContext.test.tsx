@@ -1,6 +1,6 @@
 import React from "react"
 import { render, screen } from '@testing-library/react'
-import { describe,it,expect } from 'vitest'
+import { describe,it,expect ,vi} from 'vitest'
 import { ThemeProvider,useTheme } from './ThemeContext'
 import userEvent from '@testing-library/user-event'
 
@@ -8,7 +8,7 @@ function Test(){
   const {theme,toggleTheme}=useTheme()
   return <button onClick={toggleTheme}>{theme}</button>
 }
-
+vi.unmock('@/app/context/ThemeContext/ThemeContext');
 describe('ThemeContext',()=>{
   it('toggles theme',async()=>{
     const user=userEvent.setup()

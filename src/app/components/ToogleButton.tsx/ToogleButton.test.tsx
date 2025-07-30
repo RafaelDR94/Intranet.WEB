@@ -14,7 +14,7 @@ describe('ToggleButton component', () => {
 
     const wrapperDiv = checkbox.parentElement as HTMLElement
     // estado unchecked usa bg-gray-10
-    expect(wrapperDiv).toHaveClass('bg-gray-10')
+    expect(wrapperDiv).toHaveClass('bg-gray-20')
     // el handle está al inicio
     const handleSpan = wrapperDiv.querySelector('span')!
     expect(handleSpan).toHaveClass('translate-x-0')

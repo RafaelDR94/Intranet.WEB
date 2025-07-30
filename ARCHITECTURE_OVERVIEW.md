@@ -20,7 +20,7 @@ Componentes reutilizables de UI. Cada uno vive en su propia carpeta:
 - `utilities/`: helpers internos del componente.
 - `*.test.tsx`: pruebas unitarias.
 - `*.stories.tsx`: documentación en Storybook.
-- `*Catalog.tsx`: ejemplos manuales opcionales.
+
 
 ### `configurations/`
 Configuración de librerías externas:
@@ -43,6 +43,61 @@ Contextos globales para compartir estado en la aplicación. Cada contexto puede 
 - `*.docs.mdx`: documentación técnica en Storybook.
 
 > También puede incluir ejemplos en `*.stories.tsx` o solo `*.docs.mdx` si es una lógica sin UI.
+
+---
+
+## 🔧 Mocks y compatibilidad cross-entorno (Vitest + Storybook)
+
+### 🦪 Mocks globales en pruebas unitarias (Vitest)
+
+Todos los mocks comunes están definidos en `vitest.setup.tsx` y se aplican automáticamente a todos los tests. Entre ellos:
+
+- `next/image` → reemplazado por un span
+- Imágenes (`logo.png`, SVGs) → mock como string o SVG
+
+
+
+Esto permite que los componentes funcionen en test sin errores del router o dependencias externas.
+
+### 📖 Mocks manuales en Storybook
+
+Como Storybook corre en navegador, no puede usar `vi.mock()`. Por lo tanto:
+
+1. Los componentes que usan `useRouter()` deben permitir `routerOverride?: AppRouterInstance`.
+2. Hooks que usen `useRouter()` también deben aceptar ese override.
+3. Storybook debe inyectar el router simulado manualmente con `createMockRouter()`.
+4. Los mocks se colocan en `src/__mocks__/` divididos por dominio (`next`, `context`, etc).
+
+### 🧹 Patrón recomendado
+
+```ts
+// useX.ts
+export const useX = (routerOverride?: AppRouterInstance) => {
+  const router = routerOverride ?? useRouter();
+  ...
+};
+
+// Component.tsx
+const Component = ({ routerOverride }: { routerOverride?: AppRouterInstance }) => {
+  const logic = useX(routerOverride);
+  ...
+};
+
+// Component.stories.tsx
+<Component routerOverride={createMockRouter()} />
+```
+
+### ✅ Reglas de consistencia
+
+- Hooks que usen `useRouter()` deben aceptar `routerOverride`.
+- Componentes que usen esos hooks deben propagar ese override.
+- Tests usan `vi.mock()` y `.mockReturnValue()` para simular navegación.
+- Storybook usa `routerOverride` con mocks manuales.
+
+
+```
+
+> Este patrón garantiza que todos los hooks, componentes y páginas sean compatibles con testeo y documentación sin errores del router o del entorno de Next.js.
 
 ---
 

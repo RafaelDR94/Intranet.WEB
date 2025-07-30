@@ -5,7 +5,7 @@
  * Tipo de tema disponible para la aplicación.
  */
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -15,6 +15,7 @@ type Theme = 'light' | 'dark';
 interface ThemeContextValue {
   theme: Theme;
   toggleTheme: () => void;
+  setDarkTheme: () => void
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
@@ -38,14 +39,20 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [theme]);
 
   const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+  const setDarkTheme = () => setTheme('dark');
+
+  const value = useMemo(() => ({
+    theme,
+    toggleTheme,
+    setDarkTheme,
+  }), [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
-};
-
+}
 // Hook para consumir el contexto
 /**
  * Hook para acceder al tema actual.

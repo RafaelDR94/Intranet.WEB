@@ -17,6 +17,7 @@ import * as styles from './styles'
  * @param disabled Deshabilitar interacción
  * @param label Texto de etiqueta opcional
  * @param labelPosition Posición de la etiqueta (`left` o `right`)
+ * @param labelColor Color de la etiqueta de la etiqueta (`token de tailwind`)
  */
 
 export const ToggleButton: React.FC<ToggleButtonProps> = ({
@@ -25,6 +26,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   disabled = false,
   label,
   labelPosition = 'right',
+  labelColor
 }) => {
   // Extraemos la lógica anidada en un bloque if/else
   let trackStyle: string
@@ -67,7 +69,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
           }}
         />
       </div>
-      {label && <span className={styles.labelBase}>{label}</span>}
+      {label && <span className={labelColor??styles.labelBase}>{label}</span>}
     </label>
   )
 }

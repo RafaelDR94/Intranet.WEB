@@ -28,13 +28,13 @@ export type ValidationRule =
 /** Reglas de advertencia no bloqueantes. */
 export interface WarningRule {
   type:
-    | 'minLengthWarning'
-    | 'maxLengthWarning'
-    | 'weakPassword'
-    | 'deprecatedEmailDomain'
-    | 'ageIsLowButValid'
-    | 'ageIsHighButValid'
-    | 'unverifiedLanguage';
+  | 'minLengthWarning'
+  | 'maxLengthWarning'
+  | 'weakPassword'
+  | 'deprecatedEmailDomain'
+  | 'ageIsLowButValid'
+  | 'ageIsHighButValid'
+  | 'unverifiedLanguage';
   value?: number;
 }
 
@@ -52,6 +52,7 @@ export interface FieldModel {
   validations?: ValidationRule[];
   warningRules?: WarningRule[];
   showIf?: (values: Record<string, any>) => boolean;
+
 }
 
 /** Props del componente `DynamicForm`. */
@@ -64,5 +65,7 @@ export interface DynamicFormProps {
   showSecondaryButtonIf?: (values: Record<string, any>) => boolean;
   onSecondaryButtonClick?: (values: Record<string, any>) => void;
   secondaryButtonLabel?: string;
+  children?: React.ReactNode;
+  loading?: boolean;
 }
 

@@ -11,7 +11,7 @@ export const trackBase =
   'w-[28px] h-4 rounded-full transition-colors duration-300 relative'
 export const trackDisabled = 'bg-gray-20'
 export const trackChecked = 'bg-green-90 group-hover:bg-green-60'
-export const trackUnchecked = 'bg-gray-10 group-hover:bg-gray-20'
+export const trackUnchecked = 'bg-gray-20 group-hover:bg-gray-30'
 
 // Pulgar (thumb)
 export const thumbBase =
@@ -20,4 +20,4 @@ export const thumbChecked = 'translate-x-[12px]'
 export const thumbUnchecked = 'translate-x-0'
 
 // Etiqueta
-export const labelBase = 'text-green-90 select-none'
+export const labelBase = 'text-green-90'
