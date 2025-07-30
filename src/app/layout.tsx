@@ -1,4 +1,5 @@
-// app/layout.tsx
+
+
 import { Montserrat } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
@@ -6,7 +7,7 @@ import { ThemeProvider } from './context/ThemeContext/ThemeContext'
 import ThemeInitializer from './context/ThemeContext/ThemeInitializet'
 import ServiceWorkerRegister from './components/ServiceWorkerRegister/ServiceWorkerRegister'
 import type { Metadata } from 'next'
-
+import { AuthProvider } from './context/AuthContext/AuthContext'
 const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
@@ -38,10 +39,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body className={`${montserrat.variable} ${nulshock.variable}`}>
         <ThemeProvider>
-          {/* Sincroniza el atributo data-theme en <html> */}
-          <ThemeInitializer />
-          <ServiceWorkerRegister/>
-          {children}
+          <AuthProvider>
+            <ThemeInitializer />
+            <ServiceWorkerRegister />
+
+            {/* Sincroniza el atributo data-theme en <html> */}
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

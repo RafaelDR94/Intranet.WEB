@@ -8,6 +8,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
+    "types": ["vitest/globals", "node"],
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -31,7 +32,7 @@
     "next.config.js",
     "src",
     "vitest.config.ts",
-    "vitest.setup.ts",
+    "vitest.setup.tsx",
     "storybook"    // <-- añadida la carpeta de configuración de Storybook
   ],
   "exclude": ["node_modules"]

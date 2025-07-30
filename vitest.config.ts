@@ -18,7 +18,7 @@ export default defineConfig(async () => {
     test: {
       globals: true,
       environment: 'jsdom',
-      setupFiles: ['./vitest.setup.ts'],
+      setupFiles: ['./vitest.setup.tsx'],
       include: ['src/**/*.test.{ts,tsx}'],
       coverage: {
         reporter: ['text', 'lcov'],

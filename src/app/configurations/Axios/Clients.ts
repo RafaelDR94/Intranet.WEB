@@ -1,24 +1,30 @@
 import axios, { AxiosInstance } from "axios";
-const mode: number = 2;
+
+// Lee el modo desde .env y lo convierte a número (fallback a 1 si no se define)
+const mode: number = parseInt(process.env.NEXT_PUBLIC_MODE || '1', 10);
+
 export const intranetClient = createIntranetClient(mode);
 
-function createIntranetClient(mode:number): AxiosInstance {
+function createIntranetClient(mode: number): AxiosInstance {
+  let baseURL = "";
 
-    let baseURL = "";
-    switch (mode) {
-        case 1:
-            baseURL = process.env.NEXT_PUBLIC_INTRANET_ENDPOINT_PROD!; ///Produccion
-            break;
-        case 2:
-            baseURL =process.env.NEXT_PUBLIC_INTRANET_ENDPOINT_STAGING!; ///Stagging
-            break;
-        case 3:
-            baseURL = process.env.NEXT_PUBLIC_INTRANET_ENDPOINT_LOCAL!; //Local
-            break;
-    }
-    return axios.create({
-        baseURL: baseURL
-    });
+  switch (mode) {
+    case 1:
+      baseURL = process.env.NEXT_PUBLIC_INTRANET_ENDPOINT_PROD!;
+      break;
+    case 2:
+      baseURL = process.env.NEXT_PUBLIC_INTRANET_ENDPOINT_STAGING!;
+      break;
+    case 3:
+      baseURL = process.env.NEXT_PUBLIC_INTRANET_ENDPOINT_LOCAL!;
+      break;
+    default:
+      throw new Error(`Modo inválido: ${mode}`);
+  }
+
+  return axios.create({
+    baseURL,
+  });
 }
 
 export const isProduction = () => mode === 1;

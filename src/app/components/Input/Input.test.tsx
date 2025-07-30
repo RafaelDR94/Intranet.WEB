@@ -46,13 +46,13 @@ describe('Input component', () => {
       <Input label="A" variant="default" placeholder="p" />
     )
     let input = screen.getByPlaceholderText('p')
-    expect(input).toHaveClass('border-gray-30', 'placeholder-gray-60')
+    expect(input).toHaveClass('border-gray-70', 'placeholder-gray-70')
 
     rerender(
       <Input label="A" variant="filled" placeholder="p" />
     )
     input = screen.getByPlaceholderText('p')
-    expect(input).toHaveClass('border-gray-30', 'placeholder-black-100')
+    expect(input).toHaveClass('border-gray-70', 'placeholder-gray-70')
   })
 
   it('deshabilita el input y aplica clases de disabled', () => {

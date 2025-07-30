@@ -1,3 +1,4 @@
+'use client';
 import React, { createContext, useState, useEffect, ReactNode, useMemo } from "react";
 import { intranetClient } from "@/app/configurations/Axios/Clients";
 import { User, AuthContextType } from "./types";

@@ -7,18 +7,20 @@ import { useDynamicForm } from './hooks/useDynamicForm';
 import { FieldRenderer } from './components/FieldRenderer';
 import { Button } from '../Button/Button';
 import { dynamicFormStyles } from './styles';
-
+import { Spinner } from '../Spinner/Spinner';
 /**
  * Formulario dinámico que construye campos a partir de un modelo.
  *
- * @param fields Definición de campos
- * @param onSubmit Función que recibe los valores limpios
- * @param title Título opcional
- * @param submitLabel Texto del botón de envío
- * @param showSubmitIf Condición para mostrar el botón submit
- * @param showSecondaryButtonIf Condición para mostrar el botón secundario
- * @param onSecondaryButtonClick Acción del botón secundario
- * @param secondaryButtonLabel Etiqueta del botón secundario
+ * @param fields Definición de campos del formulario
+ * @param onSubmit Función que recibe los valores limpios al enviar el formulario
+ * @param title Título opcional que se muestra encima del formulario
+ * @param submitLabel Texto opcional del botón de envío (por defecto "Submit")
+ * @param showSubmitIf Función para condicionar si se muestra el botón de envío
+ * @param showSecondaryButtonIf Función para condicionar si se muestra el botón secundario
+ * @param onSecondaryButtonClick Acción que se ejecuta al hacer clic en el botón secundario
+ * @param secondaryButtonLabel Texto del botón secundario
+ * @param children Contenido adicional que se renderiza dentro del formulario (por ejemplo, enlaces)
+ * @param loading Si es true, muestra un Spinner en lugar del botón de envío
  */
 export const DynamicForm: React.FC<DynamicFormProps> = ({
   fields,
@@ -29,6 +31,8 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
   showSecondaryButtonIf,
   onSecondaryButtonClick,
   secondaryButtonLabel,
+  children,
+  loading
 }) => {
   const {
     initialValues,
@@ -74,7 +78,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
                   />
                 );
               })}
-
+            {children}
             <div className={dynamicFormStyles.actions}>
               {showSecondaryButtonIf?.(values) && onSecondaryButtonClick && (
                 <Button
@@ -87,7 +91,15 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
               )}
 
               {showSubmitIf?.(values) !== false && (
-                <Button type="submit">{submitLabel}</Button>
+                loading ? (
+                  <div className="w-full flex justify-center items-center">
+                    <Spinner size="medium" />
+                  </div>
+                ) : (
+                  <Button type="submit" className={!showSecondaryButtonIf?.(values) ? 'w-full' : ''}>
+                    {submitLabel}
+                  </Button>
+                )
               )}
             </div>
           </Form>

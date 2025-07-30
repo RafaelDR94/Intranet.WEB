@@ -36,6 +36,7 @@ Feature:
 - To be able to recibe push notifications and to manage pwa
 (Bruno Mendoza) [#9] (https://github.com/DR-Mexico/dr.intranet.web/pull/9)
 
+
 ### 1.7.0 Creating the Tooltip Component 29-07-2025
 Feature:
 - To display a tooltip
@@ -45,3 +46,7 @@ Feature:
 Feature:
 - Reusable components were created for page creation.
 (Katherine Negrete A) [#13] (https://github.com/DR-Mexico/dr.intranet.web/pull/13)
+### 1.9.0 Login hook and docs 2025-08-30
+Feature:
+- Refactored LoginPage using useLogin hook with tests and documentation.
+ (Bruno Mendoza) [#12](https://github.com/DR-Mexico/dr.intranet.web/pull/12)

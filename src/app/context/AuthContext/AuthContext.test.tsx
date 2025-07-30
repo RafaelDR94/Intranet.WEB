@@ -6,7 +6,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 
 import { AuthProvider ,useAuth} from './AuthContext';
 import userEvent from '@testing-library/user-event';
-
+vi.unmock('@/app/context/AuthContext/AuthContext');
 // Mock de servicios
 vi.mock('@/app/context/AuthContext/utilities/AuthService', async () => {
   return {

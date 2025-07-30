@@ -21,4 +21,3 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   /** Variante de estilo */
   variant?: InputVariant
 }
-

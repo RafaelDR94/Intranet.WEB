@@ -57,14 +57,14 @@ export const getCurrentDateTime = () => {
         const minutes = String(now.getMinutes()).padStart(2, "0");
         return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
-export interface urlsfilterdinterface {
+export interface UrlsFilterdInterface {
         onlydates: string;
         withtimefilter: string;
         withterminalfilter: string;
         onlydatesintermedial: string;
 }
 
-export const todayFilters = (): urlsfilterdinterface => {
+export const todayFilters = (): UrlsFilterdInterface => {
         let onlydates = "?StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
         let onlydatesintermedial = "&StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
         let withtimefilter = "?StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&filter=H"
@@ -72,7 +72,7 @@ export const todayFilters = (): urlsfilterdinterface => {
         return { onlydates, withtimefilter, withterminalfilter, onlydatesintermedial }
 }
 
-export const monthFilters = (): urlsfilterdinterface => {
+export const monthFilters = (): UrlsFilterdInterface => {
         let onlydates = "?StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
         let onlydatesintermedial = "&StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
         let withtimefilter = "?StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&filter=D"
@@ -80,7 +80,7 @@ export const monthFilters = (): urlsfilterdinterface => {
         return { onlydates, withtimefilter, withterminalfilter, onlydatesintermedial }
 }
 
-export const yearsFilters = (): urlsfilterdinterface => {
+export const yearsFilters = (): UrlsFilterdInterface => {
         let onlydates = "?StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
         let onlydatesintermedial = "&StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
         let withtimefilter = "?StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&filter=M"
