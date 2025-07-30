@@ -9,6 +9,8 @@ import { Control } from "../Control/Control";
 import PaginationDots from "../PaginationDots/PaginationDots";
 import { ProgressBar } from "../ProgressBar/ProgressBar";
 import CustomRadio from "../CustomRadio/CustomRadio";
+import Avatar from "../Avatar/Avatar";
+import Pagination from "../Pagination/Pagination";
 
 const colorOptions: SelectOption[] = [
   { label: "Rojo", value: "rojo" },
@@ -114,89 +116,61 @@ export default function FormTestPage() {
 
   return (
     <div className="min-h-screen py-10 px-4 bg-white-100">
-      <DynamicForm
-        fields={fields}
-        submitLabel="Enviar"
-        onSubmit={(values) => {
-          alert("Datos enviados:\n" + JSON.stringify(values, null, 2));
-        }}
-        showSubmitIf={(values) =>
-          values.edad >= 18 && values.nombre?.length >= 3
-        }
-        showSecondaryButtonIf={(values) => values.edad >= 18}
-        onSecondaryButtonClick={(values) => {
-          console.log("Botón secundario clickeado con valores:", values);
-        }}
-        secondaryButtonLabel="Previsualizar"
-      />
-      <div className="flex items-center">
-        <Tooltip text="Este es un Tooltip" position="bottom">
-          <button className="bg-gray-70 text-white px-4 py-2 rounded">Abajo</button>
-        </Tooltip>
-      </div>
-      <div className="flex items-center mt-4">
-        <Tooltip text="Este es un Tooltip" position="top">
-          <button className="bg-gray-70 text-white px-4 py-2 rounded">Arriba</button>
-        </Tooltip>
-      </div>
-      <div className="flex items-center mt-4">
-        <Tooltip text="Este es un Tooltip" position="right">
-          <button className="bg-gray-70 text-white px-4 py-2 rounded">Izquierda</button>
-        </Tooltip>
-      </div>
-      <div className="flex items-center mt-4">
-        <Tooltip text="Este es un Tooltip" position="left">
-          <button className="bg-gray-70 text-white px-4 py-2 rounded">Derecha</button>
-        </Tooltip>
-      </div>
+      <Avatar
+        src=''
+        alt = 'avatar'
+        initials = 'A'
+        size = 'xl'
+        online = {true}
+        className = '' 
+        />
+        <Avatar
+        src=''
+        alt = 'avatar'
+        initials = 'A'
+        size = 'lg'
+        online = {true}
+        className = '' 
+        />
+        <Avatar
+        src=''
+        alt = 'avatar'
+        initials = 'A'
+        size = 'md'
+        online = {true}
+        className = '' 
+        />
+        <Avatar
+        src=''
+        alt = 'avatar'
+        initials = 'A'
+        size = 'sm'
+        online = {true}
+        className = '' 
+        />
+        <Avatar
+        src=''
+        alt = 'avatar'
+        initials = 'A'
+        size = 'xs'
+        online = {true}
+        className = '' 
+        />
+        <Avatar
+        src=''
+        alt = 'avatar'
+        initials = 'A'
+        size = 'xxs'
+        online = {true}
+        className = '' 
+        />
       <div className="mt-10">
-        <Control
-          value={5}
-          onIncrement={() => console.log("Incrementar")}
-          onDecrement={() => console.log("Decrementar")}
-          variant="outlined"
+        <Pagination
+          currentPage={currentPage}
+          totalPages={5}
+          onPageChange={(page) => setCurrentPage(page)}
         />
       </div>
-      <div className="mt-10">
-        <Control
-          value={5}
-          onIncrement={() => console.log("Incrementar")}
-          onDecrement={() => console.log("Decrementar")}
-          variant="filled"
-        />
-      </div>
-      <div className="mt-10">
-        <PaginationDots
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
-      </div>
-      <div className="mt-10">
-        <PaginationDots
-        totalPages={totalPages2}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
-      </div>
-      <div className="grid grid-cols-2 gap-x-8 mt-10">
-        <ProgressBar value={60} showPercentage={true} />
-        <ProgressBar value={75} label="Avance" />
-    </div>
-    <div className="flex flex-col mt-10">
-      {['opcion1', 'opcion2', 'opcion3', 'opcion4'].map((val, idx) => (
-        <CustomRadio
-          key={val}
-          id={`radio-${val}`}
-          name="grupo1"
-          label={`Texto`}
-          value={val}
-          checked={selected === val}
-          onChange={setSelected}
-          disabled={val === 'opcion4'}
-        />
-      ))}
-    </div>
     </div>
   );
 }
