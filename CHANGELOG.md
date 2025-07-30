@@ -50,3 +50,15 @@ Feature:
 Feature:
 - Refactored LoginPage using useLogin hook with tests and documentation.
  (Bruno Mendoza) [#12](https://github.com/DR-Mexico/dr.intranet.web/pull/12)
+
+### 1.10.0 Avatar and Pagination components 2025-07-30
+Feature:
+- Refactored Avatar and Pagination components following project architecture.
+(Katherine Negrete A) [#15](https://github.com/DR-Mexico/dr.intranet.web/pull/15)
+
+### 1.11.0 Tests are added to Avatar and Pagination hooks 2025-07-30
+Feature:
+- To perform hook testing and prevent errors.
+(Katherine Negrete A) [#16](https://github.com/DR-Mexico/dr.intranet.web/pull/16)
+
+
