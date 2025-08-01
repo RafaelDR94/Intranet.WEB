@@ -61,6 +61,10 @@ Feature:
 - To perform hook testing and prevent errors.
 (Katherine Negrete A) [#16](https://github.com/DR-Mexico/dr.intranet.web/pull/16)
 
+### 1.12.0 PopUp catalog and tests update 2025-08-31
+Feature:
+- Added PopUpCatalog component and extended PopUp tests. (Agente IA) [#]()
+
 
 
 ### 1.12.0 Main layout tests and docs 2025-08-30

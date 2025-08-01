@@ -73,6 +73,18 @@ describe('PopUp component', () => {
     expect(handleSecondary).toHaveBeenCalledTimes(1)
   })
 
+  it('llama onClose al presionar el botón de cierre', () => {
+    const handleClose = vi.fn()
+    render(<PopUp open onClose={handleClose} />)
+    fireEvent.click(screen.getByTestId('icon-cancel'))
+    expect(handleClose).toHaveBeenCalled()
+  })
+
+  it('no renderiza nada cuando open es false', () => {
+    const { container } = render(<PopUp open={false} />)
+    expect(container.firstChild).toBeNull()
+  })
+
   it('renderiza contenido adicional como children', () => {
     render(
       <PopUp open>
