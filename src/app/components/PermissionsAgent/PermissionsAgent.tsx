@@ -4,18 +4,14 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/app/context/AuthContext/AuthContext';
 import { usePathname, redirect } from 'next/navigation';
 import { Spinner } from '../Spinner/Spinner';
-
-interface Props {
-  children: React.ReactNode;
-  fallbackPath?: string;
-  strictPath?: string;
-}
+import { loadingContainer,spinnerLabel,notPermissions} from './styles';
+import { PermissionAgentProps } from './types';
 
 /**
- * PermissionAgent – componente guardián que impide renderizar
- * contenido si el usuario no tiene permisos sobre la ruta actual.
+ * Componente guardián que impide renderizar el contenido si el usuario no
+ * cuenta con permisos sobre la ruta actual.
  */
-export const PermissionAgent: React.FC<Props> = ({
+export const PermissionAgent: React.FC<PermissionAgentProps> = ({
   children,
   fallbackPath = '/home',
   strictPath,
@@ -44,9 +40,9 @@ export const PermissionAgent: React.FC<Props> = ({
 
   if (checking || hasPermission === null) {
     return (
-      <div className="w-full h-screen flex items-center justify-center flex-col gap-4">
+      <div className={loadingContainer}>
         <Spinner size="giant" />
-        <p className="text-gray-70 text-b2">Cargando contenido...</p>
+        <p className={spinnerLabel}>Cargando contenido...</p>
       </div>
     );
   }
@@ -54,7 +50,7 @@ export const PermissionAgent: React.FC<Props> = ({
   if (!hasPermission) {
     if (routeToCheck.includes('main-page/home')) {
       return (
-        <div className="p-6 text-red-600">
+        <div className={notPermissions}>
           No tienes permisos para acceder a esta sección.
         </div>
       );
@@ -65,3 +61,4 @@ export const PermissionAgent: React.FC<Props> = ({
 
   return <>{children}</>;
 };
+
