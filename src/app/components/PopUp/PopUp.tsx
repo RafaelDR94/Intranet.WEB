@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "../Button/Button";
 import { popUpStyles } from "./styles";
 import { InputProps } from "./types";
-
+import clsx from 'clsx';
 /**
  * Componente de ventana emergente reutilizable.
  *
@@ -19,8 +19,12 @@ import { InputProps } from "./types";
  * @param onPrimaryButtonClick Función a ejecutar al hacer clic en el botón principal
  * @param onSecondaryButtonClick Función a ejecutar al hacer clic en el botón secundario
  * @param children Contenido adicional para renderizar dentro del pop-up
+ * @param open Si el pop-up debe estar visible
+ * @param onClose Función para cerrar el pop-up
  */
 export const PopUp: React.FC<InputProps> = ({
+  open,
+  onClose,
   title,
   content,
   showPrimaryButton = false,
@@ -31,44 +35,49 @@ export const PopUp: React.FC<InputProps> = ({
   onSecondaryButtonClick,
   children,
 }) => {
+  if (!open) return null;
+
+  const handleSecondary = () => {
+    onSecondaryButtonClick?.();
+    onClose?.(); // cerrar automáticamente
+  };
+
+  const handlePrimary = () => {
+    onPrimaryButtonClick?.();
+  };
+
   return (
-    <div className={popUpStyles.container}>
-      {/* Botón de cierre */}
-      <div className={popUpStyles.closeButton}>
-        <Button
-          variant="ghost"
-          size="xsmall"
-          iconOnly
-          arrowDirection="cancel"
-          onClick={() => alert("Button clicked!")}
-        />
-      </div>
-
-      {/* Título y contenido */}
-      <div>
-        <p className={popUpStyles.title}>{title}</p>
-        <p className={popUpStyles.content}>{content}</p>
-      </div>
-
-      {/* Contenido adicional vía children */}
-      {children && <div>{children}</div>}
-
-      {/* Botonera */}
-      <div className={popUpStyles.buttonWrapper}>
-        {showPrimaryButton && (
-          <Button variant="solid" size="medium" onClick={onPrimaryButtonClick}>
-            {primaryButtonText || "Aceptar"}
-          </Button>
-        )}
-        {showSecondaryButton && (
+    <div className={popUpStyles.backdrop}>
+      <div className={clsx(popUpStyles.container)}>
+        <div className={popUpStyles.closeButton}>
           <Button
-            variant="outline"
-            size="medium"
-            onClick={onSecondaryButtonClick}
-          >
-            {secondaryButtonText || "Cancelar"}
-          </Button>
-        )}
+            variant="ghost"
+            size="xsmall"
+            iconOnly
+            arrowDirection="cancel"
+            onClick={onClose}
+          />
+        </div>
+
+        <div>
+          <p className={popUpStyles.title}>{title}</p>
+          <p className={popUpStyles.content}>{content}</p>
+        </div>
+
+        {children && <div>{children}</div>}
+
+        <div className={popUpStyles.buttonWrapper}>
+          {showPrimaryButton && (
+            <Button variant="solid" size="medium" onClick={handlePrimary}>
+              {primaryButtonText || "Aceptar"}
+            </Button>
+          )}
+          {showSecondaryButton && (
+            <Button variant="outline" size="medium" onClick={handleSecondary}>
+              {secondaryButtonText || "Cancelar"}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

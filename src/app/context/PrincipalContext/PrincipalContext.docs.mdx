@@ -1,0 +1,18 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="Context/PrincipalContext/PrincipalContext" />
+
+# PrincipalContext
+
+Centraliza múltiples hooks globales como `useTheme`.
+
+Actualmente proporciona el acceso a `useTheme` a través del wrapper `PrincipalProvider`.
+
+## Uso
+
+```tsx
+import { PrincipalProvider } from '@/app/context/ThemeContext/PrincipalContext';
+
+<PrincipalProvider>
+  <App />
+</PrincipalProvider>

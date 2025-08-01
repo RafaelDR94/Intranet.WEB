@@ -30,4 +30,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 
   /** Contenido adicional que se renderiza dentro del pop-up */
   children?: React.ReactNode;
+  
+  open: boolean;
+  onClose?: () => void;
 }

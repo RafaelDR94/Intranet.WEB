@@ -61,38 +61,12 @@ Esto permite que los componentes funcionen en test sin errores del router o depe
 
 ### 📖 Mocks manuales en Storybook
 
-Como Storybook corre en navegador, no puede usar `vi.mock()`. Por lo tanto:
-
-1. Los componentes que usan `useRouter()` deben permitir `routerOverride?: AppRouterInstance`.
-2. Hooks que usen `useRouter()` también deben aceptar ese override.
-3. Storybook debe inyectar el router simulado manualmente con `createMockRouter()`.
-4. Los mocks se colocan en `src/__mocks__/` divididos por dominio (`next`, `context`, etc).
-
-### 🧹 Patrón recomendado
-
-```ts
-// useX.ts
-export const useX = (routerOverride?: AppRouterInstance) => {
-  const router = routerOverride ?? useRouter();
-  ...
-};
-
-// Component.tsx
-const Component = ({ routerOverride }: { routerOverride?: AppRouterInstance }) => {
-  const logic = useX(routerOverride);
-  ...
-};
-
-// Component.stories.tsx
-<Component routerOverride={createMockRouter()} />
-```
 
 ### ✅ Reglas de consistencia
 
-- Hooks que usen `useRouter()` deben aceptar `routerOverride`.
-- Componentes que usen esos hooks deben propagar ese override.
+
 - Tests usan `vi.mock()` y `.mockReturnValue()` para simular navegación.
-- Storybook usa `routerOverride` con mocks manuales.
+
 
 
 ```

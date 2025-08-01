@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import clsx from 'clsx'
-import { AlertProps ,AlertType} from './types'
+import { AlertProps, AlertType } from './types'
 import * as styles from './styles'
 import InfoIcon from '@/assets/icons/acciones/info-empty.svg'
 import SuccessIcon from '@/assets/icons/organization/star.svg'
@@ -10,7 +10,7 @@ import WarningIcon from '@/assets/icons/bussines/high-priority.svg'
 /**
  * Componente de alerta para mostrar mensajes de retroalimentación.
  *
- * @param type Tipo de alerta (`default`, `success`, `info`, `warning`, `error`)
+ * @param type Tipo de alerta (`default`, `success`, `info`, `warning`, `error`,`notification`)
  * @param variant Variante de estilo (`filled` o `subtle`)
  * @param title Título de la alerta
  * @param description Descripción opcional
@@ -24,7 +24,7 @@ import WarningIcon from '@/assets/icons/bussines/high-priority.svg'
 
 export const Alert: React.FC<AlertProps> = ({
   type = 'default',
-  variant = 'filled',
+  variant = 'subtle',
   title,
   description,
   showPrimaryButton = true,
@@ -35,12 +35,13 @@ export const Alert: React.FC<AlertProps> = ({
   secondaryLabel = 'Button',
 }) => {
   const icons: Record<AlertType, React.ReactNode> = {
-  default: <InfoIcon />,
-  success: <SuccessIcon />,
-  info: <InfoIcon />,
-  warning: <WarningIcon />,
-  error: <WarningIcon />,
-}
+    default: <InfoIcon />,
+    success: <SuccessIcon />,
+    info: <InfoIcon />,
+    warning: <WarningIcon />,
+    error: <WarningIcon />,
+    notification: <>🔔</>,
+  }
   return (
     <div className={clsx(styles.containerClasses, styles.getBgClasses(type, variant))}>
       <div className={styles.headerClasses}>

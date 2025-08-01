@@ -6,7 +6,7 @@
  * - `warning`: Advertencia al usuario
  * - `error`: Operación fallida
  */
-export type AlertType = 'default' | 'success' | 'info' | 'warning' | 'error'
+export type AlertType = 'default' | 'success' | 'info' | 'warning' | 'error'|'notification'
 
 /**
  * Variantes de estilo de la alerta.

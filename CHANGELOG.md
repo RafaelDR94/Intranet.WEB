@@ -62,3 +62,8 @@ Feature:
 (Katherine Negrete A) [#16](https://github.com/DR-Mexico/dr.intranet.web/pull/16)
 
 
+
+### 1.12.0 Main layout tests and docs 2025-08-30
+Feature:
+- Added tests and Storybook stories for main-page layout and its utilities.
+(Agente IA) [#17](https://github.com/DR-Mexico/dr.intranet.web/pull/17)

@@ -1,3 +1,4 @@
+'use client'
 import React, { createContext, useState, ReactNode, useEffect } from "react";
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getStorage, FirebaseStorage } from "firebase/storage";
@@ -43,6 +44,8 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   const permissionsChanged = usePermissionsListener(database, user?.idUser || "");
   useEffect(() => {
     if (permissionsChanged.state) {
+      console.log("Los permisos han cambiado",permissionsChanged);
+
       updateUserPermissions(permissionsChanged.newPermissions);
     }
   }, [permissionsChanged]);
