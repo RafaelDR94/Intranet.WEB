@@ -1,0 +1,23 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="Components/PermissionAgent" />
+
+# `PermissionAgent`
+
+Componente guardián que evita renderizar su contenido si el usuario no tiene permisos para la ruta actual.
+
+---
+
+## 📦 Uso
+
+Este componente se debe usar **dentro de los contextos**:  
+`<AuthProvider>`, `<PrincipalProvider>` y opcionalmente `<RouterContext.Provider>` si hay navegación.
+
+```tsx
+<AuthProvider>
+  <PrincipalProvider>
+    <PermissionAgent>
+      <div>Contenido protegido</div>
+    </PermissionAgent>
+  </PrincipalProvider>
+</AuthProvider>

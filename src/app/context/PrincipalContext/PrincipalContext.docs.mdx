@@ -6,7 +6,7 @@ import { Meta } from '@storybook/addon-docs';
 
 Centraliza múltiples hooks globales como `useTheme`.
 
-Actualmente proporciona el acceso a `useTheme` a través del wrapper `PrincipalProvider`.
+Actualmente proporciona el acceso a `useTheme` y `useAlert` a través del wrapper `PrincipalProvider`.
 
 ## Uso
 
@@ -16,3 +16,8 @@ import { PrincipalProvider } from '@/app/context/ThemeContext/PrincipalContext';
 <PrincipalProvider>
   <App />
 </PrincipalProvider>
+```
+
+Todos los hooks expuestos se obtienen con `usePrincipal`.
+
+```

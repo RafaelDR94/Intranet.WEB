@@ -19,7 +19,7 @@ import usePermissions from "./hooks/usePermissions";
  * Contexto de autenticación que proporciona el estado global del usuario,
  * funciones de login, logout, OTP y control de permisos.
  */
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
  * Proveedor de autenticación global.

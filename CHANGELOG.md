@@ -71,9 +71,13 @@ Feature:
 Feature:
 - Added tests and Storybook stories for PermissionsAgent and PersonalAvatar.
 - Ensured components follow project architecture with types and styles.
-(Agente IA) [#PR]
+(Agente IA) [#17](https://github.com/DR-Mexico/dr.intranet.web/pull/17)
 
 ### 1.12.0 Main layout tests and docs 2025-08-30
 Feature:
 - Added tests and Storybook stories for main-page layout and its utilities.
-(Agente IA) [#17](https://github.com/DR-Mexico/dr.intranet.web/pull/17)
+(Agente IA) [#18](https://github.com/DR-Mexico/dr.intranet.web/pull/18)
+### 1.12.0 PrincipalContext docs and tests 2025-07-30
+Feature:
+- Added documentation and tests for PrincipalContext, useAlert hook and ThemeInitializer utility.
+(Agente IA) [#20](https://github.com/DR-Mexico/dr.intranet.web/pull/20)

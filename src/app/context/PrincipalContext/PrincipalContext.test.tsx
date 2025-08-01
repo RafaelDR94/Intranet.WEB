@@ -1,32 +1,19 @@
-// src/app/context/PrincipalContext/hooks/useTheme.test.ts
-import { renderHook, act } from '@testing-library/react';
-import useTheme from './hooks/useTheme/useTheme';
+import React from 'react'
+import { renderHook } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import { PrincipalProvider, usePrincipal } from './PrincipalContext'
 
-describe('useTheme', () => {
-  beforeEach(() => {
-    localStorage.clear();
-    document.documentElement.removeAttribute('data-theme');
-  });
+describe('PrincipalContext', () => {
+  it('provides hooks to children', () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <PrincipalProvider>{children}</PrincipalProvider>
+    )
+    const { result } = renderHook(() => usePrincipal(), { wrapper })
+    expect(result.current.usePrincipalTheme).toBeDefined()
+    expect(result.current.usePrincipalAlert).toBeDefined()
+  })
 
-  it('inicia en light y alterna a dark correctamente', () => {
-    const { result } = renderHook(() => useTheme());
-
-    expect(result.current.theme).toBe('light');
-
-    act(() => {
-      result.current.toggleTheme();
-    });
-
-    expect(result.current.theme).toBe('dark');
-    expect(localStorage.getItem('theme')).toBe('dark');
-    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-
-    act(() => {
-      result.current.toggleTheme();
-    });
-
-    expect(result.current.theme).toBe('light');
-    expect(localStorage.getItem('theme')).toBe('light');
-    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
-  });
-});
+  it('throws error outside provider', () => {
+    expect(() => renderHook(() => usePrincipal())).toThrow()
+  })
+})

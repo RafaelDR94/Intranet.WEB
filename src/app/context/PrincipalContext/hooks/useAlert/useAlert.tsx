@@ -4,6 +4,9 @@ import { AlertProps } from '@/app/components/Alert/types';
 
 /**
  * Hook para controlar alertas globales.
+ *
+ * Mantiene en estado la última alerta mostrada y expone funciones
+ * para desplegarla (`showAlert`) u ocultarla (`hideAlert`).
  */
 export default function useAlert() {
   const [alert, setAlert] = useState<AlertProps | null>(null);

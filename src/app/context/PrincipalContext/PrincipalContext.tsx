@@ -16,7 +16,9 @@ const PrincipalContext = createContext<PrincipalContextValue | undefined>(undefi
 
 /**
  * Proveedor global del contexto.
- * Envolverá la aplicación para exponer los hooks compartidos (como `useTheme`).
+ *
+ * Envolverá la aplicación para exponer los hooks compartidos
+ * (`useTheme`, `useAlert`, etc.) a toda la aplicación.
  */
 export const PrincipalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const usePrincipalTheme = useTheme();
@@ -34,8 +36,9 @@ export const PrincipalProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 };
 
 /**
- * Hook para acceder a los hooks centralizados del contexto principal.
- * Actualmente expone `usePrincipalTheme`.
+ * Hook para acceder a los valores del `PrincipalContext`.
+ *
+ * @returns Objeto con los hooks disponibles: `usePrincipalTheme` y `usePrincipalAlert`.
  */
 export const usePrincipal = (): PrincipalContextValue => {
   const ctx = useContext(PrincipalContext);
