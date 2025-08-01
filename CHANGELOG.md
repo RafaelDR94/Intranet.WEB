@@ -81,3 +81,6 @@ Feature:
 Feature:
 - Added documentation and tests for PrincipalContext, useAlert hook and ThemeInitializer utility.
 (Agente IA) [#20](https://github.com/DR-Mexico/dr.intranet.web/pull/20)
+### 1.13.0 Main page layout refactor 2025-08-31
+Feature:
+- Split main layout into MainSidebar and MainTabs components with tests and stories. (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
