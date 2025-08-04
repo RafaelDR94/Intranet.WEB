@@ -83,4 +83,15 @@ Feature:
 (Agente IA) [#20](https://github.com/DR-Mexico/dr.intranet.web/pull/20)
 ### 1.13.0 Main page layout refactor 2025-08-31
 Feature:
-- Split main layout into MainSidebar and MainTabs components with tests and stories. (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
+- Split main layout into MainSidebar and MainTabs components with tests and stories. 
+(Agente IA) [#22](https://github.com/DR-Mexico/dr.intranet.web/pull/22)
+
+### 1.14.0 Separate main layout logic 2025-08-31
+Feature:
+- Extracted useMainPage hook and styles for main layout with tests. 
+(Agente IA) [#23](https://github.com/DR-Mexico/dr.intranet.web/pull/23)
+
+### 1.15.0 Principal Layout 2025-08-04
+Feature:
+- To manage routes renderization and provide a global layout 
+(Bruno Mendoza) [#24](https://github.com/DR-Mexico/dr.intranet.web/pull/24)

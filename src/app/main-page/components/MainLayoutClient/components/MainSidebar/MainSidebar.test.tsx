@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi,beforeAll } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import MainSidebar from './MainSidebar';
 import HomeIcon from '@/assets/icons/navegacion/home.svg';
 import { AuthProvider } from '@/app/context/AuthContext/AuthContext';
@@ -9,16 +9,7 @@ import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtim
 import { createMockRouter } from '@/__mocks__/mockRouter';
 
 // 🔁 Mocks de recursos
-beforeAll(() => {
-  vi.spyOn(console, 'error').mockImplementation(() => {});
-  vi.spyOn(console, 'warn').mockImplementation(() => {});
-  if (!('indexedDB' in globalThis)) {
-    Object.defineProperty(globalThis, 'indexedDB', {
-      value: {},
-      writable: true,
-    });
-  }
-});
+
 vi.mock('@/assets/icons/navegacion/home.svg', () => ({ default: () => <svg data-testid="home-icon" /> }));
 vi.mock('@/assets/images/LogosDR/DReDIT.png', () => ({ default: 'logo.png' }));
 vi.mock('@/assets/icons/navegacion/long-arrow-down-right.svg', () => ({ default: () => <svg /> }));

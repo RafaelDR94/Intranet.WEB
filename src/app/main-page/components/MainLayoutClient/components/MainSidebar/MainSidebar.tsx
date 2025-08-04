@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import PersonalAvatar from '../../../components/PersonalAvatar/PersonalAvatar';
-import { ToggleButton } from '../../../components/ToogleButton.tsx/ToogleButton';
+import PersonalAvatar from '../../../../../components/PersonalAvatar/PersonalAvatar';
+import { ToggleButton } from '../../../../../components/ToogleButton.tsx/ToogleButton';
 import SubArrowIcon from '@/assets/icons/navegacion/long-arrow-down-right.svg';
 import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
 import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';
@@ -12,7 +12,7 @@ import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
 import HelpIcon from '@/assets/icons/acciones/help-circle.svg';
 import LogoutIcon from '@/assets/icons/acciones/open-in-window.svg';
 import LogoDr from '@/assets/images/LogosDR/DReDIT.png';
-import { getShortenedName } from '../../../utilities/NamesUtilities/NamesUtilities';
+import { getShortenedName } from '../../../../../utilities/NamesUtilities/NamesUtilities';
 import { sidebar, logoContainer, nav, link, subLink, footer } from './styles';
 import { MainSidebarProps } from './types';
 

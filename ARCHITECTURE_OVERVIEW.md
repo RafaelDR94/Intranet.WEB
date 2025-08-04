@@ -221,6 +221,89 @@ Todos los módulos reutilizables deben incluir documentación técnica en Storyb
 
 > Si el módulo no tiene UI (como `AuthService`), se documenta solo con `.docs.mdx`, sin necesidad de `*.stories.tsx`.
 
+### 📄 Documentación de hooks por página
+
+Los hooks que están **estrechamente ligados a una página o layout específico**, como `useMainPage`, deben documentarse dentro de su misma jerarquía en Storybook para mantener la trazabilidad clara.
+
+📍 Ejemplo:
+
+- Hook global reutilizable → `Hooks/usePermissions`
+- Hook vinculado a una vista → `Pages/MainLayout/hooks/useMainPage`
+
+> Esto permite entender **qué hook pertenece a qué vista** y evita que se mezclen hooks locales con los reutilizables.
+
+Además, deben seguir las reglas generales de documentación:
+
+- Archivo `useX.docs.mdx`
+- Exportar el hook como `default`
+- Usar `Meta title="Pages/NombreVista/hooks/useX"` en `.mdx`
+- Incluir comportamiento esperado, dependencias, tipos retornados y ejemplo de uso
+
+#### 📘 Reglas de documentación para hooks
+
+| Tipo de hook               | Ruta sugerida en Storybook              |
+|----------------------------|-----------------------------------------|
+| Global y reutilizable      | `Hooks/useNombreHook`                   |
+| Acoplado a una página      | `Pages/NOMBRE_PAGINA/hooks/useHook`     |
+| Local a un componente      | `Components/NOMBRE/hooks/useHook`       |
+
+Hooks globales reutilizables independientes de componentes o contextos. Cada hook debe vivir en su propia carpeta:
+
+```
+hooks/
+└── useAuth/
+    ├── useAuth.ts
+    ├── useAuth.test.ts
+    └── useAuth.docs.mdx
+```
+
+> Si el hook es específico de un contexto o componente, colócalo en su carpeta respectiva (`hooks/` local).
+
+Cada hook debe tener:
+
+- `*.ts`: implementación.
+- `*.test.ts`: pruebas unitarias con mocks.
+- `*.docs.mdx`: documentación técnica (uso, props, retorno, errores esperados).
+
+📄 Documentación de utilities por contexto, componente o página
+Las funciones utilitarias (utilities/) deben documentarse según su nivel de uso:
+
+📍 Ejemplo:
+
+Utilidad global reutilizable → Utilities/dateHelper
+
+Utilidad acoplada a una página → Pages/MainLayout/utilities/useLocalMapper
+
+Utilidad interna de un componente → Components/Button/utilities/buttonLogic
+
+Esto permite distinguir funciones puras globales de aquellas que solo aplican a un ámbito local.
+
+📘 Reglas de documentación para utilities
+Tipo de utilidad	Ruta sugerida en Storybook
+Global y reutilizable	Utilities/utilityName
+Acoplada a una página	Pages/NOMBRE_PAGINA/utilities/funcion
+Interna de un componente	Components/NOMBRE/utilities/funcion
+
+Cada utilidad debe tener su propio folder si es significativa, con la siguiente estructura:
+
+ts
+Copiar
+Editar
+utilities/
+└── formatPermissions/
+    ├── index.ts
+    ├── formatPermissions.test.ts
+    └── formatPermissions.docs.mdx
+Y cumplir con:
+
+index.ts: implementación de la función (sin estado, pura).
+
+.test.ts: pruebas unitarias con casos comunes y edge cases.
+
+.docs.mdx: documentación técnica del comportamiento esperado, ejemplos de entrada/salida y errores esperados.
+
+Las funciones que dependen de contextos deben documentarse localmente (no en Utilities/ raíz).
+
 ---
 
 ## 🎨 Estilos con Tailwind CSS
@@ -281,7 +364,8 @@ La arquitectura de estilos utiliza Tailwind CSS extendido con una configuración
 
 8. **Transformación de datos → `mappings/<dominio>/<dominio>.mapper.ts`**
    - Toda respuesta del backend debe pasar por su respectivo mapper.
-
+9. **Codigo con anotaciones JSDoc**
+   - Todo componente, hook, contexto y utilidad deben tener anotaciones JSDoc
 > Para más detalles sobre pruebas, commits y control de calidad por PR, consulta [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ---

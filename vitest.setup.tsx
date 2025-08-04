@@ -33,3 +33,47 @@ vi.mock('@/assets/icons/acciones/eye-close.svg', () => ({
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
 }));
+vi.mock('dexie', () => {
+  return {
+    default: class {
+      documents = {
+        get: vi.fn().mockResolvedValue({ id: 1, nombre: 'Mock User' }),
+        put: vi.fn(),
+        delete: vi.fn(),
+        where: vi.fn(() => ({
+          equals: vi.fn(() => ({
+            first: vi.fn().mockResolvedValue({ id: 1 }),
+          })),
+        })),
+      };
+
+      version() {
+        return this;
+      }
+
+      stores() {
+        return this;
+      }
+
+      open() {
+        return Promise.resolve();
+      }
+
+      table() {
+        return this.documents;
+      }
+
+      close() {}
+    }
+  };
+});
+vi.mock('@/app/configurations/DataBase/crud', () => ({
+  readDocumentById: vi.fn().mockResolvedValue({
+    user: {
+      token: 'mock-token',
+      id: 1,
+      name: 'Mock User',
+      // agrega otros campos si tu contexto los espera
+    }
+  }),
+}));

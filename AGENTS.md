@@ -135,6 +135,7 @@ Does it affect other systems?
   - Tipado en `types.ts` con JSDoc
   - Estilos en `styles.ts`
   - Hook personalizado si aplica
+  - Archivos Documentados con anotaciones JSDoc
 - Actualiza:
   - `CHANGELOG.md` (formato estándar)
   - `package.json` con nueva versión
