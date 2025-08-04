@@ -3,10 +3,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LoginPage from './page';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext/AuthContext';
-import { useTheme } from '../context/ThemeContext/ThemeContext';
-import { vi ,describe,beforeEach,it,expect} from 'vitest';
+import { usePrincipal } from '../context/PrincipalContext/PrincipalContext';
+import { vi, describe, beforeEach, it, expect } from 'vitest';
 
-
+// Mock del formulario dinámico
 vi.mock('../components/DynamicForm/DynamicForm', () => ({
   DynamicForm: ({ fields, onSubmit, children, submitLabel }: any) => {
     const [values, setValues] = React.useState(
@@ -36,16 +36,15 @@ vi.mock('../components/DynamicForm/DynamicForm', () => ({
   },
 }));
 
+// Mocks base
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
 }));
-
 vi.mock('../context/AuthContext/AuthContext', () => ({
   useAuth: vi.fn(),
 }));
-
-vi.mock('../context/ThemeContext/ThemeContext', () => ({
-  useTheme: vi.fn(),
+vi.mock('../context/PrincipalContext/PrincipalContext', () => ({
+  usePrincipal: vi.fn(),
 }));
 
 describe('LoginPage', () => {
@@ -56,15 +55,21 @@ describe('LoginPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
     (useRouter as any).mockReturnValue({ push: mockPush });
+
     (useAuth as any).mockReturnValue({
       login: mockLogin,
       handleRemeberMe: mockHandleRemeberMe,
       userRemebered: false,
     });
-    (useTheme as any).mockReturnValue({
-      theme: 'light',
-      setDarkTheme: mockSetDarkTheme,
+
+    (usePrincipal as any).mockReturnValue({
+      usePrincipalTheme: {
+        theme: 'light',
+        setDarkTheme: mockSetDarkTheme,
+        toggleTheme: vi.fn(),
+      },
     });
   });
 
@@ -89,7 +94,7 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith({ email: 'test@example.com', password: '123456' });
-      expect(mockPush).toHaveBeenCalledWith('/main-page/dashboard');
+      expect(mockPush).toHaveBeenCalledWith('/main-page');
     });
   });
 

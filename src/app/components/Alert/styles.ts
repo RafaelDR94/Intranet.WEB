@@ -32,6 +32,10 @@ export const bgColorMap: StyleMap = {
     filled: 'bg-alert-red-100 text-white-100',
     subtle: 'bg-alert-red-10 text-blue-100 border border-alert-red-100',
   },
+  notification: {
+    filled: 'bg-alert-blue-100 text-white-100',
+    subtle: 'bg-blue-10 text-blue-100 border border-alert-blue-100',
+  },
 }
 
 export const iconColorMap: StyleMap = {
@@ -54,6 +58,10 @@ export const iconColorMap: StyleMap = {
   error: {
     filled: 'text-white-100',
     subtle: 'text-alert-red-100',
+  },
+  notification: {
+    filled: 'text-white-100',
+    subtle: 'text-alert-blue-100',
   },
 }
 
@@ -79,6 +87,10 @@ export const textColorMap: StyleMap = {
     filled: 'text-white-80',
     subtle: 'text-alert-red-100',
   },
+  notification: {
+    filled: 'text-white-80',
+    subtle: 'text-alert-blue-100',
+  },
 }
 
 export const buttonColorMap: StyleMap = {
@@ -99,6 +111,10 @@ export const buttonColorMap: StyleMap = {
     subtle: 'text-green-100',
   },
   error: {
+    filled: 'text-white-100',
+    subtle: 'text-green-100',
+  },
+  notification: {
     filled: 'text-white-100',
     subtle: 'text-green-100',
   },
@@ -123,6 +139,10 @@ export const buttonColorMap2: StyleMap = {
   },
   error: {
     filled: 'text-alert-red-10',
+    subtle: 'text-white-10',
+  },
+  notification: {
+    filled: 'text-alert-green-50',
     subtle: 'text-white-10',
   },
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext/AuthContext';
-import { useTheme } from '../../context/ThemeContext/ThemeContext';
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 import type { FieldModel } from '../../components/DynamicForm/types';
 
 /**
@@ -50,7 +50,8 @@ export interface UseLogin {
 export const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
   const router = routerOverride ?? useRouter();
   const { login, handleRemeberMe, userRemebered } = useAuth();
-  const { setDarkTheme, theme } = useTheme();
+  const {usePrincipalTheme}=usePrincipal();
+  const { setDarkTheme, theme } = usePrincipalTheme;
 
   const [isLoading, setIsLoading] = useState(false);
   const [remeberStatus, setRemeberStatus] = useState(false);
@@ -70,7 +71,7 @@ export const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogi
     };
     try {
       await login(loginValues);
-      router.push('/main-page/dashboard');
+      router.push('/main-page');
     } catch (error: any) {
       const messageError =
         error?.response?.data?.error_Message ??

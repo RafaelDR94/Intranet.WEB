@@ -61,4 +61,37 @@ Feature:
 - To perform hook testing and prevent errors.
 (Katherine Negrete A) [#16](https://github.com/DR-Mexico/dr.intranet.web/pull/16)
 
+### 1.12.0 PopUp catalog and tests update 2025-08-31
+Feature:
+- Added PopUpCatalog component and extended PopUp tests. (Agente IA) [#]()
 
+
+
+### 1.12.0 PermissionsAgent and PersonalAvatar docs 2025-08-30
+Feature:
+- Added tests and Storybook stories for PermissionsAgent and PersonalAvatar.
+- Ensured components follow project architecture with types and styles.
+(Agente IA) [#17](https://github.com/DR-Mexico/dr.intranet.web/pull/17)
+
+### 1.12.0 Main layout tests and docs 2025-08-30
+Feature:
+- Added tests and Storybook stories for main-page layout and its utilities.
+(Agente IA) [#18](https://github.com/DR-Mexico/dr.intranet.web/pull/18)
+### 1.12.0 PrincipalContext docs and tests 2025-07-30
+Feature:
+- Added documentation and tests for PrincipalContext, useAlert hook and ThemeInitializer utility.
+(Agente IA) [#20](https://github.com/DR-Mexico/dr.intranet.web/pull/20)
+### 1.13.0 Main page layout refactor 2025-08-31
+Feature:
+- Split main layout into MainSidebar and MainTabs components with tests and stories. 
+(Agente IA) [#22](https://github.com/DR-Mexico/dr.intranet.web/pull/22)
+
+### 1.14.0 Separate main layout logic 2025-08-31
+Feature:
+- Extracted useMainPage hook and styles for main layout with tests. 
+(Agente IA) [#23](https://github.com/DR-Mexico/dr.intranet.web/pull/23)
+
+### 1.15.0 Principal Layout 2025-08-04
+Feature:
+- To manage routes renderization and provide a global layout 
+(Bruno Mendoza) [#24](https://github.com/DR-Mexico/dr.intranet.web/pull/24)

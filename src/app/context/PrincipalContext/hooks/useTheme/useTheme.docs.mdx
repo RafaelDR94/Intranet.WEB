@@ -1,0 +1,32 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="Context/PrincipalContext/hooks/useTheme" />
+
+# useTheme
+
+Hook que maneja el tema global de la aplicación (`light` o `dark`) de forma reactiva y persistente.
+
+---
+
+## ✨ ¿Qué hace?
+
+- Guarda el tema en `localStorage`.
+- Aplica el atributo `data-theme` al `<html>` (`document.documentElement`).
+- Permite alternar (`toggleTheme`) o forzar el modo oscuro (`setDarkTheme`).
+
+---
+
+## 🧪 Ejemplo de uso
+
+```tsx
+import useTheme from '@/app/context/ThemeContext/hooks/useTheme';
+
+export function ThemeSwitcher() {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <button onClick={toggleTheme}>
+      Tema actual: {theme}
+    </button>
+  );
+}

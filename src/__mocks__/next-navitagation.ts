@@ -1,0 +1,1 @@
+export const usePathname = () => '/main-page/home';

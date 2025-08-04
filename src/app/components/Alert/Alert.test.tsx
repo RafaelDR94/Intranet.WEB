@@ -37,7 +37,7 @@ describe('Alert component', () => {
 
     // El root container es el primer hijo de `container`
     const root = container.firstElementChild as HTMLElement
-    expect(root).toHaveClass('bg-blue-90', 'text-white-100')
+    expect(root).toHaveClass('bg-turquoise-20', 'border border-turquoise-100')
   })
 
   it('aplica clases para type="success" variant="subtle"', () => {

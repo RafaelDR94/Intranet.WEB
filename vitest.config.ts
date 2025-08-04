@@ -1,6 +1,6 @@
 // vitest.config.ts
 import { defineConfig } from 'vitest/config'
-
+import path from 'path';
 export default defineConfig(async () => {
   // importa dinámicamente el ESM de vite-tsconfig-paths
   const { default: tsconfigPaths } = await import('vite-tsconfig-paths')
@@ -9,7 +9,8 @@ export default defineConfig(async () => {
     resolve: {
       alias: {
         // ajusta tu alias según tu estructura
-        '@': '/src'
+        // '@': '/src'
+        '@': path.resolve(__dirname, './src'),
       },
     },
     plugins: [

@@ -3,11 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import useLogin from './useLogin';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext/AuthContext';
-import { useTheme } from '../../context/ThemeContext/ThemeContext';
+import { usePrincipal } from '../../context/PrincipalContext/PrincipalContext';
 
 vi.mock('next/navigation', () => ({ useRouter: vi.fn() }));
 vi.mock('../../context/AuthContext/AuthContext', () => ({ useAuth: vi.fn() }));
-vi.mock('../../context/ThemeContext/ThemeContext', () => ({ useTheme: vi.fn() }));
+vi.mock('../../context/PrincipalContext/PrincipalContext', () => ({ usePrincipal: vi.fn() }));
 
 describe('useLogin', () => {
   const push = vi.fn();
@@ -17,9 +17,21 @@ describe('useLogin', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    
     (useRouter as unknown as any).mockReturnValue({ push });
-    (useAuth as unknown as any).mockReturnValue({ login, handleRemeberMe, userRemebered: false });
-    (useTheme as unknown as any).mockReturnValue({ theme: 'light', setDarkTheme });
+    
+    (useAuth as unknown as any).mockReturnValue({
+      login,
+      handleRemeberMe,
+      userRemebered: false,
+    });
+
+    (usePrincipal as unknown as any).mockReturnValue({
+      usePrincipalTheme: {
+        theme: 'light',
+        setDarkTheme,
+      },
+    });
   });
 
   it('activa modo oscuro cuando el tema es light', () => {
@@ -45,12 +57,14 @@ describe('useLogin', () => {
     });
 
     expect(login).toHaveBeenCalled();
-    expect(push).toHaveBeenCalledWith('/main-page/dashboard');
+    expect(push).toHaveBeenCalledWith('/main-page');
     expect(result.current.isLoading).toBe(false);
   });
 
   it('maneja error de login', async () => {
-    login.mockRejectedValueOnce({ response: { data: { error_Message: 'error' } } });
+    login.mockRejectedValueOnce({
+      response: { data: { error_Message: 'error' } },
+    });
     const { result } = renderHook(() => useLogin());
 
     await act(async () => {

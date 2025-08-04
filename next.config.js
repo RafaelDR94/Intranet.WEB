@@ -3,10 +3,9 @@ const withPWA = require("next-pwa")({
   dest: "public",
   register: false,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development' ? true : false, 
-  sw: 'sw.js',               // nombre del archivo SW de salida (opcional, por defecto sw.js)
-  swSrc: 'src/sw.ts',        // ruta al archivo de fuente del SW personalizado
-
+  disable: process.env.NODE_ENV === "development",
+  sw: "sw.js", 
+  swSrc: "src/sw.ts", 
 });
 
 /** @type {import('next').NextConfig} */
@@ -15,6 +14,11 @@ const nextConfig = {
     useLightningcss: false,
   },
   reactStrictMode: true,
+  output: "export",
+  trailingSlash: true,
+  images: {
+    unoptimized: true, 
+  },
 };
 
 module.exports = withPWA(withSvgr(nextConfig));

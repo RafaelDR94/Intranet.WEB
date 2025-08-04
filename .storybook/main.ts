@@ -1,10 +1,11 @@
 import type { StorybookConfig } from '@storybook/nextjs';
 import type { RuleSetRule } from 'webpack';
+import path from 'path';
 
 const config: StorybookConfig = {
   stories: [
     '../src/app/**/*.stories.@(js|jsx|ts|tsx|mdx)',
-    '../src/app/**/*.docs.mdx', 
+    '../src/app/**/*.docs.mdx',
   ],
   addons: [
     '@storybook/addon-essentials',
@@ -14,7 +15,7 @@ const config: StorybookConfig = {
   ],
   docs: {
     autodocs: 'tag', // o 'auto'
-     defaultName: 'Documentación',
+    defaultName: 'Documentación',
   },
   framework: {
     name: '@storybook/nextjs',
@@ -55,6 +56,16 @@ const config: StorybookConfig = {
     cfg.module = {
       ...(cfg.module ?? {}),
       rules: updatedRules,
+    };
+    cfg.resolve = {
+      ...(cfg.resolve ?? {}),
+      alias: {
+        ...(cfg.resolve?.alias ?? {}),
+        '@/app/main-page/hooks/useMainPage': path.resolve(
+          __dirname,
+          '../src/__mocks__/FakeMainPageProvider.tsx'
+        ),
+      },
     };
 
     return cfg;

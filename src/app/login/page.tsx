@@ -8,7 +8,7 @@ import { ToggleButton } from '../components/ToogleButton.tsx/ToogleButton';
 import Link from 'next/link';
 import useLogin, { loginFields } from './hooks/useLogin';
 import { loginStyles } from './styles';
-import { LoginPageProps } from './types';
+
 
 /**
  * `LoginPage` es la vista principal de autenticación de la intranet.
@@ -31,14 +31,14 @@ import { LoginPageProps } from './types';
  * @returns {JSX.Element} Página de login con formulario interactivo.
  */
 
-const  LoginPage:React.FC<LoginPageProps>=({ routerOverride })=>{
+const  LoginPage=()=>{
   const {
     handleLogin,
     handleRemeber,
     remeberStatus,
     failMessage,
     isLoading,
-  } = useLogin(routerOverride);
+  } = useLogin();
 
   return (
     <div className={loginStyles.page}>
