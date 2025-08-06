@@ -145,4 +145,32 @@ describe('DynamicForm', () => {
       expect(onSubmit).toHaveBeenCalledWith({ doc: file })
     )
   })
+
+  it('permite enviar el formulario desde un botón externo', async () => {
+    const fields: FieldModel[] = [
+      { type: 'input', name: 'foo', label: 'Foo', value: '' },
+    ]
+    const onSubmit = vi.fn()
+   const submitRef = React.createRef<() => void | Promise<any>>()
+
+    render(
+      <>
+        <DynamicForm
+          fields={fields}
+          onSubmit={onSubmit}
+          showSubmitIf={() => false}
+          externalSubmitRef={submitRef}
+        />
+        <button onClick={() => submitRef.current?.()}>Enviar</button>
+      </>
+    )
+
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'bar')
+
+    fireEvent.click(screen.getByText('Enviar'))
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({ foo: 'bar' })
+    )
+  })
 })

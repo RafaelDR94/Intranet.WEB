@@ -1,3 +1,4 @@
+import React, { useRef } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { DynamicForm } from './DynamicForm';
 import { FieldModel } from './types';
@@ -45,4 +46,48 @@ export const DarkMode: Story = {
       </div>
     ),
   ],
+};
+
+export const ExternalSubmitLight: Story = {
+  render: (args) => {
+    const submitRef = useRef<() => void>();
+    return (
+      <div
+        data-theme="light"
+        style={{ backgroundColor: 'var(--color-gray-10)', color: 'var(--color-foreground)', minHeight: '20vh', padding: '1rem' }}
+      >
+        <DynamicForm {...args} externalSubmitRef={submitRef} showSubmitIf={() => false} />
+        <button onClick={() => submitRef.current?.()} style={{ marginTop: '1rem' }}>
+          Submit externo
+        </button>
+      </div>
+    );
+  },
+  args: {
+    fields,
+    onSubmit: (vals) => console.log(vals),
+    title: 'Formulario',
+  },
+};
+
+export const ExternalSubmitDark: Story = {
+  render: (args) => {
+    const submitRef = useRef<() => void>();
+    return (
+      <div
+        data-theme="dark"
+        style={{ backgroundColor: 'var(--color-gray-10)', color: 'var(--color-foreground)', minHeight: '20vh', padding: '1rem' }}
+      >
+        <DynamicForm {...args} externalSubmitRef={submitRef} showSubmitIf={() => false} />
+        <button onClick={() => submitRef.current?.()} style={{ marginTop: '1rem' }}>
+          Submit externo
+        </button>
+      </div>
+    );
+  },
+  args: {
+    fields,
+    onSubmit: (vals) => console.log(vals),
+    title: 'Formulario',
+  },
 };

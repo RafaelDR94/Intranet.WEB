@@ -1,8 +1,9 @@
-'use client';
+'use client'
 
-import DynamicFormMatrix
-  from './DynamicFormMatrix';
-import { FieldModel } from '@/app/components/DynamicForm/types';
+import { useRef } from 'react'
+import DynamicFormMatrix from './DynamicFormMatrix'
+import { FieldModel } from '@/app/components/DynamicForm/types'
+import { Button } from '@/app/components/Button/Button'
 
 export default function FormTestPage() {
   const fields: FieldModel[] = [
@@ -51,21 +52,30 @@ export default function FormTestPage() {
       accept: '.xml',
       validations: [{ type: 'required' }],
     },
-  ];
+  ]
+
+  const submitRef = useRef<() => void | Promise<void>>(null)
 
   return (
 
+    <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button onClick={() => submitRef.current?.()}>
+          Enviar desde botón externo
+        </Button>
+      </div>
       <DynamicFormMatrix
-
         fields={fields}
-        layoutMatrix={[
-          [5],[5, 5],[5,5]
-        ]}
+        layoutMatrix={[[5], [5, 5], [5, 5]]}
         submitLabel="Enviar solicitud"
         onSubmit={(values) => {
-          console.log('Valores enviados:', values);
+          console.log('Valores enviados:', values)
         }}
+        externalSubmitRef={submitRef}
+        showSubmitIf={() => false} // Para ocultar botón interno
       />
 
-  );
+
+    </div>
+  )
 }

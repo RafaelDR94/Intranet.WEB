@@ -36,6 +36,7 @@ const DynamicFormMatrix: React.FC<DynamicFormProps> = ({
     children,
     loading,
     layoutMatrix,
+    externalSubmitRef,
 }) => {
     const {
         initialValues,
@@ -56,7 +57,10 @@ const DynamicFormMatrix: React.FC<DynamicFormProps> = ({
                     onSubmit(cleaned);
                 }}
             >
-                {({ values, errors, touched, handleBlur, setFieldValue }) => {
+                {({ values, errors, touched, handleBlur, setFieldValue, submitForm }) => {
+                    if (externalSubmitRef) {
+                        externalSubmitRef.current = submitForm;
+                    }
                     const visibleFields = fields.filter((field) => !field.showIf || field.showIf(values));
 
                     return (
@@ -132,7 +136,7 @@ const DynamicFormMatrix: React.FC<DynamicFormProps> = ({
                                     </Button>
                                 )}
 
-                                {showSubmitIf?.(values) !== false && (
+                                {showSubmitIf?.(values) !== false && !externalSubmitRef && (
                                     loading ? (
                                         <div className="w-full flex justify-center items-center">
                                             <Spinner size="medium" />

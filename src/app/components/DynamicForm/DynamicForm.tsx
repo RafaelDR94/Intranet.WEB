@@ -21,6 +21,7 @@ import { Spinner } from '../Spinner/Spinner';
  * @param secondaryButtonLabel Texto del botón secundario
  * @param children Contenido adicional que se renderiza dentro del formulario (por ejemplo, enlaces)
  * @param loading Si es true, muestra un Spinner en lugar del botón de envío
+ * @param externalSubmitRef Referencia opcional para disparar el submit desde fuera del componente
  */
 export const DynamicForm: React.FC<DynamicFormProps> = ({
   fields,
@@ -32,7 +33,8 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
   onSecondaryButtonClick,
   secondaryButtonLabel,
   children,
-  loading
+  loading,
+  externalSubmitRef
 }) => {
   const {
     initialValues,
@@ -53,57 +55,62 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
           onSubmit(cleaned);
         }}
       >
-        {({ values, errors, touched, handleBlur, setFieldValue }) => (
-          <Form className={dynamicFormStyles.form}>
-            {fields
-              .filter((field) => !field.showIf || field.showIf(values))
-              .map((field) => {
-                const value = values[field.name];
-                const { variant, helperText } = resolveVariant(
-                  field,
-                  touched as Record<string, boolean | undefined>,
-                  errors,
-                  value
-                );
+        {({ values, errors, touched, handleBlur, setFieldValue, submitForm }) => {
+          if (externalSubmitRef) {
+            externalSubmitRef.current = submitForm;
+          }
+          return (
+            <Form className={dynamicFormStyles.form}>
+              {fields
+                .filter((field) => !field.showIf || field.showIf(values))
+                .map((field) => {
+                  const value = values[field.name];
+                  const { variant, helperText } = resolveVariant(
+                    field,
+                    touched as Record<string, boolean | undefined>,
+                    errors,
+                    value
+                  );
 
-                return (
-                  <FieldRenderer
-                    key={field.name}
-                    field={field}
-                    value={value}
-                    onChange={(val) => setFieldValue(field.name, val)}
-                    onBlur={handleBlur}
-                    variant={variant}
-                    helperText={helperText}
-                  />
-                );
-              })}
-            {children}
-            <div className={dynamicFormStyles.actions}>
-              {showSecondaryButtonIf?.(values) && onSecondaryButtonClick && (
-                <Button
-                  variant="outline"
-                  type="button"
-                  onClick={() => onSecondaryButtonClick(values)}
-                >
-                  {secondaryButtonLabel}
-                </Button>
-              )}
-
-              {showSubmitIf?.(values) !== false && (
-                loading ? (
-                  <div className="w-full flex justify-center items-center">
-                    <Spinner size="medium" />
-                  </div>
-                ) : (
-                  <Button type="submit" className={!showSecondaryButtonIf?.(values) ? 'w-full' : ''}>
-                    {submitLabel}
+                  return (
+                    <FieldRenderer
+                      key={field.name}
+                      field={field}
+                      value={value}
+                      onChange={(val) => setFieldValue(field.name, val)}
+                      onBlur={handleBlur}
+                      variant={variant}
+                      helperText={helperText}
+                    />
+                  );
+                })}
+              {children}
+              <div className={dynamicFormStyles.actions}>
+                {showSecondaryButtonIf?.(values) && onSecondaryButtonClick && (
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => onSecondaryButtonClick(values)}
+                  >
+                    {secondaryButtonLabel}
                   </Button>
-                )
-              )}
-            </div>
-          </Form>
-        )}
+                )}
+
+                {showSubmitIf?.(values) !== false && !externalSubmitRef && (
+                  loading ? (
+                    <div className="w-full flex justify-center items-center">
+                      <Spinner size="medium" />
+                    </div>
+                  ) : (
+                    <Button type="submit" className={!showSecondaryButtonIf?.(values) ? 'w-full' : ''}>
+                      {submitLabel}
+                    </Button>
+                  )
+                )}
+              </div>
+            </Form>
+          );
+        }}
       </Formik>
     </div>
   );

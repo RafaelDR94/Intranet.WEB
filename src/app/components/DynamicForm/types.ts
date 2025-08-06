@@ -1,5 +1,5 @@
 // components/DynamicForm/types.ts
-import type { FC, SVGProps } from 'react';
+import type { FC, SVGProps, MutableRefObject } from 'react';
 import type { InitialFile } from '../FileUploader/types';
 
 /** Tipos de campo soportados por el formulario. */
@@ -81,5 +81,10 @@ export interface DynamicFormProps {
   children?: React.ReactNode;
   loading?: boolean;
   layoutMatrix?: number[][];
+  /**
+   * Referencia opcional para disparar el submit desde fuera del componente.
+   * Al invocarse ejecutará la misma lógica que el botón interno.
+   */
+  externalSubmitRef?: React.RefObject<(() => void | Promise<any>) | null>
 }
 

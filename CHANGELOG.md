@@ -105,3 +105,8 @@ Feature:
 Feature:
 - Added FileUploader field type to DynamicForm.
 (Agente IA) [#]()
+
+### 1.18.0 DynamicForm external submit support 2025-08-06
+Feature:
+- Added optional external submit control to DynamicForm.
+(Agente IA) [#]()
