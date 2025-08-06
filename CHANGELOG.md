@@ -110,3 +110,9 @@ Feature:
 Feature:
 - Added optional external submit control to DynamicForm.
 (Agente IA) [#]()
+
+### 1.19.0 Customizable form fields and FileUploader placeholder 2025-08-06
+Feature:
+- Enabled `className` styling for DynamicForm fields.
+- Improved FileUploader with placeholder, top label, and full-width default.
+(Agente IA) [#]()

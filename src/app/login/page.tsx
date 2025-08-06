@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { DynamicForm } from '../components/DynamicForm/DynamicForm';
+import DynamicForm from '../components/DynamicForm/DynamicForm';
 import Image from 'next/image';
 import logo from '@/assets/images/Walpapers/Wallpaper-1.png';
 import { Alert } from '../components/Alert/Alert';

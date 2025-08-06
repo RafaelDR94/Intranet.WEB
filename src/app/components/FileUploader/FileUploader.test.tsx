@@ -24,7 +24,7 @@ describe('FileUploader component', () => {
   it('renderiza el botón con label y oculta el input file', () => {
     const onFile = vi.fn();
     const { container } = render(
-      <FileUploader accept=".xml" buttonLabel="Subir XML" onFile={onFile} />
+      <FileUploader accept=".xml" label="Archivo" placeholder="Subir XML" onFile={onFile} />
     );
 
     // Comprueba el texto del botón
@@ -39,7 +39,7 @@ describe('FileUploader component', () => {
   it('invoca onFile al seleccionar un archivo', () => {
     const onFile = vi.fn();
     const { container } = render(
-      <FileUploader accept=".xml" buttonLabel="Subir XML" onFile={onFile} />
+      <FileUploader accept=".xml" label="Archivo" placeholder="Subir XML" onFile={onFile} />
     );
 
     const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
@@ -54,7 +54,8 @@ describe('FileUploader component', () => {
     render(
       <FileUploader
         accept=".xml"
-        buttonLabel="Subir XML"
+        label="Archivo"
+        placeholder="Subir XML"
         onFile={onFile}
         disabled
       />
@@ -66,7 +67,7 @@ describe('FileUploader component', () => {
   });
 
   it('usa el icono por defecto (upload.svg) cuando no se pasa prop icon', () => {
-    render(<FileUploader accept=".xml" buttonLabel="Subir XML" onFile={() => {}} />);
+    render(<FileUploader accept=".xml" label="Archivo" placeholder="Subir XML" onFile={() => {}} />);
     // Ahora el upload.svg está mockeado como <svg data-testid="upload-icon" />
     expect(screen.getByTestId('upload-icon')).toBeInTheDocument();
   });
@@ -77,7 +78,8 @@ describe('FileUploader component', () => {
     render(
       <FileUploader
         accept=".xml"
-        buttonLabel="Subir XML"
+        label="Archivo"
+        placeholder="Subir XML"
         onFile={onFile}
         icon={CustomIcon}
       />
@@ -90,7 +92,8 @@ describe('FileUploader component', () => {
     render(
       <FileUploader
         accept=".txt"
-        buttonLabel="Subir archivo"
+        label="Archivo"
+        placeholder="Subir archivo"
         onFile={onFile}
         initialFile={{
           name: 'inicial.txt',

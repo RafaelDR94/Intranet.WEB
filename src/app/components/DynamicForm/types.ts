@@ -54,18 +54,20 @@ export interface FieldModel {
   options?: { label: string; value: string }[];
   validations?: ValidationRule[];
   warningRules?: WarningRule[];
-  showIf?: (values: Record<string, any>) => boolean;
+  showIf?: (values: Record<string, any>, fields: FieldModel[]) => boolean;
 
   /** Tipos de archivo aceptados (para campos de tipo file). */
   accept?: string;
   /** Deshabilita el uploader de archivos. */
   disabled?: boolean;
-  /** Clases CSS adicionales para el uploader. */
+  /** Clases CSS adicionales para personalizar el campo. */
   className?: string;
   /** Ícono personalizado para el uploader. */
   icon?: FC<SVGProps<SVGSVGElement>>;
   /** Archivo inicial a mostrar en el uploader. */
   initialFile?: InitialFile;
+  onlyText?: boolean;
+  onChange?: (value: any, values: Record<string, any>) => void;
 }
 
 /** Props del componente `DynamicForm`. */
@@ -77,6 +79,7 @@ export interface DynamicFormProps {
   showSubmitIf?: (values: Record<string, any>) => boolean;
   showSecondaryButtonIf?: (values: Record<string, any>) => boolean;
   onSecondaryButtonClick?: (values: Record<string, any>) => void;
+  onValidChange?: (isvalid: boolean) => void;
   secondaryButtonLabel?: string;
   children?: React.ReactNode;
   loading?: boolean;
@@ -86,5 +89,6 @@ export interface DynamicFormProps {
    * Al invocarse ejecutará la misma lógica que el botón interno.
    */
   externalSubmitRef?: React.RefObject<(() => void | Promise<any>) | null>
+  loadingFormInfo?: boolean;
 }
 

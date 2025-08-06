@@ -16,18 +16,18 @@ export interface InitialFile {
 export interface FileUploaderProps {
   /** Acepta extensiones válidas, p.ej.: ".xml,.pdf" */
   accept: string;
-  /** Texto a mostrar en el botón */
-  buttonLabel: string;
+  /** Etiqueta que se muestra sobre el botón */
+  label?: string;
+  /** Texto que se muestra dentro del botón */
+  placeholder?: string;
   /** Callback con el archivo seleccionado */
   onFile: (file: File) => void;
   /** Deshabilita el uploader */
   disabled?: boolean;
-  /** Clases CSS adicionales */
+  /** Clases CSS adicionales para el botón */
   className?: string;
   /** Icono custom para el botón (anula arrowDirection) */
   icon?: React.FC<SVGProps<SVGSVGElement>>;
   /** Archivo inicial a precargar (por URL o base64) */
   initialFile?: InitialFile;
-
-  
 }

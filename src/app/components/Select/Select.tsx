@@ -45,7 +45,6 @@ export const Select: React.FC<SelectProps> = ({
         baseStyles.helperColors.default;
 
     const currentVariant = disabled ? 'disabled' : variant;
-
     return (
         <div className={clsx(baseStyles.container, className)} ref={ref}>
             {label && <label className={baseStyles.label}>{label}</label>}
@@ -63,7 +62,7 @@ export const Select: React.FC<SelectProps> = ({
                 onClick={() => { if (!disabled) { setOpen(!open) } }}
             >
                 <span>
-                    {selected.length === 0
+                    {(!selected || selected.length === 0 || selectedLabels.length == 0 )
                         ? placeholder
                         : multiple
                             ? `${selected.length} Opciones Seleccionadas`

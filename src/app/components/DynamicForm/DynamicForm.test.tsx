@@ -136,7 +136,7 @@ describe('DynamicForm', () => {
 
     const file = new File(['contenido'], 'test.txt', { type: 'text/plain' })
     const fileInput = screen
-      .getByText('Subir archivo')
+      .getByRole('button', { name: 'Subir archivo' })
       .closest('div')?.querySelector('input') as HTMLInputElement
     fireEvent.change(fileInput, { target: { files: [file] } })
 

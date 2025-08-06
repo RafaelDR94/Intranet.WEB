@@ -15,5 +15,7 @@ export interface ToggleButtonProps {
   labelPosition?: LabelPosition
   /**Color de la etuqueta */
   labelColor?:string;
+  /** Clases CSS adicionales para personalizar el contenedor */
+  className?: string;
 }
 

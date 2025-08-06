@@ -17,14 +17,16 @@ type Story = StoryObj<FileUploaderProps>;
 export const Default: Story = {
   args: {
     accept: '.xml',
-    buttonLabel: 'Seleccionar documento',
+    label: 'Archivo',
+    placeholder: 'Seleccionar documento',
   },
 };
 
 export const Disabled: Story = {
   args: {
     accept: '.xml',
-    buttonLabel: 'Seleccionar documento',
+    label: 'Archivo',
+    placeholder: 'Seleccionar documento',
     disabled: true,
   },
 };
@@ -32,7 +34,8 @@ export const Disabled: Story = {
 export const WithCustomIcon: Story = {
   args: {
     accept: '.pdf',
-    buttonLabel: 'Upload PDF',
+    label: 'Archivo',
+    placeholder: 'Upload PDF',
     icon: UploadIcon,
   },
 };
@@ -40,7 +43,8 @@ export const WithCustomIcon: Story = {
 export const WithInitialFile: Story = {
   args: {
     accept: '.txt',
-    buttonLabel: 'Subir archivo',
+     label: 'Archivo',
+     placeholder: 'Subir archivo',
     initialFile: {
       name: 'ejemplo.txt',
       base64: 'data:text/plain;base64,ZXhhbXBsbyA=',
