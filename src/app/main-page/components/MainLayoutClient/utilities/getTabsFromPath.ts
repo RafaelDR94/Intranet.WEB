@@ -5,7 +5,7 @@ export const getTabsFromPath = (pathname: string): { label: string; path: string
   // segments[0] === 'main-page'; si no coincide, no hay pestañas
   if (segments[0] !== 'main-page') return [];
 
-  const first  = segments[1];        // e.g. 'home' o 'accounting'
+  const first = segments[1];        // e.g. 'home' o 'accounting'
   const second = segments[2];        // e.g. 'announcements' o 'invoices'
   // Si hay segundo segmento, prueba con "first/second", si no, solo "first"
   const key = second ? `${first}/${second}` : first;
@@ -23,6 +23,10 @@ export const getTabsFromPath = (pathname: string): { label: string; path: string
       { label: 'Subir Archivos', path: '/main-page/accounting/invoices/addFiles' },
       { label: 'Validación de Facturas', path: '/main-page/accounting/invoices/validateinvoices' },
       { label: 'SAT', path: '/main-page/accounting/invoices/sat' },
+    ],
+    'accounting/personalInvoices': [
+      { label: 'Facturas', path: '/main-page/accounting/personalInvoices/invoices' },
+      { label: 'Comentarios', path: '/main-page/accounting/personalInvoices/coments' },
     ],
     // …otros mapeos
   };

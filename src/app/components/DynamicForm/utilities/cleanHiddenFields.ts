@@ -17,6 +17,9 @@ export const cleanHiddenFields = (fields: FieldModel[], values: Record<string, a
         case 'number':
           cleanedValues[field.name] = null;
           break;
+        case 'file':
+          cleanedValues[field.name] = null;
+          break;
         default:
           cleanedValues[field.name] = '';
           break;

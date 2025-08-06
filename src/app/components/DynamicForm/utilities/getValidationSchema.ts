@@ -30,6 +30,14 @@ export const getValidationSchema = (fields: FieldModel[]) => {
           }
         });
         acc[field.name] = schema;
+      } else if (field.type === 'file') {
+        let schema = Yup.mixed();
+        field.validations?.forEach((rule) => {
+          if (rule.type === 'required') {
+            schema = schema.required('Este campo es requerido');
+          }
+        });
+        acc[field.name] = schema;
       } else {
         let schema = Yup.string();
         field.validations?.forEach((rule) => {

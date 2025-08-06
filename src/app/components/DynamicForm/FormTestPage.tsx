@@ -1,7 +1,7 @@
 'use client';
 
 import DynamicFormMatrix
- from './DynamicFormMatrix';
+  from './DynamicFormMatrix';
 import { FieldModel } from '@/app/components/DynamicForm/types';
 
 export default function FormTestPage() {
@@ -35,21 +35,37 @@ export default function FormTestPage() {
         { label: 'Administrativo', value: 'admin' },
       ],
     },
+    {
+      type: 'file',
+      name: 'pdf',
+      label: 'Subir archivo',
+      value: null,
+      accept: '.pdf',
+      validations: [{ type: 'required' }],
+    },
+    {
+      type: 'file',
+      name: 'xml',
+      label: 'Subir archivo',
+      value: null,
+      accept: '.xml',
+      validations: [{ type: 'required' }],
+    },
   ];
 
   return (
-    <div className="max-w-5xl mx-auto p-8">
+
       <DynamicFormMatrix
-        title="Formulario de Viáticos"
+
         fields={fields}
         layoutMatrix={[
-          [2.5,2.5,5],
+          [5],[5, 5],[5,5]
         ]}
         submitLabel="Enviar solicitud"
         onSubmit={(values) => {
           console.log('Valores enviados:', values);
         }}
       />
-    </div>
+
   );
 }

@@ -5,6 +5,9 @@ import { Input } from '../../Input/Input';
 import { Select } from '../../Select/Select';
 import { ToggleButton } from '../../ToogleButton.tsx/ToogleButton';
 import { Checkbox } from '../../CheckBox/CheckBox';
+import { FileUploader } from '../../FileUploader/FileUploader';
+import { helperClasses } from '../../Input/styles.tsx';
+import type { InputVariant } from '../../Input/types.tsx';
 
 interface FieldRendererProps {
   field: FieldModel;
@@ -71,6 +74,24 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           onChange={onChange}
           label={field.label}
         />
+      );
+
+    case 'file':
+      return (
+        <div className="flex flex-col gap-1">
+          <FileUploader
+            accept={field.accept || ''}
+            buttonLabel={field.label}
+            onFile={onChange}
+            disabled={field.disabled}
+            className={field.className}
+            icon={field.icon}
+            initialFile={field.initialFile}
+          />
+          {helperText && (
+            <span className={helperClasses(variant as InputVariant)}>{helperText}</span>
+          )}
+        </div>
       );
 
     default:

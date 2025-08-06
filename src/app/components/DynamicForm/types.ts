@@ -1,4 +1,6 @@
 // components/DynamicForm/types.ts
+import type { FC, SVGProps } from 'react';
+import type { InitialFile } from '../FileUploader/types';
 
 /** Tipos de campo soportados por el formulario. */
 export type InputType =
@@ -9,7 +11,8 @@ export type InputType =
   | 'select'
   | 'multiSelect'
   | 'checkbox'
-  | 'toggle';
+  | 'toggle'
+  | 'file';
 
 /** Estados visuales para campos y helper texts. */
 export type Variant = 'default' | 'success' | 'warning' | 'error' | 'info';
@@ -44,7 +47,7 @@ export interface FieldModel {
   name: string;
   label: string;
   placeholder?: string;
-  value: string | string[] | number | boolean;
+  value: string | string[] | number | boolean | File | InitialFile | null;
   helperText?: string;
   inputSize?: 'md' | 'lg';
   variant?: Variant;
@@ -53,6 +56,16 @@ export interface FieldModel {
   warningRules?: WarningRule[];
   showIf?: (values: Record<string, any>) => boolean;
 
+  /** Tipos de archivo aceptados (para campos de tipo file). */
+  accept?: string;
+  /** Deshabilita el uploader de archivos. */
+  disabled?: boolean;
+  /** Clases CSS adicionales para el uploader. */
+  className?: string;
+  /** Ícono personalizado para el uploader. */
+  icon?: FC<SVGProps<SVGSVGElement>>;
+  /** Archivo inicial a mostrar en el uploader. */
+  initialFile?: InitialFile;
 }
 
 /** Props del componente `DynamicForm`. */

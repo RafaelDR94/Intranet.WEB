@@ -14,6 +14,7 @@ type Story = StoryObj<typeof DynamicForm>;
 const fields: FieldModel[] = [
   { type: 'input', name: 'name', label: 'Nombre', value: '', validations: [{ type: 'required' }] },
   { type: 'checkbox', name: 'agree', label: 'Acepto términos', value: false },
+  { type: 'file', name: 'file', label: 'Subir archivo', value: null, accept: '.txt' },
 ];
 
 export const LightMode: Story = {

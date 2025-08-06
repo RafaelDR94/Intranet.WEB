@@ -29,10 +29,11 @@ const sidebarRoutes = [
     path: '/main-page/accounting',
     icon: ServerIcon,
     subroutes: [
-      { label: 'Facturación', path: '/main-page/accounting'},
-
+      { label: 'Facturación', path: '/main-page/accounting' },
+      { label: 'Facturación personal', path: '/main-page/accounting/personalInvoices' },
     ],
   }
+
 ];
 
 /**

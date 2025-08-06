@@ -100,3 +100,8 @@ Feature:
 Feature:
 - Added ability to preload files via URL or base64 in FileUploader.
 (Agente IA) [#]()
+
+### 1.17.0 DynamicForm file uploader support 2025-08-06
+Feature:
+- Added FileUploader field type to DynamicForm.
+(Agente IA) [#]()

@@ -4,7 +4,7 @@ import { Select } from '@/app/components/Select/Select';
 import { FileUploader } from '@/app/components/FileUploader/FileUploader';
 import { Button } from '@/app/components/Button/Button';
 import { useState } from 'react';
-
+import FormTestPage from '@/app/components/DynamicForm/FormTestPage';
 const AddFilesComponent = () => {
     const [debtorName, setDebtorName] = useState('');
     const [project, setProject] = useState('');
@@ -27,8 +27,9 @@ const AddFilesComponent = () => {
 
             {/* Contenedor de tarjeta */}
             <div className="bg-white-100 p-6 rounded-lg shadow-md">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-                    {/* Columna izquierda */}
+                <FormTestPage/>
+                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+               
                     <div className="flex flex-col gap-y-4">
                         <Input
                             label="Nombre del Deudor"
@@ -62,9 +63,9 @@ const AddFilesComponent = () => {
                         </div>
                     </div>
 
-                    {/* Columna derecha */}
+               
                     <div className="flex flex-col gap-y-1.5 justify-start">
-                        {/* Espaciador para alinear con "Nombre del Deudor" */}
+                  
                         <div className="h-[72px]" aria-hidden />
 
                         <Select
@@ -91,7 +92,7 @@ const AddFilesComponent = () => {
                             />
                         </div>
                     </div>
-                </div>
+                </div> */}
 
             </div>
         </div>
