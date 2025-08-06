@@ -3,10 +3,10 @@ import { usePathname } from 'next/navigation';
 import { usePrincipal } from '../../../../context/PrincipalContext/PrincipalContext';
 import { useAuth } from '../../../../context/AuthContext/AuthContext';
 import { useFirebase } from '../../../../context/FirebaseContext/FirebaseContext';
-import { getTabsFromPath } from '../../../utilities/getTabsFromPath';
+import { getTabsFromPath } from '../utilities/getTabsFromPath';
 import HomeIcon from '@/assets/icons/navegacion/home.svg';
 import FileIcon from '@/assets/icons/Docs/archive.svg';
-
+import ServerIcon from '@/assets/icons/Connectivity/server.svg';
 /**
  * Rutas visibles en el sidebar principal de la página /main-page.
  */
@@ -24,6 +24,15 @@ const sidebarRoutes = [
       { label: 'Facturación', path: '/main-page/request/invoices' },
     ],
   },
+  {
+    label: 'Contabilidad',
+    path: '/main-page/accounting',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Facturación', path: '/main-page/accounting'},
+
+    ],
+  }
 ];
 
 /**
@@ -59,7 +68,7 @@ export const useMainPage = () => {
     offlineMode,
     messsage: '',
   });
-;
+  ;
 
   /**
    * Muestra un mensaje de advertencia al usuario antes de cambiar el modo offline/online.

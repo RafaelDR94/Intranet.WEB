@@ -93,5 +93,10 @@ Feature:
 
 ### 1.15.0 Principal Layout 2025-08-04
 Feature:
-- To manage routes renderization and provide a global layout 
+- To manage routes renderization and provide a global layout
 (Bruno Mendoza) [#24](https://github.com/DR-Mexico/dr.intranet.web/pull/24)
+
+### 1.16.0 FileUploader initial file support 2025-08-06
+Feature:
+- Added ability to preload files via URL or base64 in FileUploader.
+(Agente IA) [#]()

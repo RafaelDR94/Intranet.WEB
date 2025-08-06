@@ -32,5 +32,6 @@ export interface SelectProps {
   label?: string
   helperText?: string
   disabled?: boolean
+  className?: string
 }
 

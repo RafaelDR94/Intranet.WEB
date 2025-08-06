@@ -67,5 +67,6 @@ export interface DynamicFormProps {
   secondaryButtonLabel?: string;
   children?: React.ReactNode;
   loading?: boolean;
+  layoutMatrix?: number[][];
 }
 

@@ -13,11 +13,15 @@ export type InputVariant =
 /** Props del componente `Input`. */
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   /** Etiqueta descriptiva del campo */
-  label: string
+  label?: string
   /** Texto de ayuda opcional bajo el input */
   helperText?: string
   /** Tamaño del input (md o lg) */
   inputSize?: InputSize
   /** Variante de estilo */
   variant?: InputVariant
+  /**Icono para mostar dentro del input */
+  icon?:any
+  /** Acción tras presionar el icono */
+  onIconClick ?:()=>void
 }

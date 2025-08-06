@@ -1,0 +1,45 @@
+import { Meta, Props, Story, Canvas } from '@storybook/addon-docs'; import { useFileUploader } from './useFileUploader';
+
+# useFileUploader
+
+Hook que encapsula la lógica para un input file invisible y un botón disparador.
+
+## Importación
+
+```ts
+import { useFileUploader } from './hooks/useFileUploader';
+```
+
+## ¿Para qué sirve?
+
+- Mantiene internamente un `ref` a un `<input type="file" />` oculto.
+- Provee dos handlers:
+  - `handleButtonClick`: dispara el clic del input si no está deshabilitado.
+  - `handleChange`: captura el archivo seleccionado, llama al callback `onFile` y resetea el valor.
+
+## API
+
+| Argumentos    | Tipo                     | Descripción                                       |
+| ------------- | ------------------------ | ------------------------------------------------- |
+| `onFile`      | `(file: File) => void`   | Callback que recibe el archivo seleccionado.      |
+| `accept`      | `string`                 | (Opcional) extensiones permitidas.                |
+| `disabled`    | `boolean`                | (Opcional) Bloquea la interacción si es true.     |
+| `initialFile` | `InitialFile`            | (Opcional) Archivo inicial (por URL o base64). |
+
+```
+    return (
+      <div>
+        <input
+          ref={inputRef}
+          type="file"
+          onChange={handleChange}
+          style={{ display: 'none' }}
+        />
+        <button onClick={handleButtonClick}>Subir archivo</button>
+      </div>
+    );
+  };
+  return <Example />;
+}}
+```
+

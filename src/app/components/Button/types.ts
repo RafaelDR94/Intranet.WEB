@@ -1,3 +1,5 @@
+import { SVGProps } from 'react';
+
 /** 
  * Variantes visuales del botón.
  * - `solid`: Botón con fondo sólido
@@ -34,4 +36,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
   /** Si el botón está deshabilitado */
   disabled?: boolean;
+    /** Icono custom: un componente SVG que recibe props SVGProps<SVGSVGElement> */
+  icon?: React.FC<SVGProps<SVGSVGElement>>;
+  /** Esconde el icono */
+   hideIcon?: boolean;
 }

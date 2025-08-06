@@ -25,6 +25,8 @@ import useInput from './hooks/useInput'
  * @param variant Variante de estilo
  * @param disabled Deshabilitar el input
  * @param className Clases CSS adicionales
+ * @param icon Icono para renderizar dentro del input
+ * @param onIconClick Accion tras presionar el icono enviado
  */
 
 export const Input: React.FC<InputProps> = ({
@@ -35,18 +37,20 @@ export const Input: React.FC<InputProps> = ({
   disabled,
   className,
   type = 'text',
+  icon,
+  onIconClick,
   ...props
 }) => {
   const size = inputSize
   const state = variant
   const isDisabled = state === 'disabled' || disabled
-  const {isPassword,showPassword,setShowPassword}=useInput(type);
-
+  const { isPassword, showPassword, setShowPassword } = useInput(type);
+  const Icon = icon;
   return (
     <div className={containerClasses()}>
       <label className={labelClasses()}>{label}</label>
 
-      <div className="relative"> {/* 👈 Este contenedor es el clave */}
+      <div className="relative">
         <input
           {...props}
           type={isPassword && showPassword ? 'text' : type}
@@ -56,6 +60,18 @@ export const Input: React.FC<InputProps> = ({
             className,
           )}
         />
+
+        {icon &&
+          <button
+            type="button"
+            onClick={onIconClick}
+            className={eyesicontyles.eyeButton}
+            tabIndex={-1}
+          >
+            <Icon className={eyesicontyles.eyeIcon} />
+          </button>
+        }
+
 
         {isPassword && (
           <button

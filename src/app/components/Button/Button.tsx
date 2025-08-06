@@ -1,49 +1,57 @@
+
+
 // src/app/components/Button/Button.tsx
-import React from 'react'
-import clsx from 'clsx'
-import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg'
-import ArrowUp from '@/assets/icons/navegacion/arrow-up.svg'
-import CancelIcon from '@/assets/icons/acciones/cancel.svg'
-import { ButtonProps } from './types'
-import { baseClasses, sizeMap, variantMap } from './styles'
- 
- 
+'use client';
+
+import React from 'react';
+import clsx from 'clsx';
+import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg';
+import ArrowUp from '@/assets/icons/navegacion/arrow-up.svg';
+import CancelIcon from '@/assets/icons/acciones/cancel.svg';
+import { ButtonProps } from './types';
+import { baseClasses, sizeMap, variantMap } from './styles';
+
 /**
- * Botón reutilizable con soporte para variantes de tamaño, color y dirección de flecha.
+ * Botón reutilizable con soporte para:
+ *  - variantes de estilo (`variant`).
+ *  - tamaños (`size`).
+ *  - dirección de flecha por defecto (`arrowDirection`).
+ *  - renderizado de icono personalizado (`icon`).
+ *  - modo solo icono (`iconOnly`).
+ *  - estado deshabilitado (`disabled`).
  *
- * @param variant Variante visual del botón (`solid`, `outline`, etc.)
- * @param size Tamaño del botón (`small`, `medium`, `large`)
- * @param arrowDirection Dirección del ícono flecha (`right`, `up`, `cancel`)
- * @param iconOnly Si es solo ícono sin texto
- * @param disabled Si está deshabilitado
+ * @param variant    Variante visual del botón (`solid`, `outline`, `ghost`).
+ * @param size       Tamaño del botón (`small`, `medium`, `large`).
+ * @param arrowDirection Dirección del ícono flecha por defecto (`right`, `up`, `cancel`).
+ * @param iconOnly   Si es solo ícono sin texto (oculta children).
+ * @param icon       Icono custom (componente SVG). Anula `arrowDirection`.
+ * @param disabled   Si está deshabilitado.
+ * @param children   Texto o nodos hijos.
+ * @param hideIcon   Esconde el icono;
  */
- 
 export const Button: React.FC<ButtonProps> = ({
   variant = 'solid',
   size = 'medium',
   arrowDirection = 'right',
   iconOnly = false,
   disabled = false,
+  hideIcon=false,
+  icon,
   className,
   children,
   ...props
 }) => {
-  const sizeClasses = sizeMap[size]
-  const variantClasses = variantMap[variant]
-  let Icon = ArrowRight // Default icon if none matches;
+  const sizeClasses = sizeMap[size];
+  const variantClasses = variantMap[variant];
 
-  switch (arrowDirection) {
-    case 'right':
-      Icon = ArrowRight;
-      break; 
-    case 'up':
-      Icon = ArrowUp;
-      break; 
-    case 'cancel':
-      Icon = CancelIcon; // Assuming cancel uses the same icon, adjust as needed
-      break; 
-  }
- 
+  // Determina icono por defecto según arrowDirection
+  let IconDefault = ArrowRight;
+  if (arrowDirection === 'up') IconDefault = ArrowUp;
+  else if (arrowDirection === 'cancel') IconDefault = CancelIcon;
+
+  // Usa icon custom si se proporciona, sino el default
+  const IconToRender = icon ?? IconDefault;
+
   return (
     <button
       className={clsx(baseClasses, sizeClasses, variantClasses, className)}
@@ -51,9 +59,11 @@ export const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {!iconOnly && <span>{children}</span>}
-      <Icon
-        className={clsx(!iconOnly && 'ml-2 transition-transform', 'text-inherit')}
-      />
+      {!hideIcon && (
+        <IconToRender
+          className={clsx(!iconOnly && 'transition-transform', 'text-inherit')}
+        />
+      )}
     </button>
-  )
-}
+  );
+};
