@@ -153,7 +153,6 @@ export default function FormTestPage() {
           externalSubmitRef={submitRef}
           showSubmitIf={() => true}
           onValidChange={(valid) => setFormReady(valid)}
-
         />
       </div>
     </div>
