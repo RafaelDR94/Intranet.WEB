@@ -12,6 +12,7 @@ vi.mock('@/assets/icons/acciones/check.svg',               () => ({ default: () 
 vi.mock('@/assets/icons/acciones/info-empty.svg',          () => ({ default: () => <svg data-testid="icon" /> }))
 vi.mock('@/assets/icons/organization/star.svg',            () => ({ default: () => <svg data-testid="icon" /> }))
 vi.mock('@/assets/icons/bussines/high-priority.svg',       () => ({ default: () => <svg data-testid="icon" /> }))
+vi.mock('@/assets/icons/acciones/upload.svg',              () => ({ default: () => <svg data-testid="icon" /> }))
 // SVGs del Button
 vi.mock('@/assets/icons/navegacion/nav-arrow-right.svg',   () => ({ default: () => <svg data-testid="icon" /> }))
 vi.mock('@/assets/icons/navegacion/arrow-up.svg',          () => ({ default: () => <svg data-testid="icon" /> }))
@@ -113,5 +114,84 @@ describe('DynamicForm', () => {
     await waitFor(() =>
       expect(onSecondary).toHaveBeenCalledWith({ foo: 'x' })
     )
+  })
+
+  it('maneja campo de archivo con validación required', async () => {
+    const fields: FieldModel[] = [
+      {
+        type: 'file',
+        name: 'doc',
+        label: 'Subir archivo',
+        value: null,
+        accept: '.txt',
+        validations: [{ type: 'required' }],
+      },
+    ]
+    const { onSubmit } = renderForm(fields)
+
+    fireEvent.click(screen.getByText('Submit'))
+    await waitFor(() =>
+      expect(screen.getByText('Este campo es requerido')).toBeInTheDocument()
+    )
+
+    const file = new File(['contenido'], 'test.txt', { type: 'text/plain' })
+    const fileInput = screen
+      .getByRole('button', { name: 'Subir archivo' })
+      .closest('div')?.querySelector('input') as HTMLInputElement
+    fireEvent.change(fileInput, { target: { files: [file] } })
+
+    fireEvent.click(screen.getByText('Submit'))
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({ doc: file })
+    )
+  })
+
+  it('permite enviar el formulario desde un botón externo', async () => {
+    const fields: FieldModel[] = [
+      { type: 'input', name: 'foo', label: 'Foo', value: '' },
+    ]
+    const onSubmit = vi.fn()
+   const submitRef = React.createRef<() => void | Promise<unknown>>()
+
+    render(
+      <>
+        <DynamicForm
+          fields={fields}
+          onSubmit={onSubmit}
+          showSubmitIf={() => false}
+          externalSubmitRef={submitRef}
+        />
+        <button onClick={() => submitRef.current?.()}>Enviar</button>
+      </>
+    )
+
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'bar')
+
+    fireEvent.click(screen.getByText('Enviar'))
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({ foo: 'bar' })
+    )
+  })
+
+  it('notifica cambios en la validez del formulario', async () => {
+    const fields: FieldModel[] = [
+      { type: 'input', name: 'name', label: 'Nombre', value: '', validations: [{ type: 'required' }] },
+    ]
+    const handleValid = vi.fn()
+    render(
+      <DynamicForm fields={fields} onSubmit={() => {}} onValidChange={handleValid} />
+    )
+
+    const input = screen.getByRole('textbox')
+    fireEvent.blur(input)
+
+    // Tras la validación inicial debe notificarse false
+    await waitFor(() => expect(handleValid).toHaveBeenCalledWith(false))
+
+    await userEvent.type(input, 'Juan')
+
+    // Después de proporcionar un valor válido se notifica validez true
+    await waitFor(() => expect(handleValid).toHaveBeenCalledWith(true))
   })
 })

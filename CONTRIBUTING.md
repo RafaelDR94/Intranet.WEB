@@ -129,3 +129,86 @@ Por cada cambio relevante:
 
 
 Un PR que no incluya pruebas, documentación o typings no será aprobado.
+
+## 🚀 Cómo crear un nuevo componente
+
+1. Crea una carpeta dentro de `components/`.
+2. Agrega el archivo principal `ComponentName.tsx`.
+3. Define las props en `types.ts`.
+4. Estilos adicionales en `styles.ts`.
+5. Hook personalizado en `hooks/useComponentLogic.ts`.
+6. Helpers extensos en `utilities/` si aplica.
+7. Archivo de pruebas `ComponentName.test.tsx`.
+8. Historias de Storybook `ComponentName.stories.tsx`.
+
+
+## 📄 Cómo agregar una nueva página al layout principal
+
+Sigue estos pasos para integrar correctamente una nueva sección en el sistema de navegación y permisos de la Intranet:
+
+---
+
+### 1. Crear la carpeta de la nueva página
+
+Ubicación:
+```
+src/app/main-page/<nueva-pagina>/
+```
+
+Archivos sugeridos:
+- `page.tsx`: punto de entrada principal.
+- `components/`: subcomponentes locales si aplica.
+- `context/`: lógica de estado local (opcional).
+- `styles.ts`, `types.ts`, `*.test.tsx`, `*.stories.tsx`
+
+> Sigue la arquitectura modular descrita en `ARCHITECTURE_OVERVIEW.md`.
+
+---
+
+### 2. Agregar la navegación lateral
+
+Editar:
+```
+src/app/main-page/components/MainLayoutClient/hooks/useMainPage.tsx
+```
+
+Agregar un objeto al arreglo `sidebarRoutes`:
+```ts
+{
+  label: 'Nombre visible',
+  path: '/main-page/nueva-pagina',
+  icon: IconComponent, // opcional
+  subroutes: []        // si aplica
+}
+```
+
+---
+
+### 3. Configurar tabs (si aplica)
+
+Editar:
+```
+src/app/main-page/components/MainLayoutClient/utilities/getTabsFromPath.ts
+```
+
+Agregar una nueva entrada al mapeo:
+```ts
+'/main-page/nueva-pagina': [
+  { label: 'Tab 1', path: '/main-page/nueva-pagina/tab-1' },
+  { label: 'Tab 2', path: '/main-page/nueva-pagina/tab-2' }
+]
+```
+
+---
+
+### 4. Registrar permisos en Firebase
+
+Desde la consola Firebase:
+
+1. Ir a **Realtime Database > Permissions > Model**
+2. Crear un nuevo nodo con el path `/main-page/nueva-pagina`
+3. Establecer todas las propiedades `Access` y `Permissions` en `false`
+4. Luego, en **Permissions > Roles > [Nombre de rol]**, activar los permisos necesarios por rol
+5. Validar que `validatePermissionsbyroute` refleje los cambios
+
+---

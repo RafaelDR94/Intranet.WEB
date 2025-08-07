@@ -1,0 +1,52 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="Pages/MainLayout/utilites/getTabsFromPath" />
+
+# getTabsFromPath
+
+Devuelve las pestañas correspondientes a la sección actual de la ruta `/main-page`, soportando tanto rutas con un solo segmento como con dos segmentos:
+
+- **Un solo nivel**: `/main-page/section`
+- **Dos niveles**: `/main-page/section/subsection`
+
+## Uso
+
+```ts
+// Ruta de un nivel
+getTabsFromPath('/main-page/home')
+// => [
+//   { label: 'Comunicados', path: '/main-page/home/announcements' },
+//   { label: 'Información Importante', path: '/main-page/home/important-information' },
+// ]
+
+// Ruta de dos niveles
+getTabsFromPath('/main-page/accounting/invoices')
+// => [
+//   { label: 'Subir Archivos', path: '/main-page/accounting/invoices/addFiles' },
+//   { label: 'Validación de Facturas', path: '/main-page/accounting/invoices/validateinvoices' },
+//   { label: 'SAT', path: '/main-page/accounting/invoices/sat' },
+// ]
+
+// Sección no mapeada
+getTabsFromPath('/main-page/unknown')
+// => []
+```
+
+## Interfaz
+
+```ts
+interface Tab {
+  /** Texto a mostrar en la pestaña */
+  label: string
+  /** URL asociada a la pestaña */
+  path: string
+}
+
+/**
+ * Obtiene un arreglo de pestañas según la ruta actual.
+ * @param pathname Ruta completa iniciando en `/main-page`
+ * @returns Array de objetos `{ label, path }` para el layout principal
+ */
+function getTabsFromPath(pathname: string): Tab[]
+```
+

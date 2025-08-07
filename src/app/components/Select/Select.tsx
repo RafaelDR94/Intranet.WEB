@@ -33,6 +33,7 @@ export const Select: React.FC<SelectProps> = ({
     label,
     helperText,
     disabled,
+    className
 }) => {
     const { open, ref, toggleOption, setOpen } = useSelect({ multiple, onChange, selected });
     const selectedLabels = options
@@ -44,9 +45,8 @@ export const Select: React.FC<SelectProps> = ({
         baseStyles.helperColors.default;
 
     const currentVariant = disabled ? 'disabled' : variant;
-
     return (
-        <div className={baseStyles.container} ref={ref}>
+        <div className={clsx(baseStyles.container, className)} ref={ref}>
             {label && <label className={baseStyles.label}>{label}</label>}
 
             <div
@@ -59,10 +59,10 @@ export const Select: React.FC<SelectProps> = ({
                     !disabled && baseStyles.hover,
                     disabled && baseStyles.variants.disabled
                 )}
-                onClick={() => {if(!disabled) { setOpen(!open)}}}
+                onClick={() => { if (!disabled) { setOpen(!open) } }}
             >
                 <span>
-                    {selected.length === 0
+                    {(!selected || selected.length === 0 || selectedLabels.length == 0 )
                         ? placeholder
                         : multiple
                             ? `${selected.length} Opciones Seleccionadas`

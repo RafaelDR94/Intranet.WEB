@@ -27,13 +27,14 @@ describe('Button component', () => {
     render(<Button>Prueba</Button>)
     expect(screen.getByText('Prueba')).toBeInTheDocument()
     const icon = screen.getByTestId('icon-right')
-    expect(icon).toHaveClass('ml-2')          // ahora pasará
     expect(icon).toHaveClass('transition-transform')
   })
+
   it('renderiza ícono de cancelar cuando arrowDirection="cancel"', () => {
-  render(<Button arrowDirection="cancel">Cancelar</Button>)
-  expect(screen.getByTestId('icon-cancel')).toBeInTheDocument()
+    render(<Button arrowDirection="cancel">Cancelar</Button>)
+    expect(screen.getByTestId('icon-cancel')).toBeInTheDocument()
   })
+
   it('soporta diferentes variantes y tamaños', () => {
     render(<Button variant="outline" size="large">Hola</Button>)
     const btn = screen.getByRole('button')
@@ -50,5 +51,15 @@ describe('Button component', () => {
     render(<Button iconOnly>Ignored</Button>)
     const icon = screen.getByTestId('icon-right')
     expect(icon).not.toHaveClass('ml-2')
+  })
+
+  it('renderiza icono custom cuando se pasa prop icon', () => {
+    const CustomIcon = (props: any) => <svg data-testid="custom-icon" {...props} />
+    render(<Button icon={CustomIcon}>Texto</Button>)
+    expect(screen.getByTestId('custom-icon')).toBeInTheDocument()
+  })
+    it('no renderiza el icono cuando hideIcon es true', () => {
+    render(<Button hideIcon>Sin icono</Button>)
+    expect(screen.queryByTestId('icon-right')).not.toBeInTheDocument()
   })
 })

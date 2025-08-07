@@ -11,7 +11,7 @@ import useFirebaseStorageHelper, { FirebaseStorageHelper } from "./hooks/useFire
 import useFirebaseRealtimeHelper, { FirebaseRealtimeHelper } from "./hooks/useFirebaseRealTimeHelpet";
 import useFirebaseMessagingHelper, { FirebaseMessagingHelper } from "./hooks/useFirebaseMessaginHelper";
 import { usePermissionsListener } from "./hooks/usePermissionsListener";
-import useAxios from "../../hooks/useIntranetCRUD";
+import useAxios from "../../hooks/useIntranetCRUD/useIntranetCRUD";
 import Uselogs from "./hooks/uselogs";
 import { getDeviceId, saveFirebaseToken, readFirebaseToken } from "../AuthContext/utilities/AuthService";
 

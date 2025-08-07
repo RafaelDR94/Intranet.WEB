@@ -13,7 +13,7 @@ export function checkboxClasses({ checked, indeterminate, disabled }: Pick<Check
     {
       'border-gray-30 bg-gray-10 cursor-not-allowed': disabled,
       'border-green-90 bg-green-90': (checked || indeterminate) && !disabled,
-      'border-gray-50 bg-white-100 hover:border-green-90 hover:bg-green-10 focus:ring-2 focus:ring-offset-2 focus:ring-green-60': !checked && !indeterminate && !disabled,
+      'border-green-90 bg-white-100 hover:border-green-90 hover:bg-green-10 focus:ring-2 focus:ring-offset-2 focus:ring-green-60': !checked && !indeterminate && !disabled,
     }
   )
 }

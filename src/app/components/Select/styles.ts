@@ -11,7 +11,7 @@ export const baseStyles = {
     checkitem:"flex items-center justify-center",
     infoText : "text-c2 text-gray-60",
     container: 'flex flex-col gap-1 relative w-full',
-    label: 'text-label font-medium text-black-100',
+    label: 'text-label font-medium text-gray-60',
     trigger:
         'flex justify-between items-center rounded-md border px-3 cursor-pointer transition-all',
     sizes: {

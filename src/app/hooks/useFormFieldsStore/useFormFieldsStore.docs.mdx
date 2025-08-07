@@ -1,0 +1,32 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useFormFieldsStore" />
+
+# useFormFieldsStore
+
+Store global basado en Zustand para gestionar el arreglo de campos del DynamicForm.
+
+## API
+
+- `fields: FieldModel[]`
+- `setFields(newFields: FieldModel[]) => void`
+- `updateField(name: string, changes: Partial<FieldModel>) => void`
+- `resetFields() => void`
+
+## Uso
+
+```tsx
+import { useFormFieldsStore } from './useFormFieldsStore';
+
+export const Example = () => {
+  const { fields, setFields, updateField, resetFields } = useFormFieldsStore();
+
+  return (
+    <div data-theme="light">
+      <button onClick={() => setFields([{ name: 'email', value: '' }])}>Init</button>
+      <button onClick={() => updateField('email', { value: 'user@acme.com' })}>Update</button>
+      <button onClick={resetFields}>Reset</button>
+      <pre>{JSON.stringify(fields, null, 2)}</pre>
+    </div>
+  );
+};

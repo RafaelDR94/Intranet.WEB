@@ -133,4 +133,17 @@ describe('Select component', () => {
     expect(helper).toBeInTheDocument()
     expect(helper).toHaveClass('text-alert-red-100')
   })
+  it('no permite seleccionar opciones deshabilitadas', () => {
+    const handleChange = vi.fn()
+    render(
+      <Select options={options} selected={[]} onChange={handleChange} />
+    )
+    fireEvent.click(screen.getByText('Select'))
+    fireEvent.click(screen.getByText('Opción Dos'))
+    expect(handleChange).not.toHaveBeenCalled()
+  })
+
+
+
+
 })

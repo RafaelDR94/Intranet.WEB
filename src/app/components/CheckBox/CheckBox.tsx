@@ -32,6 +32,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   label,
   labelPosition = 'right',
   name,
+  className,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null)
   useIndeterminate(inputRef, indeterminate)
@@ -63,6 +64,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
       className={clsx(
         baseLabel,
         layoutMap[labelPosition],
+        className,
       )}
     >
       <div className={checkboxClasses({ checked, indeterminate, disabled })}>

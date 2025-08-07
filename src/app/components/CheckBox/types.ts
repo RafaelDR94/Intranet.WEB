@@ -17,4 +17,6 @@ export interface CheckboxProps {
   labelPosition?: LabelPosition
   /** Nombre del input */
   name?: string
+  /** Clases CSS adicionales para personalizar el contenedor */
+  className?: string
 }

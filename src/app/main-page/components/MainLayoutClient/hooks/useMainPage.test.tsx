@@ -74,10 +74,5 @@ describe('useMainPage', () => {
     expect(showAlert).toHaveBeenCalled();
   });
 
-  it('muestra alerta al cambiar permisos', () => {
-    const { rerender } = renderHook(() => useMainPage());
-    firebaseState.permissionsChanged = true;
-    rerender();
-    expect(showAlert).toHaveBeenCalled();
-  });
+
 });

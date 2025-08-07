@@ -4,7 +4,7 @@ export const cleanHiddenFields = (fields: FieldModel[], values: Record<string, a
   const cleanedValues = { ...values };
 
   fields.forEach((field) => {
-    const isVisible = !field.showIf || field.showIf(values);
+    const isVisible = !field.showIf || field.showIf(values, fields);
     if (!isVisible) {
       switch (field.type) {
         case 'multiSelect':
@@ -15,6 +15,9 @@ export const cleanHiddenFields = (fields: FieldModel[], values: Record<string, a
           cleanedValues[field.name] = false;
           break;
         case 'number':
+          cleanedValues[field.name] = null;
+          break;
+        case 'file':
           cleanedValues[field.name] = null;
           break;
         default:

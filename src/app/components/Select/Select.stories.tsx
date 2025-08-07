@@ -55,3 +55,40 @@ export const DarkMode: Story = {
     ),
   ],
 };
+export const MultipleLight: Story = {
+  render: (args) => {
+    const [selected, setSelected] = React.useState<string[]>(args.selected);
+    return <Select {...args} multiple selected={selected} onChange={setSelected} />;
+  },
+  args: {
+    options,
+    selected: [],
+    placeholder: 'Selecciona',
+  },
+  decorators: [
+    (Story) => (
+      <div data-theme="light" style={{ backgroundColor: 'var(--color-gray-10)', color: 'var(--color-foreground)', minHeight: '20vh', padding: '1rem' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const MultipleDark: Story = {
+  render: (args) => {
+    const [selected, setSelected] = React.useState<string[]>(args.selected);
+    return <Select {...args} multiple selected={selected} onChange={setSelected} />;
+  },
+  args: {
+    options,
+    selected: [],
+    placeholder: 'Selecciona',
+  },
+  decorators: [
+    (Story) => (
+      <div data-theme="dark" style={{ backgroundColor: 'var(--color-gray-10)', color: 'var(--color-foreground)', minHeight: '20vh', padding: '1rem' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};

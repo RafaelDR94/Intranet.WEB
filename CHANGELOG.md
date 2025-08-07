@@ -65,8 +65,6 @@ Feature:
 Feature:
 - Added PopUpCatalog component and extended PopUp tests. (Agente IA) [#]()
 
-
-
 ### 1.12.0 PermissionsAgent and PersonalAvatar docs 2025-08-30
 Feature:
 - Added tests and Storybook stories for PermissionsAgent and PersonalAvatar.
@@ -93,5 +91,62 @@ Feature:
 
 ### 1.15.0 Principal Layout 2025-08-04
 Feature:
-- To manage routes renderization and provide a global layout 
+- To manage routes renderization and provide a global layout
 (Bruno Mendoza) [#24](https://github.com/DR-Mexico/dr.intranet.web/pull/24)
+
+### 1.16.0 FileUploader initial file support 2025-08-06
+Feature:
+- Added ability to preload files via URL or base64 in FileUploader.
+(Agente IA) [#]()
+
+### 1.17.0 DynamicForm file uploader support 2025-08-06
+Feature:
+- Added FileUploader field type to DynamicForm.
+(Agente IA) [#]()
+
+### 1.18.0 DynamicForm external submit support 2025-08-06
+Feature:
+- Added optional external submit control to DynamicForm.
+(Agente IA) [#]()
+
+### 1.19.0 Customizable form fields and FileUploader placeholder 2025-08-06
+Feature:
+- Enabled `className` styling for DynamicForm fields.
+- Improved FileUploader with placeholder, top label, and full-width default.
+(Agente IA) [#]()
+
+### 1.20.0 DataTable documentation and tests 2025-08-06
+Feature:
+- Added comprehensive documentation, stories and tests for DataTable.
+(Agente IA) [#]()
+
+### 1.21.0 DataTable documentation and tests 2025-08-06
+Feature:
+- Added comprehensive documentation, stories and tests for DataTable.
+(Agente IA) [#]()
+
+### 1.22.0 DynamicForm catalog and documentation 2025-08-06
+Feature:
+- Added catalog page and enhanced documentation for DynamicForm.
+(Agente IA) [#]()
+
+### 1.23.0 DynamicForm catalog and documentation 2025-08-06
+Feature:
+- Added catalog page and enhanced documentation for DynamicForm.
+(Agente IA) [#]()
+
+### 1.24.0 Button, Checkbox and CollapsibleSection docs 2025-08-07
+Feature:
+- Added catalogs and extended stories for Button, Checkbox and CollapsibleSection. 
+(Agente IA) [#]()
+
+### 1.24.0 Button, Checkbox and CollapsibleSection docs 2025-08-07
+Feature:
+- Added catalogs and extended stories for Button, Checkbox and CollapsibleSection. 
+(Agente IA) [#]()
+
+### 1.25.0 Accounting Module struchture, table component and dynamicForm features 2025-08-07
+Feature:
+-Because many modules and componentes are going to use tables and Forms
+(Bruno Mendoza) [#32](https://github.com/DR-Mexico/dr.intranet.web/pull/32)
+
