@@ -64,7 +64,8 @@ const allFields: FieldModel[] = [
     disabled: true,
     showIf: (values, fields) => {
       const f = fields.find((f) => f.name === 'equipo');
-      return f?.options && f.options.length > 0;
+      if(f?.options&& f.options.length > 0)return true;
+      else return false;
     },
   },
   {
@@ -221,7 +222,7 @@ Esto es útil para crear formularios más compactos, organizados y alineados vis
 };
 export const ConSubmitExterno: Story = {
   render: (args) => {
-    const submitRef = useRef<() => void>();
+    const submitRef = useRef<() => void>(null);
     return (
       <div data-theme="light" style={{ padding: '1rem', background: 'var(--color-gray-10)' }}>
         <DynamicForm {...args} externalSubmitRef={submitRef} showSubmitIf={() => false} />

@@ -139,3 +139,14 @@ Feature:
 Feature:
 - Added catalogs and extended stories for Button, Checkbox and CollapsibleSection. 
 (Agente IA) [#]()
+
+### 1.24.0 Button, Checkbox and CollapsibleSection docs 2025-08-07
+Feature:
+- Added catalogs and extended stories for Button, Checkbox and CollapsibleSection. 
+(Agente IA) [#]()
+
+### 1.25.0 Accounting Module struchture, table component and dynamicForm features 2025-08-07
+Feature:
+-Because many modules and componentes are going to use tables and Forms
+(Bruno Mendoza) [#32](https://github.com/DR-Mexico/dr.intranet.web/pull/32)
+

@@ -3,7 +3,7 @@
 /**
  * Define la estructura de cada columna de la tabla
  */
-export interface ColumnDefinition<T extends Record<string, unknown>> {
+export interface ColumnDefinition<T> {
   /** Clave del objeto a mostrar */
   key: keyof T
   /** Etiqueta visible en el encabezado */
@@ -21,7 +21,7 @@ export interface ColumnDefinition<T extends Record<string, unknown>> {
 /**
  * Agrupa los datos y configuración de cada tabla a renderizar
  */
-export interface DataTableGroup<T extends { id: string | number }> {
+export interface DataTableGroup<T> {
   /** Definiciones de columnas para la tabla */
   columns: ColumnDefinition<T>[]
   /** Conjunto de filas que se mostrarán */
@@ -41,7 +41,7 @@ export interface DataTableGroup<T extends { id: string | number }> {
 /**
  * Props del componente DataTable
  */
-export interface DataTableProps<T extends { id: string | number }> {
+export interface DataTableProps<T = any> {
   /** Se ejecuta al presionar el botón de búsqueda */
   onSearch?: () => void
   /** Se ejecuta al cambiar el valor del campo de búsqueda */

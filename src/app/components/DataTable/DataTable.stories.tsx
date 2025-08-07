@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { DataTable } from './DataTable';
-import type { ColumnDefinition, DataTableProps } from './types';
+import type { ColumnDefinition } from './types';
 
 interface Person {
   id: number;
@@ -11,7 +11,7 @@ interface Person {
 }
 
 // 🔹 Columnas base
-const columns: ColumnDefinition<Person>[] = [
+const columns:any = [
   { key: 'name', label: 'Nombre' },
   { key: 'role', label: 'Rol' },
 ];
@@ -74,7 +74,7 @@ export const ConBusqueda: Story = {
       },
     ],
     enableInternalSearch: true,
-    searchableKeys: ['name', 'role'],
+    searchableKeys: ['name', 'role'] as any,
   },
   parameters: {
     docs: {
@@ -174,14 +174,14 @@ export const ConRenderPersonalizado: Story = {
         title: 'Custom',
         columns: [
           {
-            key: 'name',
+            key: 'name' as any,
             label: 'Nombre',
-            render: (row) => <strong style={{ color: 'green' }}>{row.name}</strong>,
+            render: (row:any) => <strong style={{ color: 'green' }}>{row.name}</strong>,
           },
           {
-            key: 'role',
+            key: 'role'as any,
             label: 'Rol',
-            render: (row) => (
+            render: (row:any) => (
               <span style={{ backgroundColor: '#eef', padding: '2px 6px', borderRadius: 4 }}>
                 {row.role}
               </span>
@@ -282,7 +282,7 @@ export const ConEncabezadoPersonalizado: Story = {
         title: 'Encabezado custom',
         columns: [
           {
-            key: 'name',
+            key: 'name'as any,
             label: 'Nombre',
             headerRender: () => (
               <span style={{ color: 'blue', fontWeight: 700 }}>
@@ -291,7 +291,7 @@ export const ConEncabezadoPersonalizado: Story = {
             ),
           },
           {
-            key: 'role',
+            key: 'role'as any,
             label: 'Rol',
           },
         ],
