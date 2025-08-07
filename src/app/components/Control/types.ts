@@ -8,7 +8,7 @@ export type Variant = "filled" | "outlined";
  */
 export interface ControlProps {
   /** Valor actual (no visible) */
-  value: number;
+  value?: number;
 
   /** Acción al incrementar (`+`) */
   onIncrement: () => void;

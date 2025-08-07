@@ -9,7 +9,7 @@ export const layoutMap = {
 
 export function checkboxClasses({ checked, indeterminate, disabled }: Pick<CheckboxProps, 'checked' | 'indeterminate' | 'disabled'>): string {
   return clsx(
-    'w-5 h-5 rounded border flex items-center justify-center transition-colors duration-200 peer',
+    'w-5 h-5 rounded border border-green-90 border-2 flex items-center justify-center transition-colors duration-200 peer',
     {
       'border-gray-30 bg-gray-10 cursor-not-allowed': disabled,
       'border-green-90 bg-green-90': (checked || indeterminate) && !disabled,

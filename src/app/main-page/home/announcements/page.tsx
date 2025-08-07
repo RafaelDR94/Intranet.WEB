@@ -1,24 +1,16 @@
 'use client';
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext"
-import { Button } from "@/app/components/Button/Button";
+import { Calendar } from "@/app/components/Calendar/Calendar";
+import { Card } from "@/app/components/Card/Card";
+
 const Announcements = () => {
     const { usePrincipalAlert } = usePrincipal();
     const { showAlert } = usePrincipalAlert;
 
     return (
-        <Button
-            onClick={() =>
-                showAlert({
-                    title: 'Operación exitosa',
-                    description: 'Los datos fueron guardados correctamente.',
-                    type: 'info',
-                    showSecondaryButton: false,
-                    primaryLabel:"Cerrar"
-                })
-            }
-        >
-            Mostrar alerta
-        </Button>
+        <>
+            <Calendar></Calendar>
+        </>
     );
 }
 export default Announcements
