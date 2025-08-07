@@ -15,7 +15,7 @@ const fetchUbicaciones = async () => {
 }
 
 const fetchEquiposPorUbicacion = async (ubicacion: string) => {
-  const data: any = {
+  const data: Record<string, { label: string; value: string }[]> = {
     cdmx: [
       { label: 'Laptop A', value: 'lapA' },
       { label: 'Tablet A', value: 'tabA' },
@@ -47,14 +47,14 @@ export default function FormTestPage() {
           placeholder: 'Tu nombre',
           value: 'Bruno',
           className: 'max-w-[400px]',
-       
+          validations: [{ type: 'required' }, { type: 'minLength', value: 3 }]
         },
         {
           type: 'toggle',
           name: 'activo',
           label: '¿Está activo?',
           value: true,
-    
+
         },
         {
           type: 'select',
@@ -72,7 +72,7 @@ export default function FormTestPage() {
               value: '', // reset value
             })
           },
-       
+
         },
         {
           type: 'select',
@@ -98,7 +98,7 @@ export default function FormTestPage() {
             { label: 'Node.js', value: 'node' },
             { label: 'Python', value: 'python' },
           ],
-         
+
         },
 
         {
@@ -106,7 +106,7 @@ export default function FormTestPage() {
           name: 'acepto',
           label: 'Acepto los términos',
           value: true,
-       
+
         },
         {
           type: 'file',
@@ -114,7 +114,7 @@ export default function FormTestPage() {
           label: 'Subir CV (PDF)',
           accept: '.pdf',
           value: null,
-       
+
         },
         {
           type: 'input',

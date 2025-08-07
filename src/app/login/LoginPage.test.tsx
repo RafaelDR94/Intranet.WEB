@@ -8,7 +8,8 @@ import { vi, describe, beforeEach, it, expect } from 'vitest';
 
 // Mock del formulario dinámico
 vi.mock('../components/DynamicForm/DynamicForm', () => ({
-  DynamicForm: ({ fields, onSubmit, children, submitLabel }: any) => {
+  __esModule: true,
+  default: ({ fields, onSubmit, children, submitLabel }: any) => {
     const [values, setValues] = React.useState(
       Object.fromEntries(fields.map((f: any) => [f.name, '']))
     );

@@ -117,6 +117,16 @@ Feature:
 - Improved FileUploader with placeholder, top label, and full-width default.
 (Agente IA) [#]()
 
-### 1.20.0 Button, Checkbox and CollapsibleSection docs 2025-08-07
+### 1.20.0 DynamicForm catalog and documentation 2025-08-06
+Feature:
+- Added catalog page and enhanced documentation for DynamicForm.
+(Agente IA) [#]()
+
+### 1.20.0 DynamicForm catalog and documentation 2025-08-06
+Feature:
+- Added catalog page and enhanced documentation for DynamicForm.
+(Agente IA) [#]()
+
+### 1.21.0 Button, Checkbox and CollapsibleSection docs 2025-08-07
 Feature:
 - Added catalogs and extended stories for Button, Checkbox and CollapsibleSection. (Agente IA) [#]()

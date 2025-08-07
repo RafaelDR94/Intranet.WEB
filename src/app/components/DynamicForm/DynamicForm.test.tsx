@@ -151,7 +151,7 @@ describe('DynamicForm', () => {
       { type: 'input', name: 'foo', label: 'Foo', value: '' },
     ]
     const onSubmit = vi.fn()
-   const submitRef = React.createRef<() => void | Promise<any>>()
+   const submitRef = React.createRef<() => void | Promise<unknown>>()
 
     render(
       <>
@@ -172,5 +172,26 @@ describe('DynamicForm', () => {
     await waitFor(() =>
       expect(onSubmit).toHaveBeenCalledWith({ foo: 'bar' })
     )
+  })
+
+  it('notifica cambios en la validez del formulario', async () => {
+    const fields: FieldModel[] = [
+      { type: 'input', name: 'name', label: 'Nombre', value: '', validations: [{ type: 'required' }] },
+    ]
+    const handleValid = vi.fn()
+    render(
+      <DynamicForm fields={fields} onSubmit={() => {}} onValidChange={handleValid} />
+    )
+
+    const input = screen.getByRole('textbox')
+    fireEvent.blur(input)
+
+    // Tras la validación inicial debe notificarse false
+    await waitFor(() => expect(handleValid).toHaveBeenCalledWith(false))
+
+    await userEvent.type(input, 'Juan')
+
+    // Después de proporcionar un valor válido se notifica validez true
+    await waitFor(() => expect(handleValid).toHaveBeenCalledWith(true))
   })
 })

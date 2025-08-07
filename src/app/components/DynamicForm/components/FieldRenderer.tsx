@@ -1,5 +1,5 @@
 import React from 'react';
-import { FieldModel } from '../types';
+import { FieldRendererProps } from './types';
 import { Input } from '../../Input/Input';
 import { Select } from '../../Select/Select';
 import { ToggleButton } from '../../ToogleButton.tsx/ToogleButton';
@@ -7,17 +7,19 @@ import { Checkbox } from '../../CheckBox/CheckBox';
 import { FileUploader } from '../../FileUploader/FileUploader';
 import { helperClasses } from '../../Input/styles';
 import type { InputVariant } from '../../Input/types.tsx';
-
-interface FieldRendererProps {
-  field: FieldModel;
-  value: any;
-  allValues: Record<string, any>;
-  onChange: (value: any) => void;
-  onBlur?: (e: React.FocusEvent<any>) => void;
-  variant: 'default' | 'success' | 'warning' | 'error' | 'info';
-  helperText?: string;
-}
-
+import { fieldRendererStyles } from './styles';
+/**
+ * Renderiza un campo individual dentro de un formulario dinámico.
+ * El tipo de campo se determina por `field.type`.
+ *
+ * @param field Modelo del campo, incluyendo tipo, label, opciones, etc.
+ * @param value Valor actual del campo desde Formik
+ * @param allValues Todos los valores del formulario (para `onChange` condicionales)
+ * @param onChange Callback al cambiar el valor
+ * @param onBlur Callback opcional para eventos de blur
+ * @param variant Variante visual del campo (`default`, `success`, `warning`, etc.)
+ * @param helperText Texto auxiliar o mensaje de error
+ */
 export const FieldRenderer: React.FC<FieldRendererProps> = ({
   field,
   value,
@@ -48,13 +50,13 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
       rendervalue = field.options?.find(opt => opt.value === field?.value)?.label;
     }
     return (
-      <div className="flex gap-1">
+      <div className={fieldRendererStyles.onlyTextContainer}>
         {field.label && (
-          <label className="text-b1 font-regular text-gray-70">
+          <label className={fieldRendererStyles.onlyTextLabel}>
             {field.label} :
           </label>
         )}
-        <span className="text-b2 font-medium text-gray-70">{rendervalue}</span>
+        <span className={fieldRendererStyles.onlyTextValue}>{rendervalue}</span>
       </div>
     );
   }
@@ -110,7 +112,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
 
     case 'file':
       return (
-        <div className="flex flex-col gap-1">
+        <div className={fieldRendererStyles.fileWrapper}>
           <FileUploader
             accept={field.accept || ''}
             label={field.label}
@@ -138,7 +140,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           onChange={(e) => handleChange(e.target.value)}
           onBlur={onBlur}
           type={field.type === 'email' ? 'email' : field.type}
-          variant={field.disabled ? 'disabled' : 'default'}
+          variant={field.disabled ? 'disabled' : variant}
         />
       );
   }

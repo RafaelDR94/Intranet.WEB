@@ -15,6 +15,7 @@ import ArrowUp from '@/assets/icons/navegacion/nav-arrow-up.svg';
  * - `children`: ReactNode — Contenido interno que se renderiza cuando la sección está expandida.
  * - `defaultOpen`: boolean — (opcional) Indica si la sección debe iniciarse abierta (por defecto: `true`).
  * - `className`: string — (opcional) Clases adicionales para el wrapper.
+ * -`enableCollapse`: boolean — (opcional) Habilita o deshabilita el comportamiento colapsable..
  *
  * @param {Object} props - Propiedades del componente.
  * @param {string} props.title - Título visible de la sección.
@@ -22,6 +23,7 @@ import ArrowUp from '@/assets/icons/navegacion/nav-arrow-up.svg';
  * @param {boolean} [props.defaultOpen=true] - Controla si la sección inicia expandida.
  * @param {boolean} [props.enableCollapse=true] - Habilita o deshabilita el comportamiento colapsable.
  * @param {string} [props.className] - Clases adicionales para el wrapper principal.
+
  *
  * ### Ejemplo de uso:
  * ```tsx

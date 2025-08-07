@@ -10,20 +10,36 @@ import { dynamicFormStyles } from './styles';
 import { Spinner } from '../Spinner/Spinner';
 
 /**
- * Formulario dinámico que construye campos a partir de un modelo.
+
+ * @param fields Lista de campos del formulario. Cada campo define su tipo (`input`, `select`, etc.), su valor inicial, validaciones, opciones, y lógica condicional (`showIf`, `onChange`).
  *
- * @param fields Definición de campos del formulario
- * @param onSubmit Función que recibe los valores limpios al enviar el formulario
- * @param title Título opcional que se muestra encima del formulario
- * @param submitLabel Texto opcional del botón de envío (por defecto "Submit")
- * @param showSubmitIf Función para condicionar si se muestra el botón de envío
- * @param showSecondaryButtonIf Función para condicionar si se muestra el botón secundario
- * @param onSecondaryButtonClick Acción que se ejecuta al hacer clic en el botón secundario
- * @param secondaryButtonLabel Texto del botón secundario
- * @param children Contenido adicional que se renderiza dentro del formulario (por ejemplo, enlaces)
- * @param loading Si es true, muestra un Spinner en lugar del botón de envío
- * @param layoutMatrix Matriz de proporciones para distribuir los inputs por fila (suma de cada fila debe ser 10)
- */
+ * @param onSubmit Función que se ejecuta al enviar el formulario. Recibe un objeto con los valores limpios de los campos visibles y activos.
+ *
+ * @param title (Opcional) Título que se muestra como encabezado del formulario. Útil para distinguir formularios en pantallas reutilizables.
+ *
+ * @param submitLabel (Opcional) Texto personalizado del botón de envío. Por defecto: `"Submit"`.
+ *
+ * @param showSubmitIf (Opcional) Función que determina si el botón de envío debe mostrarse. Recibe los valores actuales del formulario. Útil para validaciones condicionales externas o permisos.
+ *
+ * @param showSecondaryButtonIf (Opcional) Función que controla la visibilidad del botón secundario. Útil para acciones como "Vista previa", "Guardar como borrador", etc.
+ *
+ * @param onSecondaryButtonClick (Opcional) Función que se ejecuta al hacer clic en el botón secundario. Recibe todos los valores actuales del formulario.
+ *
+ * @param secondaryButtonLabel (Opcional) Texto del botón secundario. Requiere que `onSecondaryButtonClick` esté definido.
+ *
+ * @param children (Opcional) Contenido adicional que puede ser renderizado debajo de los campos. Puede incluir links, mensajes informativos, acciones complementarias, etc.
+ *
+ * @param loading (Opcional) Si se establece en `true`, reemplaza el botón de envío con un `Spinner`. Ideal para indicar que se está procesando el envío.
+ *
+ * @param layoutMatrix (Opcional) Matriz de proporciones por fila para distribuir los campos horizontalmente. Cada número representa una proporción sobre 10. Ej: `[[5, 5], [10]]` coloca dos campos por fila seguidos de uno completo.
+ *
+ * @param externalSubmitRef (Opcional) Referencia React que permite disparar el envío del formulario desde fuera del componente. El método referenciado se comporta igual que un clic en el botón de envío.
+ *
+ * @param onValidChange (Opcional) Función que se ejecuta cada vez que cambia el estado de validez del formulario. Recibe `true` o `false`. Útil para activar/desactivar botones externos o navegación condicional.
+ *
+ * @param loadingFormInfo (Opcional) Si se establece en `true`, se muestra un overlay encima del formulario con un `Spinner`. Se recomienda para cuando los `fields` están cargando dinámicamente desde una API.
+ *
+*/
 const DynamicForm: React.FC<DynamicFormProps> = ({
     fields,
     onSubmit,
@@ -170,4 +186,5 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         </div>
     );
 };
+export { DynamicForm };
 export default DynamicForm
