@@ -116,3 +116,7 @@ Feature:
 - Enabled `className` styling for DynamicForm fields.
 - Improved FileUploader with placeholder, top label, and full-width default.
 (Agente IA) [#]()
+
+### 1.20.0 Button, Checkbox and CollapsibleSection docs 2025-08-07
+Feature:
+- Added catalogs and extended stories for Button, Checkbox and CollapsibleSection. (Agente IA) [#]()

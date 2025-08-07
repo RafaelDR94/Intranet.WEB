@@ -12,6 +12,4 @@ export type CollapsibleSectionProps = {
   defaultOpen?: boolean;
   /** Clases adicionales para el wrapper */
   className?: string;
-  /** Posición del ícono de colapso */
-  iconPosition?: 'left' | 'right';
 };
