@@ -305,6 +305,104 @@ index.ts: implementación de la función (sin estado, pura).
 Las funciones que dependen de contextos deben documentarse localmente (no en Utilities/ raíz).
 
 ---
+## 🧠 Manejo de Estado con Zustand
+
+Zustand es una alternativa ligera y eficiente a React Context para manejar estado global o compartido entre componentes. Se recomienda usar Zustand cuando:
+
+- Se requiere compartir estado entre componentes no relacionados jerárquicamente.
+- Se necesita mantener un estado reactivo fuera del árbol de React.
+- Se busca evitar el re-render innecesario de componentes por cambios en el estado.
+- Se prefiere una solución sin boilerplate ni `useContext`.
+
+---
+
+### 📦 Instalación
+
+```bash
+npm install zustand
+```
+
+---
+
+### 🧩 Estructura recomendada
+
+Ubicar los hooks basados en Zustand en la carpeta `hooks/`, como cualquier otro hook personalizado:
+
+```
+src/
+└── hooks/
+    └── useSidebarStore/
+        ├── useSidebarStore.ts       # implementación del store como hook
+        ├── useSidebarStore.test.ts  # pruebas unitarias
+        └── useSidebarStore.docs.mdx # documentación técnica
+```
+
+> Aunque usan Zustand internamente, deben tratarse como hooks personalizados.
+
+---
+
+### 🧪 Ejemplo básico
+
+```ts
+// src/hooks/useSidebarStore/useSidebarStore.ts
+import { create } from 'zustand'
+
+interface SidebarState {
+  isOpen: boolean
+  toggleSidebar: () => void
+}
+
+export const useSidebarStore = create<SidebarState>((set) => ({
+  isOpen: false,
+  toggleSidebar: () => set((state) => ({ isOpen: !state.isOpen }))
+}))
+```
+
+Uso en un componente:
+
+```tsx
+const Sidebar = () => {
+  const { isOpen, toggleSidebar } = useSidebarStore()
+
+  return (
+    <aside className={isOpen ? 'block' : 'hidden'}>
+      <button onClick={toggleSidebar}>Toggle</button>
+    </aside>
+  )
+}
+```
+
+---
+
+### ✅ Buenas prácticas
+
+- Cada store debe tener su propia carpeta bajo `hooks/`.
+- Tipar estrictamente el estado y las acciones.
+- Agregar pruebas con Vitest.
+- Documentar en `.docs.mdx` si el store es compartido o tiene reglas críticas.
+- Usar `zustand` en lugar de contextos globales cuando no se necesita renderizado condicional.
+- Para estados persistentes, usar middleware como `persist`.
+
+---
+
+### 🔄 Persistencia de estado (opcional)
+
+```ts
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+
+export const useSettingsStore = create(persist(
+  (set) => ({
+    darkMode: false,
+    toggleMode: () => set((s) => ({ darkMode: !s.darkMode }))
+  }),
+  { name: 'settings' }
+))
+```
+
+---
+
+Zustand permite simplificar el manejo de estado global o compartido sin la sobrecarga de Context API o Redux. Es ideal para UI simples, toggles, filtros, o sincronización entre módulos.
 
 ## 🎨 Estilos con Tailwind CSS
 
@@ -370,16 +468,6 @@ La arquitectura de estilos utiliza Tailwind CSS extendido con una configuración
 
 ---
 
-## 🚀 Cómo crear un nuevo componente
-
-1. Crea una carpeta dentro de `components/`.
-2. Agrega el archivo principal `ComponentName.tsx`.
-3. Define las props en `types.ts`.
-4. Estilos adicionales en `styles.ts`.
-5. Hook personalizado en `hooks/useComponentLogic.ts`.
-6. Helpers extensos en `utilities/` si aplica.
-7. Archivo de pruebas `ComponentName.test.tsx`.
-8. Historias de Storybook `ComponentName.stories.tsx`.
 
 ## 🤩 Patrones de Composición Recomendados
 

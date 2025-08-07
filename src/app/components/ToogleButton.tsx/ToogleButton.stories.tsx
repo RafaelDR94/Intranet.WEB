@@ -46,3 +46,42 @@ export const DarkMode: Story = {
     ),
   ],
 };
+export const LeftLabelLight: Story = {
+  render: (args) => {
+    const [checked, setChecked] = React.useState(args.checked);
+    return <ToggleButton {...args} checked={checked} onChange={setChecked} />;
+  },
+  args: {
+    label: 'Toggle',
+    checked: false,
+    labelPosition: 'left',
+    labelColor: 'text-blue-100',
+  },
+  decorators: [
+    (Story) => (
+      <div data-theme="light" style={{ backgroundColor: 'var(--color-gray-10)', color: 'var(--color-foreground)', minHeight: '20vh', padding: '1rem' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const LeftLabelDark: Story = {
+  render: (args) => {
+    const [checked, setChecked] = React.useState(args.checked);
+    return <ToggleButton {...args} checked={checked} onChange={setChecked} />;
+  },
+  args: {
+    label: 'Toggle',
+    checked: false,
+    labelPosition: 'left',
+    labelColor: 'text-blue-100',
+  },
+  decorators: [
+    (Story) => (
+      <div data-theme="dark" style={{ backgroundColor: 'var(--color-gray-10)', color: 'var(--color-foreground)', minHeight: '20vh', padding: '1rem' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};

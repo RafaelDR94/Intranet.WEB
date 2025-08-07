@@ -83,4 +83,26 @@ describe('Input component', () => {
     expect(handleChange).toHaveBeenCalled()
     expect(input.value).toBe('hola')
   })
+   it('renderiza un icono personalizado y maneja onIconClick', () => {
+    const handleIconClick = vi.fn()
+    const Icon = (props: React.SVGProps<SVGSVGElement>) => <svg data-testid="mock-icon" {...props} />
+    render(
+      <Input label="Buscar" icon={Icon} onIconClick={handleIconClick} />
+    )
+    const button = screen.getByRole('button')
+    fireEvent.click(button)
+    expect(handleIconClick).toHaveBeenCalled()
+    expect(screen.getByTestId('mock-icon')).toBeInTheDocument()
+  })
+
+  it('alterna la visibilidad en inputs de tipo password', () => {
+    render(
+      <Input label="Clave" placeholder="clave" type="password" />
+    )
+    const input = screen.getByPlaceholderText('clave') as HTMLInputElement
+    expect(input.type).toBe('password')
+    const toggle = screen.getByRole('button')
+    fireEvent.click(toggle)
+    expect(input.type).toBe('text')
+  })
 })

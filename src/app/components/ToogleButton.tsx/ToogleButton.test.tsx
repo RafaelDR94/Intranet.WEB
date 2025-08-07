@@ -77,4 +77,16 @@ describe('ToggleButton component', () => {
       'space-x-reverse'
     )
   })
+   it('aplica un color personalizado a la etiqueta', () => {
+    render(
+      <ToggleButton
+        checked={false}
+        onChange={() => {}}
+        label="Color"
+        labelColor="text-blue-100"
+      />
+    )
+    const labelEl = screen.getByText('Color')
+    expect(labelEl).toHaveClass('text-blue-100')
+  })
 })

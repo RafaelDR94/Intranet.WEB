@@ -3,7 +3,7 @@
 /**
  * Define la estructura de cada columna de la tabla
  */
-export interface ColumnDefinition<T> {
+export interface ColumnDefinition<T extends Record<string, unknown>> {
   /** Clave del objeto a mostrar */
   key: keyof T
   /** Etiqueta visible en el encabezado */
@@ -19,33 +19,54 @@ export interface ColumnDefinition<T> {
 }
 
 /**
- * Props del componente DataTable
+ * Agrupa los datos y configuración de cada tabla a renderizar
  */
-
-export interface DataTableGroup<T = any> {
+export interface DataTableGroup<T extends { id: string | number }> {
+  /** Definiciones de columnas para la tabla */
   columns: ColumnDefinition<T>[]
+  /** Conjunto de filas que se mostrarán */
   data: T[]
+  /** Título visible de la tabla */
   title: string
+  /** Habilita selección de filas */
   enableSelection?: boolean
+  /** Permite colapsar la sección que contiene la tabla */
   enableCollaps?: boolean
+  /** Clave inicial para ordenar */
   defaultSortKey?: keyof T
+  /** Dirección inicial de ordenamiento */
   defaultSortDirection?: 'asc' | 'desc'
 }
 
-export interface DataTableProps<T = any> {
-  // Props generales para el layout y header
+/**
+ * Props del componente DataTable
+ */
+export interface DataTableProps<T extends { id: string | number }> {
+  /** Se ejecuta al presionar el botón de búsqueda */
   onSearch?: () => void
+  /** Se ejecuta al cambiar el valor del campo de búsqueda */
   onSearchChange?: (value: string) => void
+  /** Se ejecuta al hacer clic en el botón de calendario */
   onCalendarClick?: () => void
+  /** Se ejecuta al hacer clic en el botón de filtros */
   onFilterClick?: () => void
+  /** Se ejecuta al hacer clic en el botón de acción principal */
   onTableActionClick?: () => void
+  /** Etiqueta del botón de acción principal */
   actionLabel?: string
+  /** Muestra el botón de calendario */
   showCalendar?: boolean
+  /** Muestra el botón de filtros */
   showFilter?: boolean
+  /** Muestra el botón de acción principal */
   showButton?: boolean
+  /** Render personalizado de acciones adicionales */
   actionsRender?: () => React.ReactNode
+  /** Tablas a mostrar */
   tables: DataTableGroup<T>[]
+  /** Habilita la búsqueda interna por defecto */
   enableInternalSearch?: boolean
+  /** Llaves utilizadas para la búsqueda interna */
   searchableKeys?: (keyof T)[]
 }
 

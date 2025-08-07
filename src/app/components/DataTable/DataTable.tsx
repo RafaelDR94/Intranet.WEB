@@ -6,6 +6,10 @@ import DataTableLayout from './components/DataTableLayout/DataTableLayout'
 import DataTableContent from './components/DataTableContent/DataTableContent'
 import CollapsibleSection from '../CollapsibleSection/CollapsibleSection'
 import useDataTable from './hooks/useDataTable'
+
+/**
+ * Renderiza una o varias tablas con búsqueda y acciones configurables
+ */
 export const DataTable = <T extends { id: string | number }>({
   onSearch,
   onSearchChange,
