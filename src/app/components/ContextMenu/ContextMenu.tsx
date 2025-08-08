@@ -1,21 +1,8 @@
 'use client';
-import { useState, useRef, ReactNode } from 'react';
+import React, { useState, useRef } from 'react';
 import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg';
 import { contextMenuStyles } from './styles';
-
-type MenuItem = {
-  label: string;
-  disabled?: boolean;
-  danger?: boolean;
-  onClick?: () => void;
-};
-
-type ContextMenuProps = {
-  trigger: ReactNode;
-  items: MenuItem[];
-  isOpen?: boolean;
-  setIsOpen?: (open: boolean) => void;
-};
+import type { ContextMenuProps } from './types';
 
 // Helper mínimo para componer clases sin dependencias
 const cx = (...classes: Array<string | false | null | undefined>) =>

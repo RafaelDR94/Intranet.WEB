@@ -141,13 +141,22 @@ Feature:
 - Added catalogs and extended stories for Button, Checkbox and CollapsibleSection. 
 (Agente IA) [#]()
 
-### 1.24.0 Button, Checkbox and CollapsibleSection docs 2025-08-07
+### 1.25.0 Button, Checkbox and CollapsibleSection docs 2025-08-07
 Feature:
 - Added catalogs and extended stories for Button, Checkbox and CollapsibleSection. 
 (Agente IA) [#]()
 
-### 1.25.0 Accounting Module struchture, table component and dynamicForm features 2025-08-07
+### 1.26.0 Accounting Module struchture, table component and dynamicForm features 2025-08-07
 Feature:
 -Because many modules and componentes are going to use tables and Forms
 (Bruno Mendoza) [#32](https://github.com/DR-Mexico/dr.intranet.web/pull/32)
 
+### 1.27.0 Component architecture fixes 2025-08-07
+Feature:
+- Added missing tests, stories, catalogs, hooks and utilities for Calendar, Card, ContextMenu, Label, List and ServiceWorkerRegister components. 
+(Agente IA) [#]()
+
+### 1.28.0 Add missing architecture files for new components 2025-08-08
+Feature:
+- Several components lacked required tests, stories, types, hooks and utilities.
+(Katherine Negrete A) [#34](https://github.com/DR-Mexico/dr.intranet.web/pull/34)
