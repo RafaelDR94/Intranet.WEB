@@ -3,6 +3,7 @@ import CalendarIcon from "@/assets/icons/System/System/calendar.svg";
 import { ContextMenu } from "../ContextMenu/ContextMenu";
 import DatePicker from "react-datepicker";
 import { calendarStyles } from "./styles";
+import type { CalendarProps } from "./types";
 import "react-datepicker/dist/react-datepicker.css";
 import "./datepicker.css";
 
@@ -16,7 +17,7 @@ import {
   formatDMY, 
 } from "@/app/utilities/DatesHelper/Dateshelper";
 
-export const Calendar: React.FC = () => {
+export const Calendar: React.FC<CalendarProps> = () => {
   // Mantén solo los Date para el DatePicker
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);

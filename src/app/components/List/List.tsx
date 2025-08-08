@@ -6,31 +6,13 @@ import { Button } from "../Button/Button";
 import { Control } from "../Control/Control";
 import PersonalAvatar from "../PersonalAvatar/PersonalAvatar";
 import { listStyles } from "./styles";
-
-export interface ListItem {
-  id: number;
-  label: string;
-  controlType:
-    | "details"
-    | "badge"
-    | "arrow"
-    | "toggle"
-    | "radio"
-    | "checkbox"
-    | "control";
-  checked?: boolean;
-  showAvatar: boolean;
-}
-
-interface ListComponentProps {
-  items: ListItem[];
-}
+import type { ListProps } from "./types";
 
 // Helper mínimo para componer clases sin dependencias
 const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(" ");
 
-const List: React.FC<ListComponentProps> = ({ items }) => {
+const List: React.FC<ListProps> = ({ items }) => {
   return (
     <div className={listStyles.Container}>
       {items.map((item) => (
