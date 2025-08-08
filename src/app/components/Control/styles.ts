@@ -1,5 +1,5 @@
 export const controlStyles = {
-  controlCtn: "flex items-center rounded-md overflow-hidden border w-32",
+  controlCtn: "flex items-center rounded-md overflow-hidden border w-[90px]",
   controlIsFilled: "bg-green-10 border-transparent",
   controlIsOutlined: "border-green-50 bg-transparent",
   controlOnDecrement:
@@ -11,6 +11,6 @@ export const controlStyles = {
   controlTextOutlined: "text-green-100 hover:bg-green-10",
   onIncrementTextFilled: "text-green-100 hover:bg-green-20",
   onIncrementTextOutlined: "text-green-100 hover:bg-green-10",
-  minusIcon: "w-4 h-4 mx-auto",
-  plusIcon: "w-4 h-4 mx-auto",
+  minusIcon: "w-3 h-2 mx-auto",
+  plusIcon: "w-3 h-2 mx-auto",
 };

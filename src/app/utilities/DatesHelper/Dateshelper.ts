@@ -1,99 +1,179 @@
+// Dateshelper.ts
+// Utilidades de fechas/horas y construcción de rangos y querystrings
 
-
-
-/** Obtiene el mes actual con dos dígitos. */
-export const month = () => {
-        const today = new Date();
-        const month = today.getMonth() + 1;
-        return (month < 10) ? ("0" + month) : month
-}
-/** Obtiene el día del mes con dos dígitos. */
-export const date = () => {
-        const today = new Date();
-        const date = today.getDate();
-        return (date < 10) ? ("0" + date) : date
-}
-/** Obtiene el año actual. */
-export const year = () => {
-        const today = new Date();
-        const year = today.getFullYear();
-        return (year < 10) ? ("0" + year) : year
-}
-/** Fecha en formato YYYY-MM-DD. */
-export const currentDate = () => { return year() + "-" + month() + "-" + date(); }
-/** Fecha en formato YYYY/MM/DD. */
-export const currentDateDataBase = () => { return year() + "/" + month() + "/" + date(); }
-/** Hora en formato HH. */
-export const getHour = (): string => {
-        const today = new Date();
-        const hour = today.getHours();
-        return (hour < 10) ? ("0" + hour) : hour.toString();
-}
-/** Minutos en formato MM. */
-export const getMinutes = (): string => {
-        const today = new Date();
-        const minutes = today.getMinutes();
-        return (minutes < 10) ? ("0" + minutes) : minutes.toString();
-}
-
-/** Segundos en formato SS. */
-export const getSeconds = (): string => {
-        const today = new Date();
-        const seconds = today.getSeconds();
-        return (seconds < 10) ? ("0" + seconds) : seconds.toString();
-}
-
-/** Hora completa en formato HH:MM:SS. */
-export const getTime = (): string => {
-        return `${getHour()}:${getMinutes()}:${getSeconds()}`;
-}
-
-export const getCurrentDateTime = () => {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const day = String(now.getDate()).padStart(2, "0");
-        const hours = String(now.getHours()).padStart(2, "0");
-        const minutes = String(now.getMinutes()).padStart(2, "0");
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
+export type UrlsFilteredInterface = {
+  onlydates: string;
+  withtimefilter: string;
+  withterminalfilter: string;
+  onlydatesintermedial: string;
 };
-export interface UrlsFilterdInterface {
-        onlydates: string;
-        withtimefilter: string;
-        withterminalfilter: string;
-        onlydatesintermedial: string;
-}
 
-export const todayFilters = (): UrlsFilterdInterface => {
-        let onlydates = "?StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
-        let onlydatesintermedial = "&StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
-        let withtimefilter = "?StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&filter=H"
-        let withterminalfilter = "?StartDate=" + currentDateDataBase() + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&Terminals=1"
-        return { onlydates, withtimefilter, withterminalfilter, onlydatesintermedial }
-}
+// 1 = lunes (coincide con la UI del Calendar)
+export const WEEK_STARTS_ON = 1 as const;
 
-export const monthFilters = (): UrlsFilterdInterface => {
-        let onlydates = "?StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
-        let onlydatesintermedial = "&StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
-        let withtimefilter = "?StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&filter=D"
-        let withterminalfilter = "?StartDate=" + +year() + "/" + month() + "/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&Terminals=1"
-        return { onlydates, withtimefilter, withterminalfilter, onlydatesintermedial }
-}
+// ------------------------------
+// Helpers base
+// ------------------------------
+const pad2 = (n: number) => String(n).padStart(2, "0");
 
-export const yearsFilters = (): UrlsFilterdInterface => {
-        let onlydates = "?StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
-        let onlydatesintermedial = "&StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59"
-        let withtimefilter = "?StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&filter=M"
-        let withterminalfilter = "StartDate=" + year() + "/01/01" + " 00:00:00&EndDate=" + currentDateDataBase() + " 23:59:59&Terminals=1"
-        return { onlydates, withtimefilter, withterminalfilter, onlydatesintermedial }
-}
+const parts = (d: Date = new Date()) => {
+  const y = String(d.getFullYear());
+  const m = pad2(d.getMonth() + 1);
+  const day = pad2(d.getDate());
+  const H = pad2(d.getHours());
+  const M = pad2(d.getMinutes());
+  const S = pad2(d.getSeconds());
+  return { y, m, day, H, M, S };
+};
 
-export const  formatDateHour=(fechaStr: string): string =>{
-        //Solo para fechas con el siguiente formato 2025-04-23 16:47:20.66"
-        const [fecha, horaCompleta] = fechaStr.split(" ");
-        const [hora, minuto] = horaCompleta.split(":");
-        return `${fecha} ${hora}:${minuto}`;
-      }
+// YYYY-MM-DD
+export const currentDate = (d: Date = new Date()): string => {
+  const { y, m, day } = parts(d);
+  return `${y}-${m}-${day}`;
+};
 
+// YYYY/MM/DD (usado por APIs/DB del proyecto)
+export const currentDateDataBase = (d: Date = new Date()): string => {
+  const { y, m, day } = parts(d);
+  return `${y}/${m}/${day}`;
+};
 
+export const getHour = (d: Date = new Date()): string => parts(d).H;
+export const getMinutes = (d: Date = new Date()): string => parts(d).M;
+export const getSeconds = (d: Date = new Date()): string => parts(d).S;
 
+// HH:mm:ss
+export const getTime = (d: Date = new Date()): string => {
+  const { H, M, S } = parts(d);
+  return `${H}:${M}:${S}`;
+};
+
+// Para <input type="datetime-local"> → YYYY-MM-DDTHH:mm
+export const getCurrentDateTime = (d: Date = new Date()): string => {
+  const { y, m, day, H, M } = parts(d);
+  return `${y}-${m}-${day}T${H}:${M}`;
+};
+
+// ------------------------------
+// Rangos (día/semana/mes)
+// ------------------------------
+export const startOfDay = (d: Date): Date => {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+};
+
+export const endOfDay = (d: Date): Date => {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
+};
+
+export const startOfWeek = (
+  d: Date,
+  weekStartsOn: number = WEEK_STARTS_ON
+): Date => {
+  const day = d.getDay();
+  const diff = (day - weekStartsOn + 7) % 7;
+  const start = new Date(d);
+  start.setDate(d.getDate() - diff);
+  return startOfDay(start);
+};
+
+export const endOfWeek = (
+  d: Date,
+  weekStartsOn: number = WEEK_STARTS_ON
+): Date => {
+  const start = startOfWeek(d, weekStartsOn);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  return endOfDay(end);
+};
+
+export const startOfMonth = (d: Date): Date =>
+  startOfDay(new Date(d.getFullYear(), d.getMonth(), 1));
+
+export const endOfMonth = (d: Date): Date =>
+  endOfDay(new Date(d.getFullYear(), d.getMonth() + 1, 0));
+
+export const todayRange = (ref: Date = new Date()) => ({
+  start: startOfDay(ref),
+  end: endOfDay(ref),
+});
+
+export const weekRange = (
+  ref: Date = new Date(),
+  weekStartsOn: number = WEEK_STARTS_ON
+) => ({
+  start: startOfWeek(ref, weekStartsOn),
+  end: endOfWeek(ref, weekStartsOn),
+});
+
+export const monthRange = (ref: Date = new Date()) => ({
+  start: startOfMonth(ref),
+  end: endOfMonth(ref),
+});
+
+// ------------------------------
+// Formateadores amigables
+// ------------------------------
+export const formatDateES = (date: Date | null): string =>
+  date ? date.toLocaleDateString("es-ES") : "";
+
+// Acepta "YYYY-MM-DD HH:mm:ss(.fff)" o "YYYY-MM-DDTHH:mm:ss" y devuelve "YYYY-MM-DD HH:mm"
+export const formatDateHour = (s: string): string => {
+  if (!s) return s;
+  const normalized = s.replace("T", " ").trim();
+  const m = normalized.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}):(\d{2})/);
+  return m ? `${m[1]} ${m[2]}:${m[3]}` : normalized;
+};
+
+export const formatDMY = (date: Date | null): string => {
+  if (!date) return "";
+  const pad2 = (n: number) => String(n).padStart(2, "0");
+  return `${pad2(date.getDate())}-${pad2(date.getMonth() + 1)}-${date.getFullYear()}`;
+};
+
+// ------------------------------
+// Querystring helpers y filtros
+// ------------------------------
+const qs = (params: Record<string, string>, join: "?" | "&" = "?") =>
+  `${join}${new URLSearchParams(params).toString()}`;
+
+export const todayFilters = (d: Date = new Date()): UrlsFilteredInterface => {
+  const base = currentDateDataBase(d);
+  const start = `${base} 00:00:00`;
+  const end = `${base} 23:59:59`;
+  return {
+    onlydates: qs({ StartDate: start, EndDate: end }, "?"),
+    onlydatesintermedial: qs({ StartDate: start, EndDate: end }, "&"),
+    withtimefilter: qs({ StartDate: start, EndDate: end, filter: "H" }, "?"),
+    withterminalfilter: qs({ StartDate: start, EndDate: end, Terminals: "1" }, "?"),
+  };
+};
+
+export const monthFilters = (d: Date = new Date()): UrlsFilteredInterface => {
+  const { y, m } = parts(d);
+  const start = `${y}/${m}/01 00:00:00`;
+  const base = currentDateDataBase(d);
+  const end = `${base} 23:59:59`;
+  return {
+    onlydates: qs({ StartDate: start, EndDate: end }, "?"),
+    onlydatesintermedial: qs({ StartDate: start, EndDate: end }, "&"),
+    withtimefilter: qs({ StartDate: start, EndDate: end, filter: "D" }, "?"),
+    withterminalfilter: qs({ StartDate: start, EndDate: end, Terminals: "1" }, "?"),
+  };
+};
+
+export const yearsFilters = (d: Date = new Date()): UrlsFilteredInterface => {
+  const { y } = parts(d);
+  const start = `${y}/01/01 00:00:00`;
+  const base = currentDateDataBase(d);
+  const end = `${base} 23:59:59`;
+  return {
+    onlydates: qs({ StartDate: start, EndDate: end }, "?"),
+    onlydatesintermedial: qs({ StartDate: start, EndDate: end }, "&"),
+    withtimefilter: qs({ StartDate: start, EndDate: end, filter: "M" }, "?"),
+    withterminalfilter: qs({ StartDate: start, EndDate: end, Terminals: "1" }, "?"),
+  };
+};
