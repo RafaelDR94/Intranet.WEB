@@ -36,6 +36,8 @@ export interface DataTableGroup<T> {
   defaultSortKey?: keyof T
   /** Dirección inicial de ordenamiento */
   defaultSortDirection?: 'asc' | 'desc'
+  /** Total de filas disponibles (para paginación externa) */
+  totalRows?: number
 }
 
 /**
@@ -45,7 +47,11 @@ export interface DataTableProps<T = any> {
   /** Se ejecuta al presionar el botón de búsqueda */
   onSearch?: () => void
   /** Se ejecuta al cambiar el valor del campo de búsqueda */
-  onSearchChange?: (value: string) => void
+  onSearchChange?: (
+    value: string,
+    startDate?: Date | null,
+    endDate?: Date | null
+  ) => void
   /** Se ejecuta al hacer clic en el botón de calendario */
   onCalendarClick?: () => void
   /** Se ejecuta al hacer clic en el botón de filtros */
@@ -68,5 +74,18 @@ export interface DataTableProps<T = any> {
   enableInternalSearch?: boolean
   /** Llaves utilizadas para la búsqueda interna */
   searchableKeys?: (keyof T)[]
+  /** Habilita la paginación */
+  enablePagination?: boolean
+  /** Número máximo de filas por página */
+  rowsPerPage?: number
+  /** Callback de cambio de página */
+  onPageChange?: (page: number) => void
+  /**
+   * Campo/selector de fecha por fila para filtrar por rango.
+   * Puede ser clave del objeto o función que devuelva string/Date.
+   */
+  dateKey?: keyof T | ((row: T) => string | Date | undefined);
+  /** Rango de fechas aplicado desde el calendario */
+  onDateRangeChange?: (start: Date, end: Date) => void;
 }
 

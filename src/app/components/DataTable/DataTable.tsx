@@ -23,26 +23,34 @@ export const DataTable = <T extends { id: string | number }>({
   actionsRender,
   tables,
   enableInternalSearch = true,
-  searchableKeys
+  searchableKeys,
+  enablePagination = true,
+  rowsPerPage = 10,
+  onPageChange,
+  dateKey,
 }: DataTableProps<T>) => {
-  
+
   const {
     handleSearchChange,
+    handleDateChange,
     getFilteredData,
   } = useDataTable<T>({
     onSearchChange,
     enableInternalSearch,
     searchableKeys,
+    dateKey
   })
 
   return (
     <div className="space-y-8">
-
       {tables.length > 1 && (
         <DataTableLayout
           onSearchChange={handleSearchChange}
           onCalendarClick={onCalendarClick}
           onFilterClick={onFilterClick}
+          onDateRangeChange={(s?: Date | null, e?: Date | null) => {
+            handleDateChange(s ?? null, e ?? null);
+          }}
           onSearch={onSearch}
           actionLabel={actionLabel}
           showCalendar={showCalendar}
@@ -68,6 +76,9 @@ export const DataTable = <T extends { id: string | number }>({
                 onSearchChange={handleSearchChange}
                 onCalendarClick={onCalendarClick}
                 onFilterClick={onFilterClick}
+                onDateRangeChange={(s?: Date | null, e?: Date | null) => {
+                  handleDateChange(s ?? null, e ?? null); // normaliza undefined -> null
+                }}
                 onSearch={onSearch}
                 actionLabel={actionLabel}
                 showCalendar={showCalendar}
@@ -83,6 +94,11 @@ export const DataTable = <T extends { id: string | number }>({
               enableSelection={table.enableSelection}
               defaultSortDirection={table?.defaultSortDirection}
               defaultSortKey={table.defaultSortKey}
+              enablePagination={enablePagination}
+              rowsPerPage={rowsPerPage}
+              totalRows={table.totalRows}
+              enableInternalSearch={enableInternalSearch}
+              onPageChange={onPageChange}
             />
           </CollapsibleSection>
         )

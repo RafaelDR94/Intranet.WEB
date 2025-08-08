@@ -4,9 +4,15 @@
  */
 export interface TableLayoutProps {
   /** Se ejecuta cuando el usuario escribe en la barra de búsqueda */
-  onSearchChange?: (value: string) => void
+  onSearchChange?: (
+    value: string,
+    startDate?: Date | null,
+    endDate?: Date | null
+  ) => void
   /** Maneja el clic en el botón de calendario */
-  onCalendarClick?: () => void
+  onCalendarClick?: (start?: Date | null, end?: Date | null) => void // admite rango
+  /** Notifica el cambio de rango de fechas */
+  onDateRangeChange?: (start?: Date | null, end?: Date | null) => void
   /** Maneja el clic en el botón de filtros */
   onFilterClick?: () => void
   /** Maneja el clic en el botón de acción principal */

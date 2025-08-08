@@ -160,3 +160,8 @@ Feature:
 Feature:
 - Several components lacked required tests, stories, types, hooks and utilities.
 (Katherine Negrete A) [#34](https://github.com/DR-Mexico/dr.intranet.web/pull/34)
+
+### 1.29.0 DataTable subcomponent docs 2025-08-08
+Feature:
+- Added tests, stories and catalogs for DataTableLayout and DataTableContent to comply with architecture standards.
+(Agente IA) [#]()

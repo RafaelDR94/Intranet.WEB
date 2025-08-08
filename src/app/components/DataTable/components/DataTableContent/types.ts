@@ -14,4 +14,14 @@ export interface DataTableContentProps<T extends { id: string | number }> {
   defaultSortKey?: keyof T
   /** Dirección inicial de ordenamiento */
   defaultSortDirection?: 'asc' | 'desc'
+  /** Habilita la paginación */
+  enablePagination?: boolean
+  /** Número máximo de filas por página */
+  rowsPerPage?: number
+  /** Total de filas disponibles (para paginación externa) */
+  totalRows?: number
+  /** Indica si la búsqueda es interna */
+  enableInternalSearch?: boolean
+  /** Callback cuando cambia la página */
+  onPageChange?: (page: number) => void
 }

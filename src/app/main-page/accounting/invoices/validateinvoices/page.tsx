@@ -87,6 +87,7 @@ const ValidateInvoices = () => {
                 onFilterClick={() => console.log('Filtro nuevas')}
                 onSearch={() => console.log('Validar nuevas')}
                 actionLabel="Validar Facturas"
+                enablePagination={false}
                 tables={[
                     {
                         data: datosFactura,
