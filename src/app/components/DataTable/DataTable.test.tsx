@@ -11,6 +11,7 @@ vi.mock('@/assets/icons/organization/search.svg', () => ({ default: () => <span 
 vi.mock('@/assets/icons/organization/chevron-down.svg', () => ({ default: () => <span /> }));
 vi.mock('@/assets/icons/navegacion/nav-arrow-down.svg', () => ({ default: () => <span /> }));
 vi.mock('@/assets/icons/navegacion/nav-arrow-up.svg', () => ({ default: () => <span /> }));
+vi.mock('@/app/components/Calendar/Calendar', () => ({ Calendar: () => <span /> }));
 
 interface Person {
   id: number;
