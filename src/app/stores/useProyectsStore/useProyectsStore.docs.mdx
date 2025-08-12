@@ -1,0 +1,27 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useProyectsStore" />
+
+# useProyectsStore
+
+Store basado en **Zustand** para el catálogo de proyectos.
+
+## API
+
+- `proyects: Proyect[]`
+- `loading: boolean`
+- `error?: string`
+- `fetchProyects(force?: boolean): Promise<void>`
+- `forceFetchProyects(): Promise<void>`
+- `reset(): void`
+
+## Uso
+
+```tsx
+import { useProyectsStore } from './useProyectsStore';
+
+export const Example = () => {
+  const { proyects } = useProyectsStore();
+  return <pre>{JSON.stringify(proyects)}</pre>;
+};
+```

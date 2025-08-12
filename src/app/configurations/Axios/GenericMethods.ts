@@ -1,77 +1,66 @@
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export type CallbackFunction = (response: AxiosResponse | Error) => void;
+export type CallbackFunction = (response: AxiosResponse) => void;
 
 const getDefaultConfig = (token: string): AxiosRequestConfig => ({
   headers: {
-    'Authorization': token ? `Bearer ${token}` : '',
-  }
+    Authorization: token ? `Bearer ${token}` : '',
+  },
+  validateStatus: () => true, // <-- siempre retorna la respuesta, no lanza
 });
 
-export const basicPost = async (
+const request = async (
+  method: 'get' | 'post' | 'put' | 'delete',
+  client: AxiosInstance,
+  url: string,
+  callback: CallbackFunction,
+  token = '',
+  data?: any,
+  additionalConfig: AxiosRequestConfig = {}
+) => {
+  const config = { ...getDefaultConfig(token), ...additionalConfig };
+  let response: AxiosResponse;
+
+  if (method === 'get' || method === 'delete') {
+    response = await client[method](url, config);
+  } else {
+    response = await client[method](url, data, config);
+  }
+
+  callback(response);
+};
+
+// Métodos específicos
+export const basicGet = (
+  client: AxiosInstance,
+  url: string,
+  callback: CallbackFunction,
+  token = '',
+  additionalConfig: AxiosRequestConfig = {}
+) => request('get', client, url, callback, token, undefined, additionalConfig);
+
+export const basicPost = (
   client: AxiosInstance,
   url: string,
   data: any,
   callback: CallbackFunction,
   token = '',
   additionalConfig: AxiosRequestConfig = {}
-) => {
-  try {
-    const config = { ...getDefaultConfig(token), ...additionalConfig };
-    const response = await client.post(url, data, config);
-    callback(response);
-  } catch (error) {
-    callback(error as Error);
-  }
-};
+) => request('post', client, url, callback, token, data, additionalConfig);
 
-export const basicGet = async (
-  client: AxiosInstance,
-  url: string,
-  callback: CallbackFunction,
-  token = '',
-  additionalConfig: AxiosRequestConfig = {}
-) => {
-  try {
-    const config = { ...getDefaultConfig(token), ...additionalConfig };
-    const response = await client.get(url, config);
-    callback(response);
-  } catch (error) {
-    callback(error as Error);
-  }
-};
-
-export const basicPut = async (
+export const basicPut = (
   client: AxiosInstance,
   url: string,
   data: any,
   callback: CallbackFunction,
   token = '',
   additionalConfig: AxiosRequestConfig = {}
-) => {
-  try {
-    const config = { ...getDefaultConfig(token), ...additionalConfig };
-    const response = await client.put(url, data, config);
-    callback(response);
-  } catch (error) {
-    callback(error as Error);
-  }
-};
+) => request('put', client, url, callback, token, data, additionalConfig);
 
-export const basicDelete = async (
+export const basicDelete = (
   client: AxiosInstance,
   url: string,
   callback: CallbackFunction,
   token = '',
   additionalConfig: AxiosRequestConfig = {}
-) => {
-  try {
-    const config = { ...getDefaultConfig(token), ...additionalConfig };
-    const response = await client.delete(url, config);
-    callback(response);
-  } catch (error) {
-    callback(error as Error);
-  }
-};
-
-
+) => request('delete', client, url, callback, token, undefined, additionalConfig);

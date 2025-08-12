@@ -1,0 +1,13 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="Utilities/Http" />
+
+# Http utilities
+
+Funciones auxiliares para trabajar con el gateway de intranet y manejar errores HTTP.
+
+- **requireGateway**: obtiene una función CRUD registrada o lanza si falta.
+- **isGatewayReady**: verifica si el gateway ha sido inicializado.
+- **requireFullGateway**: retorna todas las funciones CRUD o lanza si falta alguna.
+- **normalizeApiError**: estandariza respuestas y errores en un formato común.
+- **pGet / pPost / pPut / pDelete**: versiones promisificadas de las funciones del gateway.

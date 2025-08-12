@@ -77,3 +77,19 @@ vi.mock('@/app/configurations/DataBase/crud', () => ({
     }
   }),
 }));
+class DataTransferMock {
+  private _files: File[] = [];
+  items = {
+    add: (file: File) => {
+      this._files = [file];
+    },
+    clear: () => {
+      this._files = [];
+    },
+  };
+  get files() {
+    // Suficiente para asignarlo a input.files en jsdom
+    return this._files as unknown as FileList;
+  }
+}
+(globalThis as any).DataTransfer = DataTransferMock;

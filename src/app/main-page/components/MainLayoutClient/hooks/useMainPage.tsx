@@ -31,8 +31,10 @@ const sidebarRoutes = [
     subroutes: [
       { label: 'Facturación', path: '/main-page/accounting' },
       { label: 'Facturación personal', path: '/main-page/accounting/personalInvoices' },
+      { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
     ],
-  }
+  },
+
 
 ];
 

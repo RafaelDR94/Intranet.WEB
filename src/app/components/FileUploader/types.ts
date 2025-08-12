@@ -21,7 +21,7 @@ export interface FileUploaderProps {
   /** Texto que se muestra dentro del botón */
   placeholder?: string;
   /** Callback con el archivo seleccionado */
-  onFile: (file: File) => void;
+  onFile: (file: File|null) => void;
   /** Deshabilita el uploader */
   disabled?: boolean;
   /** Clases CSS adicionales para el botón */

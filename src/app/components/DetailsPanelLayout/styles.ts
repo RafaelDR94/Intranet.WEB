@@ -1,0 +1,12 @@
+export const detailsPanelStyles = {
+  rootBase: 'inset-y-0 flex transition-[width] duration-300 ease-in-out',
+  sheet: 'h-full bg-gray-10 shadow-700 border-gray-10 flex flex-col',
+  header: 'flex items-center justify-between gap-3 p-4 ',
+  headerLeft: 'ml-5 flex items-center gap-3',
+  headerRight: 'mr-5 flex items-center gap-2',
+  divider: 'h-px bg-green-90 ml-5 mr-5',
+  labels: 'flex items-center justify-between gap-4 px-5 py-3',
+  content: 'flex-1 overflow-auto p-5',
+  headertexts:'text-label font-medium text-blue-60 ',
+  iconButtons:'text-blue-80'
+};

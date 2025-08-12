@@ -11,6 +11,7 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { PrincipalContextValue } from './types';
 import useTheme from './hooks/useTheme/useTheme';
 import useAlert from './hooks/useAlert/useAlert';
+import useLoadingOverlay from './hooks/useLoadingOverlay/useLoadingOverlay';
 
 const PrincipalContext = createContext<PrincipalContextValue | undefined>(undefined);
 
@@ -23,10 +24,11 @@ const PrincipalContext = createContext<PrincipalContextValue | undefined>(undefi
 export const PrincipalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const usePrincipalTheme = useTheme();
   const usePrincipalAlert = useAlert();
-
-  const value: PrincipalContextValue = useMemo(() => ({
-    usePrincipalTheme, usePrincipalAlert
-  }), [usePrincipalAlert,usePrincipalTheme]);
+  const usePrincipalLoading = useLoadingOverlay();
+  const value: PrincipalContextValue = useMemo(
+    () => ({ usePrincipalTheme, usePrincipalAlert, usePrincipalLoading }),
+    [usePrincipalTheme, usePrincipalAlert, usePrincipalLoading]
+  );
 
   return (
     <PrincipalContext.Provider value={value}>

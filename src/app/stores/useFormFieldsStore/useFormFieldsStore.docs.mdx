@@ -1,0 +1,53 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useFormFieldsStore" />
+
+# useFormFieldsStore
+
+Store global basado en **Zustand** para gestionar **múltiples** formularios dinámicos en paralelo usando una clave `formId`.
+
+> Mantiene el estado como un diccionario `fieldsByFormId: Record<string, FieldModel[]>`.
+
+## API
+
+- `fieldsByFormId: Record<string, FieldModel[]>`  
+- `setFields(formId: string, newFields: FieldModel[]): void`  
+- `updateField(formId: string, name: string, changes: Partial<FieldModel>): void`  
+- `resetFields(formId: string): void`  
+- `resetAll(): void`
+
+## Uso
+
+```tsx
+import { useFormFieldsStore } from './useFormFieldsStore';
+
+const FORM_ID = 'form-employee-create';
+
+export const Example = () => {
+  const { setFields, updateField, resetFields } = useFormFieldsStore();
+
+  const init = () =>
+    setFields(FORM_ID, [
+      { name: 'email', label: 'Email', value: '', variant: 'default', type: 'email' },
+      { name: 'name', label: 'Nombre', value: '', variant: 'default', type: 'input' },
+    ]);
+
+  const update = () =>
+    updateField(FORM_ID, 'email', { value: 'user@acme.com', variant: 'success' });
+
+  const reset = () => resetFields(FORM_ID);
+
+  const fields = useFormFieldsStore((s) => s.fieldsByFormId[FORM_ID] ?? []);
+
+  return (
+    <div data-theme="light">
+      <div className="flex gap-2">
+        <button onClick={init}>Init</button>
+        <button onClick={update}>Update</button>
+        <button onClick={reset}>Reset</button>
+      </div>
+      <pre>{JSON.stringify(fields, null, 2)}</pre>
+    </div>
+  );
+};
+```

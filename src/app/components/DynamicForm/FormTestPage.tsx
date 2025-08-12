@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useFormFieldsStore } from '@/app/hooks/useFormFieldsStore/useFormFieldsStore'
+import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore'
 import { FieldModel } from '@/app/components/DynamicForm/types'
 import DynamicForm from './DynamicForm'
 import { Button } from '@/app/components/Button/Button'

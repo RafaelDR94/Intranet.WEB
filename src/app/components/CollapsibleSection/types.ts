@@ -12,4 +12,8 @@ export type CollapsibleSectionProps = {
   defaultOpen?: boolean;
   /** Clases adicionales para el wrapper */
   className?: string;
+  /** Renderiza contenido al lado del divider */
+  rightContent?: React.ReactNode;
+  /** Permite ocultar el divider */
+  showDivider?: boolean;
 };

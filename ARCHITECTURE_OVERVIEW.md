@@ -324,83 +324,103 @@ npm install zustand
 
 ---
 
-### 🧩 Estructura recomendada
+## Patrón de acceso a APIs
+**Objetivo:** centralizar el wiring del cliente HTTP, estandarizar el manejo de errores y mantener **stores de Zustand delgados**, delegando la lógica de red a **acciones puras** en `utilities/`.
 
-Ubicar los hooks basados en Zustand en la carpeta `hooks/`, como cualquier otro hook personalizado:
+### Componentes clave
 
+1) **Intranet Gateway (global)**
+   - Se registra una vez en el layout raíz con un componente cliente `IntranetGatewayInit`.
+   - Publica `get / post / put / delete` en `useIntranetGatewayStore`.
+   - Cualquier módulo puede consumirlos indirectamente vía `requireGateway()` (ver abajo).
+
+2) **requireGateway**
+   - Helper mínimo para obtener una función del gateway (`get`, `post`, `put`, `delete`).
+   - Si el gateway aún no está listo, **lanza un error legible** (evita estados ambiguos).
+   - Firma:
+     ```ts
+     export function requireGateway<K extends 'get'|'post'|'put'|'delete'>(k: K): (...args: any[]) => void
+     ```
+
+3) **promisifyIntranet**
+   - Adapta nuestras funciones por callback del gateway a Promesas: `pGet`, `pPost`, `pPut`, `pDelete`.
+   - Considera **OK por defecto 200–299** (incluye 204). Cualquier otra respuesta se rechaza.
+   - Permite ajustar el rango si fuera necesario.
+   - Ventajas: `async/await` limpio, errores normalizados y menos “paja” en stores.
+
+4) **normalizeApiError**
+   - Convierte `AxiosResponse | AxiosError | Error | unknown` al shape estándar:
+     ```ts
+     type NormalizedError = { message: string; status?: number; code?: string; details?: unknown }
+     ```
+   - Lee campos frecuentes de nuestra API (`error_Message`, `error_Code`, etc.).
+   - Todos los stores guardan **solo `error: string`** para simplificar la UI.
+
+5) **Stores delgados + Actions puras**
+   - El store **solo** declara estado y delega en acciones importadas desde `utilities/`.
+   - Cada acción es una función pura que recibe `set` / `get`, llama `pGet/pPost/...`, aplica `mappings/` y actualiza estado.
+   - Transformaciones de datos **siempre** en `mappings/<dominio>`.
+
+### Flujo (alto nivel)
 ```
-src/
-└── hooks/
-    └── useSidebarStore/
-        ├── useSidebarStore.ts       # implementación del store como hook
-        ├── useSidebarStore.test.ts  # pruebas unitarias
-        └── useSidebarStore.docs.mdx # documentación técnica
-```
-
-> Aunque usan Zustand internamente, deben tratarse como hooks personalizados.
-
----
-
-### 🧪 Ejemplo básico
-
-```ts
-// src/hooks/useSidebarStore/useSidebarStore.ts
-import { create } from 'zustand'
-
-interface SidebarState {
-  isOpen: boolean
-  toggleSidebar: () => void
-}
-
-export const useSidebarStore = create<SidebarState>((set) => ({
-  isOpen: false,
-  toggleSidebar: () => set((state) => ({ isOpen: !state.isOpen }))
-}))
-```
-
-Uso en un componente:
-
-```tsx
-const Sidebar = () => {
-  const { isOpen, toggleSidebar } = useSidebarStore()
-
-  return (
-    <aside className={isOpen ? 'block' : 'hidden'}>
-      <button onClick={toggleSidebar}>Toggle</button>
-    </aside>
-  )
-}
-```
-
----
-
-### ✅ Buenas prácticas
-
-- Cada store debe tener su propia carpeta bajo `hooks/`.
-- Tipar estrictamente el estado y las acciones.
-- Agregar pruebas con Vitest.
-- Documentar en `.docs.mdx` si el store es compartido o tiene reglas críticas.
-- Usar `zustand` en lugar de contextos globales cuando no se necesita renderizado condicional.
-- Para estados persistentes, usar middleware como `persist`.
-
----
-
-### 🔄 Persistencia de estado (opcional)
-
-```ts
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-
-export const useSettingsStore = create(persist(
-  (set) => ({
-    darkMode: false,
-    toggleMode: () => set((s) => ({ darkMode: !s.darkMode }))
-  }),
-  { name: 'settings' }
-))
+UI (Formulario/Tabla)
+  └─ llama store.accion()
+       ├─ stores/<dominio>/utilities/<accion>.ts
+       │   ├─ const http = requireGateway('get'|'post'|'put'|'delete')
+       │   ├─ const res = await pGet|pPost|pPut|pDelete(http)(url[, data])
+       │   ├─ mapea datos (mappings/*)
+       │   └─ set(...) en el store
+       └─ set(...) dispara rerender de quien seleccionó esa slice
 ```
 
----
+### Estructura de carpetas (por dominio)
+```
+src/app/stores/<dominio>/
+  ├─ types.ts                        // State, Set/Get, firmas de acciones
+  ├─ use<Domino>Store.ts             // Store delgado (Zustand)
+  └─ utilities/
+     ├─ fetch<Domino>.ts
+     ├─ create<Domino>.ts
+     ├─ update<Domino>.ts
+     ├─ delete<Domino>.ts
+     ├─ (otros).ts
+     ├─ utilities.test.ts            // ÚNICO archivo de tests para todas las utilities del dominio
+     └─ utilities.docs.mdx           // ÚNICO archivo MDX para documentar las utilities del dominio
+```
+
+> **Requisito de documentación**: todas las utilities deben incluir **JSDoc** dentro del código (descripción, params, returns, ejemplos).
+
+### Rendimiento (Zustand)
+- Usar **selectores finos** + comparación superficial:
+  ```ts
+  import { shallow } from 'zustand/shallow'
+  const { creating, error } = useStore(s => ({
+    creating: s.creating,
+    error: s.error,
+  }), shallow)
+  ```
+- Para objetos “grandes”, usar `createWithEqualityFn`.
+- No crear hooks “gordos” que reexpongan todo el store; preferir selectores.
+
+### Flags & UX
+- Flags por operación (por ejemplo: `creating`, `updating`, `removing`, `updatingExcel`).
+- `PrincipalContext` para spinners/alerts consistentes.
+- Si la API incluye detalles dentro de un 200 (p.ej. `rowsWithMissingData`), formatearlos:
+  ```ts
+  const missing = res.data?.data?.rowsWithMissingData as string[] | undefined
+  const detail = missing?.length ? `\nDetalles:\n- ${missing.join('\n- ')}` : ''
+  ```
+
+### Testing
+- Tests unitarios para **cada dominio** en un **único** archivo `utilities.test.ts` dentro de `stores/<dominio>/utilities/`.
+- Mockear `requireGateway` para controlar respuestas.
+- Casos: éxito (200/201), error (>=400), edge-cases (payload vacío, etc.).
+
+### Docs (MDX)
+- Documentación de las utilities por **dominio** en un **único** `utilities.docs.mdx` en la misma carpeta.
+- Incluir ejemplo de uso desde UI (form/tabla), shape del state y contrato de cada acción.
+- El código debe estar comentado con **JSDoc** (obligatorio).
+
 
 Zustand permite simplificar el manejo de estado global o compartido sin la sobrecarga de Context API o Redux. Es ideal para UI simples, toggles, filtros, o sincronización entre módulos.
 

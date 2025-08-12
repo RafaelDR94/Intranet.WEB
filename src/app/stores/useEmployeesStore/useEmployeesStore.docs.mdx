@@ -1,0 +1,29 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useEmployeesStore" />
+
+# useEmployeesStore
+
+Store global basado en **Zustand** para gestionar el catálogo de empleados.
+
+## API
+
+- `employees: EmployeeType[]`
+- `loading: boolean`
+- `error?: string`
+- `fetchEmployees(force?: boolean): Promise<void>`
+- `forceFetchEmployees(): Promise<void>`
+- `reset(): void`
+
+## Uso
+
+```tsx
+import { useEmployeesStore } from './useEmployeesStore';
+
+export const Example = () => {
+  const { employees, fetchEmployees } = useEmployeesStore();
+  return (
+    <button onClick={() => fetchEmployees()}>cargar</button>
+  );
+};
+```
