@@ -145,11 +145,14 @@ export const useDataTableContent = <T extends { id: string | number }>(
     onPageChange?.(page);
   };
 
-  // layout (scroll interno cuando no hay paginación)
-  const showScroll = !enablePagination;
+  // layout (scroll interno configurable)
+  const showScroll =
+    !enablePagination || typeof scrollMaxHeight !== "undefined";
   const computedMaxHeight =
     typeof scrollMaxHeight !== "undefined"
-      ? (typeof scrollMaxHeight === "number" ? `${scrollMaxHeight}px` : scrollMaxHeight)
+      ? typeof scrollMaxHeight === "number"
+        ? `${scrollMaxHeight}px`
+        : scrollMaxHeight
       : `${rowsPerPage * rowHeight}px`;
 
   return {

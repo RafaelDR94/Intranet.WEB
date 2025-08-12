@@ -166,12 +166,22 @@ Feature:
 - Added tests, stories and catalogs for DataTableLayout and DataTableContent to comply with architecture standards.
 (Agente IA) [#]()
 
-### 1.30.0 Document and test stores 2025-08-12
+### 1.30.0 Ensure viewport height and table scroll 2025-08-08
+Feature:
+- Maintains 100vh layout with internal page and table scrolling.
+(Agente IA) [#]()
+
+### 1.31.0 Document and test stores 2025-08-12
 Feature:
 - Added documentation and tests for global stores and their utilities.
 (Agente IA) [#]()
 
-### 1.31.0 Http and names utilities tests 2025-08-12
+### 1.32.0 Http and names utilities tests 2025-08-12
 Feature:
 - Added tests and documentation for Http helpers and NamesUtilities.
 (Agente IA) [#]()
+
+### 1.33.0 Component Adjustments 2025-08-14
+Feature:
+- To reuse components for each different design
+(Katherine Negrete A) [#47](https://github.com/DR-Mexico/dr.intranet.web/pull/47)
