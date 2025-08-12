@@ -1,0 +1,67 @@
+import { useCallback } from "react";
+import type { KeyboardEvent } from "react";
+import type { TableLayoutProps } from "../types";
+
+/** Extrae y memoiza toda la lógica/handlers del layout de tabla */
+export const useDataTableLayout = (props: TableLayoutProps) => {
+  const {
+    onSearchChange,
+    onCalendarClick,
+    onDateRangeChange, // “oficial”
+    onSearch,
+    onFilterClick,
+    actionsRender,
+    onTableActionClick,
+    actionLabel = "Agregar",
+    showCalendar = true,
+    showFilter = false,
+    showButton = true,
+  } = props;
+
+  /** Puente único para despachar el rango hacia arriba */
+  const handleDateRange = useCallback(
+    (start: Date, end: Date) => {
+      onDateRangeChange?.(start, end); // callback “nuevo”
+      onCalendarClick?.(start, end);   // compatibilidad
+    },
+    [onDateRangeChange, onCalendarClick]
+  );
+
+  /** Input de búsqueda */
+  const handleInputChange = useCallback(
+    (value: string) => {
+      onSearchChange?.(value);
+    },
+    [onSearchChange]
+  );
+
+  const handleSearchClick = useCallback(() => {
+    onSearch?.();
+  }, [onSearch]);
+
+  const handleInputKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") onSearch?.();
+    },
+    [onSearch]
+  );
+
+  return {
+    // handlers expuestos
+    handleDateRange,
+    handleInputChange,
+    handleSearchClick,
+    handleInputKeyDown,
+
+    // callbacks y opciones que pasan tal cual
+    onFilterClick,
+    actionsRender,
+    onTableActionClick,
+    actionLabel,
+    showCalendar,
+    showFilter,
+    showButton,
+  };
+};
+
+export type UseDataTableLayoutReturn = ReturnType<typeof useDataTableLayout>;
