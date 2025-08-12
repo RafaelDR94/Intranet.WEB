@@ -93,3 +93,6 @@ export const GeneralServicesMeetingRoom = process.env.NEXT_PUBLIC_GENERALSERVICE
 export const GeneralServicesMeetingRoomCalendarEventId = process.env.NEXT_PUBLIC_GENERALSERVICES_CALENDAREVENTID ?? "/GeneralServices/MeetingRoom/CalendarEventId";
 
 export const NotificationsSendPush = process.env.NEXT_PUBLIC_NOTIFICATIONS_SENDPUSH ?? "/Notifications/SendPushNotification";
+
+export const BillingRequisition = process.env.NEXT_PUBLIC_BILLINGS_REQUISITION ?? "/Billings/BillinRequisition";
+export const BillingRequisitionByExcel = process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONBYEXCEL ?? "/Billings/BillinRequisitionByExcel";

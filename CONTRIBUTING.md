@@ -211,4 +211,126 @@ Desde la consola Firebase:
 4. Luego, en **Permissions > Roles > [Nombre de rol]**, activar los permisos necesarios por rol
 5. Validar que `validatePermissionsbyroute` refleje los cambios
 
+
+## Cómo implementar un nuevo CRUD** (para formularios y tablas) siguiendo el patrón oficial de acceso a APIs.
 ---
+## 1 Modelos y mapeos
+- Crear/actualizar `mappings/<dominio>/<dominio>.types.ts` con los modelos TypeScript.
+- Crear `mappings/<dominio>/<dominio>.mapper.ts` con funciones puras (`FooMap`, `FoosMap`, etc.).
+- **No** mezclar mapeo con UI ni con acciones.
+
+## 2 Store del dominio
+En `src/app/stores/<dominio>/`:
+
+**types.ts**
+```ts
+// JSDoc requerido en todas las firmas
+export type State = {
+  items: Foo[]
+  loading: boolean
+  error?: string
+  // flags por operación si aplica...
+  creating?: boolean
+}
+
+export type Set = (p: Partial<State> | ((s: State) => Partial<State>)) => void
+export type Get = () => State
+```
+
+**utilities/** (una acción por archivo)
+```ts
+/**
+ * Carga lista de Foos desde la API.
+ * @param set Zustand setter
+ * @param get Zustand getter
+ * @param force Ignora cache local si `true`
+ */
+export const fetchFoos = async (set: Set, get: Get, force = false) => {
+  if (get().items.length > 0 && !force) return
+  set({ loading: true, error: undefined })
+  try {
+    const http = requireGateway('get')
+    const res = await pGet(http)('/api/foos?IsActive=true')
+    const mapped = FoosMap(res.data?.data ?? [])
+    set({ items: mapped, loading: false })
+  } catch (err) {
+    const e = normalizeApiError(err)
+    set({ error: e.message, loading: false })
+  }
+}
+```
+
+**use<Domino>Store.ts**
+```ts
+export const useFooStore = createWithEqualityFn<State>()(
+  devtools((set, get) => ({
+    items: [],
+    loading: false,
+    error: undefined,
+    fetchFoos: (force = false) => fetchFoos(set, get, force),
+    // createFoo, updateFoo, deleteFoo, ...
+    reset: () => set({ items: [], error: undefined })
+  }))
+)
+```
+
+## 3 UI: Formularios
+- Si el formulario es dinámico, usar `useFormFieldsStore` (por `formId`) para opciones/estado de campos.
+- En `onSubmit`, armar el `payload` con ayuda de los catálogos (ej. employees/proyects).
+- Llamar la acción del store (`createFoo`, `updateFoo`, …).
+- Spinners/alerts:
+  - `showSpinner` mientras `creating|updating|removing` estén activos.
+  - `showAlert` de éxito o error. **Errores** siempre provienen de `state.error` (ya normalizado).
+
+**Fragmento típico**
+```ts
+const { createFoo, creating, error, resetFlags } = useFooStore(s => ({
+  createFoo: s.createFoo,
+  creating: s.creating,
+  error: s.error,
+  resetFlags: s.resetFlags,
+}), shallow)
+
+useEffect(() => {
+  if (creating) showSpinner({ message: 'Guardando…' })
+  else hideSpinner()
+  if (error) showAlert({ type: 'error', description: error })
+}, [creating, error])
+```
+
+## 4 UI: Tablas
+- Prefetch con `useEffect(() => fetchFoos(), [])` o botón “Refrescar”.
+- Acciones por fila (editar/eliminar) con confirmación y spinners.
+- Borrar:
+  - Confirmar con `showAlert`.
+  - `await deleteFoo(id)`. Evaluar resultado y notificar.
+
+## 5 Rango HTTP
+- `promisifyIntranet` usa OK **200–299** por defecto.
+- Si un endpoint requiere otro rango, puedes extender `promisify` en el futuro. Mantener el default simplifica la mayoría de casos.
+
+## 6 Errores enriquecidos
+- Todas las acciones deben envolver errores con `normalizeApiError(err)` y guardar en `state.error` **solo el `message`**.
+- Si la API retorna detalles útiles en un 200 (ej. `rowsWithMissingData`), formatea un mensaje para la UI:
+  ```ts
+  const miss = res.data?.data?.rowsWithMissingData as string[] | undefined
+  const extra = miss?.length ? `\nDetalles:\n- ${miss.join('\n- ')}` : ''
+  set({ error: extra ? `Operación incompleta.${extra}` : undefined })
+  ```
+
+## 7 Selectores y rendimiento
+- Usar **selectores finos** con `shallow` para reducir renders:
+  ```ts
+  const { items, loading } = useFooStore(s => ({ items: s.items, loading: s.loading }), shallow)
+  ```
+- Evitar hooks “orquestadores” que reexpongan todo el store.
+
+## 8 Tests y documentación de utilities (por dominio)
+- Colocar **un solo archivo de tests** para todas las utilities del dominio:
+  - `src/app/stores/<dominio>/utilities/utilities.test.ts`
+  - Usar Vitest. Mockear `requireGateway` para emitir respuestas/errores controlados.
+  - Casos mínimos: éxito 200/201, error >=400, edge-cases.
+- Colocar **un solo archivo MDX** de documentación para las utilities del dominio:
+  - `src/app/stores/<dominio>/utilities/utilities.docs.mdx`
+  - Incluir overview, tabla de acciones, contratos, ejemplos de UI.
+- **Obligatorio**: todas las utilities deben incluir **JSDoc** detallado (descripción, params, returns y, si aplica, ejemplos).

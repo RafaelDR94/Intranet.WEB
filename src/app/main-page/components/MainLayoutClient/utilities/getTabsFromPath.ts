@@ -26,7 +26,11 @@ export const getTabsFromPath = (pathname: string): { label: string; path: string
     ],
     'accounting/personalInvoices': [
       { label: 'Facturas', path: '/main-page/accounting/personalInvoices/invoices' },
-      { label: 'Comentarios', path: '/main-page/accounting/personalInvoices/coments' },
+      { label: 'Historial', path: '/main-page/accounting/personalInvoices/history' },
+    ],
+    'accounting/requisitions': [
+      { label: 'Requisiciones', path: '/main-page/accounting/requisitions/requisitions' },
+      { label: 'Listado de Requisiciones', path: '/main-page/accounting/requisitions/requisitionsList' },
     ],
     // …otros mapeos
   };

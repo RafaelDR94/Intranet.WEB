@@ -9,6 +9,7 @@ import ServiceWorkerRegister from './components/ServiceWorkerRegister/ServiceWor
 import type { Metadata } from 'next'
 import { AuthProvider } from './context/AuthContext/AuthContext'
 import { FirebaseProvider } from './context/FirebaseContext/FirebaseContext'
+import IntranetGatewayInit from './components/IntranetGatewayInit.tsx/IntranetGatewatInit'
 const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
@@ -36,6 +37,7 @@ export const metadata: Metadata = {
   ],
 }
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+
   return (
     <html lang="es">
       <body className={`${montserrat.variable} ${nulshock.variable}`}>
@@ -44,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <FirebaseProvider>
               <ThemeInitializer />
               <ServiceWorkerRegister />
-
+               <IntranetGatewayInit />
               {/* Sincroniza el atributo data-theme en <html> */}
               {children}
             </FirebaseProvider>

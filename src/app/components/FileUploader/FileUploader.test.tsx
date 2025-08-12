@@ -1,3 +1,4 @@
+
 // src/app/components/FileUploader/FileUploader.test.tsx
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
@@ -67,7 +68,7 @@ describe('FileUploader component', () => {
   });
 
   it('usa el icono por defecto (upload.svg) cuando no se pasa prop icon', () => {
-    render(<FileUploader accept=".xml" label="Archivo" placeholder="Subir XML" onFile={() => {}} />);
+    render(<FileUploader accept=".xml" label="Archivo" placeholder="Subir XML" onFile={() => { }} />);
     // Ahora el upload.svg está mockeado como <svg data-testid="upload-icon" />
     expect(screen.getByTestId('upload-icon')).toBeInTheDocument();
   });
@@ -105,4 +106,20 @@ describe('FileUploader component', () => {
     expect(await screen.findByText('inicial.txt')).toBeInTheDocument();
     await waitFor(() => expect(onFile).toHaveBeenCalled());
   });
+
+
+  it('no llama a onFile si no se selecciona ningún archivo', () => {
+    const onFile = vi.fn();
+    const { container } = render(
+      <FileUploader accept=".txt" onFile={onFile} placeholder="Subir" label="Test" />
+    );
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    fireEvent.change(fileInput, { target: { files: [] } });
+    expect(onFile).not.toHaveBeenCalled();
+  });
+
+ 
+
+  
 });

@@ -1,8 +1,8 @@
 'use client'
 import { useRef, useState } from 'react'
-import { Button } from '@/app/components/Button/Button'
 import { FieldModel } from '@/app/components/DynamicForm/types'
 import DynamicForm from '@/app/components/DynamicForm/DynamicForm'
+import FormsLayout from '@/app/components/FormsLayout/FormsLayout'
 
 const AddFilesComponent = () => {
     const submitRef = useRef<() => void | Promise<void>>(null)
@@ -42,7 +42,7 @@ const AddFilesComponent = () => {
                 { label: 'Administrativo', value: 'admin' },
             ],
             className: 'max-w-[400px]',
-            
+
         },
         {
             type: 'file',
@@ -52,7 +52,7 @@ const AddFilesComponent = () => {
             accept: '.pdf',
             validations: [{ type: 'required' }],
             className: 'max-w-[300px]',
-            onChange:(value,values)=>{console.log("value",value);console.log("values",values)}
+            onChange: (value, values) => { console.log("value", value); console.log("values", values) }
         },
         {
             type: 'file',
@@ -67,48 +67,35 @@ const AddFilesComponent = () => {
 
 
     return (
-        <div className="flex flex-col gap-4">
-            {/* Título y botón */}
-            <div className="flex justify-between items-center">
-                <h2 className="text-blue-60 text-b4 font-medium">
-                    Sube aquí tus archivos XML y PDF
-                </h2>
-                <Button
-                    onClick={() => submitRef.current?.()}
-                    disabled={!formReady}
-                    hideIcon={true}
-                >
-                    Subir Archivos
-                </Button>
+        <FormsLayout
+            title="Sube aquí tus archivos XML y PDF"
+            buttonLabel="Subir Archivos"
+            onButtonClick={() => submitRef.current?.()}
+            buttonDisabled={!formReady}
+        >
+
+
+            <div className="w-3/4">
+                <DynamicForm
+                    fields={fields}
+                    layoutMatrix={[[5], [5, 5], [5, 5]]}
+                    submitLabel="Enviar solicitud"
+                    onSubmit={(values) => console.log("Valores enviados:", values)}
+                    onValidChange={setFormReady}
+                    externalSubmitRef={submitRef}
+                    showSubmitIf={() => false}
+                />
             </div>
 
-            {/* Contenedor del formulario + imagen */}
-            <div className="flex bg-white-100 p-6 rounded-lg shadow-md gap-6">
-                {/* Formulario: 3/4 */}
-                <div className="w-3/4">
-                    <DynamicForm
-                        fields={fields}
-                        layoutMatrix={[[5], [5, 5], [5, 5]]}
-                        submitLabel="Enviar solicitud"
-                        onSubmit={(values) => {
-                            console.log('Valores enviados:', values)
-                        }}
-                        onValidChange={(isvalid) => { setFormReady(isvalid) }}
-                        externalSubmitRef={submitRef}
-                        showSubmitIf={() => false}
-                    />
-                </div>
-
-                {/* Imagen: 1/4 */}
-                <div className="w-1/4 flex justify-center items-start">
-                    <img
-                        src="/images/receipt-example.png" // <-- reemplaza con tu ruta real
-                        alt="Vista previa del recibo"
-                        className="w-full max-w-[160px] object-contain rounded-md shadow"
-                    />
-                </div>
+            <div className="w-1/4 flex justify-center items-start">
+                <img
+                    src="/images/receipt-example.png"
+                    alt="Vista previa del recibo"
+                    className="w-full max-w-[160px] object-contain rounded-md shadow"
+                />
             </div>
-        </div>
+
+        </FormsLayout>
     )
 }
 

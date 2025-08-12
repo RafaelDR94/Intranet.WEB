@@ -9,7 +9,7 @@ import MainTabs from './components/MainTabs/MainTabs';
 import { mainLayoutStyles } from './styles';
 import useMainPage from './hooks/useMainPage';
 import React, { ReactNode } from 'react';
-
+import LoadingOverlay from '@/app/components/LoadingOverLay/LoadingOverlay';
 
 
 /**
@@ -25,9 +25,9 @@ import React, { ReactNode } from 'react';
  * @param children - Contenido principal de la página
  * @returns Layout completo con `Sidebar`, `Tabs`, `Alerts`, `PopUp`, y children
  */
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 
-
-export default function MainLayoutClient({ children  }: { readonly children: ReactNode }) {
+export default function MainLayoutClient({ children }: { readonly children: ReactNode }) {
   const {
     alert,
     hideAlert,
@@ -45,7 +45,8 @@ export default function MainLayoutClient({ children  }: { readonly children: Rea
     handleCancelMessageOffline,
     sidebarRoutes,
   } = useMainPage();
-
+  const { usePrincipalLoading } = usePrincipal();
+  const { open, message, spinnerSize } = usePrincipalLoading;
   return (
     <PermissionAgent fallbackPath="/main-page/home">
       <div className={mainLayoutStyles.container}>
@@ -86,6 +87,7 @@ export default function MainLayoutClient({ children  }: { readonly children: Rea
         <div className={mainLayoutStyles.content}>
           <MainTabs tabs={tabs} pathname={pathname} validPermissionsbyroute={validPermissionsbyroute} />
           <main className={mainLayoutStyles.main}>{children}</main>
+          <LoadingOverlay open={open} message={message} spinnerSize={spinnerSize} />
         </div>
       </div>
     </PermissionAgent>

@@ -3,6 +3,7 @@ import { getInitialValues } from '../utilities/getInitialValues';
 import { getValidationSchema } from '../utilities/getValidationSchema';
 import { cleanHiddenFields } from '../utilities/cleanHiddenFields';
 import { resolveVariant } from '../utilities/resolveVariant';
+import { useEffect } from 'react';
 
 /**
  * Crea utilidades derivadas de un conjunto de campos para construir un formulario dinámico.
@@ -20,6 +21,7 @@ export const useDynamicForm = (fields: FieldModel[]) => {
   // Limpieza de campos ocultos
   const cleanValues = (values: Record<string, unknown>) =>
     cleanHiddenFields(fields, values);
+
 
   return { initialValues, validationSchema, resolveVariant, cleanValues };
 };
