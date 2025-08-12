@@ -5,7 +5,15 @@ import { NormalizedError } from './types'
 const isAxiosResponse = (x: any): x is AxiosResponse =>
   x && typeof x === 'object' && typeof x.status === 'number' && 'data' in x
 
-export function normalizeApiError(err: unknown, fallback = 'Error desconocido'):    NormalizedError {
+/**
+ * Normaliza distintas estructuras de error (respuestas HTTP, AxiosError, strings)
+ * en un objeto uniforme para manejar en la aplicación.
+ *
+ * @param err - Error original recibido.
+ * @param fallback - Mensaje por defecto si no se puede determinar el error.
+ * @returns Un {@link NormalizedError} con información estandarizada.
+ */
+export function normalizeApiError(err: unknown, fallback = 'Error desconocido'): NormalizedError {
   // Caso 1: nos pasaron directamente la respuesta HTTP
   if (isAxiosResponse(err)) {
     const data = err.data ?? {}

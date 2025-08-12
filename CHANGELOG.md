@@ -170,3 +170,8 @@ Feature:
 Feature:
 - Added documentation and tests for global stores and their utilities.
 (Agente IA) [#]()
+
+### 1.31.0 Http and names utilities tests 2025-08-12
+Feature:
+- Added tests and documentation for Http helpers and NamesUtilities.
+(Agente IA) [#]()
