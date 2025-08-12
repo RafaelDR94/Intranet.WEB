@@ -122,6 +122,22 @@ describe('MainLayoutClient', () => {
     const solicitudes = await screen.findByText('Solicitudes')
     fireEvent.click(solicitudes)
 
-    expect(screen.getByText('Facturación')).toBeInTheDocument()
-  })
-})
+    expect(screen.getByText('Facturación')).toBeInTheDocument();
+  });
+
+  it('applies full height layout with scrollable content', () => {
+    render(
+      <AuthContext.Provider value={mockAuthContextValue}>
+        <MainLayoutClient>
+          <div>Child</div>
+        </MainLayoutClient>
+      </AuthContext.Provider>
+    );
+
+    const sidebar = screen.getByRole('complementary');
+    const main = screen.getByRole('main');
+
+    expect(sidebar.className).toContain('h-full');
+    expect(main.className).toContain('overflow-y-auto');
+  });
+});
