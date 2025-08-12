@@ -165,3 +165,8 @@ Feature:
 Feature:
 - Added tests, stories and catalogs for DataTableLayout and DataTableContent to comply with architecture standards.
 (Agente IA) [#]()
+
+### 1.30.0 Document and test stores 2025-08-12
+Feature:
+- Added documentation and tests for global stores and their utilities.
+(Agente IA) [#]()

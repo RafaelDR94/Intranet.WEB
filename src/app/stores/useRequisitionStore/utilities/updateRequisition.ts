@@ -3,17 +3,24 @@
 import type { AxiosResponse } from 'axios'
 import { BillingRequisition } from '@/app/configurations/Axios/urls'
 import { RequisitionMap } from '@/app/mappings/requisitions/requisitions.mapp'
-import type { Requisition } from '@/app/mappings/requisitions/requisitions.types'
+import type { Requisition, RequitionPut } from '@/app/mappings/requisitions/requisitions.types'
 import type { Get, Set } from '../types'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { fetchRequisitions } from './fetchRequisitions'
 
+/**
+ * Actualiza una requisición existente.
+ *
+ * @param set función `set` de Zustand
+ * @param get función `get`
+ * @param payload datos de la requisición a actualizar
+ */
 export const updateRequisition = async (
   set: Set,
   get: Get,
-  payload: any
+  payload: RequitionPut
 ): Promise<Requisition | null> => {
   set({ updating: true, error: undefined, successPut: false })
 

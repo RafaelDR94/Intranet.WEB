@@ -9,7 +9,7 @@ import ServiceWorkerRegister from './components/ServiceWorkerRegister/ServiceWor
 import type { Metadata } from 'next'
 import { AuthProvider } from './context/AuthContext/AuthContext'
 import { FirebaseProvider } from './context/FirebaseContext/FirebaseContext'
-import IntranetGatewayInit from './components/IntranetGatewayInit.tsx/IntranetGatewatInit'
+import IntranetGatewayInit from './components/IntranetGatewayInit/IntranetGatewatInit'
 const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['400', '500', '600'],

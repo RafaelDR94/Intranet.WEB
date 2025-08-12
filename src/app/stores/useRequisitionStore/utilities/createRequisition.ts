@@ -3,17 +3,24 @@
 import type { AxiosResponse } from 'axios'
 import { BillingRequisition } from '@/app/configurations/Axios/urls'
 import { RequisitionMap } from '@/app/mappings/requisitions/requisitions.mapp'
-import type { Requisition } from '@/app/mappings/requisitions/requisitions.types'
+import type { Requisition, RequitionPost } from '@/app/mappings/requisitions/requisitions.types'
 import type { Set, Get } from '../types'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { pPost } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { fetchRequisitions } from './fetchRequisitions'
 
+/**
+ * Crea una nueva requisición en el backend.
+ *
+ * @param set Función `set` de Zustand
+ * @param get Función `get`
+ * @param payload Datos de la requisición a crear
+ */
 export const createRequisition = async (
   set: Set,
   get: Get,
-  payload: unknown
+  payload: RequitionPost
 ): Promise<Requisition | null> => {
   set({ creating: true, error: undefined, successPost: false })
 

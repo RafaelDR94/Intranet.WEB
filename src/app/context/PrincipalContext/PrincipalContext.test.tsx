@@ -14,8 +14,8 @@ describe('PrincipalContext', () => {
     expect(result.current.usePrincipalTheme).toBeDefined();
     expect(result.current.usePrincipalAlert).toBeDefined();
     expect(result.current.usePrincipalLoading).toBeDefined(); // nuevo
-    expect(typeof result.current.usePrincipalLoading.show).toBe('function');
-    expect(typeof result.current.usePrincipalLoading.hide).toBe('function');
+    expect(typeof result.current.usePrincipalLoading.showSpinner).toBe('function');
+    expect(typeof result.current.usePrincipalLoading.hideSpinner).toBe('function');
     expect(typeof result.current.usePrincipalLoading.withLoading).toBe('function');
   });
 
@@ -27,13 +27,13 @@ describe('PrincipalContext', () => {
     const { result } = renderHook(() => usePrincipal(), { wrapper });
 
     act(() => {
-      result.current.usePrincipalLoading.show({ message: 'Probando…' });
+      result.current.usePrincipalLoading.showSpinner({ message: 'Probando…' });
     });
     expect(result.current.usePrincipalLoading.open).toBe(true);
     expect(result.current.usePrincipalLoading.message).toBe('Probando…');
 
     act(() => {
-      result.current.usePrincipalLoading.hide();
+      result.current.usePrincipalLoading.hideSpinner();
     });
     expect(result.current.usePrincipalLoading.open).toBe(false);
   });

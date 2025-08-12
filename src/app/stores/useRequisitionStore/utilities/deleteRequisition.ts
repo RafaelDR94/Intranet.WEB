@@ -7,6 +7,13 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { pDelete } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 
+/**
+ * Elimina una requisición por ID.
+ *
+ * @param set función `set`
+ * @param get función `get`
+ * @param id identificador de la requisición
+ */
 export const deleteRequisition = async (
   set: Set,
   get: Get,

@@ -3,11 +3,18 @@
 import type { AxiosResponse } from 'axios'
 import { BillingRequisition } from '@/app/configurations/Axios/urls'
 import { RequisitionsMap } from '@/app/mappings/requisitions/requisitions.mapp'
-import { Get,Set } from '../types'
+import { Get, Set } from '../types'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 
+/**
+ * Obtiene las requisiciones activas del backend y actualiza el estado.
+ *
+ * @param set Función `set` de Zustand
+ * @param get Función `get` de Zustand
+ * @param force Forza la recarga ignorando cache
+ */
 export const fetchRequisitions = async (set: Set, get: Get, force = false) => {
   // cache básica
   if (get().requisitions.length > 0 && !force) return

@@ -10,6 +10,13 @@ import { pPost } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { fetchRequisitions } from './fetchRequisitions'
 
+/**
+ * Actualiza una requisición cargando un archivo de Excel.
+ *
+ * @param set función `set`
+ * @param get función `get`
+ * @param excel archivo de Excel con la información
+ */
 export const updateExcelRequisition = async (
     set: Set,
     get: Get,

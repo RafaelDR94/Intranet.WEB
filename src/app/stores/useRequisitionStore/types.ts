@@ -1,27 +1,34 @@
-import { Requisition,RequitionPost, RequitionPut} from "@/app/mappings/requisitions/requisitions.types"
-
+import { Requisition, RequitionPost, RequitionPut } from '@/app/mappings/requisitions/requisitions.types'
 
 // src/app/stores/useRequisitionStore/types.ts
+/**
+ * Estado para el store de requisiciones.
+ */
 export type RequisitionsState = {
+  /** Lista de requisiciones */
   requisitions: Requisition[]
+  /** Flags de proceso */
   loading: boolean
   creating: boolean
   updating: boolean
   removing: boolean
   updatingExcel: boolean
 
+  /** Flags de éxito por operación */
   successGet: boolean
   successPost: boolean
   successPut: boolean
   successDelete: boolean
   successUpdateExcel: boolean
 
+  /** Mensaje de error general */
   error?: string
-  warning?:string
+  /** Advertencias retornadas por API */
+  warning?: string
 
   fetchRequisitions: (force?: boolean) => Promise<void> | void
-  createRequisition: (payload: any) => Promise<RequitionPost | null>
-  updateRequisition: (payload: any) => Promise<RequitionPut | null>
+  createRequisition: (payload: RequitionPost) => Promise<Requisition | null>
+  updateRequisition: (payload: RequitionPut) => Promise<Requisition | null>
   deleteRequisition: (id: string) => Promise<boolean>
   updateExcelRequisition: (excel: File) => Promise<Requisition | null>
 

@@ -1,0 +1,41 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useRequisitionStore" />
+
+# useRequisitionStore
+
+Store de **Zustand** para manejar requisiciones y sus operaciones CRUD.
+
+## API
+
+- `requisitions: Requisition[]`
+- `loading: boolean`
+- `creating: boolean`
+- `updating: boolean`
+- `removing: boolean`
+- `updatingExcel: boolean`
+- `error?: string`
+- `warning?: string`
+- `fetchRequisitions(force?: boolean): Promise<void>`
+- `createRequisition(payload: RequitionPost): Promise<Requisition | null>`
+- `updateRequisition(payload: RequitionPut): Promise<Requisition | null>`
+- `deleteRequisition(id: string): Promise<boolean>`
+- `updateExcelRequisition(excel: File): Promise<Requisition | null>`
+- `reset(): void`
+- `resetFlags(): void`
+
+## Uso
+
+```tsx
+import { useRequisitionsStore } from './useRequisitionStore';
+
+export const Example = () => {
+  const { fetchRequisitions, requisitions } = useRequisitionsStore();
+  return (
+    <div>
+      <button onClick={() => fetchRequisitions()}>cargar</button>
+      <pre>{JSON.stringify(requisitions)}</pre>
+    </div>
+  );
+};
+```
