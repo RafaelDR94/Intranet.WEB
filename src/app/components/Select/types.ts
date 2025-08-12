@@ -32,6 +32,8 @@ export interface SelectProps {
   label?: string
   helperText?: string
   disabled?: boolean
-  className?: string
+  className?: string  // estilos del wrapper
+  maxPanelHeight?: number;   // altura máxima deseada en px
+  portal?: boolean; // monta el panel en <body>
 }
 

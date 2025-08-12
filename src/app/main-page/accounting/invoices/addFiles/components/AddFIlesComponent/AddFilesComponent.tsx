@@ -26,6 +26,12 @@ const AddFilesComponent = () => {
             options: [
                 { label: 'Proyecto A', value: 'a' },
                 { label: 'Proyecto B', value: 'b' },
+                { label: 'Proyecto C', value: 'b' },
+                { label: 'Proyecto D', value: 'b' },
+                { label: 'Proyecto E', value: 'b' },
+                { label: 'Proyecto F', value: 'b' },
+                { label: 'Proyecto G', value: 'b' },
+
             ],
             className: 'max-w-[400px]',
             onlyText: false
@@ -87,12 +93,31 @@ const AddFilesComponent = () => {
                 />
             </div>
 
-            <div className="w-1/4 flex justify-center items-start">
-                <img
-                    src="/images/receipt-example.png"
-                    alt="Vista previa del recibo"
-                    className="w-full max-w-[160px] object-contain rounded-md shadow"
-                />
+            {/* Contenedor del formulario + imagen */}
+            <div className="flex bg-white-100 p-6 rounded-lg shadow-md gap-6">
+                {/* Formulario: 3/4 */}
+                <div className="w-3/4">
+                    <DynamicForm
+                        fields={fields}
+                        layoutMatrix={[[5], [5, 5], [5, 5]]}
+                        submitLabel="Enviar solicitud"
+                        onSubmit={(values) => {
+                            console.log('Valores enviados:', values)
+                        }}
+                        onValidChange={(isvalid) => { setFormReady(isvalid) }}
+                        externalSubmitRef={submitRef}
+                        showSubmitIf={() => false}
+                    />
+                </div>
+
+                {/* Imagen: 1/4 */}
+                <div className="w-1/4 flex justify-center items-start">
+                    <img
+                        src="/images/receipt-example.png"
+                        alt="Vista previa del recibo"
+                        className="w-full max-w-[160px] object-contain rounded-md shadow"
+                    />
+                </div>
             </div>
 
         </FormsLayout>
