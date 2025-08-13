@@ -15,21 +15,21 @@ export const useTableContent = <T extends { id: string | number }>({
   defaultSortKey,
   defaultSortDirection,
 }: UseTableContentProps<T>) => {
-  const [selected, setSelected] = useState<(string | number)[]>([]);
+  const [selected, setSelected] = useState<T[]>([]);
   const [sortKey, setSortKey] = useState<keyof T | null>(defaultSortKey ?? null);
   const [sortDirection, setSortDirection] =
     useState<SortDirection>(defaultSortDirection ?? null);
 
   const allSelected = data.length > 0 && selected.length === data.length;
 
-  const toggleSelect = (id: string | number) => {
+  const toggleSelect = (selectedItem: T) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+      prev.includes(selectedItem) ? prev.filter((v) => v !== selectedItem) : [...prev, selectedItem]
     );
   };
 
   const selectAll = (value: boolean) => {
-    setSelected(value ? data.map((f) => f.id) : []);
+    setSelected(value ? data : []);
   };
 
   const handleSort = (key: keyof T) => {
@@ -122,7 +122,7 @@ export const useDataTableContent = <T extends { id: string | number }>(
     handleSort,
     sortedData,
   } = useTableContent<T>({ data, defaultSortKey, defaultSortDirection });
-
+  
   // paginación
   const [currentPage, setCurrentPage] = useState(1);
   const totalItems = enableInternalSearch ? sortedData.length : (totalRows ?? sortedData.length);
@@ -133,6 +133,8 @@ export const useDataTableContent = <T extends { id: string | number }>(
       setCurrentPage(totalPages);
     }
   }, [enablePagination, totalPages, currentPage]);
+
+
 
   const paginatedData = useMemo(() => {
     if (!enablePagination) return sortedData;
@@ -164,16 +166,13 @@ export const useDataTableContent = <T extends { id: string | number }>(
     sortKey,
     sortDirection,
     handleSort,
-
     // datos
     sortedData,
     paginatedData,
-
     // paginación
     currentPage,
     totalPages,
     handlePage,
-
     // layout
     showScroll,
     computedMaxHeight,

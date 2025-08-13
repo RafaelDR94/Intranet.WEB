@@ -1,0 +1,1 @@
+export type SubmitFn = () => void | Promise<void>;

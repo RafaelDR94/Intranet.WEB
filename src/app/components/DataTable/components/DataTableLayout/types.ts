@@ -29,4 +29,10 @@ export interface TableLayoutProps {
   showFilter?: boolean
   /** Muestra el botón de acción principal */
   showButton?: boolean
+  /** Muestra el botón de descarga de tabla */
+  showDownloadTable?: boolean
+    /** Deshabilita las opciones de descarga */
+  downloadDisabled?: boolean
+  /** Maneja la acción de descarga */
+  onDownload?: (kind: 'pdf' | 'excel') => void
 }

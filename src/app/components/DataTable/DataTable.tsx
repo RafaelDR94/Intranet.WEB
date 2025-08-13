@@ -20,6 +20,7 @@ export const DataTable = <T extends { id: string | number }>({
   showCalendar = true,
   showFilter = false,
   showButton = true,
+  showDownloadTable = false,
   actionsRender,
   tables,
   enableInternalSearch = true,
@@ -28,18 +29,27 @@ export const DataTable = <T extends { id: string | number }>({
   rowsPerPage = 10,
   onPageChange,
   dateKey,
+  onSelectedChange,
+  dataTableTitle,
+
 }: DataTableProps<T>) => {
 
   const {
     handleSearchChange,
     handleDateChange,
     getFilteredData,
+    handleSelectedChange,
+    handleDownload,
+    selectedRows
   } = useDataTable<T>({
+    onSelectedChange,
     onSearchChange,
     enableInternalSearch,
     searchableKeys,
-    dateKey
+    dateKey,
+    
   })
+
 
   return (
     <div className="space-y-8">
@@ -58,6 +68,9 @@ export const DataTable = <T extends { id: string | number }>({
           showButton={showButton}
           actionsRender={actionsRender}
           onTableActionClick={onTableActionClick}
+          showDownloadTable={showDownloadTable}
+          downloadDisabled={!Object.values(selectedRows).some((r) => r?.length)}
+          onDownload={(kind) => handleDownload(kind,tables,dataTableTitle)}
         />
       )}
 
@@ -84,8 +97,11 @@ export const DataTable = <T extends { id: string | number }>({
                 showCalendar={showCalendar}
                 showFilter={showFilter}
                 showButton={showButton}
+                showDownloadTable={showDownloadTable}
                 actionsRender={actionsRender}
                 onTableActionClick={onTableActionClick}
+                downloadDisabled={!(selectedRows[index]?.length)}
+                onDownload={(kind) => handleDownload(kind,tables,dataTableTitle,index)}
               />
             )}
             <DataTableContent
@@ -99,6 +115,7 @@ export const DataTable = <T extends { id: string | number }>({
               totalRows={table.totalRows}
               enableInternalSearch={enableInternalSearch}
               onPageChange={onPageChange}
+              onSelectedChange={(rows) => handleSelectedChange(index, rows)}
               scrollMaxHeight={table.scrollMaxHeight}
             />
           </CollapsibleSection>

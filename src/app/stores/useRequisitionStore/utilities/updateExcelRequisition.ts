@@ -30,7 +30,7 @@ export const updateExcelRequisition = async (
 
         const post = pPost(requireGateway('post')) // 200–299 OK por defecto
         const res: AxiosResponse = await post(`${BillingRequisitionByExcel}`, formData);
-        const rowsWithMissingData = res.data.data.rowsWithMissingData;
+        const rowsWithMissingData = res.data.data.rows_with_missing_data;
         if(rowsWithMissingData && rowsWithMissingData.length > 0) {
         const warningmsg =
             Array.isArray(rowsWithMissingData) && rowsWithMissingData.length

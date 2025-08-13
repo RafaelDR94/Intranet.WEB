@@ -14,7 +14,7 @@ export const DataTableBody = <T extends { id: string | number }>({
   return (
     <>
       {data.map((row) => {
-        const isSelected = selected.includes(row.id)
+        const isSelected = selected.includes(row)
         return (
           <div
             key={row.id}
@@ -24,18 +24,21 @@ export const DataTableBody = <T extends { id: string | number }>({
               <div className={DataTableBodyStyles.checkBoxContainer}>
                 <Checkbox
                   checked={isSelected}
-                  onChange={() => onToggleSelect(row.id)}
+                  onChange={() => onToggleSelect(row)}
                 />
               </div>
             )}
-            {columns.map((col) => (
-              <div
-                key={String(col.key)}
-                className={`b2 text-gray-70 font-medium ${col.cellClass ?? 'flex-1'}`}
-              >
-                {col.render ? col.render(row) : String(row[col.key])}
-              </div>
-            ))}
+            {columns.map((col) => {
+              if (col.invisible) return null
+              return (
+                <div
+                  key={String(col.key)}
+                  className={`b2 text-gray-70 font-medium ${col.cellClass ?? 'flex-1'}`}
+                >
+                  {col.render ? col.render(row) : String(row[col.key])}
+                </div>
+              )
+            })}
           </div>
         )
       })}

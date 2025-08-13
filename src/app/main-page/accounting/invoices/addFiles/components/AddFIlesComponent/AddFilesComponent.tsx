@@ -75,9 +75,9 @@ const AddFilesComponent = () => {
     return (
         <FormsLayout
             title="Sube aquí tus archivos XML y PDF"
-            buttonLabel="Subir Archivos"
-            onButtonClick={() => submitRef.current?.()}
-            buttonDisabled={!formReady}
+            primaryLabel="Subir Archivos"
+            onPrimaryClick={() => submitRef.current?.()}
+            primaryDisabled={!formReady}
         >
 
 

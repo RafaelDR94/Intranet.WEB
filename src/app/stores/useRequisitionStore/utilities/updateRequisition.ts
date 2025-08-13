@@ -25,9 +25,8 @@ export const updateRequisition = async (
   set({ updating: true, error: undefined, successPut: false })
 
   try {
-    const id = payload.id_billingrequisition
     const put = pPut(requireGateway('put')) // 200–299 OK por defecto
-    const res: AxiosResponse = await put(`${BillingRequisition}/${id}`, payload)
+    const res: AxiosResponse = await put(BillingRequisition, payload)
 
     const raw = res.data?.data
     const updated = raw ? RequisitionMap(raw) : undefined

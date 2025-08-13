@@ -10,8 +10,10 @@ import {
   startOfMonth,
   endOfMonth,
 } from "../utilities/datesTable"; // ajusta la ruta según tu estructura
-
+import { exportFiles } from "../utilities/exportations";
+import { DataTableGroup } from "../types";
 const useDataTable = <T extends { id: string | number }>({
+  onSelectedChange,
   onSearchChange,
   enableInternalSearch = true,
   searchableKeys,
@@ -20,7 +22,7 @@ const useDataTable = <T extends { id: string | number }>({
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-
+  const [selectedRows, setSelectedRows] = useState<Record<number, T[]>>({})
   const handleSearchChange = useCallback(
     (valueOrEvent: unknown) => {
       const value =
@@ -76,8 +78,8 @@ const useDataTable = <T extends { id: string | number }>({
           !enableInternalSearch || !term
             ? true
             : keys.some((key) =>
-                String((row as any)[key] ?? "").toLowerCase().includes(term)
-              );
+              String((row as any)[key] ?? "").toLowerCase().includes(term)
+            );
 
         // --- filtro de fechas ---
         const hasRange = !!startDate || !!endDate;
@@ -125,15 +127,28 @@ const useDataTable = <T extends { id: string | number }>({
     [onSearchChange, searchTerm]
   );
 
+
+
+  const handleSelectedChange = (index: number, rows: T[]) => {
+    onSelectedChange?.(index, rows)
+    setSelectedRows((prev) => ({ ...prev, [index]: rows }))
+  }
+  const handleDownload = async (kind: 'pdf' | 'excel', tables: DataTableGroup<any>[], dataTableTitle?: string, tableIndex?: number) => {
+    exportFiles(kind, tables, selectedRows, tableIndex, dataTableTitle);
+  };
+
   return {
     searchTerm,
     setSearchTerm,
     startDate,
     endDate,
+    selectedRows,
     handleSearchChange,
     handleDateChange,
     getFilteredData,
-    setQuickRange, // opcional
+    setQuickRange,
+    handleSelectedChange,
+    handleDownload
   };
 };
 

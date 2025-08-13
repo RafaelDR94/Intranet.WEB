@@ -16,6 +16,8 @@ export interface ColumnDefinition<T> {
   headerClass?: string
   /** Clases extra para la celda */
   cellClass?: string
+  /** Visibilidad de la columna */
+  invisible?: boolean
 }
 
 /**
@@ -72,6 +74,7 @@ export interface DataTableProps<T = any> {
   showFilter?: boolean
   /** Muestra el botón de acción principal */
   showButton?: boolean
+  showDownloadTable?: boolean
   /** Render personalizado de acciones adicionales */
   actionsRender?: () => React.ReactNode
   /** Tablas a mostrar */
@@ -93,5 +96,10 @@ export interface DataTableProps<T = any> {
   dateKey?: keyof T | ((row: T) => string | Date | undefined);
   /** Rango de fechas aplicado desde el calendario */
   onDateRangeChange?: (start: Date, end: Date) => void;
+  /** Callback al cambiar la selección de filas */
+  onSelectedChange?: (index: number, rows: T[]) => void;
+  /** Título de la tabla */
+  dataTableTitle?: string;
+
 }
 
