@@ -1,29 +1,50 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg';
-
 import CustomRadio from '../CustomRadio/CustomRadio';
 import { Checkbox } from '../CheckBox/CheckBox';
 import { ToggleButton } from '../ToogleButton.tsx/ToogleButton';
 import { Button } from '../Button/Button';
 import { Control } from '../Control/Control';
-
 import { ContextMenuItem, ContextMenuProps } from './types';
 import { contextMenuStyles as cm } from './styles';
+import { useContextMenu } from './hooks/useContextMenu';
+
+/**
+ * ContextMenu
+ *
+ * Un menú contextual accesible y controlable que se abre al hacer click sobre un *trigger*.
+ *
+ * ✅ Características principales
+ * - **Controlado / No controlado**: Puedes manejar `isOpen`/`setIsOpen` o dejar que el componente administre su propio estado.
+ * - **AutoFlip**: Si no cabe en la ventana, intenta invertir su apertura vertical para mantenerse visible.
+ * - **Alineación horizontal**: `alignRight` posiciona el menú a la derecha o izquierda del trigger.
+ * - **Cierre seguro**: Cierra con `Escape`, clic fuera y coordina múltiples instancias (al abrir una, el resto se cierran).
+ * - **Zonas ignoradas**: Con `ignoreRefs` puedes permitir interacciones en zonas que **no** deben cerrar el menú.
+ * - **Controles embebidos**: Soporta `toggle`, `checkbox`, `radio`, `control`, `badge`, `details` en cada ítem.
+ *
+ * ♿ Accesibilidad
+ * - Usa `role="menu"`/`role="menuitem"`, `tabIndex` y `aria-disabled`.
+ * - Cierra con `Escape` y gestiona focus de forma predecible.
+ */
+
 const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
 
-import { useContextMenu } from './hooks/useContextMenu';
+// Nombre del evento global para coordinar instancias
+const OPEN_EVENT = 'ctxmenu:open';
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({
   trigger,
   items,
   isOpen,
   setIsOpen,
-  alignRight = false,
-  autoFlip = false,
+  alignRight = true,
+  autoFlip = true,
   estimatedMenuHeight = 320,
+  //refs a zonas que NO deben cerrar el menú al hacer click/pointerdown
+  ignoreRefs = [],
 }) => {
   const {
     rootRef,
@@ -42,6 +63,79 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     estimatedMenuHeight,
     itemsLength: items.length,
   });
+
+  // ID por instancia para el bus global
+  const instanceId = useRef(Symbol('ctxmenu'));
+
+  // Cierre seguro (funciona en modo controlado y no controlado)
+  const requestClose = () => {
+    if (setIsOpen) {
+      setIsOpen(false);
+    } else if (menuIsOpen) {
+      // fallback si no hay setIsOpen
+      toggleMenu();
+    }
+  };
+
+  // Coordinar instancias: cuando se abre una, las demás se cierran
+  useEffect(() => {
+    const onAnotherOpen = (e: Event) => {
+      const detail = (e as CustomEvent<{ id: symbol }>).detail;
+      if (!detail) return;
+      if (detail.id !== instanceId.current && menuIsOpen) {
+        requestClose();
+      }
+    };
+    window.addEventListener(OPEN_EVENT, onAnotherOpen as EventListener);
+    return () => window.removeEventListener(OPEN_EVENT, onAnotherOpen as EventListener);
+  }, [menuIsOpen]);
+
+  // Emitir evento cuando esta instancia se abre
+  useEffect(() => {
+    if (menuIsOpen) {
+      window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: { id: instanceId.current } }));
+    }
+  }, [menuIsOpen]);
+
+  // 👉 util para saber si el target está dentro de algún ref ignorado
+  const isInsideIgnored = (node: Node) =>
+    ignoreRefs.some((r) => r?.current && r.current.contains(node));
+
+  // Cerrar con click fuera y con Escape
+  useEffect(() => {
+    if (!menuIsOpen) return;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      const root = rootRef.current;
+      const menu = menuRef.current;
+
+      const insideRoot = !!(root && root.contains(target));
+      const insideMenu = !!(menu && menu.contains(target));
+      const insideIgnored = isInsideIgnored(target);
+
+      // Si el pointerdown NO ocurrió dentro del trigger+menú
+      // y TAMPOCO dentro de zonas ignoradas → cerramos
+      if (!insideRoot && !insideMenu && !insideIgnored) {
+        requestClose();
+      }
+      // Si cae dentro de zonas ignoradas, NO cerrar (permitimos interacción con submenús externos)
+    };
+
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        requestClose();
+      }
+    };
+
+    // Usamos pointerdown en captura para adelantarnos a otros handlers
+    document.addEventListener('pointerdown', handlePointerDown, { capture: true });
+    document.addEventListener('keydown', handleKeydown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, { capture: true } as any);
+      document.removeEventListener('keydown', handleKeydown);
+    };
+  }, [menuIsOpen, ignoreRefs]);
 
   const renderControl = (item: ContextMenuItem) => {
     const p = item.controlProps ?? {};
@@ -104,6 +198,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
               !item.disabled && !isPressed && !item.danger && cm.ItemHover
             );
 
+            const RightIcon = item.icon ?? ArrowRight;
+
             return (
               <div
                 key={index}
@@ -119,7 +215,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
                   {hasControl ? (
                     !controlLeft && <div className={cm.RightSlot}>{renderControl(item)}</div>
                   ) : (
-                    <ArrowRight className={cm.Icon} />
+                    <RightIcon className={cm.Icon} />
                   )}
                 </div>
               </div>
