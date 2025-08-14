@@ -195,3 +195,7 @@ Feature:
 Feature:
 - To reuse components for each different design
 (Katherine Negrete A) [#47](https://github.com/DR-Mexico/dr.intranet.web/pull/47)
+
+### 1.33.1 Fix layout scroll behavior 2025-08-14
+Fix:
+- Ensure main layout children scroll independently while menu remains static. (Agente IA) [#]()
