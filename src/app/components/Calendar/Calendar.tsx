@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import CalendarIcon from "@/assets/icons/System/System/calendar.svg";
 import { ContextMenu } from "../ContextMenu/ContextMenu";
 import DatePicker from "react-datepicker";
@@ -27,8 +27,35 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
     presets,
   } = useCalendar({ onCalendarClick });
 
+  // Ref que envuelve TODO: trigger, context menu y subcalendar
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (containerRef.current && !containerRef.current.contains(target)) {
+        if (isOpen) setIsOpen(false);
+        if (showCustomRange) setShowCustomRange(false);
+      }
+    };
+
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (isOpen) setIsOpen(false);
+        if (showCustomRange) setShowCustomRange(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [isOpen, showCustomRange, setIsOpen, setShowCustomRange]);
+
   return (
-    <div className={calendarStyles.calendarContainer}>
+    <div className={calendarStyles.calendarContainer} ref={containerRef}>
       <ContextMenu
         trigger={
           <button
@@ -57,28 +84,14 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
             <div className={calendarStyles.wrapper}>
               <div className={calendarStyles.inputWrapper}>
                 <label className={calendarStyles.inputLabel}>Desde</label>
-                <input
-                  type="text"
-                  className={calendarStyles.input}
-                  value={startDateStr}
-                  readOnly
-                />
+                <input type="text" className={calendarStyles.input} value={startDateStr} readOnly />
               </div>
               <div className={calendarStyles.inputWrapper}>
                 <label className={calendarStyles.inputLabel}>Hasta</label>
-                <input
-                  type="text"
-                  className={calendarStyles.input}
-                  value={endDateStr}
-                  readOnly
-                />
+                <input type="text" className={calendarStyles.input} value={endDateStr} readOnly />
               </div>
               <div className={calendarStyles.buttonWrapper}>
-                <button
-                  className={calendarStyles.button}
-                  onClick={handleGo}
-                  disabled={!canGo}
-                >
+                <button className={calendarStyles.button} onClick={handleGo} disabled={!canGo}>
                   Ir
                 </button>
               </div>

@@ -40,7 +40,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="es">
-      <body className={`${montserrat.variable} ${nulshock.variable}`}>
+      <body
+        className={`${montserrat.variable} ${nulshock.variable} h-screen overflow-hidden`}
+      >
         <PrincipalProvider>
           <AuthProvider>
             <FirebaseProvider>
@@ -50,7 +52,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {/* Sincroniza el atributo data-theme en <html> */}
               {children}
             </FirebaseProvider>
-
           </AuthProvider>
         </PrincipalProvider>
       </body>

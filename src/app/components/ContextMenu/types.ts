@@ -1,25 +1,31 @@
-import type { ReactNode } from 'react'
+export type ControlType =
+  | 'details'
+  | 'badge'
+  | 'toggle'
+  | 'radio'
+  | 'checkbox'
+  | 'control';
 
-/** Single menu item */
-export interface MenuItem {
-  /** Display label */
-  label: string
-  /** Disable interaction */
-  disabled?: boolean
-  /** Mark item as dangerous */
-  danger?: boolean
-  /** Click callback */
-  onClick?: () => void
+export type ControlSide = 'left' | 'right';
+
+export interface ContextMenuItem {
+  label: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+  controlType?: ControlType;
+  controlSide?: ControlSide;
+  controlProps?: Record<string, any>;
 }
 
-/** Props for ContextMenu component */
 export interface ContextMenuProps {
-  /** Trigger element */
-  trigger: ReactNode
-  /** Menu item list */
-  items: MenuItem[]
-  /** Controlled open state */
-  isOpen?: boolean
-  /** Setter for open state */
-  setIsOpen?: (open: boolean) => void
+  trigger: React.ReactNode;
+  items: ContextMenuItem[];
+  isOpen?: boolean;
+  setIsOpen?: (open: boolean) => void;
+
+  // Posicionamiento
+  alignRight?: boolean;         // default: false (izquierda)
+  autoFlip?: boolean;           // default: false (no calcula flip vertical)
+  estimatedMenuHeight?: number; // default: 320
 }

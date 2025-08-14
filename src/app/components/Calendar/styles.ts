@@ -4,7 +4,7 @@ export const calendarStyles = {
   triggerDisabled: "opacity-40 cursor-not-allowed",
   triggerHover: "bg-green-10",
   trigerFocus: "ring-2 focus:ring-green-40 focus:outline-none",
-  subCalendarContainer: "absolute left-50 top-0 bg-white p-4 shadow-lg rounded-md z-50 w-[400px]",
+  subCalendarContainer: "absolute left-50 top-0 bg-white p-4 shadow-lg rounded-md z-50 w-[400px] ml-8",
   subCalendarTitle: "text-center text-sm text-blue-60",
   subCalendarWrapper: "flex justify-between mt-3",
   wrapper: "w-[140px]",

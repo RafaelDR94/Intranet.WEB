@@ -1,127 +1,230 @@
-'use client';
-import React from 'react';
-import clsx from 'clsx';
-import ChevronDown from '@/assets/icons/navegacion/nav-arrow-down.svg';
-import ChevronUp from '@/assets/icons/navegacion/nav-arrow-up.svg';
-import Check from '@/assets/icons/acciones/check.svg';
-import { SelectProps } from './types';
-import { baseStyles } from './styles';
-import useSelect from './hooks/useSelect';
+"use client";
+import React, { useEffect, useMemo, useState } from "react";
+import clsx from "clsx";
+import ChevronDown from "@/assets/icons/navegacion/nav-arrow-down.svg";
+import ChevronUp from "@/assets/icons/navegacion/nav-arrow-up.svg";
+import Check from "@/assets/icons/acciones/check.svg";
+import { SelectProps } from "./types";
+import { baseStyles } from "./styles";
+import useSelect from "./hooks/useSelect";
 
 /**
- * Componente de selección con soporte para múltiple selección y variantes.
- *
- * @param options Opciones disponibles
- * @param placeholder Texto cuando no hay selección
- * @param multiple Permitir múltiples opciones
- * @param selected Valores seleccionados
- * @param onChange Callback al seleccionar
- * @param size Tamaño visual (`md` o `lg`)
- * @param variant Variante de estilo
- * @param label Etiqueta visible
- * @param helperText Texto de ayuda
- * @param disabled Deshabilitar interacción
+ * Select con selección simple/múltiple, variantes y typeahead (sin input visible).
+ * Correcciones clave:
+ * 1) Selección con onMouseDown (previene que el blur cierre antes de seleccionar).
+ * 2) No limpiar búsqueda en onBlur del trigger (se limpia al cerrar con `open=false`).
+ * 3) Manejo defensivo de `selected` cuando viene undefined.
  */
 export const Select: React.FC<SelectProps> = ({
-    options,
-    placeholder = 'Select',
-    multiple = false,
-    selected,
-    onChange,
-    size = 'md',
-    variant = 'default',
-    label,
-    helperText,
-    disabled,
-    className
+  options,
+  placeholder = "Select",
+  multiple = false,
+  selected,
+  onChange,
+  size = "md",
+  variant = "default",
+  label,
+  helperText,
+  disabled,
+  className,
 }) => {
-    const { open, ref, toggleOption, setOpen } = useSelect({ multiple, onChange, selected });
-    const selectedLabels = options
-        .filter((opt) => selected.includes(opt.value))
-        .map((opt) => opt.label);
+  const { open, ref, toggleOption, setOpen } = useSelect({
+    multiple,
+    onChange,
+    selected,
+  });
 
-    const helperClass =
-        baseStyles.helperColors[variant as keyof typeof baseStyles.helperColors] ??
-        baseStyles.helperColors.default;
+  // Asegura que `selected` siempre sea un array
+  const safeSelected = Array.isArray(selected) ? selected : [];
 
-    const currentVariant = disabled ? 'disabled' : variant;
-    return (
-        <div className={clsx(baseStyles.container, className)} ref={ref}>
-            {label && <label className={baseStyles.label}>{label}</label>}
+  // --- Estado para typeahead (sin input) ---
+  const [searchTerm, setSearchTerm] = useState("");
 
-            <div
-                className={clsx(
-                    baseStyles.trigger,
-                    baseStyles.sizes[size],
-                    open
-                        ? baseStyles.focusLike
-                        : baseStyles.variants[currentVariant],
-                    !disabled && baseStyles.hover,
-                    disabled && baseStyles.variants.disabled
-                )}
-                onClick={() => { if (!disabled) { setOpen(!open) } }}
-            >
-                <span>
-                    {(!selected || selected.length === 0 || selectedLabels.length == 0 )
-                        ? placeholder
-                        : multiple
-                            ? `${selected.length} Opciones Seleccionadas`
-                            : selectedLabels[0]}
-                </span>
-                {multiple && selected.length > 0 && open ? (
-                    <Check className={baseStyles.check} />
-                ) : open ? (
-                    <ChevronUp />
-                ) : (
-                    <ChevronDown />
-                )}
-            </div>
+  // Limpiar búsqueda cuando el menú se cierra
+  useEffect(() => {
+    if (!open) setSearchTerm("");
+  }, [open]);
 
-            {/* NUEVO: Texto informativo con las opciones seleccionadas */}
-            {multiple && selected.length > 0 && (
-                <span className={baseStyles.infoText}>
-                    Opciones: {selectedLabels.join(', ')}
-                </span>
-            )}
+  const selectedLabels = useMemo(
+    () => options.filter((opt) => safeSelected.includes(opt.value)).map((opt) => opt.label),
+    [options, safeSelected]
+  );
 
-            {helperText && (
-                <span className={clsx(baseStyles.helper, helperClass)}>{helperText}</span>
-            )}
+  const helperClass =
+    baseStyles.helperColors[variant as keyof typeof baseStyles.helperColors] ??
+    baseStyles.helperColors.default;
 
-            {open && (
-                <div className={baseStyles.menu}>
-                    {options.map((option) => {
-                        const isSelected = selected.includes(option.value);
-                        return (
-                            <div
-                                key={option.value}
-                                className={clsx(
-                                    baseStyles.option,
-                                    option.disabled && baseStyles.optionDisabled
-                                )}
-                                onClick={() => !option.disabled && toggleOption(option.value)}
-                            >
-                                <span className={clsx(option.disabled && baseStyles.optionlabel)}>
-                                    {option.label}
-                                </span>
-                                {multiple ? (
-                                    <div
-                                        className={clsx(
-                                            baseStyles.checkbox,
-                                            isSelected && baseStyles.checkboxChecked,
-                                            baseStyles.checkitem
-                                        )}
-                                    >
-                                        {isSelected && <Check className={baseStyles.selectedCheck} />}
-                                    </div>
-                                ) : (
-                                    isSelected && open && <Check className={baseStyles.selecteCheck2} />
-                                )}
-                            </div>
-                        );
-                    })}
+  const currentVariant = disabled ? "disabled" : variant;
+
+  // Filtrado por término
+  const filteredOptions = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (term === "") return options;
+    return options.filter((opt) => opt.label.toLowerCase().includes(term));
+  }, [options, searchTerm]);
+
+  // --- Teclado / typeahead ---
+  const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+    if (disabled) return;
+    if (e.repeat) return; // evita auto-repetición por tecla sostenida
+
+    // Abrir con Enter/Espacio/Flecha Abajo
+    if (!open && (e.key === "Enter" || e.key === " " || e.key === "ArrowDown")) {
+      e.preventDefault();
+      setOpen(true);
+      return;
+    }
+    if (!open) return;
+
+    // Búsqueda incremental (caracteres "imprimibles")
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      setSearchTerm((s) => s + e.key);
+      e.preventDefault();
+      return;
+    }
+
+    if (e.key === "Backspace") {
+      setSearchTerm((s) => s.slice(0, -1));
+      e.preventDefault();
+      return;
+    }
+
+    if (e.key === "Escape") {
+      // Si hay búsqueda, primero la limpia; si no, cierra
+      if (searchTerm) {
+        setSearchTerm("");
+      } else {
+        setOpen(false);
+      }
+      e.preventDefault();
+      return;
+    }
+
+    if (e.key === "Enter") {
+      // Atajo: en simple, selecciona la primera coincidencia
+      if (!multiple && filteredOptions.length > 0) {
+        toggleOption(filteredOptions[0].value);
+        setSearchTerm("");
+        setOpen(false);
+      }
+      e.preventDefault();
+      return;
+    }
+  };
+
+  // Props del trigger: un solo onKeyDown; NO limpiamos en onBlur
+  const triggerProps = {
+    tabIndex: disabled ? -1 : 0,
+    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
+      handleKeyDown(e);
+      e.stopPropagation();
+    },
+    onClick: () => {
+      if (!disabled) setOpen(!open);
+    },
+  } as const;
+
+  return (
+    <div className={clsx(baseStyles.container, className)} ref={ref}>
+      {label && <label className={baseStyles.label}>{label}</label>}
+
+      <div
+        {...triggerProps}
+        className={clsx(
+          baseStyles.trigger,
+          baseStyles.sizes[size],
+          open ? baseStyles.focusLike : baseStyles.variants[currentVariant],
+          !disabled && baseStyles.hover,
+          disabled && baseStyles.variants.disabled
+        )}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        <span>
+          {open && searchTerm !== ""
+            ? searchTerm // muestra lo que escribe el usuario
+            : safeSelected.length === 0 || selectedLabels.length === 0
+            ? open
+              ? "Escribe para filtrar…"
+              : placeholder
+            : multiple
+            ? `${safeSelected.length} Opciones Seleccionadas`
+            : selectedLabels[0]}
+        </span>
+        {multiple && safeSelected.length > 0 && open ? (
+          <Check className={baseStyles.check} />
+        ) : open ? (
+          <ChevronUp />
+        ) : (
+          <ChevronDown />
+        )}
+      </div>
+
+      {multiple && safeSelected.length > 0 && (
+        <span className={baseStyles.infoText}>
+          Opciones: {selectedLabels.join(", ")}
+        </span>
+      )}
+
+      {helperText && (
+        <span className={clsx(baseStyles.helper, helperClass)}>{helperText}</span>
+      )}
+
+      {open && (
+        <div className={baseStyles.menu} role="listbox">
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option) => {
+              const isSelected = safeSelected.includes(option.value);
+              const disabledOpt = !!option.disabled;
+              return (
+                <div
+                  key={option.value}
+                  className={clsx(
+                    baseStyles.option,
+                    disabledOpt && baseStyles.optionDisabled
+                  )}
+                  // Usar onMouseDown garantiza que la selección ocurra ANTES del blur/cierre externo
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // mantiene el foco para que no se dispare blur del trigger
+                    if (!disabledOpt) {
+                      toggleOption(option.value);
+                      if (!multiple) {
+                        setSearchTerm("");
+                        setOpen(false);
+                      }
+                    }
+                  }}
+                  role="option"
+                  aria-selected={isSelected}
+                >
+                  <span className={clsx(disabledOpt && baseStyles.optionlabel)}>
+                    {option.label}
+                  </span>
+                  {multiple ? (
+                    <div
+                      className={clsx(
+                        baseStyles.checkbox,
+                        isSelected && baseStyles.checkboxChecked,
+                        baseStyles.checkitem
+                      )}
+                    >
+                      {isSelected && (
+                        <Check className={baseStyles.selectedCheck} />
+                      )}
+                    </div>
+                  ) : (
+                    isSelected && open && (
+                      <Check className={baseStyles.selecteCheck2} />
+                    )
+                  )}
                 </div>
-            )}
+              );
+            })
+          ) : (
+            <div>Sin resultados</div>
+          )}
         </div>
-    );
+      )}
+    </div>
+  );
 };

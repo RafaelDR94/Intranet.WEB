@@ -1,4 +1,4 @@
-export const sidebar = 'w-64 bg-blue-90 text-white-10 flex flex-col p-4';
+export const sidebar = 'w-64 h-full bg-blue-90 text-white-10 flex flex-col p-4';
 export const logoContainer = 'flex flex-col items-center mb-10';
 export const nav = 'flex-1 space-y-2';
 export const link = 'block px-3 py-2 rounded hover:bg-blue-90 flex items-center gap-2 text-s2 font-semibold';

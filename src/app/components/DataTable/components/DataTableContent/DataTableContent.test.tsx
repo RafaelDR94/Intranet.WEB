@@ -44,4 +44,19 @@ describe('DataTableContent', () => {
     fireEvent.click(screen.getByText('next'));
     expect(onPageChange).toHaveBeenCalledWith(2);
   });
+
+  it('aplica scroll interno cuando se define scrollMaxHeight', () => {
+    const { container } = render(
+      <DataTableContent<Person>
+        data={data}
+        columns={columns}
+        enablePagination
+        scrollMaxHeight={100}
+      />
+    );
+
+    const scrollDiv = container.querySelector('div.overflow-y-auto');
+    expect(scrollDiv).not.toBeNull();
+    expect(scrollDiv).toHaveStyle({ maxHeight: '100px' });
+  });
 });

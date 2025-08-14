@@ -99,6 +99,7 @@ export const DataTable = <T extends { id: string | number }>({
               totalRows={table.totalRows}
               enableInternalSearch={enableInternalSearch}
               onPageChange={onPageChange}
+              scrollMaxHeight={table.scrollMaxHeight}
             />
           </CollapsibleSection>
         )

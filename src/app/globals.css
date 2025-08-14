@@ -13,6 +13,11 @@
   font-style: normal;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 
 :root[data-theme='light'] {
 
@@ -191,4 +196,6 @@ body {
   background-color: var(--color-gray-10);
   color: var(--color-foreground);
   font-family: var(--font-montserrat), sans-serif;
+  height: 100vh;
+  overflow: hidden;
 }

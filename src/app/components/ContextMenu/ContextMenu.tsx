@@ -1,70 +1,128 @@
 'use client';
-import React, { useState, useRef } from 'react';
-import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg';
-import { contextMenuStyles } from './styles';
-import type { ContextMenuProps } from './types';
 
-// Helper mínimo para componer clases sin dependencias
+import React from 'react';
+import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg';
+
+import CustomRadio from '../CustomRadio/CustomRadio';
+import { Checkbox } from '../CheckBox/CheckBox';
+import { ToggleButton } from '../ToogleButton.tsx/ToogleButton';
+import { Button } from '../Button/Button';
+import { Control } from '../Control/Control';
+
+import { ContextMenuItem, ContextMenuProps } from './types';
+import { contextMenuStyles as cm } from './styles';
 const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
+
+import { useContextMenu } from './hooks/useContextMenu';
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({
   trigger,
   items,
   isOpen,
   setIsOpen,
+  alignRight = false,
+  autoFlip = false,
+  estimatedMenuHeight = 320,
 }) => {
-  const [internalIsOpen, setInternalIsOpen] = useState(false);
-  const [pressedIndex, setPressedIndex] = useState<number | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const {
+    rootRef,
+    menuRef,
+    menuIsOpen,
+    toggleMenu,
+    hAlign,
+    vAlign,
+    pressedIndex,
+    handleItemActivate,
+  } = useContextMenu({
+    isOpen,
+    setIsOpen,
+    alignRight,
+    autoFlip,
+    estimatedMenuHeight,
+    itemsLength: items.length,
+  });
 
-  const menuIsOpen = isOpen ?? internalIsOpen;
-  const setMenuIsOpen = setIsOpen ?? setInternalIsOpen;
-
-  const toggleMenu = () => setMenuIsOpen(!menuIsOpen);
-
-  const handleItemClick = (index: number, disabled?: boolean) => {
-    if (disabled) return;
-    setPressedIndex(index);
-    const item = items[index];
-    if (item?.onClick) item.onClick();
-    // No cerramos automáticamente; el padre decide.
+  const renderControl = (item: ContextMenuItem) => {
+    const p = item.controlProps ?? {};
+    switch (item.controlType) {
+      case 'details':
+        return (
+          <Button variant="outline" size="small" className={cm.ControlButton}>
+            Details
+          </Button>
+        );
+      case 'badge':
+        return (
+          <button type="button" aria-label="details" className={cm.BadgeButton} {...p}>
+            Details
+          </button>
+        );
+      case 'toggle':
+        return <ToggleButton checked={false} onChange={() => {}} {...p} />;
+      case 'radio':
+        return (
+          <CustomRadio id="" name="" label="" value="" checked={false} onChange={() => {}} {...p} />
+        );
+      case 'checkbox':
+        return <Checkbox checked={false} onChange={() => {}} {...p} />;
+      case 'control':
+        return <Control onIncrement={() => {}} onDecrement={() => {}} variant="filled" {...p} />;
+      default:
+        return null;
+    }
   };
 
   return (
-    <div className={contextMenuStyles.Container} ref={menuRef}>
-      <div onClick={toggleMenu} className={contextMenuStyles.Trigger}>
+    <div ref={rootRef} className={cm.Container}>
+      <div onClick={toggleMenu} className={cm.Trigger}>
         {trigger}
       </div>
 
       {menuIsOpen && (
         <div
-          className={contextMenuStyles.Menu}
+          ref={menuRef}
           role="menu"
           aria-orientation="vertical"
+          className={cx(
+            cm.MenuBase,
+            cm.MenuSize,
+            hAlign === 'right' ? cm.RightAligned : cm.LeftAligned,
+            vAlign === 'down' ? cm.OpenDown : cm.OpenUp
+          )}
         >
           {items.map((item, index) => {
             const isPressed = index === pressedIndex;
+            const hasControl = Boolean(item.controlType);
+            const controlLeft = item.controlSide === 'left';
+
             const itemClass = cx(
-              contextMenuStyles.ItemBase,
-              isPressed && contextMenuStyles.ItemPressed,
-              item.disabled && contextMenuStyles.ItemDisabled,
-              item.danger && contextMenuStyles.ItemDanger,
-              !item.disabled && !isPressed && !item.danger && contextMenuStyles.ItemHover
+              cm.ItemBase,
+              isPressed && cm.ItemPressed,
+              item.disabled && cm.ItemDisabled,
+              item.danger && cm.ItemDanger,
+              !item.disabled && !isPressed && !item.danger && cm.ItemHover
             );
 
             return (
-              <button
+              <div
                 key={index}
-                type="button"
                 role="menuitem"
-                disabled={item.disabled}
-                onClick={() => handleItemClick(index, item.disabled)}
+                tabIndex={item.disabled ? -1 : 0}
+                aria-disabled={item.disabled || undefined}
+                onClick={() => handleItemActivate(index, items)}
                 className={itemClass}
               >
-                <span>{item.label}</span>
-                <ArrowRight className={contextMenuStyles.Icon} />
-              </button>
+                <div className={cm.ItemContent}>
+                  {hasControl && controlLeft && <div className={cm.LeftSlot}>{renderControl(item)}</div>}
+                  <span className={cm.Label}>{item.label}</span>
+                  {hasControl ? (
+                    !controlLeft && <div className={cm.RightSlot}>{renderControl(item)}</div>
+                  ) : (
+                    <ArrowRight className={cm.Icon} />
+                  )}
+                </div>
+              </div>
             );
           })}
         </div>
@@ -72,3 +130,5 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     </div>
   );
 };
+
+export default ContextMenu;

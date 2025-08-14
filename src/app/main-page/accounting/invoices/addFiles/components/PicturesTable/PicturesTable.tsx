@@ -4,6 +4,7 @@ import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import HorizonIncon from "@/assets/icons/navegacion/more-horiz.svg";
 import { DataTable } from "@/app/components/DataTable/DataTable";
+
 const PictureTable = () => {
   type ImagenTicket = {
     id: string;

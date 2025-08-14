@@ -38,6 +38,12 @@ export interface DataTableGroup<T> {
   defaultSortDirection?: 'asc' | 'desc'
   /** Total de filas disponibles (para paginación externa) */
   totalRows?: number
+  /**
+   * Altura máxima del cuerpo de la tabla. Si se define,
+   * el contenido excedente podrá desplazarse con scroll interno.
+   * Acepta valores en px o cualquier unidad CSS válida.
+   */
+  scrollMaxHeight?: number | string
 }
 
 /**
