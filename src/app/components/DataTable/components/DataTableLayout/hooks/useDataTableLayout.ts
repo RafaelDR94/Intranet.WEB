@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback,useState } from "react";
 import type { KeyboardEvent } from "react";
 import type { TableLayoutProps } from "../types";
 
@@ -16,8 +16,14 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     showCalendar = true,
     showFilter = false,
     showButton = true,
+    onDownload,
   } = props;
-
+ const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+  const closeDownloadMenu = () => setIsDownloadOpen(false);
+  const handleDownload = (kind: "pdf" | "excel") => {
+    onDownload?.(kind);
+    closeDownloadMenu();
+  };
   /** Puente único para despachar el rango hacia arriba */
   const handleDateRange = useCallback(
     (start: Date, end: Date) => {
@@ -61,6 +67,9 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     showCalendar,
     showFilter,
     showButton,
+    isDownloadOpen,
+    setIsDownloadOpen,
+    handleDownload
   };
 };
 

@@ -1,9 +1,9 @@
 import ExcelLoader from "./components/ExcelLoader/ExcelLoader"
-import RequisitionsRequest from "./components/RequisitionRequest/RequisitionRequest"
+import RequisitionsForm from "../components/RequisitionsForm/RequisitionsForm"
 const Requisitions = () => {
     return (<>
         <ExcelLoader />
-        <RequisitionsRequest/>
+        <RequisitionsForm />
     </>)
 }
 export default Requisitions

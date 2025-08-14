@@ -29,6 +29,7 @@ export const DataTableHeader = <T,>({
         if (isActiveSort) {
           arrow = sortDirection === 'asc' ? '▲' : '▼'
         }
+        if (col.invisible) return null 
 
         return (
           <button

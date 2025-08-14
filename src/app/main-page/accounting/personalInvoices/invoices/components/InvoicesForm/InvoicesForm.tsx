@@ -39,9 +39,9 @@ const InvoicesForm = () => {
   return (
     <FormsLayout
       title="Si ya cuentas con la factura, sube aquí tus archivos XML y PDF"
-      buttonLabel="Subir Archivos"
-      onButtonClick={() => submitRef.current?.()}
-      buttonDisabled={!formReady}
+      primaryLabel="Subir Archivos"
+      onPrimaryClick={() => submitRef.current?.()}
+      primaryDisabled={!formReady}
       enableCollapse={false}
     >
       <DynamicForm

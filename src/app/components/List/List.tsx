@@ -9,8 +9,7 @@ import { listStyles } from "./styles";
 import type { ListProps } from "./types";
 
 // Helper mínimo para componer clases sin dependencias
-const cx = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(" ");
+
 
 const List: React.FC<ListProps> = ({ items }) => {
   return (

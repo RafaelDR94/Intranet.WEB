@@ -9,6 +9,9 @@ import SearchIcon from "@/assets/icons/organization/search.svg";
 import { tableLayoutStyles } from "./styles";
 import { Calendar } from "@/app/components/Calendar/Calendar";
 import { useDataTableLayout } from "./hooks/useDataTableLayout";
+import DownloadIcon from "@/assets/icons/acciones/download.svg";
+import { ContextMenu } from "@/app/components/ContextMenu/ContextMenu";
+
 
 const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
   const {
@@ -23,7 +26,12 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
     showCalendar,
     showFilter,
     showButton,
+    isDownloadOpen,
+    setIsDownloadOpen,
+    handleDownload
   } = useDataTableLayout(props);
+
+  const { downloadDisabled = false } = props;
 
   return (
     <div className={tableLayoutStyles.headerdiv}>
@@ -44,25 +52,46 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
       )}
 
       {showFilter && (
-        <Button
-          iconOnly
-          icon={FilterIcon}
-          variant="ghost"
-          onClick={onFilterClick}
-        />
+        <Button iconOnly icon={FilterIcon} variant="ghost" onClick={onFilterClick} />
       )}
 
-      {showButton && !actionsRender && (
-        <Button
-          variant="solid"
-          size="large"
-          className={tableLayoutStyles.buttonStyle}
-          hideIcon
-          onClick={onTableActionClick}
-        >
-          {actionLabel}
-        </Button>
-      )}
+      <div className={tableLayoutStyles.buttonsStyle}>
+        {props.showDownloadTable && (
+
+          <ContextMenu
+
+            isOpen={isDownloadOpen}
+            setIsOpen={setIsDownloadOpen}
+            trigger={
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" disabled={downloadDisabled}>
+                  Descargar
+                </Button>
+                <Button
+                  aria-label="Abrir menú de descarga"
+                  iconOnly
+                  icon={DownloadIcon}
+                  variant="outline"
+                  disabled={downloadDisabled}
+                />
+
+              </div>
+
+            }
+            items={[
+              { label: "PDF", onClick: () => handleDownload("pdf") },
+              { label: "Excel", onClick: () => handleDownload("excel") },
+            ]}
+          />
+
+        )}
+
+        {showButton && !actionsRender && (
+          <Button variant="solid" size="large" hideIcon onClick={onTableActionClick}>
+            {actionLabel}
+          </Button>
+        )}
+      </div>
 
       {actionsRender?.()}
     </div>

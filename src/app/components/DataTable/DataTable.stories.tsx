@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { DataTable } from './DataTable';
-import type { ColumnDefinition } from './types';
 
 interface Person {
   id: number;
@@ -10,41 +9,63 @@ interface Person {
   joinedAt?: string;
 }
 
-// 🔹 Columnas base
-const columns:any = [
+const columns = [
   { key: 'name', label: 'Nombre' },
   { key: 'role', label: 'Rol' },
-];
+] as const;
 
-// 🔹 Datos base
 const data: Person[] = [
   { id: 1, name: 'Alice', role: 'Admin' },
   { id: 2, name: 'Bob', role: 'User' },
   { id: 3, name: 'Charlie', role: 'Developer' },
 ];
 
-// 🔹 Meta principal
-const meta: Meta<typeof DataTable> = {
+const meta: Meta<typeof DataTable<Person>> = {
   title: 'Components/DataTable',
-  component: DataTable,
+  component: DataTable<Person>,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: `
+Componente de tabla con **búsqueda**, **filtros**, **paginación** y **selección**.
+
+- Compatible con **tema claro/oscuro** via \`data-theme\`.
+- Soporta múltiples tablas agrupadas (cada una puede ser colapsable).
+- Búsqueda **interna** (local) o **externa** (controlada por props).
+
+> Las props están documentadas con **JSDoc** para aprovechar **autodocs** de Storybook. :contentReference[oaicite:10]{index=10}:contentReference[oaicite:11]{index=11}:contentReference[oaicite:12]{index=12}:contentReference[oaicite:13]{index=13}
+        `,
+      },
+    },
+  },
+  argTypes: {
+    actionLabel: { control: 'text', description: 'Etiqueta del botón de acción principal' },
+    showButton: { control: 'boolean' },
+    showCalendar: { control: 'boolean' },
+    showFilter: { control: 'boolean' },
+    showDownloadTable: { control: 'boolean' },
+    enableInternalSearch: { control: 'boolean' },
+    enablePagination: { control: 'boolean' },
+    rowsPerPage: { control: { type: 'number', min: 1, step: 1 } },
+    onTableActionClick: { action: 'onTableActionClick' },
+    onCalendarClick: { action: 'onCalendarClick' },
+    onFilterClick: { action: 'onFilterClick' },
+    onSearch: { action: 'onSearch' },
+    onSearchChange: { action: 'onSearchChange' },
+    onPageChange: { action: 'onPageChange' },
+    onDateRangeChange: { action: 'onDateRangeChange' },
+    onSelectedChange: { action: 'onSelectedChange' },
+  },
 };
 export default meta;
 
-type Story = StoryObj<typeof DataTable>;
+type Story = StoryObj<typeof DataTable<Person>>;
 
-// ─────────────────────────────────────────
-// 📘 1. Caso base (con selección)
-// ─────────────────────────────────────────
 export const Basico: Story = {
   args: {
     tables: [
-      {
-        title: 'Usuarios',
-        columns,
-        data,
-        enableSelection: true,
-      },
+      { title: 'Usuarios', columns: columns as any, data, enableSelection: true },
     ],
   },
   parameters: {
@@ -52,26 +73,17 @@ export const Basico: Story = {
       description: {
         story: `
 ### 🧾 Tabla básica
-
-Ejemplo simple de tabla con selección de filas y columnas estándar. Usa el campo \`enableSelection\` para permitir seleccionar múltiples elementos por checkbox.
+Tabla simple con selección de filas por checkbox. Ideal como boilerplate.
         `,
       },
     },
   },
 };
 
-// ─────────────────────────────────────────
-// 📘 2. Tabla con búsqueda interna
-// ─────────────────────────────────────────
 export const ConBusqueda: Story = {
   args: {
     tables: [
-      {
-        title: 'Usuarios',
-        columns,
-        data,
-        enableSelection: true,
-      },
+      { title: 'Usuarios', columns: columns as any, data, enableSelection: true },
     ],
     enableInternalSearch: true,
     searchableKeys: ['name', 'role'] as any,
@@ -81,37 +93,18 @@ export const ConBusqueda: Story = {
       description: {
         story: `
 ### 🔍 Búsqueda interna
-
-Activa el buscador incorporado con los props:
-
-- \`enableInternalSearch: true\`
-- \`searchableKeys: ['name', 'role']\`
-
-La búsqueda filtra dinámicamente según las columnas especificadas.
+Filtra localmente usando \`searchableKeys\`.
         `,
       },
     },
   },
 };
 
-// ─────────────────────────────────────────
-// 📘 3. Múltiples tablas colapsables
-// ─────────────────────────────────────────
 export const MultiplesTablas: Story = {
   args: {
     tables: [
-      {
-        title: 'Admins',
-        data: data.filter(d => d.role === 'Admin'),
-        columns,
-        enableCollaps: true,
-      },
-      {
-        title: 'Usuarios',
-        data: data.filter(d => d.role !== 'Admin'),
-        columns,
-        enableCollaps: true,
-      },
+      { title: 'Admins', data: data.filter(d => d.role === 'Admin'), columns: columns as any, enableCollaps: true },
+      { title: 'Usuarios', data: data.filter(d => d.role !== 'Admin'), columns: columns as any, enableCollaps: true },
     ],
   },
   parameters: {
@@ -119,74 +112,41 @@ export const MultiplesTablas: Story = {
       description: {
         story: `
 ### 📚 Múltiples tablas colapsables
-
-Puedes mostrar varias tablas agrupadas, cada una con su título y la opción \`enableCollaps: true\` para permitir contraerlas/expandirlas.
+Agrupa datasets distintos bajo secciones plegables.
         `,
       },
     },
   },
 };
 
-// ─────────────────────────────────────────
-// 📘 4. Con botones de acción superior
-// ─────────────────────────────────────────
 export const ConAcciones: Story = {
   args: {
-    tables: [
-      {
-        title: 'Con Acciones',
-        columns,
-        data,
-      },
-    ],
+    tables: [{ title: 'Con Acciones', columns: columns as any, data }],
     actionLabel: 'Crear nuevo',
     showButton: true,
     showCalendar: true,
     showFilter: true,
-    onTableActionClick: () => alert('Acción principal'),
-    onCalendarClick: () => alert('Abrir calendario'),
-    onFilterClick: () => alert('Abrir filtros'),
   },
   parameters: {
     docs: {
       description: {
         story: `
 ### ⚙️ Acciones y filtros
-
-Puedes añadir botones de acción y herramientas visuales como:
-
-- \`onTableActionClick\`: Acción principal (botón).
-- \`onCalendarClick\`, \`onFilterClick\`: íconos de calendario y filtro.
-- \`actionLabel\`: personaliza el texto del botón principal.
+Activa los controles de cabecera y captura eventos desde \`actions\`.
         `,
       },
     },
   },
 };
 
-// ─────────────────────────────────────────
-// 📘 5. Con renderizado personalizado
-// ─────────────────────────────────────────
 export const ConRenderPersonalizado: Story = {
   args: {
     tables: [
       {
         title: 'Custom',
         columns: [
-          {
-            key: 'name' as any,
-            label: 'Nombre',
-            render: (row:any) => <strong style={{ color: 'green' }}>{row.name}</strong>,
-          },
-          {
-            key: 'role'as any,
-            label: 'Rol',
-            render: (row:any) => (
-              <span style={{ backgroundColor: '#eef', padding: '2px 6px', borderRadius: 4 }}>
-                {row.role}
-              </span>
-            ),
-          },
+          { key: 'name' as any, label: 'Nombre', render: (row: Person) => <strong>{row.name}</strong> },
+          { key: 'role' as any, label: 'Rol', render: (row: Person) => <span className="px-2 py-0.5 rounded bg-blue-10">{row.role}</span> },
         ],
         data,
       },
@@ -197,20 +157,13 @@ export const ConRenderPersonalizado: Story = {
       description: {
         story: `
 ### 🎨 Renderizado personalizado
-
-Puedes personalizar tanto las celdas como los encabezados de columnas usando:
-
-- \`render: (row) => ReactNode\` para cada celda.
-- \`headerRender: () => ReactNode\` si deseas cambiar el encabezado.
+Personaliza celdas y encabezados con \`render\` y \`headerRender\`.
         `,
       },
     },
   },
 };
 
-// ─────────────────────────────────────────
-// 📘 6. Tema oscuro
-// ─────────────────────────────────────────
 export const DarkMode: Story = {
   ...Basico,
   decorators: [
@@ -225,33 +178,23 @@ export const DarkMode: Story = {
       description: {
         story: `
 ### 🌙 Tema oscuro
-
-Todas las variantes soportan tema oscuro vía \`data-theme="dark"\`. Asegúrate de que tu componente reaccione a las variables CSS.
+Soporte garantizado para \`data-theme="dark"\` usando variables CSS definidas en el theme. :contentReference[oaicite:14]{index=14}:contentReference[oaicite:15]{index=15}
         `,
       },
     },
   },
-  
 };
-// ─────────────────────────────────────────
-// 📘 7. Acciones personalizadas con `actionsRender`
-// ─────────────────────────────────────────
+
 export const ConAccionesPersonalizadas: Story = {
   args: {
-    tables: [
-      {
-        title: 'Acciones personalizadas',
-        columns,
-        data,
-      },
-    ],
+    tables: [{ title: 'Acciones personalizadas', columns: columns as any, data }],
     actionsRender: () => (
       <div className="flex gap-2 items-center">
         <button onClick={() => alert('Exportar')} className="btn-outline">📤 Exportar</button>
         <button onClick={() => alert('Descargar CSV')} className="btn-outline">📄 CSV</button>
       </div>
     ),
-    showButton: false, // Oculta el botón principal para usar solo acciones personalizadas
+    showButton: false,
     showCalendar: false,
     showFilter: false,
   },
@@ -260,40 +203,21 @@ export const ConAccionesPersonalizadas: Story = {
       description: {
         story: `
 ### 🧩 Acciones personalizadas
-
-Puedes reemplazar el botón de acción principal usando el prop \`actionsRender\`.
-
-Esto permite insertar cualquier componente (botones, íconos, etc.) en lugar del botón principal.
-
-> Importante: establece \`showButton: false\` para ocultar el botón por defecto.
+Reemplaza el botón principal con \`actionsRender\`.
         `,
       },
     },
   },
 };
 
-// ─────────────────────────────────────────
-// 📘 8. Encabezado personalizado con `headerRender`
-// ─────────────────────────────────────────
 export const ConEncabezadoPersonalizado: Story = {
   args: {
     tables: [
       {
         title: 'Encabezado custom',
         columns: [
-          {
-            key: 'name'as any,
-            label: 'Nombre',
-            headerRender: () => (
-              <span style={{ color: 'blue', fontWeight: 700 }}>
-                🧑 Nombre del usuario
-              </span>
-            ),
-          },
-          {
-            key: 'role'as any,
-            label: 'Rol',
-          },
+          { key: 'name' as any, label: 'Nombre', headerRender: () => <span style={{ fontWeight: 700 }}>🧑 Nombre del usuario</span> },
+          { key: 'role' as any, label: 'Rol' },
         ],
         data,
       },
@@ -304,10 +228,7 @@ export const ConEncabezadoPersonalizado: Story = {
       description: {
         story: `
 ### 🧾 Encabezado personalizado con \`headerRender\`
-
-Cada columna admite un prop opcional \`headerRender\` para modificar el encabezado visual.
-
-Esto es útil para incluir íconos, estilos u otros elementos en la cabecera.
+Ideal para iconografía y estilos avanzados en la cabecera.
         `,
       },
     },

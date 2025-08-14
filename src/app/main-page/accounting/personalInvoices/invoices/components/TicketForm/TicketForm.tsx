@@ -80,9 +80,9 @@ const TicketForm = () => {
   return (
     <FormsLayout
       title="Sube aquí la imagen de tu ticket. Asegúrate de que sea legible y de buena calidad para evitar rechazos"
-      buttonLabel="Subir Archivos"
-      onButtonClick={() => submitRef.current?.()}
-      buttonDisabled={!formReady}
+      primaryLabel="Subir Archivos"
+      onPrimaryClick={() => submitRef.current?.()}
+      primaryDisabled={!formReady}
       enableCollapse={false}
     >
       <DynamicForm

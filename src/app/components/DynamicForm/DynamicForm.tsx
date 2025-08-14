@@ -74,6 +74,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
+                enableReinitialize
+                validateOnMount
                 onSubmit={(values) => {
                     const cleaned = cleanValues(values);
                     onSubmit(cleaned);
@@ -83,7 +85,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     if (externalSubmitRef) {
                         externalSubmitRef.current = submitForm;
                     }
-                    const previousIsValid = useRef<boolean | undefined>(true);
+                   const previousIsValid = useRef<boolean | undefined>(undefined);
                     useEffect(() => {
                         if (previousIsValid.current !== isValid) {
                             previousIsValid.current = isValid;

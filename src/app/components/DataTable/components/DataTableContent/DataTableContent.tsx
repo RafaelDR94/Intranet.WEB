@@ -1,4 +1,4 @@
-import React from "react";
+import React,{ useEffect }from "react";
 import { DataTableContentProps } from "./types";
 import { DataTableHeader } from "./components/DataTableHeader/DataTableHeader";
 import { DataTableBody } from "./components/DataTableBody/DataTableBody";
@@ -27,6 +27,7 @@ const DataTableContent = <T extends { id: string | number }>(
     onPageChange,
     rowHeight = 56,
     scrollMaxHeight,
+    onSelectedChange,
   } = props;
 
   const {
@@ -55,6 +56,10 @@ const DataTableContent = <T extends { id: string | number }>(
     rowHeight,
     scrollMaxHeight,
   });
+
+  useEffect(() => {
+    onSelectedChange?.(selected);
+  }, [selected]);
 
   return (
     <div className={containerDataTableContent}>

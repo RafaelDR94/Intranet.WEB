@@ -22,4 +22,7 @@ export interface UseDataTableParams<T extends { id: string | number }> {
   searchableKeys?: (keyof T)[]
   /** Campo de fecha o función para obtenerla (string "DD/MM/YYYY" o Date) */
   dateKey?: keyof T | ((row: T) => string | Date | undefined)
+  /** Se ejecuta al cambiar la selección de filas */
+  onSelectedChange?: (index: number, rows: T[]) => void
+
 }

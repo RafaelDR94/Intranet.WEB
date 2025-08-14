@@ -3,6 +3,6 @@ export interface DataTableBodyProps<T> {
   data: T[]
   columns: ColumnDefinition<T>[]
   enableSelection: boolean
-  selected: (string | number)[]
-  onToggleSelect: (id: string | number) => void
+  selected: T[]
+  onToggleSelect: (item: T) => void
 }
