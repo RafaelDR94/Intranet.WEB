@@ -126,12 +126,10 @@ describe('MainLayoutClient', () => {
   });
 
   it('applies full height layout with scrollable content', () => {
-    render(
-      <AuthContext.Provider value={mockAuthContextValue}>
-        <MainLayoutClient>
-          <div>Child</div>
-        </MainLayoutClient>
-      </AuthContext.Provider>
+    renderWithProviders(
+      <MainLayoutClient>
+        <div>Child</div>
+      </MainLayoutClient>
     );
 
     const sidebar = screen.getByRole('complementary');
