@@ -1,68 +1,28 @@
 // src/utilities/excel/exporter.ts
 import ExcelJS from "exceljs";
+import type {
+  ColumnType,
+  ColumnDef,
+  MetaHeader,
+  ExportExcelProParams,
+} from "./types";
+import {
+  applyHeaderStyle,
+  applyBodyRowStyle,
+  applyTotalRowStyle,
+  autoSizeOrWidth,
+  setNumFmtIfAny,
+  pickAlignment,
+} from "./styles";
 
-/** Tipado de columnas con formato y alineación */
-export type ColumnAlign = "left" | "center" | "right";
-export type ColumnType = "string" | "number" | "date";
-
-export interface ColumnDef {
-  key: string;
-  header: string;
-  type?: ColumnType;
-  numFmt?: string;
-  width?: number;
-  align?: ColumnAlign;
-}
-
-export interface SheetInput {
-  name?: string;
-  columns: ColumnDef[];
-  rows: Record<string, unknown>[];
-  sumColumnKey?: string;
-  sumLabel?: string;
-  startRow?: number;
-}
-
-export interface MetaHeader {
-  title?: string;
-  cliente?: string;
-  mes?: string;
-  proyecto?: string;
-  semana?: string;
-}
-
-export interface ExportExcelProParams {
-  fileName: string;
-  sheets: SheetInput[];
-  logoBase64?: string;
-  meta?: MetaHeader;
-
-  /** Formato/moneda y totales */
-  useExcelFormulaTotals?: boolean;
-  currencySymbol?: string;
-
-  /** UX hoja */
-  freezeHeader?: boolean;
-  autoFilter?: boolean;        // <<< NUEVO (default: true)
-  zebra?: boolean;             // <<< NUEVO (default: false)
-
-  /**
-   * Hook por celda: permite personalizar valor/estilo sin forzar forks.
-   * rowIndex: 1..N sobre los datos (no incluye header).
-   * colIndex: índice absoluto de la hoja (incluye "Consecutivo" en col = 1).
-   */
-  onCell?: (args: {
-    sheetName: string;
-    rowIndex: number;
-    colIndex: number;
-    cell: ExcelJS.Cell;
-    value: unknown;
-    column?: ColumnDef; // ColumnDef si aplica (para col >= 2)
-  }) => void;
-
-  /** Inyección del método de guardado (solo navegador). En SSR devuelve buffer. */
-  saver?: (blob: Blob, fileName: string) => void;
-}
+export type {
+  ColumnAlign,
+  ColumnType,
+  ColumnDef,
+  SheetInput,
+  MetaHeader,
+  ExportExcelProParams,
+} from "./types";
 
 /* ========================= Helpers puros ========================= */
 
@@ -86,63 +46,10 @@ const normalizeNumber = (value: unknown): number => {
   return 0;
 };
 
-const pickAlignment = (align?: ColumnAlign) => {
-  switch (align) {
-    case "center":
-      return { horizontal: "center" as const };
-    case "right":
-      return { horizontal: "right" as const };
-    default:
-      return { horizontal: "left" as const };
-  }
-};
-
 const defaultNumFmtForType = (type?: ColumnType, currencySymbol?: string) => {
   if (type === "number") return currencySymbol ? `"${currencySymbol}"#,##0.00` : "#,##0.00";
   if (type === "date") return "yyyy-mm-dd";
   return undefined;
-};
-
-const applyHeaderStyle = (row: ExcelJS.Row) => {
-  row.font = { bold: true };
-  row.eachCell((cell) => {
-    cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
-    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9E1F2" } };
-    cell.border = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
-  });
-};
-
-const applyBodyRowStyle = (row: ExcelJS.Row) => {
-  row.eachCell((cell) => {
-    cell.border = { top: { style: "hair" }, bottom: { style: "hair" }, left: { style: "hair" }, right: { style: "hair" } };
-  });
-};
-
-const applyTotalRowStyle = (row: ExcelJS.Row, valueColIdx: number, currencySymbol?: string) => {
-  row.font = { bold: true };
-  row.eachCell((cell) => {
-    cell.border = { top: { style: "double" }, bottom: { style: "double" }, left: { style: "thin" }, right: { style: "thin" } };
-  });
-  const valueCell = row.getCell(valueColIdx);
-  if (!valueCell.numFmt) valueCell.numFmt = currencySymbol ? `"${currencySymbol}"#,##0.00` : "#,##0.00";
-};
-
-const autoSizeOrWidth = (sheet: ExcelJS.Worksheet, startCol: number, endCol: number) => {
-  for (let c = startCol; c <= endCol; c++) {
-    const col = sheet.getColumn(c);
-    if (!col.width) {
-      let maxLen = 10;
-      col.eachCell({ includeEmpty: true }, (cell) => {
-        const v = String(cell.value ?? "");
-        maxLen = Math.max(maxLen, v.length + 2);
-      });
-      col.width = Math.min(Math.max(maxLen, 12), 60);
-    }
-  }
-};
-
-const setNumFmtIfAny = (cell: ExcelJS.Cell, fmt?: string) => {
-  if (fmt) cell.numFmt = fmt;
 };
 
 /* ========================= Pintado de cabecera/meta ========================= */
@@ -326,10 +233,11 @@ const paintTotals = ({
 /* ========================= API principal (Pro) ========================= */
 
 /**
- * exportExcelPro
- * - Totales por key (resiliente al reordenamiento de columnas)
- * - SSR-safe: no depende de file-saver; descarga solo si pasas `saver` y estás en browser
- * - Extras Pro: autoFilter, zebra rows, hook `onCell`
+ * Genera un archivo de Excel con múltiples hojas y estilos personalizados.
+ * - Totales por key (resiliente al reordenamiento de columnas).
+ * - SSR-safe: no depende de file-saver; descarga solo si se provee `saver` en navegador.
+ * - Extras Pro: autoFilter, zebra rows, hook `onCell`.
+ * @param params Parámetros de configuración de la exportación.
  */
 export const exportExcelPro = async ({
   fileName,

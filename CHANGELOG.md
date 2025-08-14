@@ -181,6 +181,11 @@ Feature:
 - Added tests and documentation for Http helpers and NamesUtilities.
 (Agente IA) [#]()
 
+### 1.32.0 Separate Excel/PDF utility types and styles 2025-08-14
+Feature:
+- Extracted types and styles into dedicated files for Excel and PDF utilities, added documentation and tests.
+(Agente IA) [#]()
+
 ### 1.33.0 Component Adjustments 2025-08-14
 Feature:
 - To reuse components for each different design
