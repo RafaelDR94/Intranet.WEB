@@ -111,6 +111,7 @@ export const useRequisitionForm = (
       resetFlags();
     };
   }, [formId, setFields, resetFields, resetFlags]);
+  
 
   // Popular opciones: empleados
   useEffect(() => {
@@ -240,7 +241,7 @@ export const useRequisitionForm = (
     });
 
     if (mode === 'edit' && initialValues?.id) {
-      await updateRequisition({ ...payload, id_billingrequisition: initialValues.id });
+      await updateRequisition({ ...payload, billingrequisition_id: initialValues.id });
       return;
     }
     await createRequisition(payload);

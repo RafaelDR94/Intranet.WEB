@@ -7,6 +7,7 @@ import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import type { RequisitionRow } from '../types'
 import { RequisitionInitialValues } from '../../../../components/RequisitionsForm/hooks/useRequisitionsForm'
 
+
 type Params = {
   onEditRequest: (initial: RequisitionInitialValues) => void
 }
@@ -62,11 +63,13 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
   const [rowToDelete, setRowToDelete] = React.useState<RequisitionRow | null>(null)
 
   const rows: RequisitionRow[] = React.useMemo(() => {
+    console.log(requisitions, "requisitions");
     const base = requisitions.map(r => ({
-      id: r.id_billingrequisition,
+      id: r.billingrequisition_id,
       snCode: r.requisitionkey,
       debtorName: r.employeename,
       projectCode: r.projectname,
+      date_created: r.date_created,
     }))
     if (!query) return base
     const q = query.toLowerCase()
@@ -78,10 +81,11 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
   }, [requisitions, query])
 
   const onEdit = (row: RequisitionRow) => {
-    const full = requisitions.find(r => r.id_billingrequisition === row.id)
+    console.log(row,"row");
+    const full = requisitions.find(r => r.billingrequisition_id === row.id)
     if (!full) return
     const initial: RequisitionInitialValues = {
-      id: full.id_billingrequisition,
+      id: full.billingrequisition_id,
       employeeId: full.id_Employee, // ajusta si difiere del store
       projectId: full.idProject,    // ajusta si difiere del store
       requisitionKey: full.requisitionkey,

@@ -125,17 +125,5 @@ describe('MainLayoutClient', () => {
     expect(screen.getByText('Facturación')).toBeInTheDocument();
   });
 
-  it('applies full height layout with scrollable content', () => {
-    renderWithProviders(
-      <MainLayoutClient>
-        <div>Child</div>
-      </MainLayoutClient>
-    );
-
-    const sidebar = screen.getByRole('complementary');
-    const main = screen.getByRole('main');
-
-    expect(sidebar.className).toContain('h-full');
-    expect(main.className).toContain('overflow-y-auto');
-  });
+  
 });

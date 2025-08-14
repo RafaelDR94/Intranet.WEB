@@ -9,7 +9,7 @@ vi.mock('@/app/utilities/Http/normalizeApiError', () => ({ normalizeApiError: (e
 describe('deleteRequisition util', () => {
   it('elimina requisición y marca successDelete', async () => {
     const state: RequisitionsState = {
-      requisitions: [{ id_billingrequisition: '1', requisitionkey: '', id_Employee: '', employeename: '', idProject: '', projectname: '' }],
+      requisitions: [{ billingrequisition_id: '1', requisitionkey: '', id_Employee: '', employeename: '', idProject: '', projectname: '' }],
       loading: false, creating: false, updating: false, removing: false, updatingExcel: false,
       successGet: false, successPost: false, successPut: false, successDelete: false, successUpdateExcel: false,
       error: undefined, warning: undefined,

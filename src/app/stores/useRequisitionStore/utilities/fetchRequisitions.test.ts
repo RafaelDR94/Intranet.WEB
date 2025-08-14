@@ -3,7 +3,7 @@ import { fetchRequisitions } from './fetchRequisitions'
 import type { RequisitionsState, Set, Get } from '../types'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
-vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pGet: () => async () => ({ data: { data: [{ id_billingrequisition: '1' }] } }) }))
+vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pGet: () => async () => ({ data: { data: [{ billingrequisition_id: '1' }] } }) }))
 vi.mock('@/app/mappings/requisitions/requisitions.mapp', () => ({ RequisitionsMap: (d: unknown[]) => d }))
 
 describe('fetchRequisitions util', () => {

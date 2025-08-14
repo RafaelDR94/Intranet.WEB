@@ -44,7 +44,7 @@ export const updateExcelRequisition = async (
         if (updated) {
             set((s) => ({
                 requisitions: s.requisitions.map((r) =>
-                    r.id_billingrequisition === updated.id_billingrequisition ? updated : r
+                    r.billingrequisition_id === updated.billingrequisition_id ? updated : r
                 ),
                 updatingExcel: false,
                 successUpdateExcel: !(rowsWithMissingData && rowsWithMissingData.length > 0),

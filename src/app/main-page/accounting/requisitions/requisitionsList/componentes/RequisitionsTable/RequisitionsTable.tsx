@@ -49,6 +49,8 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ onEditRequest }) 
       { key: 'snCode', label: 'CÓDIGO SN' },
       { key: 'debtorName', label: 'NOMBRE DEUDOR' },
       { key: 'projectCode', label: 'CÓDIGO DE PROYECTO' },
+      { key: 'date_created', label: 'FECHA DE CREACIÓN' },
+      
       {
         key: 'actions' as unknown as keyof RequisitionRow,
         label: '',
@@ -81,6 +83,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ onEditRequest }) 
         showPrimaryButton
         primaryButtonText={removing ? 'Eliminando…' : 'Eliminar'}
         onPrimaryButtonClick={handleConfirmDelete}
+
       />
 
       <DataTable
@@ -88,18 +91,19 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ onEditRequest }) 
         onSearchChange={setQuery}
         onCalendarClick={refresh}
         onFilterClick={refresh}
-        onSearch={() => console.log('Descargar requisiciones')}
         tables={[{
           data: rows,
           columns: computedColumns,
           enableSelection: true,
           title: 'Listado Requisiciones',
           enableCollaps: true,
-          defaultSortKey: 'debtorName',
-          defaultSortDirection: 'asc',
+          defaultSortKey: 'date_created',
+          defaultSortDirection: 'desc',
         }]}
         showDownloadTable
         showButton={false}
+        dateKey={"date_created"}
+        
       />
     </div>
   )

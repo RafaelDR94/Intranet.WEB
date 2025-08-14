@@ -3,9 +3,9 @@ import type { Requisition } from '@/app/mappings/requisitions/requisitions.types
 import type { Set } from './types'
 
 vi.mock('./utilities', () => ({
-  fetchRequisitions: vi.fn(async (set: Set) => set({ requisitions: [{ id_billingrequisition: '1' }], loading: false })),
+  fetchRequisitions: vi.fn(async (set: Set) => set({ requisitions: [{ billingrequisition_id: '1' }as any], loading: false })),
   createRequisition: vi.fn(async (set: Set, _get: unknown, _payload: unknown) => {
-    set({ successPost: true }); return { id_billingrequisition: '2' } as Requisition
+    set({ successPost: true }); return { billingrequisition_id: '2' } as Requisition
   }),
   updateRequisition: vi.fn(async (set: Set) => { set({ successPut: true }); return null }),
   deleteRequisition: vi.fn(async (set: Set) => { set({ successDelete: true }); return true }),

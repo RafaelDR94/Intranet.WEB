@@ -12,6 +12,7 @@ import {
 } from "../utilities/datesTable"; // ajusta la ruta según tu estructura
 import { exportFiles } from "../utilities/exportations";
 import { DataTableGroup } from "../types";
+import { C } from "vitest/dist/chunks/reporters.d.BFLkQcL6.js";
 const useDataTable = <T extends { id: string | number }>({
   onSelectedChange,
   onSearchChange,
@@ -33,7 +34,7 @@ const useDataTable = <T extends { id: string | number }>({
       setSearchTerm(value);
       onSearchChange?.(value, startDate, endDate);
     },
-    [onSearchChange, startDate, endDate]
+    [ startDate, endDate]
   );
 
   const handleDateChange = useCallback(
@@ -42,7 +43,7 @@ const useDataTable = <T extends { id: string | number }>({
       setEndDate(end);
       onSearchChange?.(searchTerm, start, end);
     },
-    [onSearchChange, searchTerm]
+    [ searchTerm]
   );
 
   const getRowDate = useCallback(
@@ -84,8 +85,10 @@ const useDataTable = <T extends { id: string | number }>({
         // --- filtro de fechas ---
         const hasRange = !!startDate || !!endDate;
         let matchesDate = true;
+
         if (hasRange) {
           const d = getRowDate(row);
+
           if (d) {
             const ts = d.getTime();
             const from = startDate ? startOfDay(startDate).getTime() : -Infinity;

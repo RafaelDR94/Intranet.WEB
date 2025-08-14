@@ -4,6 +4,7 @@ export type RequisitionRow = {
   snCode: string
   debtorName: string
   projectCode: string
+  date_created?:string
 }
 
 export type ActionMenuCellProps = {

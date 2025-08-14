@@ -31,6 +31,7 @@ export const createRequisition = async (
 
     const raw = res.data?.data
     const created = raw ? RequisitionMap(raw) : null
+ 
 
     // Refetch para asegurar consistencia si la API no regresa todo
     await fetchRequisitions(set, get, true)

@@ -10,12 +10,13 @@ import {
  * Mapea un registro crudo de la API a un objeto tipado Requisition.
  */
 export const RequisitionMap = (raw: any): Requisition => ({
-  id_billingrequisition: raw?.id_billingrequisition ?? '',
+  billingrequisition_id: raw?.billingrequisition_id ?? '',
   requisitionkey:        raw?.requisitionkey        ?? '',
   id_Employee:           raw?.id_Employee           ?? '',
   employeename:          raw?.employeename          ?? '',
   idProject:             raw?.idProject             ?? '',
   projectname:           raw?.projectname           ?? '',
+  date_created:          raw?.date_created          ?? '',
 })
 
 /**
@@ -42,7 +43,7 @@ export const RequitionPostMap = (src: Partial<Requisition> | any): RequitionPost
  * Construye el payload para actualizar una requisición (PUT).
  */
 export const RequitionPutMap = (src: Partial<Requisition> | any): RequitionPut => ({
-  id_billingrequisition: String(src?.id_billingrequisition ?? ''),
+  billingrequisition_id: String(src?.billingrequisition_id ?? ''),
   requisitionkey:        String(src?.requisitionkey        ?? ''),
   employeename:          String(src?.employeename          ?? ''),
   projectname:           String(src?.projectname           ?? ''),
