@@ -10,7 +10,8 @@ import { useRequisitionTable } from './hooks/useRequisitionsTable'
 import { RequisitionsTableProps } from './types'
 import { ActionMenuCellProps } from './types'
 import { RequisitionRow } from './types'
-
+import { DeleteIcon } from 'lucide-react'
+import { EditIcon } from 'lucide-react'
 const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onEdit, onDelete }) => {
 
   return (
@@ -19,8 +20,8 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onEdit, onDelete }
       autoFlip
       trigger={<Button size="xsmall" variant="ghost" icon={DotsIcon} />}
       items={[
-        { label: 'Editar', onClick: () => { onEdit(row);  } },
-        { label: 'Eliminar', danger: true, onClick: () => { onDelete(row); } },
+        { label: 'Editar', icon: EditIcon, onClick: () => { onEdit(row);} },
+        { label: 'Eliminar', icon: DeleteIcon, danger: true, onClick: () => { onDelete(row); } },
       ]}
     />
   )

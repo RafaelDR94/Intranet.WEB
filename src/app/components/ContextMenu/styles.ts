@@ -1,15 +1,15 @@
 export const contextMenuStyles = {
-  Container: 'relative inline-block isolate',
+  Container: 'relative inline-block',
   Trigger: 'inline-block',
 
   // Base panel para el menú contextual
-  MenuBase: 'absolute z-50 rounded-md shadow-300 bg-white-100 p-1',
-  MenuSize: 'w-56 max-w-[calc(100vw-1rem)] overflow-x-hidden',
+  MenuBase: 'absolute z-[9999] rounded-md shadow-300 bg-white-100 p-1',
+  MenuSize: 'w-auto max-w-[calc(100vw-1rem)] overflow-x-hidden z-[9999]',
 
   // utilidades de posición
   RightAligned: 'right-0',
   LeftAligned: 'left-0',
-  OpenDown: 'top-full mt-2',
+  OpenDown: 'top-full mt-2 z-[9999]',
   OpenUp: 'bottom-full mb-2',
 
   // items
