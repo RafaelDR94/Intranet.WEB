@@ -1,13 +1,10 @@
 export const contextMenuStyles = {
-  Container: 'relative inline-block',
+  Container: 'relative inline-block isolate',
   Trigger: 'inline-block',
 
-  // 🔁 Deja Menu “neutral” para que otros popovers (calendario) no se vean afectados
-  Menu: 'absolute mt-2 rounded-md shadow-300 bg-white-100 z-50 p-1',
-
-  // ✅ Panel específico del ContextMenu (con las restricciones que necesitabas)
-  ContextMenuPanel:
-    'w-56 max-w-[calc(100vw-1rem)] overflow-x-hidden rounded-md shadow-300 bg-white-100',
+  // Base panel para el menú contextual
+  MenuBase: 'absolute z-50 rounded-md shadow-300 bg-white-100 p-1',
+  MenuSize: 'w-56 max-w-[calc(100vw-1rem)] overflow-x-hidden',
 
   // utilidades de posición
   RightAligned: 'right-0',
@@ -24,7 +21,7 @@ export const contextMenuStyles = {
   ItemHover: 'hover:bg-gray-10',
   Icon: 'w-5 h-5 text-green-100',
 
-  // soporte controles (si los usas)
+  // soporte controles
   ItemContent: 'flex w-full items-center justify-between gap-2',
   Label: 'flex-1 truncate',
   LeftSlot: 'flex items-center justify-center',
