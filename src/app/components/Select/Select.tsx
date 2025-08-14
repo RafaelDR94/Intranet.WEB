@@ -1,58 +1,67 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import clsx from 'clsx';
-import ChevronDown from '@/assets/icons/navegacion/nav-arrow-down.svg';
-import ChevronUp from '@/assets/icons/navegacion/nav-arrow-up.svg';
-import Check from '@/assets/icons/acciones/check.svg';
-import { SelectProps } from './types';
-import { baseStyles } from './styles';
-import useSelect from './hooks/useSelect';
+"use client";
+import React, { useEffect, useMemo, useState } from "react";
+import clsx from "clsx";
+import ChevronDown from "@/assets/icons/navegacion/nav-arrow-down.svg";
+import ChevronUp from "@/assets/icons/navegacion/nav-arrow-up.svg";
+import Check from "@/assets/icons/acciones/check.svg";
+import { SelectProps } from "./types";
+import { baseStyles } from "./styles";
+import useSelect from "./hooks/useSelect";
 
 /**
  * Select con selección simple/múltiple, variantes y typeahead (sin input visible).
- * - Evita doble tipeo (un solo onKeyDown y stopPropagation).
- * - Limpia el término de búsqueda al cerrar/seleccionar/escapar.
+ * Correcciones clave:
+ * 1) Selección con onMouseDown (previene que el blur cierre antes de seleccionar).
+ * 2) No limpiar búsqueda en onBlur del trigger (se limpia al cerrar con `open=false`).
+ * 3) Manejo defensivo de `selected` cuando viene undefined.
  */
 export const Select: React.FC<SelectProps> = ({
   options,
-  placeholder = 'Select',
+  placeholder = "Select",
   multiple = false,
   selected,
   onChange,
-  size = 'md',
-  variant = 'default',
+  size = "md",
+  variant = "default",
   label,
   helperText,
   disabled,
-  className
+  className,
 }) => {
-  const { open, ref, toggleOption, setOpen } = useSelect({ multiple, onChange, selected });
+  const { open, ref, toggleOption, setOpen } = useSelect({
+    multiple,
+    onChange,
+    selected,
+  });
+
+  // Asegura que `selected` siempre sea un array
+  const safeSelected = Array.isArray(selected) ? selected : [];
 
   // --- Estado para typeahead (sin input) ---
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Limpiar cuando el menú se cierra
+  // Limpiar búsqueda cuando el menú se cierra
   useEffect(() => {
-    if (!open) setSearchTerm('');
+    if (!open) setSearchTerm("");
   }, [open]);
 
-  const selectedLabels = options
-    .filter((opt) => selected.includes(opt.value))
-    .map((opt) => opt.label);
+  const selectedLabels = useMemo(
+    () => options.filter((opt) => safeSelected.includes(opt.value)).map((opt) => opt.label),
+    [options, safeSelected]
+  );
 
   const helperClass =
     baseStyles.helperColors[variant as keyof typeof baseStyles.helperColors] ??
     baseStyles.helperColors.default;
 
-  const currentVariant = disabled ? 'disabled' : variant;
+  const currentVariant = disabled ? "disabled" : variant;
 
   // Filtrado por término
-  const filteredOptions =
-    searchTerm.trim() === ''
-      ? options
-      : options.filter((opt) =>
-          opt.label.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+  const filteredOptions = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (term === "") return options;
+    return options.filter((opt) => opt.label.toLowerCase().includes(term));
+  }, [options, searchTerm]);
 
   // --- Teclado / typeahead ---
   const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
@@ -60,7 +69,7 @@ export const Select: React.FC<SelectProps> = ({
     if (e.repeat) return; // evita auto-repetición por tecla sostenida
 
     // Abrir con Enter/Espacio/Flecha Abajo
-    if (!open && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown')) {
+    if (!open && (e.key === "Enter" || e.key === " " || e.key === "ArrowDown")) {
       e.preventDefault();
       setOpen(true);
       return;
@@ -74,16 +83,16 @@ export const Select: React.FC<SelectProps> = ({
       return;
     }
 
-    if (e.key === 'Backspace') {
+    if (e.key === "Backspace") {
       setSearchTerm((s) => s.slice(0, -1));
       e.preventDefault();
       return;
     }
 
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       // Si hay búsqueda, primero la limpia; si no, cierra
       if (searchTerm) {
-        setSearchTerm('');
+        setSearchTerm("");
       } else {
         setOpen(false);
       }
@@ -91,11 +100,11 @@ export const Select: React.FC<SelectProps> = ({
       return;
     }
 
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       // Atajo: en simple, selecciona la primera coincidencia
       if (!multiple && filteredOptions.length > 0) {
         toggleOption(filteredOptions[0].value);
-        setSearchTerm('');
+        setSearchTerm("");
         setOpen(false);
       }
       e.preventDefault();
@@ -103,7 +112,7 @@ export const Select: React.FC<SelectProps> = ({
     }
   };
 
-  // Props del trigger: un solo onKeyDown y stopPropagation para evitar bubbling
+  // Props del trigger: un solo onKeyDown; NO limpiamos en onBlur
   const triggerProps = {
     tabIndex: disabled ? -1 : 0,
     onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -113,12 +122,7 @@ export const Select: React.FC<SelectProps> = ({
     onClick: () => {
       if (!disabled) setOpen(!open);
     },
-    onBlur: () => {
-      // Opcional: si manejas cierre por blur, limpia búsqueda
-      // (si el hook ya cierra por click fuera, esto es redundante pero seguro)
-      setSearchTerm('');
-    }
-  };
+  } as const;
 
   return (
     <div className={clsx(baseStyles.container, className)} ref={ref}>
@@ -136,17 +140,18 @@ export const Select: React.FC<SelectProps> = ({
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className={baseStyles.triggerText}>
-          {open && searchTerm !== ''
+        <span>
+          {open && searchTerm !== ""
             ? searchTerm // muestra lo que escribe el usuario
-            : (!selected || selected.length === 0 || selectedLabels.length === 0)
-              ? (open ? 'Escribe para filtrar…' : placeholder)
-              : multiple
-                ? `${selected.length} Opciones Seleccionadas`
-                : selectedLabels[0]
-          }
+            : safeSelected.length === 0 || selectedLabels.length === 0
+            ? open
+              ? "Escribe para filtrar…"
+              : placeholder
+            : multiple
+            ? `${safeSelected.length} Opciones Seleccionadas`
+            : selectedLabels[0]}
         </span>
-        {multiple && selected.length > 0 && open ? (
+        {multiple && safeSelected.length > 0 && open ? (
           <Check className={baseStyles.check} />
         ) : open ? (
           <ChevronUp />
@@ -155,9 +160,9 @@ export const Select: React.FC<SelectProps> = ({
         )}
       </div>
 
-      {multiple && selected.length > 0 && (
+      {multiple && safeSelected.length > 0 && (
         <span className={baseStyles.infoText}>
-          Opciones: {selectedLabels.join(', ')}
+          Opciones: {selectedLabels.join(", ")}
         </span>
       )}
 
@@ -169,19 +174,22 @@ export const Select: React.FC<SelectProps> = ({
         <div className={baseStyles.menu} role="listbox">
           {filteredOptions.length > 0 ? (
             filteredOptions.map((option) => {
-              const isSelected = selected.includes(option.value);
+              const isSelected = safeSelected.includes(option.value);
+              const disabledOpt = !!option.disabled;
               return (
                 <div
                   key={option.value}
                   className={clsx(
                     baseStyles.option,
-                    option.disabled && baseStyles.optionDisabled
+                    disabledOpt && baseStyles.optionDisabled
                   )}
-                  onClick={() => {
-                    if (!option.disabled) {
+                  // Usar onMouseDown garantiza que la selección ocurra ANTES del blur/cierre externo
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // mantiene el foco para que no se dispare blur del trigger
+                    if (!disabledOpt) {
                       toggleOption(option.value);
                       if (!multiple) {
-                        setSearchTerm('');
+                        setSearchTerm("");
                         setOpen(false);
                       }
                     }
@@ -189,7 +197,7 @@ export const Select: React.FC<SelectProps> = ({
                   role="option"
                   aria-selected={isSelected}
                 >
-                  <span className={clsx(option.disabled && baseStyles.optionlabel)}>
+                  <span className={clsx(disabledOpt && baseStyles.optionlabel)}>
                     {option.label}
                   </span>
                   {multiple ? (
@@ -200,16 +208,20 @@ export const Select: React.FC<SelectProps> = ({
                         baseStyles.checkitem
                       )}
                     >
-                      {isSelected && <Check className={baseStyles.selectedCheck} />}
+                      {isSelected && (
+                        <Check className={baseStyles.selectedCheck} />
+                      )}
                     </div>
                   ) : (
-                    isSelected && open && <Check className={baseStyles.selecteCheck2} />
+                    isSelected && open && (
+                      <Check className={baseStyles.selecteCheck2} />
+                    )
                   )}
                 </div>
               );
             })
           ) : (
-            <div className={baseStyles.noResults}>Sin resultados</div>
+            <div>Sin resultados</div>
           )}
         </div>
       )}

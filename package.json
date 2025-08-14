@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^4.16.0",
+    "@floating-ui/dom": "^1.7.3",
+    "@floating-ui/react-dom": "^2.1.5",
     "axios": "^1.11.0",
     "clsx": "^2.1.1",
     "dexie": "^4.0.11",

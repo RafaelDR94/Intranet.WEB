@@ -26,11 +26,11 @@ const AddFilesComponent = () => {
             options: [
                 { label: 'Proyecto A', value: 'a' },
                 { label: 'Proyecto B', value: 'b' },
-                { label: 'Proyecto C', value: 'b' },
-                { label: 'Proyecto D', value: 'b' },
-                { label: 'Proyecto E', value: 'b' },
-                { label: 'Proyecto F', value: 'b' },
-                { label: 'Proyecto G', value: 'b' },
+                { label: 'Proyecto C', value: 'c' },
+                { label: 'Proyecto D', value: 'd' },
+                { label: 'Proyecto E', value: 'e' },
+                { label: 'Proyecto F', value: 'f' },
+                { label: 'Proyecto G', value: 'g' },
 
             ],
             className: 'max-w-[400px]',
