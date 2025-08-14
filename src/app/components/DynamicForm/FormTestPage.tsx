@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore'
-import { FieldModel } from '@/app/components/DynamicForm/types'
+import type { FieldModel } from '@/app/components/DynamicForm/types'
 import DynamicForm from './DynamicForm'
 import { Button } from '@/app/components/Button/Button'
 
@@ -30,14 +30,24 @@ const fetchEquiposPorUbicacion = async (ubicacion: string) => {
 }
 
 export default function FormTestPage() {
+  // 🔐 formId único para esta instancia de formulario
+  const formId = 'form-test-page'
+
   const submitRef = useRef<() => void | Promise<void>>(null)
   const [formReady, setFormReady] = useState(false)
   const [loadingFormInfo, setLoadingFormInfo] = useState(false)
-  const { fields, setFields, updateField } = useFormFieldsStore()
+
+  const { fieldsByFormId, setFields, updateField, resetFields } = useFormFieldsStore()
+
+  // 👀 Siempre deriva los campos del diccionario por formId
+  const fields = fieldsByFormId[formId] ?? []
 
   useEffect(() => {
+    let cancelled = false
+
     const loadInitialFields = async () => {
       const ubicaciones = await fetchUbicaciones()
+      if (cancelled) return
 
       const initialFields: FieldModel[] = [
         {
@@ -47,14 +57,13 @@ export default function FormTestPage() {
           placeholder: 'Tu nombre',
           value: 'Bruno',
           className: 'max-w-[400px]',
-          validations: [{ type: 'required' }, { type: 'minLength', value: 3 }]
+          validations: [{ type: 'required' }, { type: 'minLength', value: 3 }],
         },
         {
           type: 'toggle',
           name: 'activo',
           label: '¿Está activo?',
           value: true,
-
         },
         {
           type: 'select',
@@ -62,17 +71,20 @@ export default function FormTestPage() {
           label: 'Ubicación',
           value: '',
           options: ubicaciones,
-          onChange: async (value) => {
-            updateField('equipo', { disabled: true, options: [] })
+          onChange: async (value: string) => {
+            // 🔄 mientras carga, deshabilita “equipo” y limpia opciones
+            updateField(formId, 'equipo', { disabled: true, options: [], value: '' })
             setLoadingFormInfo(true)
             const nuevosEquipos = await fetchEquiposPorUbicacion(value)
+            if (cancelled) return
             setLoadingFormInfo(false)
-            updateField('equipo', {
+            // ✅ repuebla y habilita “equipo”
+            updateField(formId, 'equipo', {
               options: nuevosEquipos,
               value: '', // reset value
+              disabled: false,
             })
           },
-
         },
         {
           type: 'select',
@@ -80,13 +92,12 @@ export default function FormTestPage() {
           label: 'Equipo',
           placeholder: 'Selecciona equipo',
           value: '',
-          showIf: (values, fields) => {
-            const equipoField = fields.find((ubi) => ubi.name == "equipo")
-            console.log("ubicatioField", equipoField);
-            if (equipoField?.options) return equipoField?.options?.length > 0
-            return false
+          showIf: (_values, fields) => {
+            const equipoField = fields.find((f) => f.name === 'equipo')
+            return (equipoField?.options?.length ?? 0) > 0
           },
-
+          disabled: true, // inicia deshabilitado hasta elegir ubicacion
+          options: [],
         },
         {
           type: 'multiSelect',
@@ -98,15 +109,12 @@ export default function FormTestPage() {
             { label: 'Node.js', value: 'node' },
             { label: 'Python', value: 'python' },
           ],
-
         },
-
         {
           type: 'checkbox',
           name: 'acepto',
           label: 'Acepto los términos',
           value: true,
-
         },
         {
           type: 'file',
@@ -114,7 +122,6 @@ export default function FormTestPage() {
           label: 'Subir CV (PDF)',
           accept: '.pdf',
           value: null,
-
         },
         {
           type: 'input',
@@ -125,11 +132,18 @@ export default function FormTestPage() {
         },
       ]
 
-      setFields(initialFields)
+      // 🧠 Importante: usar setFields con formId
+      setFields(formId, initialFields)
     }
 
     loadInitialFields()
-  }, [setFields, updateField])
+
+    return () => {
+      cancelled = true
+      // 🧼 Limpia el estado de esta instancia del formulario
+      resetFields(formId)
+    }
+  }, [formId, setFields, updateField, resetFields])
 
   return (
     <div className="space-y-6">

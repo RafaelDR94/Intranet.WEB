@@ -70,3 +70,37 @@ export interface ExportExcelProParams {
 }
 
 export type OnCellHook = NonNullable<ExportExcelProParams["onCell"]>;
+
+/** Parameters for drawing the header section */
+export interface HeaderPaintParams {
+  sheet: ExcelJS.Worksheet;
+  logoBase64?: string;
+  meta?: MetaHeader;
+  startCol: number;
+  spanCols: number;
+  startRow: number;
+}
+
+/** Parameters for rendering a table */
+export interface PaintTableParams {
+  sheet: ExcelJS.Worksheet;
+  sheetName: string;
+  columns: ColumnDef[];
+  rows: Record<string, unknown>[];
+  startRow: number;
+  currencySymbol?: string;
+  zebra?: boolean;
+  onCell?: ExportExcelProParams["onCell"];
+}
+
+/** Parameters for drawing totals row */
+export interface PaintTotalsParams {
+  sheet: ExcelJS.Worksheet;
+  sumColumnKey?: string;
+  columns: ColumnDef[];
+  label?: string;
+  firstDataRow: number;
+  lastDataRow: number;
+  currencySymbol?: string;
+  useExcelFormulaTotals?: boolean;
+}

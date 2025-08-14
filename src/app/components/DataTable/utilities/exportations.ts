@@ -5,6 +5,8 @@ import { ColumnDef, SheetInput, exportExcelPro } from "@/app/utilities/Excel/Exp
 import { saveAs } from "file-saver";
 import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
 import { newDocument, Table, FullDocument ,CreatePDF} from "@/app/utilities/PDF/PDF";
+import { urlToBase64 } from "@/app/utilities/PicturesHelper/PictureHelper";
+import Logo from "@/assets/images/LogosDR/DRLogoOficial.png";
 type Column = { key: string; label: string; invisible?: boolean };
 
 const toPdfColumns = (
@@ -138,9 +140,10 @@ export const exportFiles = (kind: 'pdf' | 'excel', tables: DataTableGroup<any>[]
 };
 
 const ExportExcel = async (sheets: SheetInput[], dataTableTitle: string) => {
+  const logo = await urlToBase64(Logo.src);
   await exportExcelPro({
     fileName: dataTableTitle,
-    logoBase64: undefined,
+    logoBase64: logo,
     sheets: sheets,
     meta: {
       title: dataTableTitle,

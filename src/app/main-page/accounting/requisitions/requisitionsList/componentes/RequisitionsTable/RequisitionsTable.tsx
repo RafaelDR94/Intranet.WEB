@@ -15,7 +15,8 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onEdit, onDelete }
 
   return (
     <ContextMenu
-
+      alignRight
+      autoFlip
       trigger={<Button size="xsmall" variant="ghost" icon={DotsIcon} />}
       items={[
         { label: 'Editar', onClick: () => { onEdit(row);  } },
@@ -57,7 +58,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ onEditRequest }) 
         ),
         cellClass: 'w-12 text-right',
         headerClass: 'w-12',
-        invisible:true
+        invisible:false
       },
     ]
   }, [onEdit, onDelete])

@@ -2,9 +2,10 @@
 import ExcelJS from "exceljs";
 import type {
   ColumnType,
-  ColumnDef,
-  MetaHeader,
   ExportExcelProParams,
+  HeaderPaintParams,
+  PaintTableParams,
+  PaintTotalsParams,
 } from "./types";
 import {
   applyHeaderStyle,
@@ -22,10 +23,17 @@ export type {
   SheetInput,
   MetaHeader,
   ExportExcelProParams,
+  HeaderPaintParams,
+  PaintTableParams,
+  PaintTotalsParams,
 } from "./types";
 
 /* ========================= Helpers puros ========================= */
 
+/**
+ * Convierte un índice de columna basado en 1 a su representación en letras.
+ * @param n Índice numérico de la columna (1 = A).
+ */
 const colIndexToLetter = (n: number) => {
   let temp = "";
   while (n > 0) {
@@ -36,6 +44,10 @@ const colIndexToLetter = (n: number) => {
   return temp;
 };
 
+/**
+ * Normaliza un valor a número seguro para cálculos.
+ * @param value Valor potencialmente numérico.
+ */
 const normalizeNumber = (value: unknown): number => {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string") {
@@ -46,6 +58,11 @@ const normalizeNumber = (value: unknown): number => {
   return 0;
 };
 
+/**
+ * Determina el formato numérico por defecto según el tipo de columna.
+ * @param type Tipo de la columna.
+ * @param currencySymbol Símbolo de moneda opcional.
+ */
 const defaultNumFmtForType = (type?: ColumnType, currencySymbol?: string) => {
   if (type === "number") return currencySymbol ? `"${currencySymbol}"#,##0.00` : "#,##0.00";
   if (type === "date") return "yyyy-mm-dd";
@@ -54,15 +71,10 @@ const defaultNumFmtForType = (type?: ColumnType, currencySymbol?: string) => {
 
 /* ========================= Pintado de cabecera/meta ========================= */
 
-interface HeaderPaintParams {
-  sheet: ExcelJS.Worksheet;
-  logoBase64?: string;
-  meta?: MetaHeader;
-  startCol: number;
-  spanCols: number;
-  startRow: number;
-}
-
+/**
+ * Dibuja la sección de cabecera con logo y metadatos.
+ * @param params Configuración de la cabecera.
+ */
 const paintHeader = ({ sheet, logoBase64, meta, startCol, spanCols, startRow }: HeaderPaintParams) => {
   if (logoBase64) {
     const id = sheet.workbook.addImage({ base64: logoBase64, extension: "png" });
@@ -97,17 +109,10 @@ const paintHeader = ({ sheet, logoBase64, meta, startCol, spanCols, startRow }: 
 
 /* ========================= Pintado de tabla (Pro) ========================= */
 
-interface PaintTableParams {
-  sheet: ExcelJS.Worksheet;
-  sheetName: string;
-  columns: ColumnDef[];
-  rows: Record<string, unknown>[];
-  startRow: number;
-  currencySymbol?: string;
-  zebra?: boolean;
-  onCell?: ExportExcelProParams["onCell"];
-}
-
+/**
+ * Pinta las cabeceras y filas de datos en la hoja.
+ * @param params Configuración de la tabla.
+ */
 const paintTable = ({ sheet, sheetName, columns, rows, startRow, currencySymbol, zebra, onCell }: PaintTableParams) => {
   const headerRow = sheet.getRow(startRow);
   const headers = ["Consecutivo", ...columns.map((c) => c.header)];
@@ -180,17 +185,10 @@ const paintTable = ({ sheet, sheetName, columns, rows, startRow, currencySymbol,
 
 /* ========================= Totales ========================= */
 
-interface PaintTotalsParams {
-  sheet: ExcelJS.Worksheet;
-  sumColumnKey?: string;
-  columns: ColumnDef[];
-  label?: string;
-  firstDataRow: number;
-  lastDataRow: number;
-  currencySymbol?: string;
-  useExcelFormulaTotals?: boolean;
-}
-
+/**
+ * Calcula y pinta la fila de totales de la tabla.
+ * @param params Configuración de totales.
+ */
 const paintTotals = ({
   sheet,
   sumColumnKey,

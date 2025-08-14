@@ -186,6 +186,11 @@ Feature:
 - Extracted types and styles into dedicated files for Excel and PDF utilities, added documentation and tests.
 (Agente IA) [#]()
 
+### 1.33.0 Document Excel and PDF utilities 2025-08-14
+Feature:
+- Separated remaining Excel interfaces, added Storybook docs y JSDoc para utilidades de Excel y PDF.
+(Agente IA) [#]()
+
 ### 1.33.0 Component Adjustments 2025-08-14
 Feature:
 - To reuse components for each different design

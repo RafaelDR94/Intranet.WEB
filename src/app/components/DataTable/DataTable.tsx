@@ -8,7 +8,15 @@ import CollapsibleSection from '../CollapsibleSection/CollapsibleSection'
 import useDataTable from './hooks/useDataTable'
 
 /**
- * Renderiza una o varias tablas con búsqueda y acciones configurables
+ * `DataTable` – Renderiza una o varias tablas con:
+ * - Cabecera de acciones (buscar, calendario, filtros, botón principal)
+ * - Búsqueda interna/externa
+ * - Filtro por rango de fechas
+ * - Paginación
+ * - Selección de filas y descarga (opcional)
+ *
+ * @template T Debe incluir `{ id: string | number }`.
+ *
  */
 export const DataTable = <T extends { id: string | number }>({
   onSearch,

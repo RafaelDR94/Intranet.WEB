@@ -25,6 +25,13 @@ export type {
 
 // Render helpers and components
 
+/**
+ * Renders a data table with optional column width ratios.
+ * @param title Título de la tabla.
+ * @param headers Cabeceras de columna.
+ * @param datatable Filas de datos.
+ * @param relation Proporción opcional para distribuir el ancho de columnas.
+ */
 const RenderTable: React.FC<Table> = ({ title, headers, datatable, relation }) => {
   const totalSpace = 12;
   const defaultFlex = 1;
@@ -59,6 +66,10 @@ const RenderTable: React.FC<Table> = ({ title, headers, datatable, relation }) =
   );
 };
 
+/**
+ * Documento interno usado para generar el PDF.
+ * @param data Estructura completa del documento o `null`.
+ */
 const MyDocument: React.FC<{ data: FullDocument | null }> = ({ data }) => (
   <Document>
     {data?.pages.map((pageData, pageIndex) => {

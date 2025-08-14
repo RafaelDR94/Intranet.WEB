@@ -1,0 +1,230 @@
+import { Meta, Story, Canvas, ArgsTable } from '@storybook/blocks';
+
+<Meta title="Utilities/exportExcelPro" />
+
+# exportExcelPro – Utilidad de exportación a Excel (ExcelJS)
+
+Utilidad para generar archivos `.xlsx` con múltiples hojas, estilos coherentes y extras “pro”:
+- Cabecera con logo y metadatos
+- AutoFilter y `freeze` del header
+- Totales por columna robustos al reordenamiento
+- Zebra rows
+- Hook `onCell` para personalización por celda
+- Soporte SSR/Node (retorna `buffer`) y descarga en navegador si se inyecta `saver`
+
+> En este proyecto documentamos *utilities* clave en Storybook y recomendamos pruebas con Vitest.
+
+---
+
+## Instalación y requisitos
+
+Esta utilidad usa [ExcelJS](https://github.com/exceljs/exceljs). Ya está incluida en el proyecto; solo **importa** desde `src/utilities/excel/exporter.ts`.
+
+```ts
+import { exportExcelPro } from '@/utilities/excel/exporter';
+```
+
+---
+
+## API
+
+### `exportExcelPro(params: ExportExcelProParams): Promise<{ buffer: ArrayBuffer, blob?: Blob }>`
+Parámetros principales:
+
+- `fileName: string` – nombre base del archivo (sin `.xlsx`)
+- `sheets: SheetInput[]` – definición de hojas
+- `logoBase64?: string` – PNG en base64 para el header
+- `meta?: MetaHeader` – `{ title?: string; cliente?: string; mes?: string; proyecto?: string; semana?: string }`
+- `useExcelFormulaTotals?: boolean` – totales con fórmula (`SUM()`) o cálculo manual
+- `currencySymbol?: string` – p.ej. `"$"` (se usa con `type: "number"` si no se especifica `numFmt`)
+- `freezeHeader?: boolean` – congela cabecera
+- `autoFilter?: boolean` – agrega filtro a la fila de cabecera
+- `zebra?: boolean` – alterna color de filas
+- `onCell?: (ctx) => void` – callback por celda
+- `saver?: (blob: Blob, fileName: string) => void` – **solo navegador** para descargar
+
+### `SheetInput`
+- `name?: string` – nombre de la hoja
+- `columns: ColumnDef[]` – definición de columnas
+- `rows: Record<string, unknown>[]` – datos
+- `sumColumnKey?: string` – key de la columna a sumar en totales
+- `sumLabel?: string` – texto de la celda de etiqueta (por defecto `"TOTAL"`)
+- `startRow?: number` – fila donde inicia la tabla (por defecto, después del header)
+
+### `ColumnDef`
+- `key: string`
+- `header: string`
+- `type?: "text" | "number" | "date"`
+- `numFmt?: string` – formato Excel (sobrescribe el formato por defecto)
+- `align?: "left" | "center" | "right"`
+- `width?: number`
+
+---
+
+## Ejemplo básico (una hoja)
+
+```ts
+import { exportExcelPro } from '@/utilities/excel/exporter';
+
+const run = async () => {
+  await exportExcelPro({
+    fileName: 'reporte-ventas',
+    sheets: [
+      {
+        name: 'Ventas',
+        columns: [
+          { key: 'producto', header: 'Producto', type: 'text' },
+          { key: 'fecha', header: 'Fecha', type: 'date' },
+          { key: 'cantidad', header: 'Cantidad', type: 'number' },
+          { key: 'importe', header: 'Importe', type: 'number' },
+        ],
+        rows: [
+          { producto: 'Cámara IP', fecha: '2025-08-01', cantidad: 3, importe: 12999.9 },
+          { producto: 'DVR 8ch',  fecha: '2025-08-02', cantidad: 2, importe: 8999.5 },
+        ],
+        sumColumnKey: 'importe',
+      },
+    ],
+  });
+};
+```
+
+---
+
+## Descarga en navegador vs. uso SSR/Node
+
+### Navegador (descargar archivo)
+Proporciona un `saver`:
+
+```ts
+import { saveAs } from 'file-saver';
+
+await exportExcelPro({
+  fileName: 'reporte-ventas',
+  sheets: [/* ... */],
+  saver: (blob, name) => saveAs(blob, name),
+});
+```
+
+### SSR/Node
+Cuando no hay `window`, la función devuelve `{ buffer }`.
+
+```ts
+import fs from 'node:fs/promises';
+const { buffer } = await exportExcelPro({ fileName: 'reporte', sheets: [/* ... */] });
+await fs.writeFile('/tmp/reporte.xlsx', Buffer.from(buffer));
+```
+
+---
+
+## Ejemplo con logo y metadatos
+
+```ts
+await exportExcelPro({
+  fileName: 'costeo-presupuestal',
+  logoBase64: 'data:image/png;base64,...',
+  meta: {
+    title: 'Hoja de costeo presupuestal',
+    cliente: 'ACME S.A.',
+    mes: 'Agosto 2025',
+    proyecto: 'Instalación CCTV Campus Norte',
+    semana: 'Semana 32',
+  },
+  sheets: [ /* ... */ ],
+});
+```
+
+---
+
+## Multi-hoja y totales personalizados
+
+```ts
+await exportExcelPro({
+  fileName: 'operacion-semanal',
+  sheets: [
+    {
+      name: 'Compras',
+      columns: [
+        { key: 'folio', header: 'Folio' },
+        { key: 'fecha', header: 'Fecha', type: 'date' },
+        { key: 'proveedor', header: 'Proveedor' },
+        { key: 'monto', header: 'Monto', type: 'number', numFmt: '"$"#,##0.00' },
+      ],
+      rows: [ /* ... */ ],
+      sumColumnKey: 'monto',
+      sumLabel: 'TOTAL COMPRAS',
+    },
+    {
+      name: 'Ventas',
+      columns: [
+        { key: 'folio', header: 'Folio' },
+        { key: 'fecha', header: 'Fecha', type: 'date' },
+        { key: 'cliente', header: 'Cliente' },
+        { key: 'importe', header: 'Importe', type: 'number' },
+      ],
+      rows: [ /* ... */ ],
+      sumColumnKey: 'importe',
+      sumLabel: 'TOTAL VENTAS',
+    },
+  ],
+  currencySymbol: '$',
+  useExcelFormulaTotals: true,
+  zebra: true,
+  autoFilter: true,
+  freezeHeader: true,
+});
+```
+
+---
+
+## Personalización por celda con `onCell`
+
+```ts
+await exportExcelPro({
+  fileName: 'inventario',
+  sheets: [{
+    name: 'Stock',
+    columns: [
+      { key: 'sku', header: 'SKU' },
+      { key: 'nombre', header: 'Nombre' },
+      { key: 'stock', header: 'Stock', type: 'number', align: 'right' },
+    ],
+    rows: [
+      { sku: 'CAM-01', nombre: 'Cámara 4MP', stock: 4 },
+      { sku: 'DVR-08', nombre: 'DVR 8ch',    stock: 0 },
+    ],
+  }],
+  onCell: ({ column, cell, value }) => {
+    if (column?.key === 'stock') {
+      const n = typeof value === 'number' ? value : Number(value ?? 0);
+      if (n <= 0) {
+        cell.font = { color: { argb: 'FFFF0000' }, bold: true };
+      }
+    }
+  },
+});
+```
+
+---
+
+## Formatos numéricos y de fecha
+
+- Por defecto:
+  - `type: "number"` → `#,##0.00` (o `"<currency>"#,##0.00`)
+  - `type: "date"` → `yyyy-mm-dd`
+- Sobrescribe con `numFmt`.
+
+```ts
+{ key: 'tasa', header: 'Tasa', type: 'number', numFmt: '0.00%' }
+{ key: 'pzas', header: 'Pzas', type: 'number', numFmt: '#,##0' }
+```
+
+---
+
+## Troubleshooting
+
+**¿No descarga?** Pasa `saver` (ej. `file-saver`).  
+**¿Fechas como números?** Usa `type: 'date'` y/o `numFmt`.  
+**¿Totales incorrectos?** Verifica `sumColumnKey`.
+
+---
