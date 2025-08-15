@@ -1,18 +1,32 @@
-import { recoverPasswordStyles } from "./styles";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import logo from "@/assets/images/Walpapers/Wallpaper-1.png";
 import Image from "next/image";
+import { nesPasswordStyles } from "./styles";
 
 const RecoverPassword = () => {
   const fields = [
     {
       name: "email",
-      label: "Usuario",
+      label: "Contraseña Nueva",
       type: "input",
       inputType: "email",
       helperText: "",
       inputSize: "lg",
-      placeholder: "usuario@drsecurity.net",
+      placeholder: "Escribe una nueva contraseña",
+      value: "",
+      validations: [
+        { type: "required", message: "El correo es obligatorio" },
+        { type: "email", message: "Formato de correo inválido" },
+      ],
+    },
+    {
+      name: "email",
+      label: "Confirmar contraseña",
+      type: "input",
+      inputType: "email",
+      helperText: "",
+      inputSize: "lg",
+      placeholder: "Confirmar nueva contraseña",
       value: "",
       validations: [
         { type: "required", message: "El correo es obligatorio" },
@@ -27,26 +41,26 @@ const RecoverPassword = () => {
   };
 
   return (
-    <div className={recoverPasswordStyles.container}>
+    <div className={nesPasswordStyles.container}>
       {/* Imagen de fondo */}
       <Image
         src={logo}
         alt="Fondo DR Security"
         fill
         priority
-        className={recoverPasswordStyles.image}
+        className={nesPasswordStyles.image}
       />
 
       {/* Overlay azul */}
-      <div className={recoverPasswordStyles.bgOverlay} />
+      <div className={nesPasswordStyles.bgOverlay} />
 
       {/* Contenido centrado */}
-      <div className={recoverPasswordStyles.contentCenter}>
-        <div className={recoverPasswordStyles.card}>
+      <div className={nesPasswordStyles.contentCenter}>
+        <div className={nesPasswordStyles.card}>
           <DynamicForm
             title=""
             fields={fields}
-            submitLabel="Restaurar Contraseña"
+            submitLabel="Guardar"
             // onSubmit={handleSubmit}
           />
         </div>
@@ -56,3 +70,5 @@ const RecoverPassword = () => {
 };
 
 export default RecoverPassword;
+
+
