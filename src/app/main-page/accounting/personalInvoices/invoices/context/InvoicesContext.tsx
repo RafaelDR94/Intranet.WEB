@@ -8,15 +8,15 @@ import React, {
 } from 'react'
 
 import { shallow } from 'zustand/shallow';
-import { useProyectsStore } from '@/app/stores/useProyectsStore/useProyectsStore'
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
 import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore'
-import useAlert from '@/app/context/PrincipalContext/hooks/useAlert/useAlert';
-import { Proyect } from '@/app/mappings/proyects/proyects.types';
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 import { Requisition } from '@/app/mappings/requisitions/requisitions.types';
 import { FieldModel } from '@/app/components/DynamicForm/types';
+import { useAuth } from '@/app/context/AuthContext/AuthContext';
+import { User } from '@/app/context/AuthContext/types';
 export interface InvoicesContextType {
-    proyects: Proyect[];
+
     requisitions: Requisition[];
     field1: FieldModel[];
     field2: FieldModel[];
@@ -25,11 +25,12 @@ export interface InvoicesContextType {
     setFields: (formId: string, newFields: FieldModel[]) => void;
     updateField: (formId: string, name: string, changes: Partial<FieldModel>) => void;
     resetFields: (formId: string) => void;
+    user: User | null
 }
 
 // 2️⃣ Valor inicial por defecto
 const initialValue: InvoicesContextType = {
-    proyects: [],
+    
     requisitions: [],
     field1: [],
     field2: [],
@@ -38,6 +39,7 @@ const initialValue: InvoicesContextType = {
     setFields: (formId: string, newFields: FieldModel[]) => { },
     updateField: (formId: string, name: string, changes: Partial<FieldModel>) => { },
     resetFields: (formId: string) => { },
+    user: null
 }
 
 // 3️⃣ Crear contexto
@@ -45,34 +47,40 @@ const InvoicesContext = createContext<InvoicesContextType>(initialValue)
 
 // 4️⃣ Provider
 export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
+    const { user } = useAuth();
     const formId1 = "invoices-form";
     const formId2 = "ticket-form";
-    const { showAlert, hideAlert } = useAlert();
-    const { proyects, proyectsError, fetchProyects } = useProyectsStore(
-        (s) => ({
-            proyects: s.proyects,
-            proyectsError: s.error,
-            fetchProyects: s.fetchProyects,
-        }),
-        shallow
-    );
-    const { requisitions, requisitionsError, fetchRequisitions } = useRequisitionsStore(
+    const { usePrincipalAlert } = usePrincipal();
+    const { showAlert, hideAlert } = usePrincipalAlert;
+
+
+    const { requisitions, requisitionsError, warning, fetchRequisitionsByIdEmployee, resetFlags, reset } = useRequisitionsStore(
         (s) => ({
             requisitions: s.requisitions,
             requisitionsError: s.error,
-            fetchRequisitions: s.fetchRequisitions,
+            warning: s.warning,
+            fetchRequisitionsByIdEmployee: s.fetchRequisitionsByIdEmployee,
+            resetFlags: s.resetFlags,
+            reset: s.reset
         }),
         shallow
     );
 
     const { setFields, updateField, resetFields } = useFormFieldsStore.getState();
 
-    const field1 = useFormFieldsStore((s) => s.fieldsByFormId[formId1] ?? []);
-    const field2 = useFormFieldsStore((s) => s.fieldsByFormId[formId2] ?? []);
+    const EMPTY_ARRAY: FieldModel[] = [];
+
+
+
+    const f1 = useFormFieldsStore((s) => s.fieldsByFormId[formId1]); // <- sin ?? []
+    const f2 = useFormFieldsStore((s) => s.fieldsByFormId[formId2]); // <- sin ?? []
+
+    const field1 = f1 ?? EMPTY_ARRAY; // coalesce fuera del selector
+    const field2 = f2 ?? EMPTY_ARRAY;
+
     useEffect(() => {
-        fetchProyects();
-        fetchRequisitions();
-    }, [])
+        if (user) fetchRequisitionsByIdEmployee(user.idEmployee, true);
+    }, [user])
 
     useEffect(() => {
         if (!requisitionsError) return;
@@ -86,30 +94,32 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
             onPrimaryClick: hideAlert,
             showSecondaryButton: true,
             secondaryLabel: 'Refrescar',
-            onSecondaryClick: () => { hideAlert(); fetchRequisitions(); },
+            onSecondaryClick: () => { hideAlert(); if (user) fetchRequisitionsByIdEmployee(user?.idEmployee, true); },
         });
+        resetFlags();
     }, [requisitionsError]);
-
     useEffect(() => {
-        if (!proyectsError) return;
+        if (!warning) return;
         showAlert({
-            type: 'error',
+            type: 'warning',
             variant: 'filled',
-            title: 'No se pudo cargar la lista de proyectos',
-            description: String(proyectsError) ?? 'Intenta refrescar.',
+            title: 'Sin requisiciones',
+            description: warning ?? 'Intenta refrescar.',
             showPrimaryButton: true,
             primaryLabel: 'Entendido',
             onPrimaryClick: hideAlert,
             showSecondaryButton: true,
             secondaryLabel: 'Refrescar',
-            onSecondaryClick: () => { hideAlert(); fetchProyects(); },
+            onSecondaryClick: () => { hideAlert(); if (user) fetchRequisitionsByIdEmployee(user?.idEmployee, true); },
         });
-    }, [proyectsError]);
+        resetFlags();
+    }, [warning]);
+
 
     // 🧠 Memoizar el value para evitar renders innecesarios
     const value = useMemo(
         () => ({
-            proyects,
+       
             requisitions,
             field1,
             field2,
@@ -118,13 +128,16 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
             setFields,
             updateField,
             resetFields,
+            user
         }),
-        [proyects,
+        [
             requisitions,
             field1,
             field2,
             formId1,
-            formId2,] // solo cambia cuando invoices cambie
+            formId2,
+            user
+        ] // solo cambia cuando invoices cambie
     )
 
     return (

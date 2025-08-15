@@ -191,12 +191,17 @@ Feature:
 - Separated remaining Excel interfaces, added Storybook docs y JSDoc para utilidades de Excel y PDF.
 (Agente IA) [#]()
 
-### 1.33.0 Component Adjustments 2025-08-14
+### 1.34.0 Component Adjustments 2025-08-14
 Feature:
 - To reuse components for each different design
 (Katherine Negrete A) [#47](https://github.com/DR-Mexico/dr.intranet.web/pull/47)
 
-### 1.34.0 Requisition form tests and docs 2025-08-14
+### 1.35.0 Requisition form tests and docs 2025-08-14
 Feature:
 - Added tests, Storybook stories and MDX docs for RequisitionsForm, hook and utilities.
 (Agente IA) [#]()
+
+### 1.36.0 Final Request Features 2025-08-15
+Feature:
+-Because it needs fine details
+(Bruno Mendoza) [#56](https://github.com/DR-Mexico/dr.intranet.web/pull/56)

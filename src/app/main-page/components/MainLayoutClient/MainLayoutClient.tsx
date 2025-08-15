@@ -8,7 +8,7 @@ import MainSidebar from './components/MainSidebar/MainSidebar';
 import MainTabs from './components/MainTabs/MainTabs';
 import { mainLayoutStyles } from './styles';
 import useMainPage from './hooks/useMainPage';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import LoadingOverlay from '@/app/components/LoadingOverLay/LoadingOverlay';
 
 
@@ -47,6 +47,7 @@ export default function MainLayoutClient({ children }: { readonly children: Reac
   } = useMainPage();
   const { usePrincipalLoading } = usePrincipal();
   const { open, message, spinnerSize } = usePrincipalLoading;
+
   return (
     <PermissionAgent fallbackPath="/main-page/home">
       <div className={mainLayoutStyles.container}>
@@ -54,7 +55,7 @@ export default function MainLayoutClient({ children }: { readonly children: Reac
           <div className={mainLayoutStyles.alertContainer}>
             <Alert
               {...alert}
-              onClose={hideAlert}
+              onClose={() => { console.log("Se esta escondiendo aqui"); hideAlert(); }}
               onPrimaryClick={alert.onPrimaryClick ?? hideAlert}
               onSecondaryClick={alert.onSecondaryClick ?? hideAlert}
             />

@@ -1,101 +1,48 @@
 'use client'
-import { useRef, useState } from 'react'
-import { FieldModel } from '@/app/components/DynamicForm/types'
+
+
 import DynamicForm from '@/app/components/DynamicForm/DynamicForm'
 import FormsLayout from '@/app/components/FormsLayout/FormsLayout'
-import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
-
-const TicketForm = () => {
-
-  const initialformFields: FieldModel[] = [
+import { useInvoices } from '../../context/InvoicesContext'
+import useInitInvoicesForms from '../../hooks/useInitInvoicesForms'
+import { InvoicesFormProps } from '../types'
+import { FieldModel } from '@/app/components/DynamicForm/types'
+const TicketForm: React.FC<InvoicesFormProps> = ({  layoutMatrix ,type}) => {
+   const initialformFields: FieldModel[] = [
     {
-      type: 'input',
-      name: 'debtorName',
-      label: 'Nombre del Deudor',
-      placeholder: 'Ingrese el nombre completo',
-      value: "",
-      className: 'max-w-[400px]',
-      onlyText: true,
-      showIf: (value) => value.debtorName
+        type: 'input',
+        name: 'debtorName',
+        label: 'Nombre del Deudor',
+        placeholder: 'Ingrese el nombre completo',
+        value: "",
+        className: 'max-w-[400px]',
+        onlyText: true,
+        showIf: (value) => value.debtorName
     },
-    {
-      type: 'select',
-      name: 'project',
-      label: 'Seleccionar Proyecto',
-      placeholder: 'Proyecto',
-      value: '',
-      options: [
-      ], className: 'max-w-[400px]', onlyText: false,
-      showIf: (_v, all) => {
-        const f = all.find(x => x.name === 'project');
-        return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-      },
-    },
-    {
-      type: 'select',
-      name: 'requisition',
-      label: 'Código de Requisición',
-      placeholder: 'Seleccione el código',
-      value: '',
-      options: [],
-      className: 'max-w-[400px]',
-      showIf: (_v, all) => {
-        const f = all.find(x => x.name === 'requisition');
-        return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-      },
-    },
-    { type: 'file', name: 'xml', label: 'Documento XML', value: null, accept: '.xml', validations: [{ type: 'required' }], className: 'max-w-[300px]' },
-    { type: 'file', name: 'pdf', label: 'Documento PDF', value: null, accept: '.pdf', validations: [{ type: 'required' }], className: 'max-w-[300px]' },
-  ]
-  const { user } = useAuth()
 
+    {
+        type: 'select',
+        name: 'requisition',
+        label: 'Código de Requisición',
+        placeholder: 'Seleccione el código',
+        value: '',
+        options: [],
+        className: 'max-w-[400px]',
+        showIf: (_v, all) => {
+            const f = all.find(x => x.name === 'requisition');
+            return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+        },
+    },
+    { type: 'file', name: 'jpg,png', label: 'Documento JPG/PNG', value: null, accept: '.jpg,.png', validations: [{ type: 'required' }], className: 'max-w-[300px]' },
+
+]
+  const { field2, formId2 } = useInvoices();
+  const {loadingFormInfo,submitRef, formReady, setFormReady}=useInitInvoicesForms({initialformFields,field:field2, formId:formId2});
   // ⬇️ Loading + Alert globales (desde PrincipalContext)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
   const { withLoading } = usePrincipalLoading
   const { showAlert, hideAlert } = usePrincipalAlert
-
-  const submitRef = useRef<() => void | Promise<void>>(null)
-  const [formReady, setFormReady] = useState(false)
-
-  const fields: FieldModel[] = [
-    {
-      type: 'input',
-      name: 'debtorName',
-      label: 'Nombre del Deudor',
-      placeholder: 'Ingrese el nombre completo',
-      value: user?.fullName ?? '',
-      className: 'max-w-[400px]',
-      onlyText: true,
-    },
-    {
-      type: 'select',
-      name: 'project',
-      label: 'Seleccionar Proyecto',
-      placeholder: 'Proyecto',
-      value: '',
-      options: [
-        { label: 'Proyecto A', value: 'a' },
-        { label: 'Proyecto B', value: 'b' },
-      ],
-      className: 'max-w-[400px]',
-      onlyText: false,
-    },
-    {
-      type: 'select',
-      name: 'expenseType',
-      label: 'Tipo de Viáticos',
-      placeholder: 'Seleccione tipo',
-      value: '',
-      options: [
-        { label: 'Proyecto', value: 'proyecto' },
-        { label: 'Administrativo', value: 'admin' },
-      ],
-      className: 'max-w-[400px]',
-    },
-
-  ]
-
   // Simula tu request real (cámbialo por tu cliente/endpoint)
   const uploadTicket = async (values: Record<string, any>) => {
     const form = new FormData()
@@ -119,8 +66,9 @@ const TicketForm = () => {
       enableCollapse={false}
     >
       <DynamicForm
-        fields={fields}
-        layoutMatrix={[[10], [5, 5], [5]]}
+        fields={field2}
+        loadingFormInfo={loadingFormInfo}
+        layoutMatrix={layoutMatrix}
         submitLabel="Enviar solicitud"
         onSubmit={async (values) => {
           try {
