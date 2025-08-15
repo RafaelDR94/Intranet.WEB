@@ -1,44 +1,14 @@
+"use client";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import logo from "@/assets/images/Walpapers/Wallpaper-1.png";
 import Image from "next/image";
 import { nesPasswordStyles } from "./styles";
+import useChangePassword, {
+  changePasswordFields,
+} from "../hooks/useChangePassword";
 
 const RecoverPassword = () => {
-  const fields = [
-    {
-      name: "email",
-      label: "Contraseña Nueva",
-      type: "input",
-      inputType: "email",
-      helperText: "",
-      inputSize: "lg",
-      placeholder: "Escribe una nueva contraseña",
-      value: "",
-      validations: [
-        { type: "required", message: "El correo es obligatorio" },
-        { type: "email", message: "Formato de correo inválido" },
-      ],
-    },
-    {
-      name: "email",
-      label: "Confirmar contraseña",
-      type: "input",
-      inputType: "email",
-      helperText: "",
-      inputSize: "lg",
-      placeholder: "Confirmar nueva contraseña",
-      value: "",
-      validations: [
-        { type: "required", message: "El correo es obligatorio" },
-        { type: "email", message: "Formato de correo inválido" },
-      ],
-    },
-  ];
-
-  const handleSubmit = (values: any) => {
-    console.log("Valores enviados:", values);
-    // Lógica de restaurar contraseña
-  };
+  const { handleChange, isLoading } = useChangePassword();
 
   return (
     <div className={nesPasswordStyles.container}>
@@ -59,9 +29,10 @@ const RecoverPassword = () => {
         <div className={nesPasswordStyles.card}>
           <DynamicForm
             title=""
-            fields={fields}
+            fields={changePasswordFields}
             submitLabel="Guardar"
-            // onSubmit={handleSubmit}
+            onSubmit={handleChange}
+            loading={isLoading}
           />
         </div>
       </div>

@@ -1,30 +1,14 @@
+"use client";
 import { recoverPasswordStyles } from "./styles";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import logo from "@/assets/images/Walpapers/Wallpaper-1.png";
 import Image from "next/image";
+import useRecoverPassword, {
+  recoverPasswordFields,
+} from "./hooks/useRecoverPassword";
 
 const RecoverPassword = () => {
-  const fields = [
-    {
-      name: "email",
-      label: "Usuario",
-      type: "input",
-      inputType: "email",
-      helperText: "",
-      inputSize: "lg",
-      placeholder: "usuario@drsecurity.net",
-      value: "",
-      validations: [
-        { type: "required", message: "El correo es obligatorio" },
-        { type: "email", message: "Formato de correo inválido" },
-      ],
-    },
-  ];
-
-  const handleSubmit = (values: any) => {
-    console.log("Valores enviados:", values);
-    // Lógica de restaurar contraseña
-  };
+  const { handleRecover, isLoading } = useRecoverPassword();
 
   return (
     <div className={recoverPasswordStyles.container}>
@@ -45,9 +29,10 @@ const RecoverPassword = () => {
         <div className={recoverPasswordStyles.card}>
           <DynamicForm
             title=""
-            fields={fields}
+            fields={recoverPasswordFields}
             submitLabel="Restaurar Contraseña"
-            // onSubmit={handleSubmit}
+            onSubmit={handleRecover}
+            loading={isLoading}
           />
         </div>
       </div>
