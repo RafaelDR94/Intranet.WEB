@@ -23,7 +23,7 @@ import { useContextMenu } from './hooks/useContextMenu';
  * - **Cierre seguro**: Cierra con `Escape`, clic fuera y coordina múltiples instancias (al abrir una, el resto se cierran).
  * - **Zonas ignoradas**: Con `ignoreRefs` puedes permitir interacciones en zonas que **no** deben cerrar el menú.
  * - **Controles embebidos**: Soporta `toggle`, `checkbox`, `radio`, `control`, `badge`, `details` en cada ítem.
- *
+ * - **Título opcional**: Puedes proporcionar un título para el menú contextual.
  * ♿ Accesibilidad
  * - Usa `role="menu"`/`role="menuitem"`, `tabIndex` y `aria-disabled`.
  * - Cierra con `Escape` y gestiona focus de forma predecible.
@@ -36,6 +36,7 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
 const OPEN_EVENT = 'ctxmenu:open';
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({
+  title,
   trigger,
   items,
   isOpen,
@@ -43,7 +44,6 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   alignRight = true,
   autoFlip = true,
   estimatedMenuHeight = 320,
-  //refs a zonas que NO deben cerrar el menú al hacer click/pointerdown
   ignoreRefs = [],
 }) => {
   const {
@@ -153,15 +153,15 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
           </button>
         );
       case 'toggle':
-        return <ToggleButton checked={false} onChange={() => {}} {...p} />;
+        return <ToggleButton checked={false} onChange={() => { }} {...p} />;
       case 'radio':
         return (
-          <CustomRadio id="" name="" label="" value="" checked={false} onChange={() => {}} {...p} />
+          <CustomRadio id="" name="" label="" value="" checked={false} onChange={() => { }} {...p} />
         );
       case 'checkbox':
-        return <Checkbox checked={false} onChange={() => {}} {...p} />;
+        return <Checkbox checked={false} onChange={() => { }} {...p} />;
       case 'control':
-        return <Control onIncrement={() => {}} onDecrement={() => {}} variant="filled" {...p} />;
+        return <Control onIncrement={() => { }} onDecrement={() => { }} variant="filled" {...p} />;
       default:
         return null;
     }
@@ -185,6 +185,11 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
             vAlign === 'down' ? cm.OpenDown : cm.OpenUp
           )}
         >
+          {title && (
+            <div className={cm.HeaderWrap} >
+              <span className={cm.HeaderText}>{title}</span>
+            </div>
+          )}
           {items.map((item, index) => {
             const isPressed = index === pressedIndex;
             const hasControl = Boolean(item.controlType);

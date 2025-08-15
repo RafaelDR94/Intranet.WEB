@@ -96,3 +96,5 @@ export const NotificationsSendPush = process.env.NEXT_PUBLIC_NOTIFICATIONS_SENDP
 
 export const BillingRequisition = process.env.NEXT_PUBLIC_BILLINGS_REQUISITION ?? "/Billings/BillingRequisition";
 export const BillingRequisitionByExcel = process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONBYEXCEL ?? "/Billings/BillingRequisitionByExcel";
+export const BillingRequisitionByIdEmployee = process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONBYIDEMPLOYEE ?? "/Billings/BillingRequisitionByIdEmployee";
+export const BillingRequisitionByDate = process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONBYDATE ?? "/Billings/BillingRequisitionByDate";

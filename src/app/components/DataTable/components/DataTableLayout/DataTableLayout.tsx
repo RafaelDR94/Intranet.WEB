@@ -59,7 +59,7 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
         {props.showDownloadTable && (
 
           <ContextMenu
-
+            title="FORMATO"
             isOpen={isDownloadOpen}
             setIsOpen={setIsDownloadOpen}
             trigger={
@@ -79,8 +79,8 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
 
             }
             items={[
-              { label: "PDF", onClick: () => handleDownload("pdf") },
-              { label: "Excel", onClick: () => handleDownload("excel") },
+              { label: "PDF", onClick: () => handleDownload("pdf"), controlType: 'radio' ,controlSide: 'left'},
+              { label: "Excel", onClick: () => handleDownload("excel"), controlType: 'radio',controlSide: 'left' },
             ]}
           />
 

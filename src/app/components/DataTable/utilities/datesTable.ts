@@ -1,25 +1,67 @@
 /** Intenta parsear Date | string (ISO, DD/MM/YYYY o DD-MM-YYYY). */
-export function parseDateFlexible(input: string | Date | undefined | null): Date | null {
-  if (!input) return null;
-  if (input instanceof Date) return input;
+const ISO_RE =/^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
 
-  const str = String(input).trim();
+export function parseDateFlexible(
+  input: string | number | Date | null | undefined
+): Date | null {
+  if (input == null) return null;
 
-  // Intento nativo (ISO u otros formatos soportados por Date.parse)
-  const ts = Date.parse(str);
-  if (!Number.isNaN(ts)) return new Date(ts);
+  // Date | number
+  if (input instanceof Date) return Number.isNaN(input.getTime()) ? null : input;
+  if (typeof input === "number") {
+    const d = new Date(input);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
 
-  // DD/MM/YYYY o DD-MM-YYYY
-  const m = /^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/.exec(str);
-  if (m) {
-    const [, dd, mm, yyyy] = m;
-    // Mediodía local para evitar brincos por timezone
+  // 0) Normaliza texto y AM/PM
+  const normalized = String(input)
+    .trim()
+    .replace(/\u00A0/g, " ")           // NBSP → espacio normal
+    .replace(/\s+/g, " ")              // colapsa espacios
+    .replace(/a\s*\.?\s*m\.?/gi, "AM") // a. m., am → AM
+    .replace(/p\s*\.?\s*m\.?/gi, "PM");// p. m., pm → PM
+
+  // 1) DD/MM/YYYY [HH:MM[:SS]] [AM|PM]  (también admite "-")
+  const dm = normalized.match(
+    /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i
+  );
+  if (dm) {
+    let [, dd, mm, yyyy, hh, mi, ss, mer] = dm;
+    const year = Number(yyyy.length === 2 ? Number(yyyy) + 2000 : yyyy);
+    const month = Number(mm) - 1; // 0-based
+    const day = Number(dd);
+
+    let hour = hh ? Number(hh) : 12; // si no hay hora → mediodía local
+    const minute = mi ? Number(mi) : 0;
+    const second = ss ? Number(ss) : 0;
+
+    // Ajuste 12h → 24h si hay meridiano
+    if (mer) {
+      const up = mer.toUpperCase();
+      if (up === "AM" && hour === 12) hour = 0;   // 12 AM → 00
+      if (up === "PM" && hour !== 12) hour += 12; // 1–11 PM → +12
+    }
+
+    const d = new Date(year, month, day, hour, minute, second, 0);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  // 2) Solo fecha DD/MM/YYYY (fallback, mantiene mediodía para evitar TZ shift)
+  const dmOnly = normalized.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if (dmOnly) {
+    const [, dd, mm, yyyy] = dmOnly;
     return new Date(Number(yyyy), Number(mm) - 1, Number(dd), 12, 0, 0, 0);
   }
 
+  // 3) ISO (seguro para usar Date.parse)
+  if (ISO_RE.test(normalized)) {
+    const ts = Date.parse(normalized);
+    if (!Number.isNaN(ts)) return new Date(ts);
+  }
+
+  // 4) Como último recurso, evita Date.parse para strings ambiguos
   return null;
 }
-
 export function startOfDay(d: Date) {
   const x = new Date(d);
   x.setHours(0, 0, 0, 0);

@@ -7,6 +7,47 @@ import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 
 const TicketForm = () => {
+
+  const initialformFields: FieldModel[] = [
+    {
+      type: 'input',
+      name: 'debtorName',
+      label: 'Nombre del Deudor',
+      placeholder: 'Ingrese el nombre completo',
+      value: "",
+      className: 'max-w-[400px]',
+      onlyText: true,
+      showIf: (value) => value.debtorName
+    },
+    {
+      type: 'select',
+      name: 'project',
+      label: 'Seleccionar Proyecto',
+      placeholder: 'Proyecto',
+      value: '',
+      options: [
+      ], className: 'max-w-[400px]', onlyText: false,
+      showIf: (_v, all) => {
+        const f = all.find(x => x.name === 'project');
+        return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+      },
+    },
+    {
+      type: 'select',
+      name: 'requisition',
+      label: 'Código de Requisición',
+      placeholder: 'Seleccione el código',
+      value: '',
+      options: [],
+      className: 'max-w-[400px]',
+      showIf: (_v, all) => {
+        const f = all.find(x => x.name === 'requisition');
+        return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+      },
+    },
+    { type: 'file', name: 'xml', label: 'Documento XML', value: null, accept: '.xml', validations: [{ type: 'required' }], className: 'max-w-[300px]' },
+    { type: 'file', name: 'pdf', label: 'Documento PDF', value: null, accept: '.pdf', validations: [{ type: 'required' }], className: 'max-w-[300px]' },
+  ]
   const { user } = useAuth()
 
   // ⬇️ Loading + Alert globales (desde PrincipalContext)
@@ -52,15 +93,7 @@ const TicketForm = () => {
       ],
       className: 'max-w-[400px]',
     },
-    {
-      type: 'file',
-      name: 'pdf',
-      label: 'Subir archivo',
-      value: null,
-      accept: '.jpg,.png',
-      validations: [{ type: 'required' }],
-      className: 'max-w-[300px]',
-    },
+
   ]
 
   // Simula tu request real (cámbialo por tu cliente/endpoint)

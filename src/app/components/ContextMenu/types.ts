@@ -22,6 +22,7 @@ export interface ContextMenuItem {
 }
 
 export interface ContextMenuProps {
+  title?: string;
   trigger: React.ReactNode;
   items: ContextMenuItem[];
   isOpen?: boolean;

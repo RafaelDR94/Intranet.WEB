@@ -34,7 +34,7 @@ export const updateRequisition = async (
     if (updated) {
       set((s) => ({
         requisitions: s.requisitions.map((r) =>
-          r.id_billingrequisition === updated.id_billingrequisition ? updated : r
+          r.billingrequisition_id === updated.billingrequisition_id ? updated : r
         ),
         updating: false,
         successPut: true,

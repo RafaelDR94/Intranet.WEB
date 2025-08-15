@@ -1,4 +1,8 @@
 export const contextMenuStyles = {
+  HeaderWrap: 'px-3 pt-2 pb-1 select-none',
+  HeaderText: 'text-label font-display uppercase  text-green-100 font-medium',
+
+
   Container: 'relative inline-block',
   Trigger: 'inline-block',
 
@@ -18,8 +22,8 @@ export const contextMenuStyles = {
   ItemPressed: 'bg-green-10 text-black-100',
   ItemDisabled: 'text-gray-40 cursor-not-allowed',
   ItemDanger: 'text-alert-red-100',
-  ItemHover: 'hover:bg-gray-10',
-  Icon: 'w-5 h-5 text-green-100',
+  ItemHover: 'hover:bg-green-10',
+  Icon: 'text-blue-60 ml-3',
 
   // soporte controles
   ItemContent: 'flex w-full items-center justify-between gap-2',

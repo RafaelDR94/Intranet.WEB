@@ -7,11 +7,10 @@ import { Button } from '@/app/components/Button/Button'
 import { ContextMenu } from '@/app/components/ContextMenu/ContextMenu'
 import DotsIcon from '@/assets/icons/navegacion/more-horiz.svg'
 import { useRequisitionTable } from './hooks/useRequisitionsTable'
-import { RequisitionsTableProps } from './types'
-import { ActionMenuCellProps } from './types'
-import { RequisitionRow } from './types'
-import { DeleteIcon } from 'lucide-react'
-import { EditIcon } from 'lucide-react'
+import { RequisitionsTableProps,ActionMenuCellProps,RequisitionRow } from './types'
+import EditIcon from '@/assets/icons/Editor/edit-pencil.svg'
+import DeleteIcon from '@/assets/icons/acciones/trash.svg'
+import { container ,actionCell} from './styles'
 const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onEdit, onDelete }) => {
 
   return (
@@ -49,11 +48,13 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ onEditRequest }) 
       { key: 'snCode', label: 'CÓDIGO SN' },
       { key: 'debtorName', label: 'NOMBRE DEUDOR' },
       { key: 'projectCode', label: 'CÓDIGO DE PROYECTO' },
+      { key: 'date_created', label: 'FECHA DE CREACIÓN' },
+      
       {
         key: 'actions' as unknown as keyof RequisitionRow,
         label: '',
         render: (row) => (
-          <div className="flex justify-end pr-2">
+          <div className={actionCell}>
             <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
           </div>
         ),
@@ -65,7 +66,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ onEditRequest }) 
   }, [onEdit, onDelete])
 
   return (
-    <div className="space-y-8 overflow-auto">
+    <div className={container}>
       <PopUp
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
@@ -81,25 +82,27 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ onEditRequest }) 
         showPrimaryButton
         primaryButtonText={removing ? 'Eliminando…' : 'Eliminar'}
         onPrimaryButtonClick={handleConfirmDelete}
+
       />
 
       <DataTable
         dataTableTitle='Listado de Requisiciones'
         onSearchChange={setQuery}
-        onCalendarClick={refresh}
+        onCalendarClick={(start, end) => refresh(start, end)}
         onFilterClick={refresh}
-        onSearch={() => console.log('Descargar requisiciones')}
         tables={[{
           data: rows,
           columns: computedColumns,
           enableSelection: true,
           title: 'Listado Requisiciones',
           enableCollaps: true,
-          defaultSortKey: 'debtorName',
-          defaultSortDirection: 'asc',
+          defaultSortKey: 'date_created',
+          defaultSortDirection: 'desc',
         }]}
         showDownloadTable
         showButton={false}
+        dateKey={"date_created"}
+        
       />
     </div>
   )

@@ -105,7 +105,7 @@ export interface DataTableProps<T = any> {
     endDate?: Date | null
   ) => void;
   /** Se ejecuta al hacer clic en el botón de calendario (abrir date picker externo, etc.). */
-  onCalendarClick?: () => void;
+   onCalendarClick?: (start?: Date , end?: Date ) => void
   /** Se ejecuta al hacer clic en el botón de filtros (abrir un drawer o modal de filtros). */
   onFilterClick?: () => void;
   /** Se ejecuta al hacer clic en el botón de acción principal (p.ej. “Agregar”). */

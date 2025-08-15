@@ -1,10 +1,11 @@
 export type Requisition = {
-    "id_billingrequisition": string,
+    "billingrequisition_id": string,
     "requisitionkey": string,
     "id_Employee": string,
     "employeename": string,
     "idProject": string,
-    "projectname": string
+    "projectname": string,
+    "date_created": string
 }
 export type RequitionPost = {
     "requisitionkey": string,
@@ -12,7 +13,7 @@ export type RequitionPost = {
     "projectname": string
 }
 export type RequitionPut = {
-    "id_billingrequisition": string,
+    "billingrequisition_id": string,
     "requisitionkey": string,
     "employeename": string,
     "projectname": string

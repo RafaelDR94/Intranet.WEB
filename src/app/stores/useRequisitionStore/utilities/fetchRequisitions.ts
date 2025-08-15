@@ -33,6 +33,7 @@ export const fetchRequisitions = async (set: Set, get: Get, force = false) => {
 
     // 4) mapear y guardar
     const mapped = RequisitionsMap(res.data?.data ?? [])
+
     set({ requisitions: mapped, loading: false, successGet: true })
   } catch (e) {
     // 5) error normalizado

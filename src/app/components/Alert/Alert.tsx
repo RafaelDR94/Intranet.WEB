@@ -6,7 +6,7 @@ import * as styles from './styles'
 import InfoIcon from '@/assets/icons/acciones/info-empty.svg'
 import SuccessIcon from '@/assets/icons/organization/star.svg'
 import WarningIcon from '@/assets/icons/bussines/high-priority.svg'
-
+import { useAlertComponent } from './hooks/useAlert'
 /**
  * Componente de alerta para mostrar mensajes de retroalimentación.
  *
@@ -20,6 +20,8 @@ import WarningIcon from '@/assets/icons/bussines/high-priority.svg'
  * @param onSecondaryClick Callback al hacer clic en el botón secundario
  * @param primaryLabel Etiqueta del botón primario
  * @param secondaryLabel Etiqueta del botón secundario
+ * @param onClose Callback al cerrar (auto o manual futuro)
+ * @param autoCloseMs Tiempo en ms para cerrar automáticamente
  */
 
 export const Alert: React.FC<AlertProps> = ({
@@ -33,7 +35,10 @@ export const Alert: React.FC<AlertProps> = ({
   onSecondaryClick,
   primaryLabel = 'Button',
   secondaryLabel = 'Button',
+  autoCloseMs,
+  onClose,
 }) => {
+ useAlertComponent({ title, description, type, variant, autoCloseMs, onClose })
   const icons: Record<AlertType, React.ReactNode> = {
     default: <InfoIcon />,
     success: <SuccessIcon />,
@@ -42,6 +47,7 @@ export const Alert: React.FC<AlertProps> = ({
     error: <WarningIcon />,
     notification: <>🔔</>,
   }
+
   return (
     <div className={clsx(styles.containerClasses, styles.getBgClasses(type, variant))}>
       <div className={styles.headerClasses}>

@@ -4,6 +4,8 @@ import { devtools } from 'zustand/middleware'
 import type { RequisitionsState } from './types'
 import {
   fetchRequisitions,
+  fetchRequisitionsByIdEmployee,
+  fetchRequisitionsByDate,
   createRequisition,
   updateRequisition,
   deleteRequisition,
@@ -36,6 +38,10 @@ export const useRequisitionsStore = createWithEqualityFn<RequisitionsState>()(
     warning: undefined,
     /** Obtiene requisiciones */
     fetchRequisitions: (force = false) => fetchRequisitions(set, get, force),
+    /** Obtiene requisiciones */
+    fetchRequisitionsByDate: (startDate, endDate, force = false) => fetchRequisitionsByDate(startDate, endDate, set, get, force),
+    /** Obtiene requisiciones */
+    fetchRequisitionsByIdEmployee: (idEmployee, force = false) => fetchRequisitionsByIdEmployee(idEmployee, set, get, force),
     /** Crea una requisición */
     createRequisition: (payload) => createRequisition(set, get, payload),
     /** Actualiza una requisición */

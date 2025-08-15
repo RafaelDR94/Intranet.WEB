@@ -67,16 +67,17 @@ export const PopUp: React.FC<InputProps> = ({
         {children && <div>{children}</div>}
 
         <div className={popUpStyles.buttonWrapper}>
-          {showPrimaryButton && (
-            <Button variant="solid" size="medium" onClick={handlePrimary}>
-              {primaryButtonText || "Aceptar"}
-            </Button>
-          )}
           {showSecondaryButton && (
-            <Button variant="outline" size="medium" onClick={handleSecondary}>
+            <Button variant="outline" size="medium" onClick={handleSecondary} hideIcon>
               {secondaryButtonText || "Cancelar"}
             </Button>
           )}
+          {showPrimaryButton && (
+            <Button variant="solid" size="medium" onClick={handlePrimary} hideIcon>
+              {primaryButtonText || "Aceptar"}
+            </Button>
+          )}
+
         </div>
       </div>
     </div>

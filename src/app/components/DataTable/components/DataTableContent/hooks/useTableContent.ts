@@ -1,14 +1,6 @@
 // hooks/useTableContent.ts
 import { useEffect, useMemo, useState } from "react";
-
-export type SortDirection = "asc" | "desc" | null;
-
-export interface UseTableContentProps<T> {
-  data: T[];
-  defaultSortKey?: keyof T;
-  defaultSortDirection?: SortDirection;
-}
-
+import { SortDirection,UseDataTableContentProps,UseTableContentProps } from "./types";
 /** 🔹 Hook base: selección y ordenamiento */
 export const useTableContent = <T extends { id: string | number }>({
   data,
@@ -29,6 +21,7 @@ export const useTableContent = <T extends { id: string | number }>({
   };
 
   const selectAll = (value: boolean) => {
+ 
     setSelected(value ? data : []);
   };
 
@@ -84,20 +77,7 @@ export const useTableContent = <T extends { id: string | number }>({
   };
 };
 
-/** Props adicionales para paginación/scroll */
-export interface UseDataTableContentProps<T> extends UseTableContentProps<T> {
-  enablePagination?: boolean;
-  rowsPerPage?: number;
-  totalRows?: number;
-  enableInternalSearch?: boolean;
-  onPageChange?: (page: number) => void;
-  /** alto estimado de cada fila, en px */
-  rowHeight?: number;
-  /** si lo defines, este valor manda (px o cualquier CSS válido) */
-  scrollMaxHeight?: number | string;
-}
 
-/** 🔹 Hook “envolvente”: usa el base y añade paginación + layout (scroll/altura) */
 export const useDataTableContent = <T extends { id: string | number }>(
   {
     data,

@@ -44,8 +44,6 @@ export const useCalendar = ({
     (s: Date | null, e: Date | null) => {
       if (!s || !e) return false;
       onCalendarClick?.(s, e);
-      const payload = { startDate: formatDMY(s), endDate: formatDMY(e) };
-      console.log("payload rango ➜", payload);
       return true;
     },
     [onCalendarClick]

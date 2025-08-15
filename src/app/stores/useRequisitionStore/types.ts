@@ -27,6 +27,8 @@ export type RequisitionsState = {
   warning?: string
 
   fetchRequisitions: (force?: boolean) => Promise<void> | void
+  fetchRequisitionsByDate: (startDate: string, endDate: string, force?: boolean) => Promise<void> | void
+  fetchRequisitionsByIdEmployee: (idEmployee: string, force?: boolean) => Promise<void> | void
   createRequisition: (payload: RequitionPost) => Promise<Requisition | null>
   updateRequisition: (payload: RequitionPut) => Promise<Requisition | null>
   deleteRequisition: (id: string) => Promise<boolean>
