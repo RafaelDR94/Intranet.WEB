@@ -2,7 +2,8 @@ import { FieldModel } from "@/app/components/DynamicForm/types";
 import { useInvoices } from "../context/InvoicesContext";
 import { useMemo, useEffect, useRef, useState } from "react";
 import { Requisition } from "@/app/mappings/requisitions/requisitions.types";
-import { Proyect } from "@/app/mappings/proyects/proyects.types";
+
+
 
 interface InitInvoicesForms {
     initialformFields: FieldModel[]
@@ -45,9 +46,10 @@ const useInitInvoicesForms = ({ initialformFields, field, formId }: InitInvoices
         const req = fields.find(f => f.name === 'requisition');
 
         const debtorName = fields.find(f => f.name === 'debtorName');
+        const hasDebtor = Boolean(debtorName);
         const reqReady = Array.isArray(req?.options) && (req?.options?.length ?? 0) > 0;
 
-        return !(reqReady  && debtorName?.value);
+        return !(reqReady  && (debtorName?.value || !hasDebtor ));
     };
 
     const loadingFormInfo = useMemo(() => computeLoadingFormInfo(field), [field]);

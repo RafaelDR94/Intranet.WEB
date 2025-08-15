@@ -98,3 +98,5 @@ export const BillingRequisition = process.env.NEXT_PUBLIC_BILLINGS_REQUISITION ?
 export const BillingRequisitionByExcel = process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONBYEXCEL ?? "/Billings/BillingRequisitionByExcel";
 export const BillingRequisitionByIdEmployee = process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONBYIDEMPLOYEE ?? "/Billings/BillingRequisitionByIdEmployee";
 export const BillingRequisitionByDate = process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONBYDATE ?? "/Billings/BillingRequisitionByDate";
+export const BillingImages = process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGES ?? "/Billings/BillingImages";
+export const BillingImagesById = process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGESBYID ?? "/Billings/BillingImages/ById";

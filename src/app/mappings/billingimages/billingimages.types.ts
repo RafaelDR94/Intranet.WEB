@@ -3,16 +3,16 @@ export type BillingImages = {
     "requisition_id": string,
     "status_id": string,
     "Image": string,
-    "downloaded": boolean
+    "downloaded": boolean,
+    "comments": string
 }
 export type BillingPost = {
     "requisition_id": string,
-    "Image": boolean
+    "Image": string
 }
 export type BillingPut = {
     "billing_image_id": string,
     "requisition_id": string,
-    "status_id": string,
     "Image": string,
-    "downloaded": boolean
+    "comments": string
 }

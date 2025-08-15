@@ -1,5 +1,5 @@
 /** Label visual variants */
-export type LabelType = 'valido' | 'invalido' | 'prohibido'
+export type LabelType = 'valido' | 'invalido' | 'prohibido' | 'actualizado' | 'pendiente'
 
 /** Props for Label component */
 export interface LabelProps {

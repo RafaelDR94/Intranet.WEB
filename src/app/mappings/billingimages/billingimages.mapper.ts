@@ -15,6 +15,7 @@ export const BillingImageMap = (raw: any): BillingImages => ({
   status_id:        String(raw?.status_id        ?? ''),
   Image:            String(raw?.Image            ?? ''),
   downloaded:       Boolean(raw?.downloaded ?? false),
+  comments:         String(raw?.comments         ?? ''),
 })
 
 /**
@@ -30,7 +31,7 @@ export const BillingImagesMap = (list: any[]): BillingImages[] =>
  */
 export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => ({
   requisition_id: String(src?.requisition_id ?? ''),
-  Image:          Boolean(src?.Image ?? false),
+  Image:          String(src?.Image ?? false),
 })
 
 /**
@@ -43,4 +44,5 @@ export const BillingPutMap = (src: Partial<BillingPut> | any): BillingPut => ({
   status_id:        String(src?.status_id        ?? ''),
   Image:            String(src?.Image            ?? ''),
   downloaded:       Boolean(src?.downloaded ?? false),
+  comments:         String(src?.comments         ?? ''),
 })

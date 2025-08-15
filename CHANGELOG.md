@@ -205,3 +205,8 @@ Feature:
 Feature:
 -Because it needs fine details
 (Bruno Mendoza) [#56](https://github.com/DR-Mexico/dr.intranet.web/pull/56)
+
+### 1.37.0 BillingImages store 2025-08-15
+Feature:
+- Added BillingImages store with CRUD utilities, documentation and tests.
+(Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)

@@ -54,7 +54,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
     const { showAlert, hideAlert } = usePrincipalAlert;
 
 
-    const { requisitions, requisitionsError, warning, fetchRequisitionsByIdEmployee, resetFlags, reset } = useRequisitionsStore(
+    const { requisitions, requisitionsError, warning, fetchRequisitionsByIdEmployee, resetFlags } = useRequisitionsStore(
         (s) => ({
             requisitions: s.requisitions,
             requisitionsError: s.error,
