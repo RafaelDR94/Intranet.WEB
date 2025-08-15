@@ -196,6 +196,7 @@ Feature:
 - To reuse components for each different design
 (Katherine Negrete A) [#47](https://github.com/DR-Mexico/dr.intranet.web/pull/47)
 
-### 1.33.1 Fix layout scroll behavior 2025-08-14
-Fix:
-- Ensure main layout children scroll independently while menu remains static. (Agente IA) [#]()
+### 1.34.0 Requisition form tests and docs 2025-08-14
+Feature:
+- Added tests, Storybook stories and MDX docs for RequisitionsForm, hook and utilities.
+(Agente IA) [#]()

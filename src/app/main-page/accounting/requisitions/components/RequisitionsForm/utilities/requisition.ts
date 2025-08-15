@@ -4,6 +4,13 @@ import type { Proyect } from '@/app/mappings/proyects/proyects.types';
 import type { RequitionPost } from '@/app/mappings/requisitions/requisitions.types';
 
 // Ya existentes en tu archivo (mantén tus implementaciones)
+/**
+ * Determina si el formulario aún está cargando información
+ * (empleados o proyectos).
+ *
+ * @param fields campos actuales del formulario.
+ * @returns `true` si faltan opciones, `false` si todo está listo.
+ */
 export const computeLoadingFormInfo = (fields: FieldModel[]) => {
   const emp = fields.find(f => f.name === 'employees');
   const prj = fields.find(f => f.name === 'project');
@@ -12,6 +19,14 @@ export const computeLoadingFormInfo = (fields: FieldModel[]) => {
   return !(employeesReady && projectsReady);
 };
 
+/**
+ * Obtiene la etiqueta asociada a un valor dentro de un campo select.
+ *
+ * @param fields lista de campos del formulario.
+ * @param fieldName nombre del campo a consultar.
+ * @param value valor cuyo label se busca.
+ * @returns etiqueta encontrada o `undefined`.
+ */
 export const getOptionLabel = (
   fields: FieldModel[],
   fieldName: string,
@@ -23,6 +38,10 @@ export const getOptionLabel = (
   return opt?.label;
 };
 
+/**
+ * Construye el payload que se enviará al backend
+ * a partir de los valores del formulario y catálogos.
+ */
 export const buildRequisitionPayload = ({
   values,
   employees,
@@ -54,6 +73,10 @@ export const buildRequisitionPayload = ({
 
 // --- NUEVO: helpers puros y alerts pequeñas
 
+/**
+ * Crea la definición de campos iniciales para el formulario.
+ * @returns arreglo con modelos de campo.
+ */
 export const createInitialFields = (): FieldModel[] => ([
   {
     type: 'select',

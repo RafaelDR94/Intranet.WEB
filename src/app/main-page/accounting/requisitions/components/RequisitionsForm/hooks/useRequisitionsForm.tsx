@@ -1,4 +1,3 @@
-// src/app/(features)/requisitions/components/RequisitionsForm/hooks/useRequisitionForm.ts
 'use client';
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
@@ -21,6 +20,8 @@ import {
   createInitialFields
 } from '../utilities/requisition';
 import { SubmitFn } from '../../../requisitions/components/ExcelLoader/hooks/types';
+
+/** Valores iniciales permitidos para el formulario de requisiciones. */
 export type RequisitionInitialValues = {
   /** id de la requisición (obligatorio en edit) */
   id?: string;
@@ -31,7 +32,14 @@ export type RequisitionInitialValues = {
 };
 
 type Mode = 'create' | 'edit';
-
+/**
+ * Gestiona la lógica del formulario de requisiciones.
+ * Carga catálogos, maneja envíos y expone helpers para el componente.
+ *
+ * @param mode indica si se crea o edita una requisición.
+ * @param initialValues valores iniciales para modo edición.
+ * @returns objeto con campos, manejadores y estado del formulario.
+ */
 export const useRequisitionForm = (
   mode: Mode,
   initialValues?: RequisitionInitialValues
