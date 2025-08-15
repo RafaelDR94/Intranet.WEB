@@ -54,6 +54,7 @@ export default function MainLayoutClient({ children }: { readonly children: Reac
           <div className={mainLayoutStyles.alertContainer}>
             <Alert
               {...alert}
+              onClose={hideAlert}
               onPrimaryClick={alert.onPrimaryClick ?? hideAlert}
               onSecondaryClick={alert.onSecondaryClick ?? hideAlert}
             />

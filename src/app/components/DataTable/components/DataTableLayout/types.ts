@@ -10,9 +10,9 @@ export interface TableLayoutProps {
     endDate?: Date | null
   ) => void
   /** Maneja el clic en el botón de calendario */
-  onCalendarClick?: (start?: Date | null, end?: Date | null) => void // admite rango
+  onCalendarClick?: (start?: Date , end?: Date ) => void // admite rango
   /** Notifica el cambio de rango de fechas */
-  onDateRangeChange?: (start?: Date | null, end?: Date | null) => void
+  onDateRangeChange?: (start?: Date , end?: Date ) => void
   /** Maneja el clic en el botón de filtros */
   onFilterClick?: () => void
   /** Maneja el clic en el botón de acción principal */

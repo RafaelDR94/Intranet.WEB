@@ -1,0 +1,14 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="Accounting/Requisitions/useRequisitionsList" />
+
+# useRequisitionsList
+
+Hook que controla el estado del formulario de edición de requisiciones.
+
+```tsx
+const { editorOpen, openEditor, closeEditor } = useRequisitionsList()
+```
+
+- `openEditor(initial)` abre el formulario con valores iniciales.
+- `closeEditor()` cierra el formulario y limpia el estado.

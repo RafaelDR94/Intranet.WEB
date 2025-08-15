@@ -1,17 +1,23 @@
 'use client'
-import React from 'react'
+import { useState,useMemo,useEffect } from 'react'
 import { shallow } from 'zustand/shallow'
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import type { RequisitionRow } from '../types'
 import { RequisitionInitialValues } from '../../../../components/RequisitionsForm/hooks/useRequisitionsForm'
+import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper'
 
-
+/** Parameters for the requisitions table hook. */
 type Params = {
+  /** Callback to open the editor with initial values. */
   onEditRequest: (initial: RequisitionInitialValues) => void
 }
 
+/**
+ * Handles data loading, filtering and row actions for the requisitions table.
+ * @param onEditRequest requests the parent to open the edit form.
+ */
 export const useRequisitionTable = ({ onEditRequest }: Params) => {
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
   const { showSpinner, hideSpinner } = usePrincipalLoading
@@ -20,29 +26,30 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
   const isGatewayReady = useIntranetGatewayStore(s => s.isReady)
 
   const {
-    requisitions, loading, error, removing, fetchRequisitions, deleteRequisition,
+    requisitions, loading, error, removing, fetchRequisitions,fetchRequisitionsByDate, deleteRequisition,
   } = useRequisitionsStore(s => ({
     requisitions: s.requisitions,
     loading: s.loading,
     error: s.error,
     removing: s.removing,
     fetchRequisitions: s.fetchRequisitions,
+    fetchRequisitionsByDate: s.fetchRequisitionsByDate,
     deleteRequisition: s.deleteRequisition,
   }), shallow)
 
   // Prefetch
-  React.useEffect(() => {
-    if (isGatewayReady) void fetchRequisitions(true)
-  }, [isGatewayReady, fetchRequisitions])
+  useEffect(() => {
+    if (isGatewayReady) void fetchRequisitionsByDate(currentDate(),currentDate(),true);
+  }, [isGatewayReady])
 
   // Spinner (listar)
-  React.useEffect(() => {
+  useEffect(() => {
     if (loading) showSpinner({ message: 'Cargando requisiciones…' })
     else hideSpinner()
   }, [loading, showSpinner, hideSpinner])
 
   // Alert de error general de carga
-  React.useEffect(() => {
+  useEffect(() => {
     if (!error) return
     showAlert({
       type: 'error',
@@ -58,12 +65,11 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
     })
   }, [error, showAlert, hideAlert, fetchRequisitions])
 
-  const [query, setQuery] = React.useState('')
-  const [confirmOpen, setConfirmOpen] = React.useState(false)
-  const [rowToDelete, setRowToDelete] = React.useState<RequisitionRow | null>(null)
+  const [query, setQuery] = useState('')
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [rowToDelete, setRowToDelete] = useState<RequisitionRow | null>(null)
 
-  const rows: RequisitionRow[] = React.useMemo(() => {
-    console.log(requisitions, "requisitions");
+  const rows: RequisitionRow[] = useMemo(() => {
     const base = requisitions.map(r => ({
       id: r.billingrequisition_id,
       snCode: r.requisitionkey,
@@ -110,14 +116,14 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
 
     if (ok) {
       showAlert({
-        type: 'success',
+        type: 'warning',
         variant: 'filled',
         title: 'Requisición eliminada',
         description: `${current.snCode} fue eliminada correctamente.`,
-        showPrimaryButton: true,
+        showPrimaryButton: false,
         showSecondaryButton: false,
-        primaryLabel: 'Cerrar',
-        onPrimaryClick: hideAlert,
+        autoCloseMs: 1500,
+        onClose: hideAlert,
       })
     } else {
       showAlert({
@@ -135,7 +141,12 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
     }
   }
 
-  const refresh = () => fetchRequisitions(true)
+  const refresh = (start?: Date, end?: Date ) =>{
+    let startDate = start ? currentDate(start) : currentDate();
+    let endDate = end ? currentDate(end) : currentDate();
+    console.log(startDate,endDate); 
+    fetchRequisitionsByDate(startDate, endDate, true);
+  }
 
   // columns estático si en algún punto deseas moverlo aquí (dejo ejemplo):
   const columns = [] as const

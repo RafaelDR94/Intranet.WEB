@@ -213,9 +213,10 @@ export const useRequisitionForm = (
         description: mode === 'create'
           ? 'Se registró la requisición.'
           : 'Se actualizó la requisición.',
-        showPrimaryButton: true,
-        primaryLabel: 'Cerrar',
-        onPrimaryClick: () => { hideAlert(); resetFlags(); },
+        autoCloseMs:1500,
+        showPrimaryButton:false,
+        showSecondaryButton:false,
+        onClose: () => { resetFlags(); },
       });
     }
 

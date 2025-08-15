@@ -7,11 +7,10 @@ import { Button } from '@/app/components/Button/Button'
 import { ContextMenu } from '@/app/components/ContextMenu/ContextMenu'
 import DotsIcon from '@/assets/icons/navegacion/more-horiz.svg'
 import { useRequisitionTable } from './hooks/useRequisitionsTable'
-import { RequisitionsTableProps } from './types'
-import { ActionMenuCellProps } from './types'
-import { RequisitionRow } from './types'
-import { DeleteIcon } from 'lucide-react'
-import { EditIcon } from 'lucide-react'
+import { RequisitionsTableProps,ActionMenuCellProps,RequisitionRow } from './types'
+import EditIcon from '@/assets/icons/Editor/edit-pencil.svg'
+import DeleteIcon from '@/assets/icons/acciones/trash.svg'
+import { container ,actionCell} from './styles'
 const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onEdit, onDelete }) => {
 
   return (
@@ -55,7 +54,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ onEditRequest }) 
         key: 'actions' as unknown as keyof RequisitionRow,
         label: '',
         render: (row) => (
-          <div className="flex justify-end pr-2">
+          <div className={actionCell}>
             <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
           </div>
         ),
@@ -67,7 +66,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ onEditRequest }) 
   }, [onEdit, onDelete])
 
   return (
-    <div className="space-y-8 overflow-auto">
+    <div className={container}>
       <PopUp
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
@@ -89,7 +88,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ onEditRequest }) 
       <DataTable
         dataTableTitle='Listado de Requisiciones'
         onSearchChange={setQuery}
-        onCalendarClick={refresh}
+        onCalendarClick={(start, end) => refresh(start, end)}
         onFilterClick={refresh}
         tables={[{
           data: rows,

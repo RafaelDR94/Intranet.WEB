@@ -37,4 +37,8 @@ export interface AlertProps {
   primaryLabel?: string
   /** Etiqueta del botón secundario */
   secondaryLabel?: string
+  /** Tiempo en ms para cerrar automáticamente */
+  autoCloseMs?: number
+  /** Callback al cerrar (auto o manual futuro) */
+  onClose?: () => void
 }

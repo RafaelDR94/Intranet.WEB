@@ -1,6 +1,6 @@
 // src/app/components/Alert/Alert.test.tsx
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent,act } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 
 // Mock de SVGs
@@ -91,5 +91,62 @@ describe('Alert component', () => {
     )
     expect(screen.getByRole('button', { name: 'P2' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'S2' })).toBeNull()
+  })
+})
+describe('Alert autocierre', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+  afterEach(() => {
+    vi.runOnlyPendingTimers()
+    vi.useRealTimers()
+  })
+
+
+
+  it('no se cierra si no se provee autoCloseMs', () => {
+    render(<Alert title="Persistente" description="Sin autocierre" />)
+
+    act(() => {
+      vi.advanceTimersByTime(10_000)
+    })
+
+    expect(screen.getByText('Persistente')).toBeInTheDocument()
+  })
+
+
+  it('si se desmonta antes de vencer, no llama onClose', () => {
+    const onClose = vi.fn()
+    const { unmount } = render(
+      <Alert
+        title="Desmontar"
+        description="Antes de tiempo"
+        autoCloseMs={2000}
+        onClose={onClose}
+      />
+    )
+
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+    unmount()
+
+    // Avanza el resto del tiempo, pero ya no debería llamar
+    act(() => {
+      vi.advanceTimersByTime(5000)
+    })
+    expect(onClose).not.toHaveBeenCalled()
+  })
+})
+
+describe('Alert iconos adicionales', () => {
+  it('muestra el ícono/indicador para type="warning"', () => {
+    render(<Alert title="W" description="D" type="warning" />)
+    expect(screen.getByTestId('icon-warning')).toBeInTheDocument()
+  })
+
+  it('muestra el indicador 🔔 para type="notification"', () => {
+    render(<Alert title="N" description="D" type="notification" />)
+    expect(screen.getByText('🔔')).toBeInTheDocument()
   })
 })
