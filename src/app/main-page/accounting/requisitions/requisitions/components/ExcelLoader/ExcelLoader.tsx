@@ -1,8 +1,13 @@
 'use client';
+import React from 'react';
 import FormsLayout from '@/app/components/FormsLayout/FormsLayout';
 import FileUploaderExpanded from '@/app/components/FileUploaderexpanded/FileUploaderExpanded';
 import { useExcelLoader } from './hooks/useExcelLoader';
 
+/**
+ * Componente que permite subir un archivo de requisiciones en formato Excel
+ * y delega la lógica del proceso al hook `useExcelLoader`.
+ */
 const ExcelLoader = () => {
   const { handleFile, onSubmit, buttonDisabled } = useExcelLoader();
 

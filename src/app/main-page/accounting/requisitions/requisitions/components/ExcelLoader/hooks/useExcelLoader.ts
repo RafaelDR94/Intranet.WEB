@@ -6,7 +6,11 @@ import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequis
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore';
 import { SubmitFn } from './types';
 
-
+/**
+ * Hook que maneja el flujo de carga de un archivo Excel de requisiciones.
+ * Controla el estado local del archivo seleccionado y las interacciones con
+ * los stores globales y alertas durante el proceso de envío.
+ */
 export const useExcelLoader = () => {
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -50,9 +54,7 @@ export const useExcelLoader = () => {
 
   const doUpload = async () => {
     if (!file) throw new Error('Selecciona un archivo Excel primero.');
-    const response = await updateExcelRequisition(file);
-    // Si deseas manejar algo adicional con response, hazlo aquí.
-    console.log('response', response);
+    await updateExcelRequisition(file);
   };
 
   useEffect(() => {
@@ -139,11 +141,17 @@ export const useExcelLoader = () => {
   ]);
 
   return {
+    /** Archivo seleccionado para subir */
     file,
+    /** Indica si hay un archivo listo para enviarse */
     ready,
+    /** Estado del gateway para habilitar la carga */
     isGatewayReady,
+    /** Maneja la selección de archivos */
     handleFile,
+    /** Ejecuta la carga del archivo seleccionado */
     onSubmit: () => submitRef.current?.(),
+    /** Deshabilita el botón si no hay archivo o el gateway no está listo */
     buttonDisabled: !ready || !isGatewayReady,
   };
 };

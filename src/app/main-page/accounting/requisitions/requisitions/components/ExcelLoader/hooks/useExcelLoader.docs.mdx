@@ -1,0 +1,24 @@
+import { Meta } from '@storybook/addon-docs';
+import { useExcelLoader } from './useExcelLoader';
+
+# useExcelLoader
+
+Hook que gestiona la carga de archivos de requisiciones en formato Excel.
+
+## Importación
+
+```ts
+import { useExcelLoader } from './hooks/useExcelLoader';
+```
+
+## Retorno
+
+| Propiedad        | Tipo | Descripción |
+| ---------------- | ---- | ----------- |
+| `file` | `File \| null` | Archivo seleccionado. |
+| `ready` | `boolean` | Indica si hay un archivo listo para enviarse. |
+| `isGatewayReady` | `boolean` | Bandera que indica si el gateway está listo. |
+| `handleFile` | `(file: File \| File[] \| null) => void` | Maneja la selección del archivo. |
+| `onSubmit` | `() => Promise<void> \| void` | Ejecuta la carga del archivo. |
+| `buttonDisabled` | `boolean` | Determina si el botón de envío debe estar inhabilitado. |
+
