@@ -216,3 +216,10 @@ Feature:
 ### 1.39.0 Invoices form with Firebase upload 2025-08-18
 Feature:
 - Added useInvoicesForm hook and Firebase file upload for invoices. (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
+### 1.40.0 BillingHistory store 2025-08-18
+Feature:
+- Added BillingHistory store with fetch utility and mapping. (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
+
+### 1.40.1 Test stability improvements 2025-08-22
+Fix:
+- Added missing mocks for layout, billing documents and requisitions tests and removed obsolete snapshot. (Agente IA) [#]()

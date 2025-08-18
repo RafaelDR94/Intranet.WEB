@@ -131,6 +131,18 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           )}
         </div>
       );
+    case 'textarea':
+      return (
+        <Input
+          {...baseProps}
+          as="textarea"
+          rows={field.rows ?? 4}
+          value={value ?? field.value}
+          onChange={(e) => handleChange((e.target as HTMLTextAreaElement).value)}
+          onBlur={onBlur}
+          variant={field.disabled ? 'disabled' : variant}
+        />
+      );
 
     default:
       return (

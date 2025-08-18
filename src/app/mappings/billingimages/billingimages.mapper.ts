@@ -1,6 +1,7 @@
 // src/app/mappings/billing/billing.mapper.ts
 import {
   BillingImages,
+  BillingImagesTable,
   BillingPost,
   BillingPut,
 } from './billingimages.types'
@@ -11,11 +12,11 @@ import {
  */
 export const BillingImageMap = (raw: any): BillingImages => ({
   billing_image_id: String(raw?.billing_image_id ?? ''),
-  requisition_id:   String(raw?.requisition_id   ?? ''),
-  status_id:        String(raw?.status_id        ?? ''),
-  Image:            String(raw?.Image            ?? ''),
-  downloaded:       Boolean(raw?.downloaded ?? false),
-  comments:         String(raw?.comments         ?? ''),
+  requisition: raw?.requisition,
+  status: String(raw?.status ?? ''),
+  Image: String(raw?.Image ?? ''),
+  comments: String(raw?.comments ?? ''),
+  dateCreate: String(raw?.date_created ?? ''),
 })
 
 /**
@@ -31,7 +32,7 @@ export const BillingImagesMap = (list: any[]): BillingImages[] =>
  */
 export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => ({
   requisition_id: String(src?.requisition_id ?? ''),
-  Image:          String(src?.Image ?? false),
+  Image: String(src?.Image ?? false),
 })
 
 /**
@@ -40,7 +41,19 @@ export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => 
  */
 export const BillingPutMap = (src: Partial<BillingPut> | any): BillingPut => ({
   billing_image_id: String(src?.billing_image_id ?? ''),
-  requisition_id:   String(src?.requisition_id   ?? ''),
-  Image:            String(src?.Image            ?? ''),
-  comments:         String(src?.comments         ?? ''),
+  requisition_id: String(src?.requisition_id ?? ''),
+  Image: String(src?.Image ?? ''),
+  comments: String(src?.comments ?? ''),
 })
+export const BillingImagesTableMap = (src: BillingImages[]): BillingImagesTable[] => {
+  return src.map(item => ({
+    id: item.billing_image_id,
+    billing_image_id: item.billing_image_id,
+    deudor: item?.requisition?.employeename,
+    proyect: item?.requisition?.projectname,
+    Image: item?.Image,
+    comments: item?.comments,
+    dateCreate: item?.dateCreate,
+    requisition_id:item?.requisition?.billingrequisition_id || '',
+  }))
+}

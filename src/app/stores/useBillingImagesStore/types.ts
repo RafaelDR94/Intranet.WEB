@@ -1,4 +1,4 @@
-import { BillingImages, BillingPost, BillingPut } from '@/app/mappings/billingimages/billingimages.types'
+import { BillingImages, BillingPost, BillingPut,BillinReject } from '@/app/mappings/billingimages/billingimages.types'
 
 // src/app/stores/useBillingImagesStore/types.ts
 /**
@@ -14,6 +14,7 @@ export type BillingImagesState = {
   creating: boolean
   updating: boolean
   removing: boolean
+  rejecting:boolean
 
   /** Flags de éxito por operación */
   successGet: boolean
@@ -21,6 +22,7 @@ export type BillingImagesState = {
   successPost: boolean
   successPut: boolean
   successDelete: boolean
+  succesReject:boolean
 
   /** Mensaje de error general */
   error?: string
@@ -32,7 +34,7 @@ export type BillingImagesState = {
   createBillingImage: (payload: BillingPost) => Promise<BillingImages | null>
   updateBillingImage: (payload: BillingPut) => Promise<BillingImages | null>
   deleteBillingImage: (id: string) => Promise<boolean>
-
+  rejectBillingImage :(payload: BillinReject) => Promise<BillingImages | null>
   reset: () => void
   resetFlags: () => void
 }

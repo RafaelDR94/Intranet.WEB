@@ -8,6 +8,7 @@ import {
   createBillingImage,
   updateBillingImage,
   deleteBillingImage,
+  rejectBillingImage
 } from './utilities'
 
 /**
@@ -24,13 +25,14 @@ export const useBillingImagesStore = createWithEqualityFn<BillingImagesState>()(
     creating: false,
     updating: false,
     removing: false,
-
+    rejecting: false,
     /** Flags de éxito */
     successGet: false,
     successGetById: false,
     successPost: false,
     successPut: false,
     successDelete: false,
+    succesReject: false,
     /** Mensaje de error global */
     error: undefined,
     /** Mensaje de advertencia */
@@ -46,7 +48,8 @@ export const useBillingImagesStore = createWithEqualityFn<BillingImagesState>()(
     updateBillingImage: (payload) => updateBillingImage(set, get, payload),
     /** Elimina una imagen */
     deleteBillingImage: (id) => deleteBillingImage(set, get, id),
-
+    /** Rechaza una imagen */
+    rejectBillingImage: (payload) => rejectBillingImage(set, get, payload),
     /** Resetea todo el estado */
     reset: () => set({
       billingImages: [],
@@ -58,12 +61,16 @@ export const useBillingImagesStore = createWithEqualityFn<BillingImagesState>()(
       successPost: false,
       successPut: false,
       successDelete: false,
+      succesReject: false,
+      rejecting: false,
       loading: false, creating: false, updating: false, removing: false,
     }),
     /** Limpia solo los flags */
     resetFlags: () => set({
       loading: false, creating: false, updating: false, removing: false,
       warning: undefined,
+      succesReject: false,
+      rejecting: false,
       successGet: false, successGetById: false, successPost: false, successPut: false, successDelete: false,
       error: undefined,
     }),

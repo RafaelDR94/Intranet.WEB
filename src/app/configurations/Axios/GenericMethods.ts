@@ -1,4 +1,4 @@
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 export type CallbackFunction = (response: AxiosResponse) => void;
 
@@ -20,14 +20,20 @@ const request = async (
 ) => {
   const config = { ...getDefaultConfig(token), ...additionalConfig };
   let response: AxiosResponse;
+  try {
+    if (method === 'get' || method === 'delete') {
+      response = await client[method](url, config);
+    } else {
+      response = await client[method](url, data, config);
 
-  if (method === 'get' || method === 'delete') {
-    response = await client[method](url, config);
-  } else {
-    response = await client[method](url, data, config);
+    }
+    callback(response);
+  } catch (error: any) {
+
+    callback(error);
   }
 
-  callback(response);
+
 };
 
 // Métodos específicos

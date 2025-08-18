@@ -19,7 +19,8 @@ export const fetchRequisitionsByDate = async (startDate: string, endDate: string
   // cache básica
   if (get().requisitions.length > 0 && !force) return
 
-  set({ loading: true, error: undefined, successGet: false })
+  set({ loading: true, error: undefined, successGet: false, requisitions:[] })
+
 
   try {
     // 1) Obtiene GET del gateway (lanza si no está listo)

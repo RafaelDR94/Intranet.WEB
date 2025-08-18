@@ -8,8 +8,8 @@ import useInitInvoicesForms from '../../../hooks/useInitInvoicesForms'
 import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore'
 import type { BillingDocumentsPost, BillingDocumentsPut } from '@/app/mappings/billingdocuments/billingdocuments.types'
 import { UseInvoicesFormReturn, UseInvoicesFormProps } from './types'
-
-const useInvoicesForm = ({ dataEdit }: UseInvoicesFormProps): UseInvoicesFormReturn => {
+import { useBillingHistoryStore} from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
+const useInvoicesForm = ({ dataEdit, withoutName, billingImages }: UseInvoicesFormProps): UseInvoicesFormReturn => {
   const isEdit = Boolean(dataEdit)
   const { firebasestorage } = useFirebase()
 
@@ -36,38 +36,63 @@ const useInvoicesForm = ({ dataEdit }: UseInvoicesFormProps): UseInvoicesFormRet
     shallow
   )
 
+  const { forceFetchBillingHistory } = useBillingHistoryStore(
+    (s) => ({
+      forceFetchBillingHistory: s.forceFetchBillingHistory,
+    }),
+    shallow
+  );
+
   const initialformFields: FieldModel[] = useMemo(() => {
-    if (isEdit) {
+
+    if (isEdit || withoutName) {
       return [
         {
           type: 'select',
           name: 'requisition',
           label: 'Código de Requisición',
           placeholder: 'Seleccione el código',
-          value: dataEdit?.requisitionkey ?? '',
+          value: '',
           options: [],
           className: 'max-w-[400px]',
+
           showIf: (_v, all) => {
             const f = all.find((x) => x.name === 'requisition')
+
             return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0
           },
+          validations: [{ type: 'required' }],
+
+
+        },
+        {
+          type: 'input',
+          name: 'personName',
+          label: 'Nombre del Deudor',
+          placeholder: 'Ingrese el nombre completo',
+          value: '',
+          className: 'max-w-[400px]',
+          onlyText: true,
+          showIf: () => Boolean(!dataEdit),
         },
         {
           type: 'file',
           name: 'xml',
           label: 'Documento XML',
-          value: null,
+          value: { name: 'Documento XML', url: dataEdit?.xml },
+          initialFile: { name: dataEdit?.xml ?? "", url: dataEdit?.xml },
           accept: '.xml',
-          validations: [],
+          validations: [{ type: 'required' }],
           className: 'max-w-[300px]',
         },
         {
           type: 'file',
           name: 'pdf',
           label: 'Documento PDF',
-          value: null,
+          value: { name: 'Documento PDF', url: dataEdit?.pdf },
+          initialFile: { name: dataEdit?.pdf ?? "", url: dataEdit?.pdf },
           accept: '.pdf',
-          validations: [],
+          validations: [{ type: 'required' }],
           className: 'max-w-[300px]',
         },
       ]
@@ -96,6 +121,7 @@ const useInvoicesForm = ({ dataEdit }: UseInvoicesFormProps): UseInvoicesFormRet
           const f = all.find((x) => x.name === 'requisition')
           return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0
         },
+        validations: [{ type: 'required' }],
       },
       {
         type: 'file',
@@ -118,9 +144,9 @@ const useInvoicesForm = ({ dataEdit }: UseInvoicesFormProps): UseInvoicesFormRet
     ]
   }, [dataEdit, isEdit])
 
-  const { field1, formId1 } = useInvoices()
-  const { loadingFormInfo, submitRef, formReady, setFormReady } =
-    useInitInvoicesForms({ initialformFields, field: field1, formId: formId1 })
+  const { field1, formId1,user } = useInvoices()
+  const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm } =
+    useInitInvoicesForms({ initialformFields, field: field1, formId: formId1, dataEdit, billingImages })
 
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
   const { showSpinner, hideSpinner } = usePrincipalLoading
@@ -133,7 +159,7 @@ const useInvoicesForm = ({ dataEdit }: UseInvoicesFormProps): UseInvoicesFormRet
     if (file) {
       const url = await firebasestorage.uploadFile(
         file,
-        `Billings/BillingDocuments/${requisition}`
+        `Billings/BillingDocuments/${requisition}.xml`
       )
       if (!url) throw new Error('Hubo un problema al subir el XML')
       return url
@@ -149,7 +175,7 @@ const useInvoicesForm = ({ dataEdit }: UseInvoicesFormProps): UseInvoicesFormRet
     if (file) {
       const url = await firebasestorage.uploadFile(
         file,
-        `Billings/BillingDocuments/${requisition}`
+        `Billings/BillingDocuments/${requisition}.pdf`
       )
       if (!url) throw new Error('Hubo un problema al subir el PDF')
       return url
@@ -168,22 +194,19 @@ const useInvoicesForm = ({ dataEdit }: UseInvoicesFormProps): UseInvoicesFormRet
         const payload: BillingDocumentsPut = {
           billingdocument_id: dataEdit.billingdocument_id,
           requisition_id: values.requisition,
-          billingimages_id: dataEdit.billing_image_id,
+          billingimages_id: dataEdit?.billing_image_id || null,
           xml: xmlUrl,
           pdf: pdfUrl,
-          status_id: '',
-          downloaded: false,
-          validate: true,
           comments: dataEdit.comments,
         }
         updateBillingDocument(payload)
       } else {
         const payload: BillingDocumentsPost = {
           requisition_id: values.requisition,
-          billingimages_id: dataEdit?.billing_image_id ?? '',
+          billingimages_id: billingImages?.billing_image_id || null,
           xml: xmlUrl,
           pdf: pdfUrl,
-          comments: '',
+
         }
         createBillingDocument(payload)
       }
@@ -207,6 +230,7 @@ const useInvoicesForm = ({ dataEdit }: UseInvoicesFormProps): UseInvoicesFormRet
       })
     }
   }
+
 
   useEffect(() => {
     if (creating || updating) return
@@ -235,6 +259,8 @@ const useInvoicesForm = ({ dataEdit }: UseInvoicesFormProps): UseInvoicesFormRet
         },
       })
     } else if (postOk || putOk) {
+      if (postOk) ResetForm();
+      if(putOk && user) forceFetchBillingHistory(user?.idEmployee);
       showAlert({
         type: 'success',
         variant: 'filled',
@@ -242,9 +268,10 @@ const useInvoicesForm = ({ dataEdit }: UseInvoicesFormProps): UseInvoicesFormRet
         description: isEdit
           ? 'Tu factura ha sido actualizada correctamente.'
           : 'Tu factura ha sido subida correctamente.',
-        showPrimaryButton: true,
-        primaryLabel: 'Entendido',
-        onPrimaryClick: hideAlert,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500
+
       })
     }
   }, [

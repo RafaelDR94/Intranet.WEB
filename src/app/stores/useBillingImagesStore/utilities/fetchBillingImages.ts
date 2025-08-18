@@ -7,7 +7,7 @@ import { Get, Set } from '../types'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-
+import { BillingImagesMap } from '@/app/mappings/billingimages/billingimages.mapper'
 /**
  * Obtiene las imágenes de facturas del backend y actualiza el estado.
  *
@@ -24,7 +24,7 @@ export const fetchBillingImages = async (set: Set, get: Get, force = false) => {
     const GetFn = requireGateway('get')
     const getReq = pGet(GetFn)
     const res: AxiosResponse = await getReq(BillingImagesUrl)
-    const mapped: BillingImages[] = res.data?.data ?? []
+    const mapped: BillingImages[] = BillingImagesMap(res.data?.data) ?? []
     set({ billingImages: mapped, loading: false, successGet: true })
   } catch (e) {
     const err = normalizeApiError(e)

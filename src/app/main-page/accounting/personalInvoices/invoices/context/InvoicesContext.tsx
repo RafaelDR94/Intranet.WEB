@@ -15,6 +15,7 @@ import { Requisition } from '@/app/mappings/requisitions/requisitions.types';
 import { FieldModel } from '@/app/components/DynamicForm/types';
 import { useAuth } from '@/app/context/AuthContext/AuthContext';
 import { User } from '@/app/context/AuthContext/types';
+import { usePathname } from "next/navigation";
 export interface InvoicesContextType {
 
     requisitions: Requisition[];
@@ -47,19 +48,21 @@ const InvoicesContext = createContext<InvoicesContextType>(initialValue)
 
 // 4️⃣ Provider
 export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
+    const pathname = usePathname();
     const { user } = useAuth();
     const formId1 = "invoices-form";
     const formId2 = "ticket-form";
-    const { usePrincipalAlert } = usePrincipal();
+    const { usePrincipalAlert} = usePrincipal();
     const { showAlert, hideAlert } = usePrincipalAlert;
 
 
-    const { requisitions, requisitionsError, warning, fetchRequisitionsByIdEmployee, resetFlags } = useRequisitionsStore(
+    const { requisitions, requisitionsError, warning, fetchRequisitionsByIdEmployee,fetchRequisitions, resetFlags } = useRequisitionsStore(
         (s) => ({
             requisitions: s.requisitions,
             requisitionsError: s.error,
             warning: s.warning,
             fetchRequisitionsByIdEmployee: s.fetchRequisitionsByIdEmployee,
+            fetchRequisitions:s.fetchRequisitions,
             resetFlags: s.resetFlags,
             reset: s.reset
         }),
@@ -79,8 +82,9 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
     const field2 = f2 ?? EMPTY_ARRAY;
 
     useEffect(() => {
-        if (user) fetchRequisitionsByIdEmployee(user.idEmployee, true);
-    }, [user])
+        if(pathname == "/main-page/accounting/invoices/addFiles/"){fetchRequisitions(true);}
+        else if (user) fetchRequisitionsByIdEmployee(user.idEmployee, true);
+    }, [user,pathname])
 
     useEffect(() => {
         if (!requisitionsError) return;

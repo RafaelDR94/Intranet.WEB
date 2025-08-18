@@ -1,6 +1,6 @@
 {
   "name": "intranet.web",
-  "version": "1.39.0",
+  "version": "1.40.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -16,9 +16,9 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^4.16.0",
-    "@react-pdf/renderer": "^4.3.0",
     "@floating-ui/dom": "^1.7.3",
     "@floating-ui/react-dom": "^2.1.5",
+    "@react-pdf/renderer": "^4.3.0",
     "axios": "^1.11.0",
     "clsx": "^2.1.1",
     "dexie": "^4.0.11",

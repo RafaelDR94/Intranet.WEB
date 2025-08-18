@@ -1,0 +1,29 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useBillingHistoryStore" />
+
+# useBillingHistoryStore
+
+Store global basado en **Zustand** para gestionar el historial de facturación.
+
+## API
+
+- `history: HistoryRow[]`
+- `loading: boolean`
+- `error?: string`
+- `fetchBillingHistory(force?: boolean): Promise<void>`
+- `forceFetchBillingHistory(): Promise<void>`
+- `reset(): void`
+
+## Uso
+
+```tsx
+import { useBillingHistoryStore } from './useBillingHistoryStore';
+
+export const Example = () => {
+  const { history, fetchBillingHistory } = useBillingHistoryStore();
+  return (
+    <button onClick={() => fetchBillingHistory()}>cargar</button>
+  );
+};
+```

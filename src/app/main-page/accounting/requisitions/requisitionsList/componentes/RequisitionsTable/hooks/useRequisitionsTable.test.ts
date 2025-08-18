@@ -26,6 +26,7 @@ vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
     removing: false,
     fetchRequisitionsByDate: vi.fn(),
     deleteRequisition: vi.fn().mockResolvedValue(true),
+    resetFlags: vi.fn(),
   }),
 }))
 

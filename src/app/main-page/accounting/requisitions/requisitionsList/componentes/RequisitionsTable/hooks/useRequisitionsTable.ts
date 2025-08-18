@@ -22,34 +22,32 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
   const { showSpinner, hideSpinner } = usePrincipalLoading
   const { showAlert, hideAlert } = usePrincipalAlert
-
+  const [lastDates,setLastDates] = useState<{startDate:string,endDate:string}>({startDate:currentDate(),endDate:currentDate()})
   const isGatewayReady = useIntranetGatewayStore(s => s.isReady)
 
   const {
-    requisitions, loading, error, removing, fetchRequisitions,fetchRequisitionsByDate, deleteRequisition,
+    requisitions, loading, error, removing,fetchRequisitionsByDate, deleteRequisition,resetFlags
   } = useRequisitionsStore(s => ({
     requisitions: s.requisitions,
     loading: s.loading,
     error: s.error,
     removing: s.removing,
-    fetchRequisitions: s.fetchRequisitions,
     fetchRequisitionsByDate: s.fetchRequisitionsByDate,
     deleteRequisition: s.deleteRequisition,
+    resetFlags:s.resetFlags
   }), shallow)
 
   // Prefetch
   useEffect(() => {
-    if (isGatewayReady) void fetchRequisitionsByDate(currentDate(),currentDate(),true);
+    if (isGatewayReady)  fetchRequisitionsByDate(lastDates.startDate,lastDates.endDate,true);
   }, [isGatewayReady])
 
-  // Spinner (listar)
-  useEffect(() => {
-    if (loading) showSpinner({ message: 'Cargando requisiciones…' })
-    else hideSpinner()
-  }, [loading, showSpinner, hideSpinner])
 
   // Alert de error general de carga
   useEffect(() => {
+    if (loading) {showSpinner({ message: 'Cargando requisiciones…' }); return;}
+    hideSpinner();
+    resetFlags();
     if (!error) return
     showAlert({
       type: 'error',
@@ -61,13 +59,14 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
       onPrimaryClick: hideAlert,
       showSecondaryButton: true,
       secondaryLabel: 'Reintentar',
-      onSecondaryClick: () => { hideAlert(); fetchRequisitions(true) },
+      onSecondaryClick: () => { hideAlert(); fetchRequisitionsByDate(lastDates.startDate,lastDates.endDate,true); },
     })
-  }, [error, showAlert, hideAlert, fetchRequisitions])
+  }, [error,loading])
 
   const [query, setQuery] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [rowToDelete, setRowToDelete] = useState<RequisitionRow | null>(null)
+
 
   const rows: RequisitionRow[] = useMemo(() => {
     const base = requisitions.map(r => ({
@@ -144,7 +143,7 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
   const refresh = (start?: Date, end?: Date ) =>{
     let startDate = start ? currentDate(start) : currentDate();
     let endDate = end ? currentDate(end) : currentDate();
-    console.log(startDate,endDate); 
+    setLastDates({startDate:startDate,endDate:endDate})
     fetchRequisitionsByDate(startDate, endDate, true);
   }
 

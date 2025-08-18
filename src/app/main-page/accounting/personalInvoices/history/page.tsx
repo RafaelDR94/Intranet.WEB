@@ -15,27 +15,9 @@ import useHistory from './hooks/useHistory'
 
 
 const PersonalInvoicesHistory = () => {
-  const { panelOpen, setPanelOpen, selected, setSelected, rejected, data } = useHistory()
+  const { panelOpen, setPanelOpen, selected, setSelected, rejected, history } = useHistory()
 
   const columns: ColumnDefinition<HistoryRow>[] = [
-    {
-      key: 'project',
-      label: 'PROYECTO',
-      render: (row) => <span>{row.project?.name ?? row.project?.id}</span>,
-    },
-    {
-      key: 'requisitionkey',
-      label: 'CÓDIGO DE SOLICITUD',
-    },
-    {
-      key: 'status',
-      label: 'ESTATUS',
-      render: (row) => <Label type={row.status} text={row.status.toUpperCase()} />,
-    },
-    {
-      key: 'dateCreate',
-      label: 'FECHA DE CREACIÓN',
-    },
     {
       key: 'files' as unknown as keyof HistoryRow,
       label: 'ARCHIVOS',
@@ -51,8 +33,28 @@ const PersonalInvoicesHistory = () => {
             <Button size="xsmall" variant="ghost" icon={ImageIcon} onClick={() => window.open(row.image, '_blank')} />
           )}
         </div>
+
       ),
     },
+    {
+      key: 'project',
+      label: 'PROYECTO',
+      render: (row) => <span>{row.project?.proyectKey ?? row.project?.id}</span>,
+    },
+    {
+      key: 'requisitionkey',
+      label: 'CÓDIGO DE SOLICITUD',
+    },
+    {
+      key: 'status',
+      label: 'ESTATUS',
+      render: (row) => <Label type={row?.status?.toLocaleLowerCase() as any} text={row.status.toUpperCase()} />,
+    },
+    {
+      key: 'dateCreate',
+      label: 'FECHA DE CREACIÓN',
+    },
+
     {
       key: 'details' as unknown as keyof HistoryRow,
       label: 'DETALLES',
@@ -72,7 +74,7 @@ const PersonalInvoicesHistory = () => {
     },
   ]
 
- 
+
 
   return (
     <>
@@ -82,7 +84,8 @@ const PersonalInvoicesHistory = () => {
           onCalendarClick={() => console.log('Calendario rechazadas')}
           onFilterClick={() => console.log('Filtro rechazadas')}
           onSearch={() => console.log('Descargar rechazadas')}
-          actionLabel="Descargar"
+          showButton={false}
+          showDownloadTable
           tables={[
             {
               data: rejected,
@@ -96,15 +99,17 @@ const PersonalInvoicesHistory = () => {
           ]}
         />
 
+
         <DataTable
+          showDownloadTable
           onSearchChange={(val) => console.log('Buscar historial:', val)}
           onCalendarClick={() => console.log('Calendario historial')}
           onFilterClick={() => console.log('Filtro historial')}
           onSearch={() => console.log('Descargar historial')}
-          actionLabel="Descargar"
+          showButton={false}
           tables={[
             {
-              data,
+              data: history,
               columns,
               enableSelection: true,
               title: 'Historial',

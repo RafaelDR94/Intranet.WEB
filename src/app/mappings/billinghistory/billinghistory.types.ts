@@ -5,7 +5,7 @@ export type HistoryRow = {
   billingdocument_id: string
   project: Proyect // Vista de Proyecto (objeto)
   requisitionkey: string
-  status: 'valido' | 'invalido' | 'prohibido' | 'actualizado' | 'pendiente'
+  status: 'valido' | 'invalido' | 'prohibido' | 'actualizado' | 'pendiente'|'rechazado'|'restringido'
   xml: string
   pdf: string
   image: string

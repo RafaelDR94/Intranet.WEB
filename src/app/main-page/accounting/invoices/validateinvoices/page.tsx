@@ -1,43 +1,34 @@
 'use client'
-import React, { useMemo, useState } from 'react'
+import React from 'react'
 import XMLIcon from '@/assets/icons/Docs/privacy policy.svg'
 import PDFIcon from '@/assets/icons/Docs/page.svg'
 import { ColumnDefinition } from '@/app/components/DataTable/types'
 import { Button } from '@/app/components/Button/Button'
 import { DataTable } from '@/app/components/DataTable/DataTable'
-import DetailsPanelLayout from '@/app/components/DetailsPanelLayout/DetailsPanelLayout'
-
-type Factura = {
-  id: string
-  rfc: string
-  claveSat: string
-  uuid: string
-  fecha: string
-  importe: number
-  xml: string
-  pdf: string
-}
-
+import DetailsPanel from './components/DetailsPanel/DetailsPanel'
+import { BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
+import { useValidateInvoices } from './hooks/useValidateInvoices'
+import { PopUp } from '@/app/components/PopUp/PopUp'
 const ValidateInvoices = () => {
-  // ---- state para details panel + comentario
-  const [panelOpen, setPanelOpen] = useState(false)
-  const [selected, setSelected] = useState<Factura | null>(null)
-  const [comment, setComment] = useState('')
 
-  const handleOpenDetails = (row: Factura) => {
-    setSelected(row)
-    setComment('')
-    setPanelOpen(true)
-  }
+  const {
+    handleOpenDetails,
+    billingDocuments,
+    billingDocumentnotToday,
+    panelOpen,
+    setPanelOpen,
+    selected,
+    handleMultiSelectt1,
+    handleMultiSelectt2,
+    handleActionClick,
+    openValidInvoice,
+    setOpenValidInvoice,
+    handleMultiValidate,
+    multiselectedt1,
+    multiselectedt2
+  } = useValidateInvoices();
 
-  const handleSaveComment = () => {
-    if (!selected) return
-    // TODO: reemplazar con API real
-    console.log('Guardar comentario', { id: selected.id, comment })
-    setPanelOpen(false)
-  }
-
-  const columnas: ColumnDefinition<Factura>[] = [
+  const columnas: ColumnDefinition<BillingDocuments>[] = [
     {
       key: 'xml',
       label: 'XML',
@@ -50,7 +41,7 @@ const ValidateInvoices = () => {
         />
       ),
       cellClass: 'w-12 text-center',
-      headerClass: 'w-12  text-center',
+      headerClass: 'w-12 text-center',
     },
     {
       key: 'pdf',
@@ -63,73 +54,63 @@ const ValidateInvoices = () => {
           icon={PDFIcon}
         />
       ),
-      cellClass: 'w-12  text-center',
+      cellClass: 'w-12 text-center',
       headerClass: 'w-12 text-center',
     },
-    { key: 'rfc', label: 'RFC EMISOR' },
-    { key: 'claveSat', label: 'CLAVE SAT' },
+    // rfc_emisor es boolean según BillingDocuments
+    {
+      key: 'rfc_emisor',
+      label: 'RFC EMISOR',
+    },
+    // conceptos es un arreglo; mostramos las claves SAT concatenadas
+    {
+      key: 'conceptos',
+      label: 'CLAVE SAT',
+      render: (row) =>
+        row.conceptos?.length
+          ? row.conceptos.map((c) => c.clave_sat).filter(Boolean).join(', ')
+          : '—',
+    },
     { key: 'uuid', label: 'UUID' },
-    { key: 'fecha', label: 'FECHA' },
+    {
+      key: 'fecha',
+      label: 'FECHA',
+    },
     {
       key: 'importe',
       label: 'IMPORTE',
-      render: (row) => `$${row.importe.toFixed(2)}`,
       cellClass: 'text-right',
       headerClass: 'text-right',
     },
     {
-      key: 'acciones' as unknown as keyof Factura,
+      // columna de acciones: tipamos la key para satisfacer keyof<BillingDocuments>
+      key: 'acciones' as unknown as keyof BillingDocuments,
       headerRender: () => <span className="text-lg">⋯</span>,
       render: (row) => (
-        <Button
-          size="small"
-          onClick={() => handleOpenDetails(row)}
-          variant="ghost"
-          hideIcon
-        >
+        <Button size="small" onClick={() => handleOpenDetails(row)} variant="ghost" hideIcon>
           Ver Detalles
         </Button>
       ),
       cellClass: 'w-28 text-right',
       headerClass: 'w-28 text-right',
     },
-  ]
+  ];
 
-  const datosFactura: Factura[] = useMemo(
-    () =>
-      Array.from({ length: 5 }).map((_, i) => {
-        const fecha = new Date()
-        fecha.setDate(fecha.getDate() - i)
-        return {
-          id: `${i + 1}`,
-          rfc: `RFC${1000 + i}`,
-          claveSat: `9010150${i}`,
-          uuid:
-            typeof crypto !== 'undefined' && 'randomUUID' in crypto
-              ? crypto.randomUUID()
-              : `UUID-${i + 1}`,
-          fecha: fecha.toISOString().split('T')[0],
-          importe: parseFloat((100 + i * 23.75).toFixed(2)),
-          xml: `https://example.com/factura-${i + 1}.xml`,
-          pdf: `https://example.com/factura-${i + 1}.pdf`,
-        }
-      }),
-    []
-  )
+
 
   return (
     <>
       <div className="space-y-8 overflow-auto">
         <DataTable
-          onSearchChange={(val) => console.log('Buscar nuevas:', val)}
-          onCalendarClick={() => console.log('Calendario nuevas')}
-          onFilterClick={() => console.log('Filtro nuevas')}
-          onSearch={() => console.log('Validar nuevas')}
-          actionLabel="Validar Facturas"
-                enablePagination={false}
+
+          showButton={false}
+          actionsRender={() => <Button disabled={multiselectedt1?.length == 0} hideIcon onClick={handleActionClick}>Validar Facturas</Button>}
+          enablePagination={false}
+          showCalendar={false}
+          onSelectedChange={handleMultiSelectt1}
           tables={[
             {
-              data: datosFactura,
+              data: billingDocuments,
               columns: columnas,
               enableSelection: true,
               title: 'Nuevas Facturas',
@@ -141,14 +122,13 @@ const ValidateInvoices = () => {
         />
 
         <DataTable
-          onSearchChange={(val) => console.log('Buscar pendientes:', val)}
-          onCalendarClick={() => console.log('Calendario pendientes')}
-          onFilterClick={() => console.log('Filtro pendientes')}
-          onSearch={() => console.log('Validar pendientes')}
-          actionLabel="Validar Facturas"
+
+          showButton={false}
+          actionsRender={() => <Button disabled={multiselectedt2?.length == 0} hideIcon onClick={handleActionClick}>Validar Facturas</Button>}
+          onSelectedChange={handleMultiSelectt2}
           tables={[
             {
-              data: datosFactura,
+              data: billingDocumentnotToday,
               columns: columnas,
               enableSelection: true,
               title: 'Facturas Pendientes por Validar',
@@ -159,80 +139,19 @@ const ValidateInvoices = () => {
           ]}
         />
       </div>
+      <PopUp open={openValidInvoice}
+        title={"¿Desea validar la factura seleccionada?"}
+        content="Esta acción confirmará la validez de los documentos marcados. Una vez validadas, no podrás revertir el cambio."
+        onClose={() => setOpenValidInvoice(false)}
+        primaryButtonText="Validar"
+        secondaryButtonText="Cancelar"
+        onPrimaryButtonClick={handleMultiValidate}
+        onSecondaryButtonClick={() => setOpenValidInvoice(false)}
+        showPrimaryButton
+        showSecondaryButton
+      />
 
-      {/* Panel de Detalles con Comentario */}
-      <DetailsPanelLayout
-        open={panelOpen}
-        withinContainer
-        onClose={() => setPanelOpen(false)}
-        leftLabel={selected ? `UUID: ${selected.uuid}` : undefined}
-        rightLabel={selected ? `Importe: $${selected.importe.toFixed(2)}` : undefined}
-        actionButton={
-          <div className="flex items-center gap-2">
-            <Button
-              size="large"
-              variant="ghost"
-              icon={XMLIcon}
-              onClick={() => selected && window.open(selected.xml, '_blank')}
-            >
-              XML
-            </Button>
-            <Button
-              size="large"
-              variant="ghost"
-              icon={PDFIcon}
-              onClick={() => selected && window.open(selected.pdf, '_blank')}
-            >
-              PDF
-            </Button>
-          </div>
-        }
-      >
-        {selected ? (
-          <div className="space-y-4">
-            <div className="text-s2 font-semibold">Detalle de la Factura</div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="text-b3">
-                <span className="text-gray-70">RFC Emisor:</span> {selected.rfc}
-              </div>
-              <div className="text-b3">
-                <span className="text-gray-70">Clave SAT:</span> {selected.claveSat}
-              </div>
-              <div className="text-b3">
-                <span className="text-gray-70">Fecha:</span> {selected.fecha}
-              </div>
-              <div className="text-b3">
-                <span className="text-gray-70">Importe:</span> ${selected.importe.toFixed(2)}
-              </div>
-            </div>
-
-            {/* Comentarios (como en tu SAT) */}
-            <div className="pt-2">
-              <div className="text-s2 font-semibold mb-2">Comentarios:</div>
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Agregar comentario"
-                className="w-full min-h-28 rounded-md border border-gray-30 bg-white-100 text-b3 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-50"
-              />
-              <div className="mt-3 flex justify-end">
-                <Button
-                  size="medium"
-                  variant="outline"
-                  hideIcon
-                  onClick={handleSaveComment}
-                  disabled={!comment.trim()}
-                >
-                  Guardar Comentario
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="text-gray-70 text-b3">Selecciona una factura para ver detalles.</div>
-        )}
-      </DetailsPanelLayout>
+      <DetailsPanel panelOpen={panelOpen} setPanelOpen={setPanelOpen} selected={selected} />
     </>
   )
 }

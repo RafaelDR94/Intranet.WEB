@@ -28,7 +28,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }
         </Button>
       }
       renderActions={() =>
-        selected && <Label type={selected.status} text={selected.status.toUpperCase()} />
+        selected && <Label type={selected?.status?.toLocaleLowerCase() as any} text={selected.status.toUpperCase()} />
       }
     >
       {selected ? (
@@ -62,12 +62,14 @@ const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }
                 variant="ghost"
                 icon={XMLIcon}
                 disabled={!selected.xml}
+                onClick={() => window.open(selected.xml, '_blank')}
               />}
               {selected.pdf && <Button
                 size="xsmall"
                 variant="ghost"
                 icon={PDFIcon}
                 disabled={!selected.pdf}
+                onClick={() => window.open(selected.pdf, '_blank')}
               />}
               {selected.image && (
                 <Button size="xsmall" variant="ghost" icon={ImageIcon} onClick={() => window.open(selected.image, '_blank')} />
@@ -76,42 +78,39 @@ const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }
             </div>
           </div>
 
+
           {/* Comentarios */}
-          <div className="space-y-1">
-            <div className="text-gray-90 text-b4 font-medium">Comentarios:</div>
-            <p className="text-gray-50 text-b4 font-medium p-2">
-              {selected.comments || "—"}
-            </p>
-          </div>
-
+          {selected.comments &&
+            <div className="space-y-1">
+              <div className="text-gray-90 text-b4 font-medium">Comentarios en Factura:</div>
+              <p className="text-gray-50 text-b4 font-medium p-2">
+                {selected.comments || "—"}
+              </p>
+            </div>
+          }
           {/* Editar Documento (como en la maqueta) */}
-          <button
-            type="button"
-            className="text-gray-90 text-b3 font-medium underline-offset-4 hover:underline"
-            onClick={() => {
-              const el = document.getElementById("ticket-form");
-              el?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }}
-          >
-            Editar Documento
-          </button>
 
-          {/* Formulario */}
-          {(selected.xml || selected.pdf) ?
-            <div id="ticket-form">
-              <InvoicesForm
-                layoutMatrix={[[10], [10], [10],[10]]}
-                dataEdit={selected}
-                externalSubmitRef={submitRef}
-              />
-            </div> :
-            <div id="ticket-form">
-              <TicketForm
-                layoutMatrix={[[10], [10], [10]]}
-                dataEdit={selected}
-                externalSubmitRef={submitRef}
-              />
-            </div>}
+          {selected.status.toLocaleLowerCase() == "rechazado" && <>
+            <div className="text-gray-90 text-b4 font-medium">Editar documento:</div>
+
+            {/* Formulario */}
+            {(selected.xml || selected.pdf) ?
+              <div id="ticket-form">
+                <InvoicesForm
+                  layoutMatrix={[[10], [10], [10], [10]]}
+                  dataEdit={selected}
+                  externalSubmitRef={submitRef}
+                />
+              </div> :
+              <div id="ticket-form">
+                <TicketForm
+                  layoutMatrix={[[10], [10], [10]]}
+                  dataEdit={selected}
+                  externalSubmitRef={submitRef}
+                />
+              </div>}
+          </>}
+
 
         </div>
       ) : (

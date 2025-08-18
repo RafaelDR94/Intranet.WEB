@@ -44,3 +44,14 @@ export const urlToFile = (url: string, fileName: string, type: string) => {
         .then(res => res.arrayBuffer())
         .then(buffer => new File([buffer], fileName, { type  }));
 };
+
+export const DownloadFile = (url: string, fileName: string) => {
+    return fetch(url)
+        .then(res => res.blob())
+        .then(blob => {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+        });
+};

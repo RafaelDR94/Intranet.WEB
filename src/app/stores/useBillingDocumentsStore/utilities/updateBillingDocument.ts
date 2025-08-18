@@ -8,7 +8,7 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { fetchBillingDocuments } from './fetchBillingDocuments'
-
+import { fetchSatBillingDocument } from './fetchSatBillingDocument'
 /**
  * Actualiza un documento de factura en el backend.
  *
@@ -28,9 +28,8 @@ export const updateBillingDocument = async (
     const res: AxiosResponse = await put(BillingDocumentUrl, payload)
     const raw = res.data?.data
     const updated = raw ? (raw as BillingDocuments) : null
-
-    await fetchBillingDocuments(set, get, true)
-
+    fetchBillingDocuments(set, get, true);
+    fetchSatBillingDocument(set, get, true);
     set({ updating: false, successPut: true })
     return updated
   } catch (e) {

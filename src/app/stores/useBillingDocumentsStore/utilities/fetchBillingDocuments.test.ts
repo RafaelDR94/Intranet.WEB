@@ -3,7 +3,11 @@ import { fetchBillingDocuments } from './fetchBillingDocuments'
 import type { BillingDocumentsState, Set, Get } from '../types'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
-vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pGet: () => async () => ({ data: { data: [{ billing_document_id: '1' }] } }) }))
+vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({
+  pGet: () => async () => ({
+    data: { data: { today: [{ billingdocument_id: '1' }], notToday: [] } },
+  }),
+}))
 
 describe('fetchBillingDocuments util', () => {
   it('llena billingDocuments y apaga loading', async () => {

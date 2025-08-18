@@ -7,8 +7,8 @@ import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useInvoices } from '../../../context/InvoicesContext'
 import useInitInvoicesForms from '../../../hooks/useInitInvoicesForms'
 import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
-import { UseTicketFormReturn ,UseInvoicesFormProps} from './types'
-
+import { UseTicketFormReturn, UseInvoicesFormProps } from './types'
+import { useBillingHistoryStore } from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
 const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn => {
   const isEdit = Boolean(dataEdit)
   const { firebasestorage } = useFirebase()
@@ -35,6 +35,13 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
     }),
     shallow
   )
+  const { forceFetchBillingHistory } = useBillingHistoryStore(
+    (s) => ({
+      forceFetchBillingHistory: s.forceFetchBillingHistory,
+    }),
+    shallow
+  );
+
 
   // 🔁 Campos iniciales del formulario (condicional por modo)
   const initialformFields: FieldModel[] = useMemo(() => {
@@ -45,7 +52,7 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
           name: 'requisition',
           label: 'Código de Requisición',
           placeholder: 'Seleccione el código',
-          value: dataEdit?.requisitionkey ?? '',
+          value: '',
           options: [],
           className: 'max-w-[400px]',
           showIf: (_v, all) => {
@@ -57,7 +64,8 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
           type: 'file',
           name: 'ticket',
           label: 'Documento JPG/PNG',
-          value: null,
+          value: { name: 'Imagen', url: dataEdit?.image },
+          initialFile: { name: dataEdit?.image ?? "", url: dataEdit?.image },
           accept: '.jpg,.png',
           validations: [], // en edición es opcional
           className: 'max-w-[300px]',
@@ -102,9 +110,9 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
     ]
   }, [dataEdit, isEdit])
 
-  const { field2, formId2 } = useInvoices()
-  const { loadingFormInfo, submitRef, formReady, setFormReady } =
-    useInitInvoicesForms({ initialformFields, field: field2, formId: formId2 })
+  const { field2, formId2, user } = useInvoices()
+  const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm } =
+    useInitInvoicesForms({ initialformFields, field: field2, formId: formId2, dataEdit })
 
   // Loading + Alerts (desde PrincipalContext)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
@@ -199,6 +207,8 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
         },
       })
     } else if (postOk || putOk) {
+      if (postOk) ResetForm();
+      if (putOk && user) forceFetchBillingHistory(user?.idEmployee);
       showAlert({
         type: 'success',
         variant: 'filled',
@@ -206,8 +216,9 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
         description: isEdit
           ? 'Tu ticket ha sido actualizado correctamente.'
           : 'Tu ticket ha sido subido correctamente.',
-        showPrimaryButton: true,
-        primaryLabel: 'Entendido',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
         onPrimaryClick: hideAlert,
       })
     }
