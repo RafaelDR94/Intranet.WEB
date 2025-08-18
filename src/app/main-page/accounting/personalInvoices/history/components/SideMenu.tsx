@@ -1,6 +1,5 @@
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import TicketForm from "../../invoices/components/TicketForm/TicketForm";
-import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
 import { Button } from "@/app/components/Button/Button";
 import Label from "@/app/components/Label/Label";
 import { useRef } from "react";
@@ -9,12 +8,7 @@ import XMLIcon from '@/assets/icons/Docs/privacy policy.svg'
 import PDFIcon from '@/assets/icons/Docs/page.svg'
 import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
 import InvoicesForm from "../../invoices/components/InvoicesForm/InvoicesForm";
-interface SideMenuProps {
-  panelOpen: boolean;
-  setPanelOpen: (open: boolean) => void;
-  selected: HistoryRow | null;
-}
-
+import { SideMenuProps } from "./types";
 
 
 const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }) => {

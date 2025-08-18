@@ -213,3 +213,6 @@ Feature:
 ### 1.38.0 BillingDocuments store 2025-08-18
 Feature:
 - Added BillingDocuments store with CRUD utilities, documentation and tests. (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
+### 1.39.0 Invoices form with Firebase upload 2025-08-18
+Feature:
+- Added useInvoicesForm hook and Firebase file upload for invoices. (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
