@@ -41,8 +41,6 @@ export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => 
 export const BillingPutMap = (src: Partial<BillingPut> | any): BillingPut => ({
   billing_image_id: String(src?.billing_image_id ?? ''),
   requisition_id:   String(src?.requisition_id   ?? ''),
-  status_id:        String(src?.status_id        ?? ''),
   Image:            String(src?.Image            ?? ''),
-  downloaded:       Boolean(src?.downloaded ?? false),
   comments:         String(src?.comments         ?? ''),
 })

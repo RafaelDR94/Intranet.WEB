@@ -8,7 +8,7 @@ import { useInvoices } from '../../context/InvoicesContext'
 import useInitInvoicesForms from '../../hooks/useInitInvoicesForms'
 import { InvoicesFormProps } from '../types'
 import { FieldModel } from '@/app/components/DynamicForm/types'
-const InvoicesForm: React.FC<InvoicesFormProps> = ({ layoutMatrix, type }) => {
+const InvoicesForm: React.FC<InvoicesFormProps> = ({ layoutMatrix }) => {
    const initialformFields: FieldModel[] = [
     {
       type: 'input',

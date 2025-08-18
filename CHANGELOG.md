@@ -210,3 +210,6 @@ Feature:
 Feature:
 - Added BillingImages store with CRUD utilities, documentation and tests.
 (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
+### 1.38.0 BillingDocuments store 2025-08-18
+Feature:
+- Added BillingDocuments store with CRUD utilities, documentation and tests. (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)

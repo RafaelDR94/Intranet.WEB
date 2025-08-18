@@ -5,8 +5,8 @@ import { InvoicesProvider } from "./context/InvoicesContext";
 const PersonalInvoicesInvoices = () => {
     return (
         <InvoicesProvider>
-            <TicketForm layoutMatrix={[[10], [10], [5]]} type="create"/>
-            <InvoicesForm layoutMatrix={[[10], [10], [5, 5]]} type="update"/>
+            <TicketForm layoutMatrix={[[10], [10], [5]]} />
+            <InvoicesForm layoutMatrix={[[10], [10], [5, 5]]} />
         </InvoicesProvider>);
 }
 

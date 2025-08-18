@@ -8,7 +8,7 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import XMLIcon from '@/assets/icons/Docs/privacy policy.svg'
 import PDFIcon from '@/assets/icons/Docs/page.svg'
 import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
-
+import InvoicesForm from "../../invoices/components/InvoicesForm/InvoicesForm";
 interface SideMenuProps {
   panelOpen: boolean;
   setPanelOpen: (open: boolean) => void;
@@ -103,13 +103,22 @@ const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }
           </button>
 
           {/* Formulario */}
-          <div id="ticket-form">
-            <TicketForm
-              layoutMatrix={[[10], [10], [10], [10]]}
-              dataEdit={selected}
-              externalSubmitRef={submitRef}
-            />
-          </div>
+          {(selected.xml || selected.pdf) ?
+            <div id="ticket-form">
+              <InvoicesForm
+                layoutMatrix={[[10], [10], [10],[10]]}
+                dataEdit={selected}
+                externalSubmitRef={submitRef}
+              />
+            </div> :
+            <div id="ticket-form">
+              <TicketForm
+                layoutMatrix={[[10], [10], [10]]}
+                dataEdit={selected}
+                externalSubmitRef={submitRef}
+              />
+            </div>}
+
         </div>
       ) : (
         <div className="text-gray-70 text-b3">Selecciona un registro para ver el detalle.</div>
