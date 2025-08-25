@@ -191,12 +191,35 @@ Feature:
 - Separated remaining Excel interfaces, added Storybook docs y JSDoc para utilidades de Excel y PDF.
 (Agente IA) [#]()
 
-### 1.33.0 Component Adjustments 2025-08-14
+### 1.34.0 Component Adjustments 2025-08-14
 Feature:
 - To reuse components for each different design
 (Katherine Negrete A) [#47](https://github.com/DR-Mexico/dr.intranet.web/pull/47)
 
-### 1.34.0 Requisition form tests and docs 2025-08-14
+### 1.35.0 Requisition form tests and docs 2025-08-14
 Feature:
 - Added tests, Storybook stories and MDX docs for RequisitionsForm, hook and utilities.
 (Agente IA) [#]()
+
+### 1.36.0 Final Request Features 2025-08-15
+Feature:
+-Because it needs fine details
+(Bruno Mendoza) [#56](https://github.com/DR-Mexico/dr.intranet.web/pull/56)
+
+### 1.37.0 BillingImages store 2025-08-15
+Feature:
+- Added BillingImages store with CRUD utilities, documentation and tests.
+(Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
+### 1.38.0 BillingDocuments store 2025-08-18
+Feature:
+- Added BillingDocuments store with CRUD utilities, documentation and tests. (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
+### 1.39.0 Invoices form with Firebase upload 2025-08-18
+Feature:
+- Added useInvoicesForm hook and Firebase file upload for invoices. (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
+### 1.40.0 BillingHistory store 2025-08-18
+Feature:
+- Added BillingHistory store with fetch utility and mapping. (Agente IA) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
+
+### 1.40.1 Test stability improvements 2025-08-22
+Fix:
+- Added missing mocks for layout, billing documents and requisitions tests and removed obsolete snapshot. (Agente IA) [#]()

@@ -55,7 +55,7 @@ export interface OfflineMessage {
  */
 export const useMainPage = () => {
   // Hooks de contexto global
-  const { usePrincipalTheme, usePrincipalAlert } = usePrincipal();
+  const { usePrincipalTheme, usePrincipalAlert,usePrincipalImage } = usePrincipal();
   const { alert, hideAlert, showAlert } = usePrincipalAlert;
   const { theme, toggleTheme } = usePrincipalTheme;
   const pathname = usePathname();
@@ -140,6 +140,7 @@ export const useMainPage = () => {
     handleOkMessageOffline,
     handleCancelMessageOffline,
     sidebarRoutes,
+    usePrincipalImage
   };
 };
 

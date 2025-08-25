@@ -1,218 +1,222 @@
 import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { Button } from "@/app/components/Button/Button";
-import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import HorizonIncon from "@/assets/icons/navegacion/more-horiz.svg";
 import { DataTable } from "@/app/components/DataTable/DataTable";
+import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
+import { shallow } from "zustand/shallow"
+import { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
+import { BillingImagesTableMap } from "@/app/mappings/billingimages/billingimages.mapper";
+import { useEffect, useState } from "react";
+import { Spinner } from "@/app/components/Spinner/Spinner";
+import { PicturesTableProps } from "./types";
+import { DownloadFile } from "@/app/utilities/FilesHelper/FilesHelper";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { PopUp } from "@/app/components/PopUp/PopUp";
+import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 
-const PictureTable = () => {
-  type ImagenTicket = {
-    id: string;
-    imgIcon?: string;
-    deudor: string;
-    proyecto: string;
-    fecha: string;
-  };
 
-  const columns: ColumnDefinition<ImagenTicket>[] = [
+const PictureTable: React.FC<PicturesTableProps> = ({ setSelectedPictures }) => {
+  const { usePrincipalImage, usePrincipalLoading, usePrincipalAlert } = usePrincipal();
+  const { showSpinner, hideSpinner } = usePrincipalLoading;
+  const { showAlert, hideAlert } = usePrincipalAlert;
+  const { showImage, hideImage } = usePrincipalImage;
+  const [openRejectPicture, setOpenRejectPicture] = useState<{ state: boolean, row: BillingImagesTable | null }>({ state: false, row: null });
+
+  const opePicture = (row: BillingImagesTable) => {
+    showImage({
+      src: row.Image,
+      alt: 'Ticket',
+      showAction: true,
+      actionLabel: 'Rechazar Imagen',
+      onAction: () => {
+        setOpenRejectPicture({ state: true, row: row });
+        hideImage();
+      },
+      disableOutsideClose: false, // si quieres obligar a usar los botones, ponlo en true
+    });
+  }
+
+  const columns: ColumnDefinition<BillingImagesTable>[] = [
     {
-      key: "imgIcon",
+      key: "imgIcon" as keyof BillingImagesTable,
       headerRender: () => <span>IMG</span>,
       render: (row) => (
         <Button
-          icon={ImageIcon}
-          variant="ghost"
-          onClick={() => console.log(row)}
-        />
+          hideIcon
+          variant="solid"
+          onClick={() => opePicture(row)}
+        >
+          Ver Imagen
+        </Button>
       ),
-      cellClass: "w-20 text-center",
-      headerClass: "w-20 text-center",
+
     },
     {
       key: "deudor",
       label: "DEUDOR",
-      cellClass: "flex-1 text-left",
-      headerClass: "flex-1 text-left",
+
     },
     {
-      key: "proyecto",
+      key: "proyect",
       label: "PROYECTO",
     },
     {
-      key: "acciones" as unknown as keyof ImagenTicket,
-      headerRender: () => <HorizonIncon />,
+      key: "dateCreate",
+      label: "FECHA DE CREACIÓN",
+    },
+    {
+      key: "addinvioice" as unknown as keyof BillingImagesTable,
+      label: "",
+      render: (row) => (
+        <Button
+          hideIcon
+          variant="solid"
+          onClick={() => setSelectedPictures(row)}
+        >
+          Ligar Factura
+        </Button>
+      ),
+
+    },
+    {
+      key: "acciones" as unknown as keyof BillingImagesTable,
+      headerRender: () => <HorizonIncon className="text-green-100" />,
       render: (row) => (
         <Button
           icon={DownloadIcon}
           variant="ghost"
-          onClick={() => console.log(row)}
+          onClick={() => DownloadFile(row.Image, row.proyect + "-" + row.deudor + ".jpg")}
         />
       ),
       cellClass: "w-10 text-right",
       headerClass: "w-10 text-right",
-    },
+    }
   ];
+  const handleSubmitReject = (values: Record<string, any>) => {
+    const payload = {
+      billing_image_id: openRejectPicture.row?.billing_image_id ?? "",
+      comments: values.comments ?? "",
+    };
+    setOpenRejectPicture({ state: false, row: null });
+    rejectBillingImage(payload)
+  };
 
-  const imagenes: ImagenTicket[] = [
-    {
-      id: "1",
-      deudor: "Tania Guerrero",
-      proyecto: "VISITAX",
-      fecha: "08/08/2025",
-    },
-    {
-      id: "2",
-      deudor: "José Martínez",
-      proyecto: "VISITAX",
-      fecha: "07/08/2025",
-    },
-    {
-      id: "3",
-      deudor: "Karla López",
-      proyecto: "VISITAX",
-      fecha: "06/08/2025",
-    },
-    {
-      id: "4",
-      deudor: "Miguel Ángel Ruiz",
-      proyecto: "VISITAX",
-      fecha: "05/08/2025",
-    },
-    {
-      id: "5",
-      deudor: "Daniela Pérez",
-      proyecto: "VISITAX",
-      fecha: "04/08/2025",
-    },
-    {
-      id: "6",
-      deudor: "Luis Hernández",
-      proyecto: "VISITAX",
-      fecha: "03/08/2025",
-    },
-    {
-      id: "7",
-      deudor: "Ana Sofía Torres",
-      proyecto: "VISITAX",
-      fecha: "02/08/2025",
-    },
-    {
-      id: "8",
-      deudor: "Carlos Ramírez",
-      proyecto: "VISITAX",
-      fecha: "01/08/2025",
-    },
-    {
-      id: "9",
-      deudor: "Fernanda Sánchez",
-      proyecto: "VISITAX",
-      fecha: "31/07/2025",
-    },
-    {
-      id: "10",
-      deudor: "Roberto Gómez",
-      proyecto: "VISITAX",
-      fecha: "30/07/2025",
-    },
-    {
-      id: "11",
-      deudor: "Paola Castillo",
-      proyecto: "VISITAX",
-      fecha: "29/07/2025",
-    },
-    {
-      id: "12",
-      deudor: "Alejandro Ortega",
-      proyecto: "VISITAX",
-      fecha: "28/07/2025",
-    },
-    {
-      id: "13",
-      deudor: "Gabriela Mendoza",
-      proyecto: "VISITAX",
-      fecha: "27/07/2025",
-    },
-    {
-      id: "14",
-      deudor: "Sergio Vargas",
-      proyecto: "VISITAX",
-      fecha: "26/07/2025",
-    },
-    {
-      id: "15",
-      deudor: "Mariana Flores",
-      proyecto: "VISITAX",
-      fecha: "25/07/2025",
-    },
-    {
-      id: "16",
-      deudor: "Juan Pablo Navarro",
-      proyecto: "VISITAX",
-      fecha: "24/07/2025",
-    },
-    {
-      id: "17",
-      deudor: "Verónica Salinas",
-      proyecto: "VISITAX",
-      fecha: "23/07/2025",
-    },
-    {
-      id: "18",
-      deudor: "Ricardo Domínguez",
-      proyecto: "VISITAX",
-      fecha: "22/07/2025",
-    },
-    {
-      id: "19",
-      deudor: "Laura Cabrera",
-      proyecto: "VISITAX",
-      fecha: "21/07/2025",
-    },
-    {
-      id: "20",
-      deudor: "Héctor Morales",
-      proyecto: "VISITAX",
-      fecha: "20/07/2025",
-    },
-    {
-      id: "21",
-      deudor: "Andrea Pineda",
-      proyecto: "VISITAX",
-      fecha: "19/07/2025",
-    },
-    {
-      id: "22",
-      deudor: "Óscar Rojas",
-      proyecto: "VISITAX",
-      fecha: "18/07/2025",
-    },
-    {
-      id: "23",
-      deudor: "Sofía Camacho",
-      proyecto: "VISITAX",
-      fecha: "17/07/2025",
-    },
-  ];
+  const {
+    loading,
+    billingImages,
+    fetchBillingImages,
+    rejectBillingImage,
+    resetFlags,
+    rejecting,
+    succesReject,
+    error
+  } = useBillingImagesStore(
+    (s) => ({
+      loading: s.loading,
+      fetchBillingImages: s.fetchBillingImages,
+      billingImages: s.billingImages,
+      rejectBillingImage: s.rejectBillingImage,
+      rejecting: s.rejecting,
+      succesReject: s.succesReject,
+      error: s.error,
+      resetFlags:s.resetFlags
+    }),
+    shallow
+  )
+  useEffect(() => {
+    fetchBillingImages(true)
+  }, [])
+
+  useEffect(() => {
+
+    if (rejecting) {
+      showSpinner({ message: "Espera un momento, se esta rechazando la factua." });
+      return;
+    }
+
+    hideSpinner();
+    if (succesReject) {
+      showAlert({
+        type: "info",
+        title: "Factura Rechazada",
+        description: "Se ha rechazado correctamente.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+    }
+    if (error) {
+      showAlert({
+        type: "error",
+        title: "Ocurrio un error",
+        description: String(error) ?? "Hubo un problema desconocido",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+    }
+    resetFlags();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ error, rejecting]);
+
+
+
+  if (loading) return <Spinner />
 
   return (
-    <DataTable
-      onSearchChange={(value) => console.log("Buscando:", value)}
-      onCalendarClick={() => console.log("Calendario")}
-      onFilterClick={() => console.log("Filtro")}
-      onSearch={() => console.log("Agregar")}
-      actionLabel="Descargar"
-      enableInternalSearch={true}
-      dateKey="fecha"
-      tables={[
-        {
-          columns,
-          data: imagenes,
-          enableSelection: true,
-          title: "Imágenes de Tickets",
-          enableCollaps: true,
-        },
-      ]}
-    />
+    <>
+
+      {/* PopUp: Rechazar */}
+      <PopUp
+        title={"Rechazar Ticket"}
+        content={"Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su ticket"}
+        open={openRejectPicture.state}
+        onClose={() => setOpenRejectPicture({ state: false, row: null })}
+      >
+        <div >
+          <DynamicForm
+
+            fields={[
+              {
+                type: "textarea",
+                name: "comments",
+                label: "Comentarios:",
+                value: "",
+                placeholder: "Agregar comentario",
+                validations: [{ type: "required" }],
+                className: "bg-white",
+                rows: 2,
+              },
+            ]}
+            submitLabel="Rechazar"
+            secondaryButtonLabel="Cancelar"
+            onSubmit={handleSubmitReject}
+            onSecondaryButtonClick={() => { setOpenRejectPicture({ state: false, row: null }); hideImage(); }}
+          />
+        </div>
+      </PopUp>
+      <DataTable
+        onCalendarClick={() => console.log("Calendario")}
+        showDownloadTable
+        showButton={false}
+        enableInternalSearch={true}
+        dateKey="dateCreate"
+
+        tables={[
+          {
+            columns,
+            data: BillingImagesTableMap(billingImages) ?? [],
+            enableSelection: true,
+            title: "Imágenes de Tickets",
+            enableCollaps: true,
+            defaultSortKey: "dateCreate",
+            defaultSortDirection: "desc",
+          },
+        ]}
+      />
+    </>
+
   );
 };
 export default PictureTable;

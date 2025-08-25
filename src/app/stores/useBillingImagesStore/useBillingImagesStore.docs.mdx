@@ -1,0 +1,41 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useBillingImagesStore" />
+
+# useBillingImagesStore
+
+Store de **Zustand** para manejar imágenes de facturas y sus operaciones CRUD.
+
+## API
+
+- `billingImages: BillingImages[]`
+- `billingImage?: BillingImages`
+- `loading: boolean`
+- `creating: boolean`
+- `updating: boolean`
+- `removing: boolean`
+- `error?: string`
+- `warning?: string`
+- `fetchBillingImages(force?: boolean): Promise<void>`
+- `fetchBillingImageById(id: string, force?: boolean): Promise<BillingImages | null>`
+- `createBillingImage(payload: BillingPost): Promise<BillingImages | null>`
+- `updateBillingImage(payload: BillingPut): Promise<BillingImages | null>`
+- `deleteBillingImage(id: string): Promise<boolean>`
+- `reset(): void`
+- `resetFlags(): void`
+
+## Uso
+
+```tsx
+import { useBillingImagesStore } from './useBillingImagesStore';
+
+export const Example = () => {
+  const { fetchBillingImages, billingImages } = useBillingImagesStore();
+  return (
+    <div>
+      <button onClick={() => fetchBillingImages()}>cargar</button>
+      <pre>{JSON.stringify(billingImages)}</pre>
+    </div>
+  );
+};
+```

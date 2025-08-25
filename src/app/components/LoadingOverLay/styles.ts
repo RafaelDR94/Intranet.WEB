@@ -1,4 +1,4 @@
-type OverlayOpts = { blur: boolean; backdropOpacity: number };
+export type OverlayOpts = { blur: boolean; backdropOpacity: number };
 
 const overlayBase =
   // NOTA: absolute + inset-0 = cubre SOLO el contenedor relativo donde se renderice

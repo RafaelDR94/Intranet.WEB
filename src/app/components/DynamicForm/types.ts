@@ -12,7 +12,8 @@ export type InputType =
   | 'multiSelect'
   | 'checkbox'
   | 'toggle'
-  | 'file';
+  | 'file'
+  | 'textarea';
 
 /** Estados visuales para campos y helper texts. */
 export type Variant = 'default' | 'success' | 'warning' | 'error' | 'info';
@@ -82,6 +83,8 @@ export interface FieldModel {
   onlyText?: boolean;
   /** Callback que se ejecuta cuando cambia el valor del campo. */
   onChange?: (value: any, values: Record<string, any>) => void;
+  /**Numero de filas en multilinea*/
+  rows?:number
 }
 
 /** Props del componente `DynamicForm`. */

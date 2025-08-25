@@ -106,3 +106,83 @@ describe('Input component', () => {
     expect(input.type).toBe('text')
   })
 })
+describe('Input component (extras)', () => {
+  it('renderiza un textarea cuando as="textarea" y respeta rows', () => {
+    render(<Input as="textarea" label="Comentarios" placeholder="Escribe algo" rows={6} />)
+    const el = screen.getByPlaceholderText('Escribe algo') as HTMLTextAreaElement
+    expect(el).toBeInTheDocument()
+    expect(el.tagName).toBe('TEXTAREA')
+    expect(el).toHaveAttribute('aria-multiline', 'true')
+    expect(el.rows).toBe(6)
+  })
+
+  it('usa rows=4 por defecto en textarea cuando no se especifica', () => {
+    render(<Input as="textarea" label="Notas" placeholder="Notas" />)
+    const el = screen.getByPlaceholderText('Notas') as HTMLTextAreaElement
+    expect(el.rows).toBe(4) // default del componente
+  })
+
+  it('aplica clases específicas de textarea (altura/overflow sin resize)', () => {
+    render(<Input as="textarea" label="Detalle" placeholder="Detalle" />)
+    const el = screen.getByPlaceholderText('Detalle')
+    // textareaClasses añade estas utilidades
+    expect(el).toHaveClass('min-h-20')
+    expect(el).toHaveClass('overflow-y-auto')
+    expect(el).toHaveClass('resize-none')
+  })
+
+
+  it('deshabilita por prop disabled sin requerir variant="disabled"', () => {
+    render(<Input label="Campo" placeholder="x" disabled />)
+    const el = screen.getByPlaceholderText('x')
+    expect(el).toBeDisabled()
+  })
+
+  it('aplica className adicional al control', () => {
+    render(<Input placeholder="extra" className="ring-1 ring-inset" />)
+    const el = screen.getByPlaceholderText('extra')
+    expect(el).toHaveClass('ring-1', 'ring-inset')
+  })
+
+  it('renderiza icono + password: hay dos botones (icono y toggle), y ambos funcionan', () => {
+    const onIconClick = vi.fn()
+    const Icon = (p: React.SVGProps<SVGSVGElement>) => <svg data-testid="mock" {...p} />
+    render(<Input label="Clave" placeholder="pwd" type="password" icon={Icon} onIconClick={onIconClick} />)
+
+    const input = screen.getByPlaceholderText('pwd') as HTMLInputElement
+    // 1) botón del icono personalizado
+    // 2) botón del eye toggle
+    const buttons = screen.getAllByRole('button')
+    expect(buttons.length).toBe(2)
+
+    // clic al icono personalizado
+    fireEvent.click(buttons[0])
+    expect(onIconClick).toHaveBeenCalled()
+
+    // toggle de password
+    expect(input.type).toBe('password')
+    fireEvent.click(buttons[1])
+    expect(input.type).toBe('text')
+  })
+
+  it('icono sin onIconClick no revienta al hacer click', () => {
+    const Icon = (p: React.SVGProps<SVGSVGElement>) => <svg data-testid="ico" {...p} />
+    render(<Input label="Buscar" icon={Icon} />)
+    const btn = screen.getByRole('button')
+    expect(() => fireEvent.click(btn)).not.toThrow()
+    expect(screen.getByTestId('ico')).toBeInTheDocument()
+  })
+
+  it('helperText pinta el color correcto por variante (success, info, warning)', () => {
+    const table: Array<[variant: 'success'|'info'|'warning', expectedClass: string]> = [
+      ['success', 'text-alert-green-100'],
+      ['info',    'text-alert-blue-100'],
+      ['warning', 'text-alert-yellow-100'],
+    ]
+    for (const [variant, klass] of table) {
+      render(<Input label="Estado" helperText={`ht-${variant}`} variant={variant} />)
+      const helper = screen.getByText(`ht-${variant}`)
+      expect(helper).toHaveClass(klass)
+    }
+  })
+})

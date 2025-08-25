@@ -1,4 +1,4 @@
-import { useEffect,useState ,useRef} from "react"
+import { useEffect,useRef} from "react"
 import { useAlertProps } from "./types"
 export const useAlertComponent = ({title, description, type, variant,autoCloseMs, onClose}: useAlertProps) => {
 
@@ -6,7 +6,7 @@ export const useAlertComponent = ({title, description, type, variant,autoCloseMs
 
   // Cierre automático solo si autoCloseMs es un número válido
   useEffect(() => {
-    if (typeof autoCloseMs === 'number' && autoCloseMs > 0) {
+    if (autoCloseMs && typeof autoCloseMs === 'number' && autoCloseMs > 0) {
       // Limpia cualquier timer previo
       if (timerRef.current) clearTimeout(timerRef.current)
       timerRef.current = setTimeout(() => {

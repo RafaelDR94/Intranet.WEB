@@ -2,16 +2,7 @@
 import React from 'react';
 import { classes } from './styles';
 import { Spinner } from '@/app/components/Spinner/Spinner';
-import type { SpinnerSize } from '@/app/components/Spinner/types';
-
-export type LoadingOverlayProps = {
-  open: boolean;
-  message?: string;
-  spinnerSize?: SpinnerSize;
-  blur?: boolean;
-  backdropOpacity?: number; 
-  ariaLabel?: string;
-};
+import { LoadingOverlayProps } from './types';
 
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   open,

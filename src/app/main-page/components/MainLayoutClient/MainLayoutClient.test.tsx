@@ -57,6 +57,18 @@ vi.mock('./hooks/useMainPage', () => ({
         subroutes: [{ label: 'Facturación', path: '/main-page/request/invoices' }],
       },
     ],
+    usePrincipalImage: {
+      state: {
+        open: false,
+        src: '',
+        alt: '',
+        showAction: false,
+        actionLabel: '',
+        onAction: undefined,
+        disableOutsideClose: false,
+      },
+      hideImage: vi.fn(),
+    },
   }),
 }))
 

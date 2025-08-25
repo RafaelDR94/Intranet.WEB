@@ -33,6 +33,16 @@ export const helperColors: Record<Exclude<InputVariant, 'disabled'>, string> = {
   warning: 'text-alert-yellow-100',
   error:   'text-alert-red-100',
 }
+export function textareaClasses(size: InputSize, variant: InputVariant) {
+  return clsx(
+    inputBase,
+    sizes[size],
+    variants[variant],
+    // extras para multilinea
+    'min-h-20 h-auto resize-none leading-relaxed whitespace-pre-wrap overflow-y-auto',
+    variant !== 'disabled' && hoverFocus
+  )
+}
 
 export function containerClasses() {
   return container

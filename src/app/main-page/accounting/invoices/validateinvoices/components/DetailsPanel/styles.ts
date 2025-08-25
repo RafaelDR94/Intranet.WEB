@@ -1,0 +1,17 @@
+export const classes = {
+container: "space-y-4",
+uuid: "text-gray-90 text-s1 font-semibold",
+labelLine: "text-gray-90 text-b4 font-medium",
+valueText: "text-gray-90 text-b3 font-regular",
+sectionTopMargin: "mt-4",
+conceptsScroller: "mt-4 h-50 overflow-y-auto pr-2 space-y-4",
+conceptItem: "space-y-1",
+divider: "border-t border-gray-30 my-4",
+breakdownBox: "ml-auto w-72 space-y-1",
+breakdownRow: "flex items-center justify-between text-b4",
+breakdownLabel: "text-gray-90 text-b4 font-medium",
+breakdownValue: "text-right text-gray-90 text-b3 font-regular",
+emptyState: "text-gray-70 text-b3",
+actionsRow: "flex items-center gap-2",
+commentBoxPadding: "pt-4",
+};

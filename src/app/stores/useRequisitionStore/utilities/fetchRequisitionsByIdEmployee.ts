@@ -1,7 +1,7 @@
 // src/app/stores/useRequisitionStore/utilities/fetchRequisitions.ts
 'use client'
 import type { AxiosResponse } from 'axios'
-import { BillingRequisitionByIdEmployee} from '@/app/configurations/Axios/urls'
+import { BillingRequisitionByIdEmployee } from '@/app/configurations/Axios/urls'
 import { RequisitionsMap } from '@/app/mappings/requisitions/requisitions.mapp'
 import { Get, Set } from '../types'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
@@ -19,7 +19,6 @@ export const fetchRequisitionsByIdEmployee = async (idEmployee: string, set: Set
   // cache básica
   if (get().requisitions.length > 0 && !force) return
 
-  set({ loading: true, error: undefined, successGet: false })
 
   try {
     // 1) Obtiene GET del gateway (lanza si no está listo)
@@ -29,8 +28,12 @@ export const fetchRequisitionsByIdEmployee = async (idEmployee: string, set: Set
     const getReq = pGet(GetFn)
 
     // 3) llamada
-    const res: AxiosResponse = await getReq(`${BillingRequisitionByIdEmployee}/${idEmployee}`)
+    const res: AxiosResponse = await getReq(`${BillingRequisitionByIdEmployee}/${idEmployee}?active=true`)
 
+    if (res?.data?.data === undefined || res.data?.data.length === 0) {
+      set({ requisitions: [], loading: false, warning: "No se encontraron requisiciones para este usuario" });
+      return;
+    }
     // 4) mapear y guardar
     const mapped = RequisitionsMap(res.data?.data ?? [])
 

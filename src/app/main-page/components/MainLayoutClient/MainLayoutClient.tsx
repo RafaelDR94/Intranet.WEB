@@ -10,7 +10,7 @@ import { mainLayoutStyles } from './styles';
 import useMainPage from './hooks/useMainPage';
 import React, { ReactNode } from 'react';
 import LoadingOverlay from '@/app/components/LoadingOverLay/LoadingOverlay';
-
+import ShowImage from '@/app/components/ShowImage/ShowImage';
 
 /**
  * Layout principal del sistema DR Intranet.
@@ -44,9 +44,14 @@ export default function MainLayoutClient({ children }: { readonly children: Reac
     handleOkMessageOffline,
     handleCancelMessageOffline,
     sidebarRoutes,
+    usePrincipalImage
   } = useMainPage();
   const { usePrincipalLoading } = usePrincipal();
   const { open, message, spinnerSize } = usePrincipalLoading;
+  const {
+    state: { open: imageOpen, src, alt, showAction, actionLabel, onAction, disableOutsideClose },
+    hideImage,
+  } = usePrincipalImage;
   return (
     <PermissionAgent fallbackPath="/main-page/home">
       <div className={mainLayoutStyles.container}>
@@ -54,9 +59,10 @@ export default function MainLayoutClient({ children }: { readonly children: Reac
           <div className={mainLayoutStyles.alertContainer}>
             <Alert
               {...alert}
-              onClose={hideAlert}
+              onClose={() => { console.log("Se esta escondiendo aqui"); hideAlert(); }}
               onPrimaryClick={alert.onPrimaryClick ?? hideAlert}
               onSecondaryClick={alert.onSecondaryClick ?? hideAlert}
+              variant='subtle'
             />
           </div>
         )}
@@ -83,6 +89,16 @@ export default function MainLayoutClient({ children }: { readonly children: Reac
           logout={logout}
           validPermissionsbyroute={validPermissionsbyroute}
           routes={sidebarRoutes}
+        />
+        <ShowImage
+          open={imageOpen}
+          src={src}
+          alt={alt}
+          showAction={showAction}
+          actionLabel={actionLabel}
+          onAction={onAction}
+          onClose={hideImage}                // cerrar desde adentro o afuera
+          disableOutsideClose={disableOutsideClose}
         />
 
         <div className={mainLayoutStyles.content}>
