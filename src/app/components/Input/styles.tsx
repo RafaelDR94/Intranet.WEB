@@ -11,6 +11,7 @@ const hoverFocus = 'hover:border-green-80 focus:border-green-100 focus:bg-green-
 export const sizes: Record<InputSize, string> = {
   md: 'text-sm py-2',
   lg: 'text-base py-3',
+  sm: 'text-b3 py-2 w-[325px] mb-2'
 }
 
 export const variants: Record<InputVariant, string> = {

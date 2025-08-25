@@ -1,5 +1,5 @@
 /** Tamaños permitidos para el input. */
-export type InputSize = 'md' | 'lg'
+export type InputSize = 'md' | 'lg' | 'sm';
 /** Variantes visuales del input. */
 export type InputVariant =
   | 'default'
@@ -17,7 +17,7 @@ export interface InputCommonProps extends React.InputHTMLAttributes<HTMLInputEle
   label?: string
   /** Texto de ayuda opcional bajo el input */
   helperText?: string
-  /** Tamaño del input (md o lg) */
+  /** Tamaño del input (md | lg | sm) */
   inputSize?: InputSize
   /** Variante de estilo */
   variant?: InputVariant

@@ -2,7 +2,7 @@ import React from 'react'
 import { DataTableBodyProps } from './types'
 import { Checkbox } from '@/app/components/CheckBox/CheckBox'
 import { DataTableBodyStyles } from './styles'
-
+import { useIsMobile } from '../../../DataTableLayout/hooks/useMediaQuery'
 
 export const DataTableBody = <T extends { id: string | number }>({
   data,
@@ -11,6 +11,7 @@ export const DataTableBody = <T extends { id: string | number }>({
   selected,
   onToggleSelect,
 }: DataTableBodyProps<T>) => {
+  const isMobile = useIsMobile()
   return (
     <>
       {data.map((row) => {
@@ -33,7 +34,7 @@ export const DataTableBody = <T extends { id: string | number }>({
               return (
                 <div
                   key={String(col.key)}
-                  className={`b2 text-gray-70 font-medium ${col.cellClass ?? 'flex-1'}`}
+                  className={isMobile ? `${DataTableBodyStyles.tableTextMobile} ${col.cellClass ?? 'flex-1'}` : `${DataTableBodyStyles.tableTextDesk} ${col.cellClass ?? 'flex-1'}`}
                 >
                   {col.render ? col.render(row) : String(row[col.key])}
                 </div>

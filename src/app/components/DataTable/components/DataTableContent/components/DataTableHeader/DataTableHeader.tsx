@@ -4,6 +4,8 @@ import { Checkbox } from '@/app/components/CheckBox/CheckBox'
 import { DataTableHeaderStyles } from './styles'
 import UpNavigation from '@/assets/icons/navegacion/nav-arrow-up.svg'
 import DownNavigation from '@/assets/icons/navegacion/nav-arrow-down.svg'
+import { useIsMobile } from '../../../DataTableLayout/hooks/useMediaQuery'
+
 export const DataTableHeader = <T,>({
   columns,
   enableSelection,
@@ -14,6 +16,7 @@ export const DataTableHeader = <T,>({
   onSort,
 }: TableHeaderProps<T>) => {
 
+  const isMobile = useIsMobile()
 
   return (
     <div className={DataTableHeaderStyles.containerHeader}>
@@ -37,7 +40,7 @@ export const DataTableHeader = <T,>({
             key={String(col.key)}
             type="button"
             onClick={() => onSort(col.key)}
-            className={`b3 text-left cursor-pointer select-none bg-transparent border-none focus:outline-none ${col.headerClass ?? 'flex-1'}`}
+            className={isMobile ? `${DataTableHeaderStyles.headerTextMobile} ${col.headerClass ?? 'flex-1'}` : `${DataTableHeaderStyles.headerTextDesk} ${col.headerClass ?? 'flex-1'}`}
           >
             <span className="inline-flex items-center gap-1">
               {col.headerRender ? col.headerRender() : col.label?.toUpperCase()}

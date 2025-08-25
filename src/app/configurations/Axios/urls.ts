@@ -3,6 +3,7 @@ export const AuthValidate = process.env.NEXT_PUBLIC_AUTHVALIDATE ?? "/Auth/AuthV
 export const AuthFirebaseConfiguration = process.env.NEXT_PUBLIC_AUTHFIREBASECONFIGURATION ?? "/Auth/FirebaseConfiguration";
 export const AuthChangeNIP = process.env.NEXT_PUBLIC_AUTHCHANGENIP ?? "/Auth/ChangeNIP";
 export const AuthChangePassword = process.env.NEXT_PUBLIC_AUTHCHANGEPASSWORD ?? "/Auth/ChangePassword";
+export const AuthRecoverPassword = process.env.NEXT_PUBLIC_AUTHRECOVERPASSWORD ?? "/Auth/RecoverPassword";
 export const VerifyOTP = process.env.NEXT_PUBLIC_VERIFY_OTP ?? "/VerifyOTP";
 
 export const Enterprises = process.env.NEXT_PUBLIC_ENTERPRISES ?? "/Enterprises";

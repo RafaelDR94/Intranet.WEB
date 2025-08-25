@@ -1,11 +1,12 @@
 "use client";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
-import logo from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile-rp.png"
 import Image from "next/image";
 import { nesPasswordStyles } from "./styles";
 import useChangePassword, {
   changePasswordFields,
-} from "../hooks/useChangePassword";
+} from "../hooks/useChangePassword/useChangePassword";
 
 const RecoverPassword = () => {
   const { handleChange, isLoading } = useChangePassword();
@@ -14,11 +15,18 @@ const RecoverPassword = () => {
     <div className={nesPasswordStyles.container}>
       {/* Imagen de fondo */}
       <Image
-        src={logo}
-        alt="Fondo DR Security"
+        src={logoDesktop}
+        alt="Fondo DR Security (desktop)"
         fill
         priority
-        className={nesPasswordStyles.image}
+        className={`${nesPasswordStyles.image} hidden sm:block`}
+      />
+      <Image
+        src={logoMobile}
+        alt="Fondo DR Security (móvil)"
+        fill
+        priority
+        className={`${nesPasswordStyles.image} block sm:hidden`}
       />
 
       {/* Overlay azul */}

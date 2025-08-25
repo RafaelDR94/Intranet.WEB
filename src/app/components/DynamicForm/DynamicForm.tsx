@@ -1,45 +1,64 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Formik, Form } from "formik";
-import { DynamicFormProps } from "./types";
+import type {
+  DynamicFormProps,
+  Breakpoints,
+  ResponsiveLayoutMatrix,
+} from "./types";
 import { useDynamicForm } from "./hooks/useDynamicForm";
 import { FieldRenderer } from "./components/FieldRenderer";
 import { Button } from "../Button/Button";
 import { dynamicFormStyles } from "./styles";
 import { Spinner } from "../Spinner/Spinner";
 
-/**
+/** =========================
+ *  Hook: media breakpoints
+ *  ========================= */
+function useMediaBreakpoints(bps: Breakpoints = { sm: 640, md: 1024 }) {
+  const { sm, md } = bps;
+  const [width, setWidth] = useState<number>(() =>
+    typeof window === "undefined" ? md + 1 : window.innerWidth
+  );
 
- * @param fields Lista de campos del formulario. Cada campo define su tipo (`input`, `select`, etc.), su valor inicial, validaciones, opciones, y lógica condicional (`showIf`, `onChange`).
- *
- * @param onSubmit Función que se ejecuta al enviar el formulario. Recibe un objeto con los valores limpios de los campos visibles y activos.
- *
- * @param title (Opcional) Título que se muestra como encabezado del formulario. Útil para distinguir formularios en pantallas reutilizables.
- *
- * @param submitLabel (Opcional) Texto personalizado del botón de envío. Por defecto: `"Submit"`.
- *
- * @param showSubmitIf (Opcional) Función que determina si el botón de envío debe mostrarse. Recibe los valores actuales del formulario. Útil para validaciones condicionales externas o permisos.
- *
- * @param showSecondaryButtonIf (Opcional) Función que controla la visibilidad del botón secundario. Útil para acciones como "Vista previa", "Guardar como borrador", etc.
- *
- * @param onSecondaryButtonClick (Opcional) Función que se ejecuta al hacer clic en el botón secundario. Recibe todos los valores actuales del formulario.
- *
- * @param secondaryButtonLabel (Opcional) Texto del botón secundario. Requiere que `onSecondaryButtonClick` esté definido.
- *
- * @param children (Opcional) Contenido adicional que puede ser renderizado debajo de los campos. Puede incluir links, mensajes informativos, acciones complementarias, etc.
- *
- * @param loading (Opcional) Si se establece en `true`, reemplaza el botón de envío con un `Spinner`. Ideal para indicar que se está procesando el envío.
- *
- * @param layoutMatrix (Opcional) Matriz de proporciones por fila para distribuir los campos horizontalmente. Cada número representa una proporción sobre 10. Ej: `[[5, 5], [10]]` coloca dos campos por fila seguidos de uno completo.
- *
- * @param externalSubmitRef (Opcional) Referencia React que permite disparar el envío del formulario desde fuera del componente. El método referenciado se comporta igual que un clic en el botón de envío.
- *
- * @param onValidChange (Opcional) Función que se ejecuta cada vez que cambia el estado de validez del formulario. Recibe `true` o `false`. Útil para activar/desactivar botones externos o navegación condicional.
- *
- * @param loadingFormInfo (Opcional) Si se establece en `true`, se muestra un overlay encima del formulario con un `Spinner`. Se recomienda para cuando los `fields` están cargando dinámicamente desde una API.
- *
-*/
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onResize = () => setWidth(window.innerWidth);
+
+    // matchMedia para reducir re-render si cambia el rango
+    const mqSm = window.matchMedia(`(max-width: ${sm}px)`);
+    const mqMd = window.matchMedia(
+      `(min-width: ${sm + 1}px) and (max-width: ${md}px)`
+    );
+    const mqLg = window.matchMedia(`(min-width: ${md + 1}px)`);
+
+    const listener = () => onResize();
+
+    mqSm.addEventListener?.("change", listener);
+    mqMd.addEventListener?.("change", listener);
+    mqLg.addEventListener?.("change", listener);
+    window.addEventListener("resize", onResize);
+
+    // init
+    onResize();
+
+    return () => {
+      mqSm.removeEventListener?.("change", listener);
+      mqMd.removeEventListener?.("change", listener);
+      mqLg.removeEventListener?.("change", listener);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [sm, md]); // <- dependencias pulidas
+
+  const current: "sm" | "md" | "lg" = width <= sm ? "sm" : width <= md ? "md" : "lg";
+  return { width, current };
+}
+
+/** =========================
+ *  DynamicForm con responsive
+ *  ========================= */
 const DynamicForm: React.FC<DynamicFormProps> = ({
   fields,
   onSubmit,
@@ -51,13 +70,35 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   secondaryButtonLabel,
   children,
   loading,
-  layoutMatrix,
+  layoutMatrix, // fijo (prioridad)
+  responsiveLayoutMatrix, // por breakpoint
+  breakpoints, // opcional
   externalSubmitRef,
   onValidChange,
   loadingFormInfo,
 }) => {
   const { initialValues, validationSchema, cleanValues, resolveVariant } =
     useDynamicForm(fields);
+
+  // 1) Resolver layout efectivo (fijo vs responsive)
+  const { current } = useMediaBreakpoints(
+    breakpoints ?? { sm: 640, md: 1024 }
+  );
+
+  const effectiveLayoutMatrix = useMemo(() => {
+    if (layoutMatrix?.length) return layoutMatrix; // prioridad
+    if (!responsiveLayoutMatrix) return undefined;
+
+    // preferencia: layout del breakpoint actual, si no existe, fallback hacia abajo y luego hacia arriba
+    const order: Array<keyof ResponsiveLayoutMatrix> =
+      current === "lg" ? ["lg", "md", "sm"] : current === "md" ? ["md", "sm", "lg"] : ["sm", "md", "lg"];
+
+    for (const key of order) {
+      const candidate = responsiveLayoutMatrix[key];
+      if (candidate?.length) return candidate;
+    }
+    return undefined;
+  }, [layoutMatrix, responsiveLayoutMatrix, current]);
 
   return (
     <div className={dynamicFormStyles.container}>
@@ -95,24 +136,30 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               previousIsValid.current = isValid;
               onValidChange?.(isValid);
             }
-          }, [isValid]);
+          }, [isValid, onValidChange]);
+
           const visibleFields = fields.filter(
             (field) => !field.showIf || field.showIf(values, fields)
           );
 
+          // helper para index lineal dado row/col
+          const linearIndex = (rowIndex: number, colIndex: number, matrix: number[][]) =>
+            matrix.slice(0, rowIndex).reduce((acc, r) => acc + r.length, 0) + colIndex;
+
           return (
             <Form className={dynamicFormStyles.form}>
-              {layoutMatrix
-                ? layoutMatrix.map((row, rowIndex) => (
+              {effectiveLayoutMatrix
+                ? effectiveLayoutMatrix.map((row, rowIndex) => (
                     <div
                       key={`row-${rowIndex}`}
                       className="flex w-full gap-4 mb-4"
                     >
                       {row.map((width, colIndex) => {
-                        const fieldIndex =
-                          layoutMatrix
-                            .slice(0, rowIndex)
-                            .reduce((acc, r) => acc + r.length, 0) + colIndex;
+                        const fieldIndex = linearIndex(
+                          rowIndex,
+                          colIndex,
+                          effectiveLayoutMatrix
+                        );
 
                         const field = visibleFields[fieldIndex];
                         if (!field) return null;
@@ -144,7 +191,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                       })}
                     </div>
                   ))
-                : visibleFields.map((field) => {
+                : // Sin layout provisto: render lineal uno debajo del otro
+                  visibleFields.map((field) => {
                     const value = values[field.name];
                     const { variant, helperText } = resolveVariant(
                       field,
@@ -166,7 +214,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                       />
                     );
                   })}
+
               {children}
+
               <div className={dynamicFormStyles.actions}>
                 {showSecondaryButtonIf?.(values) && onSecondaryButtonClick && (
                   <Button
@@ -202,5 +252,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     </div>
   );
 };
+
 export { DynamicForm };
 export default DynamicForm;

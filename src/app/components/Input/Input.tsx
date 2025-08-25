@@ -8,12 +8,25 @@ import {
   labelClasses,
   inputClasses,
   helperClasses,
-  eyesicontyles,
   textareaClasses,
-} from './styles';
-import EyeIcon from '@/assets/icons/acciones/eye-alt.svg';
-import EyeOffIcon from '@/assets/icons/acciones/eye-close.svg';
-import useInput from './hooks/useInput';
+  eyesicontyles
+} from './styles'
+import EyeIcon from '@/assets/icons/acciones/eye-alt.svg'
+import EyeOffIcon from '@/assets/icons/acciones/eye-close.svg'
+import useInput from './hooks/useInput'
+
+/**
+ * Campo de texto controlado con soporte para variantes y tamaños.
+ *
+ * @param label Etiqueta del campo
+ * @param helperText Texto auxiliar bajo el campo
+ * @param inputSize Tamaño visual (`md` o `lg` o `sm`)
+ * @param variant Variante de estilo
+ * @param disabled Deshabilitar el input
+ * @param className Clases CSS adicionales
+ * @param icon Icono para renderizar dentro del input
+ * @param onIconClick Accion tras presionar el icono enviado
+ */
 
 export const Input: React.FC<InputProps> = ({
   label,
@@ -42,7 +55,7 @@ export const Input: React.FC<InputProps> = ({
     <div className={containerClasses()}>
       {label && <label className={labelClasses()}>{label}</label>}
 
-      <div className="relative">
+      <div className="relative mb-2">
         {isTextarea ? (
           <textarea
             {...(props as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}

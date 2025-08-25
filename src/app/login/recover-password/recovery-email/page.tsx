@@ -1,10 +1,14 @@
 "use client";
-import logo from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile-rp.png"
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { recoverEmailStyles } from "./styles";
+import { basicPut } from "@/app/configurations/Axios/GenericMethods";
+import { intranetClient } from "@/app/configurations/Axios/Clients";
+import { AuthRecoverPassword } from "@/app/configurations/Axios/urls";
 
 const RecoverEmail = () => {
   const searchParams = useSearchParams();
@@ -14,20 +18,16 @@ const RecoverEmail = () => {
 
   const handleResend = async () => {
     try {
-      const res = await fetch(
-        `https://localhost:7040/Auth/RecoverPassword?username=${encodeURIComponent(
-          email
-        )}`
-      );
-      if (!res.ok) throw new Error();
-      showAlert({
-        type: "info",
-        variant: "subtle",
-        title: "Correo reenviado",
-        description: "Se reenvió el correo de recuperación",
-        onPrimaryClick: hideAlert,
-        showSecondaryButton: false,
-      });
+      await basicPut(
+        intranetClient,
+        `${AuthRecoverPassword}?username=${encodeURIComponent(email)}`,
+        {}, //No hay body, solo query param
+        (response) => {
+          if (response.status === 200) {
+            }
+            throw new Error("No se pudo enviar el correo");
+        }
+      )
     } catch {
       showAlert({
         type: "error",
@@ -44,11 +44,18 @@ const RecoverEmail = () => {
     <div>
       {/* Imagen de fondo */}
       <Image
-        src={logo}
-        alt="Fondo DR Security"
+        src={logoDesktop}
+        alt="Fondo DR Security (desktop)"
         fill
         priority
-        className={recoverEmailStyles.image}
+        className={`${recoverEmailStyles.image} hidden sm:block`}
+      />
+      <Image
+        src={logoMobile}
+        alt="Fondo DR Security (móvil)"
+        fill
+        priority
+        className={`${recoverEmailStyles.image} block sm:hidden`}
       />
 
       {/* Overlay azul */}
@@ -57,11 +64,23 @@ const RecoverEmail = () => {
       {/* Contenido centrado */}
       <div className={recoverEmailStyles.contentCenter}>
         <div className={recoverEmailStyles.card}>
-            <p className={recoverEmailStyles.contentText}>Se ha enviado un correo de recuperación de contraseña a {email}</p>
+          <p className={recoverEmailStyles.contentText}>
+            Se ha enviado un correo de recuperación de contraseña a {email}
+          </p>
         </div>
         <div className={recoverEmailStyles.btnWrapper}>
-            <Link className={recoverEmailStyles.btnTxt} href='/login/recover-password'>¿No recibiste el correo?</Link>
-            <button className={recoverEmailStyles.btnTxtSec} onClick={handleResend}>Reenviar correo</button>
+          <Link
+            className={recoverEmailStyles.btnTxt}
+            href="/login/recover-password"
+          >
+            ¿No recibiste el correo?
+          </Link>
+          <button
+            className={recoverEmailStyles.btnTxtSec}
+            onClick={handleResend}
+          >
+            Reenviar correo
+          </button>
         </div>
       </div>
     </div>

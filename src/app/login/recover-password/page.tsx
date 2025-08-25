@@ -1,11 +1,12 @@
 "use client";
 import { recoverPasswordStyles } from "./styles";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
-import logo from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile-rp.png"
 import Image from "next/image";
 import useRecoverPassword, {
   recoverPasswordFields,
-} from "./hooks/useRecoverPassword";
+} from "./hooks/useRecoverPassword/useRecoverPassword";
 
 const RecoverPassword = () => {
   const { handleRecover, isLoading } = useRecoverPassword();
@@ -14,11 +15,18 @@ const RecoverPassword = () => {
     <div className={recoverPasswordStyles.container}>
       {/* Imagen de fondo */}
       <Image
-        src={logo}
-        alt="Fondo DR Security"
+        src={logoDesktop}
+        alt="Fondo DR Security (desktop)"
         fill
         priority
-        className={recoverPasswordStyles.image}
+        className={`${recoverPasswordStyles.image} hidden sm:block`}
+      />
+      <Image
+        src={logoMobile}
+        alt="Fondo DR Security (móvil)"
+        fill
+        priority
+        className={`${recoverPasswordStyles.image} block sm:hidden`}
       />
 
       {/* Overlay azul */}
