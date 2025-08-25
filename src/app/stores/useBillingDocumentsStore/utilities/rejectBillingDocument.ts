@@ -26,7 +26,7 @@ export const rejectBillingDocument = async (
 
   try {
     const put = pPut(requireGateway('put'), [200, 201])
-    const res: AxiosResponse = await put(BillingDocumentUrl+"?id="+payload.id+"&comment="+payload.comment, payload)
+    const res: AxiosResponse = await put(BillingDocumentUrl+"?id="+payload.id+"&comment="+payload.comment+"&type="+payload.type, payload)
     const raw = res.data?.data
     const created = raw ? (raw as BillingDocuments) : null
     fetchBillingDocuments(set, get, true)

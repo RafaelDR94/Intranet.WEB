@@ -14,7 +14,6 @@ const useFirebaseMessagingHelper = (messaging: Messaging | null): FirebaseMessag
   const vapidKey = "BJ33ZXyzfTmjYLTuwqqoq635jUZMWIM09-bBFWpfHiDfZ3-DONOJ_Q0oYH8yTP164dBpE5LWDsqZSt-zkZAEqPU";
   
   const getMessagingToken = async () => {
-    console.log("Obteniendo token de Firebase Messaging...");
 
     if (!messaging) {
       console.warn("Objeto messaging no configurado");

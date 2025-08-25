@@ -8,7 +8,7 @@ export const ServiceWorkerRegister: React.FC<ServiceWorkerRegisterProps> = () =>
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
-          console.log('[SW] Registrado:', registration)
+
 
           registration.addEventListener('updatefound', () => {
             alert('🔍 Nueva versión detectada.')

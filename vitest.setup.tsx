@@ -3,7 +3,20 @@ import { vi } from 'vitest';
 import '@testing-library/jest-dom';
 import React from 'react';
 
-
+// Polyfill matchMedia for jsdom environment
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
 // Mock global para next/image
 vi.mock('next/image', () => ({
   __esModule: true,

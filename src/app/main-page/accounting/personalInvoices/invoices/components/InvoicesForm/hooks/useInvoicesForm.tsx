@@ -9,7 +9,7 @@ import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/
 import type { BillingDocumentsPost, BillingDocumentsPut } from '@/app/mappings/billingdocuments/billingdocuments.types'
 import { UseInvoicesFormReturn, UseInvoicesFormProps } from './types'
 import { useBillingHistoryStore} from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
-const useInvoicesForm = ({ dataEdit, withoutName, billingImages }: UseInvoicesFormProps): UseInvoicesFormReturn => {
+const useInvoicesForm = ({ dataEdit, withoutName, billingImages,onCloseImage }: UseInvoicesFormProps): UseInvoicesFormReturn => {
   const isEdit = Boolean(dataEdit)
   const { firebasestorage } = useFirebase()
 
@@ -259,6 +259,7 @@ const useInvoicesForm = ({ dataEdit, withoutName, billingImages }: UseInvoicesFo
         },
       })
     } else if (postOk || putOk) {
+      onCloseImage?.();
       if (postOk) ResetForm();
       if(putOk && user) forceFetchBillingHistory(user?.idEmployee);
       showAlert({

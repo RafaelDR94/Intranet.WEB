@@ -44,8 +44,6 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   const permissionsChanged = usePermissionsListener(database, user?.idUser || "");
   useEffect(() => {
     if (permissionsChanged.state) {
-      console.log("Los permisos han cambiado",permissionsChanged);
-
       updateUserPermissions(permissionsChanged.newPermissions);
     }
   }, [permissionsChanged]);
@@ -55,17 +53,16 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: User | null) => {
       const deviceId = await getDeviceId();
-      console.log("deviceId", deviceId);
       if (firebaseUser) {
-        console.log("✅ Usuario autenticado en Firebase:", firebaseUser.email);
+  
 
         try {
           const existingToken = await readFirebaseToken();
-          console.log("🔍 Token existente:", existingToken);
+
           if (!existingToken) {
 
             if (Notification.permission !== "granted") {
-              console.log("🔔 Solicitando permiso para notificaciones...");
+       
               const permission = await Notification.requestPermission();
               if (permission !== "granted") {
                 console.warn("Permiso de notificaciones denegado");
@@ -73,13 +70,13 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                 const token = await firebaseMessaging.getMessagingToken();
                 saveFirebaseToken(token);
                 await firebaserealtime.setData(`Notifications/${user.idUser}/` + deviceId, token);
-                console.log("🔐 Token de Firebase Messaging guardado:", token);
+             
               }
             } else {
               const token = await firebaseMessaging.getMessagingToken();
               saveFirebaseToken(token);
               await firebaserealtime.setData(`Notifications/${user.idUser}/` + deviceId, token);
-              console.log("🔐 Token de Firebase Messaging guardado:", token);
+
             }
           }
         } catch (err) {

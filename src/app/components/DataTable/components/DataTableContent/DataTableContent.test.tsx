@@ -9,7 +9,8 @@ vi.mock('@/app/components/Pagination/Pagination', () => ({
     <button onClick={() => onPageChange(2)}>next</button>
   ),
 }));
-
+vi.mock('@/assets/icons/navegacion/nav-arrow-down.svg', () => ({ default: () => <span /> }));
+vi.mock('@/assets/icons/navegacion/nav-arrow-up.svg', () => ({ default: () => <span /> }));
 interface Person {
   id: number;
   name: string;
@@ -58,5 +59,25 @@ describe('DataTableContent', () => {
     const scrollDiv = container.querySelector('div.overflow-y-auto');
     expect(scrollDiv).not.toBeNull();
     expect(scrollDiv).toHaveStyle({ maxHeight: '100px' });
+  });
+  it('no duplica filas al ordenar con IDs repetidos', () => {
+    const duplicated: Person[] = [
+      { id: 1, name: 'Alice' },
+      { id: 1, name: 'Bob' },
+      { id: 2, name: 'Charlie' },
+    ];
+
+    render(
+      <DataTableContent<Person>
+        data={duplicated}
+        columns={columns}
+        enablePagination={false}
+      />
+    );
+
+    fireEvent.click(screen.getByText('NOMBRE'));
+
+    const rows = screen.getAllByText(/Alice|Bob|Charlie/);
+    expect(rows).toHaveLength(3);
   });
 });

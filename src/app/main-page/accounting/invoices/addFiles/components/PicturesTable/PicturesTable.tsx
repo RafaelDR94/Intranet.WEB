@@ -19,7 +19,7 @@ import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 const PictureTable: React.FC<PicturesTableProps> = ({ setSelectedPictures }) => {
   const { usePrincipalImage, usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
-  const { showAlert, hideAlert } = usePrincipalAlert;
+  const { showAlert } = usePrincipalAlert;
   const { showImage, hideImage } = usePrincipalImage;
   const [openRejectPicture, setOpenRejectPicture] = useState<{ state: boolean, row: BillingImagesTable | null }>({ state: false, row: null });
 
