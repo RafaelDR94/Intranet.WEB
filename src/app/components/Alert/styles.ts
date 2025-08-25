@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { AlertType, AlertVariant } from './types'
 
-const baseContainer = 'rounded-lg p-4 flex flex-col gap-3 shadow-sm'
+const baseContainer = 'rounded-lg p-4 flex flex-col gap-3 shadow-sm w-[300px] md:w-[400px]'
 const headerLayout = 'flex items-start gap-3'
 const iconContainer = 'w-5 h-5 shrink-0'
 const textContainer = 'flex-1'

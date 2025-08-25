@@ -1,0 +1,90 @@
+"use client";
+import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile-rp.png"
+import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { recoverEmailStyles } from "./styles";
+import { basicPut } from "@/app/configurations/Axios/GenericMethods";
+import { intranetClient } from "@/app/configurations/Axios/Clients";
+import { AuthRecoverPassword } from "@/app/configurations/Axios/urls";
+
+const RecoverEmail = () => {
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") ?? "";
+  const { usePrincipalAlert } = usePrincipal();
+  const { showAlert, hideAlert } = usePrincipalAlert;
+
+  const handleResend = async () => {
+    try {
+      await basicPut(
+        intranetClient,
+        `${AuthRecoverPassword}?username=${encodeURIComponent(email)}`,
+        {}, //No hay body, solo query param
+        (response) => {
+          if (response.status === 200) {
+            }
+            throw new Error("No se pudo enviar el correo");
+        }
+      )
+    } catch {
+      showAlert({
+        type: "error",
+        variant: "subtle",
+        title: "Error",
+        description: "No se pudo reenviar el correo",
+        onPrimaryClick: hideAlert,
+        showSecondaryButton: false,
+      });
+    }
+  };
+
+  return (
+    <div>
+      {/* Imagen de fondo */}
+      <Image
+        src={logoDesktop}
+        alt="Fondo DR Security (desktop)"
+        fill
+        priority
+        className={`${recoverEmailStyles.image} hidden sm:block`}
+      />
+      <Image
+        src={logoMobile}
+        alt="Fondo DR Security (móvil)"
+        fill
+        priority
+        className={`${recoverEmailStyles.image} block sm:hidden`}
+      />
+
+      {/* Overlay azul */}
+      <div className={recoverEmailStyles.bgOverlay} />
+
+      {/* Contenido centrado */}
+      <div className={recoverEmailStyles.contentCenter}>
+        <div className={recoverEmailStyles.card}>
+          <p className={recoverEmailStyles.contentText}>
+            Se ha enviado un correo de recuperación de contraseña a {email}
+          </p>
+        </div>
+        <div className={recoverEmailStyles.btnWrapper}>
+          <Link
+            className={recoverEmailStyles.btnTxt}
+            href="/login/recover-password"
+          >
+            ¿No recibiste el correo?
+          </Link>
+          <button
+            className={recoverEmailStyles.btnTxtSec}
+            onClick={handleResend}
+          >
+            Reenviar correo
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default RecoverEmail;

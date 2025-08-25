@@ -1,16 +1,17 @@
 // app/layouts/MainLayoutClient.tsx
-'use client';
+"use client";
 
-import { Alert } from '@/app/components/Alert/Alert';
-import { PopUp } from '@/app/components/PopUp/PopUp';
-import { PermissionAgent } from '@/app/components/PermissionsAgent/PermissionsAgent';
-import MainSidebar from './components/MainSidebar/MainSidebar';
-import MainTabs from './components/MainTabs/MainTabs';
-import { mainLayoutStyles } from './styles';
-import useMainPage from './hooks/useMainPage';
-import React, { ReactNode } from 'react';
-import LoadingOverlay from '@/app/components/LoadingOverLay/LoadingOverlay';
-import ShowImage from '@/app/components/ShowImage/ShowImage';
+import React, { ReactNode } from "react";
+
+import { Alert } from "@/app/components/Alert/Alert";
+import { PopUp } from "@/app/components/PopUp/PopUp";
+import { PermissionAgent } from "@/app/components/PermissionsAgent/PermissionsAgent";
+import MainSidebar from "./components/MainSidebar/MainSidebar";
+import MainTabs from "./components/MainTabs/MainTabs";
+import { mainLayoutStyles } from "./styles";
+import useMainPage from "./hooks/useMainPage";
+import LoadingOverlay from "@/app/components/LoadingOverLay/LoadingOverlay";
+import ShowImage from "@/app/components/ShowImage/ShowImage";
 
 /**
  * Layout principal del sistema DR Intranet.
@@ -25,9 +26,16 @@ import ShowImage from '@/app/components/ShowImage/ShowImage';
  * @param children - Contenido principal de la página
  * @returns Layout completo con `Sidebar`, `Tabs`, `Alerts`, `PopUp`, y children
  */
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 
-export default function MainLayoutClient({ children }: { readonly children: ReactNode }) {
+// NEW: Drawer mobile
+import MobileSidebar from "./components/MobileSidebar/MobileSidebar";
+
+export default function MainLayoutClient({
+  children,
+}: {
+  readonly children: ReactNode;
+}) {
   const {
     alert,
     hideAlert,
@@ -44,14 +52,39 @@ export default function MainLayoutClient({ children }: { readonly children: Reac
     handleOkMessageOffline,
     handleCancelMessageOffline,
     sidebarRoutes,
-    usePrincipalImage
+    usePrincipalImage,
   } = useMainPage();
+
   const { usePrincipalLoading } = usePrincipal();
   const { open, message, spinnerSize } = usePrincipalLoading;
   const {
-    state: { open: imageOpen, src, alt, showAction, actionLabel, onAction, disableOutsideClose },
+    state: {
+      open: imageOpen,
+      src,
+      alt,
+      showAction,
+      actionLabel,
+      onAction,
+      disableOutsideClose,
+    },
     hideImage,
   } = usePrincipalImage;
+
+  // NEW: estado del drawer mobile
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  // Props compartidas para ambos sidebars
+  const sidebarSharedProps = {
+    offlineMode: offlineLoggin,
+    onToggleOffline: handleOfflineChange,
+    theme,
+    toggleTheme,
+    userFullName,
+    logout,
+    validPermissionsbyroute,
+    routes: sidebarRoutes,
+  };
+
   return (
     <PermissionAgent fallbackPath="/main-page/home">
       <div className={mainLayoutStyles.container}>
@@ -59,10 +92,13 @@ export default function MainLayoutClient({ children }: { readonly children: Reac
           <div className={mainLayoutStyles.alertContainer}>
             <Alert
               {...alert}
-              onClose={() => { console.log("Se esta escondiendo aqui"); hideAlert(); }}
+              onClose={() => {
+                console.log("Se esta escondiendo aqui");
+                hideAlert();
+              }}
               onPrimaryClick={alert.onPrimaryClick ?? hideAlert}
               onSecondaryClick={alert.onSecondaryClick ?? hideAlert}
-              variant='subtle'
+              variant="subtle"
             />
           </div>
         )}
@@ -80,15 +116,11 @@ export default function MainLayoutClient({ children }: { readonly children: Reac
           onSecondaryButtonClick={handleCancelMessageOffline}
         />
 
-        <MainSidebar
-          offlineMode={offlineLoggin}
-          onToggleOffline={handleOfflineChange}
-          theme={theme}
-          toggleTheme={toggleTheme}
-          userFullName={userFullName}
-          logout={logout}
-          validPermissionsbyroute={validPermissionsbyroute}
-          routes={sidebarRoutes}
+        {/* Drawer Mobile */}
+        <MobileSidebar
+          isOpen={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          {...sidebarSharedProps}
         />
         <ShowImage
           open={imageOpen}
@@ -97,14 +129,28 @@ export default function MainLayoutClient({ children }: { readonly children: Reac
           showAction={showAction}
           actionLabel={actionLabel}
           onAction={onAction}
-          onClose={hideImage}                // cerrar desde adentro o afuera
+          onClose={hideImage} // cerrar desde adentro o afuera
           disableOutsideClose={disableOutsideClose}
         />
 
+        {/* Sidebar fijo solo desktop */}
+        <div className="hidden lg:block">
+          <MainSidebar {...sidebarSharedProps} />
+        </div>
+
         <div className={mainLayoutStyles.content}>
-          <MainTabs tabs={tabs} pathname={pathname} validPermissionsbyroute={validPermissionsbyroute} />
+          <MainTabs
+            tabs={tabs}
+            pathname={pathname}
+            validPermissionsbyroute={validPermissionsbyroute}
+            onOpenMobileMenu={() => setMobileOpen(true)} // << abre el drawer
+          />
           <main className={mainLayoutStyles.main}>{children}</main>
-          <LoadingOverlay open={open} message={message} spinnerSize={spinnerSize} />
+          <LoadingOverlay
+            open={open}
+            message={message}
+            spinnerSize={spinnerSize}
+          />
         </div>
       </div>
     </PermissionAgent>

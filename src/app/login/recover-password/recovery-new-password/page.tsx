@@ -1,45 +1,45 @@
 "use client";
-import { recoverPasswordStyles } from "./styles";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
 import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile-rp.png"
 import Image from "next/image";
-import useRecoverPassword, {
-  recoverPasswordFields,
-} from "./hooks/useRecoverPassword/useRecoverPassword";
+import { nesPasswordStyles } from "./styles";
+import useChangePassword, {
+  changePasswordFields,
+} from "../hooks/useChangePassword/useChangePassword";
 
 const RecoverPassword = () => {
-  const { handleRecover, isLoading } = useRecoverPassword();
+  const { handleChange, isLoading } = useChangePassword();
 
   return (
-    <div className={recoverPasswordStyles.container}>
+    <div className={nesPasswordStyles.container}>
       {/* Imagen de fondo */}
       <Image
         src={logoDesktop}
         alt="Fondo DR Security (desktop)"
         fill
         priority
-        className={`${recoverPasswordStyles.image} hidden sm:block`}
+        className={`${nesPasswordStyles.image} hidden sm:block`}
       />
       <Image
         src={logoMobile}
         alt="Fondo DR Security (móvil)"
         fill
         priority
-        className={`${recoverPasswordStyles.image} block sm:hidden`}
+        className={`${nesPasswordStyles.image} block sm:hidden`}
       />
 
       {/* Overlay azul */}
-      <div className={recoverPasswordStyles.bgOverlay} />
+      <div className={nesPasswordStyles.bgOverlay} />
 
       {/* Contenido centrado */}
-      <div className={recoverPasswordStyles.contentCenter}>
-        <div className={recoverPasswordStyles.card}>
+      <div className={nesPasswordStyles.contentCenter}>
+        <div className={nesPasswordStyles.card}>
           <DynamicForm
             title=""
-            fields={recoverPasswordFields}
-            submitLabel="Restaurar Contraseña"
-            onSubmit={handleRecover}
+            fields={changePasswordFields}
+            submitLabel="Guardar"
+            onSubmit={handleChange}
             loading={isLoading}
           />
         </div>
@@ -49,3 +49,5 @@ const RecoverPassword = () => {
 };
 
 export default RecoverPassword;
+
+

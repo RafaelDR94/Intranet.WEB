@@ -1,5 +1,5 @@
 /** Tamaños permitidos para el avatar */
-export type AvatarSize = 'xl' | 'lg' | 'md' | 'sm' | 'xs' | 'xxs';
+export type AvatarSize = 'xl' | 'lg' | 'md' | 'sm' | 'xs' | 'xxs' | 'tiny';
 
 /** Props del componente `Avatar`. */
 export interface AvatarProps {

@@ -13,16 +13,18 @@ export const sizes: Record<AvatarSize, string> = {
   sm: 'w-14 h-14 text-h4',
   xs: 'w-12 h-12 text-h5',
   xxs: 'w-10 h-10 text-s1',
+  tiny: 'w-8 h-8 text-c2',
 };
 
 export const onlineClasses = (size: AvatarSize) =>
   clsx(
-    'absolute border-1 bottom-2 right-0 translate-x-1/4 translate-y-1/4 rounded-full bg-alert-green-100 ring-white-100 ring-2',
+    'absolute border-0.5 bottom-2 right-0 translate-x-1/4 translate-y-1/4 rounded-full bg-alert-green-100 ring-white-100 ring-2',
     {
       'w-6 h-6': size === 'xl',
       'w-5 h-5': size === 'lg',
       'w-4 h-4': size === 'md',
       'w-3.5 h-3.5': size === 'sm',
       'w-2.5 h-2.5': size === 'xs' || size === 'xxs',
+      'w-1.5 h-1.5': size === 'tiny',
     }
   );

@@ -223,3 +223,4 @@ Feature:
 ### 1.40.1 Test stability improvements 2025-08-22
 Fix:
 - Added missing mocks for layout, billing documents and requisitions tests and removed obsolete snapshot. (Agente IA) [#]()
+- Ensure main layout children scroll independently while menu remains static. (Agente IA) [#]()

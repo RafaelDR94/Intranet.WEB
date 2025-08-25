@@ -32,60 +32,56 @@ export type ValidationRule =
 /** Reglas de advertencia no bloqueantes. */
 export interface WarningRule {
   type:
-  | 'minLengthWarning'
-  | 'maxLengthWarning'
-  | 'weakPassword'
-  | 'deprecatedEmailDomain'
-  | 'ageIsLowButValid'
-  | 'ageIsHighButValid'
-  | 'unverifiedLanguage';
+    | 'minLengthWarning'
+    | 'maxLengthWarning'
+    | 'weakPassword'
+    | 'deprecatedEmailDomain'
+    | 'ageIsLowButValid'
+    | 'ageIsHighButValid'
+    | 'unverifiedLanguage';
   value?: number;
 }
 
 /** Modelo de definición de un campo del formulario. */
 export interface FieldModel {
-  /** Tipo de input que se renderizará. */
   type: InputType;
-  /** Identificador único del campo. */
   name: string;
-  /** Etiqueta que se muestra junto al campo. */
   label: string;
-  /** Placeholder opcional para campos de texto. */
   placeholder?: string;
-  /** Valor inicial del campo. */
   value: string | string[] | number | boolean | File | InitialFile | null;
-  /** Texto de ayuda que se muestra debajo del campo. */
   helperText?: string;
-  /** Tamaño del input. */
   inputSize?: 'md' | 'lg';
-  /** Variante visual del campo. */
   variant?: Variant;
-  /** Opciones para campos de selección. */
   options?: { label: string; value: string }[];
-  /** Reglas de validación del campo. */
   validations?: ValidationRule[];
-  /** Reglas de advertencia no bloqueantes. */
   warningRules?: WarningRule[];
-  /** Condición para mostrar el campo dependiendo de otros valores. */
   showIf?: (values: Record<string, any>, fields: FieldModel[]) => boolean;
 
-  /** Tipos de archivo aceptados (para campos de tipo file). */
+  /** Props para file uploader */
   accept?: string;
-  /** Deshabilita el uploader de archivos. */
   disabled?: boolean;
-  /** Clases CSS adicionales para personalizar el campo. */
   className?: string;
-  /** Ícono personalizado para el uploader. */
   icon?: FC<SVGProps<SVGSVGElement>>;
-  /** Archivo inicial a mostrar en el uploader. */
   initialFile?: InitialFile;
-  /** Indica si debe renderizar solo el texto para campos `file`. */
   onlyText?: boolean;
-  /** Callback que se ejecuta cuando cambia el valor del campo. */
+
   onChange?: (value: any, values: Record<string, any>) => void;
   /**Numero de filas en multilinea*/
   rows?:number
 }
+
+/** Layouts por breakpoint (las proporciones por fila) */
+export type ResponsiveLayoutMatrix = {
+  sm?: number[][];
+  md?: number[][];
+  lg?: number[][];
+};
+
+/** Breakpoints en px (máximos inclusivos para sm y md; >md es lg) */
+export type Breakpoints = {
+  sm: number; // Máximo para sm (inclusive)
+  md: number; // Máximo para md (inclusive); >md será lg
+};
 
 /** Props del componente `DynamicForm`. */
 export interface DynamicFormProps {
@@ -111,14 +107,28 @@ export interface DynamicFormProps {
   children?: React.ReactNode;
   /** Si es `true`, muestra un indicador de carga en el botón principal. */
   loading?: boolean;
-  /** Matriz de proporciones para distribuir los campos por fila. */
+
+  /**
+   * Matriz de proporciones para distribuir los campos por fila.
+   * Tiene prioridad sobre `responsiveLayoutMatrix`.
+   */
   layoutMatrix?: number[][];
+
+  /**
+   * Layouts por breakpoint. Se usará el del breakpoint actual;
+   * si no existe, fallback hacia otros disponibles.
+   */
+  responsiveLayoutMatrix?: ResponsiveLayoutMatrix;
+
+  /** Breakpoints en px. Default: { sm: 640, md: 1024 } */
+  breakpoints?: Breakpoints;
+
   /**
    * Referencia opcional para disparar el submit desde fuera del componente.
    * Al invocarse ejecutará la misma lógica que el botón interno.
    */
   externalSubmitRef?: React.RefObject<(() => void | Promise<any>) | null>;
+
   /** Muestra un spinner de carga en lugar del formulario. */
   loadingFormInfo?: boolean;
 }
-

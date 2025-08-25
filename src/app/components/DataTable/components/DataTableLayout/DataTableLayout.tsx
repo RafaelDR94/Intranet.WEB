@@ -11,7 +11,7 @@ import { Calendar } from "@/app/components/Calendar/Calendar";
 import { useDataTableLayout } from "./hooks/useDataTableLayout";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import { ContextMenu } from "@/app/components/ContextMenu/ContextMenu";
-
+import { useIsMobile } from "./hooks/useMediaQuery";
 
 const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
   const {
@@ -32,12 +32,13 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
   } = useDataTableLayout(props);
 
   const { downloadDisabled = false } = props;
+  const isMobile = useIsMobile()
 
   return (
     <div className={tableLayoutStyles.headerdiv}>
       <Input
         placeholder="Buscar"
-        inputSize="md"
+        inputSize={isMobile ? 'md' : 'sm'}
         className={tableLayoutStyles.inputSyle}
         onChange={(e) => handleInputChange(e.target.value)}
         onClick={handleSearchClick}
