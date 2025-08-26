@@ -52,7 +52,6 @@ jobs:
           fi
           echo "NEXT_PUBLIC_MODE actual:"
           grep -E '^NEXT_PUBLIC_MODE=' .env
-
       - name: Sanity check env (pre-build)
         run: |
           set -e
@@ -81,8 +80,8 @@ jobs:
           set -e
           test -d storybook-static || { echo "ERROR: 'storybook-static/' no existe. Revisa 'npm run build-storybook'."; exit 1; }
           ls -la storybook-static | head -n 50
-
       - name: Deploy Storybook
         run: |
           set -e
           firebase deploy --only hosting:drintranettecnicdocumentation 
+
