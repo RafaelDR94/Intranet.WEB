@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { useBillingDocumentsStore } from './useBillingDocumentsStore'
+import { useAuthStore } from './useAuthStore'
 
-describe('useBillingDocumentsStore', () => {
+describe('useAuthStore', () => {
   it('resetea los flags', () => {
-    const store = useBillingDocumentsStore
+    const store = useAuthStore
     store.setState({ loading: true, successLogin: true })
     store.getState().resetFlags()
     const state = store.getState()

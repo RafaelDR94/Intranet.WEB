@@ -1,28 +1,27 @@
-// src/app/stores/useRecoverPasswordStore/useRecoverPassword.ts
-'use client'
-import { useCallback, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
-import type { FieldModel } from '@/app/components/DynamicForm/types'
-import { recoverPassword } from '@/app/stores/useRecoverPasswordStore/utilities'
-
+import { useCallback, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import type { FieldModel } from "@/app/components/DynamicForm/types";
+import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+import { shallow } from "zustand/shallow";
+import {PutRecoverPassword} from "@/app/mappings/auth/auth.types"
 /** Campos del formulario de recuperación de contraseña */
 export const recoverPasswordFields: FieldModel[] = [
   {
-    name: 'email',
-    type: 'email',
-    label: 'Usuario',
-    placeholder: 'usuario@drsecurity.net',
-    value: '',
-    validations: [{ type: 'required' }, { type: 'email' }],
+    name: "email",
+    type: "email",
+    label: "Usuario",
+    placeholder: "usuario@drsecurity.net",
+    value: "",
+    validations: [{ type: "required" }, { type: "email" }],
   },
-]
+];
 
 export interface UseRecoverPassword {
   /** Indica si la solicitud está en curso */
-  isLoading: boolean
+  isLoading: boolean;
   /** Envía el correo para recuperar la contraseña */
-  handleRecover: (values: Record<string, any>) => Promise<void>
+  handleRecover: (values: Record<string, any>) => Promise<void>;
 }
 
 /**
@@ -33,39 +32,40 @@ export interface UseRecoverPassword {
 export default function useRecoverPassword(
   routerOverride?: ReturnType<typeof useRouter>
 ): UseRecoverPassword {
-  const router = routerOverride ?? useRouter()
-  const { usePrincipalAlert } = usePrincipal()
-  const { showAlert, hideAlert } = usePrincipalAlert
-  const [isLoading, setIsLoading] = useState(false)
+  const router = routerOverride ?? useRouter();
+  const { usePrincipalAlert } = usePrincipal();
+  const { showAlert, hideAlert } = usePrincipalAlert;
+  const [isLoading, setIsLoading] = useState(false);
+  const { error, resetFlags, successRecoverPassword, recoveringPassword, recoverPassword } = useAuthStore(
+    (s) => ({
+      resetFlags: s.resetFlags,
+      error: s.error,
+      successRecoverPassword: s.successRecoverPassword,
+      recoveringPassword: s.recoveringPassword,
+      recoverPassword: s.recoverPassword,
+    }),
+    shallow
+  );
+
+  useEffect(() => {
+    if(recoveringPassword) return; //Falta agregar spinner
+    if(error) {
+      // Mostrar error
+    } 
+    if(successRecoverPassword) {
+      // Mostrar success
+    }
+    resetFlags();
+  }, [recoveringPassword, error, successRecoverPassword]);
 
   const handleRecover = useCallback(
     async (values: Record<string, any>) => {
-      setIsLoading(true)
-      try {
-        const ok = await recoverPassword(values.email)
-        if (ok) {
-          router.push(
-            `/login/recover-password/recovery-email?email=${encodeURIComponent(
-              values.email
-            )}`
-          )
-        }
-      } catch (error: any) {
-        showAlert({
-          type: 'error',
-          variant: 'subtle',
-          title: 'Error',
-          description:
-            error?.message ?? 'No se pudo enviar el correo de recuperación',
-          onPrimaryClick: hideAlert,
-          onSecondaryClick: hideAlert,
-        })
-      } finally {
-        setIsLoading(false)
-      }
+      const payload:PutRecoverPassword = { username: values.email };
+      recoverPassword(payload);
+      setIsLoading(true);
     },
     [router, showAlert, hideAlert]
-  )
+  );
 
-  return { isLoading, handleRecover }
+  return { isLoading, handleRecover };
 }

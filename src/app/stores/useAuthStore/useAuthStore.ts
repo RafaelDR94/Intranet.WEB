@@ -16,11 +16,12 @@ import {
 /**
  * Store para operaciones de autenticación.
  */
-export const useBillingDocumentsStore = createWithEqualityFn<AuthState>()(
+export const useAuthStore = createWithEqualityFn<AuthState>()(
   devtools((set, get) => ({
     loginData: undefined,
     firebaseConfig: undefined,
     loading: false,
+    recoveringPassword: false,
     successLogin: false,
     successAuthValidate: false,
     successChangePassword: false,
@@ -54,6 +55,7 @@ export const useBillingDocumentsStore = createWithEqualityFn<AuthState>()(
         successChangeNIP: false,
         successCreateNIP: false,
         successFirebaseConfig: false,
+        recoveringPassword: false,
       }),
     resetFlags: () =>
       set({
@@ -67,6 +69,7 @@ export const useBillingDocumentsStore = createWithEqualityFn<AuthState>()(
         successChangeNIP: false,
         successCreateNIP: false,
         successFirebaseConfig: false,
+        recoveringPassword: false,
       }),
   }))
 )

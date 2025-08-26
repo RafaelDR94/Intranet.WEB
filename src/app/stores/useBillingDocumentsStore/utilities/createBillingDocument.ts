@@ -8,7 +8,7 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { pPost } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { fetchBillingDocuments } from './fetchBillingDocuments'
-
+import { BillingDocumentsPutMap } from '@/app/mappings/billingdocuments/billingdocuments.mapper'
 /**
  * Crea un nuevo documento de factura en el backend.
  *
@@ -25,7 +25,7 @@ export const createBillingDocument = async (
 
   try {
     const post = pPost(requireGateway('post'), [200, 201])
-    const res: AxiosResponse = await post(BillingDocumentUrl, payload)
+    const res: AxiosResponse = await post(BillingDocumentUrl, BillingDocumentsPutMap(payload))
     const raw = res.data?.data
     const created = raw ? (raw as BillingDocuments) : null
 

@@ -34,6 +34,7 @@ export interface AuthState {
   loginData?: LoginResponse
   firebaseConfig?: FirebaseConfiguration
   loading: boolean
+  recoveringPassword: boolean
   successLogin: boolean
   successAuthValidate: boolean
   successChangePassword: boolean
