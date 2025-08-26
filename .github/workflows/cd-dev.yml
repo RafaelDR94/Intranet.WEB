@@ -6,7 +6,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write   # auth con GCP
+  id-token: write
 
 concurrency:
   group: cd-dev
@@ -34,32 +34,64 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      # 🔐 Autenticación GCP (usa tu secret GCP_SA_KEY con la key JSON del Service Account)
       - name: Auth to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Install Firebase CLI
-        run: npm i -g firebase-tools
+        run: npm i -g firebase-tools@latest
 
-      # 🏗️ Build + (export si sirves estático desde "out")
-      - name: Build Next (and export)
+      # --- Diagnóstico útil ---
+      - name: Versions & config
+        run: |
+          set -x
+          node -v
+          npm -v
+          firebase --version
+          cat .firebaserc || true
+          cat firebase.json || true
+
+      # --- Build + Export (crea /out para Hosting estático) ---
+      - name: Build Next and export
         env:
           NEXT_TELEMETRY_DISABLED: 1
         run: |
+          set -e
           npm run build
-      # 🚀 Preview channel de la app (canal "dev")
-      # Usamos el siteId como argumento posicional (tu CLI no acepta --site)
+
+      # Verifica que /out exista (si no, falla con mensaje claro)
+      - name: Verify out directory
+        run: |
+          set -e
+          test -d out || { echo "ERROR: 'out/' no existe. Asegúrate de ejecutar 'next export' y que no haya fallado el build."; exit 1; }
+          ls -la out | head -n 50
+
+      # --- Deploy Preview (channel 'dev') ---
       - name: Deploy app preview (channel dev)
         run: |
-          firebase hosting:channel:deploy dev intranetdr-50f9e
+          set -e
+          firebase hosting:channel:deploy dev intranetdr-50f9e \
+            --expires 7d \
+            --project $FIREBASE_PROJECT_ID \
+            --non-interactive
 
-      # 📖 Storybook (build + deploy al sitio de documentación)
+      # --- Storybook ---
       - name: Build Storybook
         run: npm run build-storybook
 
+      - name: Verify storybook-static directory
+        run: |
+          set -e
+          test -d storybook-static || { echo "ERROR: 'storybook-static/' no existe. Revisa 'npm run build-storybook'."; exit 1; }
+          ls -la storybook-static | head -n 50
+
       - name: Deploy Storybook
         run: |
-          firebase deploy --only hosting:drintranettecnicdocumentation 
+          set -e
+          firebase deploy \
+            --only hosting:drintranettecnicdocumentation \
+            --project $FIREBASE_PROJECT_ID \
+            --non-interactive
+
      
