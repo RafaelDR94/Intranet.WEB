@@ -1,7 +1,7 @@
 {
   "hosting": [
     {
-      "target": "intranetdr-50f9e",
+      "site": "intranetdr-50f9e",
       "public": "out",
       "ignore": [
         "firebase.json",
