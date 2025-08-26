@@ -229,3 +229,7 @@ Fix:
 Fix:
 - To improve Invoices Module. 
 (Bruno Mendoza) [#65](https://github.com/DR-Mexico/dr.intranet.web/pull/65)
+
+### 1.41.2 Auth store 2025-08-26
+Feature:
+- Added authentication store utilities for login, validation and NIP flows. (Agente IA) [#PR]()
