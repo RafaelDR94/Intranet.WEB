@@ -69,7 +69,7 @@ jobs:
           npm run build
       # 🚀 Preview channel de la app (canal "dev")
       # Usamos el siteId como argumento posicional (tu CLI no acepta --site)
-      - name: Deploy app stagging page
+      - name: Deploy app dev page
         run: |
           firebase hosting:channel:deploy dev --only intranetdr
 

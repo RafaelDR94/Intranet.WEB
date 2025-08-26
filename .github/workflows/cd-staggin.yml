@@ -45,7 +45,6 @@ jobs:
 
       - name: Patch NEXT_PUBLIC_MODE in .env
         run: |
-          touch .env
           if grep -q '^NEXT_PUBLIC_MODE=' .env; then
             sed -i 's/^NEXT_PUBLIC_MODE=.*/NEXT_PUBLIC_MODE=2/' .env
           else
@@ -54,11 +53,17 @@ jobs:
           echo "NEXT_PUBLIC_MODE actual:"
           grep -E '^NEXT_PUBLIC_MODE=' .env
 
+      - name: Sanity check env (pre-build)
+        run: |
+          set -e
+          # exporta variables del .env al entorno del shell
+          set -a; source .env; set +a
+          # imprime el modo y la URL que usará tu app según el modo
+          node -e "const m=process.env.NEXT_PUBLIC_MODE; const base = m==='1'?process.env.NEXT_PUBLIC_INTRANET_ENDPOINT_PROD : m==='2'?process.env.NEXT_PUBLIC_INTRANET_ENDPOINT_STAGING : process.env.NEXT_PUBLIC_INTRANET_ENDPOINT_LOCAL; console.log('NEXT_PUBLIC_MODE=', m, '→ baseURL:', base);"
 
       # 🏗️ Build + (export si sirves estático desde "out")
       - name: Build Next (and export)
         env:
-          NEXT_PUBLIC_MODE: ${{ env.NEXT_PUBLIC_MODE }}
           NEXT_TELEMETRY_DISABLED: 1
         run: |
           npm run build
@@ -67,5 +72,17 @@ jobs:
       - name: Deploy app stagging page
         run: |
           firebase deploy --only hosting:stagginsite
+      # 📖 Storybook
+      - name: Build Storybook
+        run: npm run build-storybook
 
-     
+      - name: Verify storybook-static
+        run: |
+          set -e
+          test -d storybook-static || { echo "ERROR: 'storybook-static/' no existe. Revisa 'npm run build-storybook'."; exit 1; }
+          ls -la storybook-static | head -n 50
+
+      - name: Deploy Storybook
+        run: |
+          set -e
+          firebase deploy --only hosting:drintranettecnicdocumentation 
