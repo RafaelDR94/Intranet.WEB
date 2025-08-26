@@ -1,15 +1,15 @@
-name: CD dev (preview + storybook)
+name: CD staging (deploy)
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ staging ]
 
 permissions:
   contents: read
-  id-token: write
+  id-token: write   # auth con GCP
 
 concurrency:
-  group: cd-dev
+  group: cd-staging
   cancel-in-progress: true
 
 env:
@@ -34,6 +34,7 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      # 🔐 Autenticación GCP (usa tu secret GCP_SA_KEY con la key JSON del Service Account)
       - name: Auth to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -54,12 +55,11 @@ jobs:
           NEXT_PUBLIC_MODE: ${{ env.NEXT_PUBLIC_MODE }}
           NEXT_TELEMETRY_DISABLED: 1
         run: |
-          set -e
           npm run build
       # 🚀 Preview channel de la app (canal "dev")
       # Usamos el siteId como argumento posicional (tu CLI no acepta --site)
       - name: Deploy app stagging page
         run: |
-          firebase deploy --only hosting:intranetdr
+          firebase deploy --only hosting:stagginsite
 
      
