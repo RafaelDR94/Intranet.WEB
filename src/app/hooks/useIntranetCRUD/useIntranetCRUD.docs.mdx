@@ -1,0 +1,59 @@
+import { Meta, Source } from '@storybook/blocks';
+
+<Meta title="Hooks/useIntranetCRUD" />
+
+# useIntranetCRUD
+
+Hook que proporciona **métodos CRUD preconfigurados** para trabajar con la API de intranet usando Axios y el cliente `intranetClient`.
+
+Este hook sigue la arquitectura de **hooks globales reutilizables** documentada en el proyecto (consulta `ARCHITECTURE_OVERVIEW.md`, sección *hooks*).
+
+---
+
+## API
+
+### Métodos
+
+- **`IntranetGet(url: string, callback: CallbackFunction)`**  
+  Realiza una petición HTTP GET.
+
+- **`IntranetPost(url: string, data: any, callback: CallbackFunction)`**  
+  Realiza una petición HTTP POST.
+
+- **`IntranetPut(url: string, data: any, callback: CallbackFunction)`**  
+  Realiza una petición HTTP PUT.
+
+- **`IntranetDelete(url: string, callback: CallbackFunction)`**  
+  Realiza una petición HTTP DELETE.
+
+> Todos los métodos usan `CallbackFunction` para manejar la respuesta y errores.
+
+---
+
+## Ejemplo de uso
+
+```tsx
+import useIntranetCRUD from '@/app/hooks/useIntranetCRUD';
+
+export default function ExamplePage() {
+  const { IntranetGet, IntranetPost } = useIntranetCRUD();
+
+  const getUsers = () => {
+    IntranetGet('/users', (res) => {
+      console.log('Usuarios:', res.data);
+    });
+  };
+
+  const createUser = () => {
+    IntranetPost('/users', { name: 'Jane Doe' }, (res) => {
+      console.log('Usuario creado:', res.data);
+    });
+  };
+
+  return (
+    <div>
+      <button onClick={getUsers}>Cargar usuarios</button>
+      <button onClick={createUser}>Crear usuario</button>
+    </div>
+  );
+}

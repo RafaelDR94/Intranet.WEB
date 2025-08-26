@@ -3,16 +3,25 @@ import { getInitialValues } from '../utilities/getInitialValues';
 import { getValidationSchema } from '../utilities/getValidationSchema';
 import { cleanHiddenFields } from '../utilities/cleanHiddenFields';
 import { resolveVariant } from '../utilities/resolveVariant';
+
+
+/**
+ * Crea utilidades derivadas de un conjunto de campos para construir un formulario dinámico.
+ *
+ * @param fields Definiciones de los campos que se renderizarán.
+ * @returns Valores iniciales, esquema de validación, función para limpiar campos ocultos y resolvedor de variantes visuales.
+ */
 export const useDynamicForm = (fields: FieldModel[]) => {
-  // 1) Valores iniciales
+  // Valores iniciales obtenidos del modelo
   const initialValues = getInitialValues(fields);
 
-  // 2) Esquema Yup
+  // Esquema de validación basado en Yup
   const validationSchema = getValidationSchema(fields);
 
-  // 3) Limpieza de campos ocultos
-  const cleanValues = (values: Record<string, any>) =>
+  // Limpieza de campos ocultos
+  const cleanValues = (values: Record<string, unknown>) =>
     cleanHiddenFields(fields, values);
 
-  return { initialValues, validationSchema, resolveVariant,cleanValues };
+
+  return { initialValues, validationSchema, resolveVariant, cleanValues };
 };

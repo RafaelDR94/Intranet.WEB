@@ -1,0 +1,390 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Utilities/CreatePDF" />
+
+# CreatePDF – Utilidad para generar PDFs con @react-pdf/renderer
+
+Este módulo encapsula la creación de documentos PDF en memoria usando **@react-pdf/renderer**.  
+Incluye:
+- **`MyDocument`**: documento React-PDF que compone páginas, encabezado/folio, pie, barra de progreso y elementos (datos, tablas, texto, imágenes, checks, firmas y listas).
+- **`RenderTable`**: helper para pintar tablas con **distribución proporcional** de columnas mediante `relation`.
+- **`CreatePDF`**: función que **genera el Blob** del PDF en memoria y retorna la **URL** lista para mostrar/descargar (via callback).
+
+> El módulo registra dos fuentes personalizadas (`Izayoi` y `Mechanical`) y usa una **hoja membretada** como marca de agua de página.
+
+---
+
+## Instalación y requisitos
+
+- **React 18+**
+- **Next.js 14+** (recomendado, aunque puede usarse con CRA/Vite)
+- Dependencia: `@react-pdf/renderer`
+
+```bash
+npm i @react-pdf/renderer
+```
+
+---
+
+## Importación
+
+```ts
+import { CreatePDF } from '@/ruta/al/modulo';
+// (Las interfaces y tipos también están exportadas desde ./types)
+```
+
+---
+
+## API
+
+### `CreatePDF(data: FullDocument | null, setPDF: (url: string) => void): Promise<void>`
+
+Genera el PDF en memoria a partir de `data` y entrega una **object URL** del Blob resultante al callback `setPDF`:
+
+```ts
+const urlSetter = (url: string) => setPdfUrl(url);
+await CreatePDF(fullDoc, urlSetter);
+```
+
+- **Parámetros**
+  - `data`: estructura completa del documento (`FullDocument`) o `null`.
+  - `setPDF`: callback que recibe la `url` (`blob:<...>`) lista para usar (descargar o `<iframe>`/`<embed>`).
+- **Retorna**: `Promise<void>`
+
+> Internamente hace: `const blob = await pdf(<MyDocument data={data} />).toBlob();` y luego `URL.createObjectURL(blob)`.
+
+---
+
+### `<MyDocument data={FullDocument|null} />`
+
+Componente que **arma el PDF**. Por cada página:
+- Calcula tamaño: **vertical** `[612, 792]` o **horizontal** `[792, 612]`.
+- Pinta **marca de agua** (HojaMembretada) ocupando toda la página.
+- Encabezado opcional mediante `headerBox` (Título, Versión, Tipo, Clave, Fechas).
+- **Folio** (debajo del encabezado o en la parte superior si no hay headerBox).
+- **Footer** con dirección y contacto.
+- Título de página, barra de **progreso** opcional.
+- Renderiza elementos del arreglo `elements`.
+- **Paginación**: "Página X de Y" en esquina inferior derecha.
+
+**Props**
+- `data`: `FullDocument | null`
+
+### `<RenderTable {...props} />`
+
+Pinta una tabla con títulos, cabeceras y filas. Soporta distribución de ancho por columna usando una **relación proporcional** (`relation`).
+
+**Props (Table)**
+- `title: string`
+- `headers: string[]`
+- `datatable: string[][]` (filas)
+- `relation?: number[]` (misma longitud que `headers`; define el ancho relativo por columna)
+
+---
+
+## Tipos (resumen)
+
+```ts
+export interface DataChartElement { label: string; text: string; fullWidth?: boolean; }
+export interface SingleElement     { singletitle?: string; text: string; borderactive?: boolean; }
+export interface ImageElement      { title: string; description?: string; urlimage: string; width?: string|number; height?: string|number; }
+export interface CheckElement      { state: boolean; label?: string; }
+export interface SignatureElement  { name: string; charge?: string; signature?: string; }
+
+export interface DataChart { title: string; data: DataChartElement[]; }
+export interface Table     { title: string; headers: string[]; datatable: string[][]; relation?: number[]; }
+
+interface ImageList     { title: string; pictures: ImageElement[]; }
+interface CheckList     { title: string; checks: CheckElement[]; }
+interface SignatureChart{ title: string; signatures: SignatureElement[]; }
+export interface ListElement { title: string; items: string[]; }
+
+export interface HeaderBox {
+  docTitle: string; version: string; docType: string; docKey: string;
+  creationDate?: string; lastVersionDate?: string;
+}
+
+export type PageElement =
+  | SignatureChart | DataChart | ImageList | Table | CheckList | SingleElement | ListElement;
+
+export interface newDocument {
+  title?: string;
+  folio?: string;
+  progress?: string;                   // porcentaje "0".."100"
+  orientation?: 'vertical'|'horizontal';
+  headerBox?: HeaderBox;
+  elements: PageElement[];
+}
+
+export interface FullDocument { pages: newDocument[]; }
+```
+
+---
+
+## Uso rápido (Quick Start)
+
+### 1) Construye la **data**
+
+```ts
+const docData: FullDocument = {
+  pages: [
+    {
+      title: 'Reporte de Inspección',
+      folio: 'FOL-2025-0001',
+      progress: '75',
+      orientation: 'vertical',
+      headerBox: {
+        docTitle: 'Reporte de Inspección',
+        version: '1.0.0',
+        docType: 'INSP',
+        docKey: 'INSP-001',
+        creationDate: '2025-08-10',
+        lastVersionDate: '2025-08-12',
+      },
+      elements: [
+        // Sección de datos (DataChart)
+        {
+          title: 'Datos Generales',
+          data: [
+            { label: 'Cliente', text: 'ACME S.A.' },
+            { label: 'Proyecto', text: 'Campus Norte' },
+            { label: 'Supervisor', text: 'Bruno Mendoza', fullWidth: true },
+          ],
+        },
+        // Tabla
+        {
+          title: 'Materiales',
+          headers: ['SKU', 'Descripción', 'Cantidad', 'Ubicación'],
+          datatable: [
+            ['CAM-01', 'Cámara 4MP', '6', 'Edificio A'],
+            ['DVR-08', 'DVR 8ch', '2', 'Cuarto de control'],
+          ],
+          relation: [2, 6, 2, 2], // anchos relativos
+        },
+        // Texto suelto
+        { singletitle: 'Notas', text: 'Todo instalado y probado.', borderactive: true },
+      ],
+    },
+  ],
+};
+```
+
+### 2) Genera el PDF y úsalo en UI
+
+```tsx
+const [pdfUrl, setPdfUrl] = useState<string>('');
+
+const handleGenerate = async () => {
+  await CreatePDF(docData, setPdfUrl);
+};
+
+return (
+  <div>
+    <button onClick={handleGenerate}>Generar PDF</button>
+
+    {pdfUrl && (
+      <>
+        <a href={pdfUrl} download="reporte.pdf">Descargar</a>
+        {/* Previsualización */}
+        <iframe src={pdfUrl} style={{ width: '100%', height: 600 }} />
+      </>
+    )}
+  </div>
+);
+```
+
+---
+
+## Ejemplos por tipo de elemento
+
+### A) Datos tipo **DataChart**
+
+```ts
+{
+  title: 'Datos de Sitio',
+  data: [
+    { label: 'Dirección', text: 'Calle Becerra 70-B, Tacubaya' },
+    { label: 'Contacto', text: 'contacto@drsecurity.net' },
+    { label: 'Horario', text: '9:00 - 18:00', fullWidth: true },
+  ],
+}
+```
+
+### B) **Tabla** con `relation`
+
+```ts
+{
+  title: 'Tabla de Costeo',
+  headers: ['Concepto', 'Descripción', 'Importe'],
+  datatable: [
+    ['CCTV', 'Instalación 16 cámaras', '$ 120,000.00'],
+    ['Control Acceso', '4 puertas', '$ 80,000.00'],
+  ],
+  relation: [2, 7, 3], // 2/12, 7/12, 3/12 de ancho relativo
+}
+```
+
+### C) **Texto**
+
+```ts
+{ singletitle: 'Observaciones', text: 'Se recomienda mantenimiento en Q4.' }
+```
+
+### D) **Imágenes**
+
+```ts
+{
+  title: 'Evidencias',
+  pictures: [
+    { title: 'Rack Principal', urlimage: '/imgs/rack.jpg', width: 220, height: 140 },
+    { title: 'Cámara Exterior', urlimage: '/imgs/cam.jpg',  width: 220, height: 140, description: 'Vista norte' },
+  ],
+}
+```
+
+### E) **Checks**
+
+```ts
+{
+  title: 'Checklist',
+  checks: [
+    { state: true,  label: 'PoE OK' },
+    { state: false, label: 'Etiquetado' },
+  ],
+}
+```
+
+### F) **Firmas**
+
+```ts
+{
+  title: 'Firmas',
+  signatures: [
+    { name: 'Responsable de Obra', charge: 'Supervisor',    signature: '/signs/sup.png' },
+    { name: 'Cliente',             charge: 'Representante', signature: '/signs/cli.png' },
+  ],
+}
+```
+
+### G) **Lista** (bullets)
+
+```ts
+{
+  title: 'Pendientes',
+  items: ['Rotular patch panel', 'Actualizar topología', 'Respaldo DVR'],
+}
+```
+
+---
+
+## Estilos y assets
+
+- Los **estilos** (tipografías, tamaños, márgenes) se definen en `styles.ts` del módulo y se consumen mediante `styles.*`.
+- Las **fuentes personalizadas** se registran con:
+  ```ts
+  Font.register({ family: 'Izayoi',     src: '/fonts/IzayoiMonospaced-nwoY.ttf' });
+  Font.register({ family: 'Mechanical', src: '/fonts/Mechanical-g5Y5.otf' });
+  ```
+- La **marca de agua** usa la imagen `HojaMembretada` (importada como `StaticImageData` de Next) y se pinta absoluta ocupando toda la página.
+
+> Si sirves fuentes/imagenes desde **`/public`** en Next, usa rutas absolutas `/fonts/...` o `/imgs/...`.
+
+---
+
+## Orientación y tamaño de página
+
+- **Vertical (default):** `[612, 792]` (US Letter)
+- **Horizontal:** `[792, 612]`
+- Se calcula por página según `pageData.orientation`.
+
+---
+
+## Integración con Next.js
+
+- Este módulo se ejecuta en el **cliente** para generar el Blob y la URL (usa `URL.createObjectURL`).
+- Si necesitas **SSR/Node**, puedes usar `pdf(<Doc/>).toBuffer()` en un **API Route** y enviar el binario con cabeceras `application/pdf`.
+- En **Storybook**, se puede mostrar el ejemplo invocando `CreatePDF` y embeber el resultado en un `<iframe>`.
+
+---
+
+## Rendimiento y buenas prácticas
+
+- Evita imágenes muy pesadas; comprímelas y limita dimensiones.
+- Usa `relation` para evitar cálculos de ancho por celda.
+- Agrupa textos largos en `SingleElement` o `ListElement`.
+- Para muchos elementos, considera **paginar** en varias `pages` del `FullDocument`.
+
+---
+
+## Troubleshooting
+
+**No se ven las fuentes personalizadas**  
+- Verifica rutas (`/public/fonts/...`) y que el server las sirva.  
+- `Font.register` debe ejecutarse **antes** del render del `<Document>`.
+
+**Imágenes no cargan**  
+- Usa rutas accesibles desde el navegador (`/imgs/...` o URLs absolutas).  
+- Para imports de Next (`StaticImageData`), usa `image.src`.
+
+**PDF vacío o error en Storybook**  
+- Asegúrate de ejecutar en **entorno de navegador**.  
+- Si Storybook corre sin acceso a assets, usa rutas absolutas.
+
+**El iframe no muestra nada**  
+- Verifica que `pdfUrl` empiece con `blob:` y no haya políticas CSP que lo bloqueen.
+
+---
+
+## Ejemplo completo de `FullDocument` con 2 páginas
+
+```ts
+const fullDoc: FullDocument = {
+  pages: [
+    {
+      title: 'Reporte de Instalación',
+      folio: 'FOL-2025-0020',
+      progress: '40',
+      orientation: 'vertical',
+      headerBox: {
+        docTitle: 'Instalación CCTV',
+        version: '2.1.3',
+        docType: 'PROC',
+        docKey: 'PROC-CCTV-20',
+        creationDate: '2025-08-01',
+      },
+      elements: [
+        { title: 'Datos', data: [
+          { label: 'Cliente', text: 'ACME S.A.' },
+          { label: 'Ubicación', text: 'Tacubaya, CDMX', fullWidth: true },
+        ]},
+        { title: 'Recursos', headers: ['SKU','Desc','Cant.'], datatable: [['CAM-1','Cámara 4MP','4']], relation: [3,6,3] },
+        { singletitle: 'Observaciones', text: 'OK en pruebas iniciales.' },
+      ],
+    },
+    {
+      title: 'Evidencias y Firmas',
+      orientation: 'horizontal',
+      elements: [
+        { title: 'Evidencias', pictures: [
+          { title: 'Rack', urlimage: '/imgs/rack.jpg', width: 220, height: 140 },
+          { title: 'Exterior', urlimage: '/imgs/cam.jpg',  width: 220, height: 140 },
+        ]},
+        { title: 'Checklist', checks: [
+          { state: true,  label: 'Energía' },
+          { state: true,  label: 'Red' },
+          { state: false, label: 'Etiquetas' },
+        ]},
+        { title: 'Firmas', signatures: [
+          { name: 'Técnico', charge: 'Instalador', signature: '/signs/t1.png' },
+          { name: 'Cliente', charge: 'Representante', signature: '/signs/c1.png' },
+        ]},
+        { title: 'Pendientes', items: ['Rotular', 'Documentar IPs'] },
+      ],
+    },
+  ],
+};
+```
+
+---
+
+

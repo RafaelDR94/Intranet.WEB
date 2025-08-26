@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Select, SelectOption } from './Select';
+import { Select } from './Select';
+import { SelectOption } from './types';
 
 const variants = [
   'default',

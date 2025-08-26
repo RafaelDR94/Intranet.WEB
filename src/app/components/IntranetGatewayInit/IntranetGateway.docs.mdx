@@ -1,0 +1,22 @@
+import { Meta, Canvas, Story } from '@storybook/blocks';
+
+<Meta title="Infra/IntranetGatewayInit (no-visual)"  />
+
+# IntranetGatewayInit
+
+Componente **no visual** que registra las funciones CRUD de la Intranet en el store global (Zustand), para que el resto de componentes puedan consumirlas de forma centralizada.
+
+## Uso
+
+```tsx
+// app/(intranet)/layout.tsx
+import IntranetGatewayInit from './IntranetGatewayInit'
+
+export default function IntranetLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <IntranetGatewayInit />
+      {children}
+    </>
+  );
+}

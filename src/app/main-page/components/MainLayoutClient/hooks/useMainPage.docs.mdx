@@ -1,0 +1,153 @@
+import { Meta } from '@storybook/addon-docs';
+
+
+<Meta title="Pages/MainLayout/hooks/useMainPage" />
+
+# `useMainPage`
+
+Este hook centraliza la lógica de la página principal (`/main-page`), integrando:
+
+- Estado del tema (`light/dark`)
+- Control del modo offline
+- Gestión de alertas
+- Notificaciones Firebase
+- Validación de permisos de ruta
+- Tabs de navegación con base en la URL
+
+---
+
+## ✨ ¿Qué proporciona?
+
+```ts
+type ReturnType = {
+  alert: AlertType | null;
+  hideAlert: () => void;
+  theme: string;
+  toggleTheme: () => void;
+  pathname: string;
+  tabs: TabType[];
+  userFullName: string;
+  logout: () => Promise<void>;
+  validPermissionsbyroute: (route: string) => boolean;
+  offlineLoggin: boolean;
+  offlineMeMessage: OfflineMessage;
+  handleOfflineChange: (checked: boolean) => void;
+  handleOkMessageOffline: () => void;
+  handleCancelMessageOffline: () => void;
+  sidebarRoutes: Route[];
+}
+```
+
+---
+
+## 🧠 Descripción de comportamiento
+
+### 🎨 Tema
+
+Gestiona el tema actual de la app (claro/oscuro) mediante `usePrincipalTheme`.
+
+### ⚠️ Alertas
+
+- Muestra alertas contextuales (`info`, `notificación`, etc.)
+- Usa `usePrincipalAlert`.
+
+### 📶 Modo offline
+
+- Permite alternar entre trabajar localmente o en línea.
+- Lanza una alerta de confirmación antes de cambiar el modo.
+- `offlineMeMessage` contiene el estado del mensaje mostrado.
+
+### 🔐 Permisos
+
+- Verifica si el usuario tiene acceso a una ruta específica (`validPermissionsbyroute`).
+- Escucha cambios en permisos (vía `permissionsChanged`) y muestra alerta.
+
+### 🛎️ Notificaciones Firebase
+
+Escucha notificaciones vía `firebaseMessaging` y las muestra en formato de alerta si están presentes.
+
+---
+
+## 🧭 Navegación
+
+### `tabs`
+
+Se calculan con base en `pathname` mediante el helper `getTabsFromPath`.
+
+### `sidebarRoutes`
+
+Menú lateral principal usado por la vista `/main-page`.
+
+```ts
+[
+  {
+    label: 'Inicio',
+    path: '/main-page/home',
+    icon: HomeIcon,
+  },
+  {
+    label: 'Solicitudes',
+    path: '/main-page/request',
+    icon: FileIcon,
+    subroutes: [
+      { label: 'Facturación', path: '/main-page/request/invoices' }
+    ]
+  }
+]
+```
+
+---
+
+## 🚦 Ejemplo de uso
+
+```tsx
+import useMainPage from '@/app/main-page/hooks/useMainPage';
+
+export const MainLayout = () => {
+  const {
+    theme,
+    toggleTheme,
+    offlineLoggin,
+    handleOfflineChange,
+    tabs,
+    logout,
+    userFullName,
+  } = useMainPage();
+
+  return (
+    <>
+      <header>
+        <span>{userFullName}</span>
+        <button onClick={toggleTheme}>Toggle theme</button>
+        <button onClick={logout}>Cerrar sesión</button>
+      </header>
+
+      <main>
+        {/* Renderiza tabs, contenido, etc. */}
+      </main>
+    </>
+  );
+};
+```
+
+---
+
+## 📦 Dependencias
+
+Este hook depende de:
+
+- `usePrincipal()` → para alertas y tema
+- `useAuth()` → para usuario, permisos y logout
+- `useFirebase()` → para notificaciones y cambios de permisos
+- `getTabsFromPath()` → para generar tabs dinámicos
+- `next/navigation` → para obtener `pathname`
+
+---
+
+## 🧪 Testeo sugerido
+
+- Cambiar el tema (toggleTheme)
+- Activar/desactivar modo offline
+- Mostrar alerta por permisos cambiados
+- Simular `firebaseMessaging.notification` para validar alertas push
+- Validar estructura de `tabs` y `sidebarRoutes` en base al pathname
