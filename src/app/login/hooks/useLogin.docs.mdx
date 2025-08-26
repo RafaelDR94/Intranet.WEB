@@ -1,0 +1,13 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="Pages/LoginPage/useLogin" />
+
+# useLogin
+
+Encapsula la lógica de autenticación utilizada en `LoginPage`.
+
+```ts
+const { handleLogin, handleRemeber, remeberStatus, isLoading, failMessage } = useLogin();
+```
+
+Permite enviar las credenciales, controlar la opción *Recordarme* y manejar el estado de carga y posibles errores.

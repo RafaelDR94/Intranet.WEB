@@ -1,0 +1,65 @@
+name: CD main (deploy)
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  id-token: write   # auth con GCP
+
+concurrency:
+  group: cd-main
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 20
+  FIREBASE_PROJECT_ID: intranetdr-50f9e
+
+jobs:
+  deploy-preview-and-storybook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      # 🔐 Autenticación GCP (usa tu secret GCP_SA_KEY con la key JSON del Service Account)
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Install Firebase CLI
+        run: npm i -g firebase-tools
+
+      - name: Set NEXT_PUBLIC_MODE por rama
+        run: |
+          MODE=1
+          echo "NEXT_PUBLIC_MODE=$MODE" >> $GITHUB_ENV
+
+
+      # 🏗️ Build + (export si sirves estático desde "out")
+      - name: Build Next (and export)
+        env:
+          NEXT_PUBLIC_MODE: ${{ env.NEXT_PUBLIC_MODE }}
+          NEXT_TELEMETRY_DISABLED: 1
+        run: |
+          npm run build
+      # 🚀 Preview channel de la app (canal "dev")
+      # Usamos el siteId como argumento posicional (tu CLI no acepta --site)
+      - name: Deploy app stagging page
+        run: |
+          firebase deploy --only hosting:intranetdr
+
+     

@@ -1,0 +1,16 @@
+export const calendarStyles = {
+  calendarContainer: "calendar-container relative",
+  triggerBtn: "calendar-icon p-1 rounded-[10px] transition-all",
+  triggerDisabled: "opacity-40 cursor-not-allowed",
+  triggerHover: "bg-green-10",
+  trigerFocus: "ring-2 focus:ring-green-40 focus:outline-none",
+  subCalendarContainer: "absolute left-50 top-0 bg-white p-4 shadow-lg rounded-md z-50 w-[400px]",
+  subCalendarTitle: "text-center text-sm text-blue-60",
+  subCalendarWrapper: "flex justify-between mt-3",
+  wrapper: "w-[140px]",
+  inputWrapper: "flex items-center mt-3",
+  inputLabel: "text-gray-70 text-label w-[40px] mr-2",
+  input: "border rounded px-2 py-1 w-[90px] bg-gray-10 border-none",
+  buttonWrapper: "flex justify-center",
+  button: "bg-green-80 text-white rounded px-4 py-1 mt-2 w-full",
+};

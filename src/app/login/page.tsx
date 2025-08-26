@@ -1,58 +1,100 @@
-// app/login/page.tsx
-'use client';
+"use client";
+import React from "react";
+import DynamicForm from "../components/DynamicForm/DynamicForm";
+import Image from "next/image";
+import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile.png"
+import { Alert } from "../components/Alert/Alert";
+import { ToggleButton } from "../components/ToogleButton.tsx/ToogleButton";
+import Link from "next/link";
+import useLogin, { loginFields } from "./hooks/useLogin";
+import { loginStyles } from "./styles";
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { DynamicForm } from '../components/DynamicForm/DynamicForm(Original)';
-import type { FieldModel } from '../components/DynamicForm/types';
-import { useTheme } from '../context/ThemeContext/ThemeContext';
-import { ToggleButton } from '../components/ToogleButton.tsx/ToogleButton';
+/**
+ * `LoginPage` es la vista principal de autenticación de la intranet.
+ *
+ * Permite al usuario iniciar sesión utilizando el componente `DynamicForm`.
+ * Incluye un interruptor de "Recordarme", enlace para recuperar contraseña
+ * y una alerta para errores de inicio de sesión.
+ *
+ * También muestra una imagen de fondo en la parte derecha.
+ *
+ * @component
+ * @example
+ * return (
+ *   <LoginPage />
+ * )
+ *
+ * @param {LoginPageProps} props - Props para inyectar router simulado en Storybook o pruebas.
+ * @param {AppRouterInstance} [props.routerOverride] - Instancia opcional de router mockeado para test o Storybook.
+ *
+ * @returns {JSX.Element} Página de login con formulario interactivo.
+ */
 
-const loginFields: FieldModel[] = [
-  {
-    name: 'email',
-    type: 'email',
-    label: 'Correo electrónico',
-    value: '',
-    validations: [{ type: 'required' }, { type: 'email' }],
-  },
-  {
-    name: 'password',
-    type: 'password',
-    label: 'Contraseña',
-    value: '',
-    validations: [{ type: 'required' }, { type: 'minLength', value: 6 }],
-  },
-];
-
-export default function LoginPage() {
-  const router = useRouter();
-  const { theme, toggleTheme } = useTheme();
-
-  const handleLogin = (values: Record<string, any>) => {
-    console.log('Login con:', values);
-    router.push('/main-page/dashboard');
-  };
+const LoginPage = () => {
+  const { handleLogin, handleRemeber, remeberStatus, failMessage, isLoading } =
+    useLogin();
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      {/* Toggle de tema en la esquina superior derecha */}
-      <div className="absolute top-4 right-4">
-        <ToggleButton
-          checked={theme === 'dark'}
-          onChange={toggleTheme}
-          label={theme === 'light' ? '🌙' : '☀️'}
-        />
+    <div className={loginStyles.page}>
+      {/* Columna izquierda - Formulario */}
+      <div className={loginStyles.formContainer}>
+        <div className={loginStyles.formWrapper}>
+          <DynamicForm
+            fields={loginFields}
+            onSubmit={handleLogin}
+            submitLabel="Iniciar sesión"
+            loading={isLoading}
+          >
+            {/* Link "¿Olvidaste tu contraseña?" */}
+            <div className={loginStyles.rememberContainer}>
+              <ToggleButton
+                checked={remeberStatus}
+                onChange={handleRemeber}
+                label="Recordarme"
+                labelColor="text-black-100"
+              />
+              <Link
+                href="/login/recover-password"
+                className="text-label hover:text-black-100"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
+            {failMessage && (
+              <Alert
+                type="error"
+                variant="subtle"
+                title="Login incorrecto"
+                description={failMessage}
+                showPrimaryButton={false}
+                showSecondaryButton={false}
+              />
+            )}
+          </DynamicForm>
+        </div>
       </div>
 
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-6 text-center">Iniciar sesión</h1>
-        <DynamicForm
-          fields={loginFields}
-          onSubmit={handleLogin}
-          submitLabel="Entrar"
+      {/* Columna derecha - Logo */}
+      <div className={loginStyles.logoContainer}>
+        <Image
+          src={logoDesktop} // desktop
+          alt="Fondo DR Security (desktop)"
+          fill
+          priority
+          className={`${loginStyles.logo} hidden md:block`}
+          sizes="(min-width: 768px) 60vw, 0px"
+        />
+        <Image
+          src={logoMobile} // importa este arriba
+          alt="Fondo DR Security (mobile)"
+          fill
+          priority
+          className={`${loginStyles.logo} md:hidden`}
+          sizes="(max-width: 767px) 100vw, 0px"
         />
       </div>
     </div>
   );
-}
+};
+export default LoginPage;

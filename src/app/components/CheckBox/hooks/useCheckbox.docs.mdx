@@ -1,0 +1,14 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="Components/CheckBox/useIndeterminate" />
+
+# useIndeterminate
+
+Hook que permite marcar un elemento `input[type=checkbox]` como **indeterminate**.
+
+```tsx
+const ref = useRef<HTMLInputElement>(null)
+useIndeterminate(ref, true)
+```
+
+El hook actualiza la propiedad `indeterminate` cada vez que cambia el valor.

@@ -2,6 +2,7 @@
 import * as Yup from 'yup';
 import type { NumberSchema, AnyObject, Flags } from 'yup';
 import { FieldModel } from '../types';
+/** Genera un esquema Yup a partir de los campos. */
 
 export const getValidationSchema = (fields: FieldModel[]) => {
   return Yup.object(
@@ -26,6 +27,14 @@ export const getValidationSchema = (fields: FieldModel[]) => {
           }
           if (rule.type === 'max') {
             schema = schema.max(rule.value, `Máximo ${rule.value}`);
+          }
+        });
+        acc[field.name] = schema;
+      } else if (field.type === 'file') {
+        let schema = Yup.mixed();
+        field.validations?.forEach((rule) => {
+          if (rule.type === 'required') {
+            schema = schema.required('Este campo es requerido');
           }
         });
         acc[field.name] = schema;

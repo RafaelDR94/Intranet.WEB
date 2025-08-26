@@ -1,5 +1,6 @@
 import { FieldModel, Variant, WarningRule } from '../types';
 
+/** Devuelve el estilo que debe usarse para un campo. */
 export const resolveVariant = (
   field: FieldModel,
   touched: Record<string, boolean | undefined>,

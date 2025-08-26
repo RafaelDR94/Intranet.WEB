@@ -1,5 +1,8 @@
 // components/DynamicForm/types.ts
+import type { FC, SVGProps } from 'react';
+import type { InitialFile } from '../FileUploader/types';
 
+/** Tipos de campo soportados por el formulario. */
 export type InputType =
   | 'input'
   | 'email'
@@ -8,10 +11,14 @@ export type InputType =
   | 'select'
   | 'multiSelect'
   | 'checkbox'
-  | 'toggle';
+  | 'toggle'
+  | 'file'
+  | 'textarea';
 
+/** Estados visuales para campos y helper texts. */
 export type Variant = 'default' | 'success' | 'warning' | 'error' | 'info';
 
+/** Reglas de validación admitidas. */
 export type ValidationRule =
   | { type: 'required' }
   | { type: 'email' }
@@ -22,6 +29,7 @@ export type ValidationRule =
   | { type: 'noInitialSpaces' }
   | { type: 'noNumbers' };
 
+/** Reglas de advertencia no bloqueantes. */
 export interface WarningRule {
   type:
     | 'minLengthWarning'
@@ -34,28 +42,93 @@ export interface WarningRule {
   value?: number;
 }
 
+/** Modelo de definición de un campo del formulario. */
 export interface FieldModel {
   type: InputType;
   name: string;
   label: string;
   placeholder?: string;
-  value: string | string[] | number | boolean;
+  value: string | string[] | number | boolean | File | InitialFile | null;
   helperText?: string;
   inputSize?: 'md' | 'lg';
   variant?: Variant;
   options?: { label: string; value: string }[];
   validations?: ValidationRule[];
   warningRules?: WarningRule[];
-  showIf?: (values: Record<string, any>) => boolean;
+  showIf?: (values: Record<string, any>, fields: FieldModel[]) => boolean;
+
+  /** Props para file uploader */
+  accept?: string;
+  disabled?: boolean;
+  className?: string;
+  icon?: FC<SVGProps<SVGSVGElement>>;
+  initialFile?: InitialFile;
+  onlyText?: boolean;
+
+  onChange?: (value: any, values: Record<string, any>) => void;
+  /**Numero de filas en multilinea*/
+  rows?:number
 }
 
+/** Layouts por breakpoint (las proporciones por fila) */
+export type ResponsiveLayoutMatrix = {
+  sm?: number[][];
+  md?: number[][];
+  lg?: number[][];
+};
+
+/** Breakpoints en px (máximos inclusivos para sm y md; >md es lg) */
+export type Breakpoints = {
+  sm: number; // Máximo para sm (inclusive)
+  md: number; // Máximo para md (inclusive); >md será lg
+};
+
+/** Props del componente `DynamicForm`. */
 export interface DynamicFormProps {
+  /** Campos que definen la estructura del formulario. */
   fields: FieldModel[];
-  onSubmit: (values: { [key: string]: any }) => void;
+  /** Acción ejecutada al enviar el formulario con los valores limpios. */
+  onSubmit: (values: Record<string, any>) => void;
+  /** Título opcional que se muestra encima del formulario. */
   title?: string;
+  /** Texto del botón de envío. */
   submitLabel?: string;
+  /** Función que determina si se muestra el botón de envío. */
   showSubmitIf?: (values: Record<string, any>) => boolean;
+  /** Función que determina si se muestra el botón secundario. */
   showSecondaryButtonIf?: (values: Record<string, any>) => boolean;
+  /** Acción al hacer clic en el botón secundario. */
   onSecondaryButtonClick?: (values: Record<string, any>) => void;
+  /** Callback ejecutado cuando cambia la validez del formulario. */
+  onValidChange?: (isvalid: boolean) => void;
+  /** Texto del botón secundario. */
   secondaryButtonLabel?: string;
+  /** Contenido adicional que se renderiza dentro del formulario. */
+  children?: React.ReactNode;
+  /** Si es `true`, muestra un indicador de carga en el botón principal. */
+  loading?: boolean;
+
+  /**
+   * Matriz de proporciones para distribuir los campos por fila.
+   * Tiene prioridad sobre `responsiveLayoutMatrix`.
+   */
+  layoutMatrix?: number[][];
+
+  /**
+   * Layouts por breakpoint. Se usará el del breakpoint actual;
+   * si no existe, fallback hacia otros disponibles.
+   */
+  responsiveLayoutMatrix?: ResponsiveLayoutMatrix;
+
+  /** Breakpoints en px. Default: { sm: 640, md: 1024 } */
+  breakpoints?: Breakpoints;
+
+  /**
+   * Referencia opcional para disparar el submit desde fuera del componente.
+   * Al invocarse ejecutará la misma lógica que el botón interno.
+   */
+  externalSubmitRef?: React.RefObject<(() => void | Promise<any>) | null>;
+
+  /** Muestra un spinner de carga en lugar del formulario. */
+  loadingFormInfo?: boolean;
 }

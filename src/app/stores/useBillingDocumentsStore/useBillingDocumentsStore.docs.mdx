@@ -1,0 +1,41 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useBillingDocumentsStore" />
+
+# useBillingDocumentsStore
+
+Store de **Zustand** para manejar documentos de facturas y sus operaciones CRUD.
+
+## API
+
+- `billingDocuments: BillingDocument[]`
+- `billingDocument?: BillingDocument`
+- `loading: boolean`
+- `creating: boolean`
+- `updating: boolean`
+- `removing: boolean`
+- `error?: string`
+- `warning?: string`
+- `fetchBillingDocuments(force?: boolean): Promise<void>`
+- `fetchBillingDocumentById(id: string, force?: boolean): Promise<BillingDocument | null>`
+- `createBillingDocument(payload: BillingDocumentPost): Promise<BillingDocument | null>`
+- `updateBillingDocument(payload: BillingDocumentPut): Promise<BillingDocument | null>`
+- `deleteBillingDocument(id: string): Promise<boolean>`
+- `reset(): void`
+- `resetFlags(): void`
+
+## Uso
+
+```tsx
+import { useBillingDocumentsStore } from './useBillingDocumentsStore';
+
+export const Example = () => {
+  const { fetchBillingDocuments, billingDocuments } = useBillingDocumentsStore();
+  return (
+    <div>
+      <button onClick={() => fetchBillingDocuments()}>cargar</button>
+      <pre>{JSON.stringify(billingDocuments)}</pre>
+    </div>
+  );
+};
+```

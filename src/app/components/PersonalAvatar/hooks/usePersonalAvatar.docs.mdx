@@ -1,0 +1,19 @@
+import { Meta, Story, Preview, Source } from '@storybook/addon-docs';
+import { usePersonalAvatar } from './usePersonalAvatar';
+
+<Meta title="Hooks/usePersonalAvatar" />
+
+# usePersonalAvatar
+
+Este hook obtiene y prepara la información de presentación de un avatar personal a partir del contexto de autenticación (`AuthContext`).
+
+---
+
+## 📦 Uso
+
+```tsx
+import usePersonalAvatar from '@/app/components/PersonalAvatar/hooks/usePersonalAvatar';
+
+const { avatarInit } = usePersonalAvatar();
+console.log(avatarInit.initials); // "JD"
+console.log(avatarInit.src); // "img.png"

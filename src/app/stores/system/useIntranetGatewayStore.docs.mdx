@@ -1,0 +1,24 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useIntranetGatewayStore" />
+
+# useIntranetGatewayStore
+
+Store global que registra las funciones CRUD expuestas por el gateway de intranet.
+
+## API
+
+- `get?: IntranetGetType`
+- `post?: IntranetPostType`
+- `put?: IntranetPutType`
+- `del?: IntranetDeleteType`
+- `isReady: boolean`
+- `setCRUD(fns: Partial<Omit<GatewayState,'isReady'|'setCRUD'>>): void`
+
+## Uso
+
+```tsx
+import { useIntranetGatewayStore } from './useIntranetGatewayStore';
+
+useIntranetGatewayStore.getState().setCRUD({ get: myGetFn });
+```

@@ -1,0 +1,62 @@
+import { Meta } from '@storybook/addon-docs';
+
+# `usePermissions`
+
+Este hook personalizado permite validar y consultar permisos de acceso basados en el árbol de permisos `treeFirebase` del usuario autenticado.
+
+> Este árbol de permisos es usualmente entregado por Firebase como un objeto anidado con propiedades `Access` y `Permissions`.
+
+---
+
+## 🧠 ¿Qué hace?
+
+- Evalúa si un usuario tiene acceso a una ruta específica (`validPermissionsbyroute`)
+- Retorna los permisos asociados a una ruta (`getRoutePermissions`)
+
+---
+
+## 📦 Ejemplo de uso
+
+```tsx
+import usePermissions from '@/app/hooks/usePermissions';
+
+const { validPermissionsbyroute, getRoutePermissions } = usePermissions({ user });
+
+const canAccess = validPermissionsbyroute('/admin/dashboard');
+const permissions = getRoutePermissions('/admin/dashboard');
+```
+
+---
+
+## 🔍 Tipos
+
+```ts
+interface UsePermissionProp {
+  user: User | null;
+}
+
+type usePermissions = (props: UsePermissionProp) => {
+  validPermissionsbyroute: (route: string) => boolean;
+  getRoutePermissions: (route: string) => Record<string, any>;
+};
+```
+
+---
+
+## ✅ Requisitos
+
+Este hook requiere que el objeto `user` tenga la propiedad `treeFirebase` como un string JSON válido con la siguiente forma:
+
+```json
+{
+  "admin": {
+    "dashboard": {
+      "Acces": true,
+      "Permissions": {
+        "edit": true,
+        "delete": false
+      }
+    }
+  }
+}
+```
