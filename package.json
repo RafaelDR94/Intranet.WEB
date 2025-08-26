@@ -14,8 +14,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "deploy:storybook": "npm run build-storybook && firebase deploy --only hosting:drintranettecnicdocumentation",
-    "deploy:app": "npm run build && npm run export && firebase deploy --only hosting:intranetdr-50f9e",
-    "deploy:preview": "npm run build && npm run export && firebase hosting:channel:deploy preview --only hosting:intranetdr-50f9e --expires 7d"
+    "deploy:app": "npm run build && firebase deploy --only hosting:intranetdr-50f9e",
+    "deploy:preview": "npm run build  && firebase hosting:channel:deploy dev --only intranetdr-50f9e"
   },
   "dependencies": {
     "@azure/msal-browser": "^4.16.0",
