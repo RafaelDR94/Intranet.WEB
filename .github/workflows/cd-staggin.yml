@@ -52,7 +52,6 @@ jobs:
           fi
           echo "NEXT_PUBLIC_MODE actual:"
           grep -E '^NEXT_PUBLIC_MODE=' .env
-          
       - name: Sanity check env (pre-build)
         run: |
           set -e
@@ -64,7 +63,6 @@ jobs:
       # 🏗️ Build + (export si sirves estático desde "out")
       - name: Build Next (and export)
         env:
-          NEXT_PUBLIC_MODE: ${{ env.NEXT_PUBLIC_MODE }}
           NEXT_TELEMETRY_DISABLED: 1
         run: |
           npm run build
@@ -73,5 +71,17 @@ jobs:
       - name: Deploy app stagging page
         run: |
           firebase deploy --only hosting:stagginsite
+      # 📖 Storybook
+      - name: Build Storybook
+        run: npm run build-storybook
 
-     
+      - name: Verify storybook-static
+        run: |
+          set -e
+          test -d storybook-static || { echo "ERROR: 'storybook-static/' no existe. Revisa 'npm run build-storybook'."; exit 1; }
+          ls -la storybook-static | head -n 50
+      - name: Deploy Storybook
+        run: |
+          set -e
+          firebase deploy --only hosting:drintranettecnicdocumentation 
+
