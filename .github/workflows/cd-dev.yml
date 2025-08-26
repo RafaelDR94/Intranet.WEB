@@ -42,10 +42,16 @@ jobs:
       - name: Install Firebase CLI
         run: npm i -g firebase-tools
 
-      - name: Set NEXT_PUBLIC_MODE por rama
+      - name: Patch NEXT_PUBLIC_MODE in .env
         run: |
-          MODE=2 
-          echo "NEXT_PUBLIC_MODE=$MODE" >> $GITHUB_ENV
+          touch .env
+          if grep -q '^NEXT_PUBLIC_MODE=' .env; then
+            sed -i 's/^NEXT_PUBLIC_MODE=.*/NEXT_PUBLIC_MODE=2/' .env
+          else
+            echo 'NEXT_PUBLIC_MODE=2' >> .env
+          fi
+          echo "NEXT_PUBLIC_MODE actual:"
+          grep -E '^NEXT_PUBLIC_MODE=' .env
 
 
       # 🏗️ Build + (export si sirves estático desde "out")
@@ -60,6 +66,6 @@ jobs:
       # Usamos el siteId como argumento posicional (tu CLI no acepta --site)
       - name: Deploy app stagging page
         run: |
-          firebase deploy --only hosting:intranetdr
+          firebase hosting:channel:deploy dev --only intranetdr
 
      
