@@ -5,7 +5,6 @@ import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { basicPut } from "@/app/configurations/Axios/GenericMethods";
 import { intranetClient } from "@/app/configurations/Axios/Clients";
-import { Alert } from "@/app/components/Alert/Alert";
 
 /**
  * Hook para evaluar un media query y responder a cambios.
