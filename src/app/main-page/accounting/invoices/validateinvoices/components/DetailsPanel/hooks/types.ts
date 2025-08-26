@@ -1,5 +1,6 @@
-import { BillingDocuments ,BillingDocumentsSatTable} from "@/app/mappings/billingdocuments/billingdocuments.types";
+import { BillingDocuments, BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
 export interface UseDetailsPanelArgs {
-  selected: BillingDocumentsSatTable|BillingDocuments|null;
-  rejectType:boolean  
+  selected: BillingDocumentsSatTable | BillingDocuments | null;
+  rejectType: boolean
+  setPanelOpen: (open: boolean) => void;
 }

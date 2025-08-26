@@ -6,7 +6,7 @@ import { shallow } from "zustand/shallow";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { UseDetailsPanelArgs } from "./types";
 
-export const useDetailsPanel = ({ selected ,rejectType}: UseDetailsPanelArgs) => {
+export const useDetailsPanel = ({ selected, rejectType, setPanelOpen }: UseDetailsPanelArgs) => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -65,7 +65,7 @@ export const useDetailsPanel = ({ selected ,rejectType}: UseDetailsPanelArgs) =>
     const payload = {
       id: selected?.billingdocument_id ?? "",
       comment: values.comments ?? "",
-      type:rejectType
+      type: rejectType
     };
     rejectBillingDocument(payload)
   };
@@ -90,6 +90,7 @@ export const useDetailsPanel = ({ selected ,rejectType}: UseDetailsPanelArgs) =>
     }
     hideSpinner();
     if (successPut) {
+      setPanelOpen(false);
       showAlert({
         type: "info",
         title: "Comentario Enviado",
@@ -100,6 +101,7 @@ export const useDetailsPanel = ({ selected ,rejectType}: UseDetailsPanelArgs) =>
       });
     }
     if (succesValidate) {
+      setPanelOpen(false);
       showAlert({
         type: "info",
         title: "Factura Validada",
@@ -110,9 +112,10 @@ export const useDetailsPanel = ({ selected ,rejectType}: UseDetailsPanelArgs) =>
       });
     }
     if (succesReject) {
+      setPanelOpen(false);
       showAlert({
         type: "info",
-        title: "Factura Validada",
+        title: "Factura Rechazada",
         description: "Se ha rechazado correctamente.",
         showPrimaryButton: false,
         showSecondaryButton: false,
@@ -131,7 +134,7 @@ export const useDetailsPanel = ({ selected ,rejectType}: UseDetailsPanelArgs) =>
     }
     resetFlags();
 
-  }, [updating, error, successPut,rejecting,validating,succesReject,succesValidate]);
+  }, [updating, error, successPut, rejecting, validating, succesReject, succesValidate]);
 
 
   return {

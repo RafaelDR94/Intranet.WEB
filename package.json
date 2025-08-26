@@ -1,6 +1,6 @@
 {
   "name": "intranet.web",
-  "version": "1.40.1",
+  "version": "1.41.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,7 +12,10 @@
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "deploy:storybook": "npm run build-storybook && firebase deploy --only hosting:drintranettecnicdocumentation",
+    "deploy:app": "npm run build && npm run export && firebase deploy --only hosting:intranetdr-50f9e",
+    "deploy:preview": "npm run build && npm run export && firebase hosting:channel:deploy preview --only hosting:intranetdr-50f9e --expires 7d"
   },
   "dependencies": {
     "@azure/msal-browser": "^4.16.0",

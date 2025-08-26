@@ -17,5 +17,6 @@ export interface UseInvoicesFormProps {
   dataEdit?: HistoryRow | null
   billingImages?: BillingImagesTable | null
   withoutName?: boolean
+  onCloseImage?: () => void;
 
 }

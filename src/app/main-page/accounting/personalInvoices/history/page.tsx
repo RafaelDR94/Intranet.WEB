@@ -80,10 +80,7 @@ const PersonalInvoicesHistory = () => {
     <>
       <div className="space-y-8 overflow-auto">
         <DataTable
-          onSearchChange={(val) => console.log('Buscar rechazadas:', val)}
-          onCalendarClick={() => console.log('Calendario rechazadas')}
-          onFilterClick={() => console.log('Filtro rechazadas')}
-          onSearch={() => console.log('Descargar rechazadas')}
+
           showButton={false}
           showDownloadTable
           tables={[
@@ -102,10 +99,6 @@ const PersonalInvoicesHistory = () => {
 
         <DataTable
           showDownloadTable
-          onSearchChange={(val) => console.log('Buscar historial:', val)}
-          onCalendarClick={() => console.log('Calendario historial')}
-          onFilterClick={() => console.log('Filtro historial')}
-          onSearch={() => console.log('Descargar historial')}
           showButton={false}
           tables={[
             {

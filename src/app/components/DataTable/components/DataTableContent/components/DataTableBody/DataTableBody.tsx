@@ -14,11 +14,11 @@ export const DataTableBody = <T extends { id: string | number }>({
   const isMobile = useIsMobile()
   return (
     <>
-      {data.map((row) => {
+      {data.map((row,index) => {
         const isSelected = selected.includes(row)
         return (
           <div
-            key={row.id}
+            key={`${row.id}-${index}`}
             className={DataTableBodyStyles.bodyContainer}
           >
             {enableSelection && (

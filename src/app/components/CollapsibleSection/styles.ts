@@ -8,6 +8,7 @@ const styles = {
   title: 'max-w-full text-start',
   divider: 'hidden sm:block border-t border-blue-60 flex-1 h-px',
   content: 'mt-2',
+  toggleButton: 'flex items-center gap-2 shrink-0 text-left'
 };
 
 export default styles;

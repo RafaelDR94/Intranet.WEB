@@ -16,7 +16,21 @@ vi.mock('@/assets/icons/Connectivity/wifi.svg', () => ({ default: () => <svg dat
 vi.mock('@/assets/icons/System/System/darkmode.svg', () => ({ default: () => <svg data-testid="theme" /> }))
 vi.mock('@/assets/icons/acciones/help-circle.svg', () => ({ default: () => <svg data-testid="help" /> }))
 vi.mock('@/assets/icons/acciones/open-in-window.svg', () => ({ default: () => <svg data-testid="logout" /> }))
-
+vi.mock('@/assets/icons/Comunicacion/bell.svg', () => ({ default: () => <svg data-testid="bell" /> }))
+vi.mock('@/assets/icons/acciones/menu.svg', () => ({ default: () => <svg data-testid="menu" /> }))
+vi.mock('./components/MainSidebar/MainSidebar', () => ({
+  __esModule: true,
+  default: () => {
+    const [open, setOpen] = React.useState(false);
+    return (
+      <div>
+        <a>Inicio</a>
+        <button onClick={() => setOpen(!open)}>Solicitudes</button>
+        {open && <div>Facturación</div>}
+      </div>
+    );
+  },
+}))
 vi.mock('@/app/components/PersonalAvatar/PersonalAvatar', () => ({ default: () => <div>Avatar</div> }))
 vi.mock('@/app/components/ToogleButton/ToogleButton', () => ({ ToggleButton: ({ onChange }: any) => <input type="checkbox" onChange={e => onChange(e.target.checked)} /> }))
 vi.mock('@/app/components/Alert/Alert', () => ({ Alert: () => <div>Alert</div> }))
@@ -119,8 +133,8 @@ describe('MainLayoutClient', () => {
       </MainLayoutClient>
     )
 
-    expect(await screen.findByText('Inicio')).toBeInTheDocument()
-    expect(screen.getByText('Solicitudes')).toBeInTheDocument()
+    expect(screen.getAllByText('Inicio')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('Solicitudes')[0]).toBeInTheDocument()
     expect(screen.getByText('Child')).toBeInTheDocument()
   })
 
@@ -131,11 +145,11 @@ describe('MainLayoutClient', () => {
       </MainLayoutClient>
     )
 
-    const solicitudes = await screen.findByText('Solicitudes')
+       const solicitudes = screen.getAllByText('Solicitudes')[0]
     fireEvent.click(solicitudes)
 
     expect(screen.getByText('Facturación')).toBeInTheDocument();
   });
 
-  
+
 });

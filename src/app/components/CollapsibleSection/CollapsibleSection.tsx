@@ -16,6 +16,7 @@ import ArrowUp from '@/assets/icons/navegacion/nav-arrow-up.svg';
  * - `defaultOpen`: boolean — (opcional) Indica si la sección debe iniciarse abierta (por defecto: `true`).
  * - `className`: string — (opcional) Clases adicionales para el wrapper.
  * - `rightContent`: contenido personalizado que se renderiza a la derecha del título (antes o en lugar del divider).
+ *  *   Se renderiza fuera del botón de colapso para evitar anidar elementos interactivos.
  * - `showDivider`: controla si se muestra el divider.
  * -`enableCollapse`: boolean — (opcional) Habilita o deshabilita el comportamiento colapsable..
  *
@@ -47,26 +48,29 @@ export const CollapsibleSection = ({
 
   return (
     <section className={cn(styles.wrapper, className)}>
-      <button
-        type="button"
-        className={styles.header}
-        aria-expanded={isOpen}
-        onClick={() => { if (enableCollapse) setIsOpen(!isOpen) }}
-      >
-        <div className={styles.headerContent}>
-          {enableCollapse &&
-            (isOpen
-              ? <ArrowDown className={styles.icon} />
-              : <ArrowUp className={styles.icon} />)}
-          <span className={styles.title}>{title}</span>
-        </div>
+      <div className={styles.header}>
+        <button
+          type="button"
+          className={styles.toggleButton}
+          aria-expanded={isOpen}
+          onClick={() => {
+            if (enableCollapse) setIsOpen(!isOpen);
+          }}
+        >
+          <div className={styles.headerContent}>
+            {enableCollapse &&
+              (isOpen
+                ? <ArrowDown className={styles.icon} />
+                : <ArrowUp className={styles.icon} />)}
+            <span className={styles.title}>{title}</span>
+          </div>
+
+        </button>
         {showDivider && <div className={styles.divider} />}
         {rightContent && (
           <div className="flex items-center ml-auto">{rightContent}</div>
         )}
-
-
-      </button>
+      </div>
 
       {isOpen && <div className={styles.content}>{children}</div>}
     </section>

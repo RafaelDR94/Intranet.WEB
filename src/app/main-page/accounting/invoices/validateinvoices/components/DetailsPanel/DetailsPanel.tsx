@@ -31,7 +31,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     handleSubmitComment,
     handleSubmitReject,
     handleSubmitValid,
-  } = useDetailsPanel({ selected, rejectType });
+  } = useDetailsPanel({ selected, rejectType,setPanelOpen });
 
   return (
     <DetailsPanelLayout

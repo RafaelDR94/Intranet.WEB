@@ -92,10 +92,7 @@ export default function MainLayoutClient({
           <div className={mainLayoutStyles.alertContainer}>
             <Alert
               {...alert}
-              onClose={() => {
-                console.log("Se esta escondiendo aqui");
-                hideAlert();
-              }}
+              onClose={() => { hideAlert(); }}
               onPrimaryClick={alert.onPrimaryClick ?? hideAlert}
               onSecondaryClick={alert.onSecondaryClick ?? hideAlert}
               variant="subtle"

@@ -20,7 +20,8 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
     formReady,
     setFormReady,
     handleSubmit,
-  } = useInvoicesForm({ dataEdit, withoutName, billingImages });
+    
+  } = useInvoicesForm({ dataEdit, withoutName, billingImages,onCloseImage })
 
   if (externalSubmitRef) {
     return (

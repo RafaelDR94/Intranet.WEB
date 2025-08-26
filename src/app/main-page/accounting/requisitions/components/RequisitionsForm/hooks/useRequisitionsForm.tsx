@@ -56,7 +56,8 @@ export const useRequisitionForm = (
   const [formReady, setFormReady] = useState(false);
 
   // Form Fields (multi-instancia por formId)
-  const fields = useFormFieldsStore((s) => s.fieldsByFormId[formId] ?? []);
+const emptyRef = useRef<FieldModel[]>([]);
+const fields = useFormFieldsStore((s) => s.fieldsByFormId[formId] ?? emptyRef.current);
   const { setFields, updateField, resetFields } = useFormFieldsStore.getState();
 
   // Employees (prefetch)
@@ -79,7 +80,23 @@ export const useRequisitionForm = (
     }),
     shallow
   );
-  useEffect(() => { fetchProyects(); }, [fetchProyects]);
+  useEffect(() => { fetchProyects(); }, []);
+
+  const ResetForm = () => {
+    resetFields(formId);
+    setTimeout(() => {
+      const initialFields: FieldModel[] = createInitialFields();
+      setFields(formId, initialFields);
+      setTimeout(() => {
+        UpdateProyects();
+        UpdateEmployees();
+      }
+        , 250)
+    }, 500)
+
+
+
+  }
 
   // Requisitions (create / update)
   const {
@@ -110,6 +127,30 @@ export const useRequisitionForm = (
     [opRunning, opSuccess, error]
   );
 
+  const UpdateEmployees = () => {
+    if (employees?.length) {
+      updateField(formId, 'employees', {
+        options: employees.map((e: EmployeeType) => ({
+          label: e.fullname,
+          value: e.employee_id,
+        })),
+        value: ""
+      });
+    }
+  }
+
+  const UpdateProyects = () => {
+    if (proyects?.length) {
+      updateField(formId, 'project', {
+        options: proyects.map((p: Proyect) => ({
+          label: p.proyectKey,
+          value: p.id,
+        })),
+        value: ""
+      });
+    }
+  }
+
   // Monta iniciales y limpia
   useEffect(() => {
     const initialFields: FieldModel[] = createInitialFields();
@@ -118,31 +159,17 @@ export const useRequisitionForm = (
       resetFields(formId);
       resetFlags();
     };
-  }, [formId, setFields, resetFields, resetFlags]);
-  
+  }, [formId]);
+
 
   // Popular opciones: empleados
   useEffect(() => {
-    if (employees?.length) {
-      updateField(formId, 'employees', {
-        options: employees.map((e: EmployeeType) => ({
-          label: e.fullname,
-          value: e.employee_id,
-        })),
-      });
-    }
+    UpdateEmployees();
   }, [employees, formId]);
 
   // Popular opciones: proyectos
   useEffect(() => {
-    if (proyects?.length) {
-      updateField(formId, 'project', {
-        options: proyects.map((p: Proyect) => ({
-          label: p.proyectKey,
-          value: p.id,
-        })),
-      });
-    }
+    UpdateProyects();
   }, [proyects, formId]);
 
   // Setear valores iniciales cuando existan (modo edit)
@@ -157,7 +184,7 @@ export const useRequisitionForm = (
       updateField(formId, 'project', { value: initialValues.projectId });
     }
     if (initialValues.requisitionKey !== undefined) {
-      updateField(formId, 'requisitionkey', { value: initialValues.requisitionKey,onlyText:true });
+      updateField(formId, 'requisitionkey', { value: initialValues.requisitionKey, onlyText: true });
     }
   }, [initialValues, formId]);
 
@@ -206,6 +233,7 @@ export const useRequisitionForm = (
     hideSpinner();
 
     if (opSuccess) {
+      ResetForm();
       showAlert({
         type: 'success',
         variant: 'filled',
@@ -213,9 +241,9 @@ export const useRequisitionForm = (
         description: mode === 'create'
           ? 'Se registró la requisición.'
           : 'Se actualizó la requisición.',
-        autoCloseMs:1500,
-        showPrimaryButton:false,
-        showSecondaryButton:false,
+        autoCloseMs: 1500,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
         onClose: () => { resetFlags(); },
       });
     }
