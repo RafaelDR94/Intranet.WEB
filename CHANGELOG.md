@@ -342,3 +342,9 @@ Feature:
 Fix:
 
 - Added missing context mocks for stable unit tests. (Agente IA) [#]()
+
+### 1.44.0 DynamicForm NumberControl support 2025-08-27
+
+Feature:
+
+- Added NumberControl field type to DynamicForm with tests and docs. (Agente IA) [#]()

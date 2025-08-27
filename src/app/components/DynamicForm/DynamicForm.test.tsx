@@ -194,4 +194,19 @@ describe('DynamicForm', () => {
     // Después de proporcionar un valor válido se notifica validez true
     await waitFor(() => expect(handleValid).toHaveBeenCalledWith(true))
   })
+
+  it('maneja NumberControl y envía el valor actualizado', async () => {
+    const fields: FieldModel[] = [
+      { type: 'numberControl', name: 'cantidad', label: 'Cantidad', value: 1, min: 0, max: 10 }
+    ]
+    const { onSubmit } = renderForm(fields)
+
+    const plusBtn = screen.getByTestId('plus-icon').closest('button')!
+    fireEvent.click(plusBtn)
+
+    fireEvent.click(screen.getByText('Submit'))
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({ cantidad: 2 })
+    })
+  })
 })

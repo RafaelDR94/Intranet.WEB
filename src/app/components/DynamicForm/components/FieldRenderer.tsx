@@ -5,6 +5,7 @@ import { Select } from '../../Select/Select';
 import { ToggleButton } from '../../ToogleButton.tsx/ToogleButton';
 import { Checkbox } from '../../CheckBox/CheckBox';
 import { FileUploader } from '../../FileUploader/FileUploader';
+import { NumberControl } from '../../NumberControl/NumberControl';
 import { helperClasses } from '../../Input/styles';
 import type { InputVariant } from '../../Input/types.tsx';
 import { fieldRendererStyles } from './styles';
@@ -130,6 +131,22 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             </span>
           )}
         </div>
+      );
+    case 'numberControl':
+      return (
+        <NumberControl
+          label={field.label}
+          value={value === null ? undefined : (value as number)}
+          onChange={handleChange}
+          min={field.min}
+          max={field.max}
+          step={field.step}
+          size={(field.inputSize as any) || 'md'}
+          variant={field.disabled ? 'disabled' : (variant as any)}
+          disabled={field.disabled}
+          helperText={helperText}
+          className={field.className}
+        />
       );
     case 'textarea':
       return (

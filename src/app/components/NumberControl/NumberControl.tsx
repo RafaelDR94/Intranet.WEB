@@ -7,7 +7,12 @@ import { Control } from '@/app/components/Control/Control';
 import { numberControlStyles as s } from './styles';
 import { NumberControlProps } from './types';
 import { useNumberControl } from './hooks/useNumberControl';
-
+/**
+ * Componente de entrada numérica con botones para incrementar y decrementar.
+ *
+ * Puede funcionar como controlado o no controlado y opcionalmente restringe
+ * el valor dentro de un rango definido por `min` y `max`.
+ */
 export const NumberControl: React.FC<NumberControlProps> = ({
   value,
   onChange,
