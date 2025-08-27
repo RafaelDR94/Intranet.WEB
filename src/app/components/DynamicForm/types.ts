@@ -8,6 +8,7 @@ export type InputType =
   | 'email'
   | 'password'
   | 'number'
+  | 'numberControl'
   | 'select'
   | 'multiSelect'
   | 'checkbox'
@@ -68,6 +69,10 @@ export interface FieldModel {
   onChange?: (value: any, values: Record<string, any>) => void;
   /**Numero de filas en multilinea*/
   rows?:number
+  /** Propiedades para campos numéricos */
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 /** Layouts por breakpoint (las proporciones por fila) */

@@ -7,9 +7,10 @@ describe('getInitialValues',()=>{
     const fields:FieldModel[]=[
       {name:'name',label:'Name',value:'',type:'text'},
       {name:'age',label:'Age',value:null,type:'number'},
-      {name:'file',label:'File',value:null,type:'file'}
+      {name:'file',label:'File',value:null,type:'file'},
+      {name:'qty',label:'Qty',value:null,type:'numberControl'}
     ]
     const result=getInitialValues(fields)
-    expect(result).toEqual({name:'',age:null,file:null})
+    expect(result).toEqual({name:'',age:null,file:null,qty:null})
   })
 })

@@ -56,4 +56,28 @@ describe('FieldRenderer', () => {
 
     expect(screen.getByText('Ubicación')).toBeInTheDocument(); // 👈 más seguro que `getByLabelText`
   });
+
+  it('renderiza NumberControl con controles', () => {
+    const field: FieldModel = {
+      type: 'numberControl',
+      name: 'cantidad',
+      label: 'Cantidad',
+      value: 1,
+      min: 0,
+      max: 5,
+    };
+
+    render(
+      <FieldRenderer
+        field={field}
+        value={1}
+        allValues={{}}
+        onChange={vi.fn()}
+        variant="default"
+      />
+    );
+
+    expect(screen.getByText('Cantidad')).toBeInTheDocument();
+    expect(screen.getByTestId('plus-icon')).toBeInTheDocument();
+  });
 });
