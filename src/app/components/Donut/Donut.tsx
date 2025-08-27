@@ -1,4 +1,6 @@
+import React from "react";
 import { DonutProps } from "./types";
+import { donutStyles as s } from "./styles";
 
 const Donut: React.FC<DonutProps> = ({
   percentage, size = 200, thickness = 30, innerRadius = 70
@@ -17,21 +19,29 @@ const Donut: React.FC<DonutProps> = ({
   const endY = cy + r * Math.sin(angle);
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="[filter:drop-shadow(0_6px_10px_rgba(0,0,0,0.12))]">
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={s.svg}>
       {/* Rotamos para que el inicio esté arriba (12 en punto) */}
       <g transform={`rotate(-90 ${cx} ${cy})`}>
         {/* Track */}
-        <circle cx={cx} cy={cy} r={r}  className="stroke-green-10" strokeWidth={thickness} fill="none" strokeLinecap="round" />
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r}
+          className={s.track}
+          strokeWidth={thickness}
+          fill="none"
+          strokeLinecap="round"
+        />
 
         {/* Progreso con inicio PLANO */}
         <circle
           cx={cx}
           cy={cy}
           r={r}
-         className="stroke-green-90"
+          className={s.progress}
           strokeWidth={thickness}
           fill="none"
-          strokeLinecap="butt"              // <— plano en el inicio (arriba)
+          strokeLinecap="butt" // <— plano en el inicio (arriba)
           strokeDasharray={c}
           strokeDashoffset={c * (1 - ratio)}
           style={{ transition: "stroke-dashoffset 500ms ease" }}
@@ -39,7 +49,7 @@ const Donut: React.FC<DonutProps> = ({
 
         {/* “Cap” redondo solo en el extremo final */}
         {ratio > 0 && ratio < 1 && (
-          <circle cx={endX} cy={endY} r={thickness / 2} className="fill-green-90" />
+          <circle cx={endX} cy={endY} r={thickness / 2} className={s.cap} />
         )}
       </g>
 
