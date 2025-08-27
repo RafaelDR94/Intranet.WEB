@@ -3,15 +3,17 @@ import React from 'react';
 import FormsLayout from '@/app/components/FormsLayout/FormsLayout';
 import FileUploaderExpanded from '@/app/components/FileUploaderexpanded/FileUploaderExpanded';
 import { useExcelLoader } from './hooks/useExcelLoader';
-
+import { useAuth } from '@/app/context/AuthContext/AuthContext';
 /**
  * Componente que permite subir un archivo de requisiciones en formato Excel
  * y delega la lógica del proceso al hook `useExcelLoader`.
  */
 const ExcelLoader = () => {
   const { handleFile, onSubmit, buttonDisabled } = useExcelLoader();
+  const { currentPagePermissions } = useAuth();
 
-  return (
+
+  if (currentPagePermissions?.addMultiple) return (
     <FormsLayout
       title="Sube aquí tus requisiciones"
       primaryLabel="Subir Archivo"
@@ -24,8 +26,10 @@ const ExcelLoader = () => {
         onFile={handleFile}
         label="Selecciona el archivo excel a subir"
       />
+
     </FormsLayout>
   );
+
 };
 
 export default ExcelLoader;

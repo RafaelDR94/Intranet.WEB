@@ -34,8 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [hasExpired, setHasExpired] = useState(false);
   const [remeberMe, setRemeberMe] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
-
-  const { validPermissionsbyroute, getRoutePermissions } = usePermissions({ user });
+  const { validPermissionsbyroute, getRoutePermissions, getCurrentPathAcces, getCurrentPathPermissions,currentPagePermissions } = usePermissions({ user });
 
   /** Carga el usuario autenticado desde almacenamiento local (IndexedDB o similar). */
   useEffect(() => {
@@ -133,6 +132,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await saveUser(newUser);
       await saveLastUserRemebered(newUser);
       setUser(newUser);
+
     } else {
       console.error("No se pudo actualizar el usuario");
     }
@@ -210,6 +210,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUserRemebered(null);
   };
 
+  useEffect(() => {
+    if (user) {
+
+      validLoggin();
+    }
+  }, [user])
+
   /** Contexto exportado con memoización. */
   const contextValue = useMemo(() => ({
     user,
@@ -218,6 +225,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     remeberMe,
     userRemebered,
     offlineMode,
+    currentPagePermissions,
     handleForgetUser,
     login,
     logout,
@@ -230,14 +238,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     handleRemeberMe,
     handleOfflineMode,
     getRoutePermissions,
-    updateUserPermissions
+    updateUserPermissions,
+    getCurrentPathAcces,
+    getCurrentPathPermissions
   }), [
     user,
     token,
     hasExpired,
     remeberMe,
     userRemebered,
-    offlineMode
+    offlineMode,
+    currentPagePermissions
   ]);
 
   return (
