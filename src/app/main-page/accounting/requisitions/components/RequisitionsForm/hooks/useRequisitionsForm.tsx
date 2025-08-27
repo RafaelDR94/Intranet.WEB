@@ -20,7 +20,7 @@ import {
   createInitialFields
 } from '../utilities/requisition';
 import { SubmitFn } from '../../../requisitions/components/ExcelLoader/hooks/types';
-
+import { useAuth } from '@/app/context/AuthContext/AuthContext';
 /** Valores iniciales permitidos para el formulario de requisiciones. */
 export type RequisitionInitialValues = {
   /** id de la requisición (obligatorio en edit) */
@@ -45,7 +45,7 @@ export const useRequisitionForm = (
   initialValues?: RequisitionInitialValues
 ) => {
   const formId = `requisitions-form-${mode}`;
-
+  const {currentPagePermissions}=useAuth();
   // Principal (spinner + alert)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -294,5 +294,6 @@ const fields = useFormFieldsStore((s) => s.fieldsByFormId[formId] ?? emptyRef.cu
     handleSubmit,
     onSubmit: () => submitRef.current?.(),
     buttonDisabled: !formReady,
+    currentPagePermissions
   };
 };

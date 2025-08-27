@@ -4,7 +4,6 @@ import React from 'react';
 import FormsLayout from '@/app/components/FormsLayout/FormsLayout';
 import DynamicForm from '@/app/components/DynamicForm/DynamicForm';
 import { useRequisitionForm, RequisitionInitialValues } from './hooks/useRequisitionsForm';
-
 /**
  * Props for the {@link RequisitionsForm} component.
  * @property mode define si el formulario crea o edita.
@@ -34,9 +33,10 @@ const RequisitionsForm: React.FC<Props> = ({ mode = 'create', initialValues, onC
     handleSubmit,
     onSubmit,
     buttonDisabled,
+    currentPagePermissions
   } = useRequisitionForm(mode, initialValues);
 
-  return (
+  if(currentPagePermissions?.requisitionForm) return (
     <FormsLayout
       title={mode === 'create' ? 'Solicitud de Requisiciones' : 'Editar Requisición'}
       primaryLabel="Guardar"

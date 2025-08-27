@@ -16,34 +16,35 @@ import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 import DeleteIcon from "@/assets/icons/acciones/trash.svg";
 import { container, actionCell } from "./styles";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
-
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
   row,
   onEdit,
   onDelete,
 }) => {
+  const { currentPagePermissions } = useAuth();
+  const menuItems = []
+  if (currentPagePermissions?.update) menuItems.push({
+    label: "Editar",
+    icon: EditIcon,
+    onClick: () => {
+      onEdit(row);
+    },
+  })
+  if (currentPagePermissions?.delete) menuItems.push({
+    label: "Eliminar",
+    icon: DeleteIcon,
+    danger: true,
+    onClick: () => {
+      onDelete(row);
+    },
+  })
   return (
     <ContextMenu
       alignRight
       autoFlip
       trigger={<Button size="xsmall" variant="ghost" icon={DotsIcon} />}
-      items={[
-        {
-          label: "Editar",
-          icon: EditIcon,
-          onClick: () => {
-            onEdit(row);
-          },
-        },
-        {
-          label: "Eliminar",
-          icon: DeleteIcon,
-          danger: true,
-          onClick: () => {
-            onDelete(row);
-          },
-        },
-      ]}
+      items={menuItems}
     />
   );
 };
@@ -64,6 +65,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
     refresh,
   } = useRequisitionTable({ onEditRequest });
   const isMobile = useIsMobile();
+  const { currentPagePermissions } = useAuth();
   // Inyecta la celda de acciones una vez que existen callbacks
   const computedColumns: ColumnDefinition<RequisitionRow>[] =
     React.useMemo(() => {
@@ -128,27 +130,30 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
         primaryButtonText={removing ? "Eliminando…" : "Eliminar"}
         onPrimaryButtonClick={handleConfirmDelete}
       />
+      {/* <RequisitionDetails/> */}
+      {currentPagePermissions?.read &&
+        <DataTable
+          dataTableTitle="Listado de Requisiciones"
+          onSearchChange={setQuery}
+          onCalendarClick={(start, end) => refresh(start, end)}
+          onFilterClick={refresh}
+          tables={[
+            {
+              data: rows,
+              columns: columns,
+              enableSelection: true,
+              title: "Listado Requisiciones",
+              enableCollaps: true,
+              defaultSortKey: "date_created",
+              defaultSortDirection: "desc",
+            },
+          ]}
+          showDownloadTable
+          showButton={false}
+          dateKey={"date_created"}
+        />}
 
-      <DataTable
-        dataTableTitle="Listado de Requisiciones"
-        onSearchChange={setQuery}
-        onCalendarClick={(start, end) => refresh(start, end)}
-        onFilterClick={refresh}
-        tables={[
-          {
-            data: rows,
-            columns: columns,
-            enableSelection: true,
-            title: "Listado Requisiciones",
-            enableCollaps: true,
-            defaultSortKey: "date_created",
-            defaultSortDirection: "desc",
-          },
-        ]}
-        showDownloadTable
-        showButton={false}
-        dateKey={"date_created"}
-      />
+
     </div>
   );
 };

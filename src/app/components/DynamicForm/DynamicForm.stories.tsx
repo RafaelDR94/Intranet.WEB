@@ -89,6 +89,7 @@ const allFields: FieldModel[] = [
     validations: [{ type: 'minLength', value: 10 }],
   },
   { type: 'toggle', name: 'activo', label: '¿Está activo?', value: true },
+  { type: 'numberControl', name: 'edad', label: 'Edad', value: 30, min: 0, max: 120, step: 1 },
   { type: 'checkbox', name: 'terminos', label: 'Acepto términos', value: false, validations: [{ type: 'required' }] },
   {
     type: 'file',

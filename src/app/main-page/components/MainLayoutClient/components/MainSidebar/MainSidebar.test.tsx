@@ -7,6 +7,15 @@ import { AuthProvider } from '@/app/context/AuthContext/AuthContext';
 import { PrincipalProvider } from '@/app/context/PrincipalContext/PrincipalContext';
 import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
 import { createMockRouter } from '@/__mocks__/mockRouter';
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(() => '/main-page/home'),
+}));
+vi.mock('@/app/context/AuthContext/utilities/AuthService', () => ({
+  authenticateUser: vi.fn(),
+  readUser: vi.fn().mockResolvedValue(null),
+  logoutUser: vi.fn(),
+  readUserRemebered: vi.fn().mockResolvedValue(null),
+}));
 
 // 🔁 Mocks de recursos
 

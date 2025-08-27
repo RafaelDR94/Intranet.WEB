@@ -28,6 +28,9 @@ const mockHook = {
   handleSubmit: vi.fn(),
   onSubmit: vi.fn(),
   buttonDisabled: false,
+  currentPagePermissions: {
+    requisitionForm: true,
+  },
 };
 
 vi.mock('./hooks/useRequisitionsForm', () => ({

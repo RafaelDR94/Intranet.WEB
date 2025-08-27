@@ -34,6 +34,10 @@ vi.mock('./hooks/useExcelLoader', () => ({
   }),
 }));
 
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({ currentPagePermissions: { addMultiple: true } }),
+}));
+
 describe('ExcelLoader component', () => {
   it('renders layout and file input', () => {
     render(<ExcelLoader />);

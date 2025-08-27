@@ -1,6 +1,7 @@
 
 import { User } from "../types";
-
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 interface UsePermissionProp {
   user: User | null;
 }
@@ -56,7 +57,7 @@ const usePermissions = ({ user }: UsePermissionProp) => {
   const validPermissionsbyroute = (route: string): boolean => {
     try {
 
-      
+
       if (!user?.treeFirebase) return false;
 
       const permissions = JSON.parse(user.treeFirebase);
@@ -76,15 +77,47 @@ const usePermissions = ({ user }: UsePermissionProp) => {
     if (user?.treeFirebase) {
       if (!user?.treeFirebase) return {};
 
-    const permissions = JSON.parse(user.treeFirebase);
-    return getPermissions(route, permissions);
+      const permissions = JSON.parse(user.treeFirebase);
+      return getPermissions(route, permissions);
     }
     return {};
   };
+  const pathname = usePathname();
+  /**
+* Devuelve los permisos asociados a una ruta actual.
+*
+* @param strictPath - Ruta estricta a consultar por default es la actual.
+* 
+*/
+
+  const getCurrentPathPermissions = (strictPath?: string) => {
+    const routeToCheck = strictPath ?? pathname;
+    return getRoutePermissions(routeToCheck);
+  }
+  /**
+* Devuelve los accesos asociados a una ruta actual.
+*
+* @param strictPath - Ruta estricta a consultar por default es la actual.
+* 
+*/
+
+  const getCurrentPathAcces = (strictPath?: string) => {
+    const routeToCheck = strictPath ?? pathname;
+    return validPermissionsbyroute(routeToCheck);
+  }
+
+
+  const [currentPagePermissions, setCurrentPagePermissions] = useState<any>()
+  useEffect(()=>{
+    if(user?.treeFirebase)setCurrentPagePermissions(getCurrentPathPermissions());
+  },[user,pathname])
 
   return {
     getRoutePermissions,
-    validPermissionsbyroute
+    validPermissionsbyroute,
+    getCurrentPathPermissions,
+    getCurrentPathAcces,
+    currentPagePermissions
   }
 
 
