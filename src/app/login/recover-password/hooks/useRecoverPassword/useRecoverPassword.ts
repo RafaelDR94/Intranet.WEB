@@ -1,10 +1,10 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 import { shallow } from "zustand/shallow";
-import {PutRecoverPassword} from "@/app/mappings/auth/auth.types"
+import { PutRecoverPassword } from "@/app/mappings/auth/auth.types";
+
 /** Campos del formulario de recuperación de contraseña */
 export const recoverPasswordFields: FieldModel[] = [
   {
@@ -33,10 +33,22 @@ export default function useRecoverPassword(
   routerOverride?: ReturnType<typeof useRouter>
 ): UseRecoverPassword {
   const router = routerOverride ?? useRouter();
-  const { usePrincipalAlert } = usePrincipal();
-  const { showAlert, hideAlert } = usePrincipalAlert;
+
+  // Estado local
   const [isLoading, setIsLoading] = useState(false);
-  const { error, resetFlags, successRecoverPassword, recoveringPassword, recoverPassword } = useAuthStore(
+  const [submittedEmail, setSubmittedEmail] = useState("");
+
+  // Evitar doble redirección en renderizados/reintentos
+  const didRedirectRef = useRef(false);
+
+  // Store de auth
+  const {
+    error,
+    resetFlags,
+    successRecoverPassword,
+    recoveringPassword,
+    recoverPassword,
+  } = useAuthStore(
     (s) => ({
       resetFlags: s.resetFlags,
       error: s.error,
@@ -47,24 +59,71 @@ export default function useRecoverPassword(
     shallow
   );
 
+  // Efecto para reaccionar al resultado
   useEffect(() => {
-    if(recoveringPassword) return; //Falta agregar spinner
-    if(error) {
-      // Mostrar error
-    } 
-    if(successRecoverPassword) {
-      // Mostrar success
+    // Mientras está en curso, mantenemos el loading
+    if (recoveringPassword) {
+      setIsLoading(true);
+      return;
     }
-    resetFlags();
-  }, [recoveringPassword, error, successRecoverPassword]);
 
+    // Terminó la solicitud (éxito o error), apagamos loading
+    setIsLoading(false);
+
+    // Error del flujo
+    if (error) {
+      // Ajusta el shape de showAlert si tu implementación difiere.
+      resetFlags();
+      return;
+    }
+
+    // Éxito del flujo
+    if (successRecoverPassword && submittedEmail && !didRedirectRef.current) {
+      didRedirectRef.current = true; // evita dobles pushes
+
+      // Redirige con el email en la query
+      router.push(
+        `/login/recover-password/recovery-email/?email=${encodeURIComponent(
+          submittedEmail
+        )}`
+      );
+
+      // Importante: resetea flags después de disparar la navegación
+      resetFlags();
+      return;
+    }
+
+    // Si terminó y no hubo error ni éxito (edge cases), limpia flags
+    if (!recoveringPassword && !error && !successRecoverPassword) {
+      resetFlags();
+    }
+  }, [
+    recoveringPassword,
+    error,
+    successRecoverPassword,
+    submittedEmail,
+    router,
+    resetFlags,
+  ]);
+
+  // Handler de envío
   const handleRecover = useCallback(
     async (values: Record<string, any>) => {
-      const payload:PutRecoverPassword = { username: values.email };
+      // Capturamos el email real del formulario
+      const email: string = values?.email ?? "";
+      setSubmittedEmail(email);
+
+      // Disparamos la acción del store
+      const payload: PutRecoverPassword = { username: email };
       recoverPassword(payload);
+
+      // Activamos loading local
       setIsLoading(true);
+
+      // Si mostrabas un alert de "procesando", lo puedes lanzar aquí:
+      // showAlert?.("Procesando solicitud...", "info");
     },
-    [router, showAlert, hideAlert]
+    [recoverPassword]
   );
 
   return { isLoading, handleRecover };

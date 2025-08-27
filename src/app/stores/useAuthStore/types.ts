@@ -8,9 +8,10 @@ export interface AuthValidatePayload {
 }
 
 export interface ChangePasswordPayload {
-  idUser: number
-  password: string
+  email: string,
   newPassword: string
+  changePassword: boolean,
+
 }
 
 export interface RecoverPasswordPayload {
