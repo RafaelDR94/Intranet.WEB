@@ -336,3 +336,9 @@ Feature:
 
 - Because we need to control Proyect Permissions.
   (Bruno Mendoza) [#77](https://github.com/DR-Mexico/dr.intranet.web/pull/77)
+
+### 1.43.2 Test fixes 2025-08-27
+
+Fix:
+
+- Added missing context mocks for stable unit tests. (Agente IA) [#]()

@@ -130,6 +130,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
         primaryButtonText={removing ? "Eliminando…" : "Eliminar"}
         onPrimaryButtonClick={handleConfirmDelete}
       />
+      {/* <RequisitionDetails/> */}
       {currentPagePermissions?.read &&
         <DataTable
           dataTableTitle="Listado de Requisiciones"

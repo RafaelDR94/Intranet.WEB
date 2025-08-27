@@ -26,6 +26,9 @@ vi.mock('@/app/components/PopUp/PopUp', () => ({ PopUp: () => null }))
 vi.mock('@/app/components/Button/Button', () => ({ Button: () => <button /> }))
 vi.mock('@/app/components/ContextMenu/ContextMenu', () => ({ ContextMenu: ({ trigger }: any) => <div>{trigger}</div> }))
 vi.mock('@/assets/icons/navegacion/more-horiz.svg', () => ({ default: () => <svg /> }))
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({ currentPagePermissions: { read: true, update: true, delete: true } }),
+}));
 
 describe('RequisitionsTable', () => {
   it('renders rows from hook', () => {
