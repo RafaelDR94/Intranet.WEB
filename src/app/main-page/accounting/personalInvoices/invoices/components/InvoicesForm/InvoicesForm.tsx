@@ -5,6 +5,7 @@ import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import { InvoicesFormProps } from "../types";
 import useInvoicesForm from "./hooks/useInvoicesForm";
 
+
 const InvoicesForm: React.FC<InvoicesFormProps> = ({
   layoutMatrix,
   externalSubmitRef,
@@ -20,8 +21,9 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
     formReady,
     setFormReady,
     handleSubmit,
-    
-  } = useInvoicesForm({ dataEdit, withoutName, billingImages,onCloseImage })
+
+  } = useInvoicesForm({ dataEdit, withoutName, billingImages, onCloseImage })
+
 
   if (externalSubmitRef) {
     return (
@@ -33,7 +35,10 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
         onValidChange={setFormReady}
         externalSubmitRef={externalSubmitRef}
         showSubmitIf={() => false}
-      />
+      >
+
+      </DynamicForm>
+      
     );
   }
 
@@ -46,7 +51,6 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
       enableCollapse={false}
     >
       {/* En móvil se apilan; desde md son columnas 3/4 y 1/4 */}
-
       <DynamicForm
         fields={fields}
         loadingFormInfo={loadingFormInfo}

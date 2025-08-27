@@ -1,67 +1,87 @@
-import React from "react";
-import { Minus, Plus } from "lucide-react";
-import clsx from "clsx";
-import { controlStyles } from "./styles";
-import { ControlProps } from "./types";
+// src/app/components/Control/Control.tsx
+import React from 'react';
+import { Minus, Plus } from 'lucide-react';
+import clsx from 'clsx';
+import { ControlProps } from './types';
+import { controlCtn, controlBtn, controlDivider, iconClass } from './styles';
 
 /**
- * Componente `Control` reutilizable que permite aumentar o disminuir un valor numérico.
+ * Control numérico con soporte de tamaños (`sm`, `md`, `lg`) y disables granulares.
  *
- * Presenta dos botones (incrementar y decrementar) con íconos y estilos condicionales,
- * ideal para componentes como contadores, selectores de cantidad, etc.
+ * @component
+ * @remarks
+ * - Usa `inputSize` para alinear visualmente con el tamaño de tu `<Input>`.
+ * - `disable` desactiva todo el control; `disablePlus` y `disableMinus` desactivan cada botón por separado.
+ * - Si no pasas `onIncrement` o `onDecrement`, el botón correspondiente se deshabilita automáticamente.
+ * - Accesible: se aplican `disabled`, `aria-disabled` y `tabIndex={-1}` cuando corresponde.
  *
- * @param value Valor numérico actual (no se muestra visualmente en el componente)
- * @param onIncrement Función que se ejecuta al hacer clic en el botón de incremento
- * @param onDecrement Función que se ejecuta al hacer clic en el botón de decremento
- * @param variant Variante de estilo visual: `"filled"` o `"outlined"` (por defecto: `"filled"`)
+ * @param {() => void}   [onIncrement]  Callback invocado al presionar el botón **+**. Si no se provee, el botón se deshabilita.
+ * @param {() => void}   [onDecrement]  Callback invocado al presionar el botón **−**. Si no se provee, el botón se deshabilita.
+ * @param {boolean}      [disable=false]       Deshabilita **todo** el control (ambos botones).
+ * @param {boolean}      [disablePlus=false]   Deshabilita **solo** el botón **+** (no afecta al botón −).
+ * @param {boolean}      [disableMinus=false]  Deshabilita **solo** el botón **−** (no afecta al botón +).
+ * @param {'sm'|'md'|'lg'} [inputSize='md']    Tamaño visual del control, alineado con el componente `Input`.
+ * @param {string}       [className]    Clases CSS extra para el contenedor.
+ *
+ * @example
+ * // Control tamaño md, ambos botones activos
+ * <Control
+ *   inputSize="md"
+ *   onIncrement={() => setQty(q => q + 1)}
+ *   onDecrement={() => setQty(q => Math.max(0, q - 1))}
+ * />
+ *
+ * @example
+ * // Deshabilita solo el botón +
+ * <Control
+ *   inputSize="lg"
+ *   onIncrement={() => setQty(q => q + 1)}
+ *   onDecrement={() => setQty(q => Math.max(0, q - 1))}
+ *   disablePlus
+ * />
+ *
+ * @since 1.0.0
  */
-export const Control = ({
-  value,
+export const Control: React.FC<ControlProps> = ({
   onIncrement,
   onDecrement,
-  variant = "filled",
-}: ControlProps) => {
-  const isFilled = variant === "filled";
+  disable = false,
+  disablePlus = false,
+  disableMinus = false,
+  inputSize = 'md',
+  className,
+}) => {
+  // Estado efectivo de discapacitación por botón
+  const isMinusDisabled = disable || disableMinus || !onDecrement;
+  const isPlusDisabled = disable || disablePlus || !onIncrement;
 
   return (
     <div
-      className={clsx(
-        controlStyles.controlCtn,
-        isFilled
-          ? controlStyles.controlIsFilled
-          : controlStyles.controlIsOutlined
-      )}
+      className={clsx(controlCtn(inputSize, className))}
+      aria-disabled={disable ? 'true' : 'false'}
     >
       <button
-        onClick={onDecrement}
-        className={clsx(
-          controlStyles.controlOnDecrement,
-          isFilled
-            ? controlStyles.controlTextFilled
-            : controlStyles.controlTextOutlined
-        )}
+        type="button"
+        onClick={isMinusDisabled ? undefined : onDecrement}
+        disabled={isMinusDisabled}
+        aria-disabled={isMinusDisabled ? 'true' : 'false'}
+        tabIndex={isMinusDisabled ? -1 : 0}
+        className={controlBtn(inputSize, isMinusDisabled)}
       >
-        <Minus
-            data-testid="minus-icon"
-            className={controlStyles.minusIcon}
-        />
+        <Minus data-testid="minus-icon" className={iconClass(inputSize)} />
       </button>
 
-      <div className={controlStyles.controlDivider} />
+      <div className={controlDivider(inputSize)} />
 
       <button
-        onClick={onIncrement}
-        className={clsx(
-          controlStyles.controlOnIncrement,
-          isFilled
-            ? controlStyles.onIncrementTextFilled
-            : controlStyles.onIncrementTextOutlined
-        )}
+        type="button"
+        onClick={isPlusDisabled ? undefined : onIncrement}
+        disabled={isPlusDisabled}
+        aria-disabled={isPlusDisabled ? 'true' : 'false'}
+        tabIndex={isPlusDisabled ? -1 : 0}
+        className={controlBtn(inputSize, isPlusDisabled)}
       >
-        <Plus
-            data-testid="plus-icon"
-            className={controlStyles.plusIcon}
-        />
+        <Plus data-testid="plus-icon" className={iconClass(inputSize)} />
       </button>
     </div>
   );
