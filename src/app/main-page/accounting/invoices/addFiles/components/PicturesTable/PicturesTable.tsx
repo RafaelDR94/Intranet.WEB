@@ -14,7 +14,7 @@ import { DownloadFile } from "@/app/utilities/FilesHelper/FilesHelper";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
-
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 const PictureTable: React.FC<PicturesTableProps> = ({ setSelectedPictures }) => {
   const { usePrincipalImage, usePrincipalLoading, usePrincipalAlert } = usePrincipal();
@@ -22,6 +22,7 @@ const PictureTable: React.FC<PicturesTableProps> = ({ setSelectedPictures }) => 
   const { showAlert } = usePrincipalAlert;
   const { showImage, hideImage } = usePrincipalImage;
   const [openRejectPicture, setOpenRejectPicture] = useState<{ state: boolean, row: BillingImagesTable | null }>({ state: false, row: null });
+  const isMobile = useIsMobile();
 
   const opePicture = (row: BillingImagesTable) => {
     showImage({
@@ -37,7 +38,7 @@ const PictureTable: React.FC<PicturesTableProps> = ({ setSelectedPictures }) => 
     });
   }
 
-  const columns: ColumnDefinition<BillingImagesTable>[] = [
+  const columnsDesktop: ColumnDefinition<BillingImagesTable>[] = [
     {
       key: "imgIcon" as keyof BillingImagesTable,
       headerRender: () => <span>IMG</span>,
@@ -93,6 +94,44 @@ const PictureTable: React.FC<PicturesTableProps> = ({ setSelectedPictures }) => 
       headerClass: "w-10 text-right",
     }
   ];
+
+  const columnsMobile: ColumnDefinition<BillingImagesTable>[] = [
+    {
+      key: "imgIcon" as keyof BillingImagesTable,
+      headerRender: () => <span>IMÁGEN</span>,
+      render: (row) => (
+        <Button
+          hideIcon
+          variant="solid"
+          size="xsmall"
+          onClick={() => opePicture(row)}
+        >
+          Ver Imagen
+        </Button>
+      ),
+
+    },
+    {
+      key: "proyect",
+      label: "PROYECTO",
+    },
+    {
+      key: "acciones" as unknown as keyof BillingImagesTable,
+      headerRender: () => <HorizonIncon className="text-green-100" />,
+      render: (row) => (
+        <Button
+          icon={DownloadIcon}
+          variant="ghost"
+          onClick={() => DownloadFile(row.Image, row.proyect + "-" + row.deudor + ".jpg")}
+        />
+      ),
+      cellClass: "w-10 text-right",
+      headerClass: "w-10 text-right",
+    }
+  ];
+
+  const columns = isMobile ? columnsMobile : columnsDesktop;
+
   const handleSubmitReject = (values: Record<string, any>) => {
     const payload = {
       billing_image_id: openRejectPicture.row?.billing_image_id ?? "",

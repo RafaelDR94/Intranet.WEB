@@ -1,12 +1,10 @@
-import { useCallback, useState } from "react";
-import { AuthChangePassword } from "@/app/configurations/Axios/urls";
+import { useCallback, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { FieldModel } from "@/app/components/DynamicForm/types";
-import { basicPut } from "@/app/configurations/Axios/GenericMethods";
-import { intranetClient } from "@/app/configurations/Axios/Clients";
-import { Alert } from "@/app/components/Alert/Alert";
-
+import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+import { shallow } from "zustand/shallow";
+import { PutChangePassword } from "@/app/mappings/auth/auth.types";
 /**
  * Hook para evaluar un media query y responder a cambios.
  * @param query Media query CSS (ej: '(max-width: 600px)')
@@ -61,6 +59,34 @@ export default function useChangePassword(
   const { usePrincipalAlert } = usePrincipal();
   const { showAlert, hideAlert } = usePrincipalAlert;
   const [isLoading, setIsLoading] = useState(false);
+  const {
+    error,
+    resetFlags,
+    successRecoverPassword,
+    recoveringPassword,
+    changePassword,
+  } = useAuthStore(
+    (s) => ({
+      resetFlags: s.resetFlags,
+      error: s.error,
+      successRecoverPassword: s.successRecoverPassword,
+      recoveringPassword: s.recoveringPassword,
+      recoverPassword: s.recoverPassword,
+      changePassword: s.changePassword,
+    }),
+    shallow
+  );
+
+  useEffect(() => {
+    if (recoveringPassword) return; //Falta agregar spinner
+    if (error) {
+      // Mostrar error
+    }
+    if (successRecoverPassword) {
+      // Mostrar success
+    }
+    resetFlags();
+  }, [recoveringPassword, error, successRecoverPassword]);
 
   const handleChange = useCallback(
     async (values: Record<string, any>) => {
@@ -75,42 +101,13 @@ export default function useChangePassword(
         });
         return;
       }
-
       setIsLoading(true);
-      try {
-        // ...dentro de handleChange, en el try, después de validar 2xx:
-        await basicPut(
-          intranetClient,
-          `${AuthChangePassword}`,
-          {
-            email,
-            newPassword: values.newPassword,
-            changePassword: true,
-          },
-          (response) => {
-            console.log(response);
-            
-            if (response.status === 200) {
-              // >>> Esto hace que MainLayoutClient renderice <Alert {...alert} />
-              console.log('entro');
-              
-              showAlert({
-                type: "success",
-                variant: "subtle",
-                title: "Contraseña actualizada",
-                description: "Tu contraseña se cambió correctamente.",
-                showPrimaryButton: false, // el layout los respeta si existen
-                showSecondaryButton: false, // (o puedes omitirlos)
-                // Nota: onPrimaryClick / onSecondaryClick los inyecta el layout con hideAlert
-              });
-            }
-          }
-        );
-      } catch (error: any) {
-        // Alerta
-      } finally {
-        setIsLoading(false);
-      }
+      const payload: PutChangePassword = {
+        email: email,
+        newPassword: values.newPassword,
+        changePassword: true,
+      };
+      changePassword(payload);
     },
     [email, showAlert, hideAlert, router]
   );

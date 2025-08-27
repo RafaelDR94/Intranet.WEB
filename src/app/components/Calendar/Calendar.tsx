@@ -1,3 +1,12 @@
+/**
+ * Calendar Component
+ * 
+ * Componente de selección de rangos de fecha con soporte para presets
+ * y selección personalizada. Adaptado a dispositivos móviles y de escritorio.
+ * 
+ * @param {function} onCalendarClick - Callback ejecutado cuando se confirma un rango de fechas.
+ */
+
 import React, { useEffect, useRef } from "react";
 import CalendarIcon from "@/assets/icons/System/System/calendar.svg";
 import { ContextMenu } from "../ContextMenu/ContextMenu";
@@ -7,10 +16,13 @@ import type { CalendarProps } from "./types";
 import "react-datepicker/dist/react-datepicker.css";
 import "./datepicker.css";
 import { useCalendar } from "./hooks/useCalendar";
+import { useIsMobile } from "../DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
-  const isDisabled = false;
+  const isDisabled = false; // Actualmente no se permite deshabilitar el calendario
+  const isMobile = useIsMobile(); // Detecta si es vista móvil para aplicar diseño responsive
 
+  // Custom hook que encapsula lógica de fechas, estado de UI y callbacks
   const {
     startDate,
     endDate,
@@ -25,39 +37,53 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
     handleDateChange,
     handleGo,
     presets,
-  } = useCalendar({ onCalendarClick });
+  } = useCalendar({ onCalendarClick, isMobile });
 
-  // Refs
+  /**
+   * Evita que el fondo haga scroll al abrir el modal en mobile
+   */
+  useEffect(() => {
+    if (isMobile && showCustomRange) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isMobile, showCustomRange]);
+
+  // Refs para detectar interacciones fuera del calendario o submenú
   const containerRef = useRef<HTMLDivElement>(null);
   const subMenuRef = useRef<HTMLDivElement>(null);
 
-  // 👉 Guardamos si el último pointerdown fue dentro del submenú
+  // Memoriza si el último pointerdown fue dentro del submenú
   const lastDownInsideSubmenu = useRef(false);
 
+  /**
+   * Cierra el calendario si se hace click fuera de él o se presiona ESC
+   */
   useEffect(() => {
     const handlePointerDown = (e: PointerEvent) => {
       const target = e.target as Node;
 
-      const insideContainer = !!(containerRef.current && containerRef.current.contains(target));
-      const insideSubmenu =
-        !!(showCustomRange && subMenuRef.current && subMenuRef.current.contains(target));
+      const insideContainer = !!(
+        containerRef.current && containerRef.current.contains(target)
+      );
+      const insideSubmenu = !!(
+        showCustomRange &&
+        subMenuRef.current &&
+        subMenuRef.current.contains(target)
+      );
 
-      // memoriza dónde cayó el último pointerdown
       lastDownInsideSubmenu.current = insideSubmenu;
 
-      // 1) Fuera de TODO el calendario → cerrar todo
       if (!insideContainer) {
         setIsOpen(false);
         setShowCustomRange(false);
         return;
       }
 
-      // 2) Dentro del calendario pero FUERA del submenú → cierra SOLO el submenú
       if (showCustomRange && !insideSubmenu) {
         setShowCustomRange(false);
       }
-
-      // 3) Dentro del submenú → no cierres nada aquí
     };
 
     const handleEsc = (e: KeyboardEvent) => {
@@ -67,17 +93,21 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
       }
     };
 
-    // pointerdown en capture para correr antes que otros listeners
-    document.addEventListener("pointerdown", handlePointerDown, { capture: true });
+    document.addEventListener("pointerdown", handlePointerDown, {
+      capture: true,
+    });
     document.addEventListener("keydown", handleEsc);
     return () => {
-      document.removeEventListener("pointerdown", handlePointerDown, { capture: true } as any);
+      document.removeEventListener("pointerdown", handlePointerDown, {
+        capture: true,
+      } as any);
       document.removeEventListener("keydown", handleEsc);
     };
   }, [showCustomRange, setIsOpen, setShowCustomRange]);
 
   return (
     <div className={calendarStyles.calendarContainer} ref={containerRef}>
+      {/* Botón que despliega el menú contextual con presets */}
       <ContextMenu
         trigger={
           <button
@@ -93,12 +123,10 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
             <CalendarIcon />
           </button>
         }
-        alignRight={false}
-        ignoreRefs={[subMenuRef]}
+        alignRight={isMobile} // En mobile, alinear a la derecha
+        ignoreRefs={[subMenuRef]} // Ignorar clicks dentro del submenú
         isOpen={isOpen}
         setIsOpen={(open) => {
-          // ⛔️ Solo cerramos el submenú si el cierre del menú
-          // NO fue provocado por un click dentro del submenú.
           if (!open && !lastDownInsideSubmenu.current) {
             setShowCustomRange(false);
           }
@@ -107,53 +135,115 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
         items={presets.map((p) => ({ label: p.label, onClick: p.action }))}
       />
 
-      {showCustomRange && (
-        <div className={calendarStyles.subCalendarContainer} ref={subMenuRef}>
-          <h4 className={calendarStyles.subCalendarTitle}>PERIODO PERSONALIZADO</h4>
+      {/* Modal personalizado para móviles */}
+      {showCustomRange && isMobile ? (
+        <div className={calendarStyles.modalOverlay}>
+          <div className={calendarStyles.subCalendarMobile} ref={subMenuRef}>
+            <h4 className={calendarStyles.subCalendarTitle}>
+              PERIODO PERSONALIZADO
+            </h4>
 
-          <div className={calendarStyles.subCalendarWrapper}>
-            <div className={calendarStyles.wrapper}>
-              <div className={calendarStyles.inputWrapper}>
-                <label className={calendarStyles.inputLabel}>Desde</label>
-                <input
-                  type="text"
-                  className={calendarStyles.input}
-                  value={startDateStr}
-                  readOnly
-                />
+            <div className={calendarStyles.subCalendarWrapper}>
+              <div className={calendarStyles.wrapper}>
+                <div className={calendarStyles.inputWrapper}>
+                  <label className={calendarStyles.inputLabel}>Desde</label>
+                  <input
+                    type="text"
+                    className={calendarStyles.input}
+                    value={startDateStr}
+                    readOnly
+                  />
+                </div>
+                <div className={calendarStyles.inputWrapper}>
+                  <label className={calendarStyles.inputLabel}>Hasta</label>
+                  <input
+                    type="text"
+                    className={calendarStyles.input}
+                    value={endDateStr}
+                    readOnly
+                  />
+                </div>
+                <div className={calendarStyles.buttonWrapper}>
+                  <button
+                    className={calendarStyles.button}
+                    onClick={handleGo}
+                    disabled={!canGo}
+                  >
+                    Ir
+                  </button>
+                </div>
               </div>
-              <div className={calendarStyles.inputWrapper}>
-                <label className={calendarStyles.inputLabel}>Hasta</label>
-                <input
-                  type="text"
-                  className={calendarStyles.input}
-                  value={endDateStr}
-                  readOnly
-                />
-              </div>
-              <div className={calendarStyles.buttonWrapper}>
-                <button
-                  className={calendarStyles.button}
-                  onClick={handleGo}
-                  disabled={!canGo}
-                >
-                  Ir
-                </button>
-              </div>
+
+              {/* Selector de rango de fechas */}
+              <DatePicker
+                selected={startDate}
+                onChange={handleDateChange}
+                startDate={startDate}
+                endDate={endDate}
+                selectsRange
+                inline
+                calendarClassName="custom-calendar"
+                dateFormat="dd/MM/yyyy"
+              />
             </div>
-
-            <DatePicker
-              selected={startDate}
-              onChange={handleDateChange}
-              startDate={startDate}
-              endDate={endDate}
-              selectsRange
-              inline
-              calendarClassName="custom-calendar"
-              dateFormat="dd/MM/yyyy"
-            />
           </div>
         </div>
+      ) : (
+        // Vista escritorio
+        showCustomRange && (
+          <div
+            className={calendarStyles.subCalendarContainer}
+            ref={subMenuRef}
+          >
+            <h4 className={calendarStyles.subCalendarTitle}>
+              PERIODO PERSONALIZADO
+            </h4>
+
+            <div className={calendarStyles.subCalendarWrapper}>
+              <div className={calendarStyles.wrapper}>
+                <div className={calendarStyles.inputWrapper}>
+                  <label className={calendarStyles.inputLabel}>Desde</label>
+                  <input
+                    type="text"
+                    className={calendarStyles.input}
+                    value={startDateStr}
+                    readOnly
+                  />
+                </div>
+                <div className={calendarStyles.inputWrapper}>
+                  <label className={calendarStyles.inputLabel}>Hasta</label>
+                  <input
+                    type="text"
+                    className={calendarStyles.input}
+                    value={endDateStr}
+                    readOnly
+                  />
+                </div>
+                <div className={calendarStyles.buttonWrapper}>
+                  <button
+                    className={calendarStyles.button}
+                    onClick={handleGo}
+                    disabled={!canGo}
+                  >
+                    Ir
+                  </button>
+                </div>
+              </div>
+
+              {/* Calendario para selección de rango */}
+              <DatePicker
+                selected={startDate}
+                onChange={handleDateChange}
+                startDate={startDate}
+                endDate={endDate}
+                selectsRange
+                inline
+                calendarClassName="custom-calendar"
+                dateFormat="dd/MM/yyyy"
+              />
+            </div>
+          </div>
+        )
       )}
     </div>
   );
