@@ -12,6 +12,7 @@ export const getInitialValues = (fields: FieldModel[]) => {
         acc[field.name] = field.value ?? false;
         break;
       case 'number':
+      case 'numberControl':
         acc[field.name] = field.value ?? null;
         break;
       case 'file':
