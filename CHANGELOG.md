@@ -349,11 +349,11 @@ Feature:
 
 - Added NumberControl field type to DynamicForm with tests and docs. (Agente IA) [#]()
 
-### 1.44.1 Test fixes for navigation mocks 2025-09-02
+### 1.44.1 AuthContext migrated to store 2025-08-27
 
-Fix:
+Refactor:
 
-- Added Next.js navigation mocks and updated requisition and billing document tests. (Agente IA) [#]()
+- Migrated authentication context logic into global store. (Agente IA) [#]()
 
 ### 1.44.2 Requisition details tests and docs 2025-09-03
 
@@ -366,3 +366,4 @@ Fix:
 Feature:
 
 - Added tests and Storybook stories for personal invoices forms, hooks and side menu. (Agente IA) [#]()
+

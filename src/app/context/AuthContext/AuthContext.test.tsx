@@ -5,8 +5,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 
 import { AuthProvider ,useAuth} from './AuthContext';
+import { useAuthStore } from '@/app/stores/useAuthStore/useAuthStore';
 import userEvent from '@testing-library/user-event';
-vi.unmock('@/app/context/AuthContext/AuthContext');
 vi.mock('next/navigation', () => ({
   usePathname: vi.fn(() => '/'),
 }));
@@ -38,6 +38,7 @@ describe('AuthContext', () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
+    useAuthStore.getState().reset()
   });
 
     it('renderiza usuario no autenticado por defecto', () => {

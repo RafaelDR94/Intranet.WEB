@@ -1,4 +1,3 @@
-export { login } from './login'
 export { authValidate } from './authValidate'
 export { changePassword } from './changePassword'
 export { recoverPassword } from './recoverPassword'
