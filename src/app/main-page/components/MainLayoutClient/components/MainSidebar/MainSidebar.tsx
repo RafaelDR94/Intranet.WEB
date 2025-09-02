@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import PersonalAvatar from '../../../../../components/PersonalAvatar/PersonalAvatar';
-import { ToggleButton } from '../../../../../components/ToogleButton.tsx/ToogleButton';
+import { ToggleButton } from '../../../../../components/ToogleButton/ToogleButton';
 import SubArrowIcon from '@/assets/icons/navegacion/long-arrow-down-right.svg';
 import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
 import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';

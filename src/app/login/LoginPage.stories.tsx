@@ -7,7 +7,7 @@ import useLogin, { loginFields } from './hooks/useLogin';
 import { loginStyles } from './styles';
 import { DynamicForm } from '../components/DynamicForm/DynamicForm';
 import { Alert } from '../components/Alert/Alert';
-import { ToggleButton } from '../components/ToogleButton.tsx/ToogleButton';
+import { ToggleButton } from '../components/ToogleButton/ToogleButton';
 import Link from 'next/link';
 import logo from '@/assets/images/Walpapers/Wallpaper-1.png';
 
