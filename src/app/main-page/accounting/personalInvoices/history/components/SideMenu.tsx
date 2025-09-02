@@ -23,7 +23,8 @@ const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }
       leftLabel={selected ? `Usuario: ${user?.fullName}` : undefined}
       rightLabel={selected ? `Código: ${selected.project.name}` : undefined}
       actionButton={
-        <Button size="large" variant="solid" hideIcon onClick={() => submitRef.current?.()}>
+        
+        <Button size="large" variant="solid" hideIcon onClick={() => submitRef.current?.()} disabled={(selected?.status.toLocaleLowerCase() != "rechazado")}>
           Re-enviar
         </Button>
       }
@@ -97,14 +98,22 @@ const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }
             {(selected.xml || selected.pdf) ?
               <div id="ticket-form">
                 <InvoicesForm
-                  layoutMatrix={[[10], [10], [10], [10]]}
+                  responsiveLayoutMatrix={{
+                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    md: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                  }}
                   dataEdit={selected}
                   externalSubmitRef={submitRef}
                 />
               </div> :
               <div id="ticket-form">
                 <TicketForm
-                  layoutMatrix={[[10], [10], [10]]}
+                  responsiveLayoutMatrix={{
+                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    md: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                  }}
                   dataEdit={selected}
                   externalSubmitRef={submitRef}
                 />

@@ -20,10 +20,11 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   validInvoice = true,
   rejectInvoice = true,
   sendInvoiceToSap = false,
-  rejectType = true, }) => {
+  operations = false,
+  rejectType = true,
+  reqisition }) => {
   const {
     labels,
-    money,
     openValidInvoice,
     openRejectInvoice,
     setOpenValidInvoice,
@@ -31,7 +32,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     handleSubmitComment,
     handleSubmitReject,
     handleSubmitValid,
-  } = useDetailsPanel({ selected, rejectType,setPanelOpen });
+  } = useDetailsPanel({ selected, rejectType, setPanelOpen, operations,reqisition });
+
+
 
   return (
     <DetailsPanelLayout
@@ -42,13 +45,13 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       rightLabel={labels.right}
       actionButton={
         <>
-          {validInvoice && <Button size="small" variant="solid" hideIcon onClick={() => setOpenValidInvoice(true)}>
+          {validInvoice && <Button size="small" variant="solid" hideIcon onClick={() => setOpenValidInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase()=="RECHAZADO"}>
             Validar Factura
           </Button>}
           {sendInvoiceToSap && <Button size="small" variant="solid" hideIcon onClick={() => {/**To Do enviar a SAP */ }}>
             Enviar a SAP
           </Button>}
-          {rejectInvoice && <Button size="small" variant="outline" hideIcon onClick={() => setOpenRejectInvoice(true)}>
+          {rejectInvoice && <Button size="small" variant="outline" hideIcon onClick={() => setOpenRejectInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase()=="RECHAZADO"}>
             Rechazar Factura
           </Button>}
 
@@ -139,15 +142,19 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           <div className={s.breakdownBox}>
             <div className={s.breakdownRow}>
               <span className={s.breakdownLabel}>SUBTOTAL:</span>
-              <span className={s.breakdownValue}>{money.subtotal}</span>
+              <span className={s.breakdownValue}>{selected?.subtotal}</span>
             </div>
             <div className={s.breakdownRow}>
               <span className={s.breakdownLabel}>TRASLADOS 002 (IVA 16%):</span>
-              <span className={s.breakdownValue}>{money.iva}</span>
+              <span className={s.breakdownValue}>{selected?.iva}</span>
+            </div>
+            <div className={s.breakdownRow}>
+              <span className={s.breakdownLabel}>OTROS IMPUESTOS:</span>
+              <span className={s.breakdownValue}>{selected?.otherinvoices}</span>
             </div>
             <div className={s.breakdownRow}>
               <span className={s.breakdownLabel}>TOTAL:</span>
-              <span className={s.breakdownValue}>{money.total}</span>
+              <span className={s.breakdownValue}>{selected?.total}</span>
             </div>
           </div>
           {selected.user_comments &&
@@ -171,7 +178,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                     value: selected?.comments,
                     placeholder: "Agregar comentario",
                     validations: [{ type: "required" }],
-                    className: "bg-white",
+                    className: "bg-white-40",
                     onlyText: onlyText
                   },
                 ]}
@@ -219,7 +226,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 value: "",
                 placeholder: "Agregar comentario",
                 validations: [{ type: "required" }],
-                className: "bg-white",
+                className: "bg-white-40",
                 rows: 2,
               },
             ]}

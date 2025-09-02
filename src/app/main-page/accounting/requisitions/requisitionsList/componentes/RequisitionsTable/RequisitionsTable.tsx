@@ -8,7 +8,6 @@ import { ContextMenu } from "@/app/components/ContextMenu/ContextMenu";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
 import { useRequisitionTable } from "./hooks/useRequisitionsTable";
 import {
-  RequisitionsTableProps,
   ActionMenuCellProps,
   RequisitionRow,
 } from "./types";
@@ -17,28 +16,34 @@ import DeleteIcon from "@/assets/icons/acciones/trash.svg";
 import { container, actionCell } from "./styles";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+
+import Label from "@/app/components/Label/Label";
+import { LabelType } from "@/app/components/Label/types";
+import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
 const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
   row,
   onEdit,
   onDelete,
 }) => {
   const { currentPagePermissions } = useAuth();
-  const menuItems = []
-  if (currentPagePermissions?.update) menuItems.push({
-    label: "Editar",
-    icon: EditIcon,
-    onClick: () => {
-      onEdit(row);
-    },
-  })
-  if (currentPagePermissions?.delete) menuItems.push({
-    label: "Eliminar",
-    icon: DeleteIcon,
-    danger: true,
-    onClick: () => {
-      onDelete(row);
-    },
-  })
+  const menuItems: any[] = [];
+  if (currentPagePermissions?.update)
+    menuItems.push({
+      label: "Ver Detalle",
+      icon: EditIcon,
+      onClick: () => {
+        onEdit(row);
+      },
+    });
+  if (currentPagePermissions?.delete)
+    menuItems.push({
+      label: "Cancelar",
+      icon: DeleteIcon,
+      danger: true,
+      onClick: () => {
+        onDelete(row);
+      },
+    });
   return (
     <ContextMenu
       alignRight
@@ -49,9 +54,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
   );
 };
 
-const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
-  onEditRequest,
-}) => {
+const RequisitionsTable = () => {
   const {
     rows,
     setQuery,
@@ -63,55 +66,88 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
     onEdit,
     onDelete,
     refresh,
-  } = useRequisitionTable({ onEditRequest });
+    hasIdParam
+  } = useRequisitionTable();
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
-  // Inyecta la celda de acciones una vez que existen callbacks
-  const computedColumns: ColumnDefinition<RequisitionRow>[] =
-    React.useMemo(() => {
-      return [
-        { key: "snCode", label: "CÓDIGO SN" },
-        { key: "debtorName", label: "NOMBRE DEUDOR" },
-        { key: "projectCode", label: "CÓDIGO DE PROYECTO" },
-        { key: "date_created", label: "FECHA DE CREACIÓN" },
 
-        {
-          key: "actions" as unknown as keyof RequisitionRow,
-          label: "",
-          render: (row) => (
-            <div className={actionCell}>
-              <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
-            </div>
-          ),
-          cellClass: "w-12 text-right",
-          headerClass: "w-12",
-          invisible: false,
-        },
-      ];
-    }, [onEdit, onDelete]);
 
-  const mobileColumns: ColumnDefinition<RequisitionRow>[] =
-    React.useMemo(() => {
-      return [
-        { key: "snCode", label: "CÓDIGO SN" },
-        { key: "projectCode", label: "CÓDIGO DE PROYECTO" },
-        {
-          key: "actions" as unknown as keyof RequisitionRow,
-          label: "",
-          render: (row) => (
-            <div className="flex justify-end pr-2">
-              <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
-            </div>
-          ),
-          cellClass: "w-12 text-right",
-          headerClass: "w-12",
-          invisible: false,
-        },
-      ];
-    }, [onEdit, onDelete]);
+  const StatusBadge = ({ status }: { status?: string }) => {
+    const s = (status || "").toLowerCase();
+    let type: LabelType = "pendiente"
+    if (s.includes("cierre de periodo")) type = "invalido";
+    if (s.includes("viaticando")) type = "purple";
+    if (s.includes("folio adicional")) type = "prohibido";
+    if (s.includes("cancelada")) type = "restringido";
+    if (s.includes("validaci")) type = "valido";
+
+
+    return (<Label type={type} text={status || "En espera"} />);
+  };
+
+  // Desktop columns (leave mobileColumns intact as requested)
+  const computedColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
+    () => [
+      { key: "snCode", label: "SCI" },
+      {
+        key: "assignmentDate",
+        label: "ASIGNACIÓN",
+        render: (row) => row.assignmentDate,
+
+      },
+      { key: "debtorName", label: "NOMBRE" },
+      { key: "projectCode", label: "PROYECTO" },
+      { key: "state", label: "ESTADO" },
+      {
+        key: "amount",
+        label: "CANTIDAD",
+        render: (row) => <span>{formatCurrency(Number(row?.amount))}</span>,
+
+      },
+      { key: "dueDate", label: "TERMINO", render: (row) => row.dueDate },
+      {
+        key: "status",
+        label: "",
+        render: (row) => <StatusBadge status={row.status} />,
+
+      },
+      {
+        key: "actions" as unknown as keyof RequisitionRow,
+        label: "",
+        render: (row) => (
+          <div className={actionCell}>
+            <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+          </div>
+        ),
+
+        invisible: false,
+      },
+    ],
+    [onEdit, onDelete]
+  );
+
+  const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
+    () => [
+      { key: "snCode", label: "CÓDIGO SN" },
+      { key: "projectCode", label: "CÓDIGO DE PROYECTO" },
+      {
+        key: "actions" as unknown as keyof RequisitionRow,
+        label: "",
+        render: (row) => (
+          <div className="flex justify-end pr-2">
+            <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+          </div>
+        ),
+        cellClass: "w-12 text-right",
+        headerClass: "w-12",
+        invisible: false,
+      },
+    ],
+    [onEdit, onDelete]
+  );
 
   const columns = isMobile ? mobileColumns : computedColumns;
-
+  if (hasIdParam) return (<></>);
   return (
     <div className={container}>
       <PopUp
@@ -130,9 +166,10 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
         primaryButtonText={removing ? "Eliminando…" : "Eliminar"}
         onPrimaryButtonClick={handleConfirmDelete}
       />
-      {/* <RequisitionDetails/> */}
-      {currentPagePermissions?.read &&
+
+      {currentPagePermissions?.read && (
         <DataTable
+       
           dataTableTitle="Listado de Requisiciones"
           onSearchChange={setQuery}
           onCalendarClick={(start, end) => refresh(start, end)}
@@ -151,11 +188,11 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
           showDownloadTable
           showButton={false}
           dateKey={"date_created"}
-        />}
-
-
+        />
+      )}
     </div>
   );
 };
 
 export default RequisitionsTable;
+

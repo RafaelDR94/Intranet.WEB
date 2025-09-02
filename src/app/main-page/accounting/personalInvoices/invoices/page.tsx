@@ -5,8 +5,16 @@ import { InvoicesProvider } from "./context/InvoicesContext";
 const PersonalInvoicesInvoices = () => {
     return (
         <InvoicesProvider>
-            <TicketForm layoutMatrix={[[10], [10], [5]]} />
-            <InvoicesForm layoutMatrix={[[10], [10], [5, 5]]} />
+            <TicketForm responsiveLayoutMatrix={{
+                sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                md: [[5, 5], [5, 5], [2.5, 2.5, 5], [5, 5]],
+                lg: [[5, 5], [3.3, 3.3, 3.3], [3, 3, 3]],
+            }} />
+            <InvoicesForm responsiveLayoutMatrix={{
+                sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                md: [[5, 5], [5, 5], [2.5, 2.5, 5], [5, 5]],
+                lg: [[5, 5], [3.3, 3.3, 3.3], [2, 2, 3, 3]],
+            }} />
         </InvoicesProvider>);
 }
 

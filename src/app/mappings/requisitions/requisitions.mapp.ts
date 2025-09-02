@@ -4,19 +4,28 @@ import {
   RequitionPost,
   RequitionPut,
 } from './requisitions.types'
-
+import { toInputDateString } from '@/app/utilities/FormatHelpers/FormatHelpets'
 /**
  * RequisitionMap
  * Mapea un registro crudo de la API a un objeto tipado Requisition.
  */
 export const RequisitionMap = (raw: any): Requisition => ({
   billingrequisition_id: raw?.billingrequisition_id ?? '',
-  requisitionkey:        raw?.requisitionkey        ?? '',
-  id_Employee:           raw?.id_Employee           ?? '',
-  employeename:          raw?.employeename          ?? '',
-  idProject:             raw?.idProject             ?? '',
-  projectname:           raw?.projectname           ?? '',
-  date_created:          raw?.date_created          ?? '',
+  requisitionkey: raw?.requisitionkey ?? '',
+  id_Employee: raw?.employee_id ?? '',
+  employeename: raw?.employeename ?? '',
+  idProject: raw?.idproject ?? '',
+  projectname: raw?.projectname ?? '',
+  assignmentdate: toInputDateString(raw?.assignmentdate) ?? '',
+  endDate:  toInputDateString(raw?.enddate) ?? '',
+  motive: raw?.motive ?? '',
+  state: raw?.state ?? '',
+  amountdeposited: raw?.amountdeposited ?? '',
+  provenamount: raw?.provenamount ?? '',
+  amountdifference: raw?.amountdifference ?? '',
+  date_created: raw?.date_created ?? '',
+  status:raw?.status
+  
 })
 
 /**
@@ -34,8 +43,14 @@ export const RequisitionsMap = (list: any[]): Requisition[] =>
  */
 export const RequitionPostMap = (src: Partial<Requisition> | any): RequitionPost => ({
   requisitionkey: String(src?.requisitionkey ?? ''),
-  employeename:   String(src?.employeename   ?? ''),
-  projectname:    String(src?.projectname    ?? ''),
+  employeename: String(src?.employeename ?? ''),
+  projectname: String(src?.projectname ?? ''),
+  assignmentdate: String(src?.assignmentdate ?? ''),
+  endDate: String(src?.endDate ?? ''),
+  motive: String(src?.motive ?? ''),
+  state: String(src?.state ?? ''),
+  amountdeposited: Number(src?.amountdeposited ?? ''),
+  provenamount: Number(src?.provenamount ?? ''),
 })
 
 /**
@@ -44,7 +59,13 @@ export const RequitionPostMap = (src: Partial<Requisition> | any): RequitionPost
  */
 export const RequitionPutMap = (src: Partial<Requisition> | any): RequitionPut => ({
   billingrequisition_id: String(src?.billingrequisition_id ?? ''),
-  requisitionkey:        String(src?.requisitionkey        ?? ''),
-  employeename:          String(src?.employeename          ?? ''),
-  projectname:           String(src?.projectname           ?? ''),
+  requisitionkey: String(src?.requisitionkey ?? ''),
+  employeename: String(src?.employeename ?? ''),
+  projectname: String(src?.projectname ?? ''),
+  assignmentdate: String(src?.assignmentdate ?? ''),
+  endDate: String(src?.endDate ?? ''),
+  motive: String(src?.motive ?? ''),
+  state: String(src?.state ?? ''),
+  amountdeposited: Number(src?.amountdeposited ?? ''),
+  provenamount: Number(src?.provenamount ?? ''),
 })

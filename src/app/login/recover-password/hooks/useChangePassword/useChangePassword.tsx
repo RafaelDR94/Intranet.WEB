@@ -97,7 +97,7 @@ export default function useChangePassword(
           title: "Error",
           description: "Las contraseñas no coinciden",
           onPrimaryClick: hideAlert,
-          onSecondaryClick: hideAlert,
+          showSecondaryButton:false
         });
         return;
       }

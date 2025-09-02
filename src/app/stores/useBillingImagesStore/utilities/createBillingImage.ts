@@ -8,7 +8,7 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { pPost } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { fetchBillingImages } from './fetchBillingImages'
-
+import { BillingPostMap } from '@/app/mappings/billingimages/billingimages.mapper'
 /**
  * Crea una nueva imagen de factura en el backend.
  *
@@ -26,7 +26,7 @@ export const createBillingImage = async (
   try {
  
     const post = pPost(requireGateway('post'), [200, 201])
-    const res: AxiosResponse = await post(BillingImagesUrl, payload)
+    const res: AxiosResponse = await post(BillingImagesUrl, BillingPostMap(payload))
     const raw = res.data?.data
     const created = raw ? (raw as BillingImages) : null
 

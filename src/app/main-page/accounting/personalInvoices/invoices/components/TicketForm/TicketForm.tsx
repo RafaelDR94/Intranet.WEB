@@ -5,7 +5,7 @@ import FormsLayout from '@/app/components/FormsLayout/FormsLayout'
 import { InvoicesFormProps } from '../types'
 import useTicketForm from './hooks/useTicketForm'
 
-const TicketForm: React.FC<InvoicesFormProps> = ({ layoutMatrix,externalSubmitRef,dataEdit }) => {
+const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix,externalSubmitRef,dataEdit }) => {
   const {
     fields,
     loadingFormInfo,
@@ -19,7 +19,7 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ layoutMatrix,externalSubmitRe
       <DynamicForm
         fields={fields}
         loadingFormInfo={loadingFormInfo}
-        layoutMatrix={layoutMatrix}
+        responsiveLayoutMatrix={responsiveLayoutMatrix}
         submitLabel="Enviar solicitud"
         onSubmit={handleSubmit}
         onValidChange={setFormReady}
@@ -42,7 +42,7 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ layoutMatrix,externalSubmitRe
       <DynamicForm
         fields={fields}
         loadingFormInfo={loadingFormInfo}
-        layoutMatrix={layoutMatrix}
+        responsiveLayoutMatrix={responsiveLayoutMatrix}
         submitLabel="Enviar solicitud"
         onSubmit={handleSubmit}
         onValidChange={setFormReady}

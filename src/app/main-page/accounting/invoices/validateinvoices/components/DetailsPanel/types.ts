@@ -9,4 +9,6 @@ export interface DetailsPanelProps {
   sendInvoiceToSap?:boolean
   /** true: rechazado false: restringido  */
   rejectType?:boolean  
+  operations?:boolean
+  reqisition?:string
 }

@@ -4,26 +4,46 @@ import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
 import Donut from "@/app/components/Donut/Donut";
 import { perDiemBalanceCardStyles as s } from "./styles";
 
+// 🔹 Helpers internos
+function diffInDays(start: string, end: string) {
+  const d1 = new Date(start);
+  const d2 = new Date(end);
+  return Math.max(0, Math.ceil((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)));
+}
+
+function computeBalances(requested: number, verified: number) {
+  const diff = requested - verified;
+  return {
+    enterpriseAmount: diff > 0 ? diff : 0,   // sobra dinero → a favor empresa
+    employeeAmount: diff < 0 ? Math.abs(diff) : 0, // gastó más → a favor colaborador
+  };
+}
+
 const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
   startDate,
   endDate,
   requestedAmount,
   verifiedAmount,
-  elapsedDays,
-  totalDays,
-  percentage,
-  enterpriseAmount,
-  employeeAmount
 }) => {
-  const verifiedPct = Math.round(Math.max(0, Math.min(100, percentage)));
+  // 🔹 calcular días
+  const totalDays = diffInDays(startDate, endDate) || 1;
+  const elapsedDays = Math.min(totalDays, diffInDays(startDate, new Date().toISOString()));
+
+  // 🔹 calcular porcentajes
+  const verifiedPct = Math.round(Math.max(0, Math.min(100, (verifiedAmount / requestedAmount) * 100 || 0)));
   const pendingPct = 100 - verifiedPct;
+
+  // 🔹 calcular saldos
+  const { enterpriseAmount, employeeAmount } = computeBalances(requestedAmount, verifiedAmount);
 
   return (
     <div className={s.root}>
       <div className={s.card}>
         <div className="col-span-2">
           <h3 className={s.title}>Balance de viáticos</h3>
-          <p className={s.period}>Periodo {startDate} - {endDate}</p>
+          <p className={s.period}>
+            Periodo {startDate} - {endDate}
+          </p>
 
           <p className={s.amountLine}>
             Importe Solicitado: <span className={s.amountValue}>{formatCurrency(requestedAmount)}</span>
@@ -67,10 +87,12 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
         {/* Footer */}
         <div className={s.footer}>
           <p>
-            Monto a favor de la empresa : <span className={s.footerValue}>{formatCurrency(enterpriseAmount)}</span>
+            Monto a favor de la empresa:{" "}
+            <span className={s.footerValue}>{formatCurrency(enterpriseAmount)}</span>
           </p>
           <p>
-            Monto a favor del colaborador: <span className={s.footerValue}>{formatCurrency(employeeAmount)}</span>
+            Monto a favor del colaborador:{" "}
+            <span className={s.footerValue}>{formatCurrency(employeeAmount)}</span>
           </p>
         </div>
       </div>

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useEffect, useState,useMemo } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { usePrincipal } from '../../../../context/PrincipalContext/PrincipalContext';
 import { useAuth } from '../../../../context/AuthContext/AuthContext';
 import { useFirebase } from '../../../../context/FirebaseContext/FirebaseContext';
@@ -55,11 +55,16 @@ export interface OfflineMessage {
  */
 export const useMainPage = () => {
   // Hooks de contexto global
-  const { usePrincipalTheme, usePrincipalAlert,usePrincipalImage } = usePrincipal();
+  const { usePrincipalTheme, usePrincipalAlert, usePrincipalImage } = usePrincipal();
   const { alert, hideAlert, showAlert } = usePrincipalAlert;
   const { theme, toggleTheme } = usePrincipalTheme;
   const pathname = usePathname();
-  const tabs = getTabsFromPath(pathname);
+  const searchParams = useSearchParams();
+
+  const tabs = useMemo(
+    () => getTabsFromPath(pathname, searchParams),
+    [pathname, searchParams]
+  );
 
   const { user, offlineMode, handleOfflineMode, logout, validPermissionsbyroute } = useAuth();
   const { firebaseMessaging } = useFirebase();

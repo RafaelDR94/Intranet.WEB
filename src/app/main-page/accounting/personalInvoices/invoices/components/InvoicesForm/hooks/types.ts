@@ -10,7 +10,8 @@ export type UseInvoicesFormReturn = {
   formReady: boolean
   setFormReady: (ready: boolean) => void
   handleSubmit: (values: Record<string, any>) => Promise<void>
-
+  ResetForm: () => void
+  handleImageClick: (image: string) => void
 }
 
 export interface UseInvoicesFormProps {
