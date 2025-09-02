@@ -37,7 +37,11 @@ vi.mock('@/app/context/FirebaseContext/FirebaseContext', () => ({
   useFirebase: () => firebaseState,
 }));
 
-vi.mock('next/navigation', () => ({ usePathname: () => '/main-page/home' }));
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/main-page/home',
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn() }),
+}));
 
 import useMainPage from './useMainPage';
 
