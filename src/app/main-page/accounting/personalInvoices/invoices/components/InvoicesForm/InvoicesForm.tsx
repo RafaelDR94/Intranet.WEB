@@ -6,6 +6,7 @@ import { InvoicesFormProps } from "../types";
 import useInvoicesForm from "./hooks/useInvoicesForm";
 import { Button } from "@/app/components/Button/Button";
 import CancelIncon from "@/assets/icons/acciones/cancel.svg"
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
 const InvoicesForm: React.FC<InvoicesFormProps> = ({
   responsiveLayoutMatrix,
@@ -25,8 +26,8 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
     ResetForm,
     handleImageClick
   } = useInvoicesForm({ dataEdit, withoutName, billingImages, onCloseImage, })
-
-
+  const { currentPagePermissions } = useAuth();
+  if(!currentPagePermissions.canAddDocuments) return;
   if (externalSubmitRef) {
     return (
       <DynamicForm

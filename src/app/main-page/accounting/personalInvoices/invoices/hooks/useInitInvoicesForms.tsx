@@ -111,9 +111,9 @@ const useInitInvoicesForms = ({ initialformFields, field, formId, dataEdit, bill
         if (billingImages?.proyect)
             updateField(formId, 'proyect', { value: billingImages?.proyect, onlyText: Boolean(billingImages) });
         if (billingImages?.numnights)
-            updateField(formId, 'numnights', { value: billingImages?.numnights, onlyText: Boolean(billingImages) ,label:"No. Noches"});
+            updateField(formId, 'numnights', { value: billingImages?.numnights, onlyText: Boolean(billingImages), label: "No. Noches" });
         if (billingImages?.numpersons)
-            updateField(formId, 'numpersons', { value: billingImages?.numpersons, onlyText: Boolean(billingImages) ,label:"No. Personas"});
+            updateField(formId, 'numpersons', { value: billingImages?.numpersons, onlyText: Boolean(billingImages), label: "No. Personas" });
         const debtorName = field.find(f => f.name === 'personName');
         if (debtorName) updateField(formId, 'personName', { value: billingImages?.deudor ?? "" });
 
@@ -129,6 +129,13 @@ const useInitInvoicesForms = ({ initialformFields, field, formId, dataEdit, bill
         const reqReady = Array.isArray(req?.options) && (req?.options?.length ?? 0) > 0;
         const descReady = Array.isArray(description?.options) && (description?.options?.length ?? 0) > 0;
         const catReady = Array.isArray(category?.options) && (category?.options?.length ?? 0) > 0;
+
+        console.log("reqReady", reqReady);
+        console.log("descReady", descReady);
+        console.log("catReady", catReady);
+
+        console.log("debtorName?.value", debtorName?.value);
+        console.log("hasDebtor", hasDebtor);
 
         return !(reqReady && descReady && catReady && (debtorName?.value || !hasDebtor));
     };

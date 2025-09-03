@@ -10,7 +10,7 @@ import { BillingDocuments } from "@/app/mappings/billingdocuments/billingdocumen
 import { useValidateInvoices } from "./hooks/useValidateInvoices";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
-
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 const ValidateInvoices = () => {
   const {
     handleOpenDetails,
@@ -30,7 +30,7 @@ const ValidateInvoices = () => {
   } = useValidateInvoices();
 
   const isMobile = useIsMobile();
-
+  const {currentPagePermissions} = useAuth();
   const columnasDesktop: ColumnDefinition<BillingDocuments>[] = [
     {
       key: "xml",
@@ -72,9 +72,9 @@ const ValidateInvoices = () => {
       render: (row) =>
         row.conceptos?.length
           ? row.conceptos
-              .map((c) => c.clave_sat)
-              .filter(Boolean)
-              .join(", ")
+            .map((c) => c.clave_sat)
+            .filter(Boolean)
+            .join(", ")
           : "—",
     },
     { key: "uuid", label: "UUID" },
@@ -93,14 +93,17 @@ const ValidateInvoices = () => {
       key: "acciones" as unknown as keyof BillingDocuments,
       headerRender: () => <span className="text-lg">⋯</span>,
       render: (row) => (
-        <Button
-          size="small"
-          onClick={() => handleOpenDetails(row)}
-          variant="ghost"
-          hideIcon
-        >
-          Ver Detalles
-        </Button>
+        <>
+          {currentPagePermissions?.canSeeDetails && <Button
+            size="small"
+            onClick={() => handleOpenDetails(row)}
+            variant="ghost"
+            hideIcon
+          >
+            Ver Detalles
+          </Button>}
+        </>
+
       ),
       cellClass: "w-28 text-right",
       headerClass: "w-28 text-right",
