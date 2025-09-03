@@ -12,8 +12,10 @@ import DetailsPanel from "@/app/main-page/accounting/invoices/validateinvoices/c
 import DowloadIcon from "@/assets/icons/acciones/download.svg";
 // NEW: Overlay (ruta de ejemplo)
 import LoadingOverlay from "@/app/components/LoadingOverLay/LoadingOverlay";
-
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 const RequisitionDetailsDocument: React.FC = () => {
+  const { currentPagePermissions } = useAuth();
+
   const {
     rows,
     selected,
@@ -105,23 +107,28 @@ const RequisitionDetailsDocument: React.FC = () => {
 
       <DataTable
         actionsRender={() => (
+
           <>
-            <Button
-              hideIcon
-              variant="ghost"
-              onClick={() => {
-                if (requisitionId) downloadRequistionResume(requisitionId);
-              }}
-            >
-              Descargar reporte
-            </Button>
-            <Button
-              icon={DowloadIcon}
-              variant="outline"
-              onClick={() => {
-                if (requisitionId) downloadRequistionResume(requisitionId);
-              }}
-            />
+            {currentPagePermissions?.downloadDocuments && <>
+              <Button
+                hideIcon
+                variant="ghost"
+                onClick={() => {
+                  if (requisitionId) downloadRequistionResume(requisitionId);
+                }}
+              >
+                Descargar reporte
+              </Button>
+              <Button
+                icon={DowloadIcon}
+                variant="outline"
+                onClick={() => {
+                  if (requisitionId) downloadRequistionResume(requisitionId);
+                }}
+              />
+            </>}
+
+
           </>
         )}
         showButton={false}

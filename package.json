@@ -15,7 +15,7 @@
     "build-storybook": "storybook build",
     "deploy:storybook": "npm run build-storybook && firebase deploy --only hosting:drintranettecnicdocumentation",
     "deploy:app": "npm run build && firebase deploy --only hosting:intranetdr",
-    "deploy:stagging":"npm run build && firebase deploy --only hosting:stagginsite",
+    "deploy:stagging": "npm run build && firebase deploy --only hosting:stagginsite",
     "deploy:preview": "npm run build  && firebase hosting:channel:deploy dev --only intranetdr"
   },
   "dependencies": {
@@ -69,6 +69,7 @@
     "jsdom": "^26.1.0",
     "next-svgr": "^0.0.2",
     "postcss": "^8.5.6",
+    "pwa-asset-generator": "^8.1.1",
     "storybook": "^8.6.14",
     "tailwindcss": "^4.1.11",
     "typescript": "^5",
