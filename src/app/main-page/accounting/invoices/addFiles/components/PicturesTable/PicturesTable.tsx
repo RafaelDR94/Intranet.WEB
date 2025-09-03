@@ -1,3 +1,4 @@
+import React from "react";
 import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { Button } from "@/app/components/Button/Button";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";

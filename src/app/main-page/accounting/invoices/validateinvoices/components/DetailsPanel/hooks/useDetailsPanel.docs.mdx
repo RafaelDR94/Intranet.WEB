@@ -1,0 +1,16 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="MainPage/Accounting/Invoices/ValidateInvoices/DetailsPanel/useDetailsPanel" />
+
+# useDetailsPanel
+
+Maneja el envío de comentarios, validación o rechazo de una factura desde el panel de detalles.
+
+```ts
+const {
+  labels,
+  handleSubmitComment,
+  handleSubmitReject,
+  handleSubmitValid,
+} = useDetailsPanel({ selected, rejectType, setPanelOpen, operations });
+```
