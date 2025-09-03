@@ -1,4 +1,3 @@
-import { RequisitionInitialValues } from '../../../components/RequisitionsForm/hooks/useRequisitionsForm'
 
 /**
  * Row shape used by the requisitions table.
@@ -12,8 +11,18 @@ export type RequisitionRow = {
   debtorName: string
   /** Project code for the requisition. */
   projectCode: string
+  /** Assignment date (raw ISO or yyyy-mm-dd). */
+  assignmentDate?: string
+  /** Due date/termino (raw ISO or yyyy-mm-dd). */
+  dueDate?: string
+  /** Amount deposited/requested as number for formatting. */
+  amount?: number
+  /** Status text to display as a pill. */
+  status?: string
   /** ISO formatted creation date. */
   date_created?: string
+  
+  state?:string,
 }
 
 /** Props for the contextual action cell. */
@@ -24,9 +33,4 @@ export type ActionMenuCellProps = {
   onEdit: (row: RequisitionRow) => void
   /** Called when the delete option is selected. */
   onDelete: (row: RequisitionRow) => void
-}
-
-export type RequisitionsTableProps = {
-  /** Parent callback to open the edit form with initial values. */
-  onEditRequest: (initial: RequisitionInitialValues) => void
 }

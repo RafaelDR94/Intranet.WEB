@@ -1,15 +1,36 @@
 import PerDiemBalanceCard from "./components/DemoPerDiemBalanceCard/PerDiemBalanceCard";
+import RequisitionsForm from "../../../components/RequisitionsForm/RequisitionsForm";
+import useRequisitionsDetails from "./hooks/useRequisitionsDetails";
+import RequisitionDetailsDocument from "./components/RequisitionDetailsDocuments/RequisitionDetailsDocument";
 const RequisitionDetails = () => {
-    return (<PerDiemBalanceCard
-        startDate="2025-08-06"
-        endDate="2025-08-15"
-        requestedAmount={12100}
-        verifiedAmount={6788.65}
-        enterpriseAmount={1000}
-        employeeAmount={3122}
-        elapsedDays={7}
-        totalDays={9}
-        percentage={65}
-    />);
+    const { currentRequisition } = useRequisitionsDetails();
+
+    if (currentRequisition) return (
+        <>
+            <div className="flex gap-6 w-full">
+                <div className="basis-2/3">
+                    <RequisitionsForm
+                        mode="edit"
+                        startDisabled
+                        layoutMatrix={[[5, 5], [5, 5], [5, 5], [5, 5]]}
+                        initialValues={currentRequisition}
+                    />
+                </div>
+
+                <div className="basis-1/3">
+                    <PerDiemBalanceCard
+                        startDate={currentRequisition.assignmentdate}
+                        endDate={currentRequisition.endDate}
+                        requestedAmount={Number(currentRequisition.amountdeposited)}
+                        verifiedAmount={Number(currentRequisition.provenamount)}
+             
+                    />
+                </div>
+
+            </div>
+            <RequisitionDetailsDocument />
+        </>
+
+    );
 }
 export default RequisitionDetails;

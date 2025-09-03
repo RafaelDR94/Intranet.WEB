@@ -9,19 +9,18 @@ import MenuIcon from "@/assets/icons/acciones/menu.svg";
 import LogoDr from "@/assets/images/LogosDR/DReDIT.png";
 import Bell from "@/assets/icons/Comunicacion/bell.svg";
 import PersonalAvatar from "@/app/components/PersonalAvatar/PersonalAvatar";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import useMainTab from "./hooks/useMainTab";
 
+/**
+ * Top navigation tabs for MainLayout. Highlights active tab based on current path and `id` query.
+ */
 export const MainTabs: React.FC<MainTabsProps> = ({
   tabs,
   pathname,
   validPermissionsbyroute,
   onOpenMobileMenu,
 }) => {
-  const clean = (v: string) => v.replaceAll("/", "");
-  const isActive = (path: string) => clean(pathname) === clean(path);
-  const filtered = tabs.filter((tab) => validPermissionsbyroute(tab.path));
-  const isMobile = useIsMobile();
-
+ const {filtered,isMobile,isActive}=useMainTab({tabs,pathname,validPermissionsbyroute})
   // Topbar móvil (logo + hamburguesa). Se muestra siempre en <lg
   const MobileTopbar = (
     <div className="lg:hidden sticky top-0 z-[45] h-[78px] bg-[#04283A] text-white flex items-center justify-between px-4">
@@ -61,11 +60,10 @@ export const MainTabs: React.FC<MainTabsProps> = ({
               )}
               <Link
                 href={tab.path}
-                className={`transition-colors ${
-                  isActive(tab.path)
-                    ? `${isMobile ? "text-b3" : "text-s1"} text-gray-100`
-                    : `${isMobile ? "text-b3" : "text-s1"} text-gray-70 hover:text-gray-80`
-                }`}
+                className={`transition-colors ${isActive(tab.path)
+                  ? `${isMobile ? "text-b3" : "text-s1"} text-gray-100`
+                  : `${isMobile ? "text-b3" : "text-s1"} text-gray-70 hover:text-gray-80`
+                  }`}
               >
                 {tab.label}
               </Link>

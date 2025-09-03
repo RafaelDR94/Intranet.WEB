@@ -2,7 +2,7 @@ import type { FieldModel } from '@/app/components/DynamicForm/types';
 import type { EmployeeType } from '@/app/mappings/employees/employee.types';
 import type { Proyect } from '@/app/mappings/proyects/proyects.types';
 import type { RequitionPost } from '@/app/mappings/requisitions/requisitions.types';
-
+import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper';
 // Ya existentes en tu archivo (mantén tus implementaciones)
 /**
  * Determina si el formulario aún está cargando información
@@ -56,19 +56,24 @@ export const buildRequisitionPayload = ({
 }): RequitionPost => {
   const employeeId = values.employees;
   const projectId = values.project;
-  const requisitionkey = values.requisitionkey as string;
-
-  const employeeName =
+  const requisitionkey = values?.requisitionkey as string || ""
+  const assignmentdate = values?.asignamentdate as string || ""
+  const endDate = values?.cxpdate as string || ""
+  const motive = values?.motive as string || ""
+  const state = values?.state as string || ""
+  const amountdeposited = values?.depositamount as number || 0
+  const provenamount= 0
+  const employeename =
     employees.find(e => e.employee_id === employeeId)?.fullname
     ?? getOptionLabel('employees', employeeId)
     ?? String(employeeId ?? '');
 
-  const projectName =
+  const projectname =
     proyects.find(p => p.id === projectId)?.proyectKey
     ?? getOptionLabel('project', projectId)
     ?? String(projectId ?? '');
 
-  return { requisitionkey, employeename: employeeName, projectname: projectName };
+  return { requisitionkey, employeename, projectname, endDate, assignmentdate,motive, state,amountdeposited,provenamount};
 };
 
 // --- NUEVO: helpers puros y alerts pequeñas
@@ -94,8 +99,8 @@ export const createInitialFields = (): FieldModel[] => ([
   {
     type: 'select',
     name: 'project',
-    label: 'Seleccionar Proyecto',
-    placeholder: 'Proyecto',
+    label: 'Proyecto',
+    placeholder: 'Selecciona el proyecto ',
     value: '',
     className: 'max-w-[400px]',
     validations: [{ type: 'required' }],
@@ -113,5 +118,52 @@ export const createInitialFields = (): FieldModel[] => ([
     className: 'max-w-[400px]',
     validations: [{ type: 'required' }],
   },
+  {
+    type: 'date',
+    name: 'asignamentdate',
+    label: 'Fecha de asignación',
+    placeholder: '00/00/00',
+    value: currentDate(),
+    className: 'max-w-[400px]',
+    validations: [{ type: 'required' }],
+  },
+  {
+    type: 'date',
+    name: 'cxpdate',
+    label: 'Fecha de termino',
+    placeholder: '00/00/00',
+    value: '',
+    className: 'max-w-[400px]',
+    validations: [{ type: 'required' }],
+  },
+  {
+    type: 'number',
+    name: 'depositamount',
+    label: 'Cantidad a depositar',
+    placeholder: 'Escribe la cantidad a depositar',
+    value: '',
+    className: 'max-w-[400px]',
+    validations: [{ type: 'required' }],
+  },
+  {
+    type: 'select',
+    name: 'state',
+    label: 'Estado',
+    placeholder: 'Selecciona el estado',
+    value: '',
+    options: [{ value: "Aguascalientes", label: "Aguascalientes" }],
+    className: 'max-w-[400px]',
+    validations: [{ type: 'required' }],
+  },
+  {
+    type: 'textarea',
+    name: 'motive',
+    label: 'Motivo',
+    placeholder: 'Escribe el motivo de la requisicion',
+    value: '',
+    className: 'max-w-[400px]',
+    rows: 1,
+    validations: [{ type: 'required' }],
+  }
 ]);
 

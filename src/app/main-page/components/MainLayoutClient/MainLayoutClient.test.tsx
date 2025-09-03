@@ -42,6 +42,8 @@ vi.mock('@/app/components/PermissionsAgent/PermissionsAgent', () => ({
 // Mock de Next router (por si algo interno lo usa)
 vi.mock('next/navigation', () => ({
   usePathname: () => '/main-page/home',
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn() }),
 }))
 
 // Mock de useMainPage (evita que el hook real toque contextos)

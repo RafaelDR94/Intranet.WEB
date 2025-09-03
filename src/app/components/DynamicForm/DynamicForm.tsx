@@ -76,6 +76,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   externalSubmitRef,
   onValidChange,
   loadingFormInfo,
+  disabled
 }) => {
   const { initialValues, validationSchema, cleanValues, resolveVariant } =
     useDynamicForm(fields);
@@ -178,7 +179,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                             style={{ width: `${(width / 10) * 100}%` }}
                           >
                             <FieldRenderer
-                              field={field}
+                              field={disabled?{...field,disabled}:field}
                               value={value}
                               allValues={values}
                               onChange={(val) => setFieldValue(field.name, val)}

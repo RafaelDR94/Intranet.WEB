@@ -37,7 +37,6 @@ export const fetchRequisitions = async (set: Set, get: Get, force = false) => {
 
     set({ requisitions: mapped, loading: false, successGet: true })
   } catch (e) {
-    console.log("callo en el catch",e);
     // 5) error normalizado
     const err = normalizeApiError(e)
     set({ error: err.message, loading: false, successGet: false })

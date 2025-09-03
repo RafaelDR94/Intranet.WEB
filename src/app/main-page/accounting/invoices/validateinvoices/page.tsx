@@ -83,7 +83,7 @@ const ValidateInvoices = () => {
       label: "FECHA",
     },
     {
-      key: "importe",
+      key: "total",
       label: "IMPORTE",
       cellClass: "text-right",
       headerClass: "text-right",

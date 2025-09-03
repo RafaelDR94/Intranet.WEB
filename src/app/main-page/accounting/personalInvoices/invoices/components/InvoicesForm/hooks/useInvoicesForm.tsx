@@ -12,6 +12,7 @@ import type {
 } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { UseInvoicesFormReturn, UseInvoicesFormProps } from "./types";
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
+
 const useInvoicesForm = ({
   dataEdit,
   withoutName,
@@ -51,9 +52,34 @@ const useInvoicesForm = ({
     shallow
   );
 
+
+
+
+
   const initialformFields: FieldModel[] = useMemo(() => {
     if (isEdit || withoutName) {
       return [
+
+        {
+          type: "input",
+          name: "personName",
+          label: "Nombre del Deudor",
+          placeholder: "Ingrese el nombre completo",
+          value: "",
+          className: "max-w-[400px]",
+          onlyText: true,
+          showIf: () => Boolean(!dataEdit),
+        },
+        {
+          type: "input",
+          name: "proyect",
+          label: "Proyecto",
+          placeholder: "Ingrese el código del proyect",
+          value: "",
+          className: "max-w-[400px]",
+          onlyText: true,
+          showIf: () => Boolean(!dataEdit),
+        },
         {
           type: "select",
           name: "requisition",
@@ -70,15 +96,52 @@ const useInvoicesForm = ({
           },
           validations: [{ type: "required" }],
         },
+
         {
-          type: "input",
-          name: "personName",
-          label: "Nombre del Deudor",
-          placeholder: "Ingrese el nombre completo",
+          type: "select",
+          name: "category",
+          label: "Categoría",
+          placeholder: "Selecciona una categoría",
           value: "",
+          options: [],
           className: "max-w-[400px]",
-          onlyText: true,
-          showIf: () => Boolean(!dataEdit),
+          showIf: (_v, all) => {
+            const f = all.find((x) => x.name === "category");
+            return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+          },
+          validations: [{ type: "required" }],
+        },
+        {
+          type: "select",
+          name: "description",
+          label: "Descripción",
+          placeholder: "Selecciona una descripción",
+          value: "",
+          options: [],
+          className: "max-w-[400px]",
+          showIf: (_v, all) => {
+            const f = all.find((x) => x.name === "description");
+            return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+          },
+          validations: [{ type: "required" }],
+        },
+
+        {
+          type: "numberControl",
+          name: "numnights",
+          label: "Número de noches",
+          value: dataEdit?.numnights ?? 0,
+          className: "max-w-[300px]",
+          validations: [{ type: "required" }],
+        },
+        {
+          type: "numberControl",
+          name: "numpersons",
+          label: "Número de personas",
+          value: dataEdit?.numpersons ?? 0,
+
+          className: "max-w-[300px]",
+          validations: [{ type: "required" }],
         },
         {
           type: "file",
@@ -87,8 +150,8 @@ const useInvoicesForm = ({
           value: { name: "Documento XML", url: dataEdit?.xml },
           initialFile: { name: dataEdit?.xml ?? "", url: dataEdit?.xml },
           accept: ".xml",
-          validations: [{ type: "required" }],
           className: "max-w-[300px]",
+          validations: [{ type: "required" }],
         },
         {
           type: "file",
@@ -97,9 +160,11 @@ const useInvoicesForm = ({
           value: { name: "Documento PDF", url: dataEdit?.pdf },
           initialFile: { name: dataEdit?.pdf ?? "", url: dataEdit?.pdf },
           accept: ".pdf",
-          validations: [{ type: "required" }],
           className: "max-w-[300px]",
+          validations: [{ type: "required" }],
         },
+
+
       ];
     }
 
@@ -115,6 +180,16 @@ const useInvoicesForm = ({
         showIf: (value) => value.debtorName,
       },
       {
+        type: "input",
+        name: "proyect",
+        label: "Proyecto",
+        placeholder: "Ingrese el nombre completo",
+        value: "",
+        className: "max-w-[400px]",
+        onlyText: true,
+
+      },
+      {
         type: "select",
         name: "requisition",
         label: "Código de Requisición",
@@ -128,11 +203,59 @@ const useInvoicesForm = ({
         },
         validations: [{ type: "required" }],
       },
+
+
+      {
+        type: "select",
+        name: "category",
+        label: "Categoría",
+        placeholder: "Seleccione la categoría",
+        value: "",
+        options: [],
+        className: "max-w-[400px]",
+        showIf: (_v, all) => {
+          const f = all.find((x) => x.name === "category");
+          return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+        },
+        validations: [{ type: "required" }],
+      },
+
+      {
+        type: "select",
+        name: "description",
+        label: "Descripción",
+        placeholder: "Seleccione la descripción",
+        value: "",
+        options: [],
+        className: "max-w-[400px]",
+        showIf: (_v, all) => {
+          const f = all.find((x) => x.name === "description");
+          return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+        },
+        validations: [{ type: "required" }],
+      },
+      {
+        type: "numberControl",
+        name: "numnights",
+        label: "Número de noches",
+        value: 1,
+        className: "max-w-[300px]",
+        validations: [{ type: "required" }],
+      },
+      {
+        type: "numberControl",
+        name: "numpersons",
+        label: "Número de personas",
+        value: 1,
+        className: "max-w-[300px]",
+        validations: [{ type: "required" }],
+      },
+
       {
         type: "file",
         name: "xml",
         label: "Documento XML",
-        value: null,
+        value: "",
         accept: ".xml",
         validations: [{ type: "required" }],
         className: "max-w-[300px]",
@@ -141,7 +264,7 @@ const useInvoicesForm = ({
         type: "file",
         name: "pdf",
         label: "Documento PDF",
-        value: null,
+        value: "",
         accept: ".pdf",
         validations: [{ type: "required" }],
         className: "max-w-[300px]",
@@ -159,9 +282,10 @@ const useInvoicesForm = ({
       billingImages,
     });
 
-  const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
+  const { usePrincipalLoading, usePrincipalAlert, usePrincipalImage } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
+  const { showImage } = usePrincipalImage;
 
   const uploadXmlIfNeeded = async (
     file: File | null | undefined,
@@ -195,6 +319,15 @@ const useInvoicesForm = ({
     throw new Error("No se encontró PDF válido para continuar");
   };
 
+  const handleImageClick = (image: string) => {
+    showImage({
+      src: image,
+      alt: 'Ticket',
+      showAction: false,
+      disableOutsideClose: false, // si quieres obligar a usar los botones, ponlo en true
+    });
+  }
+
   const handleSubmit = async (values: Record<string, any>) => {
     showSpinner({
       message: isEdit ? "Actualizando factura..." : "Subiendo factura...",
@@ -205,12 +338,17 @@ const useInvoicesForm = ({
 
       if (isEdit && dataEdit) {
         const payload: BillingDocumentsPut = {
-          billingdocument_id: dataEdit.billingdocument_id,
-          requisition_id: values.requisition,
+          billingdocument_id: dataEdit?.billingdocument_id,
+          requisition_id: values?.requisition,
           billingimages_id: dataEdit?.billing_image_id || null,
           xml: xmlUrl,
           pdf: pdfUrl,
-          comments: dataEdit.comments,
+          comments: dataEdit?.comments,
+          description_id: values?.description,
+          category_id: values?.category,
+          numnights: values?.numnights,
+          numpersons: values?.numpersons,
+          user_comments: ""
         };
         updateBillingDocument(payload);
       } else {
@@ -219,6 +357,10 @@ const useInvoicesForm = ({
           billingimages_id: billingImages?.billing_image_id || null,
           xml: xmlUrl,
           pdf: pdfUrl,
+          description_id: values?.description,
+          category_id: values?.category,
+          numnights: values?.numnights,
+          numpersons: values?.numpersons
         };
         createBillingDocument(payload);
       }
@@ -309,6 +451,8 @@ const useInvoicesForm = ({
     formReady,
     setFormReady,
     handleSubmit,
+    ResetForm,
+    handleImageClick
   };
 };
 

@@ -16,9 +16,5 @@ export type PerDiemBalanceCardProps = {
   endDate: string;
   requestedAmount: number;
   verifiedAmount: number;
-  enterpriseAmount: number;
-  employeeAmount: number;
-  elapsedDays: number;
-  totalDays: number;
-  percentage: number;
+
 };

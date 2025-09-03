@@ -1,13 +1,13 @@
 // src/app/stores/useRequisitionStore/utilities/fetchRequisitions.ts
 'use client'
-import type { AxiosResponse } from 'axios'
-import { BillingRequisitionByDate} from '@/app/configurations/Axios/urls'
+
 import { RequisitionsMap } from '@/app/mappings/requisitions/requisitions.mapp'
 import { Get, Set } from '../types'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-
+import { BillingRequisitionByDate} from '@/app/configurations/Axios/urls'
+import { AxiosResponse } from 'axios'
 /**
  * Obtiene las requisiciones activas del backend y actualiza el estado.
  *
@@ -19,7 +19,7 @@ export const fetchRequisitionsByDate = async (startDate: string, endDate: string
   // cache básica
   if (get().requisitions.length > 0 && !force) return
 
-  set({ loading: true, error: undefined, successGet: false, requisitions:[] })
+  set({ loading: true, error: undefined, successGet: false, requisitions: [] })
 
 
   try {
@@ -31,7 +31,7 @@ export const fetchRequisitionsByDate = async (startDate: string, endDate: string
 
     // 3) llamada
     const res: AxiosResponse = await getReq(`${BillingRequisitionByDate}?startDate=${startDate}&endDate=${endDate}`)
-
+    
     // 4) mapear y guardar
     const mapped = RequisitionsMap(res.data?.data ?? [])
 

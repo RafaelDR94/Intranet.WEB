@@ -63,7 +63,7 @@ export function helperClasses(variant: InputVariant) {
 }
 
 export const eyesicontyles = {
-  eyeIcon:"w-5 h-5",
-  eyeButton:"absolute right-3 top-1/2 -translate-y-1/2 text-gray-60 hover:text-green-80 focus:outline-none",
+  eyeIcon:"",
+  eyeButton:"absolute right-3 top-2/5 -translate-y-1/2 text-gray-60 hover:text-green-80 focus:outline-none",
 
 }

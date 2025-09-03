@@ -6,32 +6,20 @@ import React, {
     useMemo,
     ReactNode
 } from 'react'
-
 import { shallow } from 'zustand/shallow';
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
+import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore';
 import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
-import { Requisition } from '@/app/mappings/requisitions/requisitions.types';
 import { FieldModel } from '@/app/components/DynamicForm/types';
 import { useAuth } from '@/app/context/AuthContext/AuthContext';
-import { User } from '@/app/context/AuthContext/types';
 import { usePathname } from "next/navigation";
-export interface InvoicesContextType {
-
-    requisitions: Requisition[];
-    field1: FieldModel[];
-    field2: FieldModel[];
-    formId1: string;
-    formId2: string;
-    setFields: (formId: string, newFields: FieldModel[]) => void;
-    updateField: (formId: string, name: string, changes: Partial<FieldModel>) => void;
-    resetFields: (formId: string) => void;
-    user: User | null
-}
+import { InvoicesContextType } from './types';
 
 // 2️⃣ Valor inicial por defecto
 const initialValue: InvoicesContextType = {
-    
+    billingDocumentDescription: [],
+    billingCategories: [],
     requisitions: [],
     field1: [],
     field2: [],
@@ -52,22 +40,42 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
     const { user } = useAuth();
     const formId1 = "invoices-form";
     const formId2 = "ticket-form";
-    const { usePrincipalAlert} = usePrincipal();
+    const { usePrincipalAlert } = usePrincipal();
     const { showAlert, hideAlert } = usePrincipalAlert;
 
 
-    const { requisitions, requisitionsError, warning, fetchRequisitionsByIdEmployee,fetchRequisitions, resetFlags } = useRequisitionsStore(
+    const { requisitions, requisitionsError, warning, fetchRequisitionsByIdEmployee, fetchRequisitions, resetFlags } = useRequisitionsStore(
         (s) => ({
             requisitions: s.requisitions,
             requisitionsError: s.error,
             warning: s.warning,
             fetchRequisitionsByIdEmployee: s.fetchRequisitionsByIdEmployee,
-            fetchRequisitions:s.fetchRequisitions,
+            fetchRequisitions: s.fetchRequisitions,
             resetFlags: s.resetFlags,
             reset: s.reset
         }),
         shallow
     );
+
+    const {
+        billingDocumentDescription,
+        billingCategories,
+        billingerror,
+        fetchBillingDocumentCategories,
+        fetchBillingDocumentDescriptions,
+        resetBillingFlags
+    } = useBillingDocumentsStore
+            (
+                (s) => ({
+                    billingDocumentDescription: s.billingDocumentDescription,
+                    billingCategories: s.billingCategories,
+                    billingerror: s.error,
+                    fetchBillingDocumentCategories: s.fetchBillingDocumentCategories,
+                    fetchBillingDocumentDescriptions: s.fetchBillingDocumentDescriptions,
+                    resetBillingFlags: s.resetFlags,
+                }),
+                shallow
+            );
 
     const { setFields, updateField, resetFields } = useFormFieldsStore.getState();
 
@@ -82,9 +90,13 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
     const field2 = f2 ?? EMPTY_ARRAY;
 
     useEffect(() => {
-        if(pathname == "/main-page/accounting/invoices/addFiles/"){fetchRequisitions(true);}
+        if (pathname == "/main-page/accounting/invoices/addFiles/") { fetchRequisitions(true); }
         else if (user) fetchRequisitionsByIdEmployee(user.idEmployee, true);
-    }, [user,pathname])
+    }, [user, pathname])
+    useEffect(() => {
+        fetchBillingDocumentCategories();
+        fetchBillingDocumentDescriptions("");
+    }, [])
 
     useEffect(() => {
         if (!requisitionsError) return;
@@ -101,7 +113,27 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
             onSecondaryClick: () => { hideAlert(); if (user) fetchRequisitionsByIdEmployee(user?.idEmployee, true); },
         });
         resetFlags();
+        resetBillingFlags();
     }, [requisitionsError]);
+
+    useEffect(() => {
+        if (!billingerror) return;
+        showAlert({
+            type: 'error',
+            variant: 'filled',
+            title: 'No se pudo cargar al menos una lista',
+            description: String(billingerror) ?? 'Intenta refrescar.',
+            showPrimaryButton: true,
+            primaryLabel: 'Entendido',
+            onPrimaryClick: hideAlert,
+            showSecondaryButton: true,
+            secondaryLabel: 'Refrescar',
+            onSecondaryClick: () => { hideAlert(); fetchBillingDocumentCategories(); fetchBillingDocumentDescriptions(""); },
+        });
+        resetFlags();
+        resetBillingFlags();
+    }, [billingerror]);
+
     useEffect(() => {
         if (!warning) return;
         showAlert({
@@ -123,7 +155,8 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
     // 🧠 Memoizar el value para evitar renders innecesarios
     const value = useMemo(
         () => ({
-       
+            billingDocumentDescription,
+            billingCategories,
             requisitions,
             field1,
             field2,
@@ -135,6 +168,8 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
             user
         }),
         [
+            billingDocumentDescription,
+            billingCategories,
             requisitions,
             field1,
             field2,

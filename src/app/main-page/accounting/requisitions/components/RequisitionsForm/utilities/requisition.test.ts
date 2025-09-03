@@ -41,12 +41,18 @@ describe('requisition utilities', () => {
       requisitionkey: 'R1',
       employeename: 'John',
       projectname: 'P1',
+      endDate: '',
+      assignmentdate: '',
+      motive: '',
+      state: '',
+      amountdeposited: 0,
+      provenamount: 0,
     });
   });
 
   it('createInitialFields returns expected structure', () => {
     const fields = createInitialFields();
     expect(Array.isArray(fields)).toBe(true);
-    expect(fields).toHaveLength(3);
+    expect(fields).toHaveLength(8);
   });
 });

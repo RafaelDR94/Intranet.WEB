@@ -348,3 +348,9 @@ Fix:
 Feature:
 
 - Added NumberControl field type to DynamicForm with tests and docs. (Agente IA) [#]()
+
+### 1.44.1 Test fixes for navigation mocks 2025-09-02
+
+Fix:
+
+- Added Next.js navigation mocks and updated requisition and billing document tests. (Agente IA) [#]()
