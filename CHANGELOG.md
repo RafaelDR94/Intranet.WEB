@@ -354,3 +354,9 @@ Feature:
 Fix:
 
 - Added Next.js navigation mocks and updated requisition and billing document tests. (Agente IA) [#]()
+
+### 1.44.2 Requisition details tests and docs 2025-09-03
+
+Fix:
+
+- Added tests and Storybook docs for requisition detail components and hooks. (Agente IA) [#]()

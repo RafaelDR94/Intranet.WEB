@@ -1,9 +1,16 @@
+import React from "react";
 import PerDiemBalanceCard from "./components/DemoPerDiemBalanceCard/PerDiemBalanceCard";
 import RequisitionsForm from "../../../components/RequisitionsForm/RequisitionsForm";
 import useRequisitionsDetails from "./hooks/useRequisitionsDetails";
 import RequisitionDetailsDocument from "./components/RequisitionDetailsDocuments/RequisitionDetailsDocument";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-const RequisitionDetails = () => {
+
+/**
+ * Muestra el formulario de requisición junto con información adicional como
+ * el balance de viáticos y los documentos relacionados. Renderiza secciones
+ * según los permisos del usuario actual.
+ */
+const RequisitionDetails: React.FC = () => {
     const { currentRequisition } = useRequisitionsDetails();
     const { currentPagePermissions } = useAuth();
     if (currentRequisition) return (
