@@ -360,3 +360,9 @@ Fix:
 Fix:
 
 - Added tests and Storybook docs for requisition detail components and hooks. (Agente IA) [#]()
+
+### 1.45.0 Personal invoices tests and docs 2025-09-03
+
+Feature:
+
+- Added tests and Storybook stories for personal invoices forms, hooks and side menu. (Agente IA) [#]()

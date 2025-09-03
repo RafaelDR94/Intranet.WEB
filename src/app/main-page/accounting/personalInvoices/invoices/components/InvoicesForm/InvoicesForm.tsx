@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import { InvoicesFormProps } from "../types";
