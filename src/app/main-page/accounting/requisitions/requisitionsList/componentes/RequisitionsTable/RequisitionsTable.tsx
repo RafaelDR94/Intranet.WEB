@@ -27,7 +27,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
 }) => {
   const { currentPagePermissions } = useAuth();
   const menuItems: any[] = [];
-  if (currentPagePermissions?.update)
+  if (currentPagePermissions?.details)
     menuItems.push({
       label: "Ver Detalle",
       icon: EditIcon,

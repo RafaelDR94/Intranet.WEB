@@ -6,6 +6,7 @@ import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useInvoices } from '../../../context/InvoicesContext'
 import useInitInvoicesForms from '../../../hooks/useInitInvoicesForms'
+import { createTicketFields } from '../../../utilities/InitialFields'
 import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
 import { UseTicketFormReturn, UseInvoicesFormProps } from './types'
 import { useBillingHistoryStore } from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
@@ -118,94 +119,7 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
     }
 
     // 🟢 CREATE: mantiene debtorName como estaba originalmente
-    return [
-      {
-        type: "input",
-        name: "debtorName",
-        label: "Nombre del Deudor",
-        placeholder: "Ingrese el nombre completo",
-        value: "",
-        className: "max-w-[400px]",
-        onlyText: true,
-        showIf: (value) => value.debtorName,
-      },
-      {
-        type: "input",
-        name: "proyect",
-        label: "Proyecto",
-        placeholder: "Ingrese el nombre completo",
-        value: "",
-        className: "max-w-[400px]",
-        onlyText: true,
-
-      },
-      {
-        type: 'select',
-        name: 'requisition',
-        label: 'Código de Requisición',
-        placeholder: 'Seleccione el código',
-        value: '',
-        options: [],
-        className: 'max-w-[400px]',
-        showIf: (_v, all) => {
-          const f = all.find((x) => x.name === 'requisition')
-          return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0
-        },
-      },
-      {
-        type: "select",
-        name: "description",
-        label: "Descripción",
-        placeholder: "Selecciona una descripción",
-        value: "",
-        options: [],
-        className: "max-w-[400px]",
-        showIf: (_v, all) => {
-          const f = all.find((x) => x.name === "description");
-          return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-        },
-        validations: [{ type: "required" }],
-      },
-      {
-        type: "select",
-        name: "category",
-        label: "Categoría",
-        placeholder: "Seleccione una categoría",
-        value: "",
-        options: [],
-        className: "max-w-[400px]",
-        showIf: (_v, all) => {
-          const f = all.find((x) => x.name === "category");
-          return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-        },
-        validations: [{ type: "required" }],
-      },
-      {
-        type: "numberControl",
-        name: "numnights",
-        label: "Número de noches",
-        value: 1,
-        validations: [{ type: "required" }],
-        className: "max-w-[300px]",
-      },
-      {
-        type: "numberControl",
-        name: "numpersons",
-        label: "Número de personas",
-        value: 1,
-        validations: [{ type: "required" }],
-        className: "max-w-[300px]",
-      },
-      {
-        type: 'file',
-        name: 'ticket',
-        label: 'Documento JPG/PNG',
-        value: null,
-        accept: '.jpg,.png',
-        validations: [{ type: 'required' }], // en create es requerido
-        className: 'max-w-[300px]',
-      },
-    ]
+    return createTicketFields()
   }, [dataEdit, isEdit])
 
   const { field2, formId2, user } = useInvoices()

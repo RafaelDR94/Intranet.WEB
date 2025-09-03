@@ -5,6 +5,7 @@ import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 import { shallow } from "zustand/shallow"
 import { useEffect, useState } from "react";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 const usePictureTable = () => {
     const { usePrincipalImage, usePrincipalLoading, usePrincipalAlert } = usePrincipal();
     const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -12,6 +13,7 @@ const usePictureTable = () => {
     const { showImage, hideImage } = usePrincipalImage;
     const [openRejectPicture, setOpenRejectPicture] = useState<{ state: boolean, row: BillingImagesTable | null }>({ state: false, row: null });
     const isMobile = useIsMobile();
+    const { currentPagePermissions } = useAuth();
     const {
         loading,
         billingImages,
@@ -81,7 +83,7 @@ const usePictureTable = () => {
         showImage({
             src: row.Image,
             alt: 'Ticket',
-            showAction: true,
+            showAction: currentPagePermissions?.canRejectImage,
             actionLabel: 'Rechazar Imagen',
             onAction: () => {
                 setOpenRejectPicture({ state: true, row: row });
@@ -91,6 +93,6 @@ const usePictureTable = () => {
         });
     }
 
-    return { loading,opePicture,isMobile,billingImages,setOpenRejectPicture,openRejectPicture,handleSubmitReject,hideImage}
+    return { currentPagePermissions,loading, opePicture, isMobile, billingImages, setOpenRejectPicture, openRejectPicture, handleSubmitReject, hideImage }
 }
 export default usePictureTable;

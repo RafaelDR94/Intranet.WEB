@@ -1,9 +1,9 @@
+import React from "react";
 import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { Button } from "@/app/components/Button/Button";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import HorizonIncon from "@/assets/icons/navegacion/more-horiz.svg";
 import { DataTable } from "@/app/components/DataTable/DataTable";
-
 import { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
 import { BillingImagesTableMap } from "@/app/mappings/billingimages/billingimages.mapper";
 import LinkIcon from "@/assets/icons/Other/Other/link.svg"
@@ -16,7 +16,7 @@ import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import usePictureTable from "./usePictureTable";
 
 const PictureTable: React.FC<PicturesTableProps> = ({ setSelectedPictures }) => {
-  const { loading, opePicture, isMobile, billingImages, setOpenRejectPicture, openRejectPicture, handleSubmitReject, hideImage } = usePictureTable();
+  const { loading, opePicture, isMobile, billingImages, setOpenRejectPicture, openRejectPicture, handleSubmitReject, hideImage,currentPagePermissions } = usePictureTable();
 
   const columnsDesktop: ColumnDefinition<BillingImagesTable>[] = [
 
@@ -53,12 +53,13 @@ const PictureTable: React.FC<PicturesTableProps> = ({ setSelectedPictures }) => 
             variant="ghost"
             onClick={() => opePicture(row)}
           />
-
-          <Button
+          {currentPagePermissions.canLinkImage && currentPagePermissions.canAddDocuments && <Button
             icon={LinkIcon}
             variant="ghost"
             onClick={() => setSelectedPictures(row)}
-          />
+          />}
+
+
           <Button
             icon={DownloadIcon}
             variant="ghost"
@@ -116,8 +117,9 @@ const PictureTable: React.FC<PicturesTableProps> = ({ setSelectedPictures }) => 
 
 
 
-
+  if(!currentPagePermissions?.canSeeTicketsList) return
   if (loading) return <Spinner />
+  
 
   return (
     <>

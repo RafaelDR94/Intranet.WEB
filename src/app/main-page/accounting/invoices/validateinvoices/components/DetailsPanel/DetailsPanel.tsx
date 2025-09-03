@@ -11,7 +11,7 @@ import { classes as s } from "./styles";
 import { useDetailsPanel } from "./hooks/useDetailsPanel";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import { PopUp } from "@/app/components/PopUp/PopUp";
-
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
   setPanelOpen,
@@ -32,9 +32,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     handleSubmitComment,
     handleSubmitReject,
     handleSubmitValid,
-  } = useDetailsPanel({ selected, rejectType, setPanelOpen, operations,reqisition });
-
-
+  } = useDetailsPanel({ selected, rejectType, setPanelOpen, operations, reqisition });
+  const { currentPagePermissions } = useAuth();
 
   return (
     <DetailsPanelLayout
@@ -45,13 +44,13 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       rightLabel={labels.right}
       actionButton={
         <>
-          {validInvoice && <Button size="small" variant="solid" hideIcon onClick={() => setOpenValidInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase()=="RECHAZADO"}>
+          {(currentPagePermissions.canValidInvoice && validInvoice) && <Button size="small" variant="solid" hideIcon onClick={() => setOpenValidInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
             Validar Factura
           </Button>}
-          {sendInvoiceToSap && <Button size="small" variant="solid" hideIcon onClick={() => {/**To Do enviar a SAP */ }}>
+          {(currentPagePermissions.canSendToSap && sendInvoiceToSap) && <Button size="small" variant="solid" hideIcon onClick={() => {/**To Do enviar a SAP */ }}>
             Enviar a SAP
           </Button>}
-          {rejectInvoice && <Button size="small" variant="outline" hideIcon onClick={() => setOpenRejectInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase()=="RECHAZADO"}>
+          {currentPagePermissions.canRejectInvoice && rejectInvoice && <Button size="small" variant="outline" hideIcon onClick={() => setOpenRejectInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
             Rechazar Factura
           </Button>}
 
@@ -168,7 +167,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           {/* Comentarios */}
           <CollapsibleSection title={onlyText ? "Comentario" : "Deja un comentario"} defaultOpen={true} showDivider={false} enableCollapse={!onlyText}>
             <div className={s.commentBoxPadding}>
-              <DynamicForm
+              {currentPagePermissions?.canAddComment && <DynamicForm
 
                 fields={[
                   {
@@ -185,7 +184,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 showSubmitIf={() => !onlyText}
                 submitLabel="Guardar Comentario"
                 onSubmit={handleSubmitComment}
-              />
+              />}
+
             </div>
           </CollapsibleSection>
         </div>

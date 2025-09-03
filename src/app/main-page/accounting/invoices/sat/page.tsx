@@ -12,7 +12,7 @@ import DetailsPanel from "../validateinvoices/components/DetailsPanel/DetailsPan
 import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { BillingDocumentsSatTableMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
-
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 const SAT = () => {
   const {
     handleOpenDetails,
@@ -27,6 +27,7 @@ const SAT = () => {
     handleSendToSap,
     handleMultiSelect,
   } = useSAT();
+  const { currentPagePermissions } = useAuth();
 
   const isMobile = useIsMobile();
   /** Columnas base sin ícono forzado */
@@ -73,17 +74,19 @@ const SAT = () => {
         headerRender: () => <></>,
         render: (row) => (
           <div className="flex">
-            <Button
-              size="medium"
-              onClick={() =>
-                handleOpenDetails(row, true, rejectInvoice, sendInvoiceToSap)
-              }
-              variant="ghost"
-              hideIcon
-            >
-              Ver Detalles
-            </Button>
-            {canComment && (
+            {currentPagePermissions?.canSeeDetails &&
+              <Button
+                size="medium"
+                onClick={() =>
+                  handleOpenDetails(row, true, rejectInvoice, sendInvoiceToSap)
+                }
+                variant="ghost"
+                hideIcon
+              >
+                Ver Detalles
+              </Button>}
+
+            {(currentPagePermissions?.canAddComment && canComment) && (
               <Button
                 size="medium"
                 onClick={() =>
@@ -125,14 +128,15 @@ const SAT = () => {
         enableInternalSearch
         actionsRender={() => (
           <div className="ml-7">
-            <Button
+            {currentPagePermissions?.canSendToSap && <Button
               disabled={multiSelected?.length == 0}
               onClick={handleSendToSap}
               size="large"
               hideIcon
             >
               Enviar a SAP
-            </Button>
+            </Button>}
+
           </div>
         )}
         showDownloadTable

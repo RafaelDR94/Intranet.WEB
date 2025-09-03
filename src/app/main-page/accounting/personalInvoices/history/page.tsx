@@ -12,11 +12,13 @@ import { InvoicesProvider } from "../invoices/context/InvoicesContext";
 import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
 import useHistory from "./hooks/useHistory";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
 const PersonalInvoicesHistory = () => {
   const { panelOpen, setPanelOpen, selected, setSelected, rejected, history } =
     useHistory();
   const isMobile = useIsMobile();
+  const { currentPagePermissions } = useAuth();
 
   const columnsDesktop: ColumnDefinition<HistoryRow>[] = [
     {
@@ -81,17 +83,21 @@ const PersonalInvoicesHistory = () => {
       key: "details" as unknown as keyof HistoryRow,
       label: "DETALLES",
       render: (row) => (
-        <Button
-          size="small"
-          variant="ghost"
-          hideIcon
-          onClick={() => {
-            setSelected(row);
-            setPanelOpen(true);
-          }}
-        >
-          Ver Detalle
-        </Button>
+        <>
+          {currentPagePermissions.canSeeDetails && <Button
+            size="small"
+            variant="ghost"
+            hideIcon
+            onClick={() => {
+              setSelected(row);
+              setPanelOpen(true);
+            }}
+          >
+            Ver Detalle
+          </Button>}
+        </>
+
+
       ),
     },
   ];

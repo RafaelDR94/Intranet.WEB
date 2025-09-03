@@ -21,7 +21,7 @@ type Props = {
   /** Para controlar la distribucion */
   layoutMatrix?: number[][]
   /** Inicia con el componente deshabilitado */
-  startDisabled?:boolean
+  startDisabled?: boolean
 };
 
 /**
@@ -29,7 +29,7 @@ type Props = {
  * Envuelve un {@link DynamicForm} dentro de {@link FormsLayout} y usa
  * {@link useRequisitionForm} para manejar estado y envío.
  */
-const RequisitionsForm: React.FC<Props> = ({ mode = 'create', initialValues, onClose, layoutMatrix,startDisabled }) => {
+const RequisitionsForm: React.FC<Props> = ({ mode = 'create', initialValues, onClose, layoutMatrix, startDisabled }) => {
   const {
     fields,
     loadingFormInfo,
@@ -41,18 +41,18 @@ const RequisitionsForm: React.FC<Props> = ({ mode = 'create', initialValues, onC
     currentPagePermissions,
     disableForm,
     setDisableForm
-  } = useRequisitionForm(mode, initialValues,startDisabled);
+  } = useRequisitionForm(mode, initialValues, startDisabled);
 
   if (currentPagePermissions?.requisitionForm) return (
     <FormsLayout
       title={mode === 'create' ? 'Solicitud de Requisiciones' : 'Editar Requisición'}
       primaryLabel="Guardar"
       onPrimaryClick={onSubmit}
-      primaryDisabled={buttonDisabled}
+      primaryDisabled={buttonDisabled ||(startDisabled &&disableForm )}
       enableCollapse={false}
-      showSecondaryButton={(mode === 'edit'||startDisabled)}
-      secondaryLabel={disableForm?'Editar información':'Cancelar'}
-      onSecondaryClick={()=>{onClose?.(); setDisableForm((prev)=>!prev)}}
+      showSecondaryButton={currentPagePermissions?.updaterequisitionForm && (mode === 'edit' || startDisabled)}
+      secondaryLabel={disableForm ? 'Editar información' : 'Cancelar'}
+      onSecondaryClick={() => { onClose?.(); setDisableForm((prev) => !prev) }}
     >
 
 
@@ -65,7 +65,7 @@ const RequisitionsForm: React.FC<Props> = ({ mode = 'create', initialValues, onC
         externalSubmitRef={submitRef}
         showSubmitIf={() => false}
         disabled={disableForm}
-        
+
       />
     </FormsLayout>
   );

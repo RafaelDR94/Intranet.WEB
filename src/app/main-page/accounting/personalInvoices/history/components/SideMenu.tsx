@@ -1,3 +1,4 @@
+import React from "react";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import TicketForm from "../../invoices/components/TicketForm/TicketForm";
 import { Button } from "@/app/components/Button/Button";
@@ -13,7 +14,7 @@ import { SideMenuProps } from "./types";
 
 const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }) => {
   const submitRef = useRef<() => void | Promise<void>>(null);
-  const { user } = useAuth();
+  const { user, currentPagePermissions } = useAuth();
 
   return (
     <DetailsPanelLayout
@@ -23,10 +24,13 @@ const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }
       leftLabel={selected ? `Usuario: ${user?.fullName}` : undefined}
       rightLabel={selected ? `Código: ${selected.project.name}` : undefined}
       actionButton={
-        
-        <Button size="large" variant="solid" hideIcon onClick={() => submitRef.current?.()} disabled={(selected?.status.toLocaleLowerCase() != "rechazado")}>
-          Re-enviar
-        </Button>
+        <>
+          {(currentPagePermissions.canAddPicture || currentPagePermissions.canAddDocuments) && <Button size="large" variant="solid" hideIcon onClick={() => submitRef.current?.()} disabled={(selected?.status.toLocaleLowerCase() != "rechazado")}>
+            Re-enviar
+          </Button>}
+        </>
+
+
       }
       renderActions={() =>
         selected && <Label type={selected?.status?.toLocaleLowerCase() as any} text={selected.status.toUpperCase()} />
