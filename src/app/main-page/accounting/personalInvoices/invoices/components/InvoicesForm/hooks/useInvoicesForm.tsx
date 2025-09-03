@@ -5,6 +5,7 @@ import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useInvoices } from "../../../context/InvoicesContext";
 import useInitInvoicesForms from "../../../hooks/useInitInvoicesForms";
+import { createInvoiceFields } from "../../../utilities/InitialFields";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import type {
   BillingDocumentsPost,
@@ -168,109 +169,8 @@ const useInvoicesForm = ({
       ];
     }
 
-    return [
-      {
-        type: "input",
-        name: "debtorName",
-        label: "Nombre del Deudor",
-        placeholder: "Ingrese el nombre completo",
-        value: "",
-        className: "max-w-[400px]",
-        onlyText: true,
-        showIf: (value) => value.debtorName,
-      },
-      {
-        type: "input",
-        name: "proyect",
-        label: "Proyecto",
-        placeholder: "Ingrese el nombre completo",
-        value: "",
-        className: "max-w-[400px]",
-        onlyText: true,
-
-      },
-      {
-        type: "select",
-        name: "requisition",
-        label: "Código de Requisición",
-        placeholder: "Seleccione el código",
-        value: "",
-        options: [],
-        className: "max-w-[400px]",
-        showIf: (_v, all) => {
-          const f = all.find((x) => x.name === "requisition");
-          return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-        },
-        validations: [{ type: "required" }],
-      },
-
-
-      {
-        type: "select",
-        name: "category",
-        label: "Categoría",
-        placeholder: "Seleccione la categoría",
-        value: "",
-        options: [],
-        className: "max-w-[400px]",
-        showIf: (_v, all) => {
-          const f = all.find((x) => x.name === "category");
-          return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-        },
-        validations: [{ type: "required" }],
-      },
-
-      {
-        type: "select",
-        name: "description",
-        label: "Descripción",
-        placeholder: "Seleccione la descripción",
-        value: "",
-        options: [],
-        className: "max-w-[400px]",
-        showIf: (_v, all) => {
-          const f = all.find((x) => x.name === "description");
-          return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-        },
-        validations: [{ type: "required" }],
-      },
-      {
-        type: "numberControl",
-        name: "numnights",
-        label: "Número de noches",
-        value: 1,
-        className: "max-w-[300px]",
-        validations: [{ type: "required" }],
-      },
-      {
-        type: "numberControl",
-        name: "numpersons",
-        label: "Número de personas",
-        value: 1,
-        className: "max-w-[300px]",
-        validations: [{ type: "required" }],
-      },
-
-      {
-        type: "file",
-        name: "xml",
-        label: "Documento XML",
-        value: "",
-        accept: ".xml",
-        validations: [{ type: "required" }],
-        className: "max-w-[300px]",
-      },
-      {
-        type: "file",
-        name: "pdf",
-        label: "Documento PDF",
-        value: "",
-        accept: ".pdf",
-        validations: [{ type: "required" }],
-        className: "max-w-[300px]",
-      },
-    ];
-  }, [dataEdit, isEdit]);
+    return createInvoiceFields();
+  }, [dataEdit, isEdit, withoutName]);
 
   const { field1, formId1, user } = useInvoices();
   const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm } =

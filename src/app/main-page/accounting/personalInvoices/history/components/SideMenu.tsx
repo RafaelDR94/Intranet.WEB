@@ -1,3 +1,4 @@
+import React from "react";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import TicketForm from "../../invoices/components/TicketForm/TicketForm";
 import { Button } from "@/app/components/Button/Button";
