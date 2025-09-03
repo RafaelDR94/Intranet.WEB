@@ -30,6 +30,7 @@ const mockHook = {
   buttonDisabled: false,
   currentPagePermissions: {
     requisitionForm: true,
+    updaterequisitionForm: true,
   },
   disableForm: false,
   setDisableForm: vi.fn(),

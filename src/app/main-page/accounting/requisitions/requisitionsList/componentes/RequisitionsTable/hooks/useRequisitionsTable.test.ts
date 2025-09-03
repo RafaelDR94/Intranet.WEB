@@ -64,4 +64,11 @@ describe('useRequisitionTable', () => {
     // Se esperaba: limpia el slash final y agrega ?x=1&id=1
     expect(push).toHaveBeenCalledWith('/main-page/accounting/requisitions?x=1&id=1')
   })
+
+  it('sets row to delete and opens confirmation', () => {
+    const { result } = renderHook(() => useRequisitionTable())
+    act(() => result.current.onDelete({ id: '1', snCode: 'REQ-1' } as any))
+    expect(result.current.confirmOpen).toBe(true)
+    expect(result.current.rowToDelete?.id).toBe('1')
+  })
 })
