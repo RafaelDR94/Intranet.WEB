@@ -1,77 +1,107 @@
-import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import useLogin from './useLogin';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext/AuthContext';
-import { usePrincipal } from '../../context/PrincipalContext/PrincipalContext';
 
-vi.mock('next/navigation', () => ({ useRouter: vi.fn() }));
-vi.mock('../../context/AuthContext/AuthContext', () => ({ useAuth: vi.fn() }));
-vi.mock('../../context/PrincipalContext/PrincipalContext', () => ({ usePrincipal: vi.fn() }));
+// 🔹 Mock de dependencias externas
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
 
-describe('useLogin', () => {
-  const push = vi.fn();
-  const login = vi.fn();
-  const handleRemeberMe = vi.fn();
-  const setDarkTheme = vi.fn();
+const mockLogin = vi.fn();
+vi.mock('../../context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({ login: mockLogin }),
+}));
 
+const mockSetDarkTheme = vi.fn();
+vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
+  usePrincipal: () => ({
+    usePrincipalTheme: { setDarkTheme: mockSetDarkTheme, theme: 'light' },
+  }),
+}));
+
+// Helpers para mockear localStorage
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: vi.fn((key) => store[key] ?? null),
+    setItem: vi.fn((key, value) => {
+      store[key] = value;
+    }),
+    removeItem: vi.fn((key) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    }),
+  };
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+describe('useLogin hook', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    (useRouter as unknown as any).mockReturnValue({ push });
-    
-    (useAuth as unknown as any).mockReturnValue({
-      login,
-      handleRemeberMe,
-      userRemebered: false,
-    });
-
-    (usePrincipal as unknown as any).mockReturnValue({
-      usePrincipalTheme: {
-        theme: 'light',
-        setDarkTheme,
-      },
-    });
+    localStorage.clear();
   });
 
-  it('activa modo oscuro cuando el tema es light', () => {
+  it('carga credenciales recordadas desde localStorage', () => {
+    localStorage.setItem('drs.remember.flag', '1');
+    localStorage.setItem('drs.remember.email', 'test@drs.com');
+    localStorage.setItem('drs.remember.password', '123456');
+
+    const { result } = renderHook(() => useLogin());
+
+    expect(result.current.rememberStatus).toBe(true);
+    expect(result.current.loginFields.find(f => f.name === 'email')?.value).toBe('test@drs.com');
+    expect(result.current.loginFields.find(f => f.name === 'password')?.value).toBe('123456');
+  });
+
+  it('activa el tema oscuro si es light', () => {
     renderHook(() => useLogin());
-    expect(setDarkTheme).toHaveBeenCalled();
+    expect(mockSetDarkTheme).toHaveBeenCalled();
   });
 
-  it('maneja el cambio de remember', () => {
+  it('handleRemember guarda credenciales en localStorage', () => {
     const { result } = renderHook(() => useLogin());
+
     act(() => {
-      result.current.handleRemeber(true);
+      result.current.handleRemember(true, 'user@drs.com', 'mypassword');
     });
-    expect(handleRemeberMe).toHaveBeenCalledWith(true);
-    expect(result.current.remeberStatus).toBe(true);
+
+    expect(localStorage.setItem).toHaveBeenCalledWith('drs.remember.email', 'user@drs.com');
+    expect(localStorage.setItem).toHaveBeenCalledWith('drs.remember.password', 'mypassword');
   });
 
-  it('realiza login exitoso', async () => {
-    login.mockResolvedValueOnce({});
+  it('login exitoso redirige y guarda credenciales si rememberStatus = true', async () => {
+    const pushMock = vi.fn();
+    mockLogin.mockResolvedValueOnce({});
+    const { result } = renderHook(() => useLogin({ push: pushMock } as any));
+
+    act(() => {
+      result.current.handleRemember(true);
+    });
+
+    await act(async () => {
+      await result.current.handleLogin({ email: 'user@drs.com', password: 'mypassword' });
+    });
+
+    expect(mockLogin).toHaveBeenCalledWith({ email: 'user@drs.com', password: 'mypassword' });
+    expect(pushMock).toHaveBeenCalledWith('/main-page');
+    expect(localStorage.setItem).toHaveBeenCalledWith('drs.remember.email', 'user@drs.com');
+  });
+
+  it('login fallido muestra mensaje de error', async () => {
+    mockLogin.mockRejectedValueOnce({
+      response: { data: { error_Message: 'Credenciales inválidas' } },
+    });
+
     const { result } = renderHook(() => useLogin());
 
     await act(async () => {
-      await result.current.handleLogin({ email: 'test@test.com', password: '123456' });
+      await result.current.handleLogin({ email: 'wrong@drs.com', password: 'bad' });
     });
 
-    expect(login).toHaveBeenCalled();
-    expect(push).toHaveBeenCalledWith('/main-page');
-    expect(result.current.isLoading).toBe(false);
-  });
-
-  it('maneja error de login', async () => {
-    login.mockRejectedValueOnce({
-      response: { data: { error_Message: 'error' } },
+    await waitFor(() => {
+      expect(result.current.failMessage).toBe('Credenciales inválidas');
     });
-    const { result } = renderHook(() => useLogin());
-
-    await act(async () => {
-      await result.current.handleLogin({ email: 'test@test.com', password: '123456' });
-    });
-
-    expect(result.current.failMessage).toBe('error');
-    expect(result.current.isLoading).toBe(false);
   });
 });
