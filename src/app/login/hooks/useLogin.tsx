@@ -34,12 +34,12 @@ export interface UseLogin {
 }
 
 const REMEMBER_EMAIL_KEY = 'drs.remember.email';
-const REMEMBER_PASS_KEY  = 'drs.remember.password';
-const REMEMBER_FLAG_KEY  = 'drs.remember.flag';
+const REMEMBER_PASS_KEY = 'drs.remember.password';
+const REMEMBER_FLAG_KEY = 'drs.remember.flag';
 
 const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
   const router = routerOverride ?? useRouter();
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const { usePrincipalTheme } = usePrincipal();
   const { setDarkTheme, theme } = usePrincipalTheme;
 
@@ -54,7 +54,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
     try {
       const flag = localStorage.getItem(REMEMBER_FLAG_KEY) === '1';
       const email = localStorage.getItem(REMEMBER_EMAIL_KEY) || '';
-      const pass  = localStorage.getItem(REMEMBER_PASS_KEY) || '';
+      const pass = localStorage.getItem(REMEMBER_PASS_KEY) || '';
       setRememberStatus(flag);
       setRememberedEmail(flag ? email : '');
       setRememberedPassword(flag ? pass : '');
@@ -70,7 +70,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
   const loginFields = useMemo<FieldModel[]>(
     () =>
       baseLoginFields.map((f) => {
-        if (f.name === 'email')   return { ...f, value: rememberedEmail };
+        if (f.name === 'email') return { ...f, value: rememberedEmail };
         if (f.name === 'password') return { ...f, value: rememberedPassword };
         return f;
       }),
@@ -133,7 +133,9 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
       setIsLoading(false);
     }
   };
-
+  useEffect(() => {
+    logout();
+  }, [])
   return {
     rememberStatus,
     isLoading,

@@ -1,146 +1,212 @@
+// LoginPage.test.tsx
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import LoginPage from './page';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../context/AuthContext/AuthContext';
-import { usePrincipal } from '../context/PrincipalContext/PrincipalContext';
-import { vi, describe, beforeEach, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-// Mock del formulario dinámico
-vi.mock('../components/DynamicForm/DynamicForm', () => ({
-  __esModule: true,
-  default: ({ fields, onSubmit, children, submitLabel }: any) => {
-    const [values, setValues] = React.useState(
-      Object.fromEntries(fields.map((f: any) => [f.name, '']))
-    );
-    return (
+// --- Mocks base --- //
+vi.mock('next/link', () => {
+  return {
+    default: ({ href, children, ...rest }: any) => (
+      <a href={href} {...rest}>
+        {children}
+      </a>
+    ),
+  };
+});
+
+vi.mock('next/image', () => {
+  // Componente <img> simple para probar presencia por alt
+  return {
+    default: ({ alt, ...props }: any) => <img alt={alt} {...props} />,
+  };
+});
+
+// Mock de estilos (clases sencillas)
+vi.mock('./styles', () => {
+  return {
+    loginStyles: {
+      page: 'page',
+      formContainer: 'formContainer',
+      formWrapper: 'formWrapper',
+      rememberContainer: 'rememberContainer',
+      logoContainer: 'logoContainer',
+      logo: 'logo',
+    },
+  };
+});
+
+// Mock de imágenes estáticas
+vi.mock('@/assets/images/Walpapers/Wallpaper-1.png', () => ({ default: '/wallpaper-desktop.png' }));
+vi.mock('@/assets/images/Walpapers/wallpaper-mobile.png', () => ({ default: '/wallpaper-mobile.png' }));
+
+// Mock de hijos usados por LoginPage
+vi.mock('../components/DynamicForm/DynamicForm', () => {
+  return {
+    default: ({ onSubmit, submitLabel, loading, children }: any) => (
       <form
+        aria-label="dynamic-form"
         onSubmit={(e) => {
           e.preventDefault();
-          onSubmit(values);
+          onSubmit?.();
         }}
       >
-        {fields.map((f: any) => (
-          <input
-            key={f.name}
-            aria-label={f.label}
-            value={values[f.name]}
-            onChange={(e) =>
-              setValues((v: any) => ({ ...v, [f.name]: e.target.value }))
-            }
-          />
-        ))}
         {children}
-        <button type="submit">{submitLabel}</button>
+        <button type="submit" disabled={!!loading}>
+          {submitLabel ?? 'Enviar'}
+        </button>
       </form>
-    );
-  },
-}));
+    ),
+  };
+});
 
-// Mocks base
-vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(),
-}));
-vi.mock('../context/AuthContext/AuthContext', () => ({
-  useAuth: vi.fn(),
-}));
-vi.mock('../context/PrincipalContext/PrincipalContext', () => ({
-  usePrincipal: vi.fn(),
-}));
+vi.mock('../components/Alert/Alert', () => {
+  return {
+    Alert: ({ title, description }: any) => (
+      <div role="alert">
+        <strong>{title}</strong>
+        <p>{description}</p>
+      </div>
+    ),
+  };
+});
+
+vi.mock('../components/ToogleButton/ToogleButton', () => {
+  // Botón que llama onChange(!checked) al click
+  return {
+    ToggleButton: ({ checked, onChange, label, ...rest }: any) => (
+      <button
+        type="button"
+        aria-pressed={!!checked}
+        aria-label={label ?? 'toggle'}
+        onClick={() => onChange?.(!checked)}
+        {...rest}
+      >
+        {label ?? 'toggle'}
+      </button>
+    ),
+  };
+});
+
+// --- Mock del hook useLogin con estado configurable --- //
+type LoginMockState = {
+  handleLogin: () => void;
+  handleRemember: (checked: boolean) => void;
+  rememberStatus: boolean;
+  failMessage: string | null;
+  isLoading: boolean;
+  loginFields: any[];
+};
+
+const loginState: LoginMockState = {
+  handleLogin: vi.fn(),
+  handleRemember: vi.fn(),
+  rememberStatus: false,
+  failMessage: null,
+  isLoading: false,
+  loginFields: [
+    { id: 'email', type: 'email', label: 'Email', value: '' },
+    { id: 'password', type: 'password', label: 'Password', value: '' },
+  ],
+};
+
+export function __setLoginMock(partial: Partial<LoginMockState>) {
+  Object.assign(loginState, partial);
+}
+export function __resetLoginMock() {
+  loginState.handleLogin = vi.fn();
+  loginState.handleRemember = vi.fn();
+  loginState.rememberStatus = false;
+  loginState.failMessage = null;
+  loginState.isLoading = false;
+}
+
+vi.mock('./hooks/useLogin', () => {
+  return {
+    default: () => ({ ...loginState }),
+  };
+});
+
+// Importar el componente después de definir mocks
+import LoginPage from './page'; // ajusta la ruta si tu archivo no se llama page.tsx
 
 describe('LoginPage', () => {
-  const mockPush = vi.fn();
-  const mockLogin = vi.fn();
-  const mockHandleRemeberMe = vi.fn();
-  const mockSetDarkTheme = vi.fn();
-
   beforeEach(() => {
-    vi.clearAllMocks();
-
-    (useRouter as any).mockReturnValue({ push: mockPush });
-
-    (useAuth as any).mockReturnValue({
-      login: mockLogin,
-      handleRemeberMe: mockHandleRemeberMe,
-      userRemebered: false,
-    });
-
-    (usePrincipal as any).mockReturnValue({
-      usePrincipalTheme: {
-        theme: 'light',
-        setDarkTheme: mockSetDarkTheme,
-        toggleTheme: vi.fn(),
-      },
-    });
+    __resetLoginMock();
+    document.body.innerHTML = '';
   });
 
-  it('renderiza el formulario de login', () => {
-    render(<LoginPage />);
-    expect(screen.getByLabelText(/usuario/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /iniciar sesión/i })).toBeInTheDocument();
+  afterEach(() => {
+    document.body.innerHTML = '';
   });
 
-  it('activa el modo oscuro si el tema es light', () => {
+  it('renderiza el formulario, el botón de enviar y el enlace de recuperar contraseña', () => {
     render(<LoginPage />);
-    expect(mockSetDarkTheme).toHaveBeenCalled();
+
+    expect(screen.getByRole('form', { name: 'dynamic-form' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Iniciar sesión' })).toBeInTheDocument();
+
+    const recover = screen.getByRole('link', { name: /¿Olvidaste tu contraseña\?/i });
+    expect(recover).toBeInTheDocument();
+    expect(recover).toHaveAttribute('href', '/login/recover-password');
   });
 
-  it('llama a login y redirige al dashboard si es exitoso', async () => {
-    mockLogin.mockResolvedValueOnce({});
-    render(<LoginPage />);
-    fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/contraseña/i), { target: { value: '123456' } });
-    fireEvent.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+  it('propaga el submit al handleLogin del hook', async () => {
+    const user = userEvent.setup();
+    const spy = vi.fn();
+    __setLoginMock({ handleLogin: spy });
 
-    await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith({ email: 'test@example.com', password: '123456' });
-      expect(mockPush).toHaveBeenCalledWith('/main-page');
-    });
+    render(<LoginPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it('muestra alerta si login falla', async () => {
-    mockLogin.mockRejectedValueOnce({
-      response: {
-        data: {
-          error_Message: 'Credenciales incorrectas',
-        },
-      },
-    });
+  it('llama a handleRemember con el valor alternado al hacer click en ToggleButton', async () => {
+    const user = userEvent.setup();
+    const rememberSpy = vi.fn();
+    __setLoginMock({ rememberStatus: false, handleRemember: rememberSpy });
 
     render(<LoginPage />);
-    fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'fail@test.com' } });
-    fireEvent.change(screen.getByLabelText(/contraseña/i), { target: { value: '123456' } });
-    fireEvent.click(screen.getByRole('button', { name: /iniciar sesión/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText(/login incorrecto/i)).toBeInTheDocument();
-      expect(screen.getByText(/credenciales incorrectas/i)).toBeInTheDocument();
-    });
+    const toggle = screen.getByRole('button', { name: /Recordarme/i });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(toggle);
+    // Debe enviar el opuesto a rememberStatus (false -> true)
+    expect(rememberSpy).toHaveBeenCalledWith(true);
   });
 
-  it('marca el toggle "Recordarme" si `userRemebered` es true', () => {
-    (useAuth as any).mockReturnValue({
-      login: mockLogin,
-      handleRemeberMe: mockHandleRemeberMe,
-      userRemebered: true,
-    });
+  it('muestra el Alert cuando existe failMessage', () => {
+    __setLoginMock({ failMessage: 'Credenciales inválidas' });
 
     render(<LoginPage />);
-    const toggle = screen.getByLabelText(/recordarme/i) as HTMLInputElement;
-    expect(toggle.checked).toBe(true);
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toBeInTheDocument();
+    expect(screen.getByText('Login incorrecto')).toBeInTheDocument();
+    expect(screen.getByText('Credenciales inválidas')).toBeInTheDocument();
   });
 
-  it('llama a handleRemeberMe al hacer toggle', () => {
+  it('no muestra el Alert cuando failMessage es null/undefined', () => {
+    __setLoginMock({ failMessage: null });
+
     render(<LoginPage />);
-    const toggle = screen.getByLabelText(/recordarme/i) as HTMLInputElement;
-    fireEvent.click(toggle);
-    expect(mockHandleRemeberMe).toHaveBeenCalled();
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('enlace "¿Olvidaste tu contraseña?" redirige correctamente', () => {
+  it('deshabilita el botón de submit cuando isLoading es true', async () => {
+    __setLoginMock({ isLoading: true });
+
     render(<LoginPage />);
-    const link = screen.getByText(/¿olvidaste tu contraseña\?/i);
-    expect(link).toHaveAttribute('href', '/login/recover-password');
+    const submit = screen.getByRole('button', { name: 'Iniciar sesión' });
+    expect(submit).toBeDisabled();
+  });
+
+  it('renderiza las imágenes de fondo (desktop y mobile) con sus alt texts', () => {
+    render(<LoginPage />);
+    expect(screen.getByAltText('Fondo DR Security (desktop)')).toBeInTheDocument();
+    expect(screen.getByAltText('Fondo DR Security (mobile)')).toBeInTheDocument();
   });
 });

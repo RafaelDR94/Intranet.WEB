@@ -11,7 +11,7 @@ interface Uselogsprops {
     database: Database | null
     user: User | null
     offlineMode: boolean
-    setHasExpired: React.Dispatch<React.SetStateAction<boolean>>
+    setHasExpired: any
 }
 const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode }: Uselogsprops) => {
     const path = isProduction() ? "Production" : "Sandbox"

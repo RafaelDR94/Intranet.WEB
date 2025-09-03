@@ -1,28 +1,37 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
+import Link from 'next/link';
+
+// ✅ Providers (ajusta las rutas si tu estructura difiere)
 import { AuthProvider } from '../context/AuthContext/AuthContext';
-import { PrincipalProvider } from '../context/PrincipalContext/PrincipalContext';
+import { PrincipalProvider } from '@/app/context/PrincipalContext/PrincipalContext';
+
+// ✅ Hook y utilidades
+import useLogin from './hooks/useLogin';
 import { createMockRouter } from '@/__mocks__/mockRouter';
-import useLogin, { loginFields } from './hooks/useLogin';
-import { loginStyles } from './styles';
+
+// ✅ Componentes UI usados en la página
 import { DynamicForm } from '../components/DynamicForm/DynamicForm';
 import { Alert } from '../components/Alert/Alert';
 import { ToggleButton } from '../components/ToogleButton/ToogleButton';
-import Link from 'next/link';
+
+// ✅ Estilos y assets
+import { loginStyles } from './styles';
 import logo from '@/assets/images/Walpapers/Wallpaper-1.png';
 
 // 🧪 Mock router para Storybook
 const mockRouter: any = createMockRouter();
 
-// 🔁 Versión solo para Storybook: renderiza el login con mock router
+// 🔁 Versión para Storybook que usa el mock router y providers
 function LoginPageWithMockRouter() {
   const {
     handleLogin,
-    handleRemeber,
-    remeberStatus,
+    handleRemember,
+    rememberStatus,
     failMessage,
     isLoading,
-  } = useLogin(mockRouter); // ✅ override solo aquí
+    loginFields,
+  } = useLogin(mockRouter); // ✅ override del router solo en Storybook
 
   return (
     <div className={loginStyles.page}>
@@ -37,8 +46,8 @@ function LoginPageWithMockRouter() {
           >
             <div className={loginStyles.rememberContainer}>
               <ToggleButton
-                checked={remeberStatus}
-                onChange={handleRemeber}
+                checked={rememberStatus}
+                onChange={(checked: boolean) => handleRemember(checked)}
                 label="Recordarme"
                 labelColor="text-black-100"
               />
@@ -63,13 +72,9 @@ function LoginPageWithMockRouter() {
       {/* Columna derecha - Logo */}
       <div className={loginStyles.logoContainer}>
         <img
-          src={logo.src} // ✅ usa `.src` si estás importando con Webpack
+          src={logo.src}
           alt="Fondo DR Security"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-          }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           className={loginStyles.logo}
         />
       </div>
@@ -105,6 +110,7 @@ const withProviders = (Component: React.FC, theme: 'light' | 'dark') => (
     </PrincipalProvider>
   </div>
 );
+
 // 🌞 Modo claro
 export const LightMode: Story = {
   render: () => withProviders(LoginPageWithMockRouter, 'light'),

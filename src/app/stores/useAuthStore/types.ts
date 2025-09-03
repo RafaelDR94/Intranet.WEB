@@ -68,6 +68,7 @@ export interface AuthState {
   changePassword: (payload: ChangePasswordPayload) => Promise<void>
   recoverPassword: (payload: RecoverPasswordPayload) => Promise<void>
   fetchFirebaseConfiguration: () => Promise<void>
+  updateUserPermissions:(permissions: string) => Promise<void>
   changeNipStatusByIdUser: (id: number) => Promise<void>
   changeNip: (payload: NipPayload) => Promise<void>
   createNip: (payload: NipPayload) => Promise<void>
