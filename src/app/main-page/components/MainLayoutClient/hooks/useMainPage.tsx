@@ -1,4 +1,4 @@
-import { useEffect, useState,useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { usePrincipal } from '../../../../context/PrincipalContext/PrincipalContext';
 import { useAuth } from '../../../../context/AuthContext/AuthContext';
@@ -7,6 +7,7 @@ import { getTabsFromPath } from '../utilities/getTabsFromPath';
 import HomeIcon from '@/assets/icons/navegacion/home.svg';
 import FileIcon from '@/assets/icons/Docs/archive.svg';
 import ServerIcon from '@/assets/icons/Connectivity/server.svg';
+import { OfflineMessage } from './types';
 /**
  * Rutas visibles en el sidebar principal de la página /main-page.
  */
@@ -41,11 +42,7 @@ const sidebarRoutes = [
 /**
  * Estado del mensaje modal de confirmación para activar/desactivar el modo offline.
  */
-export interface OfflineMessage {
-  open: boolean;
-  offlineMode: boolean;
-  messsage: string;
-}
+
 
 /**
  * Hook principal para manejar lógica y estado de la página `MainPage`.
@@ -124,6 +121,8 @@ export const useMainPage = () => {
         type: 'notification',
         showSecondaryButton: false,
         primaryLabel: 'Cerrar',
+        onPrimaryClick:firebaseMessaging.closeNotificacion,
+        onClose:firebaseMessaging.closeNotificacion
       });
     }
   }, [firebaseMessaging, showAlert]);

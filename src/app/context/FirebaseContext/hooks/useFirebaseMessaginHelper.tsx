@@ -7,6 +7,7 @@ export interface FirebaseMessagingHelper {
   /** Escucha mensajes en foreground. */
   onMessageReceived: (callback: (payload: any) => void) => void;
   notification: any;
+  closeNotificacion:()=>void
 }
 
 const useFirebaseMessagingHelper = (messaging: Messaging | null): FirebaseMessagingHelper => {
@@ -48,6 +49,10 @@ const useFirebaseMessagingHelper = (messaging: Messaging | null): FirebaseMessag
     onMessage(messaging, callback);
   };
 
+  const closeNotificacion = ()=>{
+    setNotification(null);
+  }
+
  
 
   useEffect(() => {
@@ -65,6 +70,7 @@ const useFirebaseMessagingHelper = (messaging: Messaging | null): FirebaseMessag
     notification,
     getMessagingToken,
     onMessageReceived,
+    closeNotificacion
   };
 };
 

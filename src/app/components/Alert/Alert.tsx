@@ -8,20 +8,37 @@ import SuccessIcon from '@/assets/icons/organization/star.svg'
 import WarningIcon from '@/assets/icons/bussines/high-priority.svg'
 import { useAlertComponent } from './hooks/useAlert'
 /**
- * Componente de alerta para mostrar mensajes de retroalimentación.
+ * Componente de **alerta** para mostrar mensajes de retroalimentación.
  *
- * @param type Tipo de alerta (`default`, `success`, `info`, `warning`, `error`,`notification`)
- * @param variant Variante de estilo (`filled` o `subtle`)
- * @param title Título de la alerta
- * @param description Descripción opcional
- * @param showPrimaryButton Mostrar botón principal
- * @param showSecondaryButton Mostrar botón secundario
- * @param onPrimaryClick Callback al hacer clic en el botón primario
- * @param onSecondaryClick Callback al hacer clic en el botón secundario
- * @param primaryLabel Etiqueta del botón primario
- * @param secondaryLabel Etiqueta del botón secundario
- * @param onClose Callback al cerrar (auto o manual futuro)
- * @param autoCloseMs Tiempo en ms para cerrar automáticamente
+ * Soporta tipos (`default`, `success`, `info`, `warning`, `error`, `notification`),
+ * variantes visuales (`filled`, `subtle`), acciones primarias/secundarias y
+ * cierre automático vía `autoCloseMs`.
+ *
+ * @remarks
+ * - El hook `useAlertComponent` maneja el **autocierre** cuando `autoCloseMs` está definido
+ *   y dispara `onClose` al terminar.
+ * - Este componente es presentacional: usa `<button>` nativos para acciones y
+ *   no controla estado externo.
+ *
+ * @accessibility
+ * - Para `warning`/`error` usa `role="alert"` (canal **assertive**).
+ * - Para `default`/`info`/`success`/`notification` usa `role="status"` (canal **polite**).
+ * - Añade textos de botones claros (`primaryLabel`, `secondaryLabel`) para contexto.
+ *
+ * @example
+ * ```tsx
+ * <Alert
+ *   type="success"
+ *   variant="filled"
+ *   title="Guardado"
+ *   description="Los cambios se guardaron correctamente."
+ *   showPrimaryButton
+ *   primaryLabel="Ver detalle"
+ *   onPrimaryClick={() => router.push('/detalle')}
+ *   autoCloseMs={3000}
+ *   onClose={() => console.log('cerrado')}
+ * />
+ * ```
  */
 
 export const Alert: React.FC<AlertProps> = ({

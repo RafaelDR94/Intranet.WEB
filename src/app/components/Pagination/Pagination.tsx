@@ -4,7 +4,32 @@ import React from 'react';
 import { PaginationProps } from './types';
 import { container } from './styles';
 import usePagination from './hooks/usePagination';
-
+/**
+ * Paginador simple con botones numerados y flechas anterior/siguiente.
+ *
+ * @remarks
+ * - Componente **controlado**: renderiza en función de `currentPage` y `totalPages`;
+ *   debes actualizar `currentPage` en tu estado al recibir `onPageChange`.
+ * - Deshabilita automáticamente:
+ *   - la flecha izquierda cuando `currentPage === 1`
+ *   - la flecha derecha cuando `currentPage === totalPages`
+ *   - el botón de la página actual
+ *
+ * @accessibility
+ * - Las flechas incluyen `aria-label` descriptivos.
+ * - El botón de la página actual expone `aria-current="page"`.
+ * - Son botones nativos, por lo que admiten navegación por teclado de forma estándar.
+ *
+ * @example
+ * ```tsx
+ * const [page, setPage] = useState(1);
+ * <Pagination
+ *   currentPage={page}
+ *   totalPages={12}
+ *   onPageChange={(p) => setPage(p)}
+ * />
+ * ```
+ */
 const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
   const { getPageClass, getArrowClass } = usePagination(currentPage);
 

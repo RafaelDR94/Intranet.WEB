@@ -13,15 +13,41 @@ import {
 import { useIndeterminate } from './hooks/useCheckbox'
 
 /**
- * Casilla de verificación que admite estado indeterminado y posiciones de etiqueta.
+ * Casilla de verificación controlada que admite:
+ * - Estado **indeterminado** (visual y accesible)
+ * - Posición de etiqueta a la **izquierda** o **derecha**
  *
- * @param checked Si la casilla está marcada
- * @param onChange Función llamada al cambiar el estado
- * @param indeterminate Modo indeterminado visual
- * @param disabled Deshabilitar interacción
- * @param label Texto de etiqueta
- * @param labelPosition Posición de la etiqueta (`left` o `right`)
- * @param name Nombre del input
+ * @remarks
+ * - Es un **componente controlado**: debes pasar y actualizar `checked` desde el padre.
+ * - El estado indeterminado en HTML no es un atributo, es una propiedad del DOM;
+ *   por eso se aplica con el hook `useIndeterminate(inputRef, indeterminate)`.
+ * - Para estilos, el wrapper expone `data-state="checked" | "unchecked" | "mixed"`.
+ *
+ * @accessibility
+ * - Cuando `indeterminate` es true, el input añade `aria-checked="mixed"`.
+ * - El `label` envuelve al `input`, por lo que el texto provee el **accessible name**.
+ * - Usa `disabled` para desactivar interacción; los estilos del texto aplican opacidad.
+ *
+ * @example
+ * ```tsx
+ * const [agree, setAgree] = useState(false)
+ *
+ * <Checkbox
+ *   checked={agree}
+ *   onChange={setAgree}
+ *   label="He leído y acepto los términos"
+ * />
+ * ```
+ *
+ * @example Indeterminado (por ejemplo, selección parcial)
+ * ```tsx
+ * <Checkbox
+ *   checked={false}
+ *   indeterminate
+ *   onChange={() => { alternar selección }}
+ *   label="Seleccionar todo"
+ * />
+ * ```
  */
 
 export const Checkbox: React.FC<CheckboxProps> = ({

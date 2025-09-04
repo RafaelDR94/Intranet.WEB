@@ -5,13 +5,7 @@ const meta: Meta<typeof ContextMenu> = {
   title: 'Components/ContextMenu',
   component: ContextMenu,
   tags: ['autodocs'],
-  parameters: {
-    docs: {
-      description: {
-        component: 'Menú contextual que despliega acciones al interactuar.',
-      },
-    },
-  },
+
 }
 export default meta
 

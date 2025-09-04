@@ -207,5 +207,5 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-montserrat), sans-serif;
   height: 100vh;
-  overflow: hidden;
+  /* overflow: hidden; */
 }

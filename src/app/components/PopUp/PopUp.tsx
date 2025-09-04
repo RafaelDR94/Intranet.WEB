@@ -5,22 +5,38 @@ import { popUpStyles } from "./styles";
 import { InputProps } from "./types";
 import clsx from 'clsx';
 /**
- * Componente de ventana emergente reutilizable.
+ * Ventana emergente reutilizable (popup/modal ligero).
  *
- * Muestra un título, contenido y botones configurables. Puede usarse como modal
- * para confirmaciones, mensajes de advertencia o formularios embebidos.
+ * Muestra un título, un contenido y acciones configurables. Útil para
+ * confirmaciones, advertencias o formularios embebidos sencillos.
  *
- * @param title Título del pop-up
- * @param content Mensaje o descripción a mostrar
- * @param showPrimaryButton Muestra el botón de acción principal si es `true`
- * @param showSecondaryButton Muestra el botón secundario si es `true`
- * @param primaryButtonText Texto para el botón principal (por defecto: "Aceptar")
- * @param secondaryButtonText Texto para el botón secundario (por defecto: "Cancelar")
- * @param onPrimaryButtonClick Función a ejecutar al hacer clic en el botón principal
- * @param onSecondaryButtonClick Función a ejecutar al hacer clic en el botón secundario
- * @param children Contenido adicional para renderizar dentro del pop-up
- * @param open Si el pop-up debe estar visible
- * @param onClose Función para cerrar el pop-up
+ * @remarks
+ * - Es **controlado** por `open`: si `open` es `false`, no renderiza nada.
+ * - Por defecto cierra al pulsar el botón **Cerrar** (esquina superior) o
+ *   cuando se ejecuta la acción secundaria (si está visible).
+ * - Este componente NO atrapa el foco ni usa portal. Si necesitas un
+ *   **modal accesible completo**, considera integrar un focus-trap y `createPortal`.
+ *
+ * @accessibility
+ * - Se añaden `role="dialog"` y `aria-modal="true"`.
+ * - Se asocia el título y contenido con `aria-labelledby` / `aria-describedby`.
+ * - Personaliza los textos para que el propósito sea claro a lectores de pantalla.
+ *
+ * @example
+ * ```tsx
+ * const [open, setOpen] = useState(false);
+ * <PopUp
+ *   open={open}
+ *   onClose={() => setOpen(false)}
+ *   title="Eliminar registro"
+ *   content="¿Seguro que deseas eliminar este registro? Esta acción no se puede deshacer."
+ *   showPrimaryButton
+ *   primaryButtonText="Eliminar"
+ *   onPrimaryButtonClick={() => { doDelete(); setOpen(false); }}
+ *   showSecondaryButton
+ *   secondaryButtonText="Cancelar"
+ * />
+ * ```
  */
 export const PopUp: React.FC<InputProps> = ({
   open,

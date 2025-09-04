@@ -8,12 +8,45 @@ import { SelectProps } from "./types";
 import { baseStyles } from "./styles";
 import useSelect from "./hooks/useSelect";
 
+
 /**
- * Select con selección simple/múltiple, variantes y typeahead (sin input visible).
- * Correcciones clave:
- * 1) Selección con onMouseDown (previene que el blur cierre antes de seleccionar).
- * 2) No limpiar búsqueda en onBlur del trigger (se limpia al cerrar con `open=false`).
- * 3) Manejo defensivo de `selected` cuando viene undefined.
+ * Selector con **selección simple o múltiple**, variantes visuales y **typeahead**
+ * (búsqueda incremental sin `<input>` visible).
+ *
+ * @remarks
+ * - **Interacciones corregidas**:
+ *   1. Selección con `onMouseDown` en las opciones → evita que el `blur` cierre
+ *      el panel antes de seleccionar.
+ *   2. No se limpia la búsqueda en el `onBlur` del trigger → se limpia al cerrar (`open=false`).
+ *   3. Manejo defensivo de `selected` al calcular etiquetas.
+ * - **Teclado**:
+ *   - Abrir: `Enter`, `Espacio`, `ArrowDown`.
+ *   - Cerrar: `Escape` (si hay búsqueda activa, primero la limpia).
+ *   - Typeahead: cualquier tecla “imprimible” (concatena término), `Backspace` borra.
+ *   - `Enter` (modo simple): selecciona el primer match del filtro.
+ * - **Accesibilidad**:
+ *   - `aria-haspopup="listbox"`, `aria-expanded`, `aria-controls` al trigger.
+ *   - Panel con `role="listbox"`, `aria-labelledby` y `aria-multiselectable` cuando aplica.
+ *
+ * @example Básico (simple)
+ * ```tsx
+ * <Select
+ *   options={[{label:'Uno',value:'1'},{label:'Dos',value:'2'}]}
+ *   selected={[]}
+ *   onChange={(vals) => console.log(vals)}
+ * />
+ * ```
+ *
+ * @example Múltiple
+ * ```tsx
+ * <Select
+ *   multiple
+ *   options={[{label:'Rojo',value:'r'},{label:'Azul',value:'b'}]}
+ *   selected={['r']}
+ *   onChange={(vals) => setColors(vals)}
+ *   placeholder="Selecciona colores"
+ * />
+ * ```
  */
 export const Select: React.FC<SelectProps> = ({
   options,
