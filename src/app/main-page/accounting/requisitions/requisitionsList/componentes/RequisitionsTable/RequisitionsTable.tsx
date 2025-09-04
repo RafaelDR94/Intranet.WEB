@@ -6,6 +6,7 @@ import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import { Button } from "@/app/components/Button/Button";
 import { ContextMenu } from "@/app/components/ContextMenu/ContextMenu";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
+import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg"
 import { useRequisitionTable } from "./hooks/useRequisitionsTable";
 import {
   ActionMenuCellProps,
@@ -25,6 +26,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
   const menuItems: any[] = [];
   if (currentPagePermissions?.details)
@@ -48,7 +50,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
     <ContextMenu
       alignRight
       autoFlip
-      trigger={<Button size="xsmall" variant="ghost" icon={DotsIcon} />}
+      trigger={<Button size="xsmall" variant="ghost" icon={isMobile ? RightArrowIcon : DotsIcon} />}
       items={menuItems}
     />
   );
@@ -129,7 +131,12 @@ const RequisitionsTable = () => {
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
       { key: "snCode", label: "CÓDIGO SN" },
-      { key: "projectCode", label: "CÓDIGO DE PROYECTO" },
+      {
+        key: "status",
+        label: "",
+        render: (row) => <StatusBadge status={row.status} />,
+
+      },
       {
         key: "actions" as unknown as keyof RequisitionRow,
         label: "",
@@ -169,7 +176,7 @@ const RequisitionsTable = () => {
 
       {currentPagePermissions?.read && (
         <DataTable
-       
+          showCalendar={true}
           dataTableTitle="Listado de Requisiciones"
           onSearchChange={setQuery}
           onCalendarClick={(start, end) => refresh(start, end)}

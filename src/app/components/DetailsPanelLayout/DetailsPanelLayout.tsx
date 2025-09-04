@@ -8,7 +8,7 @@ import CollapseIcon from '@/assets/icons/navegacion/sidebar-expand.svg';
 import CloseIcon from '@/assets/icons/acciones/cancel.svg';
 import { DetailsPanelProps } from './types';
 import { Button } from '@/app/components/Button/Button';
-
+import { useIsMobile } from '../DataTable/components/DataTableLayout/hooks/useMediaQuery';
 export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
     open,
     expanded,
@@ -28,7 +28,7 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
     const [internalExpanded, setInternalExpanded] = useState<boolean>(expanded ?? false);
     const isControlled = typeof onExpandedChange === 'function';
     const isExpanded = isControlled ? Boolean(expanded) : internalExpanded;
-
+    const isMobile = useIsMobile();
     const widthClass = !open ? 'w-0' : isExpanded ? 'w-full' : 'w-2/5 min-w-[320px]';
 
     const sidePosition = side === 'right' ? 'right-0' : 'left-0';
@@ -54,12 +54,14 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
             <div className={clsx(s.sheet, borderSide, 'w-full')}>
                 {/* Header */}
                 <header className={s.header}>
-                    <div className={s.headerLeft}>
+                    {!isMobile && <div className={s.headerLeft}>
                         {actionButton}
 
                     </div>
+                    }
 
                     <div className={s.headerRight}>
+
                         {renderActions?.()}
                         {open && (
                             <Button
@@ -95,6 +97,11 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
                 )}
 
                 <section className={s.content}>{children}</section>
+                {isMobile && < >
+                    {actionButton}
+                </>
+                }
+
             </div>
         </aside>
     );

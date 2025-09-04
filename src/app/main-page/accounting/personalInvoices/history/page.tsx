@@ -84,7 +84,7 @@ const PersonalInvoicesHistory = () => {
       label: "DETALLES",
       render: (row) => (
         <>
-          {currentPagePermissions.canSeeDetails && <Button
+          {currentPagePermissions?.canSeeDetails && <Button
             size="small"
             variant="ghost"
             hideIcon

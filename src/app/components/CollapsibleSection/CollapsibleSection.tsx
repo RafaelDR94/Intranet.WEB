@@ -6,6 +6,7 @@ import { cn } from '@/app/utilities/classname';
 import styles from './styles';
 import ArrowDown from '@/assets/icons/navegacion/nav-arrow-down.svg';
 import ArrowUp from '@/assets/icons/navegacion/nav-arrow-up.svg';
+import { useIsMobile } from '../DataTable/components/DataTableLayout/hooks/useMediaQuery';
 /**
  * `CollapsibleSection` es un componente reutilizable que permite mostrar y ocultar contenido de forma interactiva.
  * Utiliza un botón con íconos SVG personalizados (flecha hacia arriba o abajo) y un divisor visual alineado a la derecha del título.
@@ -45,7 +46,7 @@ export const CollapsibleSection = ({
   showDivider = true
 }: CollapsibleSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-
+  const isMobile = useIsMobile();
   return (
     <section className={cn(styles.wrapper, className)}>
       <div className={styles.header}>
@@ -67,12 +68,15 @@ export const CollapsibleSection = ({
 
         </button>
         {showDivider && <div className={styles.divider} />}
-        {rightContent && (
+        {rightContent && !isMobile && (
           <div className="flex items-center ml-auto">{rightContent}</div>
         )}
       </div>
 
-      {isOpen && <div className={styles.content}>{children}</div>}
+      {isOpen && <div className={styles.content}>{<>
+        {children}
+        {isMobile && <div className="flex items-center ml-auto mt-5 mb-5">{rightContent}</div>}
+      </>}</div>}
     </section>
   );
 };

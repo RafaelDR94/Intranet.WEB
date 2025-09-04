@@ -5,6 +5,7 @@ import FormsLayout from '@/app/components/FormsLayout/FormsLayout';
 import DynamicForm from '@/app/components/DynamicForm/DynamicForm';
 import { useRequisitionForm } from './hooks/useRequisitionsForm';
 import { Requisition } from '@/app/mappings/requisitions/requisitions.types';
+import { ResponsiveLayoutMatrix } from '@/app/components/DynamicForm/types';
 /**
  * Props for the {@link RequisitionsForm} component.
  * @property mode define si el formulario crea o edita.
@@ -19,9 +20,13 @@ type Props = {
   /** Para cerrar panel/modal si lo usas embebido */
   onClose?: () => void;
   /** Para controlar la distribucion */
-  layoutMatrix?: number[][]
+  responsiveLayoutMatrix?: ResponsiveLayoutMatrix | undefined;
   /** Inicia con el componente deshabilitado */
   startDisabled?: boolean
+  /** Habolita la tabla collapsable */
+  enableCollaps?:boolean
+  /**Inicia la tabla colapsada */
+  startCollaps?:boolean
 };
 
 /**
@@ -29,7 +34,7 @@ type Props = {
  * Envuelve un {@link DynamicForm} dentro de {@link FormsLayout} y usa
  * {@link useRequisitionForm} para manejar estado y envío.
  */
-const RequisitionsForm: React.FC<Props> = ({ mode = 'create', initialValues, onClose, layoutMatrix, startDisabled }) => {
+const RequisitionsForm: React.FC<Props> = ({ mode = 'create',enableCollaps = false, startCollaps=false,initialValues, onClose, responsiveLayoutMatrix, startDisabled }) => {
   const {
     fields,
     loadingFormInfo,
@@ -48,18 +53,24 @@ const RequisitionsForm: React.FC<Props> = ({ mode = 'create', initialValues, onC
       title={mode === 'create' ? 'Solicitud de Requisiciones' : 'Editar Requisición'}
       primaryLabel="Guardar"
       onPrimaryClick={onSubmit}
-      primaryDisabled={buttonDisabled ||(startDisabled &&disableForm )}
-      enableCollapse={false}
+      primaryDisabled={buttonDisabled || (startDisabled && disableForm)}
+      enableCollapse={enableCollaps}
       showSecondaryButton={currentPagePermissions?.updaterequisitionForm && (mode === 'edit' || startDisabled)}
       secondaryLabel={disableForm ? 'Editar información' : 'Cancelar'}
       onSecondaryClick={() => { onClose?.(); setDisableForm((prev) => !prev) }}
+      startCollaps={startCollaps}
     >
 
 
       <DynamicForm
         loadingFormInfo={loadingFormInfo}
         fields={fields}
-        layoutMatrix={layoutMatrix ?? [[3.3, 3.3, 3.3], [3.3, 3.3, 3.3], [3.3, 3.3]]}
+        responsiveLayoutMatrix={responsiveLayoutMatrix ?? {
+          sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+          md: [[5, 5], [5, 5], [2.5, 2.5, 5], [5, 5]],
+          lg: [[3.3, 3.3, 3.3], [3.3, 3.3, 3.3], [3.3, 3.3]],
+        }}
+
         onSubmit={handleSubmit}
         onValidChange={setFormReady}
         externalSubmitRef={submitRef}

@@ -10,7 +10,7 @@ import LogoDr from '@/assets/images/LogosDR/DReDIT.png';
 import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
 import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';
 import SubArrowIcon from '@/assets/icons/navegacion/long-arrow-down-right.svg';
-import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
+// import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
 import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
 import HelpIcon from '@/assets/icons/acciones/help-circle.svg';
 import LogoutIcon from '@/assets/icons/acciones/open-in-window.svg';
@@ -189,10 +189,10 @@ export default function MobileSidebar({
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <WifiIcon aria-hidden />
                 <ToggleButton checked={!offlineMode} onChange={c => onToggleOffline(!c)} label="" />
-              </div>
+              </div> */}
               <div className="flex items-center gap-2">
                 <ThemeIcon aria-hidden />
                 <ToggleButton checked={theme === 'dark'} onChange={toggleTheme} label="" />

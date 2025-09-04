@@ -25,7 +25,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }
       rightLabel={selected ? `Código: ${selected.project.name}` : undefined}
       actionButton={
         <>
-          {(currentPagePermissions.canAddPicture || currentPagePermissions.canAddDocuments) && <Button size="large" variant="solid" hideIcon onClick={() => submitRef.current?.()} disabled={(selected?.status.toLocaleLowerCase() != "rechazado")}>
+          {(currentPagePermissions?.canAddPicture || currentPagePermissions?.canAddDocuments) && <Button size="large" variant="solid" hideIcon onClick={() => submitRef.current?.()} disabled={(selected?.status.toLocaleLowerCase() != "rechazado")}>
             Re-enviar
           </Button>}
         </>

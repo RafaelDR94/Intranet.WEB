@@ -28,7 +28,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
     handleImageClick
   } = useInvoicesForm({ dataEdit, withoutName, billingImages, onCloseImage, })
   const { currentPagePermissions } = useAuth();
-  if(!currentPagePermissions.canAddDocuments) return;
+  if(!currentPagePermissions?.canAddDocuments) return;
   if (externalSubmitRef) {
     return (
       <DynamicForm

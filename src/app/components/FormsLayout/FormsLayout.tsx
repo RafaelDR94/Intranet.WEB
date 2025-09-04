@@ -1,7 +1,8 @@
 import { ReactNode } from "react"
 import { Button } from "../Button/Button"
 import CollapsibleSection from "../CollapsibleSection/CollapsibleSection"
-
+import clsx from "clsx";
+import { useIsMobile } from "../DataTable/components/DataTableLayout/hooks/useMediaQuery";
 type FormsLayoutProps = {
   title: string
   /** Texto del botón primario (derecha) */
@@ -10,7 +11,8 @@ type FormsLayoutProps = {
   onPrimaryClick?: () => void
   /** Deshabilita el botón primario */
   primaryDisabled?: boolean
-
+  
+  startCollaps?:boolean
   /** Muestra el botón secundario (izquierda) */
   showSecondaryButton?: boolean
   /** Texto del botón secundario */
@@ -30,30 +32,37 @@ const FormsLayout = ({
   primaryLabel,
   onPrimaryClick,
   primaryDisabled = false,
-
   showSecondaryButton = false,
   secondaryLabel = "Cancelar",
   onSecondaryClick,
   secondaryDisabled = false,
-
+  startCollaps=false,
   enableCollapse = true,
   showDivider = true,
   children
 }: FormsLayoutProps) => {
+  const isMobile = useIsMobile();
   return (
     <div className="flex flex-col gap-4">
       <CollapsibleSection
         title={title}
         enableCollapse={enableCollapse}
         showDivider={showDivider}
+        defaultOpen={!startCollaps}
         rightContent={
-          <div className="flex items-center gap-3">
+          <div
+            className={clsx(
+              "flex",
+              isMobile ? "flex-col w-full gap-2" : "flex-row items-center gap-3"
+            )}
+          >
             {showSecondaryButton && (
               <Button
                 variant="outline"
                 hideIcon
                 onClick={onSecondaryClick}
                 disabled={secondaryDisabled}
+                className={clsx(isMobile && "w-full")}
               >
                 {secondaryLabel}
               </Button>
@@ -62,6 +71,7 @@ const FormsLayout = ({
               hideIcon
               onClick={onPrimaryClick}
               disabled={primaryDisabled}
+              className={clsx(isMobile && "w-full")}
             >
               {primaryLabel}
             </Button>
