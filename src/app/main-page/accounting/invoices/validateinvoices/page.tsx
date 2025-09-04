@@ -148,12 +148,12 @@ const ValidateInvoices = () => {
               disabled={multiselectedt1?.length == 0}
               hideIcon
               onClick={handleActionClick}
+              className="flex items-center gap-2 shrink-0 text-left w-full"
             >
               Validar Facturas
             </Button>
           )}
-          enablePagination={false}
-          showCalendar={false}
+          showDownloadTable
           onSelectedChange={handleMultiSelectt1}
           tables={[
             {
@@ -175,10 +175,12 @@ const ValidateInvoices = () => {
               disabled={multiselectedt2?.length == 0}
               hideIcon
               onClick={handleActionClick}
+              className="flex items-center gap-2 shrink-0 text-left w-full"
             >
               Validar Facturas
             </Button>
           )}
+          showDownloadTable
           onSelectedChange={handleMultiSelectt2}
           tables={[
             {

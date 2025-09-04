@@ -15,4 +15,8 @@ export const calendarStyles = {
   buttonWrapper: "flex justify-center",
   button: "bg-green-80 text-white rounded px-4 py-1 mt-2 w-full",
   modalOverlay: "fixed inset-0 bg-[#002A4133] bg-opacity-50 z-40 flex items-center justify-center",
+  /* Mobile Styles*/
+  inputWrapperMobile: "flex flex-col mt-3",
+  buttonWrapperMobile: "w-auto",
+  buttonMobile: "bg-green-80 text-white rounded px-4 py-1 mt-3 w-auto",
 };
