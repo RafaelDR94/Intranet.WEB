@@ -20,6 +20,7 @@ import {
   handleForgetUser,
   handleOfflineMode,
   setInterceptor,
+  updateUserPermissions
 } from './utilities'
 import { readUser, readUserRemebered } from '@/app/context/AuthContext/utilities/AuthService'
 
@@ -65,7 +66,7 @@ export const useAuthStore = createWithEqualityFn<AuthState>()(
     changeNipStatusByIdUser: (id) => changeNipStatusByIdUser(id, set, get),
     changeNip: (payload) => changeNip(set, get, payload),
     createNip: (payload) => createNip(set, get, payload),
-
+    updateUserPermissions: (permissions: string) => updateUserPermissions(set, get, permissions),
     reset: () =>
       set({
         loginData: undefined,

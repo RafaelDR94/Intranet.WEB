@@ -8,9 +8,12 @@ vi.mock('next/navigation', () => ({
 }));
 
 const mockLogin = vi.fn();
+
+const mockLogout = vi.fn()
+
 vi.mock('../../context/AuthContext/AuthContext', () => ({
-  useAuth: () => ({ login: mockLogin }),
-}));
+  useAuth: () => ({ login: mockLogin, logout: mockLogout }), // <--- añade logout
+}))
 
 const mockSetDarkTheme = vi.fn();
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({

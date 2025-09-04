@@ -38,6 +38,7 @@ export interface UseFirebasereturn {
   permissionsChanged: { state: boolean; newPermissions: string };
   firebaseLogginFail: boolean;
 }
+import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
 export const FirebaseContext = createContext<UseFirebasereturn | undefined>(
   undefined
@@ -50,25 +51,23 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   const [database, setDatabase] = useState<Database | null>(null);
   const [messaging, setMessaging] = useState<Messaging | null>(null);
   const [firebaseLogginFail, setFirebaseLogginFail] = useState(false);
-  const [firebaseConfiguration, setFirebaseConfiguration] = useState<
-    any | null
-  >(null);
+  const [firebaseConfiguration, setFirebaseConfiguration] = useState<any | null>(null);
   const firebasestorage = useFirebaseStorageHelper(storage);
   const firebaserealtime = useFirebaseRealtimeHelper(database);
   const firebaseMessaging = useFirebaseMessagingHelper(messaging);
   const { user, setHasExpired, offlineMode } = useAuth();
-  // const {updateUserPermissions} = useAuth()
 
   const { IntranetGet } = useAxios();
   const permissionsChanged = usePermissionsListener(
     database,
     user?.idUser || ""
   );
-  // useEffect(() => {
-  //   if (permissionsChanged.state) {
-  //     updateUserPermissions(permissionsChanged.newPermissions);
-  //   }
-  // }, [permissionsChanged]);
+   const state = useAuthStore()
+  useEffect(() => {
+    if (permissionsChanged.state) {
+      state.updateUserPermissions(permissionsChanged.newPermissions);
+    }
+  }, [permissionsChanged]);
 
   useEffect(() => {
     if (!auth || !user?.idUser || !firebaserealtime || !firebaseMessaging)
