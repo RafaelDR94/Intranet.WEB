@@ -13,7 +13,7 @@ import DowloadIcon from "@/assets/icons/acciones/download.svg";
 // NEW: Overlay (ruta de ejemplo)
 import LoadingOverlay from "@/app/components/LoadingOverLay/LoadingOverlay";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 /**
  * Tabla de comprobantes asociados a una requisición. Permite descargar el
  * reporte y ver detalles individuales de cada documento.
@@ -32,6 +32,38 @@ const RequisitionDetailsDocument: React.FC = () => {
     loading,
     downloadingDocument, // NEW: lo traemos del hook
   } = useRequisitionDetailsDocument();
+  const isMobile = useIsMobile();
+  const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] = useMemo(
+    () => [
+
+      { key: "fecha", label: "" },
+      { key: "description", label: "DESCRIPCIÓN" },
+      {
+        key: "status",
+        label: "",
+        render: (row) => (
+          <Label type={row.status.toLocaleLowerCase() as any} text={row.status} />
+        ),
+      },
+      {
+        key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
+        label:"",
+        render: (row) => (
+          <Button
+            size="small"
+            onClick={() => handleOpenDetails(row)}
+            variant="ghost"
+            hideIcon
+          >
+            ...
+          </Button>
+        ),
+        cellClass: "w-10 text-right",
+        headerClass: "w-10 text-right",
+      },
+    ],
+    [rows]
+  );
 
   const columns: ColumnDefinition<BillingDocumentDetailsTable>[] = useMemo(
     () => [
@@ -111,6 +143,7 @@ const RequisitionDetailsDocument: React.FC = () => {
 
 
       <DataTable
+        startCollpas = {isMobile}
         actionsRender={() => (
 
           <>
@@ -142,7 +175,7 @@ const RequisitionDetailsDocument: React.FC = () => {
         tables={[
           {
             data: rows,
-            columns,
+            columns:isMobile?mobileColumns:columns,
             enableSelection: false,
             title: "Comprobantes de Consumo",
             enableCollaps: true,

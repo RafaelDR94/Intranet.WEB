@@ -3,7 +3,7 @@ import { PerDiemBalanceCardProps } from "./types";
 import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
 import Donut from "@/app/components/Donut/Donut";
 import { perDiemBalanceCardStyles as s } from "./styles";
-
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 // 🔹 Helpers internos
 function diffInDays(start: string, end: string) {
   const d1 = new Date(start);
@@ -35,7 +35,7 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
 
   // 🔹 calcular saldos
   const { enterpriseAmount, employeeAmount } = computeBalances(requestedAmount, verifiedAmount);
-
+  const isMobile = useIsMobile();
   return (
     <div className={s.root}>
       <div className={s.card}>
@@ -80,7 +80,7 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
 
           {/* Donut */}
           <div className={s.donutWrap}>
-            <Donut percentage={verifiedPct} />
+            <Donut percentage={verifiedPct}  size = {isMobile?150:200} thickness = {isMobile?20:30} innerRadius = {isMobile?70:40}/>
           </div>
         </div>
 

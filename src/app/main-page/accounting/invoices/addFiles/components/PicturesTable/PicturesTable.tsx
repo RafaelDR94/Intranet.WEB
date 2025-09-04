@@ -53,7 +53,7 @@ const PictureTable: React.FC<PicturesTableProps> = ({ setSelectedPictures }) => 
             variant="ghost"
             onClick={() => opePicture(row)}
           />
-          {currentPagePermissions.canLinkImage && currentPagePermissions.canAddDocuments && <Button
+          {currentPagePermissions?.canLinkImage && currentPagePermissions?.canAddDocuments && <Button
             icon={LinkIcon}
             variant="ghost"
             onClick={() => setSelectedPictures(row)}

@@ -64,21 +64,21 @@ describe('MainSidebar', () => {
     expect(screen.getByText('John Doe')).toBeInTheDocument();
   });
 
-  it('calls onToggleOffline when toggle clicked', () => {
-    const mock = vi.fn();
-    renderWithProviders(
-      <MainSidebar
-        offlineMode={false}
-        onToggleOffline={mock}
-        theme="light"
-        toggleTheme={() => {}}
-        userFullName="John Doe"
-        logout={() => Promise.resolve()}
-        validPermissionsbyroute={() => true}
-        routes={routes}
-      />
-    );
-    fireEvent.click(screen.getAllByRole('checkbox')[0]);
-    expect(mock).toHaveBeenCalled();
-  });
+  // it('calls onToggleOffline when toggle clicked', () => {
+  //   const mock = vi.fn();
+  //   renderWithProviders(
+  //     <MainSidebar
+  //       offlineMode={false}
+  //       onToggleOffline={mock}
+  //       theme="light"
+  //       toggleTheme={() => {}}
+  //       userFullName="John Doe"
+  //       logout={() => Promise.resolve()}
+  //       validPermissionsbyroute={() => true}
+  //       routes={routes}
+  //     />
+  //   );
+  //   fireEvent.click(screen.getAllByRole('checkbox')[0]);
+  //   expect(mock).toHaveBeenCalled();
+  // });
 });

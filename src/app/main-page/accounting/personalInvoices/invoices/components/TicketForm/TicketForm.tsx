@@ -18,7 +18,7 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, exter
 
   const { currentPagePermissions } = useAuth();
 
-  if(!currentPagePermissions.canAddPicture ) return;
+  if(!currentPagePermissions?.canAddPicture ) return;
   if (externalSubmitRef) {
     return (
       <DynamicForm
