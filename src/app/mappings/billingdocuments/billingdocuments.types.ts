@@ -4,7 +4,14 @@ export type Concepto = {
   "clavesat_description": string
 }
 
-
+export type BillingDocumentCategory = {
+  id_billingcategory: string,
+  name: string,
+}
+export type BillingDocumentDescription = {
+  id_billingdescription: string,
+  name: string
+}
 
 export type BillingAcuse = {
   "id": string,
@@ -31,14 +38,42 @@ export type BillingDocuments = {
   "conceptos": Concepto[],
   "uuid": string,
   "fecha": string,
-  "importe": string,
   "xmlinformation": string,
   "date_created": string,
   "user_comments": string,
   "forbidden_code": boolean,
   "sat_validation": boolean,
   "billingAcuse": BillingAcuse | null
+  "description": BillingDocumentDescription,
+  "numpersons": number,
+  "numnights": number,
+  "total": number,
+  "subtotal": number,
+  "iva": number,
+  "otherinvoices": number,
+  "category": BillingDocumentCategory,
+  "validatedbyoperations":boolean
+
+
 }
+export type BillingDocumentDetailsTable = {
+  "id": string;                    // id del documento
+  "billingdocument_id": string,
+  "fecha": string;          // FECHA CONSUMO (raw?.fecha)
+  "rfc_emisor": string;             // PROVEEDOR (RFC emisor)
+  "description": string;           // DESCRIPCIÓN (description o concepto)
+  "numpersons": number | null;     // No. PERS.
+  "numnights": number | null;      // No. NOCHES
+  "uuid": string;                 // No. FACTURA/TICKET/REMISIÓN (uuid)
+  "subtotal": number;              // SUBTOTAL
+  "iva": number;                   // IVA (solo IVA, no otros impuestos)
+  "total": number;                 // TOTAL
+  "otherinvoices": number;          // Otros Impuestos
+  "status": string;                // "Valido" / "Rechazado" / etc.
+  "xmlUrl"?: string;
+  "pdfUrl"?: string;
+  "imageUrl"?: string;
+};
 
 export type BillingDocumentsSatTable = {
   "id": string,
@@ -55,7 +90,6 @@ export type BillingDocumentsSatTable = {
   "conceptos": Concepto[],
   "uuid": string,
   "fecha": string,
-  "importe": string,
   "xmlinformation": string,
   "date_created": string,
   "sat_status": string,
@@ -66,6 +100,16 @@ export type BillingDocumentsSatTable = {
   "sat_esCancelable": string,
   "sat_estatusCancelacion": string
   "sat_validation": boolean,
+  "total": number,
+  "subtotal": number,
+  "iva": number,
+  "otherinvoices": number;
+  "category": BillingDocumentCategory
+  "description": BillingDocumentDescription,
+  "numpersons": number | null;     // No. PERS.
+  "numnights": number | null;      // No. NOCHES
+  "billingAcuse": BillingAcuse | null
+  "validatedbyoperations":boolean
 }
 
 
@@ -74,6 +118,10 @@ export type BillingDocumentsPost = {
   "billingimages_id": string | null,
   "xml": string,
   "pdf": string,
+  "description_id": string,
+  "numpersons": number,
+  "numnights": number,
+  "category_id": string,
 
 }
 export type BillingDocumentsPut = {
@@ -83,10 +131,15 @@ export type BillingDocumentsPut = {
   "xml": string,
   "pdf": string,
   "comments": string
+  "description_id": string,
+  "category_id": string,
+  "numpersons": number,
+  "numnights": number,
+  "user_comments": string
 }
 export type BillingDocumentReject = {
   "id": string,
   "comment": string
   /** true: rechazado false: restringido  */
-  "type":boolean  
+  "type": boolean
 }

@@ -53,6 +53,10 @@ vi.mock('../utilities/requisition', () => ({
   createInitialFields: vi.fn().mockReturnValue([]),
 }));
 
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({ currentPagePermissions: { requisitionForm: true } }),
+}));
+
 describe('useRequisitionForm', () => {
   it('toggles buttonDisabled when form readiness changes', () => {
     const { result } = renderHook(() => useRequisitionForm('create'));

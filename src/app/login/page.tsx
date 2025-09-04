@@ -1,39 +1,24 @@
 "use client";
 import React from "react";
-import DynamicForm from "../components/DynamicForm/DynamicForm";
 import Image from "next/image";
-import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
-import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile.png"
-import { Alert } from "../components/Alert/Alert";
-import { ToggleButton } from "../components/ToogleButton.tsx/ToogleButton";
 import Link from "next/link";
-import useLogin, { loginFields } from "./hooks/useLogin";
+import DynamicForm from "../components/DynamicForm/DynamicForm";
+import { Alert } from "../components/Alert/Alert";
+import { ToggleButton } from "../components/ToogleButton/ToogleButton";
+import useLogin from "./hooks/useLogin";
 import { loginStyles } from "./styles";
-
-/**
- * `LoginPage` es la vista principal de autenticación de la intranet.
- *
- * Permite al usuario iniciar sesión utilizando el componente `DynamicForm`.
- * Incluye un interruptor de "Recordarme", enlace para recuperar contraseña
- * y una alerta para errores de inicio de sesión.
- *
- * También muestra una imagen de fondo en la parte derecha.
- *
- * @component
- * @example
- * return (
- *   <LoginPage />
- * )
- *
- * @param {LoginPageProps} props - Props para inyectar router simulado en Storybook o pruebas.
- * @param {AppRouterInstance} [props.routerOverride] - Instancia opcional de router mockeado para test o Storybook.
- *
- * @returns {JSX.Element} Página de login con formulario interactivo.
- */
+import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile.png";
 
 const LoginPage = () => {
-  const { handleLogin, handleRemeber, remeberStatus, failMessage, isLoading } =
-    useLogin();
+  const {
+    handleLogin,
+    handleRemember,
+    rememberStatus,
+    failMessage,
+    isLoading,
+    loginFields, // ← con email y password precargados (si los hay)
+  } = useLogin();
 
   return (
     <div className={loginStyles.page}>
@@ -46,21 +31,22 @@ const LoginPage = () => {
             submitLabel="Iniciar sesión"
             loading={isLoading}
           >
-            {/* Link "¿Olvidaste tu contraseña?" */}
             <div className={loginStyles.rememberContainer}>
               <ToggleButton
-                checked={remeberStatus}
-                onChange={handleRemeber}
+                checked={rememberStatus}
+                onChange={(checked) => handleRemember(checked)}
                 label="Recordarme"
                 labelColor="text-black-100"
               />
               <Link
                 href="/login/recover-password"
                 className="text-label hover:text-black-100"
+                prefetch={false}
               >
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>
+
             {failMessage && (
               <Alert
                 type="error"
@@ -75,10 +61,10 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Columna derecha - Logo */}
+      {/* Columna derecha - Imagen de fondo */}
       <div className={loginStyles.logoContainer}>
         <Image
-          src={logoDesktop} // desktop
+          src={logoDesktop}
           alt="Fondo DR Security (desktop)"
           fill
           priority
@@ -86,10 +72,9 @@ const LoginPage = () => {
           sizes="(min-width: 768px) 60vw, 0px"
         />
         <Image
-          src={logoMobile} // importa este arriba
+          src={logoMobile}
           alt="Fondo DR Security (mobile)"
           fill
-          priority
           className={`${loginStyles.logo} md:hidden`}
           sizes="(max-width: 767px) 100vw, 0px"
         />
@@ -97,4 +82,5 @@ const LoginPage = () => {
     </div>
   );
 };
+
 export default LoginPage;

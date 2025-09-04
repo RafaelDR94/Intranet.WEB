@@ -7,12 +7,13 @@
  * (`useTheme`) y, eventualmente, otros hooks globales como `useAuth`, `usePermissions`, etc.
  */
 
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useMemo} from 'react';
 import { PrincipalContextValue } from './types';
 import useTheme from './hooks/useTheme/useTheme';
 import useAlert from './hooks/useAlert/useAlert';
 import useLoadingOverlay from './hooks/useLoadingOverlay/useLoadingOverlay';
 import useShowImage from './hooks/useShowImage/useShowImage';
+
 const PrincipalContext = createContext<PrincipalContextValue | undefined>(undefined);
 
 /**
@@ -25,7 +26,7 @@ export const PrincipalProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const usePrincipalTheme = useTheme();
   const usePrincipalAlert = useAlert();
   const usePrincipalLoading = useLoadingOverlay();
-   const usePrincipalImage = useShowImage();
+  const usePrincipalImage = useShowImage();
 
 
   const value: PrincipalContextValue = useMemo(

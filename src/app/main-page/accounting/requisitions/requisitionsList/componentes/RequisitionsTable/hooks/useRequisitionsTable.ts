@@ -1,51 +1,51 @@
 'use client'
-import { useState,useMemo,useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { shallow } from 'zustand/shallow'
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import type { RequisitionRow } from '../types'
-import { RequisitionInitialValues } from '../../../../components/RequisitionsForm/hooks/useRequisitionsForm'
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper'
-
-/** Parameters for the requisitions table hook. */
-type Params = {
-  /** Callback to open the editor with initial values. */
-  onEditRequest: (initial: RequisitionInitialValues) => void
-}
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 
 /**
  * Handles data loading, filtering and row actions for the requisitions table.
- * @param onEditRequest requests the parent to open the edit form.
  */
-export const useRequisitionTable = ({ onEditRequest }: Params) => {
+export const useRequisitionTable = () => {
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
   const { showSpinner, hideSpinner } = usePrincipalLoading
   const { showAlert, hideAlert } = usePrincipalAlert
-  const [lastDates,setLastDates] = useState<{startDate:string,endDate:string}>({startDate:currentDate(),endDate:currentDate()})
+  const [lastDates, setLastDates] = useState<{ startDate: string, endDate: string }>({ startDate: currentDate(), endDate: currentDate() })
   const isGatewayReady = useIntranetGatewayStore(s => s.isReady)
-
+  const path = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const hasIdParam =
+    typeof (searchParams as any)?.has === "function"
+      ? (searchParams as any).has("id")
+      : new URLSearchParams((searchParams as any) ?? "").has("id");
   const {
-    requisitions, loading, error, removing,fetchRequisitionsByDate, deleteRequisition,resetFlags
+    requisitions, loading, error, removing,successPut, fetchRequisitionsByDate, deleteRequisition, resetFlags
   } = useRequisitionsStore(s => ({
     requisitions: s.requisitions,
     loading: s.loading,
     error: s.error,
     removing: s.removing,
+    successPut:s.successPut,
     fetchRequisitionsByDate: s.fetchRequisitionsByDate,
     deleteRequisition: s.deleteRequisition,
-    resetFlags:s.resetFlags
+    resetFlags: s.resetFlags
   }), shallow)
 
   // Prefetch
   useEffect(() => {
-    if (isGatewayReady)  fetchRequisitionsByDate(lastDates.startDate,lastDates.endDate,true);
-  }, [isGatewayReady])
+    if (isGatewayReady && !hasIdParam) fetchRequisitionsByDate(lastDates.startDate, lastDates.endDate, true);
+  }, [isGatewayReady,hasIdParam])
 
 
   // Alert de error general de carga
   useEffect(() => {
-    if (loading) {showSpinner({ message: 'Cargando requisiciones…' }); return;}
+    if (loading) { showSpinner({ message: 'Cargando requisiciones…' }); return; }
     hideSpinner();
     resetFlags();
     if (!error) return
@@ -59,9 +59,10 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
       onPrimaryClick: hideAlert,
       showSecondaryButton: true,
       secondaryLabel: 'Reintentar',
-      onSecondaryClick: () => { hideAlert(); fetchRequisitionsByDate(lastDates.startDate,lastDates.endDate,true); },
+      onSecondaryClick: () => { hideAlert(); fetchRequisitionsByDate(lastDates.startDate, lastDates.endDate, true); },
     })
-  }, [error,loading])
+
+  }, [error, loading,successPut])
 
   const [query, setQuery] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -70,11 +71,17 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
 
   const rows: RequisitionRow[] = useMemo(() => {
     const base = requisitions.map(r => ({
-      id: r.billingrequisition_id,
-      snCode: r.requisitionkey,
-      debtorName: r.employeename,
-      projectCode: r.projectname,
-      date_created: r.date_created,
+      id: r?.billingrequisition_id,
+      snCode: r?.requisitionkey,
+      debtorName: r?.employeename,
+      // Prefer project ID/code to match visual sample
+      projectCode: r?.projectname,
+      assignmentDate: r?.assignmentdate,
+      dueDate: r.endDate,
+      amount: Number(r?.amountdeposited),
+      status: r?.status,
+      state:r?.state,
+      date_created: r?.date_created,
     }))
     if (!query) return base
     const q = query.toLowerCase()
@@ -86,17 +93,11 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
   }, [requisitions, query])
 
   const onEdit = (row: RequisitionRow) => {
-    console.log(row,"row");
-    const full = requisitions.find(r => r.billingrequisition_id === row.id)
-    if (!full) return
-    const initial: RequisitionInitialValues = {
-      id: full.billingrequisition_id,
-      employeeId: full.id_Employee, // ajusta si difiere del store
-      projectId: full.idProject,    // ajusta si difiere del store
-      requisitionKey: full.requisitionkey,
-    }
-    onEditRequest(initial)
-  }
+    const clean = path.endsWith('/') ? path.slice(0, -1) : path; // quita slash final si viene
+    const qs = new URLSearchParams(searchParams.toString());     // clona params actuales
+    qs.set('id', row.id);                                        // añade/reemplaza id
+    router.push(`${clean}?${qs.toString()}`);
+  };
 
   const onDelete = (row: RequisitionRow) => {
     setRowToDelete(row)
@@ -140,10 +141,10 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
     }
   }
 
-  const refresh = (start?: Date, end?: Date ) =>{
+  const refresh = (start?: Date, end?: Date) => {
     let startDate = start ? currentDate(start) : currentDate();
     let endDate = end ? currentDate(end) : currentDate();
-    setLastDates({startDate:startDate,endDate:endDate})
+    setLastDates({ startDate: startDate, endDate: endDate })
     fetchRequisitionsByDate(startDate, endDate, true);
   }
 
@@ -158,5 +159,6 @@ export const useRequisitionTable = ({ onEditRequest }: Params) => {
     confirmOpen, setConfirmOpen, rowToDelete, removing, handleConfirmDelete,
     // acciones
     onEdit, onDelete, refresh,
+    hasIdParam
   }
 }

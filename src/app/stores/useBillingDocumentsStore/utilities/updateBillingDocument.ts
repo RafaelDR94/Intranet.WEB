@@ -9,6 +9,7 @@ import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { fetchBillingDocuments } from './fetchBillingDocuments'
 import { fetchSatBillingDocument } from './fetchSatBillingDocument'
+import { fetchBillingDocumentByIdRequisition } from './fetchBillingDocumentByIdRequisition'
 /**
  * Actualiza un documento de factura en el backend.
  *
@@ -19,7 +20,8 @@ import { fetchSatBillingDocument } from './fetchSatBillingDocument'
 export const updateBillingDocument = async (
   set: Set,
   get: Get,
-  payload: BillingDocumentsPut
+  payload: BillingDocumentsPut,
+  reqid?: string
 ): Promise<BillingDocuments | null> => {
   set({ updating: true, error: undefined, successPut: false })
 
@@ -28,8 +30,11 @@ export const updateBillingDocument = async (
     const res: AxiosResponse = await put(BillingDocumentUrl, payload)
     const raw = res.data?.data
     const updated = raw ? (raw as BillingDocuments) : null
-    fetchBillingDocuments(set, get, true);
-    fetchSatBillingDocument(set, get, true);
+    if (reqid) fetchBillingDocumentByIdRequisition(reqid, set, get,true)
+    else {
+      fetchBillingDocuments(set, get, true);
+      fetchSatBillingDocument(set, get, true);
+    }
     set({ updating: false, successPut: true })
     return updated
   } catch (e) {

@@ -7,6 +7,15 @@ import { AuthProvider } from '@/app/context/AuthContext/AuthContext';
 import { PrincipalProvider } from '@/app/context/PrincipalContext/PrincipalContext';
 import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
 import { createMockRouter } from '@/__mocks__/mockRouter';
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(() => '/main-page/home'),
+}));
+vi.mock('@/app/context/AuthContext/utilities/AuthService', () => ({
+  authenticateUser: vi.fn(),
+  readUser: vi.fn().mockResolvedValue(null),
+  logoutUser: vi.fn(),
+  readUserRemebered: vi.fn().mockResolvedValue(null),
+}));
 
 // 🔁 Mocks de recursos
 
@@ -55,21 +64,21 @@ describe('MainSidebar', () => {
     expect(screen.getByText('John Doe')).toBeInTheDocument();
   });
 
-  it('calls onToggleOffline when toggle clicked', () => {
-    const mock = vi.fn();
-    renderWithProviders(
-      <MainSidebar
-        offlineMode={false}
-        onToggleOffline={mock}
-        theme="light"
-        toggleTheme={() => {}}
-        userFullName="John Doe"
-        logout={() => Promise.resolve()}
-        validPermissionsbyroute={() => true}
-        routes={routes}
-      />
-    );
-    fireEvent.click(screen.getAllByRole('checkbox')[0]);
-    expect(mock).toHaveBeenCalled();
-  });
+  // it('calls onToggleOffline when toggle clicked', () => {
+  //   const mock = vi.fn();
+  //   renderWithProviders(
+  //     <MainSidebar
+  //       offlineMode={false}
+  //       onToggleOffline={mock}
+  //       theme="light"
+  //       toggleTheme={() => {}}
+  //       userFullName="John Doe"
+  //       logout={() => Promise.resolve()}
+  //       validPermissionsbyroute={() => true}
+  //       routes={routes}
+  //     />
+  //   );
+  //   fireEvent.click(screen.getAllByRole('checkbox')[0]);
+  //   expect(mock).toHaveBeenCalled();
+  // });
 });

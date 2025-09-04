@@ -39,6 +39,8 @@ export const DataTable = <T extends { id: string | number }>({
   dateKey,
   onSelectedChange,
   dataTableTitle,
+  startCollpas=false
+
 
 }: DataTableProps<T>) => {
 
@@ -63,6 +65,7 @@ export const DataTable = <T extends { id: string | number }>({
     <div className="space-y-8">
       {tables.length > 1 && (
         <DataTableLayout
+        
           onSearchChange={handleSearchChange}
           onCalendarClick={onCalendarClick}
           onFilterClick={onFilterClick}
@@ -90,6 +93,7 @@ export const DataTable = <T extends { id: string | number }>({
             key={index + "table"}
             title={table?.title}
             enableCollapse={table.enableCollaps}
+            defaultOpen={!startCollpas}
           >
 
             {tables.length === 1 && (
@@ -125,6 +129,10 @@ export const DataTable = <T extends { id: string | number }>({
               onPageChange={onPageChange}
               onSelectedChange={(rows) => handleSelectedChange(index, rows)}
               scrollMaxHeight={table.scrollMaxHeight}
+              showButton={showButton}
+              actionsRender={actionsRender}
+              onTableActionClick={onTableActionClick}
+              actionLabel={actionLabel}
             />
           </CollapsibleSection>
         )

@@ -1,6 +1,7 @@
 
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 import MainLayoutClient from './components/MainLayoutClient/MainLayoutClient';
+
 /**
  * Componente de layout principal de la aplicación (lado servidor).
  *
@@ -13,5 +14,7 @@ import MainLayoutClient from './components/MainLayoutClient/MainLayoutClient';
  */
 
 export default function MainLayout({ children }: { readonly children: ReactNode }) {
-  return <MainLayoutClient>{children}</MainLayoutClient>;
+  return <Suspense>
+    <MainLayoutClient>{children}</MainLayoutClient>;
+  </Suspense>
 }

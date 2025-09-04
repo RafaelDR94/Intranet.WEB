@@ -43,9 +43,14 @@ vi.mock('@/assets/icons/acciones/eye-alt.svg', () => ({
 vi.mock('@/assets/icons/acciones/eye-close.svg', () => ({
   default: () => <svg data-testid="eye-close" />,
 }));
-vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(),
-}));
+vi.mock('next/navigation', () => {
+  const params = new URLSearchParams();
+  return {
+    useRouter: vi.fn(),
+    usePathname: vi.fn(),
+    useSearchParams: vi.fn(() => params),
+  };
+});
 vi.mock('dexie', () => {
   return {
     default: class {

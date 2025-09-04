@@ -4,10 +4,12 @@ import { Meta, Story } from '@storybook/addon-docs';
 
 # AuthContext
 
-El `AuthContext` proporciona un sistema de autenticación global para toda la aplicación.  
+El `AuthContext` delega su lógica en un store global basado en Zustand.
 Permite iniciar sesión, cerrar sesión, validar OTP, recordar usuarios y habilitar el modo offline persistente.
 
-> Este contexto debe envolver tu aplicación raíz usando el componente `<AuthProvider>`.
+> Este contexto debe envolver tu aplicación raíz usando el componente `<AuthProvider>`, el cual ahora solo expone el estado del store.
+
+Toda la lógica se administra dentro de `useAuthStore`.
 
 ---
 

@@ -158,4 +158,6 @@ export interface DataTableProps<T = any> {
   onSelectedChange?: (index: number, rows: T[]) => void;
   /** Título global de la (o las) tablas. Se usa en descargas y cabeceras. */
   dataTableTitle?: string;
+  /** Inicia con la tabla colapsada. */
+  startCollpas?:boolean; 
 }

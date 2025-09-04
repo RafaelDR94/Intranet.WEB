@@ -15,7 +15,7 @@ export const getValidationSchema = (fields: FieldModel[]) => {
           }
         });
         acc[field.name] = schema;
-      } else if (field.type === 'number') {
+      } else if (field.type === 'number' || field.type === 'numberControl') {
         let schema: NumberSchema<number | undefined, AnyObject, number | undefined, Flags> =
           Yup.number().typeError('Debe ser un número válido');
         field.validations?.forEach((rule) => {

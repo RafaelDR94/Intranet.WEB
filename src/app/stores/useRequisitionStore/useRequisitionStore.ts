@@ -10,6 +10,8 @@ import {
   updateRequisition,
   deleteRequisition,
   updateExcelRequisition,
+  fetchCurrentRequisition,
+  downloadRequistionResume
 } from './utilities'
 
 /**
@@ -19,19 +21,23 @@ export const useRequisitionsStore = createWithEqualityFn<RequisitionsState>()(
   devtools((set, get) => ({
     /** Lista de requisiciones */
     requisitions: [],
+    currentRequisition: null,
     /** Flags de proceso */
     loading: false,
     creating: false,
     updating: false,
     removing: false,
     updatingExcel: false,
-
+    gettincurrentReq: false,
+    downloadingDocument:false,
     /** Flags de éxito */
     successGet: false,
     successPost: false,
     successPut: false,
     successDelete: false,
     successUpdateExcel: false,
+    succesgetingCurrent: false,
+    succesDownloadDocument:false,
     /** Mensaje de error global */
     error: undefined,
     /** Mensaje de advertencia */
@@ -50,8 +56,10 @@ export const useRequisitionsStore = createWithEqualityFn<RequisitionsState>()(
     deleteRequisition: (id) => deleteRequisition(set, get, id),
     /** Actualiza vía Excel */
     updateExcelRequisition: (excel) => updateExcelRequisition(set, get, excel),
-
-    /** Resetea todo el estado */
+    /** Obtiene requisiciones */
+    fetchCurrentRequisition: (id, force = false) => fetchCurrentRequisition(set, get, id, force),
+    /** Descarga documento de requisiciones */
+    downloadRequistionResume:(idRequisition)=>downloadRequistionResume(idRequisition,set,get),
     reset: () => set({
       requisitions: [],
       error: undefined,
@@ -61,6 +69,9 @@ export const useRequisitionsStore = createWithEqualityFn<RequisitionsState>()(
       successPut: false,
       successDelete: false,
       successUpdateExcel: false,
+      succesgetingCurrent: false,
+      succesDownloadDocument:false,
+      downloadingDocument:false,
       loading: false, creating: false, updating: false, removing: false, updatingExcel: false,
     }),
     /** Limpia solo los flags */
@@ -69,6 +80,15 @@ export const useRequisitionsStore = createWithEqualityFn<RequisitionsState>()(
       warning: undefined,
       successGet: false, successPost: false, successPut: false, successDelete: false, successUpdateExcel: false,
       error: undefined,
+      succesDownloadDocument:false,
+      downloadingDocument:false
     }),
+    /*Resetea la req actual */
+    resetCurrentReq: () => set({
+      currentRequisition: null,
+      gettincurrentReq: false,
+      succesgetingCurrent: false,
+      error: undefined
+    })
   }))
 )

@@ -5,7 +5,7 @@ import { BillingValidateBillingDocument as BillingDocumentUrl } from '@/app/conf
 import type { BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
 import type { Set, Get } from '../types'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { pPost } from '@/app/utilities/Http/promisifyIntranet'
+import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { fetchBillingDocuments } from './fetchBillingDocuments'
 import { fetchSatBillingDocument } from './fetchSatBillingDocument'
@@ -26,7 +26,7 @@ export const validateBillingDocument = async (
     set({ validating: true, error: undefined, succesValidate: false })
 
   try {
-    const post = pPost(requireGateway('post'), [200, 201])
+    const post = pPut(requireGateway('put'), [200, 201])
     const res: AxiosResponse = await post(BillingDocumentUrl, ids)
     const raw = res.data?.data
     const created = raw ? (raw as BillingDocuments) : null

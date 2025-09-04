@@ -24,7 +24,10 @@ export interface DataTableContentProps<T extends { id: string | number }> {
   enableInternalSearch?: boolean
   /** Callback cuando cambia la página */
   onPageChange?: (page: number) => void
-
   /** Callback cuando cambia la selección de filas */
   onSelectedChange?: (selected: T[]) => void
+  showButton?: boolean;
+  actionsRender?: () => React.ReactNode;
+  onTableActionClick?: () => void;
+  actionLabel?: string;
 }

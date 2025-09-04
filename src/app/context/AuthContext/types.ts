@@ -30,6 +30,7 @@ export interface User {
   idDepartment: string;
   password: string;
   signature: string;
+  email: string;
 }
 
 /**
@@ -60,6 +61,7 @@ export interface AuthContextType {
   hasExpired: boolean;
   remeberMe: boolean;
   offlineMode: boolean;
+  currentPagePermissions: any;
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
   verifyOTP: (optcode: string) => Promise<void>;
@@ -73,4 +75,6 @@ export interface AuthContextType {
   handleOfflineMode: (offline: boolean) => void;
   getRoutePermissions: (route: string) => any;
   updateUserPermissions: (permissions: string) => Promise<void>;
+  getCurrentPathPermissions: (strictPath?: string) => any;
+  getCurrentPathAcces: (strictPath?: string | undefined) => boolean
 }

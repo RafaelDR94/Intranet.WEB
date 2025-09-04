@@ -1,17 +1,17 @@
 
-import { intranetClient ,isProduction} from "@/app/configurations/Axios/Clients";
+import { intranetClient, isProduction } from "@/app/configurations/Axios/Clients";
 import { FirebaseRealtimeHelper } from "./useFirebaseRealTimeHelpet";
 import { Database } from "firebase/database";
 import { useEffect, useRef } from "react";
 import { User } from "../../AuthContext/types";
 
-import { currentDateDataBase,getTime } from "@/app/utilities/DatesHelper/Dateshelper";
+import { currentDateDataBase, getTime } from "@/app/utilities/DatesHelper/Dateshelper";
 interface Uselogsprops {
     firebaserealtime: FirebaseRealtimeHelper;
     database: Database | null
     user: User | null
     offlineMode: boolean
-    setHasExpired: React.Dispatch<React.SetStateAction<boolean>>
+    setHasExpired: any
 }
 const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode }: Uselogsprops) => {
     const path = isProduction() ? "Production" : "Sandbox"
@@ -32,16 +32,16 @@ const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode 
     };
 
     const logError = async (service: string, error: any) => {
+
         const errorDetails = {
             advisor: user?.userName,
-            message: error.message,
-            status: error.response?.status || "N/A",
-            url: error.config?.url || "N/A",
-            method: error.config?.method || "N/A",
+            message: error?.message ?? error?.data?.error_Message,
+            status: error?.response?.status ?? error?.status,
+            url: error?.config?.url || "N/A",
+            method: error?.config?.method || "N/A",
             data: error.response?.data || "Sin datos",
             timestamp: new Date().toISOString(),
         };
-
         if (!user) return;
 
         try {
@@ -80,7 +80,6 @@ const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode 
                 (response) => {
                     if (response.status < 200 || response.status >= 300) {
                         if (response.status == 401 && !offlineMode) {
-
                             setHasExpired(true);
                         }
                         if (firebaserealtime) {
@@ -100,8 +99,6 @@ const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode 
                             error?.code == "ERR_NAME_NOT_RESOLVED" ||
                             error?.code == "ERR_NETWORK") && !offlineMode) {
                             setHasExpired(true);
-
-
                         }
                         return;
                     }
@@ -113,8 +110,6 @@ const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode 
                         error?.code == "ERR_NAME_NOT_RESOLVED" ||
                         error?.code == "ERR_NETWORK") && !offlineMode) {
                         setHasExpired(true);
-
-
                     }
                     return Promise.reject(error);
                 }

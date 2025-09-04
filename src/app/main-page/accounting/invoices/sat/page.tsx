@@ -1,16 +1,18 @@
 // SAT.tsx
-'use client';
-import React from 'react';
+"use client";
+import React from "react";
 import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { DataTable } from "@/app/components/DataTable/DataTable";
-import CheckIcon from '@/assets/icons/acciones/check.svg';
-import CrossIcon from '@/assets/icons/acciones/cancel.svg';
-import WarningIcon from '@/assets/icons/acciones/minus.svg';
+import CheckIcon from "@/assets/icons/acciones/check.svg";
+import CrossIcon from "@/assets/icons/acciones/cancel.svg";
+import WarningIcon from "@/assets/icons/acciones/minus.svg";
 import { Button } from "@/app/components/Button/Button";
-import useSAT from './hooks/useSAT';
-import DetailsPanel from '../validateinvoices/components/DetailsPanel/DetailsPanel';
-import { BillingDocumentsSatTable } from '@/app/mappings/billingdocuments/billingdocuments.types';
-import { BillingDocumentsSatTableMap } from '@/app/mappings/billingdocuments/billingdocuments.mapper';
+import useSAT from "./hooks/useSAT";
+import DetailsPanel from "../validateinvoices/components/DetailsPanel/DetailsPanel";
+import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
+import { BillingDocumentsSatTableMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
 const SAT = () => {
   const {
@@ -24,17 +26,26 @@ const SAT = () => {
     selected,
     multiSelected,
     handleSendToSap,
-    handleMultiSelect
+    handleMultiSelect,
   } = useSAT();
+  const { currentPagePermissions } = useAuth();
 
+  const isMobile = useIsMobile();
   /** Columnas base sin ícono forzado */
-  const baseColumns: ColumnDefinition<BillingDocumentsSatTable>[] = [
-    { key: 'sat_codigoEstatus', label: 'C. ESTATUS' },
-    { key: 'sat_esCancelable', label: 'ES CANCELABLE' },
-    { key: 'status', label: 'ESTADO' },
-    { key: 'sat_estatusCancelacion', label: 'ESTATUS CANCELACIÓN' },
-    { key: 'sat_efos', label: 'VALIDACIÓN EFOS' },
+  const baseColumnsDesktop: ColumnDefinition<BillingDocumentsSatTable>[] = [
+    { key: "sat_codigoEstatus", label: "C. ESTATUS" },
+    { key: "sat_esCancelable", label: "ES CANCELABLE" },
+    { key: "status", label: "ESTADO" },
+    { key: "sat_estatusCancelacion", label: "ESTATUS CANCELACIÓN" },
+    { key: "sat_efos", label: "VALIDACIÓN EFOS" },
   ];
+
+  const baseColumnsMobile: ColumnDefinition<BillingDocumentsSatTable>[] = [
+    { key: "sat_codigoEstatus", label: "C. ESTATUS" },
+    { key: "sat_esCancelable", label: "ES CANCELABLE" },
+  ];
+
+  const baseColumns = isMobile ? baseColumnsMobile : baseColumnsDesktop;
 
   /** Helpers para crear columnas con ícono fijo */
   const withFixedIcon = (
@@ -43,32 +54,52 @@ const SAT = () => {
     selectable = false,
     rejectInvoice = true,
     sendInvoiceToSap = true,
-    canComment = true,
+    canComment = true
   ): ColumnDefinition<BillingDocumentsSatTable>[] => {
-    const cols: ColumnDefinition<BillingDocumentsSatTable>[] = [
-      {
-        key: 'sat_status_icon' as unknown as keyof BillingDocumentsSatTable,
-        label: '',
+    const cols: ColumnDefinition<BillingDocumentsSatTable>[] = [];
+
+    // Solo mostrar la columna de ícono si no es mobile
+    if (!isMobile) {
+      cols.push({
+        key: "sat_status_icon" as unknown as keyof BillingDocumentsSatTable,
+        label: "",
         render: () => <Icon className={`mx-auto ${colorClass}`} />,
-      },
-      ...baseColumns,
-    ];
+      });
+    }
+
+    cols.push(...baseColumns);
 
     if (selectable) {
       cols.push({
-        key: 'acciones' as unknown as keyof BillingDocumentsSatTable,
+        key: "acciones" as unknown as keyof BillingDocumentsSatTable,
         headerRender: () => <></>,
         render: (row) => (
-          <div className='flex'>
-            <Button size="medium" onClick={() => handleOpenDetails(row, true, rejectInvoice, sendInvoiceToSap)} variant="ghost" hideIcon>
-              Ver Detalles
-            </Button>
-            {canComment && <Button size="medium" onClick={() => handleOpenDetails(row, false, rejectInvoice, sendInvoiceToSap)} variant="ghost" hideIcon>
-              Comentar
-            </Button>}
+          <div className="flex">
+            {currentPagePermissions?.canSeeDetails &&
+              <Button
+                size="medium"
+                onClick={() =>
+                  handleOpenDetails(row, true, rejectInvoice, sendInvoiceToSap)
+                }
+                variant="ghost"
+                hideIcon
+              >
+                Ver Detalles
+              </Button>}
 
+            {(currentPagePermissions?.canAddComment && canComment) && (
+              <Button
+                size="medium"
+                onClick={() =>
+                  handleOpenDetails(row, false, rejectInvoice, sendInvoiceToSap)
+                }
+                variant="ghost"
+                hideIcon
+              >
+                Comentar
+              </Button>
+            )}
           </div>
-
         ),
       });
     }
@@ -81,17 +112,40 @@ const SAT = () => {
       <DataTable
         tables={[
           {
-            title: 'CFDIs Válidos',
+            title: "CFDIs Válidos",
             enableCollaps: true,
             enableSelection: true,
             data: BillingDocumentsSatTableMap(billingDocumentsValid),
-            columns: withFixedIcon(CheckIcon, 'text-alert-green-100', true, true, true, false),
-          }
+            columns: withFixedIcon(
+              CheckIcon,
+              "text-alert-green-100",
+              true,
+              true,
+              true,
+              false
+            ),
+          },
         ]}
         enableInternalSearch
-        actionsRender={()=><div className='ml-7'><Button  disabled={multiSelected?.length == 0}onClick={handleSendToSap} size='large'hideIcon>Enviar a SAP</Button></div>}
+        actionsRender={() => (
+          <div className={isMobile ? 'ml-0, w-full' : 'ml-7'}>
+            {currentPagePermissions?.canSendToSap && 
+            <Button
+              disabled={multiSelected?.length == 0}
+              onClick={handleSendToSap}
+              size="large"
+              hideIcon
+              className="w-full"
+            >
+              Enviar a SAP
+            </Button>}
+
+          </div>
+        )}
         showDownloadTable
-        onSelectedChange={(index,rows)=>{handleMultiSelect(rows)}}
+        onSelectedChange={(index, rows) => {
+          handleMultiSelect(rows);
+        }}
       />
 
       <div className="mt-5">
@@ -104,29 +158,46 @@ const SAT = () => {
               enableSelection: true,
               data: BillingDocumentsSatTableMap(billingDocumentsBadCode),
               // data: BillingDocumentsSatTableMap(billingDocumentsValid),
-              columns: withFixedIcon(WarningIcon, 'text-alert-yellow-100', true, true, true),
-              title: 'CFDIs con Claves Prohibidas',
+              columns: withFixedIcon(
+                WarningIcon,
+                "text-alert-yellow-100",
+                true,
+                true,
+                true
+              ),
+              title: "CFDIs con Claves Prohibidas",
               enableCollaps: true,
             },
             {
               enableSelection: true,
               data: BillingDocumentsSatTableMap(billingDocumentsNotValid),
               // data: BillingDocumentsSatTableMap(billingDocumentsValid),
-              columns: withFixedIcon(CrossIcon, 'text-alert-red-100', true, true, false),
-              title: 'CFDIs con Claves Inválidas',
+              columns: withFixedIcon(
+                CrossIcon,
+                "text-alert-red-100",
+                true,
+                true,
+                false
+              ),
+              title: "CFDIs con Claves Inválidas",
               enableCollaps: true,
             },
-  
+
             {
-              title: 'EFOS',
+              title: "EFOS",
               enableCollaps: true,
               enableSelection: true,
               data: BillingDocumentsSatTableMap(billingDocumentsEfos),
               // data: BillingDocumentsSatTableMap(billingDocumentsValid),
-              columns: withFixedIcon(CrossIcon, 'text-alert-red-100', true, true, false),
-            }
+              columns: withFixedIcon(
+                CrossIcon,
+                "text-alert-red-100",
+                true,
+                true,
+                false
+              ),
+            },
           ]}
-
         />
       </div>
 
@@ -134,12 +205,15 @@ const SAT = () => {
       <DetailsPanel
         panelOpen={panelOpen.state}
         onlyText={panelOpen.onlyText}
-        setPanelOpen={(state: boolean) => setPanelOpen(prev => ({ ...prev, state: state }))}
+        setPanelOpen={(state: boolean) =>
+          setPanelOpen((prev) => ({ ...prev, state: state }))
+        }
         selected={selected}
         rejectType={false}
         rejectInvoice={panelOpen.rejectInvoice}
         validInvoice={false}
-        sendInvoiceToSap={panelOpen.sendInvoiceToSap} />
+        sendInvoiceToSap={panelOpen.sendInvoiceToSap}
+      />
     </>
   );
 };

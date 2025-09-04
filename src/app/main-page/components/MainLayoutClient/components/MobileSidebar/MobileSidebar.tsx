@@ -1,86 +1,40 @@
 // app/layouts/components/MobileSidebar/MobileSidebar.tsx
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+
 
 import LogoDr from '@/assets/images/LogosDR/DReDIT.png';
 import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
 import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';
 import SubArrowIcon from '@/assets/icons/navegacion/long-arrow-down-right.svg';
-import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
+// import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
 import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
 import HelpIcon from '@/assets/icons/acciones/help-circle.svg';
 import LogoutIcon from '@/assets/icons/acciones/open-in-window.svg';
 
 import PersonalAvatar from '@/app/components/PersonalAvatar/PersonalAvatar';
-import { ToggleButton } from '@/app/components/ToogleButton.tsx/ToogleButton';
+import { ToggleButton } from '@/app/components/ToogleButton/ToogleButton';
+import useMobileSideBar from './hooks/useMobileSideBar';
+import { MobileSidebarProps } from './types';
 
 
-type RouteItem = {
-  path: string;
-  label: string;
-  icon: React.ComponentType<any>;
-  subroutes?: Array<{ path: string; label: string }>;
-};
-
-type MobileSidebarProps = {
-  isOpen: boolean;
-  onClose: () => void;
-
-  // mismas props que el MainSidebar
-  offlineMode: boolean;
-  onToggleOffline: (v: boolean) => void;
-  theme: 'light' | 'dark';
-  toggleTheme: () => void;
-  userFullName?: string | null;
-  logout: () => Promise<void>;
-  validPermissionsbyroute: (path: string) => boolean;
-  routes: RouteItem[];
-};
-
-export default function MobileSidebar({
+const MobileSidebar: React.FC<MobileSidebarProps> = ({
   isOpen,
   onClose,
-  offlineMode,
-  onToggleOffline,
+  // offlineMode,
+  // onToggleOffline,
   theme,
   toggleTheme,
   userFullName,
   logout,
   validPermissionsbyroute,
   routes,
-}: MobileSidebarProps) {
-  const pathname = usePathname();
-  const panelRef = useRef<HTMLDivElement>(null);
+}) => {
+  const { expanded, setExpanded, isActive, handleOverlayClick, panelRef } = useMobileSideBar({ isOpen, onClose })
 
-  // Bloquear scroll cuando el drawer está abierto
-  useEffect(() => {
-    if (!isOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [isOpen]);
-
-  // Cerrar con tecla ESC
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, onClose]);
-
-  // Clic en overlay cierra
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) onClose();
-  };
-
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const isActive = (p: string) => pathname === p || pathname.startsWith(p + '/');
 
   return (
     <div
@@ -189,10 +143,10 @@ export default function MobileSidebar({
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <WifiIcon aria-hidden />
                 <ToggleButton checked={!offlineMode} onChange={c => onToggleOffline(!c)} label="" />
-              </div>
+              </div> */}
               <div className="flex items-center gap-2">
                 <ThemeIcon aria-hidden />
                 <ToggleButton checked={theme === 'dark'} onChange={toggleTheme} label="" />
@@ -225,3 +179,4 @@ export default function MobileSidebar({
     </div>
   );
 }
+export default MobileSidebar

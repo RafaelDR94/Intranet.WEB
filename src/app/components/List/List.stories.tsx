@@ -15,13 +15,7 @@ const meta = {
   title: 'Components/List',
   component: List,
   tags: ['autodocs'],
-  parameters: {
-    docs: {
-      description: {
-        component: 'Lista de elementos con opciones para acciones y controles.',
-      },
-    },
-  },
+
 } satisfies Meta<typeof List>
 export default meta
 

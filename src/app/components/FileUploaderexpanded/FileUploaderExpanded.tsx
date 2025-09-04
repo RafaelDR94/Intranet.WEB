@@ -17,6 +17,51 @@ import {
 } from './styles';
 import { useFileUploaderExpanded } from './hooks/useFileUploaderExpanded';
 
+/**
+ * Uploader con **zona de arrastre y suelta** (drag & drop) y botón de selección.
+ *
+ * Renderiza una “dropzone” estilizada que:
+ * - Acepta archivos arrastrados (muestra estado visual durante el drag).
+ * - Permite seleccionar manualmente con un botón (abre el diálogo del sistema).
+ * - Muestra el nombre del archivo seleccionado (o un `placeholder`).
+ *
+ * @remarks
+ * - `onFile(File|null)` es el punto único de salida: el hook interno normaliza
+ *   el flujo tanto para drag&drop como para selección manual.
+ * - `accept` soporta patrones `.pdf`, `.xml`, `image/*`, `application/pdf`, etc.
+ * - `initialFile` permite precargar un archivo (p. ej. en modo edición) y mostrar su nombre.
+ * - El texto principal de la zona se determina con prioridad: **archivo > placeholder > texto por defecto**.
+ *
+ * @accessibility
+ * - Si se provee `label`, se renderiza encima y actúa como nombre accesible.
+ * - Para anunciar el nombre del archivo a lectores de pantalla, puedes envolver el texto en
+ *   un contenedor con `aria-live="polite"` (ver comentario en `<p>`).
+ * - La dropzone reacciona a eventos de drag; el botón es el control interactivo principal.
+ * - Considera añadir instrucciones visibles si los formatos/tamaños son relevantes.
+ *
+ * @example Uso básico
+ * ```tsx
+ * <FileUploaderExpanded
+ *   label="Comprobante"
+ *   accept=".pdf"
+ *   onFile={(file) => console.log(file)}
+ * />
+ * ```
+ *
+ * @example Con placeholder y archivo inicial
+ * ```tsx
+ * <FileUploaderExpanded
+ *   label="XML CFDI"
+ *   accept=".xml"
+ *   placeholder="Arrastra o selecciona un XML"
+ *   initialFile={{ name: 'factura-123.xml', url: '/files/factura-123.xml' }}
+ *   onFile={(file) => {/* manejar archivo }}
+ * />
+ * ```
+ *
+ * @fires onFile Se invoca con el archivo seleccionado (`File`) o `null` si se limpió/canceló.
+ */
+
 export const FileUploaderExpanded: React.FC<FileUploaderProps> = ({
   accept,
   label,

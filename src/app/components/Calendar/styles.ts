@@ -4,7 +4,8 @@ export const calendarStyles = {
   triggerDisabled: "opacity-40 cursor-not-allowed",
   triggerHover: "bg-green-10",
   trigerFocus: "ring-2 focus:ring-green-40 focus:outline-none",
-  subCalendarContainer: "absolute left-50 top-0 bg-white p-4 shadow-lg rounded-md z-50 w-[400px]",
+  subCalendarContainer: "absolute left-50 top-0 bg-white p-4 shadow-lg rounded-md z-50 w-[400px] ml-5",
+  subCalendarMobile: "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white p-4 rounded shadow-md w-[90%] max-w-md",
   subCalendarTitle: "text-center text-sm text-blue-60",
   subCalendarWrapper: "flex justify-between mt-3",
   wrapper: "w-[140px]",
@@ -13,4 +14,9 @@ export const calendarStyles = {
   input: "border rounded px-2 py-1 w-[90px] bg-gray-10 border-none",
   buttonWrapper: "flex justify-center",
   button: "bg-green-80 text-white rounded px-4 py-1 mt-2 w-full",
+  modalOverlay: "fixed inset-0 bg-[#002A4133] bg-opacity-50 z-40 flex items-center justify-center",
+  /* Mobile Styles*/
+  inputWrapperMobile: "flex flex-col mt-3",
+  buttonWrapperMobile: "w-auto",
+  buttonMobile: "bg-green-80 text-white rounded px-4 py-1 mt-3 w-auto",
 };

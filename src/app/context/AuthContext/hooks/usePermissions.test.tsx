@@ -1,7 +1,11 @@
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import usePermissions from './usePermissions';
 import { renderHook } from '@testing-library/react';
+
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(() => '/'),
+}));
 
 const mockUserWithPermissions :any= {
   treeFirebase: JSON.stringify({
