@@ -1,11 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { BillingDocument } from '@/app/mappings/billingdocuments/billingdocuments.types'
 import type { Set } from './types'
 
 vi.mock('./utilities', () => ({
   fetchBillingDocuments: vi.fn(async (set: Set) => set({ billingDocuments: [{ billing_document_id: '1' } as any], loading: false })),
-  fetchBillingDocumentById: vi.fn(async (id: string, set: Set) => { set({ billingDocument: { billing_document_id: id } as any, loading: false }); return { billing_document_id: id } as BillingDocument }),
-  createBillingDocument: vi.fn(async (set: Set) => { set({ successPost: true }); return { billing_document_id: '2' } as BillingDocument }),
+  fetchBillingDocumentById: vi.fn(async (id: string, set: Set) => { set({ billingDocument: { billing_document_id: id } as any, loading: false }); return { billing_document_id: id } as any }),
+  createBillingDocument: vi.fn(async (set: Set) => { set({ successPost: true }); return { billing_document_id: '2' } as any }),
   updateBillingDocument: vi.fn(async (set: Set) => { set({ successPut: true }); return null }),
   deleteBillingDocument: vi.fn(async (set: Set) => { set({ successDelete: true }); return true }),
 }))

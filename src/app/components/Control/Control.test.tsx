@@ -1,55 +1,127 @@
-import React from "react";
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { Control } from "./Control";
-import { ControlProps } from "./types";
+import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Control } from './Control';
+import { ControlProps } from './types';
 
-const baseProps: ControlProps = {
-  value: 1,
+const makeProps = (overrides: Partial<ControlProps> = {}): ControlProps => ({
   onIncrement: vi.fn(),
   onDecrement: vi.fn(),
-};
+  inputSize: 'md',
+  ...overrides,
+});
 
-describe("Control component", () => {
-  it("renders correctly with default variant", () => {
-    render(<Control {...baseProps} />);
+describe('Control component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    const buttons = screen.getAllByRole("button");
+  it('renderiza dos botones y ambos íconos', () => {
+    render(<Control {...makeProps()} />);
+    const buttons = screen.getAllByRole('button');
     expect(buttons.length).toBe(2);
 
-    // Verifica que estén los íconos
-    expect(screen.getByTestId("minus-icon")).toBeInTheDocument();
-    expect(screen.getByTestId("plus-icon")).toBeInTheDocument();
+    expect(screen.getByTestId('minus-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('plus-icon')).toBeInTheDocument();
   });
 
-  it("calls onIncrement when '+' button is clicked", () => {
-    render(<Control {...baseProps} />);
-    const incrementBtn = screen.getAllByRole("button")[1];
-    fireEvent.click(incrementBtn);
-    expect(baseProps.onIncrement).toHaveBeenCalledTimes(1);
+  it('llama onIncrement al hacer click en "+" cuando está habilitado', () => {
+    const props = makeProps();
+    render(<Control {...props} />);
+    const [minusBtn, plusBtn] = screen.getAllByRole('button');
+    fireEvent.click(plusBtn);
+    expect(props.onIncrement).toHaveBeenCalledTimes(1);
+    expect(props.onDecrement).not.toHaveBeenCalled();
   });
 
-  it("calls onDecrement when '-' button is clicked", () => {
-    render(<Control {...baseProps} />);
-    const decrementBtn = screen.getAllByRole("button")[0];
-    fireEvent.click(decrementBtn);
-    expect(baseProps.onDecrement).toHaveBeenCalledTimes(1);
+  it('llama onDecrement al hacer click en "−" cuando está habilitado', () => {
+    const props = makeProps();
+    render(<Control {...props} />);
+    const [minusBtn] = screen.getAllByRole('button');
+    fireEvent.click(minusBtn);
+    expect(props.onDecrement).toHaveBeenCalledTimes(1);
+    expect(props.onIncrement).not.toHaveBeenCalled();
   });
 
-  it("applies 'filled' styles when variant is filled", () => {
-  const { container } = render(<Control {...baseProps} variant="filled" />);
-  const wrapper = container.firstChild as HTMLElement;
+  it('deshabilita TODO cuando disable=true', () => {
+    const props = makeProps({ disable: true });
+    render(<Control {...props} />);
+    const [minusBtn, plusBtn] = screen.getAllByRole('button');
 
-  expect(wrapper.className).toContain("bg-green-10");
-  expect(wrapper.className).toContain("border-transparent");
+    expect(minusBtn).toBeDisabled();
+    expect(plusBtn).toBeDisabled();
+    expect(minusBtn).toHaveAttribute('tabIndex', '-1');
+    expect(plusBtn).toHaveAttribute('tabIndex', '-1');
+
+    fireEvent.click(minusBtn);
+    fireEvent.click(plusBtn);
+    expect(props.onDecrement).not.toHaveBeenCalled();
+    expect(props.onIncrement).not.toHaveBeenCalled();
+
+    // ⬇️ FIX: el wrapper es el parent inmediato del botón
+    const wrapper = minusBtn.parentElement as HTMLElement;
+    expect(wrapper).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it("applies 'outlined' styles when variant is outlined", () => {
-  const { container } = render(<Control {...baseProps} variant="outlined" />);
-  const wrapper = container.firstChild as HTMLElement;
+  it('deshabilita solo el botón "+" cuando disablePlus=true', () => {
+    const props = makeProps({ disablePlus: true });
+    render(<Control {...props} />);
+    const [minusBtn, plusBtn] = screen.getAllByRole('button');
 
-  expect(wrapper.className).toContain("border-green-50");
-  expect(wrapper.className).toContain("bg-transparent");
+    expect(plusBtn).toBeDisabled();
+    expect(minusBtn).not.toBeDisabled();
+
+    fireEvent.click(minusBtn);
+    fireEvent.click(plusBtn);
+
+    expect(props.onDecrement).toHaveBeenCalledTimes(1);
+    expect(props.onIncrement).not.toHaveBeenCalled();
   });
 
+  it('deshabilita solo el botón "−" cuando disableMinus=true', () => {
+    const props = makeProps({ disableMinus: true });
+    render(<Control {...props} />);
+    const [minusBtn, plusBtn] = screen.getAllByRole('button');
+
+    expect(minusBtn).toBeDisabled();
+    expect(plusBtn).not.toBeDisabled();
+
+    fireEvent.click(minusBtn);
+    fireEvent.click(plusBtn);
+
+    expect(props.onDecrement).not.toHaveBeenCalled();
+    expect(props.onIncrement).toHaveBeenCalledTimes(1);
+  });
+
+  it('si falta onIncrement, el botón "+" se deshabilita automáticamente', () => {
+    const props = makeProps({ onIncrement: undefined });
+    render(<Control {...props} />);
+    const [, plusBtn] = screen.getAllByRole('button');
+    expect(plusBtn).toBeDisabled();
+  });
+
+  it('si falta onDecrement, el botón "−" se deshabilita automáticamente', () => {
+    const props = makeProps({ onDecrement: undefined });
+    render(<Control {...props} />);
+    const [minusBtn] = screen.getAllByRole('button');
+    expect(minusBtn).toBeDisabled();
+  });
+
+  it('aplica clases de tamaño para inputSize="sm" (espera h-8 en el contenedor)', () => {
+    const { container } = render(<Control {...makeProps({ inputSize: 'sm' })} />);
+    const wrapper = container.firstElementChild as HTMLElement;
+    expect(wrapper.className).toContain('h-8'); // definido en styles.ts
+  });
+
+  it('aplica clases de tamaño para inputSize="md" (espera h-10 en el contenedor)', () => {
+    const { container } = render(<Control {...makeProps({ inputSize: 'md' })} />);
+    const wrapper = container.firstElementChild as HTMLElement;
+    expect(wrapper.className).toContain('h-10');
+  });
+
+  it('aplica clases de tamaño para inputSize="lg" (espera h-12 en el contenedor)', () => {
+    const { container } = render(<Control {...makeProps({ inputSize: 'lg' })} />);
+    const wrapper = container.firstElementChild as HTMLElement;
+    expect(wrapper.className).toContain('h-12');
+  });
 });

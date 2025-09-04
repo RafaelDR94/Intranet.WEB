@@ -1,10 +1,21 @@
-import React,{ useEffect }from "react";
+import React, { useEffect } from "react";
 import { DataTableContentProps } from "./types";
 import { DataTableHeader } from "./components/DataTableHeader/DataTableHeader";
 import { DataTableBody } from "./components/DataTableBody/DataTableBody";
 import { containerDataTableContent } from "./styles";
 import Pagination from "@/app/components/Pagination/Pagination";
 import { useDataTableContent } from "./hooks/useTableContent";
+import { useIsMobile } from "../DataTableLayout/hooks/useMediaQuery";
+import { Button } from "@/app/components/Button/Button";
+
+// Opcional: pequeño contenedor para las acciones en mobile, por estilo
+const MobileActionsBar: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
+  <div className="mt-4 flex w-full items-center justify-between gap-3">
+    {children}
+  </div>
+);
 
 type ExtraProps = {
   rowHeight?: number;
@@ -14,6 +25,7 @@ type ExtraProps = {
 const DataTableContent = <T extends { id: string | number }>(
   props: DataTableContentProps<T> & ExtraProps
 ) => {
+  const isMobile = useIsMobile();
   const {
     data,
     columns,
@@ -28,6 +40,10 @@ const DataTableContent = <T extends { id: string | number }>(
     rowHeight = 56,
     scrollMaxHeight,
     onSelectedChange,
+    showButton,
+    actionsRender,
+    onTableActionClick,
+    actionLabel = "Agregar",
   } = props;
 
   const {
@@ -85,6 +101,24 @@ const DataTableContent = <T extends { id: string | number }>(
           onToggleSelect={toggleSelect}
         />
       </div>
+
+      {isMobile && (
+        <MobileActionsBar>
+          {/* `actionsRender` tiene prioridad sobre el botón, igual que en Layout */}
+          {actionsRender
+            ? actionsRender()
+            : showButton && (
+                <Button
+                  variant="solid"
+                  size="giant"
+                  hideIcon
+                  onClick={onTableActionClick}
+                >
+                  {actionLabel}
+                </Button>
+              )}
+        </MobileActionsBar>
+      )}
 
       {enablePagination && totalPages > 0 && (
         <div className="mt-4 flex justify-center">

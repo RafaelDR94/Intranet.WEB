@@ -4,37 +4,35 @@ import React, { useEffect, useRef } from 'react';
 import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg';
 import CustomRadio from '../CustomRadio/CustomRadio';
 import { Checkbox } from '../CheckBox/CheckBox';
-import { ToggleButton } from '../ToogleButton.tsx/ToogleButton';
+import { ToggleButton } from '../ToogleButton/ToogleButton';
 import { Button } from '../Button/Button';
 import { Control } from '../Control/Control';
 import { ContextMenuItem, ContextMenuProps } from './types';
 import { contextMenuStyles as cm } from './styles';
 import { useContextMenu } from './hooks/useContextMenu';
 
-/**
- * ContextMenu
- *
- * Un menú contextual accesible y controlable que se abre al hacer click sobre un *trigger*.
- *
- * ✅ Características principales
- * - **Controlado / No controlado**: Puedes manejar `isOpen`/`setIsOpen` o dejar que el componente administre su propio estado.
- * - **AutoFlip**: Si no cabe en la ventana, intenta invertir su apertura vertical para mantenerse visible.
- * - **Alineación horizontal**: `alignRight` posiciona el menú a la derecha o izquierda del trigger.
- * - **Cierre seguro**: Cierra con `Escape`, clic fuera y coordina múltiples instancias (al abrir una, el resto se cierran).
- * - **Zonas ignoradas**: Con `ignoreRefs` puedes permitir interacciones en zonas que **no** deben cerrar el menú.
- * - **Controles embebidos**: Soporta `toggle`, `checkbox`, `radio`, `control`, `badge`, `details` en cada ítem.
- * - **Título opcional**: Puedes proporcionar un título para el menú contextual.
- * ♿ Accesibilidad
- * - Usa `role="menu"`/`role="menuitem"`, `tabIndex` y `aria-disabled`.
- * - Cierra con `Escape` y gestiona focus de forma predecible.
- */
 
 const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
 
 // Nombre del evento global para coordinar instancias
 const OPEN_EVENT = 'ctxmenu:open';
-
+/**
+ * Menú contextual accesible con soporte para:
+ * - Trigger controlado/no-controlado
+ * - Cierre por click afuera y tecla Escape
+ * - Navegación con flechas Arriba/Abajo + Enter/Espacio
+ * - Alineación a la derecha y auto-flip vertical
+ *
+ * @remarks
+ * - `items` puede incluir íconos (SVG) y controles (checkbox/radio/toggle/badge/details/control).
+ * - Si pasas `isOpen`/`setIsOpen`, el componente funciona en modo **controlado**.
+ * - Si no, manejará su propio estado interno.
+ *
+ * @accessibility
+ * - El trigger recibe `aria-haspopup="menu"` y `aria-expanded`.
+ * - El menú usa `role="menu"` e items `role="menuitem"`.
+ */
 export const ContextMenu: React.FC<ContextMenuProps> = ({
   title,
   trigger,

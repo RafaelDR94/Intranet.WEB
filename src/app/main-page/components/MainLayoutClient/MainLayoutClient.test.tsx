@@ -3,7 +3,8 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { PrincipalProvider } from '@/app/context/PrincipalContext/PrincipalContext'
-import { AuthContext } from '@/app/context/AuthContext/AuthContext'
+import { AuthProvider } from '@/app/context/AuthContext/AuthContext'
+import { useAuthStore } from '@/app/stores/useAuthStore/useAuthStore'
 
 // ---- Mocks (DEBEN ir antes de importar el componente bajo prueba) ----
 vi.mock('@/assets/images/LogosDR/DReDIT.png', () => ({ default: 'logo.png' }))
@@ -42,6 +43,8 @@ vi.mock('@/app/components/PermissionsAgent/PermissionsAgent', () => ({
 // Mock de Next router (por si algo interno lo usa)
 vi.mock('next/navigation', () => ({
   usePathname: () => '/main-page/home',
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn() }),
 }))
 
 // Mock de useMainPage (evita que el hook real toque contextos)
@@ -89,41 +92,30 @@ vi.mock('./hooks/useMainPage', () => ({
 // ---- Importar el SUT DESPUÉS de los mocks ----
 import MainLayoutClient from './MainLayoutClient'
 
-// ---- Auth context fake ----
-const mockAuthContextValue: any = {
+// ---- Auth store fake state ----
+const mockAuthState = {
   user: {
     token: 'fake-token',
     lifeToken: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-    treeFirebase: '[]',
+    treeFirebase: '{"main-page":{"home":{"Acces":true}}}',
     email: 'john@doe.com',
-  },
+  } as any,
   token: 'fake-token',
   hasExpired: false,
   remeberMe: false,
   userRemebered: null,
   offlineMode: false,
-  handleForgetUser: vi.fn(),
-  login: vi.fn(),
-  logout: vi.fn(),
-  verifyOTP: vi.fn(),
-  askforOTPemail: vi.fn(),
-  validLoggin: vi.fn(),
-  validPermissionsbyroute: () => true,
-  UpdateUser: vi.fn(),
-  setHasExpired: vi.fn(),
-  handleRemeberMe: vi.fn(),
-  handleOfflineMode: vi.fn(),
-  getRoutePermissions: vi.fn(),
-  updateUserPermissions: vi.fn(),
 }
 
 // ---- Helper para envolver con providers requeridos ----
-const renderWithProviders = (ui: React.ReactNode) =>
-  render(
+const renderWithProviders = (ui: React.ReactNode) => {
+  useAuthStore.setState(mockAuthState as any)
+  return render(
     <PrincipalProvider>
-      <AuthContext.Provider value={mockAuthContextValue}>{ui}</AuthContext.Provider>
+      <AuthProvider>{ui}</AuthProvider>
     </PrincipalProvider>
   )
+}
 
 describe('MainLayoutClient', () => {
   it('renders sidebar links and children', async () => {

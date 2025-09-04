@@ -4,10 +4,13 @@ import type { InitialFile } from '../FileUploader/types';
 
 /** Tipos de campo soportados por el formulario. */
 export type InputType =
+
   | 'input'
+  | 'date'
   | 'email'
   | 'password'
   | 'number'
+  | 'numberControl'
   | 'select'
   | 'multiSelect'
   | 'checkbox'
@@ -68,6 +71,10 @@ export interface FieldModel {
   onChange?: (value: any, values: Record<string, any>) => void;
   /**Numero de filas en multilinea*/
   rows?:number
+  /** Propiedades para campos numéricos */
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 /** Layouts por breakpoint (las proporciones por fila) */
@@ -131,4 +138,6 @@ export interface DynamicFormProps {
 
   /** Muestra un spinner de carga en lugar del formulario. */
   loadingFormInfo?: boolean;
+  /** Deshabilita todos los campos del formulario */
+  disabled?:boolean
 }

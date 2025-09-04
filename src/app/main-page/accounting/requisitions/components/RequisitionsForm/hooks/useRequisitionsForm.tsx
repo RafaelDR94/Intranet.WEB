@@ -4,11 +4,9 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { shallow } from 'zustand/shallow';
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore';
-
 import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore';
 import { useProyectsStore } from '@/app/stores/useProyectsStore/useProyectsStore';
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore';
-
 import type { FieldModel } from '@/app/components/DynamicForm/types';
 import type { EmployeeType } from '@/app/mappings/employees/employee.types';
 import type { Proyect } from '@/app/mappings/proyects/proyects.types';
@@ -20,16 +18,17 @@ import {
   createInitialFields
 } from '../utilities/requisition';
 import { SubmitFn } from '../../../requisitions/components/ExcelLoader/hooks/types';
-
-/** Valores iniciales permitidos para el formulario de requisiciones. */
-export type RequisitionInitialValues = {
-  /** id de la requisición (obligatorio en edit) */
-  id?: string;
-  /** ids crudos para setear en selects/inputs */
-  employeeId?: string | number;
-  projectId?: string | number;
-  requisitionKey?: string;
-};
+import { useAuth } from '@/app/context/AuthContext/AuthContext';
+import { Requisition } from '@/app/mappings/requisitions/requisitions.types';
+// /** Valores iniciales permitidos para el formulario de requisiciones. */
+// export type RequisitionInitialValues = {
+//   /** id de la requisición (obligatorio en edit) */
+//   id?: string;
+//   /** ids crudos para setear en selects/inputs */
+//   employeeId?: string | number;
+//   projectId?: string | number;
+//   requisitionKey?: string;
+// };
 
 type Mode = 'create' | 'edit';
 /**
@@ -42,10 +41,11 @@ type Mode = 'create' | 'edit';
  */
 export const useRequisitionForm = (
   mode: Mode,
-  initialValues?: RequisitionInitialValues
+  initialValues?: Requisition,
+  startDisabled?: boolean
 ) => {
   const formId = `requisitions-form-${mode}`;
-
+  const { currentPagePermissions } = useAuth();
   // Principal (spinner + alert)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -54,10 +54,11 @@ export const useRequisitionForm = (
   // Submit externo (DynamicForm)
   const submitRef = useRef<SubmitFn | null>(null);
   const [formReady, setFormReady] = useState(false);
+  const [disableForm, setDisableForm] = useState(startDisabled);
 
   // Form Fields (multi-instancia por formId)
-const emptyRef = useRef<FieldModel[]>([]);
-const fields = useFormFieldsStore((s) => s.fieldsByFormId[formId] ?? emptyRef.current);
+  const emptyRef = useRef<FieldModel[]>([]);
+  const fields = useFormFieldsStore((s) => s.fieldsByFormId[formId] ?? emptyRef.current);
   const { setFields, updateField, resetFields } = useFormFieldsStore.getState();
 
   // Employees (prefetch)
@@ -93,10 +94,10 @@ const fields = useFormFieldsStore((s) => s.fieldsByFormId[formId] ?? emptyRef.cu
       }
         , 250)
     }, 500)
-
-
-
   }
+  // useEffect(() => {
+  //   if (disableForm) ResetForm();
+  // }, [disableForm])
 
   // Requisitions (create / update)
   const {
@@ -119,7 +120,7 @@ const fields = useFormFieldsStore((s) => s.fieldsByFormId[formId] ?? emptyRef.cu
     error: s.error,
   }), shallow);
 
-  // Error contextual
+  /// Error contextual
   const opRunning = mode === 'create' ? creating : updating;
   const opSuccess = mode === 'create' ? successPost : successPut;
   const opError = useMemo(
@@ -173,23 +174,39 @@ const fields = useFormFieldsStore((s) => s.fieldsByFormId[formId] ?? emptyRef.cu
   }, [proyects, formId]);
 
   // Setear valores iniciales cuando existan (modo edit)
+  const loadingFormInfo = useMemo(() => computeLoadingFormInfo(fields), [fields]);
   useEffect(() => {
-    if (!initialValues) return;
-
+    console.log("initialValues", initialValues);
+    if (!initialValues || loadingFormInfo) return;
     // Ajusta aquí los names exactos de tus fields (employees, project, requisitionKey)
-    if (initialValues.employeeId !== undefined) {
-      updateField(formId, 'employees', { value: initialValues.employeeId });
+    if (initialValues.id_Employee !== undefined) {
+      updateField(formId, 'employees', { value: initialValues.id_Employee });
     }
-    if (initialValues.projectId !== undefined) {
-      updateField(formId, 'project', { value: initialValues.projectId });
+    if (initialValues.idProject !== undefined) {
+      updateField(formId, 'project', { value: initialValues.idProject });
     }
-    if (initialValues.requisitionKey !== undefined) {
-      updateField(formId, 'requisitionkey', { value: initialValues.requisitionKey, onlyText: true });
+    if (initialValues.requisitionkey !== undefined) {
+      updateField(formId, 'requisitionkey', { value: initialValues.requisitionkey });
     }
-  }, [initialValues, formId]);
+    if (initialValues.assignmentdate !== undefined) {
+      updateField(formId, 'asignamentdate', { value: initialValues.assignmentdate });
+    }
+    if (initialValues.endDate !== undefined) {
+      updateField(formId, 'cxpdate', { value: initialValues.endDate });
+    }
+    if (initialValues.amountdeposited !== undefined) {
+      updateField(formId, 'depositamount', { value: Number(initialValues.amountdeposited) });
+    }
+    if (initialValues.amountdeposited !== undefined) {
+      updateField(formId, 'state', { value: initialValues.state });
+    }
+    if (initialValues.motive !== undefined) {
+      updateField(formId, 'motive', { value: initialValues.motive });
+    }
+  }, [initialValues, formId, loadingFormInfo]);
 
   // Loading de catálogos
-  const loadingFormInfo = useMemo(() => computeLoadingFormInfo(fields), [fields]);
+
 
   // Errores de catálogos
   useEffect(() => {
@@ -277,8 +294,8 @@ const fields = useFormFieldsStore((s) => s.fieldsByFormId[formId] ?? emptyRef.cu
         getOptionLabel(fields, fieldName, value),
     });
 
-    if (mode === 'edit' && initialValues?.id) {
-      await updateRequisition({ ...payload, billingrequisition_id: initialValues.id });
+    if (mode === 'edit' && initialValues?.billingrequisition_id) {
+      await updateRequisition({ ...payload, billingrequisition_id: initialValues.billingrequisition_id });
       return;
     }
     await createRequisition(payload);
@@ -294,5 +311,8 @@ const fields = useFormFieldsStore((s) => s.fieldsByFormId[formId] ?? emptyRef.cu
     handleSubmit,
     onSubmit: () => submitRef.current?.(),
     buttonDisabled: !formReady,
+    currentPagePermissions,
+    disableForm,
+    setDisableForm
   };
 };

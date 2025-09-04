@@ -6,7 +6,7 @@ import { Button } from "@/app/components/Button/Button";
 import type { TableLayoutProps } from "./types";
 import FilterIcon from "@/assets/icons/organization/filter-alt.svg";
 import SearchIcon from "@/assets/icons/organization/search.svg";
-import { tableLayoutStyles } from "./styles";
+import { useTableLayoutStyles } from "./styles";
 import { Calendar } from "@/app/components/Calendar/Calendar";
 import { useDataTableLayout } from "./hooks/useDataTableLayout";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
@@ -28,17 +28,17 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
     showButton,
     isDownloadOpen,
     setIsDownloadOpen,
-    handleDownload
+    handleDownload,
   } = useDataTableLayout(props);
-
+  const tableLayoutStyles = useTableLayoutStyles();
   const { downloadDisabled = false } = props;
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
 
   return (
     <div className={tableLayoutStyles.headerdiv}>
       <Input
         placeholder="Buscar"
-        inputSize={isMobile ? 'md' : 'sm'}
+        inputSize={isMobile ? "md" : "sm"}
         className={tableLayoutStyles.inputSyle}
         onChange={(e) => handleInputChange(e.target.value)}
         onClick={handleSearchClick}
@@ -47,25 +47,33 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
       />
 
       {showCalendar && (
-        <div className="mx-2">
+        <div className="mx-1">
           <Calendar onCalendarClick={handleDateRange} />
         </div>
       )}
 
       {showFilter && (
-        <Button iconOnly icon={FilterIcon} variant="ghost" onClick={onFilterClick} />
+        <Button
+          iconOnly
+          icon={FilterIcon}
+          variant="ghost"
+          onClick={onFilterClick}
+        />
       )}
 
       <div className={tableLayoutStyles.buttonsStyle}>
         {props.showDownloadTable && (
-
           <ContextMenu
             title="FORMATO"
             isOpen={isDownloadOpen}
             setIsOpen={setIsDownloadOpen}
             trigger={
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" disabled={downloadDisabled}>
+                <Button
+                  variant="ghost"
+                  hideIcon={true}
+                  disabled={downloadDisabled}
+                >
                   Descargar
                 </Button>
                 <Button
@@ -73,28 +81,49 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
                   iconOnly
                   icon={DownloadIcon}
                   variant="outline"
+                  size={isMobile ? "small" : "medium"}
                   disabled={downloadDisabled}
                 />
-
               </div>
-
             }
             items={[
-              { label: "PDF", onClick: () => handleDownload("pdf"), controlType: 'radio' ,controlSide: 'left'},
-              { label: "Excel", onClick: () => handleDownload("excel"), controlType: 'radio',controlSide: 'left' },
+              {
+                label: "PDF",
+                onClick: () => handleDownload("pdf"),
+                controlType: "radio",
+                controlSide: "left",
+              },
+              {
+                label: "Excel",
+                onClick: () => handleDownload("excel"),
+                controlType: "radio",
+                controlSide: "left",
+              },
             ]}
           />
-
         )}
 
         {showButton && !actionsRender && (
-          <Button variant="solid" size="large" hideIcon onClick={onTableActionClick}>
+          <Button
+            variant="solid"
+            size="large"
+            hideIcon
+            onClick={onTableActionClick}
+          >
+            {actionLabel}
+          </Button>
+        )}
+        {!isMobile && showButton && !actionsRender && (
+          <Button
+            variant="solid"
+            size="large"
+            hideIcon
+            onClick={onTableActionClick}
+          >
             {actionLabel}
           </Button>
         )}
       </div>
-
-      {actionsRender?.()}
     </div>
   );
 };

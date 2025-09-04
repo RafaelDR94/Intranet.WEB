@@ -12,13 +12,54 @@ import { labelClasses} from '../Input/styles';
 /**
  * Componente para subir archivos mediante un botón estilizado.
  *
- * @param accept Tipos de archivos aceptados (ej: ".pdf", ".xml", "image/*").
- * @param label Texto que se muestra sobre el botón.
- * @param placeholder Texto dentro del botón cuando no hay archivo.
- * @param onFile Callback que recibe el archivo seleccionado (File o null).
- * @param disabled Si se desactiva el botón de carga.
- * @param className Clases adicionales para personalizar el botón.
- * @param icon Ícono personalizado a mostrar en el botón (SVG React component). Si no se proporciona, usa el ícono por defecto `UploadIcon`.
+ * Renderiza un `<input type="file" />` oculto y un `<Button>` que dispara el selector
+ * del sistema. Muestra el nombre del archivo seleccionado y una leyenda de tipos
+ * permitidos derivada de `accept`.
+ *
+ * @remarks
+ * - **Control de archivo:** el archivo seleccionado se entrega por `onFile(File|null)`.
+ * - **Tipos permitidos:** `accept` puede ser patrones como `.pdf`, `.xml`, `image/*`, etc.
+ * - **Icono:** si no pasas `icon`, se usa `UploadIcon` por defecto.
+ * - **Archivo inicial:** `initialFile` permite mostrar un nombre/estado inicial (p. ej. al editar).
+ *
+ * @accessibility
+ * - El `label` (si se proporciona) sirve como nombre accesible del control.
+ * - Considera añadir un texto de ayuda visible para indicar formatos/tamaños admitidos.
+ * - Si quieres anunciar cambios de archivo a lectores de pantalla, puedes envolver
+ *   el nombre del archivo en un contenedor con `aria-live="polite"`.
+ *
+ * @example Uso básico (solo PDF)
+ * ```tsx
+ * <FileUploader
+ *   label="Currículum"
+ *   placeholder="Selecciona un PDF"
+ *   accept=".pdf"
+ *   onFile={(file) => console.log(file)}
+ * />
+ * ```
+ *
+ * @example Con ícono personalizado
+ * ```tsx
+ * import { Upload as UploadIcon } from 'lucide-react';
+ * <FileUploader
+ *   label="XML CFDI"
+ *   accept=".xml"
+ *   icon={UploadIcon}
+ *   onFile={(file) => manejar archivo }
+ * />
+ * ```
+ *
+ * @example Archivo inicial (modo edición)
+ * ```tsx
+ * <FileUploader
+ *   label="Contrato"
+ *   accept=".pdf"
+ *   initialFile={{ name: 'contrato-2025.pdf', url: '/files/contrato-2025.pdf' }}
+ *   onFile={(file) => reemplazar o mantener }
+ * />
+ * ```
+ *
+ * @fires onFile Se invoca con el archivo seleccionado (`File`) o `null` si se limpia.
  */
 export const FileUploader: React.FC<FileUploaderProps> = ({
   accept,

@@ -1,5 +1,4 @@
-/** Props for Calendar component */
 export interface CalendarProps {
-  /** Callback triggered when a range is applied */
-    onCalendarClick?: (start: Date, end: Date) => void; // <-- sin null
+  /** Se activa la devolución de Callback cuando se aplica un rango */
+  onCalendarClick?: (start: Date, end: Date) => void;
 }

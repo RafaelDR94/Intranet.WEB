@@ -7,7 +7,7 @@ import { Get, Set } from '../types'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-
+import { BillingDocumentMap } from '@/app/mappings/billingdocuments/billingdocuments.mapper'
 /**
  * Obtiene un documento de factura por ID.
  *
@@ -32,7 +32,7 @@ export const fetchBillingDocumentById = async (
     const getFn = requireGateway('get')
     const getReq = pGet(getFn)
     const res: AxiosResponse = await getReq(`${BillingDocumentById}/${id}`)
-    const data: BillingDocuments | undefined = res.data?.data
+    const data: BillingDocuments | undefined = BillingDocumentMap(res.data?.data);
     if (!data) {
       set({ billingDocument: undefined, loading: false, warning: 'Documento no encontrado' })
       return null

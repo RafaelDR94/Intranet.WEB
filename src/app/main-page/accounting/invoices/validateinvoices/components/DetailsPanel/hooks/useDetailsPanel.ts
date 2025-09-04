@@ -1,20 +1,21 @@
 
 import { useEffect, useMemo, useState } from "react";
-import { formatCurrency, computeBreakdown } from "@/app/utilities/FormatHelpers/FormatHelpets";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { shallow } from "zustand/shallow";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { UseDetailsPanelArgs } from "./types";
 
-export const useDetailsPanel = ({ selected, rejectType, setPanelOpen }: UseDetailsPanelArgs) => {
+import { BillingDocumentsPutMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
+export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations, reqisition }: UseDetailsPanelArgs) => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
 
-  const { validateBillingDocument, rejectBillingDocument, rejecting, validating, succesReject, succesValidate, updateBillingDocument, updating, successPut, resetFlags, error } = useBillingDocumentsStore(
+  const { validateBillingDocument, validateBillingDocumentOperations, rejectBillingDocument, rejecting, validating, succesReject, succesValidate, updateBillingDocument, updating, successPut, resetFlags, error } = useBillingDocumentsStore(
     (s) => ({
       updateBillingDocument: s.updateBillingDocument,
       validateBillingDocument: s.validateBillingDocument,
+      validateBillingDocumentOperations: s.validateBillingDocumentOperations,
       rejectBillingDocument: s.rejectBillingDocument,
       updating: s.updating,
       successPut: s.successPut,
@@ -31,14 +32,7 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen }: UseDetai
   const [openRejectInvoice, setOpenRejectInvoice] = useState(false);
   const [openValidInvoice, setOpenValidInvoice] = useState(false);
 
-  const money = useMemo(() => {
-    const { subtotal, iva, total } = computeBreakdown(selected?.importe, 0.16);
-    return {
-      subtotal: formatCurrency(subtotal),
-      iva: formatCurrency(iva),
-      total: formatCurrency(total),
-    };
-  }, [selected?.importe]);
+
 
   const labels = useMemo(
     () => ({
@@ -49,15 +43,24 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen }: UseDetai
   );
 
   const handleSubmitComment = (values: Record<string, any>) => {
-    const payload = {
+    console.log("Selected",selected);
+    const payload = BillingDocumentsPutMap({
       billingdocument_id: selected?.billingdocument_id ?? "",
       requisition_id: selected?.requisition?.billingrequisition_id ?? "",
       billingimages_id: selected?.billingimages_id || null,
       xml: selected?.xml ?? "",
       pdf: selected?.pdf ?? "",
       comments: values.comments ?? "",
-    };
-    updateBillingDocument(payload);
+      description_id: selected?.description?.id_billingdescription || "",
+      category_id: selected?.category?.id_billingcategory,
+      numpersons: selected?.numpersons || "",
+      numnights: selected?.numnights || "",
+      bllingAcuses_id: selected?.billingAcuse?.id,
+      user_comments: selected?.user_comments,
+      forbidden_code: selected?.forbidden_code,
+      sat_validation: selected?.sat_validation,
+    });
+    updateBillingDocument(payload, reqisition);
   };
 
   const handleSubmitReject = (values: Record<string, any>) => {
@@ -67,12 +70,15 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen }: UseDetai
       comment: values.comments ?? "",
       type: rejectType
     };
-    rejectBillingDocument(payload)
+    if (operations) rejectBillingDocument(payload,reqisition)
+    else rejectBillingDocument(payload)
+
   };
 
   const handleSubmitValid = () => {
     setOpenValidInvoice(false);
-    validateBillingDocument([selected?.billingdocument_id ?? ""])
+    if (operations) validateBillingDocumentOperations([selected?.billingdocument_id ?? ""], reqisition)
+    else validateBillingDocument([selected?.billingdocument_id ?? ""])
   };
 
   useEffect(() => {
@@ -139,7 +145,7 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen }: UseDetai
 
   return {
     labels,
-    money,
+
     openRejectInvoice,
     openValidInvoice,
     setOpenRejectInvoice,

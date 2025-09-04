@@ -14,6 +14,14 @@ vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
 }));
 
+vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
+  usePrincipal: () => ({
+    usePrincipalAlert: {
+      showAlert: vi.fn(),
+    },
+  }),
+}));
+
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   useAuth: () => ({
     validPermissionsbyroute: validPermissionsMock,

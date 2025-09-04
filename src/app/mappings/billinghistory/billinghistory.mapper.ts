@@ -1,6 +1,6 @@
 import { HistoryRow } from './billinghistory.types'
 import { ProyectMap } from '../proyects/proyects.mapper'
-
+import { BillingDocumentCategoryMap, BillingDocumentDescriptionMap } from '../billingdocuments/billingdocuments.mapper'
 /**
  * HistoryRowMap
  * Mapea un registro crudo de historial de facturación a un objeto tipado.
@@ -19,6 +19,10 @@ export const HistoryRowMap = (raw: any): HistoryRow => ({
   dateCreate: String(raw?.dateCreate ?? ''),
   certificationDate: String(raw?.certificationDate ?? ''),
   uuid: String(raw?.uuid ?? ''),
+  category: BillingDocumentCategoryMap(raw.category),
+  description: BillingDocumentDescriptionMap(raw.description),
+  numnights: raw?.numnights,
+  numpersons: raw?.numpersons,
 })
 
 /**

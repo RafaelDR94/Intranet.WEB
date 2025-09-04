@@ -19,6 +19,7 @@ export default defineConfig(async () => {
     test: {
       globals: true,
       environment: 'jsdom',
+      css: false,
       setupFiles: ['./vitest.setup.tsx'],
       include: ['src/**/*.test.{ts,tsx}'],
       coverage: {

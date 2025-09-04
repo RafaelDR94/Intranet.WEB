@@ -5,13 +5,7 @@ const meta: Meta<typeof Label> = {
   title: 'Components/Label',
   component: Label,
   tags: ['autodocs'],
-  parameters: {
-    docs: {
-      description: {
-        component: 'Etiqueta para formularios con estilos estandarizados.',
-      },
-    },
-  },
+  
 }
 export default meta
 
