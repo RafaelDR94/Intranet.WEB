@@ -1,7 +1,7 @@
 import React from "react";
 import CustomRadio from "../CustomRadio/CustomRadio";
 import { Checkbox } from "../CheckBox/CheckBox";
-import { ToggleButton } from "../ToogleButton.tsx/ToogleButton";
+import { ToggleButton } from "../ToogleButton/ToogleButton";
 import { Button } from "../Button/Button";
 import { Control } from "../Control/Control";
 import PersonalAvatar from "../PersonalAvatar/PersonalAvatar";

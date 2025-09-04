@@ -1,6 +1,7 @@
-import { ReactNode, useMemo } from 'react';
-import { AuthContext } from '@/app/context/AuthContext/AuthContext';
-import { AuthContextType,User } from '@/app/context/AuthContext/types';
+import { ReactNode } from 'react';
+import { AuthProvider } from '@/app/context/AuthContext/AuthContext';
+import { useAuthStore } from '@/app/stores/useAuthStore/useAuthStore';
+import type { User } from '@/app/context/AuthContext/types';
 
 export const MockAuthProvider = ({ children }: { children: ReactNode }) => {
   const mockUser: User = {
@@ -11,11 +12,11 @@ export const MockAuthProvider = ({ children }: { children: ReactNode }) => {
     idEmployee: 'emp-001',
     idUser: 'user-001',
     idRol: 'role-001',
-    lifeToken: '3600',
+    lifeToken: new Date(Date.now() + 3600 * 1000).toISOString(),
     rolName: 'Admin',
     token: 'mock-token',
     imageProfile: 'img.png',
-    treeFirebase: '{}',
+    treeFirebase: '{"main-page":{"home":{"Acces":true}}}',
     nip: '0000',
     activeNIP: true,
     idWorkPosition: 'pos-001',
@@ -26,31 +27,14 @@ export const MockAuthProvider = ({ children }: { children: ReactNode }) => {
     signature: '',
   };
 
-  const value: AuthContextType = useMemo(() => ({
+  useAuthStore.setState({
     user: mockUser,
     userRemebered: mockUser,
     token: 'mock-token',
     hasExpired: false,
     remeberMe: false,
     offlineMode: false,
-    login: async () => {},
-    logout: async () => {},
-    verifyOTP: async () => {},
-    askforOTPemail: async () => {},
-    validLoggin: async () => true,
-    validPermissionsbyroute: () => true,
-    UpdateUser: async () => {},
-    setHasExpired: () => {},
-    handleRemeberMe: () => {},
-    handleForgetUser: async () => {},
-    handleOfflineMode: () => {},
-    getRoutePermissions: () => [],
-    updateUserPermissions: async () => {},
-  }), []);
+  });
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthProvider>{children}</AuthProvider>;
 };

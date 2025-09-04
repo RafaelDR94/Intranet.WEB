@@ -30,6 +30,7 @@ export interface User {
   idDepartment: string;
   password: string;
   signature: string;
+  email: string;
 }
 
 /**

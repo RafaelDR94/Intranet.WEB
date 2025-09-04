@@ -1,7 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { useAuthStore } from './useAuthStore'
 
 describe('useAuthStore', () => {
+  beforeEach(() => {
+    useAuthStore.getState().reset()
+  })
+
   it('resetea los flags', () => {
     const store = useAuthStore
     store.setState({ loading: true, successLogin: true })

@@ -16,7 +16,7 @@ import HelpIcon from '@/assets/icons/acciones/help-circle.svg';
 import LogoutIcon from '@/assets/icons/acciones/open-in-window.svg';
 
 import PersonalAvatar from '@/app/components/PersonalAvatar/PersonalAvatar';
-import { ToggleButton } from '@/app/components/ToogleButton.tsx/ToogleButton';
+import { ToggleButton } from '@/app/components/ToogleButton/ToogleButton';
 
 
 type RouteItem = {

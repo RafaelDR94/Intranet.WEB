@@ -50,17 +50,17 @@ const Announcements = () => {
                             BIENVENIDO A LA INTRANET
                         </h1>
 
-                        <p className="mt-6 max-w-[860px] font-sans text-s1 font-semibold text-gray-70">
+                        <p className="mt-6 max-w-[860px] font-sans text-s1 font-semibold text-blue-50">
                             Un nuevo espacio donde podrás acceder a información, herramientas y recursos clave.
                         </p>
 
-                        <p className="mt-4 font-sans text-b2 font-medium text-gray-70">
+                        <p className="mt-4 font-sans text-b2 font-medium text-blue-50">
                             Este es tu espacio ¡Disfrútalo!
                         </p>
                     </div>
 
                     {/* Leyenda: sin margins que empujen, se mantiene visible */}
-                    <p className="self-start ps-6 max-w-[1020px] font-sans text-c1 text-gray-70">
+                    <p className="self-start ps-6 max-w-[1020px] font-sans text-c1 text-blue-50">
                         *Seguimos trabajando constantemente para mejorar y ampliar las funcionalidades, con el objetivo de que cada vez sea más útil y práctica para todos.
                     </p>
                 </div>

@@ -1,33 +1,50 @@
-'use client'
+"use client";
 import React, { createContext, useState, ReactNode, useEffect } from "react";
-import { initializeApp, FirebaseApp } from 'firebase/app';
+import { initializeApp, FirebaseApp } from "firebase/app";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 import { Messaging, getMessaging } from "firebase/messaging";
 import { getDatabase, Database } from "firebase/database";
-import { getAuth, signInWithEmailAndPassword, Auth, onAuthStateChanged, User } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  Auth,
+  onAuthStateChanged,
+  User,
+} from "firebase/auth";
 import { AuthFirebaseConfiguration } from "@/app/configurations/Axios/urls";
 import { useAuth } from "../AuthContext/AuthContext";
-import useFirebaseStorageHelper, { FirebaseStorageHelper } from "./hooks/useFirebaseStorageHelper";
-import useFirebaseRealtimeHelper, { FirebaseRealtimeHelper } from "./hooks/useFirebaseRealTimeHelpet";
-import useFirebaseMessagingHelper, { FirebaseMessagingHelper } from "./hooks/useFirebaseMessaginHelper";
+import useFirebaseStorageHelper, {
+  FirebaseStorageHelper,
+} from "./hooks/useFirebaseStorageHelper";
+import useFirebaseRealtimeHelper, {
+  FirebaseRealtimeHelper,
+} from "./hooks/useFirebaseRealTimeHelpet";
+import useFirebaseMessagingHelper, {
+  FirebaseMessagingHelper,
+} from "./hooks/useFirebaseMessaginHelper";
 import { usePermissionsListener } from "./hooks/usePermissionsListener";
 import useAxios from "../../hooks/useIntranetCRUD/useIntranetCRUD";
 import Uselogs from "./hooks/uselogs";
-import { getDeviceId, saveFirebaseToken, readFirebaseToken } from "../AuthContext/utilities/AuthService";
-
+import {
+  getDeviceId,
+  saveFirebaseToken,
+  readFirebaseToken,
+} from "../AuthContext/utilities/AuthService";
 
 export interface UseFirebasereturn {
-  firebasestorage: FirebaseStorageHelper,
+  firebasestorage: FirebaseStorageHelper;
   firebaserealtime: FirebaseRealtimeHelper;
   firebaseMessaging: FirebaseMessagingHelper;
-  permissionsChanged: { state: boolean; newPermissions: string; }
-  firebaseLogginFail: boolean
+  permissionsChanged: { state: boolean; newPermissions: string };
+  firebaseLogginFail: boolean;
 }
+import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
-export const FirebaseContext = createContext<UseFirebasereturn | undefined>(undefined);
+export const FirebaseContext = createContext<UseFirebasereturn | undefined>(
+  undefined
+);
 
 export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
-
   const [app, setApp] = useState<FirebaseApp | null>(null);
   const [auth, setAuth] = useState<Auth | null>(null);
   const [storage, setStorage] = useState<FirebaseStorage | null>(null);
@@ -38,65 +55,73 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   const firebasestorage = useFirebaseStorageHelper(storage);
   const firebaserealtime = useFirebaseRealtimeHelper(database);
   const firebaseMessaging = useFirebaseMessagingHelper(messaging);
-  const { user, setHasExpired, offlineMode, updateUserPermissions } = useAuth();
+  const { user, setHasExpired, offlineMode } = useAuth();
 
   const { IntranetGet } = useAxios();
-  const permissionsChanged = usePermissionsListener(database, user?.idUser || "");
+  const permissionsChanged = usePermissionsListener(
+    database,
+    user?.idUser || ""
+  );
+   const state = useAuthStore()
   useEffect(() => {
     if (permissionsChanged.state) {
-      updateUserPermissions(permissionsChanged.newPermissions);
+      state.updateUserPermissions(permissionsChanged.newPermissions);
     }
   }, [permissionsChanged]);
 
   useEffect(() => {
-    if (!auth || !user?.idUser || !firebaserealtime || !firebaseMessaging) return;
+    if (!auth || !user?.idUser || !firebaserealtime || !firebaseMessaging)
+      return;
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: User | null) => {
-      const deviceId = await getDeviceId();
-      if (firebaseUser) {
-  
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (firebaseUser: User | null) => {
+        const deviceId = await getDeviceId();
+        if (firebaseUser) {
+          try {
+            const existingToken = await readFirebaseToken();
 
-        try {
-          const existingToken = await readFirebaseToken();
-
-          if (!existingToken) {
-
-            if (Notification.permission !== "granted") {
-       
-              const permission = await Notification.requestPermission();
-              if (permission !== "granted") {
-                console.warn("Permiso de notificaciones denegado");
+            if (!existingToken) {
+              if (Notification.permission !== "granted") {
+                const permission = await Notification.requestPermission();
+                if (permission !== "granted") {
+                  console.warn("Permiso de notificaciones denegado");
+                } else {
+                  const token = await firebaseMessaging.getMessagingToken();
+                  saveFirebaseToken(token);
+                  await firebaserealtime.setData(
+                    `Notifications/${user.idUser}/` + deviceId,
+                    token
+                  );
+                }
               } else {
                 const token = await firebaseMessaging.getMessagingToken();
                 saveFirebaseToken(token);
-                await firebaserealtime.setData(`Notifications/${user.idUser}/` + deviceId, token);
-             
+                await firebaserealtime.setData(
+                  `Notifications/${user.idUser}/` + deviceId,
+                  token
+                );
               }
-            } else {
-              const token = await firebaseMessaging.getMessagingToken();
-              saveFirebaseToken(token);
-              await firebaserealtime.setData(`Notifications/${user.idUser}/` + deviceId, token);
-
             }
+          } catch (err) {
+            console.error("❌ Error manejando el token de notificación:", err);
           }
-        } catch (err) {
-          console.error("❌ Error manejando el token de notificación:", err);
         }
       }
-    });
+    );
 
     return () => unsubscribe(); // cleanup
   }, [auth, user?.idUser, firebaserealtime, firebaseMessaging]);
 
-  Uselogs({ firebaserealtime, database, user, setHasExpired, offlineMode })
+  Uselogs({ firebaserealtime, database, user, setHasExpired, offlineMode });
 
-
-
-  const authenticateWithEmailAndPassword = async (email: string, password: string) => {
+  const authenticateWithEmailAndPassword = async (
+    email: string,
+    password: string
+  ) => {
     if (auth) {
       try {
         await signInWithEmailAndPassword(auth, email, password);
-
       } catch (error) {
         setFirebaseLogginFail(true);
         console.error("Error al autenticar con email y contraseña:", error);
@@ -105,10 +130,8 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-
   const GetFirebaseConfigurations = async (attempt = 1) => {
     if (user?.token && !firebaseConfiguration && !offlineMode) {
-
       const onFirebaseConfigResponse = (response: any) => {
         if (response instanceof Error) {
           console.error("Error fetching firebase config:", response);
@@ -131,21 +154,20 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         setTimeout(() => {
           GetFirebaseConfigurations(attempt + 1);
         }, 1000);
-
-      }
-      IntranetGet(AuthFirebaseConfiguration, onFirebaseConfigResponse)
+      };
+      IntranetGet(AuthFirebaseConfiguration, onFirebaseConfigResponse);
     }
-  }
+  };
 
   useEffect(() => {
-    setTimeout(GetFirebaseConfigurations, 1000)
+    setTimeout(GetFirebaseConfigurations, 1000);
   }, [user?.token, firebaseConfiguration, offlineMode]);
 
   useEffect(() => {
     if (firebaseConfiguration) {
       setApp(initializeApp(firebaseConfiguration.firebaseConfig));
     }
-  }, [firebaseConfiguration])
+  }, [firebaseConfiguration]);
 
   useEffect(() => {
     if (app) {
@@ -153,19 +175,17 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
       setStorage(getStorage(app));
       setDatabase(getDatabase(app));
       setMessaging(getMessaging(app));
-
     }
-  }, [app])
+  }, [app]);
 
   useEffect(() => {
     if (auth && user?.userName) {
       // authenticateWithEmailAndPassword(user?.userName, atob(firebaseConfiguration.paswordFirebase));
       authenticateWithEmailAndPassword(user?.userName, "Dr123qwe");
     }
-  }, [auth, user])
+  }, [auth, user]);
 
   return (
-
     <FirebaseContext.Provider
       value={{
         firebaseLogginFail,
@@ -178,14 +198,14 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </FirebaseContext.Provider>
   );
-
-
 };
 
 export const useFirebase = () => {
   const context = React.useContext(FirebaseContext);
   if (context === undefined) {
-    throw new Error("ConfigurationsProvider must be used within an AuthProvider");
+    throw new Error(
+      "ConfigurationsProvider must be used within an AuthProvider"
+    );
   }
   return context;
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import { FieldRendererProps } from './types';
 import { Input } from '../../Input/Input';
 import { Select } from '../../Select/Select';
-import { ToggleButton } from '../../ToogleButton.tsx/ToogleButton';
+import { ToggleButton } from '../../ToogleButton/ToogleButton';
 import { Checkbox } from '../../CheckBox/CheckBox';
 import { FileUploader } from '../../FileUploader/FileUploader';
 import { NumberControl } from '../../NumberControl/NumberControl';
