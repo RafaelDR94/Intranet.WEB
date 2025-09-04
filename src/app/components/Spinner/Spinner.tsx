@@ -3,13 +3,34 @@ import clsx from 'clsx';
 import { SpinnerSize } from './types';
 import { sizeClasses} from './styles';
 /**
- * Componente visual de Spinner (cargador animado).
- * 
- * Muestra un círculo animado que gira, útil para representar estados de carga.
- * Admite 5 tamaños distintos según el diseño.
- * 
- * @param size - Tamaño del spinner. Opciones: 'giant', 'large', 'medium', 'small', 'tiny'.
- * @returns JSX.Element
+ * Componente visual de **Spinner** (cargador animado).
+ *
+ * Muestra un círculo que gira para indicar un estado de carga. Admite cinco tamaños
+ * y puede comportarse como **decorativo** o anunciar progreso a lectores de pantalla.
+ *
+ * @remarks
+ * - Por defecto es **no decorativo** y expone `role="status"` + `aria-label="Cargando"`.
+ * - Si lo usas dentro de otro contenedor que ya anuncia estado (p. ej. un overlay con
+ *   `role="status"`), marca el spinner como `decorative` para evitar ruido accesible.
+ *
+ * @accessibility
+ * - Usa `ariaLabel` para describir la acción (“Cargando datos”, “Guardando cambios”…).
+ * - Si `decorative` es `true`, el componente incluye `aria-hidden` y omite el `role`.
+ *
+ * @example
+ * ```tsx
+ * // Spinner autónomo (anuncia "Cargando")
+ * <Spinner size="medium" />
+ *
+ * // Spinner decorativo (el contenedor ya tiene role="status")
+ * <div role="status" aria-live="polite">
+ *   <Spinner size="small" decorative />
+ *   Cargando reportes…
+ * </div>
+ *
+ * // Con ariaLabel personalizado
+ * <Spinner size="large" ariaLabel="Procesando pago" />
+ * ```
  */
 export const Spinner = ({ size = 'medium' }: { size?: SpinnerSize }) => {
   return (

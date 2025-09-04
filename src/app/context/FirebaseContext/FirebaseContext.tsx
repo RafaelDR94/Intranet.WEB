@@ -30,14 +30,7 @@ import {
   saveFirebaseToken,
   readFirebaseToken,
 } from "../AuthContext/utilities/AuthService";
-
-export interface UseFirebasereturn {
-  firebasestorage: FirebaseStorageHelper;
-  firebaserealtime: FirebaseRealtimeHelper;
-  firebaseMessaging: FirebaseMessagingHelper;
-  permissionsChanged: { state: boolean; newPermissions: string };
-  firebaseLogginFail: boolean;
-}
+import { UseFirebasereturn } from "./types";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
 export const FirebaseContext = createContext<UseFirebasereturn | undefined>(

@@ -2,13 +2,26 @@ import React, { useRef } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { DynamicForm } from './DynamicForm';
 import { FieldModel } from './types';
+import { fn } from '@storybook/test'
 
 const meta: Meta<typeof DynamicForm> = {
   title: 'Components/DynamicForm/Full Showcase',
   component: DynamicForm,
   tags: ['autodocs'],
-};
-export default meta;
+
+  // 👇 Evita la acción implícita: ahora es un espía explícito
+  args: {
+    onValidChange: fn(),
+    // opcional: valores por omisión para no repetir en cada story
+    // onSubmit: fn(),
+    // onSecondaryButtonClick: fn(),
+  },
+
+  // (opcional) si tienes un argTypesRegex global que marca TODO lo que empiece con "on"
+  // y quisieras desactivar auto-actions SOLO aquí:
+  // parameters: { actions: { argTypesRegex: undefined } },
+}
+export default meta
 
 type Story = StoryObj<typeof DynamicForm>;
 

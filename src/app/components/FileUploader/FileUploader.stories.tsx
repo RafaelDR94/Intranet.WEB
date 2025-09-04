@@ -10,6 +10,7 @@ export default {
   argTypes: {
     onFile: { action: 'fileSelected' },
   },
+  tags: ['autodocs'],
 } as Meta<FileUploaderProps>;
 
 type Story = StoryObj<FileUploaderProps>;

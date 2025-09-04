@@ -16,18 +16,54 @@ import EyeOffIcon from '@/assets/icons/acciones/eye-close.svg'
 import useInput from './hooks/useInput'
 
 /**
- * Campo de texto controlado con soporte para variantes y tamaños.
+ * Campo de texto **controlado** con soporte de variantes visuales, tamaños y modo multilinea.
  *
- * @param label Etiqueta del campo
- * @param helperText Texto auxiliar bajo el campo
- * @param inputSize Tamaño visual (`md` o `lg` o `sm`)
- * @param variant Variante de estilo
- * @param disabled Deshabilitar el input
- * @param className Clases CSS adicionales
- * @param icon Icono para renderizar dentro del input
- * @param onIconClick Accion tras presionar el icono enviado
+ * @remarks
+ * - Soporta dos modos mediante `as`: `<input>` (por defecto) o `<textarea>`.
+ * - Para `type="password"` muestra un **toggle de visibilidad** (ojo) integrado.
+ * - El ícono recibido por `icon` se renderiza al extremo derecho (accionable con `onIconClick`).
+ * - El estado deshabilitado se respeta tanto por `variant="disabled"` como por `disabled={true}`.
+ *
+ * @accessibility
+ * - Si proporcionas `label`, se renderiza encima del control. Para asociarlo de forma
+ *   explícita con el input, añade un `id` al control y `htmlFor` en el label (o envuelve
+ *   el input con `<label>`).
+ * - El helper text se anuncia como texto auxiliar; si es crítico, considera `aria-describedby`.
+ * - Los botones de ícono usan `tabIndex={-1}` (no enfocables). Si necesitas control por
+ *   teclado, quita ese `tabIndex` y añade `aria-label`.
+ *
+ * @example Input simple
+ * ```tsx
+ * <Input
+ *   label="Nombre"
+ *   placeholder="Tu nombre"
+ *   value={name}
+ *   onChange={(e) => setName(e.target.value)}
+ * />
+ * ```
+ *
+ * @example Contraseña con toggle
+ * ```tsx
+ * <Input
+ *   label="Contraseña"
+ *   type="password"
+ *   helperText="Mínimo 8 caracteres"
+ *   value={pwd}
+ *   onChange={(e) => setPwd(e.target.value)}
+ * />
+ * ```
+ *
+ * @example Multilínea
+ * ```tsx
+ * <Input
+ *   as="textarea"
+ *   label="Descripción"
+ *   rows={6}
+ *   value={bio}
+ *   onChange={(e) => setBio(e.target.value)}
+ * />
+ * ```
  */
-
 export const Input: React.FC<InputProps> = ({
   label,
   helperText,

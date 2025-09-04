@@ -4,12 +4,30 @@ import { progressBarStyles } from './styles';
 import { ProgressBarProps } from './types';
 
 /**
- * Componente de barra de progreso visual.
+ * Barra de **progreso** visual (0–100).
  *
- * @param {number} value - Valor numérico del progreso (de 0 a 100).
- * @param {string} [label] - Texto opcional a mostrar como etiqueta (por defecto, el porcentaje).
- * @param {boolean} [showPercentage=true] - Si se debe mostrar o no la etiqueta de porcentaje.
- * @returns {JSX.Element} Elemento visual de barra de progreso.
+ * Muestra un contenedor con el “track” completo y una franja rellena según `value`.
+ * Opcionalmente, renderiza una etiqueta con el porcentaje o un texto personalizado.
+ *
+ * @remarks
+ * - El componente **no almacena estado**; pinta según la prop `value`.
+ * - Se **clampa** internamente `value` a `[0, 100]` para evitar overflow visual.
+ * - Si `showPercentage` es `true`, muestra `label ?? \`\${value}%\``.
+ *
+ * @accessibility
+ * - Usa `role="progressbar"` y expone `aria-valuemin`, `aria-valuemax` y `aria-valuenow`.
+ * - Si no pasas `label`, se usará “Progreso” como nombre accesible.
+ * - Si quieres un texto más rico para lectores de pantalla, pasa `label` (se usa como `aria-valuetext`).
+ *
+ * @example
+ * ```tsx
+ * <ProgressBar value={42} />
+ * ```
+ *
+ * @example Con etiqueta personalizada
+ * ```tsx
+ * <ProgressBar value={75} label="Subiendo archivo…" showPercentage />
+ * ```
  */
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   value,

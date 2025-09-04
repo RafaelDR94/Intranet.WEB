@@ -10,16 +10,41 @@ import {
 import * as styles from './styles'
 
 /**
- * Botón tipo interruptor para alternar un valor booleano.
+ * Botón tipo **interruptor** para alternar un valor booleano.
  *
- * @param checked Valor actual del toggle
- * @param onChange Callback al cambiar
- * @param disabled Deshabilitar interacción
- * @param label Texto de etiqueta opcional
- * @param labelPosition Posición de la etiqueta (`left` o `right`)
- * @param labelColor Color de la etiqueta de la etiqueta (`token de tailwind`)
+ * Renderiza un control con “track + thumb” y una etiqueta opcional a izquierda/derecha.
+ * Es un componente **controlado**: el estado visible depende de `checked`, y los cambios
+ * se notifican a través de `onChange(checked)`.
+ *
+ * @remarks
+ * - Usa un `<input type="checkbox" className="sr-only">` para mantener accesibilidad nativa.
+ * - El color/estilo del “track” se calcula según `checked` y `disabled`.
+ * - `labelColor` acepta una clase utilitaria (p. ej. tokens Tailwind).
+ *
+ * @accessibility
+ * - El input expone `role="switch"` y `aria-checked`.
+ * - Como el `<input>` está envuelto en `<label>`, la relación etiqueta-control es implícita.
+ *   Si no pasas `label`, considera envolver el componente con un `aria-label` contextual.
+ *
+ * @example
+ * ```tsx
+ * <ToggleButton
+ *   checked={enabled}
+ *   onChange={setEnabled}
+ *   label="Notificaciones"
+ * />
+ * ```
+ *
+ * @example Etiqueta a la izquierda
+ * ```tsx
+ * <ToggleButton
+ *   checked={darkMode}
+ *   onChange={setDarkMode}
+ *   label="Modo oscuro"
+ *   labelPosition="left"
+ * />
+ * ```
  */
-
 export const ToggleButton: React.FC<ToggleButtonProps> = ({
   checked,
   onChange,

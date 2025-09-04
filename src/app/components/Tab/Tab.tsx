@@ -5,15 +5,27 @@ import FastArrowRightIcon from '@/assets/icons/navegacion/fast-arrow-right.svg';
 import { TabProps } from './types';
 
 /**
- * Componente de pestaña (`Tab`) reutilizable.
+ * Pestaña (`Tab`) reutilizable para interfaces por categorías o secciones.
  *
- * Se utiliza para representar una pestaña en interfaces de navegación o selección por categorías.
- * Cambia de estilo según su estado: seleccionado, deshabilitado o interactivo.
+ * Cambia de estilo según su estado: **seleccionada**, **deshabilitada** o **interactiva**.
+ * No gestiona estado interno; es un componente **controlado** por el padre.
  *
- * @param label Texto visible de la pestaña.
- * @param selected Indica si la pestaña está actualmente seleccionada.
- * @param disabled Desactiva la pestaña si es `true`, impidiendo interacción.
- * @param onClick Función que se ejecuta al hacer clic sobre la pestaña.
+ * @remarks
+ * - Úsalo dentro de un contenedor con `role="tablist"` (p. ej. `Tabs`).
+ * - Dispara `onClick` cuando se selecciona; el padre debe actualizar `selected`.
+ *
+ * @accessibility
+ * - Expone `role="tab"` y `aria-selected` para lectores de pantalla.
+ * - Usa `disabled` para marcar pestañas no disponibles (`aria-disabled`).
+ *
+ * @example
+ * ```tsx
+ * <div role="tablist" aria-label="Secciones">
+ *   <Tab label="General"  selected onClick={() => setTab('general')} />
+ *   <Tab label="Detalles" disabled onClick={() => setTab('detalles')} />
+ *   <Tab label="Historial" onClick={() => setTab('historial')} />
+ * </div>
+ * ```
  */
 export const Tab: React.FC<TabProps> = ({
   label,

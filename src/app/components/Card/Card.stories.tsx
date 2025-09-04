@@ -5,13 +5,7 @@ const meta: Meta<typeof Card> = {
   title: 'Components/Card',
   component: Card,
   tags: ['autodocs'],
-  parameters: {
-    docs: {
-      description: {
-        component: 'Tarjeta que muestra imagen, título y acciones primarias.',
-      },
-    },
-  },
+
 }
 export default meta
 

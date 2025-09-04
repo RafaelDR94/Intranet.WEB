@@ -8,10 +8,47 @@ import { numberControlStyles as s } from './styles';
 import { NumberControlProps } from './types';
 import { useNumberControl } from './hooks/useNumberControl';
 /**
- * Componente de entrada numérica con botones para incrementar y decrementar.
+ * Campo numérico con **botones de incremento/decremento** y entrada de texto.
  *
- * Puede funcionar como controlado o no controlado y opcionalmente restringe
- * el valor dentro de un rango definido por `min` y `max`.
+ * Puede funcionar en modo **controlado** (`value` + `onChange`) o **no controlado**
+ * (`defaultValue`). Opcionalmente, restringe el valor dentro de `[min, max]` y
+ * aplica normalización al perder foco vía `clampOnBlur`.
+ *
+ * @remarks
+ * - El hook `useNumberControl` coordina la edición en texto, los límites
+ *   (`min`/`max`), el paso (`step`) y el estado de los botones.
+ * - En modo controlado, el valor visible depende del padre: recuerda actualizar
+ *   el estado en `onChange`.
+ * - En modo no controlado, `defaultValue` es el punto de partida interno.
+ * - Los botones no llaman handlers cuando están deshabilitados (defensa adicional).
+ *
+ * @accessibility
+ * - El input usa `inputMode="numeric"` para facilitar teclados numéricos en móvil.
+ * - Personaliza `inputAriaLabel` si el contexto requiere más detalle.
+ * - Los botones de `Control` deben tener `aria-label` adecuados (el componente ya
+ *   gestiona su accesibilidad; aquí solo se pasan handlers).
+ *
+ * @example No controlado (simple)
+ * ```tsx
+ * <NumberControl defaultValue={1} min={0} max={10} />
+ * ```
+ *
+ * @example Controlado
+ * ```tsx
+ * const [qty, setQty] = useState(2);
+ * <NumberControl value={qty} onChange={setQty} min={1} step={0.5} />
+ * ```
+ *
+ * @example Con helper y variante
+ * ```tsx
+ * <NumberControl
+ *   defaultValue={0}
+ *   min={0}
+ *   max={100}
+ *   variant="warning"
+ *   helperText="Ingresa un valor entre 0 y 100"
+ * />
+ * ```
  */
 export const NumberControl: React.FC<NumberControlProps> = ({
   value,
