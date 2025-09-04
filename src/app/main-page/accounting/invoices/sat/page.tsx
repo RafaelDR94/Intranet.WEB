@@ -13,6 +13,7 @@ import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billin
 import { BillingDocumentsSatTableMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+
 const SAT = () => {
   const {
     handleOpenDetails,
@@ -127,12 +128,14 @@ const SAT = () => {
         ]}
         enableInternalSearch
         actionsRender={() => (
-          <div className="ml-7">
-            {currentPagePermissions?.canSendToSap && <Button
+          <div className={isMobile ? 'ml-0, w-full' : 'ml-7'}>
+            {currentPagePermissions?.canSendToSap && 
+            <Button
               disabled={multiSelected?.length == 0}
               onClick={handleSendToSap}
               size="large"
               hideIcon
+              className="w-full"
             >
               Enviar a SAP
             </Button>}

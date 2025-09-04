@@ -367,3 +367,8 @@ Feature:
 
 - Added tests and Storybook stories for personal invoices forms, hooks and side menu. (Agente IA) [#]()
 
+### 1.46.0 Responsive design added 2025-09-04
+
+Feature:
+- To display information seamlessly on mobile devices. 
+(Katherine Negrete A) [#100](https://github.com/DR-Mexico/dr.intranet.web/pull/100)

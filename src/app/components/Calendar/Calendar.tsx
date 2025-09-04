@@ -145,7 +145,7 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
 
             <div className={calendarStyles.subCalendarWrapper}>
               <div className={calendarStyles.wrapper}>
-                <div className={calendarStyles.inputWrapper}>
+                <div className={calendarStyles.inputWrapperMobile}>
                   <label className={calendarStyles.inputLabel}>Desde</label>
                   <input
                     type="text"
@@ -154,7 +154,7 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
                     readOnly
                   />
                 </div>
-                <div className={calendarStyles.inputWrapper}>
+                <div className={calendarStyles.inputWrapperMobile}>
                   <label className={calendarStyles.inputLabel}>Hasta</label>
                   <input
                     type="text"
@@ -163,9 +163,9 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
                     readOnly
                   />
                 </div>
-                <div className={calendarStyles.buttonWrapper}>
+                <div className={calendarStyles.buttonWrapperMobile}>
                   <button
-                    className={calendarStyles.button}
+                    className={calendarStyles.buttonMobile}
                     onClick={handleGo}
                     disabled={!canGo}
                   >

@@ -129,6 +129,10 @@ export const DataTable = <T extends { id: string | number }>({
               onPageChange={onPageChange}
               onSelectedChange={(rows) => handleSelectedChange(index, rows)}
               scrollMaxHeight={table.scrollMaxHeight}
+              showButton={showButton}
+              actionsRender={actionsRender}
+              onTableActionClick={onTableActionClick}
+              actionLabel={actionLabel}
             />
           </CollapsibleSection>
         )

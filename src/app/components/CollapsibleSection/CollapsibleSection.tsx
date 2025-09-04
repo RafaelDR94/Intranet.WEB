@@ -52,7 +52,7 @@ export const CollapsibleSection = ({
       <div className={styles.header}>
         <button
           type="button"
-          className={styles.toggleButton}
+          className={isMobile ? styles.toogleButtonMobile : styles.toggleButton}
           aria-expanded={isOpen}
           onClick={() => {
             if (enableCollapse) setIsOpen(!isOpen);
