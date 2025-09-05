@@ -30,7 +30,7 @@ const sidebarRoutes = [
     path: '/main-page/accounting',
     icon: ServerIcon,
     subroutes: [
-      { label: 'Facturación', path: '/main-page/accounting' },
+      { label: 'Facturación', path: '/main-page/accounting/invoices' },
       { label: 'Facturación personal', path: '/main-page/accounting/personalInvoices' },
       { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
     ],
