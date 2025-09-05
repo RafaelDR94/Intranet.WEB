@@ -370,5 +370,18 @@ Feature:
 ### 1.46.0 Responsive design added 2025-09-04
 
 Feature:
-- To display information seamlessly on mobile devices. 
+- To display information seamlessly on mobile devices.
 (Katherine Negrete A) [#100](https://github.com/DR-Mexico/dr.intranet.web/pull/100)
+
+### 1.46.1 Accounting redirects by permissions 2025-09-05
+
+Fix:
+
+- Added client-side permission checks to accounting and invoices pages for secure redirects. (Agente IA) [#]()
+
+
+### 1.46.2 Reusable permission redirect component 2025-09-05
+
+Fix:
+
+- Centralized permission checks with reusable component and home navigation. (Agente IA) [#]()
