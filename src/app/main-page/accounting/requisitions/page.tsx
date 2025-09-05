@@ -1,4 +1,12 @@
-import { redirect } from 'next/navigation';
+import { PermissionRedirect } from '@/app/components/PermissionRedirect/PermissionRedirect';
+
 export default function RequisitionsPage() {
-  redirect('/main-page/accounting/requisitions/requisitions');
+  return (
+    <PermissionRedirect
+      routes={[
+        '/main-page/accounting/requisitions/requisitions',
+        '/main-page/accounting/requisitions/requisitionsList',
+      ]}
+    />
+  );
 }

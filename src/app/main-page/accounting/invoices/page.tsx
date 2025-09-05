@@ -1,4 +1,13 @@
-import { redirect } from 'next/navigation';
-export default function AccountingPage() {
-  redirect('/main-page/accounting/invoices/addFiles');
+import { PermissionRedirect } from '@/app/components/PermissionRedirect/PermissionRedirect';
+
+export default function InvoicesPage() {
+  return (
+    <PermissionRedirect
+      routes={[
+        '/main-page/accounting/invoices/addFiles',
+        '/main-page/accounting/invoices/sat',
+        '/main-page/accounting/invoices/validateinvoices',
+      ]}
+    />
+  );
 }
