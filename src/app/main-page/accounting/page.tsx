@@ -1,7 +1,13 @@
-
-import { redirect } from 'next/navigation';
+import { PermissionRedirect } from '@/app/components/PermissionRedirect/PermissionRedirect';
 
 export default function AccountingPage() {
-  redirect('/main-page/accounting/invoices');
+  return (
+    <PermissionRedirect
+      routes={[
+        '/main-page/accounting/invoices',
+        '/main-page/accounting/personalInvoices',
+        '/main-page/accounting/requisitions',
+      ]}
+    />
+  );
 }
-

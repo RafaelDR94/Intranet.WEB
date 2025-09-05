@@ -1,9 +1,6 @@
 // utils/getTabsFromPath.ts
 export type Tab = { label: string; path: string };
 
-const looksLikeId = (s: string) =>
-  /^\d+$/.test(s) || /^[0-9a-fA-F-]{16,}$/.test(s); // numérico o uuid/hex largo (ajústalo a tu caso)
-
 export const getTabsFromPath = (
   pathname: string,
   search?: string | URLSearchParams
