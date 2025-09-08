@@ -55,9 +55,9 @@ export const BillingPutMap = (src: Partial<BillingPut> | any): BillingPut => ({
   comments: String(src?.comments ?? ''),
   user_comments: String(src?.user_comments ?? ''),
   description: String(src?.description ?? ''),
-  numpersons: Number(src?.numpersons ?? 0),
-  numnights: Number(src?.numnights ?? 0),
-  category_id: String(src.category)
+  numpersons: String(src?.numpersons ?? 0),
+  numnights: String(src?.numnights ?? 0),
+  category_id: String(src?.category_id)
 
 })
 export const BillingImagesTableMap = (src: BillingImages[]): BillingImagesTable[] => {

@@ -8,6 +8,7 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
 import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { fetchBillingImages } from './fetchBillingImages'
+import { BillingPutMap } from '@/app/mappings/billingimages/billingimages.mapper'
 
 /**
  * Actualiza una imagen de factura en el backend.
@@ -25,7 +26,7 @@ export const updateBillingImage = async (
 
   try {
     const put = pPut(requireGateway('put'), [200, 204])
-    const res: AxiosResponse = await put(BillingImagesUrl, payload)
+    const res: AxiosResponse = await put(BillingImagesUrl, BillingPutMap(payload))
     const raw = res.data?.data
     const updated = raw ? (raw as BillingImages) : null
 
