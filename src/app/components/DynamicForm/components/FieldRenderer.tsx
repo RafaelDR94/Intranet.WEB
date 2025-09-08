@@ -1,14 +1,14 @@
-import React from 'react';
-import { FieldRendererProps } from './types';
-import { Input } from '../../Input/Input';
-import { Select } from '../../Select/Select';
-import { ToggleButton } from '../../ToogleButton/ToogleButton';
-import { Checkbox } from '../../CheckBox/CheckBox';
-import { FileUploader } from '../../FileUploader/FileUploader';
-import { NumberControl } from '../../NumberControl/NumberControl';
-import { helperClasses } from '../../Input/styles';
-import type { InputVariant } from '../../Input/types.tsx';
-import { fieldRendererStyles } from './styles';
+import React from "react";
+import { FieldRendererProps } from "./types";
+import { Input } from "../../Input/Input";
+import { Select } from "../../Select/Select";
+import { ToggleButton } from "../../ToogleButton/ToogleButton";
+import { Checkbox } from "../../CheckBox/CheckBox";
+import { FileUploader } from "../../FileUploader/FileUploader";
+import { NumberControl } from "../../NumberControl/NumberControl";
+import { helperClasses } from "../../Input/styles";
+import type { InputVariant } from "../../Input/types.tsx";
+import { fieldRendererStyles } from "./styles";
 /**
  * Renderiza un campo individual dentro de un formulario dinámico.
  * El tipo de campo se determina por `field.type`.
@@ -36,7 +36,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
     placeholder: field.placeholder,
     helperText,
     variant,
-    inputSize: field.inputSize || 'md',
+    inputSize: field.inputSize || "md",
     className: field.className,
   };
 
@@ -47,8 +47,10 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
 
   if (field.onlyText) {
     let rendervalue = value || field.value;
-    if (field.type === 'select') {
-      rendervalue = field.options?.find(opt => opt.value === field?.value)?.label;
+    if (field.type === "select") {
+      rendervalue = field.options?.find(
+        (opt) => opt.value === field?.value
+      )?.label;
     }
     return (
       <div className={fieldRendererStyles.onlyTextContainer}>
@@ -63,7 +65,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
   }
 
   switch (field.type) {
-    case 'select':
+    case "select":
       return (
         <Select
           {...baseProps}
@@ -74,7 +76,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
         />
       );
 
-    case 'multiSelect':
+    case "multiSelect":
       return (
         <Select
           {...baseProps}
@@ -86,7 +88,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
         />
       );
 
-    case 'checkbox':
+    case "checkbox":
       return (
         <Checkbox
           checked={value ?? field.value}
@@ -94,28 +96,25 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           label={field.label}
           disabled={field.disabled}
           className={field.className}
-
         />
       );
 
-    case 'toggle':
+    case "toggle":
       return (
         <ToggleButton
           checked={value ?? field.value}
           onChange={handleChange}
           label={field.label}
           className={field.className}
-          disabled={
-            field.disabled
-          }
+          disabled={field.disabled}
         />
       );
 
-    case 'file':
+    case "file":
       return (
         <div className={fieldRendererStyles.fileWrapper}>
           <FileUploader
-            accept={field.accept || ''}
+            accept={field.accept || ""}
             label={field.label}
             placeholder={field.placeholder}
             onFile={handleChange}
@@ -123,7 +122,6 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             className={field.className}
             icon={field.icon}
             initialFile={field.initialFile}
-
           />
           {helperText && (
             <span className={helperClasses(variant as InputVariant)}>
@@ -132,7 +130,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           )}
         </div>
       );
-    case 'numberControl':
+    case "numberControl":
       return (
         <NumberControl
           label={field.label}
@@ -141,23 +139,25 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           min={field.min}
           max={field.max}
           step={field.step}
-          size={(field.inputSize as any) || 'md'}
-          variant={field.disabled ? 'disabled' : (variant as any)}
+          size={(field.inputSize as any) || "md"}
+          variant={field.disabled ? "disabled" : (variant as any)}
           disabled={field.disabled}
           helperText={helperText}
           className={field.className}
         />
       );
-    case 'textarea':
+    case "textarea":
       return (
         <Input
           {...baseProps}
           as="textarea"
           rows={field.rows ?? 4}
           value={value ?? field.value}
-          onChange={(e) => handleChange((e.target as HTMLTextAreaElement).value)}
+          onChange={(e) =>
+            handleChange((e.target as HTMLTextAreaElement).value)
+          }
           onBlur={onBlur}
-          variant={field.disabled ? 'disabled' : variant}
+          variant={field.disabled ? "disabled" : variant}
         />
       );
 
@@ -165,11 +165,15 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
       return (
         <Input
           {...baseProps}
+          className={`${baseProps.className ?? ""} ${
+            fieldRendererStyles.noSpinner
+          }`}
           value={value ?? field.value}
           onChange={(e) => handleChange(e.target.value)}
           onBlur={onBlur}
-          type={field.type === 'email' ? 'email' : field.type}
-          variant={field.disabled ? 'disabled' : variant}
+          type={field.type === "email" ? "email" : field.type}
+          variant={field.disabled ? "disabled" : variant}
+          inputMode={field.type === "number" ? "decimal" : undefined} // opcional
         />
       );
   }

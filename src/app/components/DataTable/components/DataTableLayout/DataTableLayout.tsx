@@ -62,68 +62,46 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
       )}
 
       <div className={tableLayoutStyles.buttonsStyle}>
-        {props.showDownloadTable && (
-          <ContextMenu
-            title="FORMATO"
-            isOpen={isDownloadOpen}
-            setIsOpen={setIsDownloadOpen}
-            trigger={
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  hideIcon={true}
-                  disabled={downloadDisabled}
-                >
-                  Descargar
-                </Button>
-                <Button
-                  aria-label="Abrir menú de descarga"
-                  iconOnly
-                  icon={DownloadIcon}
-                  variant="outline"
-                  size={isMobile ? "small" : "medium"}
-                  disabled={downloadDisabled}
-                />
-              </div>
-            }
-            items={[
-              {
-                label: "PDF",
-                onClick: () => handleDownload("pdf"),
-                controlType: "radio",
-                controlSide: "left",
-              },
-              {
-                label: "Excel",
-                onClick: () => handleDownload("excel"),
-                controlType: "radio",
-                controlSide: "left",
-              },
-            ]}
+  {props.showDownloadTable && (
+    <ContextMenu
+      title="FORMATO"
+      isOpen={isDownloadOpen}
+      setIsOpen={setIsDownloadOpen}
+      trigger={
+        <div className="flex items-center space-x-2">
+          <Button variant="ghost" hideIcon disabled={downloadDisabled}>
+            Descargar
+          </Button>
+          <Button
+            aria-label="Abrir menú de descarga"
+            iconOnly
+            icon={DownloadIcon}
+            variant="outline"
+            size={isMobile ? "small" : "medium"}
+            disabled={downloadDisabled}
           />
-        )}
+        </div>
+      }
+      items={[
+        { label: "PDF", onClick: () => handleDownload("pdf"), controlType: "radio", controlSide: "left" },
+        { label: "Excel", onClick: () => handleDownload("excel"), controlType: "radio", controlSide: "left" },
+      ]}
+    />
+  )}
 
-        {showButton && !actionsRender && (
-          <Button
-            variant="solid"
-            size="large"
-            hideIcon
-            onClick={onTableActionClick}
-          >
-            {actionLabel}
-          </Button>
-        )}
-        {!isMobile && showButton && !actionsRender && (
-          <Button
-            variant="solid"
-            size="large"
-            hideIcon
-            onClick={onTableActionClick}
-          >
-            {actionLabel}
-          </Button>
-        )}
-      </div>
+  {/* ✅ Solo renderiza actionsRender en DESKTOP */}
+  {!isMobile && props.actionsRender && (
+    <div className="flex items-center gap-2">{props.actionsRender()}</div>
+  )}
+
+  {/* ✅ Botón primario por defecto SOLO si no hay actionsRender */}
+  {showButton && !props.actionsRender && (
+    <Button variant="solid" size="large" hideIcon onClick={onTableActionClick}>
+      {actionLabel}
+    </Button>
+  )}
+</div>
+
     </div>
   );
 };

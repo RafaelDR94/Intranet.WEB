@@ -2,10 +2,7 @@
 
 import React, { useEffect, useMemo, useRef } from "react";
 import { Formik, Form } from "formik";
-import type {
-  DynamicFormProps,
-  ResponsiveLayoutMatrix,
-} from "./types";
+import type { DynamicFormProps, ResponsiveLayoutMatrix } from "./types";
 import { useDynamicForm } from "./hooks/useDynamicForm";
 import { FieldRenderer } from "./components/FieldRenderer";
 import { Button } from "../Button/Button";
@@ -82,15 +79,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   externalSubmitRef,
   onValidChange,
   loadingFormInfo,
-  disabled
+  disabled,
 }) => {
   const { initialValues, validationSchema, cleanValues, resolveVariant } =
     useDynamicForm(fields);
 
   // 1) Resolver layout efectivo (fijo vs responsive)
-  const { current } = useMediaBreakpoints(
-    breakpoints ?? { sm: 640, md: 1024 }
-  );
+  const { current } = useMediaBreakpoints(breakpoints ?? { sm: 640, md: 1024 });
 
   const effectiveLayoutMatrix = useMemo(() => {
     if (layoutMatrix?.length) return layoutMatrix; // prioridad
@@ -98,7 +93,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     // preferencia: layout del breakpoint actual, si no existe, fallback hacia abajo y luego hacia arriba
     const order: Array<keyof ResponsiveLayoutMatrix> =
-      current === "lg" ? ["lg", "md", "sm"] : current === "md" ? ["md", "sm", "lg"] : ["sm", "md", "lg"];
+      current === "lg"
+        ? ["lg", "md", "sm"]
+        : current === "md"
+        ? ["md", "sm", "lg"]
+        : ["sm", "md", "lg"];
 
     for (const key of order) {
       const candidate = responsiveLayoutMatrix[key];
@@ -131,6 +130,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           touched,
           handleBlur,
           setFieldValue,
+          setFieldTouched,
           submitForm,
           isValid,
         }) => {
@@ -150,77 +150,86 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           );
 
           // helper para index lineal dado row/col
-          const linearIndex = (rowIndex: number, colIndex: number, matrix: number[][]) =>
-            matrix.slice(0, rowIndex).reduce((acc, r) => acc + r.length, 0) + colIndex;
+          const linearIndex = (
+            rowIndex: number,
+            colIndex: number,
+            matrix: number[][]
+          ) =>
+            matrix.slice(0, rowIndex).reduce((acc, r) => acc + r.length, 0) +
+            colIndex;
 
           return (
             <Form className={dynamicFormStyles.form}>
               {effectiveLayoutMatrix
                 ? effectiveLayoutMatrix.map((row, rowIndex) => (
-                  <div
-                    key={`row-${rowIndex}`}
-                    className="flex w-full gap-4 mb-4"
-                  >
-                    {row.map((width, colIndex) => {
-                      const fieldIndex = linearIndex(
-                        rowIndex,
-                        colIndex,
-                        effectiveLayoutMatrix
-                      );
+                    <div
+                      key={`row-${rowIndex}`}
+                      className="flex w-full gap-4 mb-4"
+                    >
+                      {row.map((width, colIndex) => {
+                        const fieldIndex = linearIndex(
+                          rowIndex,
+                          colIndex,
+                          effectiveLayoutMatrix
+                        );
 
-                      const field = visibleFields[fieldIndex];
-                      if (!field) return null;
+                        const field = visibleFields[fieldIndex];
+                        if (!field) return null;
 
-                      const value = values[field.name];
-                      const { variant, helperText } = resolveVariant(
-                        field,
-                        touched as Record<string, boolean | undefined>,
-                        errors,
-                        value
-                      );
+                        const value = values[field.name];
+                        const { variant, helperText } = resolveVariant(
+                          field,
+                          touched as Record<string, boolean | undefined>,
+                          errors,
+                          value
+                        );
 
-                      return (
-                        <div
-                          key={field.name}
-                          style={{ width: `${(width / 10) * 100}%` }}
-                        >
-                          <FieldRenderer
-                            field={disabled ? { ...field, disabled } : field}
-                            value={value}
-                            allValues={values}
-                            onChange={(val) => setFieldValue(field.name, val)}
-                            onBlur={handleBlur}
-                            variant={variant}
-                            helperText={helperText}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))
+                        return (
+                          <div
+                            key={field.name}
+                            style={{ width: `${(width / 10) * 100}%` }}
+                          >
+                            <FieldRenderer
+                              field={disabled ? { ...field, disabled } : field}
+                              value={value}
+                              allValues={values}
+                              onChange={(val) => {
+                                // valida inmediatamente y marca como tocado
+                                setFieldValue(field.name, val, true);
+                                setFieldTouched(field.name, true, false);
+                              }}
+                              onBlur={handleBlur}
+                              variant={variant}
+                              helperText={helperText}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))
                 : // Sin layout provisto: render lineal uno debajo del otro
-                visibleFields.map((field) => {
-                  const value = values[field.name];
-                  const { variant, helperText } = resolveVariant(
-                    field,
-                    touched as Record<string, boolean | undefined>,
-                    errors,
-                    value
-                  );
+                  visibleFields.map((field) => {
+                    const value = values[field.name];
+                    const { variant, helperText } = resolveVariant(
+                      field,
+                      touched as Record<string, boolean | undefined>,
+                      errors,
+                      value
+                    );
 
-                  return (
-                    <FieldRenderer
-                      key={field.name}
-                      field={field}
-                      value={value}
-                      allValues={values}
-                      onChange={(val) => setFieldValue(field.name, val)}
-                      onBlur={handleBlur}
-                      variant={variant}
-                      helperText={helperText}
-                    />
-                  );
-                })}
+                    return (
+                      <FieldRenderer
+                        key={field.name}
+                        field={field}
+                        value={value}
+                        allValues={values}
+                        onChange={(val) => setFieldValue(field.name, val)}
+                        onBlur={handleBlur}
+                        variant={variant}
+                        helperText={helperText}
+                      />
+                    );
+                  })}
 
               {children}
 
