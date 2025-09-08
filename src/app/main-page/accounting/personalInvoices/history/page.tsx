@@ -149,7 +149,7 @@ const PersonalInvoicesHistory = () => {
               title: "Rechazadas",
               enableCollaps: true,
               defaultSortKey: "dateCreate",
-              defaultSortDirection: "asc",
+              defaultSortDirection: "desc",
             },
           ]}
         />
@@ -165,7 +165,7 @@ const PersonalInvoicesHistory = () => {
               title: "Historial",
               enableCollaps: true,
               defaultSortKey: "dateCreate",
-              defaultSortDirection: "asc",
+              defaultSortDirection: "desc",
             },
           ]}
         />

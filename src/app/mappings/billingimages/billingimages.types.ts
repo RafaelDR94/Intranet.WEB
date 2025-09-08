@@ -47,8 +47,8 @@ export type BillingPut = {
     "Image": string,
     "comments": string
     "user_comments": string
-    "numnights": number
-    "numpersons": number,
+    "numnights": string
+    "numpersons": string,
 }
 export type BillinReject = {
     "billing_image_id": string,
