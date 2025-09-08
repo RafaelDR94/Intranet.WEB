@@ -33,37 +33,40 @@ const RequisitionDetailsDocument: React.FC = () => {
     downloadingDocument, // NEW: lo traemos del hook
   } = useRequisitionDetailsDocument();
   const isMobile = useIsMobile();
-  const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] = useMemo(
-    () => [
-
-      { key: "fecha", label: "" },
-      { key: "description", label: "DESCRIPCIÓN" },
-      {
-        key: "status",
-        label: "",
-        render: (row) => (
-          <Label type={row.status.toLocaleLowerCase() as any} text={row.status} />
-        ),
-      },
-      {
-        key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
-        label:"",
-        render: (row) => (
-          <Button
-            size="small"
-            onClick={() => handleOpenDetails(row)}
-            variant="ghost"
-            hideIcon
-          >
-            ...
-          </Button>
-        ),
-        cellClass: "w-10 text-right",
-        headerClass: "w-10 text-right",
-      },
-    ],
-    [rows]
-  );
+  const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] =
+    useMemo(
+      () => [
+        { key: "fecha", label: "" },
+        { key: "description", label: "DESCRIPCIÓN" },
+        {
+          key: "status",
+          label: "",
+          render: (row) => (
+            <Label
+              type={row.status.toLocaleLowerCase() as any}
+              text={row.status}
+            />
+          ),
+        },
+        {
+          key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
+          label: "",
+          render: (row) => (
+            <Button
+              size="small"
+              onClick={() => handleOpenDetails(row)}
+              variant="ghost"
+              hideIcon
+            >
+              ...
+            </Button>
+          ),
+          cellClass: "w-10 text-right",
+          headerClass: "w-10 text-right",
+        },
+      ],
+      [rows]
+    );
 
   const columns: ColumnDefinition<BillingDocumentDetailsTable>[] = useMemo(
     () => [
@@ -105,7 +108,10 @@ const RequisitionDetailsDocument: React.FC = () => {
         key: "status",
         label: "STATUS",
         render: (row) => (
-          <Label type={row.status.toLocaleLowerCase() as any} text={row.status} />
+          <Label
+            type={row.status.toLocaleLowerCase() as any}
+            text={row.status}
+          />
         ),
       },
       {
@@ -141,32 +147,30 @@ const RequisitionDetailsDocument: React.FC = () => {
         <LoadingOverlay open={isBusy} scope="container" message={busyMessage} />
       </div>
 
-
       <DataTable
-        startCollpas = {isMobile}
+        startCollpas={false}
         actionsRender={() => (
-
           <>
-            {currentPagePermissions?.downloadDocuments && <>
-              <Button
-                hideIcon
-                variant="ghost"
-                onClick={() => {
-                  if (requisitionId) downloadRequistionResume(requisitionId);
-                }}
-              >
-                Descargar reporte
-              </Button>
-              <Button
-                icon={DowloadIcon}
-                variant="outline"
-                onClick={() => {
-                  if (requisitionId) downloadRequistionResume(requisitionId);
-                }}
-              />
-            </>}
-
-
+            {currentPagePermissions?.downloadDocuments && (
+              <>
+                <Button
+                  hideIcon
+                  variant="ghost"
+                  onClick={() => {
+                    if (requisitionId) downloadRequistionResume(requisitionId);
+                  }}
+                >
+                  Descargar reporte
+                </Button>
+                <Button
+                  icon={DowloadIcon}
+                  variant="outline"
+                  onClick={() => {
+                    if (requisitionId) downloadRequistionResume(requisitionId);
+                  }}
+                />
+              </>
+            )}
           </>
         )}
         showButton={false}
@@ -175,7 +179,7 @@ const RequisitionDetailsDocument: React.FC = () => {
         tables={[
           {
             data: rows,
-            columns:isMobile?mobileColumns:columns,
+            columns: isMobile ? mobileColumns : columns,
             enableSelection: false,
             title: "Comprobantes de Consumo",
             enableCollaps: true,
