@@ -170,6 +170,11 @@ module.exports = {
           50: "var(--color-alert-red-50)",
           10: "var(--color-alert-red-10)",
         },
+        "alert-orange": {
+          100: "var(--color-alert-orange-100)",
+          50: "var(--color-alert-orange-50)",
+          10: "var(--color-alert-orange-10)",
+        },
         "alert-blue": {
           900: "var(--color-alert-blue-900)",
           100: "var(--color-alert-blue-100)",

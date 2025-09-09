@@ -76,6 +76,8 @@ const RequisitionsTable = () => {
 
 
   const StatusBadge = ({ status }: { status?: string }) => {
+    console.log(status);
+    
     const s = (status || "").toLowerCase();
     let type: LabelType = "pendiente"
     if (s.includes("cierre de periodo")) type = "invalido";

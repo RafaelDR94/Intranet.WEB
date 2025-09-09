@@ -263,6 +263,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                   ) : (
                     <Button
                       type="submit"
+                      hideIcon={true}
                       className={
                         !showSecondaryButtonIf?.(values) ? "w-full" : ""
                       }
