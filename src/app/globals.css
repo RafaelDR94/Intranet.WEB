@@ -116,6 +116,10 @@ body {
   --color-alert-red-50:  #FF6363;
   --color-alert-red-10:  #FFCFCF;
 
+  --color-alert-orange-100: #FF6A00;
+  --color-alert-orange-50:  #FFA361;
+  --color-alert-orange-10:  #FFD4B5;
+
   --color-alert-blue-100: #0077FF;
   --color-alert-blue-50: #5BA7FF;
   --color-alert-blue-10: #CEE5FF;
@@ -207,6 +211,10 @@ body {
   --color-alert-red-100: #FF0000;
   --color-alert-red-50:  #E85555;
   --color-alert-red-10:  #C08989;
+
+  --color-alert-orange-100: #FF6A00;
+  --color-alert-orange-50:  #FFA361;
+  --color-alert-orange-10:  #FFD4B5;
 
   --color-alert-blue-100: #1F80EF;
   --color-alert-blue-50: #4F9AF0;

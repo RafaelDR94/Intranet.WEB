@@ -30,7 +30,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }
       actionButton={
         <>
           {(currentPagePermissions?.canAddPicture || currentPagePermissions?.canAddDocuments) && <Button size="large" variant="solid" hideIcon onClick={() => submitRef.current?.()} disabled={(selected?.status.toLocaleLowerCase() != "rechazado")}>
-            Re-enviar
+            Reenviar
           </Button>}
         </>
 

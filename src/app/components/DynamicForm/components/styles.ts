@@ -3,5 +3,7 @@ export const fieldRendererStyles = {
   onlyTextLabel: 'text-b1 font-regular text-gray-70',
   onlyTextValue: 'text-b2 font-medium text-gray-70',
   fileWrapper: 'flex flex-col gap-1',
-   noSpinner: 'no-spinner'
+  noSpinner: 'no-spinner',
+  optionsCapitalize: 'capitalize',
+
 };

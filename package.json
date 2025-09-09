@@ -1,6 +1,6 @@
 {
   "name": "intranet.web",
-  "version": "1.46.3",
+  "version": "1.46.4",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -72,7 +72,7 @@
     "autoprefixer": "^10.4.21",
     "babel-loader": "^10.0.0",
     "css-loader": "^6.11.0",
-    "eslint": "9.35.0",
+    "eslint": "^9.35.0",
     "eslint-config-next": "15.5.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",

@@ -1,8 +1,8 @@
 // src/app/components/PerDiemBalanceCard/styles.ts
 export const perDiemBalanceCardStyles = {
-  root: 'max-w-97 p-6',
+  root: 'max-w-97',
 
-  card: 'w-full rounded-2xl bg-white-70 p-6 shadow-sm ring-1 ring-black/5',
+  card: 'w-full rounded-2xl bg-white-70 p-6 shadow-sm ring-1 ring-black/5 h-[477px]',
 
   // Header
   title: 'text-s1 font-semibold text-green-100',
