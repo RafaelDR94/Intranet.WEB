@@ -151,19 +151,17 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
     showSpinner({ message: isEdit ? 'Actualizando ticket...' : 'Subiendo ticket...' })
     try {
       const imgUrl = await uploadIfNeeded(values.ticket, values.requisition)
-     console.log("values",values);
       if (isEdit && dataEdit) {
-        // UPDATE
         const payload = {
           billing_image_id: dataEdit?.billing_image_id,
           requisition_id: values?.requisition,
           Image: imgUrl,
           comments: dataEdit?.comments,
           user_comments: "",
-          numnights: dataEdit.numnights,
-          numpersons: dataEdit.numpersons,
-          description: dataEdit?.description?.id_billingdescription,
-          category_id: dataEdit?.category?.id_billingcategory,
+          numnights: values.numnights,
+          numpersons: values.numpersons,
+          description: values?.description,
+          category_id: values?.category,
         }
         updateBillingImage(payload)
       } else {

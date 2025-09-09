@@ -13,56 +13,72 @@ import CollapsibleSection from "@/app/components/CollapsibleSection/CollapsibleS
  * según los permisos del usuario actual.
  */
 const RequisitionDetails: React.FC = () => {
-    const { currentRequisition } = useRequisitionsDetails();
-    const { currentPagePermissions } = useAuth();
-    const isMobile = useIsMobile();
-    if (currentRequisition) return (
-        <>
-            <div className="flex gap-6 w-full">
-                <div className={clsx(
-                    isMobile ? "basis-3/3" : "basis-2/3"
-                )}>
-                    {currentPagePermissions?.showDetails && <RequisitionsForm
-                        mode="edit"
-                        startDisabled
-                        startCollaps={isMobile}
-                        enableCollaps
-                        responsiveLayoutMatrix={{
-                            sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                            md: [[5, 5], [5, 5], [5, 5], [5, 5]],
-                            lg: [[5, 5], [5, 5], [5, 5], [5, 5]],
-                        }}
-                        initialValues={currentRequisition}
-                    />}
-
-                </div>
-                {!isMobile &&
-                    <div className="basis-1/3">
-                        {currentPagePermissions?.showBalance && <PerDiemBalanceCard
-                            startDate={currentRequisition.assignmentdate}
-                            endDate={currentRequisition.endDate}
-                            requestedAmount={Number(currentRequisition.amountdeposited)}
-                            verifiedAmount={Number(currentRequisition.provenamount)}
-
-                        />}
-
-                    </div>}
-
-
+  const { currentRequisition } = useRequisitionsDetails();
+  const { currentPagePermissions } = useAuth();
+  const isMobile = useIsMobile();
+  if (currentRequisition)
+    return (
+      <>
+        <div className="flex gap-6 w-full">
+          <div className={clsx(isMobile ? "basis-3/3" : "basis-2/3")}>
+            {currentPagePermissions?.showDetails && (
+              <RequisitionsForm
+                mode="edit"
+                startDisabled
+                startCollaps={isMobile}
+                enableCollaps
+                responsiveLayoutMatrix={{
+                  sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                  md: [
+                    [5, 5],
+                    [5, 5],
+                    [5, 5],
+                    [5, 5],
+                  ],
+                  lg: [
+                    [5, 5],
+                    [5, 5],
+                    [5, 5],
+                    [5, 5],
+                  ],
+                }}
+                initialValues={currentRequisition}
+              />
+            )}
+          </div>
+          {!isMobile && (
+            <div className="basis-1/3">
+              {currentPagePermissions?.showBalance && (
+                <PerDiemBalanceCard
+                  startDate={currentRequisition.assignmentdate}
+                  endDate={currentRequisition.endDate}
+                  requestedAmount={Number(currentRequisition.amountdeposited)}
+                  verifiedAmount={Number(currentRequisition.provenamount)}
+                />
+              )}
             </div>
-            {isMobile && <CollapsibleSection enableCollapse defaultOpen={true} title="Balance de viaticos">
-                {currentPagePermissions?.showBalance && <PerDiemBalanceCard
-                    startDate={currentRequisition.assignmentdate}
-                    endDate={currentRequisition.endDate}
-                    requestedAmount={Number(currentRequisition.amountdeposited)}
-                    verifiedAmount={Number(currentRequisition.provenamount)}
-
-                />}
-            </CollapsibleSection>}
-            {currentPagePermissions?.showDocuments && <RequisitionDetailsDocument />}
-
-        </>
-
+          )}
+        </div>
+        {isMobile && (
+          <CollapsibleSection
+            enableCollapse
+            defaultOpen={true}
+            title="Balance de viaticos"
+          >
+            {currentPagePermissions?.showBalance && (
+              <PerDiemBalanceCard
+                startDate={currentRequisition.assignmentdate}
+                endDate={currentRequisition.endDate}
+                requestedAmount={Number(currentRequisition.amountdeposited)}
+                verifiedAmount={Number(currentRequisition.provenamount)}
+              />
+            )}
+          </CollapsibleSection>
+        )}
+        {currentPagePermissions?.showDocuments && (
+          <RequisitionDetailsDocument />
+        )}
+      </>
     );
-}
+};
 export default RequisitionDetails;

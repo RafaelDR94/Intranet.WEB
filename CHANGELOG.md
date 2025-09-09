@@ -385,3 +385,9 @@ Fix:
 Fix:
 
 - Centralized permission checks with reusable component and home navigation. (Agente IA) [#]()
+
+### 1.46.3 Show Excel download button on mobile and desktop 2025-09-08
+
+Fix:
+
+- To show the Excel download button. (Katherine Negrete) [#109](https://github.com/DR-Mexico/dr.intranet.web/pull/109)
