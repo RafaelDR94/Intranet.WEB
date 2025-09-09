@@ -35,73 +35,36 @@ import {
   
   const useFirebaseRealtimeHelper = (database: Database | null): FirebaseRealtimeHelper => {
     const setData = async (path: string, data: any) => {
-      try {
-        if (database) {
-          const dataRef = ref(database, path);
-          await set(dataRef, data);
-        } else {
-          throw "Firebase Realtime Database no configurado correctamente";
-        }
-      } catch (error) {
-        throw error;
-      }
+      if (!database) throw "Firebase Realtime Database no configurado correctamente";
+      const dataRef = ref(database, path);
+      await set(dataRef, data);
     };
   
     const getData = async (path: string) => {
-      try {
-        if (database) {
-          const dataRef = ref(database, path);
-          const snapshot = await get(dataRef);
-          if (snapshot.exists()) {
-            return snapshot.val();
-          } else {
-            return null;
-          }
-        }
-        throw "Firebase Realtime Database no configurado correctamente";
-      } catch (error) {
-        throw error;
-      }
+      if (!database) throw "Firebase Realtime Database no configurado correctamente";
+      const dataRef = ref(database, path);
+      const snapshot = await get(dataRef);
+      return snapshot.exists() ? snapshot.val() : null;
     };
   
     const updateData = async (path: string, data: any) => {
-      try {
-        if (database) {
-          const dataRef = ref(database, path);
-          await update(dataRef, data);
-        } else {
-          throw "Firebase Realtime Database no configurado correctamente";
-        }
-      } catch (error) {
-        throw error;
-      }
+      if (!database) throw "Firebase Realtime Database no configurado correctamente";
+      const dataRef = ref(database, path);
+      await update(dataRef, data);
     };
   
     const deleteData = async (path: string) => {
-      try {
-        if (database) {
-          const dataRef = ref(database, path);
-          await remove(dataRef);
-        } else {
-          throw "Firebase Realtime Database no configurado correctamente";
-        }
-      } catch (error) {
-        throw error;
-      }
+      if (!database) throw "Firebase Realtime Database no configurado correctamente";
+      const dataRef = ref(database, path);
+      await remove(dataRef);
     };
   
     const pushData = async (path: string, data: any) => {
-      try {
-        if (database) {
-          const dataRef = ref(database, path);
-          const newRef = push(dataRef);
-          await set(newRef, data);
-          return newRef.key;
-        }
-        throw "Firebase Realtime Database no configurado correctamente";
-      } catch (error) {
-        throw error;
-      }
+      if (!database) throw "Firebase Realtime Database no configurado correctamente";
+      const dataRef = ref(database, path);
+      const newRef = push(dataRef);
+      await set(newRef, data);
+      return newRef.key;
     };
 
     const subscribe = (

@@ -1,12 +1,14 @@
 // src/app/stores/useRequisitionStore/utilities/fetchRequisitions.ts
 'use client'
 import type { AxiosResponse } from 'axios'
+
+import { Get, Set } from '../types'
+
 import { BillingRequisitionsByID } from '@/app/configurations/Axios/urls'
 import { RequisitionMap } from '@/app/mappings/requisitions/requisitions.mapp'
-import { Get, Set } from '../types'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 
 /**
  * Obtiene las requisiciones activas del backend y actualiza el estado.
@@ -31,9 +33,9 @@ export const fetchCurrentRequisition = async (set: Set, get: Get, id: string, fo
         // 3) llamada
         const res: AxiosResponse = await getReq(`${BillingRequisitionsByID}/${id}`)
         // 4) mapear y guardar
-        console.log("res.data?.data", res.data?.data);
+ 
         const mapped = res.data?.data?.map((req: any) => RequisitionMap(req))
-        console.log("mapped", mapped);
+
         set({ currentRequisition: mapped[0], gettincurrentReq: false, succesgetingCurrent: true })
     } catch (e) {
         // 5) error normalizado

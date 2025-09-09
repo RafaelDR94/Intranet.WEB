@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
 import ExcelJS from 'exceljs';
+import { describe, it, expect } from 'vitest';
+
 import { exportExcelPro, type SheetInput } from './ExportExcel';
 
 describe('exportExcelPro utility', () => {

@@ -1,5 +1,6 @@
 'use client'
 import type { Set, Get } from '../types'
+
 import type { User } from '@/app/context/AuthContext/types'
 import { saveUser, saveLastUserRemebered } from '@/app/context/AuthContext/utilities/AuthService'
 

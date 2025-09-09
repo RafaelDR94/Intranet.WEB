@@ -1,15 +1,17 @@
+import { v4 as uuidv4 } from "uuid";
+
+import { User, UserDoc, LoginCredentials } from "../types";
+
+import { intranetClient } from "@/app/configurations/Axios/Clients";
+import { basicPost } from "@/app/configurations/Axios/GenericMethods";
+import { LoginUrl, VerifyOTP } from "@/app/configurations/Axios/urls";
+import { lastuserremebered } from "@/app/configurations/DataBase/bases";
 import {
   createDocument,
   readDocumentById,
   updateDocumentById,
   deleteDocument,
 } from "@/app/configurations/DataBase/crud";
-import { User, UserDoc, LoginCredentials } from "../types";
-import { v4 as uuidv4 } from "uuid";
-import { basicPost } from "@/app/configurations/Axios/GenericMethods";
-import { intranetClient } from "@/app/configurations/Axios/Clients";
-import { LoginUrl,VerifyOTP } from "@/app/configurations/Axios/urls";
-import { lastuserremebered } from "@/app/configurations/DataBase/bases";
 
 const USER_DOC_ID = 1;
 /**
@@ -21,26 +23,22 @@ export const authenticateUser = async (
   userRemeber: boolean,
   offlineMode: boolean
 ): Promise<void> => {
-  try {
-    const deviceId = await getDeviceId();
-    let user: User | null = null;
-    if (offlineMode) {
-      const userDoc = await readUserRemebered();
-      if (userDoc) {
-        user = userDoc.user;
-      }
-    } else {
-      user = await loginUser(credentials, deviceId);
+  const deviceId = await getDeviceId();
+  let user: User | null = null;
+  if (offlineMode) {
+    const userDoc = await readUserRemebered();
+    if (userDoc) {
+      user = userDoc.user;
     }
-    if (user) {
-  
-      const treeFirebase =(typeof user?.treeFirebase === 'string')?user?.treeFirebase:JSON.stringify(user?.treeFirebase);
-      const userToSave = { ...user, password: credentials.password,treeFirebase:treeFirebase}
-      if (userRemeber) await saveLastUserRemebered(userToSave);
-      await saveUser(userToSave);
-    }
-  } catch (err) {
-    throw err;
+  } else {
+    user = await loginUser(credentials, deviceId);
+  }
+  if (user) {
+
+    const treeFirebase = (typeof user?.treeFirebase === 'string') ? user?.treeFirebase : JSON.stringify(user?.treeFirebase);
+    const userToSave = { ...user, password: credentials.password, treeFirebase: treeFirebase }
+    if (userRemeber) await saveLastUserRemebered(userToSave);
+    await saveUser(userToSave);
   }
 };
 /**
@@ -110,7 +108,7 @@ export const saveUser = async (user: User): Promise<void> => {
     if (err instanceof Error) {
       await createDocument(userdoc);
     } else {
-      console.error("Error al leer usuario:", err);
+      // console.error("Error al leer usuario:", err);
       throw err;
     }
   }
@@ -129,7 +127,7 @@ export const saveLastUserRemebered = async (user: User): Promise<void> => {
     if (err instanceof Error) {
       await createDocument(lastuser, lastuserremebered);
     } else {
-      console.error("Error al leer usuario:", err);
+      // console.error("Error al leer usuario:", err);
       throw err;
     }
   }
@@ -139,25 +137,15 @@ export const saveLastUserRemebered = async (user: User): Promise<void> => {
  * Lee el usuario autenticado almacenado localmente.
  */
 export const readUser = async (): Promise<UserDoc | null> => {
-  try {
-    const user = await readDocumentById(USER_DOC_ID);
-    return (user as UserDoc) || null;
-  } catch (err) {
-    console.error("Error al leer usuario:", err);
-    throw err;
-  }
+  const user = await readDocumentById(USER_DOC_ID);
+  return (user as UserDoc) || null;
 };
 /**
  * Lee el último usuario recordado almacenado localmente.
  */
 export const readUserRemebered = async (): Promise<UserDoc | null> => {
-  try {
-    const user = await readDocumentById(USER_DOC_ID, lastuserremebered);
-    return (user as UserDoc) || null;
-  } catch (err) {
-    console.error("Error al leer usuario:", err);
-    throw err;
-  }
+  const user = await readDocumentById(USER_DOC_ID, lastuserremebered);
+  return (user as UserDoc) || null;
 };
 /**
  * Elimina los datos del usuario autenticado actual.
@@ -214,7 +202,7 @@ export const saveFirebaseToken = async (token: string): Promise<void> => {
     console.error("Error al guardar firebaseToken:", err);
     throw err;
   }
-};            
+};
 /**
  * Lee el token de Firebase almacenado localmente.
  */

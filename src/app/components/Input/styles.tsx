@@ -1,5 +1,6 @@
 // src/app/components/Input/styles.ts
 import clsx from 'clsx'
+
 import { InputSize, InputVariant } from './types'
 
 const container = 'flex flex-col gap-1 group'

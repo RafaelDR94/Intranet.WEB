@@ -1,11 +1,13 @@
 'use client'
 
 import React from 'react'
-import { DataTableProps } from './types'
-import DataTableLayout from './components/DataTableLayout/DataTableLayout'
-import DataTableContent from './components/DataTableContent/DataTableContent'
+
 import CollapsibleSection from '../CollapsibleSection/CollapsibleSection'
+
+import DataTableContent from './components/DataTableContent/DataTableContent'
+import DataTableLayout from './components/DataTableLayout/DataTableLayout'
 import useDataTable from './hooks/useDataTable'
+import { DataTableProps } from './types'
 
 /**
  * `DataTable` – Renderiza una o varias tablas con:

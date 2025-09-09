@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import DataTableLayout from './DataTableLayout';
 
 const meta: Meta<typeof DataTableLayout> = {

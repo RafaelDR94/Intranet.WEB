@@ -1,5 +1,6 @@
-import { CategoriesType ,TypesOfReportType,ReportDeviceView} from "./reports.types";
 import { DeviceExternalView } from "../devices/devices.types";
+
+import { CategoriesType ,TypesOfReportType,ReportDeviceView} from "./reports.types";
 
 export const mapTypeReport = (type: any): TypesOfReportType => ({
   id: type?.id,

@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { changePassword } from './changePassword'
+
 import type { AuthState, Set, Get } from '../types'
+
+import { changePassword } from './changePassword'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pPut: () => async () => ({}) }))

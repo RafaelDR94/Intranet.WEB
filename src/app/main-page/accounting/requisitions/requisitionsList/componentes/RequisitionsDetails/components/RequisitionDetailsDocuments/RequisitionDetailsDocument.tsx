@@ -1,19 +1,21 @@
 "use client";
 import React, { useMemo } from "react";
+
+import useRequisitionDetailsDocument from "./hooks/useRequisitionDetailsDocument";
+
+import { Button } from "@/app/components/Button/Button";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
-import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import PDFIcon from "@/assets/icons/Docs/page.svg";
-import { Button } from "@/app/components/Button/Button";
-import useRequisitionDetailsDocument from "./hooks/useRequisitionDetailsDocument";
-import type { BillingDocumentDetailsTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import Label from "@/app/components/Label/Label";
-import DetailsPanel from "@/app/main-page/accounting/invoices/validateinvoices/components/DetailsPanel/DetailsPanel";
-import DowloadIcon from "@/assets/icons/acciones/download.svg";
 // NEW: Overlay (ruta de ejemplo)
 import LoadingOverlay from "@/app/components/LoadingOverLay/LoadingOverlay";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import DetailsPanel from "@/app/main-page/accounting/invoices/validateinvoices/components/DetailsPanel/DetailsPanel";
+import type { BillingDocumentDetailsTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
+import DowloadIcon from "@/assets/icons/acciones/download.svg";
+import PDFIcon from "@/assets/icons/Docs/page.svg";
+import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 /**
  * Tabla de comprobantes asociados a una requisición. Permite descargar el
  * reporte y ver detalles individuales de cada documento.
@@ -33,40 +35,37 @@ const RequisitionDetailsDocument: React.FC = () => {
     downloadingDocument, // NEW: lo traemos del hook
   } = useRequisitionDetailsDocument();
   const isMobile = useIsMobile();
-  const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] =
-    useMemo(
-      () => [
-        { key: "fecha", label: "" },
-        { key: "description", label: "DESCRIPCIÓN" },
-        {
-          key: "status",
-          label: "",
-          render: (row) => (
-            <Label
-              type={row.status.toLocaleLowerCase() as any}
-              text={row.status}
-            />
-          ),
-        },
-        {
-          key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
-          label: "",
-          render: (row) => (
-            <Button
-              size="small"
-              onClick={() => handleOpenDetails(row)}
-              variant="ghost"
-              hideIcon
-            >
-              ...
-            </Button>
-          ),
-          cellClass: "w-10 text-right",
-          headerClass: "w-10 text-right",
-        },
-      ],
-      [rows]
-    );
+  const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] = useMemo(
+    () => [
+
+      { key: "fecha", label: "" },
+      { key: "description", label: "DESCRIPCIÓN" },
+      {
+        key: "status",
+        label: "",
+        render: (row) => (
+          <Label type={row.status.toLocaleLowerCase() as any} text={row.status} />
+        ),
+      },
+      {
+        key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
+        label:"",
+        render: (row) => (
+          <Button
+            size="small"
+            onClick={() => handleOpenDetails(row)}
+            variant="ghost"
+            hideIcon
+          >
+            ...
+          </Button>
+        ),
+        cellClass: "w-10 text-right",
+        headerClass: "w-10 text-right",
+      },
+    ],
+    [handleOpenDetails]
+  );
 
   const columns: ColumnDefinition<BillingDocumentDetailsTable>[] = useMemo(
     () => [
@@ -131,7 +130,7 @@ const RequisitionDetailsDocument: React.FC = () => {
         headerClass: "w-28 text-right",
       },
     ],
-    [rows]
+    [handleOpenDetails]
   );
 
   const isBusy = Boolean(loading || downloadingDocument);

@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
-import useAlert from './useAlert'
 import { describe, it, expect } from 'vitest'
+
+import useAlert from './useAlert'
 
 const sampleAlert = { title: 't', description: 'd' }
 

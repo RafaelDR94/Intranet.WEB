@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react';
 import clsx from 'clsx';
-import { InputProps } from './types';
+import React from 'react';
+
+import useInput from './hooks/useInput'
 import {
   containerClasses,
   labelClasses,
@@ -11,9 +12,11 @@ import {
   textareaClasses,
   eyesicontyles
 } from './styles'
+import { InputProps } from './types';
+
 import EyeIcon from '@/assets/icons/acciones/eye-alt.svg'
 import EyeOffIcon from '@/assets/icons/acciones/eye-close.svg'
-import useInput from './hooks/useInput'
+
 
 /**
  * Campo de texto **controlado** con soporte de variantes visuales, tamaños y modo multilinea.

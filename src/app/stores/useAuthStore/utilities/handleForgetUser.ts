@@ -1,5 +1,6 @@
 'use client'
 import type { Set } from '../types'
+
 import { forgetUser } from '@/app/context/AuthContext/utilities/AuthService'
 
 export const handleForgetUser = async (set: Set): Promise<void> => {

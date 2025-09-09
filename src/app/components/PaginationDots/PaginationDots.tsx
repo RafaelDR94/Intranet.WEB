@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+
 import { paginationDotsStyles } from './styles';
 import { Props } from './types';
 

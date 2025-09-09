@@ -1,11 +1,12 @@
 // src/app/stores/proyects/utilities/fetchProyects.ts
+import type { Set, Get } from '../types'
+
 import { ReportsProyects } from '@/app/configurations/Axios/urls'
 import { ProyectsMap } from '@/app/mappings/proyects/proyects.mapper'
 import type { Proyect } from '@/app/mappings/proyects/proyects.types'
-import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import type { Set, Get } from '../types'
 
 /**
  * Recupera los proyectos activos del backend y los guarda en el estado.

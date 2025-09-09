@@ -1,14 +1,16 @@
 "use client";
-import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
-import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile-rp.png"
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+
 import { recoverEmailStyles } from "./styles";
-import { basicPut } from "@/app/configurations/Axios/GenericMethods";
+
 import { intranetClient } from "@/app/configurations/Axios/Clients";
+import { basicPut } from "@/app/configurations/Axios/GenericMethods";
 import { AuthRecoverPassword } from "@/app/configurations/Axios/urls";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile-rp.png"
 
 const RecoverEmailClient = () => {
     const searchParams = useSearchParams();

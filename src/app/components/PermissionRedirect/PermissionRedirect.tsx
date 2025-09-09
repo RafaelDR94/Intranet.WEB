@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+
 import { usePermissionRedirect } from './hooks/usePermissionRedirect';
 import { container, message, button } from './styles';
 import type { PermissionRedirectProps } from './types';

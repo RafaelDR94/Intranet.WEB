@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { fetchFirebaseConfiguration } from './fetchFirebaseConfiguration'
+
 import type { AuthState, Set, Get } from '../types'
+
+import { fetchFirebaseConfiguration } from './fetchFirebaseConfiguration'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pGet: () => async () => ({ data: { apiKey: 'k' } }) }))

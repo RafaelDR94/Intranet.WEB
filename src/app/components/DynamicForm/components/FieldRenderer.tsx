@@ -1,14 +1,16 @@
-import React from "react";
-import { FieldRendererProps } from "./types";
-import { Input } from "../../Input/Input";
-import { Select } from "../../Select/Select";
-import { ToggleButton } from "../../ToogleButton/ToogleButton";
-import { Checkbox } from "../../CheckBox/CheckBox";
-import { FileUploader } from "../../FileUploader/FileUploader";
-import { NumberControl } from "../../NumberControl/NumberControl";
-import { helperClasses } from "../../Input/styles";
-import type { InputVariant } from "../../Input/types.tsx";
-import { fieldRendererStyles } from "./styles";
+import React from 'react';
+
+import { Checkbox } from '../../CheckBox/CheckBox';
+import { FileUploader } from '../../FileUploader/FileUploader';
+import { Input } from '../../Input/Input';
+import { helperClasses } from '../../Input/styles';
+import type { InputVariant } from '../../Input/types.tsx';
+import { NumberControl } from '../../NumberControl/NumberControl';
+import { Select } from '../../Select/Select';
+import { ToggleButton } from '../../ToogleButton/ToogleButton';
+
+import { fieldRendererStyles } from './styles';
+import { FieldRendererProps } from './types';
 /**
  * Renderiza un campo individual dentro de un formulario dinámico.
  * El tipo de campo se determina por `field.type`.

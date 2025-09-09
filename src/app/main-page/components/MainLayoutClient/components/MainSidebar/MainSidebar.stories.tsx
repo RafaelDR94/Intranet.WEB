@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
+
 import MainSidebar from './MainSidebar';
 import { SidebarRoute } from './types';
+
 import HomeIcon from '@/assets/icons/navegacion/home.svg';
 
 const routes: SidebarRoute[] = [

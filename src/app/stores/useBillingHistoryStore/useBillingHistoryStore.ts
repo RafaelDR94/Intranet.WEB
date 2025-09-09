@@ -1,6 +1,7 @@
 'use client'
-import { createWithEqualityFn } from 'zustand/traditional'
 import { devtools } from 'zustand/middleware'
+import { createWithEqualityFn } from 'zustand/traditional'
+
 import type { BillingHistoryState } from './types'
 import { fetchBillingHistory } from './utilities'
 

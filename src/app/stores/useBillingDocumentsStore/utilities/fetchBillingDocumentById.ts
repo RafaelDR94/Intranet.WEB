@@ -1,13 +1,15 @@
 // src/app/stores/useBillingDocumentsStore/utilities/fetchBillingDocumentById.ts
 'use client'
 import type { AxiosResponse } from 'axios'
-import { BillingDocumentById } from '@/app/configurations/Axios/urls'
-import type { BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
+
 import { Get, Set } from '../types'
+
+import { BillingDocumentById } from '@/app/configurations/Axios/urls'
+import { BillingDocumentMap } from '@/app/mappings/billingdocuments/billingdocuments.mapper'
+import type { BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-import { BillingDocumentMap } from '@/app/mappings/billingdocuments/billingdocuments.mapper'
 /**
  * Obtiene un documento de factura por ID.
  *

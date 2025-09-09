@@ -1,24 +1,24 @@
 // app/layouts/components/MobileSidebar/MobileSidebar.tsx
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
+import React from 'react';
 
 
-import LogoDr from '@/assets/images/LogosDR/DReDIT.png';
-import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
-import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';
-import SubArrowIcon from '@/assets/icons/navegacion/long-arrow-down-right.svg';
-// import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
-import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
-import HelpIcon from '@/assets/icons/acciones/help-circle.svg';
-import LogoutIcon from '@/assets/icons/acciones/open-in-window.svg';
+import useMobileSideBar from './hooks/useMobileSideBar';
+import { MobileSidebarProps } from './types';
 
 import PersonalAvatar from '@/app/components/PersonalAvatar/PersonalAvatar';
 import { ToggleButton } from '@/app/components/ToogleButton/ToogleButton';
-import useMobileSideBar from './hooks/useMobileSideBar';
-import { MobileSidebarProps } from './types';
+import HelpIcon from '@/assets/icons/acciones/help-circle.svg';
+import LogoutIcon from '@/assets/icons/acciones/open-in-window.svg';
+import SubArrowIcon from '@/assets/icons/navegacion/long-arrow-down-right.svg';
+import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';
+import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
+// import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
+import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
+import LogoDr from '@/assets/images/LogosDR/DReDIT.png';
 
 
 const MobileSidebar: React.FC<MobileSidebarProps> = ({
@@ -59,7 +59,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3">
-          <Image src={LogoDr} alt="DR Security" width={110} height={110} />
+          <Image src={LogoDr} alt="DR Security" width={110} height={110} priority   />
           <button
             onClick={onClose}
             className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"

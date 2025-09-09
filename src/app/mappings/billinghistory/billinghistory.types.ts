@@ -1,5 +1,5 @@
-import { Proyect } from "../proyects/proyects.types"
 import { BillingDocumentCategory, BillingDocumentDescription } from "../billingdocuments/billingdocuments.types"
+import { Proyect } from "../proyects/proyects.types"
 export type HistoryRow = {
   id: string,
   billing_image_id: string

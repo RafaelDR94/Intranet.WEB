@@ -1,6 +1,6 @@
 import { DepartmentType } from "../department/department.types";
-import { WorkPositionType } from "../workposition/workposition.types";
 import { UserType } from "../users/user.types";
+import { WorkPositionType } from "../workposition/workposition.types";
 export type EmployeeType = {
   employee_id: string;
   employee_number: string;

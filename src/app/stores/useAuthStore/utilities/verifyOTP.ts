@@ -1,7 +1,9 @@
 'use client'
 import type { Set, Get } from '../types'
-import { validateOTP, readUser } from '@/app/context/AuthContext/utilities/AuthService'
+
 import { setInterceptor } from './interceptor'
+
+import { validateOTP, readUser } from '@/app/context/AuthContext/utilities/AuthService'
 
 export const verifyOTP = async (
   set: Set,

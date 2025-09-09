@@ -3,6 +3,7 @@
  * Devuelve las iniciales proporcionadas o las generadas a partir del alt.
  */
 import { useMemo } from 'react';
+
 import { getInitials } from '../utilities/getInitials';
 
 export const useAvatar = (initials?: string, alt?: string) =>

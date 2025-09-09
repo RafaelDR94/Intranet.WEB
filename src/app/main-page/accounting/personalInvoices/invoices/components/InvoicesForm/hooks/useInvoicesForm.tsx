@@ -1,17 +1,20 @@
 import { useEffect, useMemo } from "react";
 import { shallow } from "zustand/shallow";
-import { FieldModel } from "@/app/components/DynamicForm/types";
-import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+
 import { useInvoices } from "../../../context/InvoicesContext";
 import useInitInvoicesForms from "../../../hooks/useInitInvoicesForms";
 import { createInvoiceFields } from "../../../utilities/InitialFields";
-import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
+
+import { UseInvoicesFormReturn, UseInvoicesFormProps } from "./types";
+
+import { FieldModel } from "@/app/components/DynamicForm/types";
+import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type {
   BillingDocumentsPost,
   BillingDocumentsPut,
 } from "@/app/mappings/billingdocuments/billingdocuments.types";
-import { UseInvoicesFormReturn, UseInvoicesFormProps } from "./types";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
 
 const useInvoicesForm = ({
@@ -271,8 +274,7 @@ const useInvoicesForm = ({
         variant: "filled",
         title: isEdit ? "No se pudo actualizar" : "No se pudo enviar",
         description:
-          String(err) ??
-          "Ocurrió un error al subir los archivos. Intenta de nuevo.",
+          String(err) || "Ocurrió un error al subir los archivos. Intenta de nuevo.",
         showPrimaryButton: true,
         primaryLabel: "Entendido",
         onPrimaryClick: hideAlert,
@@ -330,18 +332,16 @@ const useInvoicesForm = ({
         autoCloseMs: 1500,
       });
     }
+       // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     creating,
     updating,
     error,
     successPost,
     successPut,
-    hideSpinner,
-    showAlert,
-    hideAlert,
-    resetFlags,
     submitRef,
     isEdit,
+    user,
   ]);
 
   return {

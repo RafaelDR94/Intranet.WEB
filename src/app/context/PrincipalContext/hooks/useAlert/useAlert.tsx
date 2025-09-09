@@ -1,5 +1,6 @@
 // context/PrincipalContext/hooks/useAlert/useAlert.ts
 import { useState, useCallback } from 'react';
+
 import { AlertProps } from '@/app/components/Alert/types';
 
 /**

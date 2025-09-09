@@ -1,8 +1,12 @@
 import { describe, it, expect, vi } from 'vitest'
-import { verifyOTP } from './verifyOTP'
+
 import type { AuthState, Set, Get } from '../types'
-import { validateOTP, readUser } from '@/app/context/AuthContext/utilities/AuthService'
+
 import { setInterceptor } from './interceptor'
+import { verifyOTP } from './verifyOTP'
+
+import { validateOTP } from '@/app/context/AuthContext/utilities/AuthService'
+
 
 vi.mock('@/app/context/AuthContext/utilities/AuthService', () => ({
   validateOTP: vi.fn(),

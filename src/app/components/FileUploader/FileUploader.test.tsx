@@ -1,8 +1,8 @@
 
 // src/app/components/FileUploader/FileUploader.test.tsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 // ─── Mocks para TODOS los SVGs que usa FileUploader ────────────────────────────
 vi.mock('@/assets/icons/navegacion/nav-arrow-right.svg', () => ({

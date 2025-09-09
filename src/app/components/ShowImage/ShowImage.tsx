@@ -1,9 +1,11 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
+
 import { classes } from './styles';
+import { ShowImageProps } from './types';
+
 import { Button } from '@/app/components/Button/Button';
 import CloseIcon from '@/assets/icons/acciones/cancel.svg';
-import { ShowImageProps } from './types';
 
 const ShowImage: React.FC<ShowImageProps> = ({
     open,

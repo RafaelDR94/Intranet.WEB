@@ -1,9 +1,10 @@
-import { useCallback, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import type { FieldModel } from "@/app/components/DynamicForm/types";
-import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
+
+import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { PutRecoverPassword } from "@/app/mappings/auth/auth.types";
+import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
 /** Campos del formulario de recuperación de contraseña */
 export const recoverPasswordFields: FieldModel[] = [
@@ -32,7 +33,8 @@ export interface UseRecoverPassword {
 export default function useRecoverPassword(
   routerOverride?: ReturnType<typeof useRouter>
 ): UseRecoverPassword {
-  const router = routerOverride ?? useRouter();
+  const routerFromHook = useRouter();
+  const router = routerOverride ?? routerFromHook;
 
   // Estado local
   const [isLoading, setIsLoading] = useState(false);

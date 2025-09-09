@@ -1,12 +1,15 @@
 // src/app/components/NumberControl/NumberControl.tsx
 'use client';
 
-import React from 'react';
 import clsx from 'clsx';
-import { Control } from '@/app/components/Control/Control';
+import React from 'react';
+
+import { useNumberControl } from './hooks/useNumberControl';
 import { numberControlStyles as s } from './styles';
 import { NumberControlProps } from './types';
-import { useNumberControl } from './hooks/useNumberControl';
+
+import { Control } from '@/app/components/Control/Control';
+
 /**
  * Campo numérico con **botones de incremento/decremento** y entrada de texto.
  *

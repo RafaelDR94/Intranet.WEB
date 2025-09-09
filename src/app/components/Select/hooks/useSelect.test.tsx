@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
-import useSelect from './useSelect'
 import { describe, it, expect } from 'vitest'
+
+import useSelect from './useSelect'
 
 describe('useSelect',()=>{
   it('toggles option on click',()=>{

@@ -1,15 +1,19 @@
-import React from "react";
-import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
-import TicketForm from "../../invoices/components/TicketForm/TicketForm";
-import { Button } from "@/app/components/Button/Button";
-import Label from "@/app/components/Label/Label";
-import { useRef } from "react";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import XMLIcon from '@/assets/icons/Docs/privacy policy.svg'
-import PDFIcon from '@/assets/icons/Docs/page.svg'
-import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
+import React, { useRef } from "react";
+
 import InvoicesForm from "../../invoices/components/InvoicesForm/InvoicesForm";
+import TicketForm from "../../invoices/components/TicketForm/TicketForm";
+
 import { SideMenuProps } from "./types";
+
+import { Button } from "@/app/components/Button/Button";
+import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
+import Label from "@/app/components/Label/Label";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import PDFIcon from '@/assets/icons/Docs/page.svg'
+import XMLIcon from '@/assets/icons/Docs/privacy policy.svg'
+import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
+
+
 
 
 const SideMenu: React.FC<SideMenuProps> = ({ panelOpen, setPanelOpen, selected }) => {

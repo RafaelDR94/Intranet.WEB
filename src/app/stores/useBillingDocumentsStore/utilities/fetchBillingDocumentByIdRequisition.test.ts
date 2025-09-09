@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { fetchBillingDocumentByIdRequisition } from './fetchBillingDocumentByIdRequisition'
+
 import type { BillingDocumentsState, Set, Get } from '../types'
+
+import { fetchBillingDocumentByIdRequisition } from './fetchBillingDocumentByIdRequisition'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pGet: () => async () => ({ data: { data: [{ billingdocument_id: '1' }] } }) }))

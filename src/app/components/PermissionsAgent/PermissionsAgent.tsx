@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/app/context/AuthContext/AuthContext';
 import { usePathname, redirect } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+
 import { Spinner } from '../Spinner/Spinner';
+
 import { loadingContainer, spinnerLabel, notPermissions } from './styles';
 import { PermissionAgentProps } from './types';
+
+import { useAuth } from '@/app/context/AuthContext/AuthContext';
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 /**
  * Componente guardián que impide renderizar el contenido si el usuario no
@@ -33,31 +36,28 @@ export const PermissionAgent: React.FC<PermissionAgentProps> = ({
         title: "Sesión caducada",
         description: "El tiempo activo de tu sesión ha finalizado",
         autoCloseMs: 2000,
-        showPrimaryButton:false,
-        showSecondaryButton:false
+        showPrimaryButton: false,
+        showSecondaryButton: false
       });
       setTimeout(() => {
         redirect("/login")
       }, 2000)
     }
 
-  }, [hasExpired])
+  }, [hasExpired, showAlert])
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-
     const evaluatePermissions = () => {
       const result = validPermissionsbyroute(routeToCheck);
       setHasPermission(result);
       setChecking(false);
     };
 
-    // Esperamos 100ms por si treeFirebase aún no está
-    timeout = setTimeout(evaluatePermissions, 150);
+    const timeoutId: ReturnType<typeof setTimeout> = setTimeout(evaluatePermissions, 150);
 
-    return () => clearTimeout(timeout);
-  }, [user?.treeFirebase, routeToCheck]);
-
+    return () => clearTimeout(timeoutId);
+  }, [user?.treeFirebase, routeToCheck, validPermissionsbyroute]);
+  
   if (checking || hasPermission === null) {
     return (
       <div className={loadingContainer}>

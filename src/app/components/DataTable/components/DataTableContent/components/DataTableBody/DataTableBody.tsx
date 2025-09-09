@@ -1,8 +1,11 @@
 import React from 'react'
-import { DataTableBodyProps } from './types'
-import { Checkbox } from '@/app/components/CheckBox/CheckBox'
-import { DataTableBodyStyles } from './styles'
+
 import { useIsMobile } from '../../../DataTableLayout/hooks/useMediaQuery'
+
+import { DataTableBodyStyles } from './styles'
+import { DataTableBodyProps } from './types'
+
+import { Checkbox } from '@/app/components/CheckBox/CheckBox'
 
 export const DataTableBody = <T extends { id: string | number }>({
   data,

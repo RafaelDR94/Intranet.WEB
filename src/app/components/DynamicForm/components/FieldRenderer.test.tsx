@@ -1,8 +1,11 @@
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { FieldRenderer } from './FieldRenderer';
+
 import { FieldModel } from '../types';
+
+import { FieldRenderer } from './FieldRenderer';
+
 
 // Opcional: mock del Select para evitar errores con SVGs
 vi.mock('../../Select/Select', () => ({

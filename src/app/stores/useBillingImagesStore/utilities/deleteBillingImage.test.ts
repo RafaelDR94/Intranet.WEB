@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { deleteBillingImage } from './deleteBillingImage'
+
 import type { BillingImagesState, Set, Get } from '../types'
+
+import { deleteBillingImage } from './deleteBillingImage'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pDelete: () => async () => ({}) }))

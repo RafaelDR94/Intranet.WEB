@@ -1,15 +1,18 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
-import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg';
-import CustomRadio from '../CustomRadio/CustomRadio';
-import { Checkbox } from '../CheckBox/CheckBox';
-import { ToggleButton } from '../ToogleButton/ToogleButton';
+import React, { useCallback, useEffect, useRef } from 'react';
+
 import { Button } from '../Button/Button';
+import { Checkbox } from '../CheckBox/CheckBox';
 import { Control } from '../Control/Control';
-import { ContextMenuItem, ContextMenuProps } from './types';
-import { contextMenuStyles as cm } from './styles';
+import CustomRadio from '../CustomRadio/CustomRadio';
+import { ToggleButton } from '../ToogleButton/ToogleButton';
+
 import { useContextMenu } from './hooks/useContextMenu';
+import { contextMenuStyles as cm } from './styles';
+import { ContextMenuItem, ContextMenuProps } from './types';
+
+import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg';
 
 
 const cx = (...classes: Array<string | false | null | undefined>) =>
@@ -66,14 +69,14 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   const instanceId = useRef(Symbol('ctxmenu'));
 
   // Cierre seguro (funciona en modo controlado y no controlado)
-  const requestClose = () => {
+  const requestClose = useCallback(() => {
     if (setIsOpen) {
       setIsOpen(false);
     } else if (menuIsOpen) {
       // fallback si no hay setIsOpen
       toggleMenu();
     }
-  };
+  }, [setIsOpen, menuIsOpen, toggleMenu]);
 
   // Coordinar instancias: cuando se abre una, las demás se cierran
   useEffect(() => {
@@ -86,7 +89,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     };
     window.addEventListener(OPEN_EVENT, onAnotherOpen as EventListener);
     return () => window.removeEventListener(OPEN_EVENT, onAnotherOpen as EventListener);
-  }, [menuIsOpen]);
+  }, [menuIsOpen, requestClose]);
 
   // Emitir evento cuando esta instancia se abre
   useEffect(() => {
@@ -96,8 +99,10 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   }, [menuIsOpen]);
 
   // 👉 util para saber si el target está dentro de algún ref ignorado
-  const isInsideIgnored = (node: Node) =>
-    ignoreRefs.some((r) => r?.current && r.current.contains(node));
+  const isInsideIgnored = useCallback(
+    (node: Node) => ignoreRefs.some((r) => r?.current && r.current.contains(node)),
+    [ignoreRefs]
+  );
 
   // Cerrar con click fuera y con Escape
   useEffect(() => {
@@ -133,7 +138,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
       document.removeEventListener('pointerdown', handlePointerDown, { capture: true } as any);
       document.removeEventListener('keydown', handleKeydown);
     };
-  }, [menuIsOpen, ignoreRefs]);
+  }, [menuIsOpen, ignoreRefs, isInsideIgnored, menuRef, requestClose, rootRef]);
 
   const renderControl = (item: ContextMenuItem) => {
     const p = item.controlProps ?? {};

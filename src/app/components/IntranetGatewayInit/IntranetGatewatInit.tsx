@@ -2,6 +2,7 @@
 'use client'
 
 import { useLayoutEffect } from 'react'
+
 import useIntranetCRUD from '@/app/hooks/useIntranetCRUD/useIntranetCRUD'
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
 

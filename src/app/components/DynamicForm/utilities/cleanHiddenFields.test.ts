@@ -1,6 +1,8 @@
 import { describe,it,expect } from 'vitest'
-import { cleanHiddenFields } from './cleanHiddenFields'
+
 import { FieldModel } from '../types'
+
+import { cleanHiddenFields } from './cleanHiddenFields'
 
 describe('cleanHiddenFields',()=>{
   it('clears values of hidden fields',()=>{

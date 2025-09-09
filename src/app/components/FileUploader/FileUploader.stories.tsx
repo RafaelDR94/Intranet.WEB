@@ -1,9 +1,11 @@
 // src/app/components/FileUploader/FileUploader.stories.tsx
 
 import { Meta, StoryObj } from '@storybook/react';
-import UploadIcon from '@/assets/icons/acciones/upload.svg';
+
 import { FileUploader } from './FileUploader';
 import { FileUploaderProps } from './types';
+
+import UploadIcon from '@/assets/icons/acciones/upload.svg';
 export default {
   title: 'Components/FileUploader',
   component: FileUploader,

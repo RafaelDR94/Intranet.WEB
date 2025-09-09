@@ -652,4 +652,31 @@ Genera nesting excesivo y es menos legible que `custom hooks` o `Compound Compon
 
 ---
 
+
+## 🚀 Infraestructura CI/CD
+
+Este proyecto implementa un flujo completo de **Integración y Despliegue Continuo** con GitHub Actions.
+
+### Archivos relevantes
+- `.github/workflows/ci.yml` → Validación de build, lint y pruebas en cada push/PR a `dev`.
+- `.github/workflows/cd-dev.yml` → Despliegue automático al entorno **dev**.
+- `.github/workflows/cd-staggin.yml` → Despliegue automático al entorno **staging**.
+- `.github/workflows/cd-main.yml` → Despliegue automático al entorno **producción**.
+
+###  Reglas de Calidad y Validación” (añade bullets)
+
+- **ESLint**: `next lint` con reglas para TS/React/Imports.
+- **Prettier**: formato consistente y orden de clases Tailwind (v4) vía `prettier-plugin-tailwindcss`.
+- Scripts: `lint`, `lint:fix`, `format`.
+
+
+### Flujo de ramas y despliegues
+```mermaid
+graph TD
+A[feature/* o fix/*] -->|PR| B(dev)
+B -->|CI + merge| C[Entorno dev]
+C --> D(staging)
+D --> E(main)
+
+
 Seguir esta guía garantiza una base de código modular, coherente y fácil de escalar en el tiempo. 🎯

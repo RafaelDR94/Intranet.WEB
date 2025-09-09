@@ -1,7 +1,8 @@
 
-import { User } from "../types";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+
+import { User } from "../types";
 interface UsePermissionProp {
   user: User | null;
 }
@@ -123,6 +124,7 @@ const usePermissions = ({ user }: UsePermissionProp) => {
   const [currentPagePermissions, setCurrentPagePermissions] = useState<any>()
   useEffect(() => {
     if (user?.treeFirebase) setCurrentPagePermissions(getCurrentPathPermissions());
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, pathname])
 
   return {

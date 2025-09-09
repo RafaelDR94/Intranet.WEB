@@ -1,17 +1,24 @@
 "use client";
 
 import React from "react";
-import { Input } from "@/app/components/Input/Input";
-import { Button } from "@/app/components/Button/Button";
+
+import { useDataTableLayout } from "./hooks/useDataTableLayout";
+import { useIsMobile } from "./hooks/useMediaQuery";
+import { useTableLayoutStyles } from "./styles";
 import type { TableLayoutProps } from "./types";
+
+import { Button } from "@/app/components/Button/Button";
+import { Calendar } from "@/app/components/Calendar/Calendar";
+import { ContextMenu } from "@/app/components/ContextMenu/ContextMenu";
+import { Input } from "@/app/components/Input/Input";
+import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import FilterIcon from "@/assets/icons/organization/filter-alt.svg";
 import SearchIcon from "@/assets/icons/organization/search.svg";
-import { useTableLayoutStyles } from "./styles";
-import { Calendar } from "@/app/components/Calendar/Calendar";
-import { useDataTableLayout } from "./hooks/useDataTableLayout";
-import DownloadIcon from "@/assets/icons/acciones/download.svg";
-import { ContextMenu } from "@/app/components/ContextMenu/ContextMenu";
-import { useIsMobile } from "./hooks/useMediaQuery";
+
+
+
+
+
 
 const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
   const {
@@ -90,12 +97,12 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
   )}
 
   {/* ✅ Solo renderiza actionsRender en DESKTOP */}
-  {!isMobile && props.actionsRender && (
-    <div className="flex items-center gap-2">{props.actionsRender()}</div>
+  {!isMobile && actionsRender && (
+    <div className="flex items-center gap-2">{actionsRender()}</div>
   )}
 
   {/* ✅ Botón primario por defecto SOLO si no hay actionsRender */}
-  {showButton && !props.actionsRender && (
+  {showButton && !actionsRender && (
     <Button variant="solid" size="large" hideIcon onClick={onTableActionClick}>
       {actionLabel}
     </Button>

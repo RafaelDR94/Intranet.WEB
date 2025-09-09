@@ -1,8 +1,10 @@
-import React from 'react';
 import clsx from 'clsx';
+import React from 'react';
+
 import { tabStyles } from './styles';
-import FastArrowRightIcon from '@/assets/icons/navegacion/fast-arrow-right.svg';
 import { TabProps } from './types';
+
+import FastArrowRightIcon from '@/assets/icons/navegacion/fast-arrow-right.svg';
 
 /**
  * Pestaña (`Tab`) reutilizable para interfaces por categorías o secciones.

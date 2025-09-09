@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+
 import { PermissionRedirect } from './PermissionRedirect';
 
 export const PermissionRedirectCatalog: React.FC = () => (

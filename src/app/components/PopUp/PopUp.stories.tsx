@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { PopUp } from './PopUp';
+
 import FormTestPage from '../DynamicForm/FormTestPage';
+
+import { PopUp } from './PopUp';
 
 const meta: Meta<typeof PopUp> = {
   title: 'Components/PopUp',

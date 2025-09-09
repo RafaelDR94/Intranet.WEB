@@ -1,12 +1,15 @@
 'use client'
-import React from 'react'
 import clsx from 'clsx'
-import { AlertProps, AlertType } from './types'
-import * as styles from './styles'
-import InfoIcon from '@/assets/icons/acciones/info-empty.svg'
-import SuccessIcon from '@/assets/icons/organization/star.svg'
-import WarningIcon from '@/assets/icons/bussines/high-priority.svg'
+import React from 'react'
+
 import { useAlertComponent } from './hooks/useAlert'
+import * as styles from './styles'
+import { AlertProps, AlertType } from './types'
+
+import InfoIcon from '@/assets/icons/acciones/info-empty.svg'
+import WarningIcon from '@/assets/icons/bussines/high-priority.svg'
+import SuccessIcon from '@/assets/icons/organization/star.svg'
+
 /**
  * Componente de **alerta** para mostrar mensajes de retroalimentación.
  *

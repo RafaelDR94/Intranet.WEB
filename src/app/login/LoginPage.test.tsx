@@ -1,8 +1,8 @@
 // LoginPage.test.tsx
-import React from 'react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // --- Mocks base --- //
 vi.mock('next/link', () => {
@@ -18,7 +18,10 @@ vi.mock('next/link', () => {
 vi.mock('next/image', () => {
   // Componente <img> simple para probar presencia por alt
   return {
-    default: ({ alt, ...props }: any) => <img alt={alt} {...props} />,
+    default: ({ alt, ...props }: any) => (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img alt={alt} {...props} />
+    ),
   };
 });
 
@@ -210,3 +213,4 @@ describe('LoginPage', () => {
     expect(screen.getByAltText('Fondo DR Security (mobile)')).toBeInTheDocument();
   });
 });
+/* eslint-disable @next/next/no-img-element */

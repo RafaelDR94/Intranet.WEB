@@ -1,14 +1,19 @@
 // src/app/stores/useBillingImagesStore/utilities/updateBillingImage.ts
 'use client'
 import type { AxiosResponse } from 'axios'
-import { BillingImages as BillingImagesUrl } from '@/app/configurations/Axios/urls'
-import type { BillingImages, BillingPut } from '@/app/mappings/billingimages/billingimages.types'
+
 import type { Set, Get } from '../types'
-import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { pPut } from '@/app/utilities/Http/promisifyIntranet'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+
 import { fetchBillingImages } from './fetchBillingImages'
+
+import { BillingImages as BillingImagesUrl } from '@/app/configurations/Axios/urls'
 import { BillingPutMap } from '@/app/mappings/billingimages/billingimages.mapper'
+import type { BillingImages, BillingPut } from '@/app/mappings/billingimages/billingimages.types'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+import { pPut } from '@/app/utilities/Http/promisifyIntranet'
+import { requireGateway } from '@/app/utilities/Http/requireGateway'
+
+
 
 /**
  * Actualiza una imagen de factura en el backend.

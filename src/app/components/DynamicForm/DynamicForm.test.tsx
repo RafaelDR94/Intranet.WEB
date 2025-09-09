@@ -1,8 +1,9 @@
 // src/app/components/DynamicForm/DynamicForm.test.tsx
-import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
+
 import { DynamicForm } from './DynamicForm'
 import { FieldModel } from './types'
 // --- MOCK de TODOS los SVGs que se importan a lo largo del formulario ---

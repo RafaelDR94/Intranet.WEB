@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
-import { handleForgetUser } from './handleForgetUser'
+
 import type { AuthState, Set } from '../types'
+
+import { handleForgetUser } from './handleForgetUser'
+
 import { forgetUser } from '@/app/context/AuthContext/utilities/AuthService'
 
 vi.mock('@/app/context/AuthContext/utilities/AuthService', () => ({

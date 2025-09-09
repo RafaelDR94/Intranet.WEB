@@ -2,13 +2,17 @@
 
 import clsx from 'clsx';
 import React, { useState } from 'react';
+
+import { useIsMobile } from '../DataTable/components/DataTableLayout/hooks/useMediaQuery';
+
 import { detailsPanelStyles, detailsPanelStyles as s } from './styles';
+import { DetailsPanelProps } from './types';
+
+import { Button } from '@/app/components/Button/Button';
+import CloseIcon from '@/assets/icons/acciones/cancel.svg';
 import ExpandIcon from '@/assets/icons/navegacion/sidebar-collapse.svg';
 import CollapseIcon from '@/assets/icons/navegacion/sidebar-expand.svg';
-import CloseIcon from '@/assets/icons/acciones/cancel.svg';
-import { DetailsPanelProps } from './types';
-import { Button } from '@/app/components/Button/Button';
-import { useIsMobile } from '../DataTable/components/DataTableLayout/hooks/useMediaQuery';
+
 export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
     open,
     expanded,

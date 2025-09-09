@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { PaginationProps } from './types';
-import { container } from './styles';
+
 import usePagination from './hooks/usePagination';
+import { container } from './styles';
+import { PaginationProps } from './types';
 /**
  * Paginador simple con botones numerados y flechas anterior/siguiente.
  *

@@ -1,9 +1,11 @@
 'use client'
 
 import React from 'react'
+
+import { AddFilesComponentProps } from "./types"
+
 import InvoicesForm from "@/app/main-page/accounting/personalInvoices/invoices/components/InvoicesForm/InvoicesForm"
 import { InvoicesProvider } from "@/app/main-page/accounting/personalInvoices/invoices/context/InvoicesContext"
-import { AddFilesComponentProps } from "./types"
 
 
 const AddFilesComponent: React.FC<AddFilesComponentProps> = ({ billingImages, setSelectedPictures }) => {

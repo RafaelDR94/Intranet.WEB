@@ -1,6 +1,8 @@
 import React from 'react';
-import ExcelLoader from './components/ExcelLoader/ExcelLoader';
+
 import RequisitionsForm from '../components/RequisitionsForm/RequisitionsForm';
+
+import ExcelLoader from './components/ExcelLoader/ExcelLoader';
 
 const Requisitions = () => {
 

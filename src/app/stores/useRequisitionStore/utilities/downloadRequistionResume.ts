@@ -1,18 +1,19 @@
 // src/app/stores/useRequisitionStore/utilities/fetchRequisitions.ts
 'use client'
 import type { AxiosResponse } from 'axios'
-import { BillingReport } from '@/app/configurations/Axios/urls'
 
-import { Get, Set } from '../types'
+import { Set } from '../types'
+
+import { BillingReport } from '@/app/configurations/Axios/urls'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 
 /**
  * Obtiene las requisiciones activas del backend y actualiza el estado.
  *
  * @param set Función `set` de Zustand
- * @param get Función `get` de Zustand
+ * 
  * 
  */
 function extractFilenameFromDisposition(cd?: string): string | undefined {
@@ -44,7 +45,7 @@ const normalizeBase64 = (b64: string) => {
     return mod === 0 ? s : s + '==='.slice(mod)
 }
 
-export const downloadRequistionResume = async (idRequisition: string, set: Set, get: Get) => {
+export const downloadRequistionResume = async (idRequisition: string, set: Set) => {
     // cache básica
 
     set({ error: undefined, downloadingDocument: true, succesDownloadDocument: false })
@@ -61,7 +62,7 @@ export const downloadRequistionResume = async (idRequisition: string, set: Set, 
 
         const res: AxiosResponse<any> = await getReq(`${BillingReport}/${idRequisition}`)
         const cd = res.headers?.['content-disposition'] as string | undefined
-        let filename =
+        const filename =
             extractFilenameFromDisposition(cd) ?? `requisicion_${idRequisition}.xlsx`
         if (looksBase64(res?.data?.data)) {
             const bin = atob(normalizeBase64(res.data.data))

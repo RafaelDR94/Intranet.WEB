@@ -1,10 +1,12 @@
-import { useCallback, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import type { FieldModel } from "@/app/components/DynamicForm/types";
-import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+import { useCallback, useState, useEffect } from "react";
 import { shallow } from "zustand/shallow";
+
+import type { FieldModel } from "@/app/components/DynamicForm/types";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { PutChangePassword } from "@/app/mappings/auth/auth.types";
+import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+
 /**
  * Hook para evaluar un media query y responder a cambios.
  * @param query Media query CSS (ej: '(max-width: 600px)')
@@ -53,8 +55,10 @@ export default function useChangePassword(
   routerOverride?: ReturnType<typeof useRouter>,
   searchParamsOverride?: ReturnType<typeof useSearchParams>
 ): UseChangePassword {
-  const router = routerOverride ?? useRouter();
-  const searchParams = searchParamsOverride ?? useSearchParams();
+  const _routerFromHook = useRouter();
+  const searchParamsFromHook = useSearchParams();
+  const _router = routerOverride ?? _routerFromHook;
+  const searchParams = searchParamsOverride ?? searchParamsFromHook;
   const email = searchParams.get("user") ?? "";
   const { usePrincipalAlert } = usePrincipal();
   const { showAlert, hideAlert } = usePrincipalAlert;
@@ -86,7 +90,7 @@ export default function useChangePassword(
       // Mostrar success
     }
     resetFlags();
-  }, [recoveringPassword, error, successRecoverPassword]);
+  }, [recoveringPassword, error, successRecoverPassword, resetFlags]);
 
   const handleChange = useCallback(
     async (values: Record<string, any>) => {
@@ -109,7 +113,7 @@ export default function useChangePassword(
       };
       changePassword(payload);
     },
-    [email, showAlert, hideAlert, router]
+    [email, showAlert, hideAlert, changePassword]
   );
 
   return { isLoading, handleChange };

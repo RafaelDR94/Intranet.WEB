@@ -1,11 +1,12 @@
 
 import { useEffect, useMemo, useState } from "react";
-import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { shallow } from "zustand/shallow";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+
 import { UseDetailsPanelArgs } from "./types";
 
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsPutMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations, reqisition }: UseDetailsPanelArgs) => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
@@ -43,7 +44,6 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations
   );
 
   const handleSubmitComment = (values: Record<string, any>) => {
-    console.log("Selected",selected);
     const payload = BillingDocumentsPutMap({
       billingdocument_id: selected?.billingdocument_id ?? "",
       requisition_id: selected?.requisition?.billingrequisition_id ?? "",
@@ -132,7 +132,7 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations
       showAlert({
         type: "error",
         title: "Error al enviar comentario",
-        description: String(error) ?? "Hubo un problema al enviar tus comentarios",
+        description: String(error) || "Hubo un problema al enviar tus comentarios",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
@@ -140,7 +140,7 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations
     }
     resetFlags();
 
-  }, [updating, error, successPut, rejecting, validating, succesReject, succesValidate]);
+  }, [updating, error, successPut, rejecting, validating, succesReject, succesValidate, hideSpinner, resetFlags, setPanelOpen, showAlert, showSpinner]);
 
 
   return {

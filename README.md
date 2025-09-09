@@ -52,12 +52,18 @@ npm start
 
 ---
 
-## ✨ Despliegue
+## 🔄 CI/CD – Integración y Despliegue Continuo
 
-Pendiente
+Este proyecto utiliza **GitHub Actions** para CI/CD:
 
----
+- **CI (`ci.yml`)**: corre automáticamente en cada push/PR a `dev`.  
+  Valida **build, lint y tests** con Vitest.
+- **CD (`cd-dev.yml`, `cd-staggin.yml`, `cd-main.yml`)**: despliega automáticamente a Firebase Hosting en los entornos correspondientes:
+  - `dev` → entorno de desarrollo
+  - `staging` → entorno de preproducción
+  - `main` → producción
 
+> Los pipelines aseguran que solo código probado y validado llegue a producción.
 
 ## 📘 Storybook – Catálogo de componentes
 
@@ -255,8 +261,15 @@ disable: false
 npm run build
 npm run start
 ```
+## 🔎 Linting y formato
+Este proyecto usa **ESLint** (Next + TS + React + import rules) y **Prettier** (incluido el plugin de Tailwind para ordenar clases).
 
-
+**Comandos**
+```bash
+npm run lint        # analiza problemas
+npm run lint:fix    # intenta corregir automáticamente
+npm run format      # Prettier sobre el repo
+```
 ## 🤝 Contribuir
 
 Para más detalles sobre cómo contribuir, revisa **CONTRIBUTING.md**.

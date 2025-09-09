@@ -1,7 +1,9 @@
-import React from 'react'
 import { render, waitFor } from '@testing-library/react'
-import ThemeInitializer from './ThemeInitializer'
+import React from 'react'
 import { vi } from 'vitest'
+
+import ThemeInitializer from './ThemeInitializer'
+
 
 vi.mock('../PrincipalContext', () => ({
   usePrincipal: () => ({ usePrincipalTheme: { theme: 'dark' } })

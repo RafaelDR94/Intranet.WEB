@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+import React, { useState } from 'react';
 import { Control } from './Control';
 
 // --- 🎯 Meta de Storybook ---
@@ -10,26 +10,31 @@ const meta: Meta<typeof Control> = {
 };
 export default meta;
 
-type Story = StoryObj<typeof Control>;
 
+type Story = StoryObj<typeof Control>;
 // --- 🎨 Decoradores de tema ---
 
-const withTheme = (theme: 'light' | 'dark') => (Story: any) => (
-  <div
-    data-theme={theme}
-    style={{
-      backgroundColor: 'var(--color-gray-10)',
-      color: 'var(--color-foreground)',
-      minHeight: '30vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: '2rem',
-    }}
-  >
-    <Story />
-  </div>
-);
+const withTheme = (theme: 'light' | 'dark') => {
+  const ThemedDecorator = (Story: any) => (
+    <div
+      data-theme={theme}
+      style={{
+        backgroundColor: 'var(--color-gray-10)',
+        color: 'var(--color-foreground)',
+        minHeight: '30vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '2rem',
+      }}
+    >
+      <Story />
+    </div>
+  );
+  ThemedDecorator.displayName = `withTheme(${theme})`;
+  return ThemedDecorator;
+};
+
 
 const withLightTheme = withTheme('light');
 const withDarkTheme = withTheme('dark');

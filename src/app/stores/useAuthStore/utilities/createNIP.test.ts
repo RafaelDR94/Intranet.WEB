@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { createNip } from './createNIP'
+
 import type { AuthState, Set, Get } from '../types'
+
+import { createNip } from './createNIP'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pPost: () => async () => ({}) }))

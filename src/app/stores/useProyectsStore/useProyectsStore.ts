@@ -1,8 +1,9 @@
 // src/store/useProyectsStore.ts
 'use client'
 
-import { createWithEqualityFn } from 'zustand/traditional'
 import { devtools } from 'zustand/middleware'
+import { createWithEqualityFn } from 'zustand/traditional'
+
 import type { ProyectsState } from './types'
 import { fetchProyects } from './utilities/fetchProyects'
 
