@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { PermissionRedirect } from './PermissionRedirect';
 
 const meta: Meta<typeof PermissionRedirect> = {

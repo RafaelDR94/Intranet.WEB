@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React, { useState } from 'react';
+
 import DetailsPanelLayout from './DetailsPanelLayout';
 
 const meta: Meta<typeof DetailsPanelLayout> = {

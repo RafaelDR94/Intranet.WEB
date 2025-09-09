@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
 import type { AxiosResponse } from 'axios'
+import { describe, expect, it } from 'vitest'
+
 import { pGet, pPost, pPut, pDelete } from './promisifyIntranet'
 
 const okRes = { status: 200, data: {} } as AxiosResponse

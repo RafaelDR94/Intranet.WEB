@@ -1,5 +1,6 @@
 // hooks/useTableContent.ts
 import { useEffect, useMemo, useState } from "react";
+
 import { SortDirection,UseDataTableContentProps,UseTableContentProps } from "./types";
 /** 🔹 Hook base: selección y ordenamiento */
 export const useTableContent = <T extends { id: string | number }>({

@@ -1,13 +1,16 @@
-import { useEffect, useState, useMemo } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { usePrincipal } from '../../../../context/PrincipalContext/PrincipalContext';
+import { useEffect, useState, useMemo } from 'react';
+
 import { useAuth } from '../../../../context/AuthContext/AuthContext';
 import { useFirebase } from '../../../../context/FirebaseContext/FirebaseContext';
+import { usePrincipal } from '../../../../context/PrincipalContext/PrincipalContext';
 import { getTabsFromPath } from '../utilities/getTabsFromPath';
-import HomeIcon from '@/assets/icons/navegacion/home.svg';
-import FileIcon from '@/assets/icons/Docs/archive.svg';
-import ServerIcon from '@/assets/icons/Connectivity/server.svg';
+
 import { OfflineMessage } from './types';
+
+import ServerIcon from '@/assets/icons/Connectivity/server.svg';
+import FileIcon from '@/assets/icons/Docs/archive.svg';
+import HomeIcon from '@/assets/icons/navegacion/home.svg';
 /**
  * Rutas visibles en el sidebar principal de la página /main-page.
  */

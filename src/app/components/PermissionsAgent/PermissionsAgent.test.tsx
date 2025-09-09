@@ -1,9 +1,10 @@
-import React from 'react';
 import { render, screen, act } from '@testing-library/react';
+import { usePathname, redirect } from 'next/navigation';
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
+
 import { PermissionAgent } from './PermissionsAgent';
 
-import { usePathname, redirect } from 'next/navigation';
 
 const validPermissionsMock = vi.fn();
 const pathnameMock = vi.mocked(usePathname);

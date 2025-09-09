@@ -3,13 +3,16 @@
 // src/app/components/Button/Button.tsx
 'use client';
 
-import React from 'react';
 import clsx from 'clsx';
-import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg';
-import ArrowUp from '@/assets/icons/navegacion/arrow-up.svg';
-import CancelIcon from '@/assets/icons/acciones/cancel.svg';
-import { ButtonProps } from './types';
+import React from 'react';
+
 import { baseClasses, sizeMap, variantMap } from './styles';
+import { ButtonProps } from './types';
+
+import CancelIcon from '@/assets/icons/acciones/cancel.svg';
+import ArrowUp from '@/assets/icons/navegacion/arrow-up.svg';
+import ArrowRight from '@/assets/icons/navegacion/nav-arrow-right.svg';
+
 
 /**
  * Botón reutilizable con soporte para:

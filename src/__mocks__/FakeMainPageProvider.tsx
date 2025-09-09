@@ -1,7 +1,8 @@
 // src/__storybook__/FakeMainPageProvider.tsx
 import React, { createContext, useContext, useState } from 'react';
-import HomeIcon from '@/assets/icons/navegacion/home.svg';
+
 import FileIcon from '@/assets/icons/Docs/archive.svg';
+import HomeIcon from '@/assets/icons/navegacion/home.svg';
 
 const MainPageContext = createContext<any>(null);
 

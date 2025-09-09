@@ -194,4 +194,5 @@ export const createTicketFields = (): FieldModel[] => [
   },
 ];
 
-export default {};
+const initialFieldsExports = {};
+export default initialFieldsExports;

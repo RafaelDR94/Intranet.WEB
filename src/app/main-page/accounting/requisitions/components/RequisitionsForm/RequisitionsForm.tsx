@@ -1,11 +1,13 @@
 'use client';
 
 import React from 'react';
-import FormsLayout from '@/app/components/FormsLayout/FormsLayout';
-import DynamicForm from '@/app/components/DynamicForm/DynamicForm';
+
 import { useRequisitionForm } from './hooks/useRequisitionsForm';
-import { Requisition } from '@/app/mappings/requisitions/requisitions.types';
+
+import DynamicForm from '@/app/components/DynamicForm/DynamicForm';
 import { ResponsiveLayoutMatrix } from '@/app/components/DynamicForm/types';
+import FormsLayout from '@/app/components/FormsLayout/FormsLayout';
+import { Requisition } from '@/app/mappings/requisitions/requisitions.types';
 /**
  * Props for the {@link RequisitionsForm} component.
  * @property mode define si el formulario crea o edita.

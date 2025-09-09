@@ -1,7 +1,8 @@
-import React from 'react';
 import clsx from 'clsx';
-import { SpinnerSize } from './types';
+import React from 'react';
+
 import { sizeClasses} from './styles';
+import { SpinnerSize } from './types';
 /**
  * Componente visual de **Spinner** (cargador animado).
  *

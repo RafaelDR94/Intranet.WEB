@@ -1,9 +1,11 @@
 // src/app/components/PopUp/PopUp.tsx
+import clsx from 'clsx';
 import React from 'react';
+
 import { Button } from "../Button/Button";
+
 import { popUpStyles } from "./styles";
 import { InputProps } from "./types";
-import clsx from 'clsx';
 /**
  * Ventana emergente reutilizable (popup/modal ligero).
  *

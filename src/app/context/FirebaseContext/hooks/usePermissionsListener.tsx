@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
 import { ref, onValue, off, Database } from "firebase/database";
+import { useState, useEffect, useRef } from "react";
 
 export function usePermissionsListener(
     database: Database | null,

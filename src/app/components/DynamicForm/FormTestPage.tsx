@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore'
-import type { FieldModel } from '@/app/components/DynamicForm/types'
+
 import DynamicForm from './DynamicForm'
+
 import { Button } from '@/app/components/Button/Button'
+import type { FieldModel } from '@/app/components/DynamicForm/types'
+import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore'
 
 // 🧪 Mock: emula backend
 const fetchUbicaciones = async () => {

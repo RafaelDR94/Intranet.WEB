@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, ChangeEvent, useEffect } from 'react';
+
 import { InitialFile } from '../types';
 
 /**
@@ -36,7 +37,7 @@ export const useFileUploader = (
       }
     };
     void loadInitial();
-  }, []);
+  }, [initialFile, onFile]);
 
   const handleButtonClick = () => {
     if (!disabled) inputRef.current?.click();

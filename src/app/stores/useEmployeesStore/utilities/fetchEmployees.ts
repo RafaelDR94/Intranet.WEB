@@ -1,11 +1,12 @@
 // src/app/stores/employees/utilities/fetchEmployees.ts
+import type { Set, Get } from '../types'
+
 import { Employees } from '@/app/configurations/Axios/urls'
 import { mapEmployees } from '@/app/mappings/employees/employee.mapper'
 import type { EmployeeType } from '@/app/mappings/employees/employee.types'
-import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import type { Set, Get } from '../types'
 
 /**
  * Obtiene la lista de empleados desde el backend y la almacena en el estado.

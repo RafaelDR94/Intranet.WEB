@@ -2,12 +2,13 @@
 
 'use client'
 
-import React from 'react'
 import clsx from 'clsx'
+import React from 'react'
+
+import * as styles from './styles'
 import {
   ToggleButtonProps,
 } from './types'
-import * as styles from './styles'
 
 /**
  * Botón tipo **interruptor** para alternar un valor booleano.

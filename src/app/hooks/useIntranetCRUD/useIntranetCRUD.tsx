@@ -1,6 +1,7 @@
-import { basicGet,basicPost,basicPut,basicDelete,CallbackFunction } from "@/app/configurations/Axios/GenericMethods";
-import { intranetClient } from "@/app/configurations/Axios/Clients";
 import { IntranetGetType,IntranetPostType,IntranetPutType,IntranetDeleteType } from "./types";
+
+import { intranetClient } from "@/app/configurations/Axios/Clients";
+import { basicGet,basicPost,basicPut,basicDelete,CallbackFunction } from "@/app/configurations/Axios/GenericMethods";
 /**
  * Hook personalizado que expone un conjunto de métodos CRUD
  * preconfigurados para interactuar con el cliente HTTP `intranetClient`.

@@ -1,12 +1,14 @@
 // src/app/stores/useBillingImagesStore/utilities/fetchBillingImageById.ts
 'use client'
 import type { AxiosResponse } from 'axios'
+
+import { Get, Set } from '../types'
+
 import { BillingImagesById } from '@/app/configurations/Axios/urls'
 import type { BillingImages } from '@/app/mappings/billingimages/billingimages.types'
-import { Get, Set } from '../types'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 
 /**
  * Obtiene una imagen de factura por ID.

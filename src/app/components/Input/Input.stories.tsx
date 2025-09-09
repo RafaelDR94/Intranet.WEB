@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { Input } from './Input';
+
 import CheckIcon from '@/assets/icons/acciones/check.svg';
 
 const meta: Meta<typeof Input> = {

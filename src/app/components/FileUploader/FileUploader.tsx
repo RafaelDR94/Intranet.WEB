@@ -1,13 +1,17 @@
 'use client';
 
-import React, { SVGProps } from 'react';
 import clsx from 'clsx';
-import UploadIcon from '@/assets/icons/acciones/upload.svg';
+import React, { SVGProps } from 'react';
+
+
 import { Button } from '../Button/Button';
-import { FileUploaderProps } from './types';
+import { labelClasses} from '../Input/styles';
+
 import { useFileUploader } from './hooks/useFileUploader';
 import { filenamestyle,typelabelstyle,buttoncontainerstyle } from './styles';
-import { labelClasses} from '../Input/styles';
+import { FileUploaderProps } from './types';
+
+import UploadIcon from '@/assets/icons/acciones/upload.svg';
 
 /**
  * Componente para subir archivos mediante un botón estilizado.

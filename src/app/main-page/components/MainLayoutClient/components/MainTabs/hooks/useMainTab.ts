@@ -1,7 +1,10 @@
-import { getQS, basePath } from "../utilities/mainTabs";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { useSearchParams } from "next/navigation";
+
+import { getQS, basePath } from "../utilities/mainTabs";
+
 import { useMainTabsProps } from "./types";
+
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 /**
  * Computes state for MainTabs: filters tabs by permissions, detects mobile,

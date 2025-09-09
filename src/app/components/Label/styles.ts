@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+
 import type { LabelType } from './types'
 
 const base = 'inline-block text-center font-semibold text-label px-3 py-1 rounded-full w-auto m-1'

@@ -1,7 +1,8 @@
 
-import { describe, it, expect, vi } from 'vitest';
-import usePermissions from './usePermissions';
 import { renderHook } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+
+import usePermissions from './usePermissions';
 
 vi.mock('next/navigation', () => ({
   usePathname: vi.fn(() => '/'),

@@ -1,8 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 
 // verifica que la utilidad reenvíe el token almacenado.
-import { askforOTPemail } from './askforOTPemail'
 import type { AuthState, Set, Get } from '../types'
+
+import { askforOTPemail } from './askforOTPemail'
+
 import { sendOTPEmail } from '@/app/context/AuthContext/utilities/AuthService'
 
 vi.mock('@/app/context/AuthContext/utilities/AuthService', () => ({

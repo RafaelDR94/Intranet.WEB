@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
 import { describe, it, expect } from 'vitest';
+
 import { CollapsibleSection } from './CollapsibleSection';
 vi.mock('@/assets/icons/navegacion/nav-arrow-down.svg', () => ({
   default: () => <svg data-testid="arrow-down" />,

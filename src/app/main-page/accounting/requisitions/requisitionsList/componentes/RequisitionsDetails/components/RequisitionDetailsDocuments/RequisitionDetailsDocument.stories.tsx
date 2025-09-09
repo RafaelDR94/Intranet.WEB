@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { vi } from 'vitest'
 import React from 'react'
+import { vi } from 'vitest'
+
 import RequisitionDetailsDocument from './RequisitionDetailsDocument'
 
 vi.mock('./hooks/useRequisitionDetailsDocument', () => ({

@@ -1,12 +1,14 @@
 'use client'
 import type { AxiosResponse } from 'axios'
-import { AuthFirebaseConfiguration } from '@/app/configurations/Axios/urls'
-import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { pGet } from '@/app/utilities/Http/promisifyIntranet'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-import type { Set, Get, FirebaseConfiguration } from '../types'
 
-export const fetchFirebaseConfiguration = async (set: Set, get: Get): Promise<void> => {
+import type { Set, FirebaseConfiguration } from '../types'
+
+import { AuthFirebaseConfiguration } from '@/app/configurations/Axios/urls'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+import { pGet } from '@/app/utilities/Http/promisifyIntranet'
+import { requireGateway } from '@/app/utilities/Http/requireGateway'
+
+export const fetchFirebaseConfiguration = async (set: Set): Promise<void> => {
   set({ loading: true, error: undefined, successFirebaseConfig: false })
   try {
     const getFn = pGet(requireGateway('get'))

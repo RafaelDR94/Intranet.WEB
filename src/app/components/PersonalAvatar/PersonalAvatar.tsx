@@ -1,11 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Spinner } from '../Spinner/Spinner';
+
 import Avatar from '../Avatar/Avatar';
+import { Spinner } from '../Spinner/Spinner';
+
 import usePersonalAvatar from './hooks/usePersonalAvatar';
-import { PersonalAvatarProps } from './types';
 import { containerClass } from './styles';
+import { PersonalAvatarProps } from './types';
 
 /**
  * Muestra el avatar del usuario autenticado.

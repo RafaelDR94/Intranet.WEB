@@ -1,12 +1,14 @@
 "use client";
-import { recoverPasswordStyles } from "./styles";
-import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
-import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
-import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile-rp.png"
 import Image from "next/image";
+
 import useRecoverPassword, {
   recoverPasswordFields,
 } from "./hooks/useRecoverPassword/useRecoverPassword";
+import { recoverPasswordStyles } from "./styles";
+
+import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
+import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
+import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile-rp.png"
 
 const RecoverPassword = () => {
   const { handleRecover, isLoading } = useRecoverPassword();

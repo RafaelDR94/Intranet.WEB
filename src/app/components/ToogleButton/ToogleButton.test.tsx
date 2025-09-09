@@ -1,7 +1,8 @@
 // src/app/components/ToggleButton/ToggleButton.test.tsx
-import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
+import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
+
 import { ToggleButton } from './ToogleButton'
 
 describe('ToggleButton component', () => {

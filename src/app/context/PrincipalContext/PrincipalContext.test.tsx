@@ -1,6 +1,7 @@
-import React from 'react';
 import { renderHook, act } from '@testing-library/react';
+import React from 'react';
 import { describe, it, expect } from 'vitest';
+
 import { PrincipalProvider, usePrincipal } from './PrincipalContext';
 
 describe('PrincipalContext', () => {

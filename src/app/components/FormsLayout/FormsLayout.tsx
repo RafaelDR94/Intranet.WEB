@@ -1,7 +1,8 @@
+import clsx from "clsx";
 import { ReactNode } from "react"
+
 import { Button } from "../Button/Button"
 import CollapsibleSection from "../CollapsibleSection/CollapsibleSection"
-import clsx from "clsx";
 import { useIsMobile } from "../DataTable/components/DataTableLayout/hooks/useMediaQuery";
 type FormsLayoutProps = {
   title: string

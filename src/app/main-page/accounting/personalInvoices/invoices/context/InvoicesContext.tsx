@@ -1,4 +1,5 @@
 'use client'
+import { usePathname } from "next/navigation";
 import React, {
     createContext,
     useContext,
@@ -7,14 +8,16 @@ import React, {
     ReactNode
 } from 'react'
 import { shallow } from 'zustand/shallow';
-import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
-import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore';
-import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore'
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+
+import { InvoicesContextType } from './types';
+
 import { FieldModel } from '@/app/components/DynamicForm/types';
 import { useAuth } from '@/app/context/AuthContext/AuthContext';
-import { usePathname } from "next/navigation";
-import { InvoicesContextType } from './types';
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore';
+import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore'
+import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
+
 
 // 2️⃣ Valor inicial por defecto
 const initialValue: InvoicesContextType = {
@@ -25,9 +28,9 @@ const initialValue: InvoicesContextType = {
     field2: [],
     formId1: "invoices-form",
     formId2: "ticket-form",
-    setFields: (formId: string, newFields: FieldModel[]) => { },
-    updateField: (formId: string, name: string, changes: Partial<FieldModel>) => { },
-    resetFields: (formId: string) => { },
+    setFields: () => { },
+    updateField: () => { },
+    resetFields: () => { },
     user: null
 }
 
@@ -92,11 +95,11 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (pathname == "/main-page/accounting/invoices/addFiles/") { fetchRequisitions(true); }
         else if (user) fetchRequisitionsByIdEmployee(user.idEmployee, true);
-    }, [user, pathname])
+    }, [user, pathname, fetchRequisitions, fetchRequisitionsByIdEmployee])
     useEffect(() => {
         fetchBillingDocumentCategories();
         fetchBillingDocumentDescriptions("");
-    }, [])
+    }, [fetchBillingDocumentCategories, fetchBillingDocumentDescriptions])
 
     useEffect(() => {
         if (!requisitionsError) return;
@@ -104,7 +107,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
             type: 'error',
             variant: 'filled',
             title: 'No se pudo cargar la lista de empleados',
-            description: String(requisitionsError) ?? 'Intenta refrescar.',
+            description: String(requisitionsError) || 'Intenta refrescar.',
             showPrimaryButton: true,
             primaryLabel: 'Entendido',
             onPrimaryClick: hideAlert,
@@ -114,7 +117,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
         });
         resetFlags();
         resetBillingFlags();
-    }, [requisitionsError]);
+    }, [requisitionsError, hideAlert, showAlert, user, fetchRequisitionsByIdEmployee, resetFlags, resetBillingFlags]);
 
     useEffect(() => {
         if (!billingerror) return;
@@ -122,7 +125,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
             type: 'error',
             variant: 'filled',
             title: 'No se pudo cargar al menos una lista',
-            description: String(billingerror) ?? 'Intenta refrescar.',
+            description: String(billingerror) || 'Intenta refrescar.',
             showPrimaryButton: true,
             primaryLabel: 'Entendido',
             onPrimaryClick: hideAlert,
@@ -132,7 +135,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
         });
         resetFlags();
         resetBillingFlags();
-    }, [billingerror]);
+    }, [billingerror, hideAlert, showAlert, fetchBillingDocumentCategories, fetchBillingDocumentDescriptions, resetFlags, resetBillingFlags]);
 
     useEffect(() => {
         if (!warning) return;
@@ -149,7 +152,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
             onSecondaryClick: () => { hideAlert(); if (user) fetchRequisitionsByIdEmployee(user?.idEmployee, true); },
         });
         resetFlags();
-    }, [warning]);
+    }, [warning, hideAlert, showAlert, user, fetchRequisitionsByIdEmployee, resetFlags]);
 
 
     // 🧠 Memoizar el value para evitar renders innecesarios
@@ -175,7 +178,10 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
             field2,
             formId1,
             formId2,
-            user
+            user,
+            setFields,
+            updateField,
+            resetFields
         ] // solo cambia cuando invoices cambie
     )
 

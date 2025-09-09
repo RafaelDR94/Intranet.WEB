@@ -1,8 +1,9 @@
 // src/app/stores/employees/useEmployeesStore.ts
 'use client'
 
-import { createWithEqualityFn } from 'zustand/traditional'
 import { devtools } from 'zustand/middleware'
+import { createWithEqualityFn } from 'zustand/traditional'
+
 import type { EmployeesState } from './types'
 import { fetchEmployees } from './utilities/fetchEmployees'
 

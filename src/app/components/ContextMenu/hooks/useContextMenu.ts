@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+
 import type { ContextMenuItem } from '../types';
 
 type HAlign = 'right' | 'left';

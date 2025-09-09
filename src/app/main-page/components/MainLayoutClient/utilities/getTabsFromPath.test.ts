@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { getTabsFromPath } from './getTabsFromPath';
 
 describe('getTabsFromPath utility', () => {

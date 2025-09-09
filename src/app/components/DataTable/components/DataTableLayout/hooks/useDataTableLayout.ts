@@ -1,5 +1,6 @@
 import { useCallback,useState } from "react";
 import type { KeyboardEvent } from "react";
+
 import type { TableLayoutProps } from "../types";
 
 /** Extrae y memoiza toda la lógica/handlers del layout de tabla */

@@ -1,15 +1,15 @@
+import type { Metadata, Viewport } from 'next'
 import { Montserrat } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
-import type { Metadata, Viewport } from 'next'
 
-import { PrincipalProvider } from './context/PrincipalContext/PrincipalContext'
-import ThemeInitializer from './context/PrincipalContext/utilities/ThemeInitializer'
+import GeneralErrorBundary from './components/GeneralErrorBundary/GeneralErrorBundary'
+import IntranetGatewayInit from './components/IntranetGatewayInit/IntranetGatewatInit'
 import ServiceWorkerRegister from './components/ServiceWorkerRegister/ServiceWorkerRegister'
 import { AuthProvider } from './context/AuthContext/AuthContext'
 import { FirebaseProvider } from './context/FirebaseContext/FirebaseContext'
-import IntranetGatewayInit from './components/IntranetGatewayInit/IntranetGatewatInit'
-import GeneralErrorBundary from './components/GeneralErrorBundary/GeneralErrorBundary'
+import { PrincipalProvider } from './context/PrincipalContext/PrincipalContext'
+import ThemeInitializer from './context/PrincipalContext/utilities/ThemeInitializer'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -42,10 +42,9 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'Intranet DR',
   },
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#171717' },
-  ],
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
   formatDetection: { telephone: false, date: false, address: false, email: false, url: false },
 }
 

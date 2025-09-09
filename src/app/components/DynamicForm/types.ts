@@ -1,5 +1,6 @@
 // components/DynamicForm/types.ts
 import type { FC, SVGProps } from 'react';
+
 import type { InitialFile } from '../FileUploader/types';
 
 /** Tipos de campo soportados por el formulario. */

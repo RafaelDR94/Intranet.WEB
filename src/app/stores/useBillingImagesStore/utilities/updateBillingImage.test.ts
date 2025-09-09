@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
-import { updateBillingImage } from './updateBillingImage'
+
 import type { BillingImagesState, Set, Get } from '../types'
+
+import { updateBillingImage } from './updateBillingImage'
+
 import type { BillingPut } from '@/app/mappings/billingimages/billingimages.types'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))

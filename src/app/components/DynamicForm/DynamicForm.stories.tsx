@@ -1,8 +1,10 @@
-import React, { useRef } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+import { fn } from '@storybook/test'
+import React, { useRef } from 'react';
+
 import { DynamicForm } from './DynamicForm';
 import { FieldModel } from './types';
-import { fn } from '@storybook/test'
+
 
 const meta: Meta<typeof DynamicForm> = {
   title: 'Components/DynamicForm/Full Showcase',

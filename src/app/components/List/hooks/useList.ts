@@ -1,4 +1,5 @@
 import { useState } from 'react'
+
 import type { ListItem } from '../types'
 
 /** Hook to manage selected list item */

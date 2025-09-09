@@ -1,7 +1,7 @@
 import { FieldModel } from '../types';
+import { cleanHiddenFields } from '../utilities/cleanHiddenFields';
 import { getInitialValues } from '../utilities/getInitialValues';
 import { getValidationSchema } from '../utilities/getValidationSchema';
-import { cleanHiddenFields } from '../utilities/cleanHiddenFields';
 import { resolveVariant } from '../utilities/resolveVariant';
 
 

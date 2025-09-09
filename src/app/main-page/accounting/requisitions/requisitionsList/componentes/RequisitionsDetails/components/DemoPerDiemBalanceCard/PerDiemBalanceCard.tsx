@@ -1,9 +1,11 @@
 import React from "react";
-import { PerDiemBalanceCardProps } from "./types";
-import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
-import Donut from "@/app/components/Donut/Donut";
+
 import { perDiemBalanceCardStyles as s } from "./styles";
+import { PerDiemBalanceCardProps } from "./types";
+
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import Donut from "@/app/components/Donut/Donut";
+import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
 // 🔹 Helpers internos
 function diffInDays(start: string, end: string) {
   const d1 = new Date(start);

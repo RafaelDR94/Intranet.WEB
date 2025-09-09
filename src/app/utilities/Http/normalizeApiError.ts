@@ -1,5 +1,6 @@
 // src/app/utilities/http/normalizeApiError.ts
 import type { AxiosResponse } from 'axios'
+
 import { NormalizedError } from './types'
 
 const isAxiosResponse = (x: any): x is AxiosResponse =>

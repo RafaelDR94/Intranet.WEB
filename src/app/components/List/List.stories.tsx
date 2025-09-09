@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
 import List from './List'
 
 // Deriva las props reales del componente

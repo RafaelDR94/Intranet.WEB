@@ -1,16 +1,18 @@
 "use client";
 import React from "react";
-import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import PDFIcon from "@/assets/icons/Docs/page.svg";
-import { ColumnDefinition } from "@/app/components/DataTable/types";
-import { Button } from "@/app/components/Button/Button";
-import { DataTable } from "@/app/components/DataTable/DataTable";
+
 import DetailsPanel from "./components/DetailsPanel/DetailsPanel";
-import { BillingDocuments } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { useValidateInvoices } from "./hooks/useValidateInvoices";
-import { PopUp } from "@/app/components/PopUp/PopUp";
+
+import { Button } from "@/app/components/Button/Button";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { DataTable } from "@/app/components/DataTable/DataTable";
+import { ColumnDefinition } from "@/app/components/DataTable/types";
+import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { BillingDocuments } from "@/app/mappings/billingdocuments/billingdocuments.types";
+import PDFIcon from "@/assets/icons/Docs/page.svg";
+import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 const ValidateInvoices = () => {
   const {
     handleOpenDetails,

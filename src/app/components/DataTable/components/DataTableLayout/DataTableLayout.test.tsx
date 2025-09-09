@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
+
 import DataTableLayout from './DataTableLayout';
 
 vi.mock('@/assets/icons/organization/filter-alt.svg', () => ({ default: () => <span /> }));

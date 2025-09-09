@@ -334,3 +334,33 @@ useEffect(() => {
   - `src/app/stores/<dominio>/utilities/utilities.docs.mdx`
   - Incluir overview, tabla de acciones, contratos, ejemplos de UI.
 - **Obligatorio**: todas las utilities deben incluir **JSDoc** detallado (descripción, params, returns y, si aplica, ejemplos).
+
+## Pruebas y validaciones locales (ampliar)**
+```md
+Antes del PR:
+```bash
+npm install
+npm run lint        # obligatorio (fallará el PR si hay errores)
+npm run build
+npm run test
+```
+## ⚙️ CI/CD Pipeline
+
+El repositorio cuenta con pipelines de **GitHub Actions** configurados en `.github/workflows/`:
+
+- `ci.yml` → Integración continua (ejecuta build, lint y pruebas en cada push o PR hacia `dev`).
+- `cd-dev.yml` → Despliegue automático al entorno **dev** cuando se actualiza la rama `dev`.
+- `cd-staggin.yml` → Despliegue automático al entorno **staging** cuando se actualiza la rama `staging`.
+- `cd-main.yml` → Despliegue automático al entorno **producción** cuando se actualiza la rama `main`.
+
+### Flujo esperado
+
+1. Trabaja siempre desde una rama basada en `dev`.  
+2. Abre un PR hacia `dev`.  
+3. El pipeline de CI (`ci.yml`) validará tu código (lint, build, tests).  
+4. Al aprobarse y mergearse:
+   - `dev` → se despliega automáticamente en **entorno de desarrollo**.  
+   - `staging` → se despliega automáticamente en **preproducción**.  
+   - `main` → se despliega automáticamente en **producción**.
+
+⚠️ Importante: No fuerces despliegues manuales a producción. Todos los cambios deben fluir por el pipeline.

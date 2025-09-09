@@ -1,5 +1,6 @@
-import { FieldModel } from '@/app/components/DynamicForm/types';
 import { RefObject } from 'react';
+
+import { FieldModel } from '@/app/components/DynamicForm/types';
 import { HistoryRow } from '@/app/mappings/billinghistory/billinghistory.types';
 
 /** Values returned by {@link useTicketForm}. */

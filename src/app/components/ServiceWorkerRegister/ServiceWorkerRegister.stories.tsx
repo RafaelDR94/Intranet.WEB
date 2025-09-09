@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { ServiceWorkerRegister } from './ServiceWorkerRegister'
 
 const meta: Meta<typeof ServiceWorkerRegister> = {

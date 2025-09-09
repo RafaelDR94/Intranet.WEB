@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 const useMobileSideBar = ({ isOpen, onClose }:{isOpen:boolean,onClose:()=>void}) => {
     const pathname = usePathname();
     const panelRef = useRef<HTMLDivElement>(null);

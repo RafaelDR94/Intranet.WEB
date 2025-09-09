@@ -25,6 +25,9 @@ jobs:
       - name: Run tests (Vitest)
         run: npm run test -- --run
 
+      - name: ESLint 
+        run: npm run lint
+
       - name: Build Next.js
         env:
           NEXT_TELEMETRY_DISABLED: 1

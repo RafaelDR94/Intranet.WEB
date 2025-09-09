@@ -1,6 +1,8 @@
 import { describe,it,expect } from 'vitest'
-import { resolveVariant } from './resolveVariant'
+
 import { FieldModel } from '../types'
+
+import { resolveVariant } from './resolveVariant'
 
 describe('resolveVariant',()=>{
   it('returns error variant when field has error',()=>{

@@ -1,6 +1,7 @@
 import React from "react";
-import { DonutProps } from "./types";
+
 import { donutStyles as s } from "./styles";
+import { DonutProps } from "./types";
 
 /**
  * Renderiza un gráfico de **donut** (anillo) en SVG.

@@ -1,12 +1,15 @@
 "use client";
-import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import DynamicForm from "../components/DynamicForm/DynamicForm";
+import React from "react";
+
 import { Alert } from "../components/Alert/Alert";
+import DynamicForm from "../components/DynamicForm/DynamicForm";
 import { ToggleButton } from "../components/ToogleButton/ToogleButton";
+
 import useLogin from "./hooks/useLogin";
 import { loginStyles } from "./styles";
+
 import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
 import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile.png";
 

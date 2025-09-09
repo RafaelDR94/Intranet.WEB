@@ -1,7 +1,8 @@
 // src/app/components/FileUploaderExpanded/FileUploaderExpanded.test.tsx
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
+import { describe, it, expect, vi } from 'vitest';
+
 import { FileUploaderExpanded } from './FileUploaderExpanded';
 
 const setup = (props: Partial<React.ComponentProps<typeof FileUploaderExpanded>> = {}) => {

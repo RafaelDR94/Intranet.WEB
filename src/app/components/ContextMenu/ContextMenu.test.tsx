@@ -1,8 +1,8 @@
 // ContextMenu.test.tsx
-import React, { createRef } from 'react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React, { createRef } from 'react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // --- Mocks de módulos dependientes --- //
 vi.mock('./styles', () => {

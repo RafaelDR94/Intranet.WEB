@@ -1,7 +1,8 @@
-import React from 'react';
 import Image from 'next/image';
-import { CardProps } from './types';
+import React from 'react';
+
 import { cardStyles } from './styles';
+import { CardProps } from './types';
 
 /**
  * Concatena clases condicionales de forma segura.

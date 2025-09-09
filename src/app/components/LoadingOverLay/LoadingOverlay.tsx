@@ -1,8 +1,10 @@
 'use client';
 import React from 'react';
+
 import { classes } from './styles';
-import { Spinner } from '@/app/components/Spinner/Spinner';
 import { LoadingOverlayProps } from './types';
+
+import { Spinner } from '@/app/components/Spinner/Spinner';
 
 
 /**

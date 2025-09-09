@@ -1,12 +1,14 @@
 'use client'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useState, useMemo, useEffect } from 'react'
 import { shallow } from 'zustand/shallow'
+
+import type { RequisitionRow } from '../types'
+
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
-import type { RequisitionRow } from '../types'
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 
 /**
  * Handles data loading, filtering and row actions for the requisitions table.
@@ -40,7 +42,7 @@ export const useRequisitionTable = () => {
   // Prefetch
   useEffect(() => {
     if (isGatewayReady && !hasIdParam) fetchRequisitionsByDate(lastDates.startDate, lastDates.endDate, true);
-  }, [isGatewayReady,hasIdParam])
+  }, [isGatewayReady, hasIdParam, fetchRequisitionsByDate, lastDates.startDate, lastDates.endDate])
 
 
   // Alert de error general de carga
@@ -62,7 +64,7 @@ export const useRequisitionTable = () => {
       onSecondaryClick: () => { hideAlert(); fetchRequisitionsByDate(lastDates.startDate, lastDates.endDate, true); },
     })
 
-  }, [error, loading,successPut])
+  }, [error, loading, successPut, hideSpinner, resetFlags, showAlert, showSpinner, hideAlert, fetchRequisitionsByDate, lastDates.startDate, lastDates.endDate])
 
   const [query, setQuery] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -142,8 +144,8 @@ export const useRequisitionTable = () => {
   }
 
   const refresh = (start?: Date, end?: Date) => {
-    let startDate = start ? currentDate(start) : currentDate();
-    let endDate = end ? currentDate(end) : currentDate();
+    const startDate = start ? currentDate(start) : currentDate();
+    const endDate = end ? currentDate(end) : currentDate();
     setLastDates({ startDate: startDate, endDate: endDate })
     fetchRequisitionsByDate(startDate, endDate, true);
   }

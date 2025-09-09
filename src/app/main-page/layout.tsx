@@ -1,5 +1,6 @@
 
 import { ReactNode, Suspense } from 'react';
+
 import MainLayoutClient from './components/MainLayoutClient/MainLayoutClient';
 
 /**

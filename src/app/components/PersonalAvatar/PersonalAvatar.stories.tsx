@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import PersonalAvatar from './PersonalAvatar';
+
 import { MockAuthProvider } from '@/__mocks__/mockAuthProvider';
 
 const meta: Meta<typeof PersonalAvatar> = {

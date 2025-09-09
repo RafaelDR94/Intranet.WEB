@@ -1,12 +1,6 @@
 // src/utilities/excel/exporter.ts
 import ExcelJS from "exceljs";
-import type {
-  ColumnType,
-  ExportExcelProParams,
-  HeaderPaintParams,
-  PaintTableParams,
-  PaintTotalsParams,
-} from "./types";
+
 import {
   applyHeaderStyle,
   applyBodyRowStyle,
@@ -15,6 +9,13 @@ import {
   setNumFmtIfAny,
   pickAlignment,
 } from "./styles";
+import type {
+  ColumnType,
+  ExportExcelProParams,
+  HeaderPaintParams,
+  PaintTableParams,
+  PaintTotalsParams,
+} from "./types";
 
 export type {
   ColumnAlign,

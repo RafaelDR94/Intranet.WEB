@@ -1,6 +1,7 @@
-import { HistoryRow } from './billinghistory.types'
-import { ProyectMap } from '../proyects/proyects.mapper'
 import { BillingDocumentCategoryMap, BillingDocumentDescriptionMap } from '../billingdocuments/billingdocuments.mapper'
+import { ProyectMap } from '../proyects/proyects.mapper'
+
+import { HistoryRow } from './billinghistory.types'
 /**
  * HistoryRowMap
  * Mapea un registro crudo de historial de facturación a un objeto tipado.

@@ -1,15 +1,17 @@
 // app/layouts/components/MainTabs/MainTabs.tsx
 "use client";
-import React from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+
+import useMainTab from "./hooks/useMainTab";
 import { container, tabsWrapper } from "./styles";
 import { MainTabsProps } from "./types";
-import MenuIcon from "@/assets/icons/acciones/menu.svg";
-import LogoDr from "@/assets/images/LogosDR/DReDIT.png";
-import Bell from "@/assets/icons/Comunicacion/bell.svg";
+
 import PersonalAvatar from "@/app/components/PersonalAvatar/PersonalAvatar";
-import useMainTab from "./hooks/useMainTab";
+import MenuIcon from "@/assets/icons/acciones/menu.svg";
+import Bell from "@/assets/icons/Comunicacion/bell.svg";
+import LogoDr from "@/assets/images/LogosDR/DReDIT.png";
 
 /**
  * Top navigation tabs for MainLayout. Highlights active tab based on current path and `id` query.

@@ -1,12 +1,13 @@
 // src/app/stores/useBillingHistoryStore/utilities/fetchBillingHistory.ts
 'use client'
+import type { Set, Get } from '../types'
+
 import { BillingHistory as BillingHistoryUrl } from '@/app/configurations/Axios/urls'
 import { BillingHistoryMap } from '@/app/mappings/billinghistory/billinghistory.mapper'
 import type { HistoryRow } from '@/app/mappings/billinghistory/billinghistory.types'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-import type { Set, Get } from '../types'
 /**
  * Obtiene el historial de facturación del backend y actualiza el estado.
  *
@@ -23,9 +24,7 @@ export const fetchBillingHistory = async (set: Set, get: Get,idEmployee:string, 
   try {
     const getFn = requireGateway('get')
     const res = await pGet(getFn)(BillingHistoryUrl+"/"+idEmployee)
-    console.log("res",res);
     const mapped: HistoryRow[] = BillingHistoryMap(res.data?.data ?? [])
-    console.log("mapped",mapped);
     set({ history: mapped, loading: false })
 
   } catch (err) {

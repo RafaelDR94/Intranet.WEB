@@ -1,13 +1,15 @@
 // src/app/utilities/http/promisifyIntranet.ts
 import type { AxiosResponse } from 'axios'
+
 import { normalizeApiError } from './normalizeApiError'
+import { StatusRange } from './types'
+
 import {
   IntranetGetType,
   IntranetDeleteType,
   IntranetPostType,
   IntranetPutType,
 } from '@/app/hooks/useIntranetCRUD/types'
-import { StatusRange } from './types'
 
 /** Rango OK por defecto: 200–299 (incluye 204) */
 const DEFAULT_OK: StatusRange = [200, 299]

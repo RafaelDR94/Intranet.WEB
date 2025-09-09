@@ -1,6 +1,7 @@
 'use client'
-import { createWithEqualityFn } from 'zustand/traditional'
 import { devtools } from 'zustand/middleware'
+import { createWithEqualityFn } from 'zustand/traditional'
+
 import type { RequisitionsState } from './types'
 import {
   fetchRequisitions,
@@ -59,7 +60,7 @@ export const useRequisitionsStore = createWithEqualityFn<RequisitionsState>()(
     /** Obtiene requisiciones */
     fetchCurrentRequisition: (id, force = false) => fetchCurrentRequisition(set, get, id, force),
     /** Descarga documento de requisiciones */
-    downloadRequistionResume:(idRequisition)=>downloadRequistionResume(idRequisition,set,get),
+    downloadRequistionResume:(idRequisition)=>downloadRequistionResume(idRequisition,set),
     reset: () => set({
       requisitions: [],
       error: undefined,
