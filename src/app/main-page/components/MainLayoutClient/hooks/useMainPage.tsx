@@ -25,7 +25,8 @@ export const sidebarRoutes = [
     path: '/main-page/request',
     icon: FileIcon,
     subroutes: [
-      { label: 'Facturación', path: '/main-page/request/invoices' },
+      { label: 'Caja Chica', path: '/main-page/request/pettycash' },
+      { label: 'Facturación', path: '/main-page/request/invoices' }
     ],
   },
   {
