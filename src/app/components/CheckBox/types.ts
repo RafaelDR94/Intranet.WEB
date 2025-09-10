@@ -19,4 +19,6 @@ export interface CheckboxProps {
   name?: string
   /** Clases CSS adicionales para personalizar el contenedor */
   className?: string
+  /** Identificador de pruebas */
+  dataTestId?: string
 }

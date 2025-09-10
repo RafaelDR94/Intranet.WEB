@@ -30,10 +30,10 @@ import { PersonalAvatarProps } from './types';
  * <PersonalAvatar size="md" />
  * ```
  */
-const PersonalAvatar: React.FC<PersonalAvatarProps> = ({ size }) => {
+const PersonalAvatar: React.FC<PersonalAvatarProps> = ({ size,dataTestId }) => {
   const { avatarInit } = usePersonalAvatar();
   return (
-    <div className={containerClass}>
+    <div className={containerClass} data-testid={dataTestId}>
       {avatarInit.initials ? (
         <Avatar initials={avatarInit.initials} size={size} src={avatarInit.src} online />
       ) : (

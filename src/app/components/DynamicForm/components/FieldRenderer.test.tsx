@@ -35,6 +35,26 @@ describe('FieldRenderer', () => {
     expect(screen.getByText('Acepto')).toBeInTheDocument();
   });
 
+  it('propaga dataTestId combinando formulario y nombre', () => {
+    const field: FieldModel = {
+      type: 'input',
+      name: 'nombre',
+      label: 'Nombre',
+      value: '',
+    };
+    render(
+      <FieldRenderer
+        field={field}
+        value=""
+        allValues={{}}
+        onChange={vi.fn()}
+        variant="default"
+        formDataTestId="form"
+      />
+    );
+    expect(screen.getByTestId('form-nombre')).toBeInTheDocument();
+  });
+
   it('renderiza un select con opciones', () => {
     const field: FieldModel = {
       type: 'select',

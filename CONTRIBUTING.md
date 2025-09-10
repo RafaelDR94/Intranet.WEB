@@ -59,6 +59,38 @@ Cada nueva funcionalidad debe incluir los siguientes elementos para ser revisada
   ```bash
   npm run test
   ```
+## Pruebas End-to-End (Playwright) y reglas de contribución
+
+### Antes de abrir un PR
+- [ ] Ejecuta `npm run build` y `npm run test:e2e`.
+- [ ] Agrega/actualiza pruebas E2E cuando cambies flujos de usuario.
+- [ ] Usa `data-testid` en elementos interactivos nuevos o modificados.
+- [ ] Evita `waitForTimeout` — prefiere `toHaveURL`, `toBeVisible`, `waitForResponse`, `locator.waitFor()`.
+
+### Escribir pruebas
+- Ubica specs en `e2e/specs/*.spec.ts`.
+- Crea helpers reutilizables en `e2e/helpers/` (selectores, login, mocks).
+- Mantén cada spec **independiente** y con datos propios.
+- Estructura:
+  - `describe('Módulo', ...)`
+  - `beforeEach` para navegación base
+  - Render, interacciones, estados vacíos/errores, éxito.
+
+### Selectores
+- Prefiere `page.getByTestId('...')` o `locator('[data-testid="..."]')`.
+- Usa `getByRole` con `name` accesible cuando aplique.
+
+### Flaky tests
+- No subas `retry` sin causa.
+- Activa trazas (`trace/video/screenshot`) y corrige sincronización/estabilidad de selectores/datos.
+
+### Datos y ambientes
+- Cuentas de prueba y datos aislados por test (IDs únicos).
+- Para OTP/MFA: usuario test sin MFA, endpoint de prueba para token, o mock controlado en E2E.
+
+### Reportes en CI
+- El job sube `playwright-report/` como artifact ante fallos.
+- Útiles: `npm run test:e2e:ui`, `npm run test:e2e:report`.
 
 ### ✅ Documentación con Storybook
 - Agrega o actualiza el archivo `ComponentName.stories.tsx` en formato **CSF3**.

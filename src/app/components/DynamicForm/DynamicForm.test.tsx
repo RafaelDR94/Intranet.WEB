@@ -196,6 +196,38 @@ describe('DynamicForm', () => {
     await waitFor(() => expect(handleValid).toHaveBeenCalledWith(true))
   })
 
+  it('propaga dataTestId a campos y acciones', () => {
+    const fields: FieldModel[] = [
+      { type: 'input', name: 'name', label: 'Nombre', value: '' },
+    ]
+    const { rerender } = render(
+      <DynamicForm
+        fields={fields}
+        onSubmit={() => {}}
+        dataTestId="form"
+        showSecondaryButtonIf={() => true}
+        onSecondaryButtonClick={() => {}}
+        secondaryButtonLabel="Sec"
+      />
+    )
+    expect(screen.getByTestId('form')).toBeInTheDocument()
+    expect(screen.getByTestId('form-name')).toBeInTheDocument()
+    expect(screen.getByTestId('form-primary')).toBeInTheDocument()
+    expect(screen.getByTestId('form-secondary')).toBeInTheDocument()
+    rerender(
+      <DynamicForm
+        fields={fields}
+        onSubmit={() => {}}
+        dataTestId="form"
+        showSecondaryButtonIf={() => true}
+        onSecondaryButtonClick={() => {}}
+        secondaryButtonLabel="Sec"
+        loading
+      />
+    )
+    expect(screen.getByTestId('form-spinner')).toBeInTheDocument()
+  })
+
   it('maneja NumberControl y envía el valor actualizado', async () => {
     const fields: FieldModel[] = [
       { type: 'numberControl', name: 'cantidad', label: 'Cantidad', value: 1, min: 0, max: 10 }

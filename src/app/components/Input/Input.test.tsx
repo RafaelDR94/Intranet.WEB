@@ -84,6 +84,10 @@ describe('Input component', () => {
     expect(handleChange).toHaveBeenCalled()
     expect(input.value).toBe('hola')
   })
+  it('propaga dataTestId al contenedor', () => {
+    render(<Input label="Nombre" dataTestId="input1" />)
+    expect(screen.getByTestId('input1')).toBeInTheDocument()
+  })
    it('renderiza un icono personalizado y maneja onIconClick', () => {
     const handleIconClick = vi.fn()
     const Icon = (props: React.SVGProps<SVGSVGElement>) => <svg data-testid="mock-icon" {...props} />

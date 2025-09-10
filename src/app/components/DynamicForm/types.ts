@@ -141,4 +141,6 @@ export interface DynamicFormProps {
   loadingFormInfo?: boolean;
   /** Deshabilita todos los campos del formulario */
   disabled?:boolean
+  /** Identificador base para data-testid del formulario */
+  dataTestId?: string
 }

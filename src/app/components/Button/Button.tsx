@@ -42,6 +42,7 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   className,
   children,
+  dataTestId,
   ...props
 }) => {
   const sizeClasses = sizeMap[size];
@@ -55,12 +56,13 @@ export const Button: React.FC<ButtonProps> = ({
   // Usa icon custom si se proporciona, sino el default
   const IconToRender = icon ?? IconDefault;
 
-  return (
-    <button
-      className={clsx(baseClasses, sizeClasses, variantClasses, className)}
-      disabled={disabled}
-      {...props}
-    >
+    return (
+      <button
+        data-testid={dataTestId}
+        className={clsx(baseClasses, sizeClasses, variantClasses, className)}
+        disabled={disabled}
+        {...props}
+      >
       {!iconOnly && <span>{children}</span>}
       {!hideIcon && (
         <IconToRender

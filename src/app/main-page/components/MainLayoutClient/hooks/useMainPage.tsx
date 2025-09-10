@@ -14,7 +14,7 @@ import HomeIcon from '@/assets/icons/navegacion/home.svg';
 /**
  * Rutas visibles en el sidebar principal de la página /main-page.
  */
-const sidebarRoutes = [
+export const sidebarRoutes = [
   {
     label: 'Inicio',
     path: '/main-page/home',

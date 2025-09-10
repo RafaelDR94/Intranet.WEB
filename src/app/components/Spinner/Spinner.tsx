@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React from 'react';
 
 import { sizeClasses} from './styles';
-import { SpinnerSize } from './types';
+import { SpinnerProps } from './types';
 /**
  * Componente visual de **Spinner** (cargador animado).
  *
@@ -33,9 +33,10 @@ import { SpinnerSize } from './types';
  * <Spinner size="large" ariaLabel="Procesando pago" />
  * ```
  */
-export const Spinner = ({ size = 'medium' }: { size?: SpinnerSize }) => {
+export const Spinner: React.FC<SpinnerProps> = ({ size = 'medium', dataTestId }) => {
   return (
     <div
+      data-testid={dataTestId}
       className={clsx(
         'animate-spin rounded-full border-transparent border-l-green-90',
         sizeClasses[size]

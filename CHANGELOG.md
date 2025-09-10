@@ -391,9 +391,15 @@ Fix:
 Fix:
 
 - To show the Excel download button. (Katherine Negrete) [#109](https://github.com/DR-Mexico/dr.intranet.web/pull/109)
-
 ### 1.46.4 Style Fixes 2025-09-09
 
 Fix:
 
 - To display designs according to Figma (Katherine Negrete) [#113](https://github.com/DR-Mexico/dr.intranet.web/pull/113)
+### 1.47.4 Add data-testid support to DynamicForm and components 2025-09-10
+
+Fix:
+
+- Enabled data-testid prop across DynamicForm, FieldRenderer, and related controls to improve Playwright testing. (Agente IA) [#]()
+
+

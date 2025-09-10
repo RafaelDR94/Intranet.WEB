@@ -85,6 +85,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   onValidChange,
   loadingFormInfo,
   disabled,
+  dataTestId,
 }) => {
   const { initialValues, validationSchema, cleanValues, resolveVariant } =
     useDynamicForm(fields);
@@ -112,11 +113,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   }, [layoutMatrix, responsiveLayoutMatrix, current]);
 
   return (
-    <div className={dynamicFormStyles.container}>
+    <div className={dynamicFormStyles.container} data-testid={dataTestId}>
       {title && <h2 className={dynamicFormStyles.heading}>{title}</h2>}
       {loadingFormInfo && (
         <div className={dynamicFormStyles.loadingInfo}>
-          <Spinner size="large" />
+          <Spinner size="large" dataTestId={dataTestId ? `${dataTestId}-spinner` : undefined} />
         </div>
       )}
       <Formik
@@ -211,6 +212,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                               onBlur={handleBlur}
                               variant={variant}
                               helperText={helperText}
+                              formDataTestId={dataTestId}
                             />
                           </div>
                         );
@@ -237,6 +239,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         onBlur={handleBlur}
                         variant={variant}
                         helperText={helperText}
+                        formDataTestId={dataTestId}
                       />
                     );
                   })}
@@ -249,6 +252,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     variant="outline"
                     type="button"
                     onClick={() => onSecondaryButtonClick(values)}
+                    dataTestId={dataTestId ? `${dataTestId}-secondary` : undefined}
                   >
                     {secondaryButtonLabel}
                   </Button>
@@ -258,7 +262,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                   !externalSubmitRef &&
                   (loading ? (
                     <div className="w-full flex justify-center items-center">
-                      <Spinner size="medium" />
+                      <Spinner size="medium" dataTestId={dataTestId ? `${dataTestId}-spinner` : undefined} />
                     </div>
                   ) : (
                     <Button
@@ -267,6 +271,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                       className={
                         !showSecondaryButtonIf?.(values) ? "w-full" : ""
                       }
+                      dataTestId={dataTestId ? `${dataTestId}-primary` : undefined}
                     >
                       {submitLabel}
                     </Button>

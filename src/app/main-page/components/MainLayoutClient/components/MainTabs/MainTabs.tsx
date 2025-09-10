@@ -22,24 +22,25 @@ export const MainTabs: React.FC<MainTabsProps> = ({
   validPermissionsbyroute,
   onOpenMobileMenu,
 }) => {
- const {filtered,isMobile,isActive}=useMainTab({tabs,pathname,validPermissionsbyroute})
+  const { filtered, isMobile, isActive } = useMainTab({ tabs, pathname, validPermissionsbyroute })
   // Topbar móvil (logo + hamburguesa). Se muestra siempre en <lg
   const MobileTopbar = (
     <div className="lg:hidden sticky top-0 z-[45] h-[78px] bg-[#04283A] text-white flex items-center justify-between px-4">
       <div>
-        <Image src={LogoDr} alt="DR Security" width={90} height={55} />
+        <Image src={LogoDr} alt="DR Security TopBar" width={90} height={55} />
       </div>
       <div className="flex items-center">
         <div className="mr-3">
-          <Bell />
+          <Bell  data-testid="top-bar-mobileNotifications"/>
         </div>
-        <PersonalAvatar size="tiny" />
+        <PersonalAvatar size="tiny" dataTestId="top-bar-Avatar" />
         <button
+          data-testid="open-mobile-menu"
           onClick={onOpenMobileMenu}
           className="h-10 w-10 ml-2 flex items-center justify-center rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
           aria-label="Abrir menú"
         >
-          <MenuIcon aria-hidden />
+          <MenuIcon aria-hidden  />
         </button>
       </div>
     </div>
@@ -53,7 +54,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
     <>
       {MobileTopbar}
 
-      <nav className={container}>
+      <nav data-testid="main-tabs" className={container}>
         <div className={tabsWrapper}>
           {filtered.map((tab, index) => (
             <React.Fragment key={tab.path}>
@@ -61,6 +62,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
                 <div className="h-4 border-l border-gray-20 mx-3" />
               )}
               <Link
+                data-testid={`tab:${tab.path}`}
                 href={tab.path}
                 className={`transition-colors ${isActive(tab.path)
                   ? `${isMobile ? "text-b3" : "text-s1"} text-gray-100`

@@ -23,4 +23,8 @@ describe('Spinner', () => {
       expect(spinner.className).toContain('animate-spin');
     });
   });
+  it('propaga dataTestId al contenedor', () => {
+    const { getByTestId } = render(<Spinner dataTestId="spin" />);
+    expect(getByTestId('spin')).toBeInTheDocument();
+  });
 });

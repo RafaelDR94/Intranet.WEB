@@ -88,6 +88,19 @@ describe('FileUploader component', () => {
     expect(screen.getByTestId('custom-icon')).toBeInTheDocument();
   });
 
+  it('propaga dataTestId al contenedor', () => {
+    const onFile = vi.fn();
+    render(
+      <FileUploader
+        accept=".txt"
+        label="Archivo"
+        onFile={onFile}
+        dataTestId="uploader1"
+      />
+    );
+    expect(screen.getByTestId('uploader1')).toBeInTheDocument();
+  });
+
   it('muestra un archivo inicial y llama a onFile', async () => {
     const onFile = vi.fn();
     render(

@@ -33,6 +33,7 @@ const LoginPage = () => {
             onSubmit={handleLogin}
             submitLabel="Iniciar sesión"
             loading={isLoading}
+            dataTestId="login"
           >
             <div className={loginStyles.rememberContainer}>
               <ToggleButton
@@ -40,11 +41,13 @@ const LoginPage = () => {
                 onChange={(checked) => handleRemember(checked)}
                 label="Recordarme"
                 labelColor="text-black-100"
+                dataTestId="login-remeberme"
               />
               <Link
                 href="/login/recover-password"
                 className="text-label hover:text-black-100"
                 prefetch={false}
+                data-testid="login-forgorpassword"
               >
                 ¿Olvidaste tu contraseña?
               </Link>

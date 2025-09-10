@@ -4,4 +4,5 @@ import { AvatarSize } from '../Avatar/types';
 export interface PersonalAvatarProps {
   /** Tamaño del avatar mostrado */
   size?: AvatarSize;
+  dataTestId?:string;
 }
