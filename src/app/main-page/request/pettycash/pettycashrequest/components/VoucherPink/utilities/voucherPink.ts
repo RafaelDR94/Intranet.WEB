@@ -46,10 +46,11 @@ export const getOptionLabel = (
  */
 export const buildPettyCashVoucherPayload = ({
   values,
-  employees,
-  proyects,
+  employees: _employees,
+  proyects: _proyects,
+  fields: _fields,
   pettyCashFundId,
-  getOptionLabel,
+  getOptionLabel: _getOptionLabel,
 }: {
   values: Record<string, unknown>;
   employees: EmployeeType[];
