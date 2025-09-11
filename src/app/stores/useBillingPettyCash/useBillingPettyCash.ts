@@ -61,7 +61,6 @@ export const useBillingPettyCash = createWithEqualityFn<BillingPettyCashState>()
     updatePettyCashFund: (payload) => updatePettyCashFund(set, get, payload),
     deletePettyCashFund: (id) => deletePettyCashFund(set, id),
     updateCashOnHand: (payload) => updateCashOnHand(set, payload),
-
     fetchPettyCashVouchers: (force = false) => fetchPettyCashVouchers(set, get, force),
     fetchPettyCashVoucherById: (id, force = false) => fetchPettyCashVoucherById(id, set, get, force),
     createPettyCashVoucher: (payload) => createPettyCashVoucher(set, get, payload),
