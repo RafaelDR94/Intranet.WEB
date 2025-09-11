@@ -12,13 +12,10 @@ import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
  * @returns `true` si faltan opciones, `false` si todo está listo.
  */
 export const computeLoadingFormInfo = (fields: FieldModel[]) => {
-  const emp = fields.find((f) => f.name === "employees");
   const prj = fields.find((f) => f.name === "project");
-  const employeesReady =
-    Array.isArray(emp?.options) && (emp?.options?.length ?? 0) > 0;
   const projectsReady =
     Array.isArray(prj?.options) && (prj?.options?.length ?? 0) > 0;
-  return !(employeesReady && projectsReady);
+  return !projectsReady;
 };
 
 /**
@@ -70,8 +67,8 @@ export const buildPettyCashVoucherPayload = ({
 
   return {
     petty_cash_funds_id: pettyCashFundId ?? "",
-    employee_id: employeeId,
-    voucher_type: "pink",
+    employee_id: "4d57db6c-686a-4f76-b180-03fcedab13d4",
+    voucher_type: "r",
     application_date,
     concept,
     amount,
@@ -90,15 +87,14 @@ export const buildPettyCashVoucherPayload = ({
  */
 export const createInitialFields = (): FieldModel[] => [
   {
-          type: "input",
-          name: "personName",
-          label: "Nombre del Deudor",
-          placeholder: "Ingrese el nombre completo",
-          value: "",
-          className: "max-w-[400px]",
-          onlyText: true,
-          showIf: () => Boolean(!dataEdit),
-        },
+    type: "input",
+    name: "personName",
+    label: "Nombre del Deudor",
+    placeholder: "Ingrese el nombre completo",
+    value: "",
+    className: "max-w-[400px]",
+    onlyText: true,
+  },
   {
     type: "input",
     name: "monto",

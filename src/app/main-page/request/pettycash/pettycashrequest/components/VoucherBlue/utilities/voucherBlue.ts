@@ -1,5 +1,4 @@
 import type { FieldModel } from "@/app/components/DynamicForm/types";
-import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
@@ -11,13 +10,10 @@ import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
  * @returns `true` si faltan opciones, `false` si todo está listo.
  */
 export const computeLoadingFormInfo = (fields: FieldModel[]) => {
-  const emp = fields.find((f) => f.name === "employees");
   const prj = fields.find((f) => f.name === "project");
-  const employeesReady =
-    Array.isArray(emp?.options) && (emp?.options?.length ?? 0) > 0;
   const projectsReady =
     Array.isArray(prj?.options) && (prj?.options?.length ?? 0) > 0;
-  return !(employeesReady && projectsReady);
+  return !( projectsReady);
 };
 
 /**
@@ -40,14 +36,12 @@ export const getOptionLabel = (
  */
 export const buildPettyCashVoucherPayload = ({
   values,
-  employees,
   proyects,
   fields,
   pettyCashFundId,
   getOptionLabel,
 }: {
   values: Record<string, unknown>;
-  employees: EmployeeType[];
   proyects: Proyect[];
   fields: FieldModel[];
   pettyCashFundId?: string;
@@ -64,8 +58,8 @@ export const buildPettyCashVoucherPayload = ({
 
   return {
     petty_cash_funds_id: pettyCashFundId ?? "",
-    employee_id: employeeId,
-    voucher_type: "blue",
+    employee_id: "4d57db6c-686a-4f76-b180-03fcedab13d4",
+    voucher_type: "a",
     application_date,
     concept,
     amount,
@@ -83,12 +77,12 @@ export const createInitialFields = (): FieldModel[] => [
   {
     type: "input",
     name: "personName",
-    label: "Nombre",
+    label: "Nombre del Deudor",
     placeholder: "Ingrese el nombre completo",
     value: "",
     className: "max-w-[400px]",
     onlyText: true,
-    showIf: () => Boolean(!dataEdit),
+    showIf: () => Boolean(true),
   },
   {
     type: "input",

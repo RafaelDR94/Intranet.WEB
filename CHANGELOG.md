@@ -420,3 +420,9 @@ Feature:
 Feature:
 
 - Refactored VoucherPink and VoucherBlue forms to align with TicketForm and InvoicesForm architecture, adding stories and hook tests. (Agente IA) [#]()
+
+### 1.47.8 Voucher forms data edit support 2025-09-13
+
+Feature:
+
+- Enabled dataEdit prefill for VoucherPink and VoucherBlue forms. (Agente IA) [#]()

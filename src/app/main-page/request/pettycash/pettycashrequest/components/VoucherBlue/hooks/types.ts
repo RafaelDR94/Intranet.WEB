@@ -11,8 +11,8 @@ export type Mode = 'create' | 'edit';
 export interface UseVoucherFormProps {
   /** Current form mode. */
   mode: Mode;
-  /** Initial values when editing. */
-  initialValues?: PettyCashVoucherData;
+  /** Datos existentes para edición */
+  dataEdit?: PettyCashVoucherData;
   /** Start with form disabled. */
   startDisabled?: boolean;
 }

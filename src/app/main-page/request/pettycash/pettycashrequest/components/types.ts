@@ -5,8 +5,8 @@ import { PettyCashVoucherData } from '@/app/mappings/billingPettyCash/BillingPet
 export interface VoucherFormProps {
   /** Define si el formulario se usa para crear o editar */
   mode?: 'create' | 'edit';
-  /** Valores iniciales cuando mode === 'edit' */
-  initialValues?: PettyCashVoucherData;
+  /** Datos para edición del vale */
+  dataEdit?: PettyCashVoucherData;
   /** Para cerrar panel/modal si lo usas embebido */
   onClose?: () => void;
   /** Para controlar la distribucion */

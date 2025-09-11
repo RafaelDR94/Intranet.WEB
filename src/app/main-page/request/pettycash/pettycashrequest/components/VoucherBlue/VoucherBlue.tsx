@@ -16,7 +16,7 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
   mode = "create",
   enableCollaps = false,
   startCollaps = false,
-  initialValues,
+  dataEdit,
   onClose,
   responsiveLayoutMatrix,
   startDisabled,
@@ -32,7 +32,7 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
     currentPagePermissions,
     disableForm,
     setDisableForm,
-  } = useVoucherBlue({ mode, initialValues, startDisabled });
+  } = useVoucherBlue({ mode, dataEdit, startDisabled });
 
   return (
     <FormsLayout
@@ -59,13 +59,13 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
           responsiveLayoutMatrix ?? {
             sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
             md: [
+              [10],
               [5, 5],
-              [5, 5],
-              [2.5, 2.5, 5],
+              [5.5, 5.5],
               [5, 5],
             ],
             lg: [
-              [3.3, 3.3, 3.3],
+              [10],
               [3.3, 3.3, 3.3],
               [3.3, 3.3],
             ],

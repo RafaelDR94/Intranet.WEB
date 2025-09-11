@@ -15,10 +15,8 @@ import {
 import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
-import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
@@ -30,7 +28,7 @@ import { UseVoucherFormProps, UseVoucherFormReturn } from "./types";
  */
 export const useVoucherBlue = ({
   mode,
-  initialValues,
+  dataEdit,
   startDisabled,
 }: UseVoucherFormProps): UseVoucherFormReturn => {
   const formId = `petty-cash-voucher-blue-form-${mode}`;
@@ -52,19 +50,6 @@ export const useVoucherBlue = ({
   );
   const { setFields, updateField, resetFields } = useFormFieldsStore.getState();
 
-  // Employees (prefetch)
-  const { employees, employeesError, fetchEmployees } = useEmployeesStore(
-    (s) => ({
-      employees: s.employees,
-      employeesError: s.error,
-      fetchEmployees: s.fetchEmployees,
-    }),
-    shallow,
-  );
-  useEffect(() => {
-    fetchEmployees();
-  }, [fetchEmployees]);
-
   // Proyects (prefetch)
   const { proyects, proyectsError, fetchProyects } = useProyectsStore(
     (s) => ({
@@ -85,7 +70,6 @@ export const useVoucherBlue = ({
       setFields(formId, initialFields);
       setTimeout(() => {
         UpdateProyects();
-        UpdateEmployees();
       }, 250);
     }, 500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,18 +114,6 @@ export const useVoucherBlue = ({
     [opRunning, opSuccess, error],
   );
 
-  const UpdateEmployees = useCallback(() => {
-    if (employees?.length) {
-      updateField(formId, "employees", {
-        options: employees.map((e: EmployeeType) => ({
-          label: e.fullname,
-          value: e.employee_id,
-        })),
-        value: "",
-      });
-    }
-  }, [employees, formId, updateField]);
-
   const UpdateProyects = useCallback(() => {
     if (proyects?.length) {
       updateField(formId, "project", {
@@ -164,11 +136,6 @@ export const useVoucherBlue = ({
     };
   }, [formId, resetFields, resetFlags, setFields]);
 
-  // Popular opciones: empleados
-  useEffect(() => {
-    UpdateEmployees();
-  }, [employees, formId, UpdateEmployees]);
-
   // Popular opciones: proyectos
   useEffect(() => {
     UpdateProyects();
@@ -181,49 +148,26 @@ export const useVoucherBlue = ({
   );
 
   useEffect(() => {
-    if (!initialValues || loadingFormInfo) return;
-    if (initialValues.employee_id !== undefined) {
-      updateField(formId, "employees", { value: initialValues.employee_id });
+    if (!dataEdit || loadingFormInfo) return;
+    if (dataEdit.project_id !== undefined) {
+      updateField(formId, "project", { value: dataEdit.project_id });
     }
-    if (initialValues.project_id !== undefined) {
-      updateField(formId, "project", { value: initialValues.project_id });
-    }
-    if (initialValues.application_date !== undefined) {
+    if (dataEdit.application_date !== undefined) {
       updateField(formId, "asignamentdate", {
-        value: initialValues.application_date,
+        value: dataEdit.application_date,
       });
     }
-    if (initialValues.amount !== undefined) {
+    if (dataEdit.amount !== undefined) {
       updateField(formId, "monto", {
-        value: Number(initialValues.amount),
+        value: Number(dataEdit.amount),
       });
     }
-    if (initialValues.concept !== undefined) {
-      updateField(formId, "concept", { value: initialValues.concept });
+    if (dataEdit.concept !== undefined) {
+      updateField(formId, "concept", { value: dataEdit.concept });
     }
-  }, [initialValues, formId, loadingFormInfo, updateField]);
+  }, [dataEdit, formId, loadingFormInfo, updateField]);
 
   // Loading de catálogos
-
-  // Errores de catálogos
-  useEffect(() => {
-    if (!employeesError) return;
-    showAlert({
-      type: "error",
-      variant: "filled",
-      title: "No se pudo cargar la lista de empleados",
-      description: String(employeesError) || "Intenta refrescar.",
-      showPrimaryButton: true,
-      primaryLabel: "Entendido",
-      onPrimaryClick: hideAlert,
-      showSecondaryButton: true,
-      secondaryLabel: "Refrescar",
-      onSecondaryClick: () => {
-        hideAlert();
-        fetchEmployees();
-      },
-    });
-  }, [employeesError, fetchEmployees, hideAlert, showAlert]);
 
   useEffect(() => {
     if (!proyectsError) return;
@@ -259,11 +203,11 @@ export const useVoucherBlue = ({
       showAlert({
         type: "success",
         variant: "filled",
-        title: mode === "create" ? "Vale creado" : "Vale actualizado",
+        title: mode === "create" ? "Envio Exitoso" : "Actualizado Exitoso",
         description:
           mode === "create"
-            ? "Se registró el vale de caja chica."
-            : "Se actualizó el vale de caja chica.",
+            ? "Tu vale se ha enviado exitosamente."
+            : "Tu vale se actualizó exitosamente.",
         autoCloseMs: 1500,
         showPrimaryButton: false,
         showSecondaryButton: false,
@@ -314,7 +258,6 @@ export const useVoucherBlue = ({
     async (values: Record<string, any>) => {
       const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
         values,
-        employees,
         proyects,
         fields,
         pettyCashFundId: pettyCashFunds?.[0]?.id,
@@ -322,17 +265,16 @@ export const useVoucherBlue = ({
           getOptionLabel(fields, fieldName, value),
       });
 
-      if (mode === "edit" && initialValues?.id) {
-        await updatePettyCashVoucher({ ...payload, id: initialValues.id });
+      if (mode === "edit" && dataEdit?.id) {
+        await updatePettyCashVoucher({ ...payload, id: dataEdit.id });
         return;
       }
       await createPettyCashVoucher(payload);
     },
     [
       mode,
-      initialValues,
+      dataEdit,
       fields,
-      employees,
       proyects,
       pettyCashFunds,
       createPettyCashVoucher,

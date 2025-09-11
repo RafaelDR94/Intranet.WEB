@@ -32,7 +32,7 @@ import { UseVoucherFormProps, UseVoucherFormReturn } from "./types";
  */
 export const useVoucherPink = ({
   mode,
-  initialValues,
+  dataEdit,
   startDisabled,
 }: UseVoucherFormProps): UseVoucherFormReturn => {
   const formId = `petty-cash-voucher-form-${mode}`;
@@ -182,27 +182,39 @@ export const useVoucherPink = ({
     [fields],
   );
   useEffect(() => {
-    if (!initialValues || loadingFormInfo) return;
-    if (initialValues.employee_id !== undefined) {
-      updateField(formId, "employees", { value: initialValues.employee_id });
+    if (!dataEdit || loadingFormInfo) return;
+    if (dataEdit.employee_id !== undefined) {
+      updateField(formId, "employees", { value: dataEdit.employee_id });
     }
-    if (initialValues.project_id !== undefined) {
-      updateField(formId, "project", { value: initialValues.project_id });
+    if (dataEdit.project_id !== undefined) {
+      updateField(formId, "project", { value: dataEdit.project_id });
     }
-    if (initialValues.application_date !== undefined) {
+    if (dataEdit.application_date !== undefined) {
       updateField(formId, "asignamentdate", {
-        value: initialValues.application_date,
+        value: dataEdit.application_date,
       });
     }
-    if (initialValues.amount !== undefined) {
+    if (dataEdit.amount !== undefined) {
       updateField(formId, "monto", {
-        value: Number(initialValues.amount),
+        value: Number(dataEdit.amount),
       });
     }
-    if (initialValues.concept !== undefined) {
-      updateField(formId, "concept", { value: initialValues.concept });
+    if (dataEdit.concept !== undefined) {
+      updateField(formId, "concept", { value: dataEdit.concept });
     }
-  }, [initialValues, formId, loadingFormInfo, updateField]);
+    if (dataEdit.xml) {
+      updateField(formId, "xml", {
+        value: { name: dataEdit.xml, url: dataEdit.xml },
+        initialFile: { name: dataEdit.xml, url: dataEdit.xml },
+      });
+    }
+    if (dataEdit.pdf) {
+      updateField(formId, "pdf", {
+        value: { name: dataEdit.pdf, url: dataEdit.pdf },
+        initialFile: { name: dataEdit.pdf, url: dataEdit.pdf },
+      });
+    }
+  }, [dataEdit, formId, loadingFormInfo, updateField]);
 
   // Loading de catálogos
 
@@ -260,12 +272,11 @@ export const useVoucherPink = ({
       showAlert({
         type: "success",
         variant: "filled",
-        title:
-          mode === "create" ? "Vale creado" : "Vale actualizado",
+        title: mode === "create" ? "Envio Exitoso" : "Actualizado Exitoso",
         description:
           mode === "create"
-            ? "Se registró el vale de caja chica."
-            : "Se actualizó el vale de caja chica.",
+            ? "Tu vale se ha enviado exitosamente."
+            : "Tu vale se actualizó exitosamente.",
         autoCloseMs: 1500,
         showPrimaryButton: false,
         showSecondaryButton: false,
@@ -324,15 +335,15 @@ export const useVoucherPink = ({
           getOptionLabel(fields, fieldName, value),
       });
 
-      if (mode === "edit" && initialValues?.id) {
-        await updatePettyCashVoucher({ ...payload, id: initialValues.id });
+      if (mode === "edit" && dataEdit?.id) {
+        await updatePettyCashVoucher({ ...payload, id: dataEdit.id });
         return;
       }
       await createPettyCashVoucher(payload);
     },
     [
       mode,
-      initialValues,
+      dataEdit,
       fields,
       employees,
       proyects,

@@ -17,7 +17,7 @@ const VoucherPink: React.FC<VoucherFormProps> = ({
   mode = "create",
   enableCollaps = false,
   startCollaps = false,
-  initialValues,
+  dataEdit,
   onClose,
   responsiveLayoutMatrix,
   startDisabled,
@@ -33,7 +33,7 @@ const VoucherPink: React.FC<VoucherFormProps> = ({
     currentPagePermissions,
     disableForm,
     setDisableForm,
-  } = useVoucherPink({ mode, initialValues, startDisabled });
+  } = useVoucherPink({ mode, dataEdit, startDisabled });
 
   return (
     <FormsLayout
@@ -60,15 +60,15 @@ const VoucherPink: React.FC<VoucherFormProps> = ({
           responsiveLayoutMatrix ?? {
             sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
             md: [
+              [10],
               [5, 5],
-              [5, 5],
-              [2.5, 2.5, 5],
+              [5.5, 5.5],
               [5, 5],
             ],
             lg: [
+              [10],
               [3.3, 3.3, 3.3],
               [3.3, 3.3, 3.3],
-              [3.3, 3.3],
             ],
           }
         }
