@@ -10,34 +10,34 @@ import {
   buildPettyCashVoucherPayload,
   getOptionLabel,
   createInitialFields,
-} from "../utilities/voucherPink";
+} from "../utilities/voucherBlue";
 
 import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
-import type { PostPettyCashVoucher, PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type {
+  PostPettyCashVoucher,
+  PettyCashVoucherData,
+} from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
 
 type Mode = "create" | "edit";
+
 /**
- * Gestiona la lógica del formulario de vales de caja chica.
+ * Gestiona la lógica del formulario de vales azules de caja chica.
  * Carga catálogos, maneja envíos y expone helpers para el componente.
- *
- * @param mode indica si se crea o edita un vale.
- * @param initialValues valores iniciales para modo edición.
- * @returns objeto con campos, manejadores y estado del formulario.
  */
-export const useVoucherPink = (
+export const useVoucherBlue = (
   mode: Mode,
   initialValues?: PettyCashVoucherData,
   startDisabled?: boolean,
 ) => {
-  const formId = `petty-cash-voucher-form-${mode}`;
+  const formId = `petty-cash-voucher-blue-form-${mode}`;
   const { currentPagePermissions } = useAuth();
   // Principal (spinner + alert)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
@@ -183,6 +183,7 @@ export const useVoucherPink = (
     () => computeLoadingFormInfo(fields),
     [fields],
   );
+
   useEffect(() => {
     if (!initialValues || loadingFormInfo) return;
     if (initialValues.employee_id !== undefined) {
@@ -262,8 +263,7 @@ export const useVoucherPink = (
       showAlert({
         type: "success",
         variant: "filled",
-        title:
-          mode === "create" ? "Vale creado" : "Vale actualizado",
+        title: mode === "create" ? "Vale creado" : "Vale actualizado",
         description:
           mode === "create"
             ? "Se registró el vale de caja chica."

@@ -3,11 +3,10 @@ import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
-// Ya existentes en tu archivo (mantén tus implementaciones)
+
 /**
  * Determina si el formulario aún está cargando información
  * (empleados o proyectos).
- *
  * @param fields campos actuales del formulario.
  * @returns `true` si faltan opciones, `false` si todo está listo.
  */
@@ -23,11 +22,6 @@ export const computeLoadingFormInfo = (fields: FieldModel[]) => {
 
 /**
  * Obtiene la etiqueta asociada a un valor dentro de un campo select.
- *
- * @param fields lista de campos del formulario.
- * @param fieldName nombre del campo a consultar.
- * @param value valor cuyo label se busca.
- * @returns etiqueta encontrada o `undefined`.
  */
 export const getOptionLabel = (
   fields: FieldModel[],
@@ -42,15 +36,15 @@ export const getOptionLabel = (
 };
 
 /**
- * Construye el payload para crear o actualizar un vale de caja chica.
+ * Construye el payload para crear o actualizar un vale de caja chica azul.
  */
 export const buildPettyCashVoucherPayload = ({
   values,
-  employees: _employees,
-  proyects: _proyects,
-  fields: _fields,
+  employees,
+  proyects,
+  fields,
   pettyCashFundId,
-  getOptionLabel: _getOptionLabel,
+  getOptionLabel,
 }: {
   values: Record<string, unknown>;
   employees: EmployeeType[];
@@ -71,7 +65,7 @@ export const buildPettyCashVoucherPayload = ({
   return {
     petty_cash_funds_id: pettyCashFundId ?? "",
     employee_id: employeeId,
-    voucher_type: "pink",
+    voucher_type: "blue",
     application_date,
     concept,
     amount,
@@ -82,11 +76,8 @@ export const buildPettyCashVoucherPayload = ({
   };
 };
 
-// --- NUEVO: helpers puros y alerts pequeñas
-
 /**
- * Crea la definición de campos iniciales para el formulario.
- * @returns arreglo con modelos de campo.
+ * Crea la definición de campos iniciales para el formulario azul.
  */
 export const createInitialFields = (): FieldModel[] => [
   {
@@ -142,26 +133,5 @@ export const createInitialFields = (): FieldModel[] => [
       return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
     },
   },
-  {
-    type: "file",
-    name: "xml",
-    label: "Documento XML",
-    // value: { name: "Documento XML", url: dataEdit?.xml },
-    // initialFile: { name: dataEdit?.xml ?? "", url: dataEdit?.xml },
-    value: { name: "Documento XML", url: "" },
-    initialFile: { name: "" ?? "", url: "" },
-    accept: ".xml",
-    className: "max-w-[300px]",
-    validations: [{ type: "required" }],
-  },
-  {
-    type: "file",
-    name: "pdf",
-    label: "Documento PDF",
-    value: { name: "Documento PDF", url: "" },
-    initialFile: { name: "" ?? "", url: "" },
-    accept: ".pdf",
-    className: "max-w-[300px]",
-    validations: [{ type: "required" }],
-  },
+  
 ];

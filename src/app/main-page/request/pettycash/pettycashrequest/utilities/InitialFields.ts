@@ -5,7 +5,7 @@ import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
  * Creates base fields for the invoice form.
  * Used when the user already has XML and PDF files.
  */
-export const createInitialFields = (): FieldModel[] => [
+export const voucherPinkFields = (): FieldModel[] => [
   {
     type: "input",
     name: "debtorName",

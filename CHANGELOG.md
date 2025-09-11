@@ -403,3 +403,14 @@ Fix:
 - Enabled data-testid prop across DynamicForm, FieldRenderer, and related controls to improve Playwright testing. (Agente IA) [#]()
 
 
+### 1.47.5 Billing petty cash store implementation 2025-09-10
+
+Feature:
+
+- Implemented `useBillingPettyCash` store with utilities, mappings, and tests. (Agente IA) [#]()
+
+### 1.47.6 Petty cash voucher form 2025-09-11
+
+Feature:
+
+- Switched VoucherPink form logic to use petty cash voucher store. (Agente IA) [#]()
