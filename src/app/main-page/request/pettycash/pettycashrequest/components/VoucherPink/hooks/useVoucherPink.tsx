@@ -17,26 +17,24 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
-import type { PostPettyCashVoucher, PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
-
-type Mode = "create" | "edit";
+import { UseVoucherFormProps, UseVoucherFormReturn } from "./types";
 /**
  * Gestiona la lógica del formulario de vales de caja chica.
  * Carga catálogos, maneja envíos y expone helpers para el componente.
  *
- * @param mode indica si se crea o edita un vale.
- * @param initialValues valores iniciales para modo edición.
+ * @param params opciones del formulario de vale de caja chica.
  * @returns objeto con campos, manejadores y estado del formulario.
  */
-export const useVoucherPink = (
-  mode: Mode,
-  initialValues?: PettyCashVoucherData,
-  startDisabled?: boolean,
-) => {
+export const useVoucherPink = ({
+  mode,
+  initialValues,
+  startDisabled,
+}: UseVoucherFormProps): UseVoucherFormReturn => {
   const formId = `petty-cash-voucher-form-${mode}`;
   const { currentPagePermissions } = useAuth();
   // Principal (spinner + alert)
@@ -89,7 +87,7 @@ export const useVoucherPink = (
       setFields(formId, initialFields);
       setTimeout(() => {
         UpdateProyects();
-        UpdateEmployees();
+        // UpdateEmployees();
       }, 250);
     }, 500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -134,17 +132,17 @@ export const useVoucherPink = (
     [opRunning, opSuccess, error],
   );
 
-  const UpdateEmployees = useCallback(() => {
-    if (employees?.length) {
-      updateField(formId, "employees", {
-        options: employees.map((e: EmployeeType) => ({
-          label: e.fullname,
-          value: e.employee_id,
-        })),
-        value: "",
-      });
-    }
-  }, [employees, formId, updateField]);
+  // const UpdateEmployees = useCallback(() => {
+  //   if (employees?.length) {
+  //     updateField(formId, "employees", {
+  //       options: employees.map((e: EmployeeType) => ({
+  //         label: e.fullname,
+  //         value: e.employee_id,
+  //       })),
+  //       value: "",
+  //     });
+  //   }
+  // }, [employees, formId, updateField]);
 
   const UpdateProyects = useCallback(() => {
     if (proyects?.length) {
@@ -169,9 +167,9 @@ export const useVoucherPink = (
   }, [formId, resetFields, resetFlags, setFields]);
 
   // Popular opciones: empleados
-  useEffect(() => {
-    UpdateEmployees();
-  }, [employees, formId, UpdateEmployees]);
+  // useEffect(() => {
+  //   UpdateEmployees();
+  // }, [employees, formId, UpdateEmployees]);
 
   // Popular opciones: proyectos
   useEffect(() => {

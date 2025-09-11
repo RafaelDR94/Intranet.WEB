@@ -17,26 +17,22 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
-import type {
-  PostPettyCashVoucher,
-  PettyCashVoucherData,
-} from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
-
-type Mode = "create" | "edit";
+import { UseVoucherFormProps, UseVoucherFormReturn } from "./types";
 
 /**
  * Gestiona la lógica del formulario de vales azules de caja chica.
  * Carga catálogos, maneja envíos y expone helpers para el componente.
  */
-export const useVoucherBlue = (
-  mode: Mode,
-  initialValues?: PettyCashVoucherData,
-  startDisabled?: boolean,
-) => {
+export const useVoucherBlue = ({
+  mode,
+  initialValues,
+  startDisabled,
+}: UseVoucherFormProps): UseVoucherFormReturn => {
   const formId = `petty-cash-voucher-blue-form-${mode}`;
   const { currentPagePermissions } = useAuth();
   // Principal (spinner + alert)

@@ -5,35 +5,14 @@ import React from "react";
 import { useVoucherBlue } from "./hooks/useVoucherBlue";
 
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
-import { ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
-import { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
-
-/**
- * Props para el componente {@link VoucherBlue}.
- */
-type Props = {
-  /** Define si el formulario se usa para crear o editar */
-  mode?: "create" | "edit";
-  /** Valores iniciales cuando mode === 'edit' */
-  initialValues?: PettyCashVoucherData;
-  /** Para cerrar panel/modal si lo usas embebido */
-  onClose?: () => void;
-  /** Para controlar la distribucion */
-  responsiveLayoutMatrix?: ResponsiveLayoutMatrix | undefined;
-  /** Inicia con el componente deshabilitado */
-  startDisabled?: boolean;
-  /** Habilita la tabla colapsable */
-  enableCollaps?: boolean;
-  /** Inicia la tabla colapsada */
-  startCollaps?: boolean;
-};
+import { VoucherFormProps } from "../types";
 
 /**
  * Formulario para crear o editar vales azules de caja chica.
  * Usa {@link useVoucherBlue} para su lógica interna.
  */
-const VoucherBlue: React.FC<Props> = ({
+const VoucherBlue: React.FC<VoucherFormProps> = ({
   mode = "create",
   enableCollaps = false,
   startCollaps = false,
@@ -53,7 +32,7 @@ const VoucherBlue: React.FC<Props> = ({
     currentPagePermissions,
     disableForm,
     setDisableForm,
-  } = useVoucherBlue(mode, initialValues, startDisabled);
+  } = useVoucherBlue({ mode, initialValues, startDisabled });
 
   return (
     <FormsLayout

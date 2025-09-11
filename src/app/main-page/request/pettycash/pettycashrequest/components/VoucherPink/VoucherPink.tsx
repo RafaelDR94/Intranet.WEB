@@ -5,38 +5,15 @@ import React from "react";
 import { useVoucherPink } from "./hooks/useVoucherPink";
 
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
-import { ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
-import { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
-/**
- * Props for the {@link VoucherPink} component.
- * @property mode define si el formulario crea o edita.
- * @property initialValues valores iniciales cuando se edita.
- * @property onClose callback para cerrar panel o modal contenedor.
- */
-type Props = {
-  /** Define si el formulario se usa para crear o editar */
-  mode?: "create" | "edit";
-  /** Valores iniciales cuando mode === 'edit' */
-  initialValues?: PettyCashVoucherData;
-  /** Para cerrar panel/modal si lo usas embebido */
-  onClose?: () => void;
-  /** Para controlar la distribucion */
-  responsiveLayoutMatrix?: ResponsiveLayoutMatrix | undefined;
-  /** Inicia con el componente deshabilitado */
-  startDisabled?: boolean;
-  /** Habilita la tabla colapsable */
-  enableCollaps?: boolean;
-  /** Inicia la tabla colapsada */
-  startCollaps?: boolean;
-};
+import { VoucherFormProps } from "../types";
 
 /**
  * Formulario para crear o editar vales de caja chica.
  * Envuelve un {@link DynamicForm} dentro de {@link FormsLayout} y usa
  * {@link useVoucherPink} para manejar estado y envío.
  */
-const VoucherPink: React.FC<Props> = ({
+const VoucherPink: React.FC<VoucherFormProps> = ({
   mode = "create",
   enableCollaps = false,
   startCollaps = false,
@@ -56,7 +33,7 @@ const VoucherPink: React.FC<Props> = ({
     currentPagePermissions,
     disableForm,
     setDisableForm,
-  } = useVoucherPink(mode, initialValues, startDisabled);
+  } = useVoucherPink({ mode, initialValues, startDisabled });
 
   return (
     <FormsLayout

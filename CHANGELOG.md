@@ -414,3 +414,9 @@ Feature:
 Feature:
 
 - Switched VoucherPink form logic to use petty cash voucher store. (Agente IA) [#]()
+
+### 1.47.7 Voucher forms refactor 2025-09-12
+
+Feature:
+
+- Refactored VoucherPink and VoucherBlue forms to align with TicketForm and InvoicesForm architecture, adding stories and hook tests. (Agente IA) [#]()

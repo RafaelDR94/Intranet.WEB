@@ -81,17 +81,14 @@ export const buildPettyCashVoucherPayload = ({
  */
 export const createInitialFields = (): FieldModel[] => [
   {
-    type: "select",
-    name: "employees",
-    label: "Nombre del Deudor",
-    placeholder: "Seleccione el Deudor",
+    type: "input",
+    name: "personName",
+    label: "Nombre",
+    placeholder: "Ingrese el nombre completo",
     value: "",
     className: "max-w-[400px]",
-    validations: [{ type: "required" }],
-    showIf: (_v, all) => {
-      const f = all.find((x) => x.name === "employees");
-      return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-    },
+    onlyText: true,
+    showIf: () => Boolean(!dataEdit),
   },
   {
     type: "input",
@@ -133,5 +130,4 @@ export const createInitialFields = (): FieldModel[] => [
       return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
     },
   },
-  
 ];
