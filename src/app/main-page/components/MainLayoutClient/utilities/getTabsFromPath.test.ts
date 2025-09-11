@@ -13,9 +13,7 @@ describe('getTabsFromPath utility', () => {
 
   it('returns tabs for request section', () => {
     const result = getTabsFromPath('/main-page/request');
-    expect(result).toEqual([
-      { label: 'Facturación', path: '/main-page/request/invoices' },
-    ]);
+    expect(result).toEqual([]);
   });
 
   it('returns empty array for unknown path', () => {

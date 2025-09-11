@@ -1,68 +1,84 @@
 export type PettyCashFundData = {
   id: string;
   year_month: string;
-  assigned_amount: 30000;
-  verified_amount: 0;
-  cash_on_hand: 0;
-  unverified_amount: 0;
-  pending_verification: 0;
-  available_amount: 30000;
+  assigned_amount: number;
+  verified_amount: number;
+  cash_on_hand: number;
+  unverified_amount: number;
+  pending_verification: number;
+  available_amount: number;
 };
 
 export type GetPettyCashFundById = {
   data: PettyCashFundData;
-  success: true;
+  success: boolean;
   error_Message: string;
-  error_Code: 0;
+  error_Code: number;
 };
 
 export type GetPettyCashFund = {
-  data: PettyCashFundData;
-  success: true;
+  data: PettyCashFundData[];
+  success: boolean;
   error_Message: string;
-  error_Code: 0;
+  error_Code: number;
 };
 
 export type PostPettyCashFund = {
   year_month: string;
-  assigned_amount: 0;
-  verified_amount: 0;
-  cash_on_hand: 0;
-  unverified_amount: 0;
-  pending_verification: 0;
-  available_amount: 0;
-}
+  assigned_amount: number;
+  verified_amount: number;
+  cash_on_hand: number;
+  unverified_amount: number;
+  pending_verification: number;
+  available_amount: number;
+};
 
 export type PutPettyCashFund = {
   id: string;
   year_month: string;
-  assigned_amount: 0;
-  verified_amount: 0;
-  cash_on_hand: 0;
-  unverified_amount: 0;
-  pending_verification: 0;
-  available_amount: 0;
-}
+  assigned_amount: number;
+  verified_amount: number;
+  cash_on_hand: number;
+  unverified_amount: number;
+  pending_verification: number;
+  available_amount: number;
+};
 
 export type DeletePettyCashFund = {
-    id: string;
-}
+  id: string;
+};
 
 export type PutCashOnHand = {
   id_petty_cash_found: string;
-  cash_on_hand: 0;
-}
+  cash_on_hand: number;
+};
+export type PettyCashVoucherData = {
+  id: string;
+  petty_cash_funds_id: string;
+  employee_id: string;
+  voucher_type: string;
+  application_date: string;
+  concept: string;
+  amount: number;
+  comments: string;
+  project_id: string;
+  xml: string;
+  pdf: string;
+};
 
 export type GetPettyCashVoucherById = {
-
-}
+  data: PettyCashVoucherData;
+  success: boolean;
+  error_Message: string;
+  error_Code: number;
+};
 
 export type GetPettyCashVoucher = {
-  data: [],
-  success: true,
-  error_Message: string,
-  error_Code: 0
-}
+  data: PettyCashVoucherData[];
+  success: boolean;
+  error_Message: string;
+  error_Code: number;
+};
 
 export type PostPettyCashVoucher = {
   petty_cash_funds_id: string;
@@ -70,36 +86,26 @@ export type PostPettyCashVoucher = {
   voucher_type: string;
   application_date: string;
   concept: string;
-  amount: 0;
+  amount: number;
   comments: string;
   project_id: string;
   xml: string;
   pdf: string;
-}
+};
 
-export type PutPettyCashVoucher = {
+export type PutPettyCashVoucher = PostPettyCashVoucher & {
   id: string;
-  petty_cash_funds_id: string;
-  employee_id: string;
-  voucher_type: string;
-  application_date: string;
-  concept: string;
-  amount: 0;
-  comments: string;
-  project_id: string;
-  xml: string;
-  pdf: string;
-}
+};
 
 export type DeletePettyCashVoucherId = {
-    id: string;
-}
-
+  id: string;
+};
 
 export type PutPettyCashRejectId = {
-    id: string;
-}
+  id: string;
+  comments?: string;
+};
 
 export type PutPettyCashValidateId = {
-    id: string;
-}
+  id: string;
+};
