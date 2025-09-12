@@ -2,7 +2,7 @@
 
 import VoucherBlue from "./components/VoucherBlue/VoucherBlue";
 import VoucherPink from "./components/VoucherPink/VoucherPink";
-import { PettyCashProvider } from "./context/PettyCashProvider";
+import { PettyCashProvider } from "./context/PettyCashContext";
 
 const PettyCashRequest = () => {
   return (

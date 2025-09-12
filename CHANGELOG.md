@@ -426,3 +426,9 @@ Feature:
 Feature:
 
 - Enabled dataEdit prefill for VoucherPink and VoucherBlue forms. (Agente IA) [#]()
+
+### 1.47.9 Petty cash context provider 2025-09-12
+
+Feature:
+
+- Added shared petty cash context for voucher forms. (Agente IA) [#]()
