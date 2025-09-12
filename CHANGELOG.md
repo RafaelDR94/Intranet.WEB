@@ -438,3 +438,9 @@ Feature:
 Bug Fix:
 
 - Prevent VoucherPink and VoucherBlue from triggering each other's requests and loading states. (Agente IA) [#]()
+
+### 1.47.11 Voucher forms employee and file support 2025-09-15
+
+Fix:
+
+- Send authenticated employee IDs and preserve XML/PDF files when editing petty cash vouchers. (Agente IA) [#]()

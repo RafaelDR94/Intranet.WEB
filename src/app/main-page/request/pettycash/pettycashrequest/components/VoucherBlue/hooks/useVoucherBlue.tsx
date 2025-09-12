@@ -32,7 +32,7 @@ export const useVoucherBlue = ({
   startDisabled,
 }: UseVoucherFormProps): UseVoucherFormReturn => {
   const formId = `petty-cash-voucher-blue-form-${mode}`;
-  const { currentPagePermissions } = useAuth();
+  const { currentPagePermissions, user } = useAuth();
   // Principal (spinner + alert)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -107,20 +107,20 @@ export const useVoucherBlue = ({
           label: p.proyectKey,
           value: p.id,
         })),
-        value: "",
+        value: dataEdit?.project_id ?? "",
       });
     }
-  }, [proyects, formId, updateField]);
+  }, [proyects, formId, updateField, dataEdit]);
 
   // Monta iniciales y limpia
   useEffect(() => {
-    const initialFields: FieldModel[] = createInitialFields();
+    const initialFields: FieldModel[] = createInitialFields(dataEdit);
     setFields(formId, initialFields);
     return () => {
       resetFields(formId);
       resetFlags();
     };
-  }, [formId, resetFields, resetFlags, setFields]);
+  }, [formId, resetFields, resetFlags, setFields, dataEdit]);
 
   // Popular opciones: proyectos
   useEffect(() => {
@@ -150,6 +150,18 @@ export const useVoucherBlue = ({
     }
     if (dataEdit.concept !== undefined) {
       updateField(formId, "concept", { value: dataEdit.concept });
+    }
+    if (dataEdit.xml) {
+      updateField(formId, "xml", {
+        value: { name: dataEdit.xml, url: dataEdit.xml },
+        initialFile: { name: dataEdit.xml, url: dataEdit.xml },
+      });
+    }
+    if (dataEdit.pdf) {
+      updateField(formId, "pdf", {
+        value: { name: dataEdit.pdf, url: dataEdit.pdf },
+        initialFile: { name: dataEdit.pdf, url: dataEdit.pdf },
+      });
     }
   }, [dataEdit, formId, loadingFormInfo, updateField]);
 
@@ -242,6 +254,7 @@ export const useVoucherBlue = ({
         pettyCashFundId: pettyCashFunds?.[0]?.id,
         getOptionLabel: (fieldName: string, value: unknown) =>
           getOptionLabel(fields, fieldName, value),
+        employeeId: user?.idEmployee ?? "",
       });
 
       const res =

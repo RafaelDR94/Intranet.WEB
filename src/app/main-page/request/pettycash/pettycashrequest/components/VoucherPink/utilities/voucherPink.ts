@@ -1,7 +1,10 @@
 import type { FieldModel } from "@/app/components/DynamicForm/types";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
-import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type {
+  PettyCashVoucherData,
+  PostPettyCashVoucher,
+} from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
 // Ya existentes en tu archivo (mantén tus implementaciones)
 /**
@@ -13,9 +16,12 @@ import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
  */
 export const computeLoadingFormInfo = (fields: FieldModel[]) => {
   const prj = fields.find((f) => f.name === "project");
+  const emp = fields.find((f) => f.name === "employees");
   const projectsReady =
     Array.isArray(prj?.options) && (prj?.options?.length ?? 0) > 0;
-  return !projectsReady;
+  const employeesReady =
+    Array.isArray(emp?.options) && (emp?.options?.length ?? 0) > 0;
+  return !(projectsReady && employeesReady);
 };
 
 /**
@@ -85,7 +91,9 @@ export const buildPettyCashVoucherPayload = ({
  * Crea la definición de campos iniciales para el formulario.
  * @returns arreglo con modelos de campo.
  */
-export const createInitialFields = (): FieldModel[] => [
+export const createInitialFields = (
+  dataEdit?: PettyCashVoucherData,
+): FieldModel[] => [
   {
     type: "input",
     name: "personName",
@@ -94,14 +102,28 @@ export const createInitialFields = (): FieldModel[] => [
     value: "",
     className: "max-w-[400px]",
     onlyText: true,
-    // showIf: () => Boolean(!dataEdit),
+    showIf: () => Boolean(!dataEdit),
+  },
+  {
+    type: "select",
+    name: "employees",
+    label: "Empleado",
+    placeholder: "Seleccione un empleado",
+    value: dataEdit?.employee_id ?? "",
+    options: [],
+    className: "max-w-[400px]",
+    validations: [{ type: "required" }],
+    showIf: (_v, all) => {
+      const f = all.find((x) => x.name === "employees");
+      return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+    },
   },
   {
     type: "input",
     name: "monto",
     label: "Monto",
     placeholder: "Escribe el monto solicitado",
-    value: "",
+    value: dataEdit ? String(dataEdit.amount) : "",
     className: "max-w-[400px]",
     validations: [{ type: "required" }],
   },
@@ -110,7 +132,7 @@ export const createInitialFields = (): FieldModel[] => [
     name: "asignamentdate",
     label: "Fecha",
     placeholder: "00/00/00",
-    value: currentDate(),
+    value: dataEdit?.application_date ?? currentDate(),
     className: "max-w-[400px]",
     validations: [{ type: "required" }],
   },
@@ -119,7 +141,7 @@ export const createInitialFields = (): FieldModel[] => [
     name: "concept",
     label: "Concepto",
     placeholder: "Escribe el concepto",
-    value: "",
+    value: dataEdit?.concept ?? "",
     className: "max-w-[400px]",
     validations: [{ type: "required" }],
   },
@@ -128,7 +150,7 @@ export const createInitialFields = (): FieldModel[] => [
     name: "project",
     label: "Proyecto",
     placeholder: "Selecciona el proyecto ",
-    value: "",
+    value: dataEdit?.project_id ?? "",
     className: "max-w-[400px]",
     validations: [{ type: "required" }],
     showIf: (_v, all) => {
@@ -140,22 +162,20 @@ export const createInitialFields = (): FieldModel[] => [
     type: "file",
     name: "xml",
     label: "Documento XML",
-    // value: { name: "Documento XML", url: dataEdit?.xml },
-    // initialFile: { name: dataEdit?.xml ?? "", url: dataEdit?.xml },
-    value: { name: "Documento XML", url: "" },
-    initialFile: { name: "" ?? "", url: "" },
+    value: { name: dataEdit?.xml ? "Documento XML" : "", url: dataEdit?.xml },
+    initialFile: { name: dataEdit?.xml ?? "", url: dataEdit?.xml ?? "" },
     accept: ".xml",
     className: "max-w-[300px]",
-    validations: [{ type: "required" }],
+    validations: dataEdit ? [] : [{ type: "required" }],
   },
   {
     type: "file",
     name: "pdf",
     label: "Documento PDF",
-    value: { name: "Documento PDF", url: "" },
-    initialFile: { name: "" ?? "", url: "" },
+    value: { name: dataEdit?.pdf ? "Documento PDF" : "", url: dataEdit?.pdf },
+    initialFile: { name: dataEdit?.pdf ?? "", url: dataEdit?.pdf ?? "" },
     accept: ".pdf",
     className: "max-w-[300px]",
-    validations: [{ type: "required" }],
+    validations: dataEdit ? [] : [{ type: "required" }],
   },
 ];

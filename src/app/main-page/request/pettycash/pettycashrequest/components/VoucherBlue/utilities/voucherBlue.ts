@@ -1,6 +1,9 @@
 import type { FieldModel } from "@/app/components/DynamicForm/types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
-import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type {
+  PettyCashVoucherData,
+  PostPettyCashVoucher,
+} from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
 
 /**
@@ -40,14 +43,15 @@ export const buildPettyCashVoucherPayload = ({
   fields,
   pettyCashFundId,
   getOptionLabel,
+  employeeId,
 }: {
   values: Record<string, unknown>;
   proyects: Proyect[];
   fields: FieldModel[];
   pettyCashFundId?: string;
   getOptionLabel: (fieldName: string, value: unknown) => string | undefined;
+  employeeId: string;
 }): PostPettyCashVoucher => {
-  const employeeId = String(values.employees ?? "");
   const projectId = String(values.project ?? "");
   const application_date = String(values.asignamentdate ?? "");
   const concept = String(values.concept ?? "");
@@ -56,11 +60,9 @@ export const buildPettyCashVoucherPayload = ({
   const xmlValue = values.xml as { url: string } | undefined;
   const pdfValue = values.pdf as { url: string } | undefined;
 
-  console.log('employeeId', employeeId);
-  
   return {
     petty_cash_funds_id: pettyCashFundId ?? "",
-    employee_id: "4d57db6c-686a-4f76-b180-03fcedab13d4",
+    employee_id: employeeId,
     voucher_type: "A",
     application_date,
     concept,
@@ -75,7 +77,9 @@ export const buildPettyCashVoucherPayload = ({
 /**
  * Crea la definición de campos iniciales para el formulario azul.
  */
-export const createInitialFields = (): FieldModel[] => [
+export const createInitialFields = (
+  dataEdit?: PettyCashVoucherData,
+): FieldModel[] => [
   {
     type: "input",
     name: "personName",
@@ -84,14 +88,14 @@ export const createInitialFields = (): FieldModel[] => [
     value: "",
     className: "max-w-[400px]",
     onlyText: true,
-    showIf: () => Boolean(!dataEdit),  
+    showIf: () => Boolean(!dataEdit),
   },
   {
     type: "input",
     name: "monto",
     label: "Monto",
     placeholder: "Escribe el monto solicitado",
-    value: "",
+    value: dataEdit ? String(dataEdit.amount) : "",
     className: "max-w-[400px]",
     validations: [{ type: "required" }],
   },
@@ -100,7 +104,7 @@ export const createInitialFields = (): FieldModel[] => [
     name: "asignamentdate",
     label: "Fecha",
     placeholder: "00/00/00",
-    value: currentDate(),
+    value: dataEdit?.application_date ?? currentDate(),
     className: "max-w-[400px]",
     validations: [{ type: "required" }],
   },
@@ -109,7 +113,7 @@ export const createInitialFields = (): FieldModel[] => [
     name: "concept",
     label: "Concepto",
     placeholder: "Escribe el concepto",
-    value: "",
+    value: dataEdit?.concept ?? "",
     className: "max-w-[400px]",
     validations: [{ type: "required" }],
   },
@@ -118,12 +122,32 @@ export const createInitialFields = (): FieldModel[] => [
     name: "project",
     label: "Proyecto",
     placeholder: "Selecciona el proyecto ",
-    value: "",
+    value: dataEdit?.project_id ?? "",
     className: "max-w-[400px]",
     validations: [{ type: "required" }],
     showIf: (_v, all) => {
       const f = all.find((x) => x.name === "project");
       return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
     },
+  },
+  {
+    type: "file",
+    name: "xml",
+    label: "Documento XML",
+    value: { name: dataEdit?.xml ? "Documento XML" : "", url: dataEdit?.xml },
+    initialFile: { name: dataEdit?.xml ?? "", url: dataEdit?.xml ?? "" },
+    accept: ".xml",
+    className: "max-w-[300px]",
+    validations: dataEdit ? [] : [{ type: "required" }],
+  },
+  {
+    type: "file",
+    name: "pdf",
+    label: "Documento PDF",
+    value: { name: dataEdit?.pdf ? "Documento PDF" : "", url: dataEdit?.pdf },
+    initialFile: { name: dataEdit?.pdf ?? "", url: dataEdit?.pdf ?? "" },
+    accept: ".pdf",
+    className: "max-w-[300px]",
+    validations: dataEdit ? [] : [{ type: "required" }],
   },
 ];

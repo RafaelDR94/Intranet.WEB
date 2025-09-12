@@ -75,7 +75,6 @@ export const useVoucherPink = ({
     }),
     shallow,
   );
-  console.log('dataEdit',dataEdit);
   
   useEffect(() => {
     fetchProyects();
@@ -88,7 +87,7 @@ export const useVoucherPink = ({
       setFields(formId, initialFields);
       setTimeout(() => {
         UpdateProyects();
-        // UpdateEmployees();
+        UpdateEmployees();
       }, 250);
     }, 500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -126,25 +125,41 @@ export const useVoucherPink = ({
           label: p.proyectKey,
           value: p.id,
         })),
-        value: "",
+        value: dataEdit?.project_id ?? "",
       });
     }
-  }, [proyects, formId, updateField]);
+  }, [proyects, formId, updateField, dataEdit]);
+
+  const UpdateEmployees = useCallback(() => {
+    if (employees?.length) {
+      updateField(formId, "employees", {
+        options: employees.map((e) => ({
+          label: e.fullname,
+          value: e.employee_id,
+        })),
+        value: dataEdit?.employee_id ?? "",
+      });
+    }
+  }, [employees, formId, updateField, dataEdit]);
 
   // Monta iniciales y limpia
   useEffect(() => {
-    const initialFields: FieldModel[] = createInitialFields();
+    const initialFields: FieldModel[] = createInitialFields(dataEdit);
     setFields(formId, initialFields);
     return () => {
       resetFields(formId);
       resetFlags();
     };
-  }, [formId, resetFields, resetFlags, setFields]);
+  }, [formId, resetFields, resetFlags, setFields, dataEdit]);
 
   // Popular opciones: proyectos
   useEffect(() => {
     UpdateProyects();
   }, [proyects, formId, UpdateProyects]);
+
+  useEffect(() => {
+    UpdateEmployees();
+  }, [employees, formId, UpdateEmployees]);
 
   // Setear valores iniciales cuando existan (modo edit)
   const loadingFormInfo = useMemo(
