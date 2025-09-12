@@ -58,6 +58,10 @@ describe('Button component', () => {
     render(<Button icon={CustomIcon}>Texto</Button>)
     expect(screen.getByTestId('custom-icon')).toBeInTheDocument()
   })
+    it('propaga dataTestId al botón', () => {
+    render(<Button dataTestId="btn1">Id</Button>)
+    expect(screen.getByTestId('btn1')).toBeInTheDocument()
+  })
     it('no renderiza el icono cuando hideIcon es true', () => {
     render(<Button hideIcon>Sin icono</Button>)
     expect(screen.queryByTestId('icon-right')).not.toBeInTheDocument()

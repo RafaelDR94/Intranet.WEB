@@ -17,5 +17,7 @@ export interface ToggleButtonProps {
   labelColor?:string;
   /** Clases CSS adicionales para personalizar el contenedor */
   className?: string;
+  /** Identificador de pruebas */
+  dataTestId?: string;
 }
 

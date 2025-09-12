@@ -15,12 +15,17 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "deploy:storybook": "npm run build-storybook && firebase deploy --only hosting:drintranettecnicdocumentation",
     "deploy:app": "npm run build && firebase deploy --only hosting:intranetdr",
     "deploy:stagging": "npm run build && firebase deploy --only hosting:stagginsite",
-    "deploy:preview": "npm run build  && firebase hosting:channel:deploy dev --only intranetdr"
+    "deploy:preview": "npm run build  && firebase hosting:channel:deploy localbranch --only intranetdr",
+    "deploy:e2e:report": "playwright test --reporter=html && firebase deploy --only hosting:intranetdr-testing"
   },
   "dependencies": {
     "@azure/msal-browser": "^4.16.0",
@@ -50,6 +55,7 @@
     "@babel/preset-react": "^7.27.1",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^2.3.0",
+    "@playwright/test": "^1.55.0",
     "@storybook/addon-a11y": "^8.6.14",
     "@storybook/addon-docs": "^8.6.14",
     "@storybook/addon-essentials": "^8.6.14",

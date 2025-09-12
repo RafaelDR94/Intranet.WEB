@@ -34,4 +34,9 @@ describe('NumberControl component', () => {
     fireEvent.blur(input);
     expect(input).toHaveValue('10');
   });
+
+  it('propaga dataTestId al contenedor', () => {
+    render(<NumberControl defaultValue={1} dataTestId="nc1" />);
+    expect(screen.getByTestId('nc1')).toBeInTheDocument();
+  });
 });

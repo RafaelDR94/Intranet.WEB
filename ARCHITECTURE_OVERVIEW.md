@@ -208,6 +208,41 @@ Todos los módulos reutilizables deben tener pruebas unitarias:
 
 ---
 
+## Capas de Pruebas y ubicación de E2E
+
+### Pirámide de pruebas
+- **Unitarias (Vitest)**: lógica pura, hooks, utilidades.
+- **Integración (Vitest/RTL)**: componentes integrados sin red real.
+- **E2E (Playwright)**: flujos de usuario de extremo a extremo sobre la app levantada.
+
+### Dónde vive cada cosa
+```
+src/
+  app/ ...               # aplicación Next.js
+  components/ ...        # UI (Tailwind)
+  utilities/ ...         # helpers (unitarias primero)
+e2e/
+  specs/                 # suites end-to-end
+  helpers/               # auth, selectores, utilidades cross-suite
+  fixtures/              # estado de sesión, datos estáticos
+playwright.config.ts     # proyectos (desktop/mobile), servidor, baseURL
+```
+
+### Convenciones E2E
+- `data-testid="..."` en elementos interactivos.
+- Si el tema se controla con `data-theme`, incluir 1 spec que valide dark.
+- Proyectos móviles (`Pixel 7`, `iPhone 14`) habilitados.
+- `storageState.json` para sesiones pre-logueadas donde aplique.
+
+### Integración CI/CD (resumen)
+1) `npx playwright install --with-deps`
+2) `npm run build`
+3) `npm run test:e2e`
+4) Publicar `playwright-report/` como artifact si falla.
+
+> Nota: si el pipeline ya publica un staging, puedes desactivar `webServer` y apuntar `baseURL` a esa URL.
+
+
 ## 📖 Documentación con Storybook `.docs.mdx`
 
 Todos los módulos reutilizables deben incluir documentación técnica en Storybook:

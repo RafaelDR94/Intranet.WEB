@@ -38,17 +38,20 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
 
   return (
     <div
+      data-testid="mobile-sidebar"
       aria-hidden={!isOpen}
       className={`fixed inset-0 z-50 lg:hidden ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
     >
       {/* Overlay */}
       <div
+        data-testid="mobile-overlay"
         onClick={handleOverlayClick}
         className={`absolute inset-0 bg-black/50 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`}
       />
 
       {/* Panel */}
       <div
+        data-testid="mobile-panel"
         ref={panelRef}
         role="dialog"
         aria-modal="true"
@@ -59,8 +62,10 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3">
-          <Image src={LogoDr} alt="DR Security" width={110} height={110} priority   />
+          <Image src={LogoDr} alt="DR Security Logo" width={110} height={110} priority />
           <button
+
+            data-testid="mobile-closesidebar"
             onClick={onClose}
             className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
             aria-label="Cerrar menú"
@@ -85,6 +90,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                 const active = isActive(route.path);
                 return (
                   <Link
+                    data-testid={`mobile:${route.path}`}
                     key={route.path}
                     href={route.path}
                     onClick={onClose}
@@ -97,7 +103,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
               }
 
               return (
-                <div key={route.path} className="mb-1">
+                <div key={route.path} className="mb-1"    data-testid={`mobile:${route.path}`}>
                   <button
                     onClick={() => setExpanded(open ? null : route.path)}
                     className="w-full flex items-center justify-between px-3 h-11 rounded-md hover:bg-white/5"
@@ -117,6 +123,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                         const active = isActive(s.path);
                         return (
                           <Link
+                            data-testid={`mobile:${s.path}`}
                             key={s.path}
                             href={s.path}
                             onClick={onClose}
@@ -137,7 +144,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
         <div className="px-4 py-4 border-t border-white/10">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <PersonalAvatar size="xs" />
+              <PersonalAvatar size="xs" dataTestId="avatar-mobile" />
               <div>
                 <p className="text-sm font-medium truncate max-w-[140px]">{userFullName ?? ''}</p>
               </div>
@@ -149,7 +156,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
               </div> */}
               <div className="flex items-center gap-2">
                 <ThemeIcon aria-hidden />
-                <ToggleButton checked={theme === 'dark'} onChange={toggleTheme} label="" />
+                <ToggleButton checked={theme === 'dark'} onChange={toggleTheme} label="" dataTestId='theme-toggle-mobile' />
               </div>
             </div>
           </div>
@@ -160,10 +167,12 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 h-10 px-2 rounded hover:bg-white/5"
+              data-testid="help-link"
             >
               <HelpIcon /> <span>Ayuda</span>
             </Link>
             <button
+              data-testid="sidebar-mobile-logout"
               onClick={async () => {
                 await logout();
                 window.location.href = '/';

@@ -68,6 +68,7 @@ export const NumberControl: React.FC<NumberControlProps> = ({
   className,
   inputAriaLabel = 'Valor numérico',
   clampOnBlur = true,
+  dataTestId,
 }) => {
   const {
     inputRef,
@@ -103,8 +104,8 @@ export const NumberControl: React.FC<NumberControlProps> = ({
       (disabled ? 'default' : (variant as keyof typeof s.helperColors)) ?? 'default'
     ] ?? s.helperColors.default;
 
-  return (
-    <div className={clsx(s.container, className)}>
+    return (
+      <div className={clsx(s.container, className)} data-testid={dataTestId}>
       {label && <label className={s.label}>{label}</label>}
 
       <div className={s.row}>

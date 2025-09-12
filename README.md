@@ -132,6 +132,52 @@ Las pruebas deben mantenerse en la misma carpeta del componente para facilitar e
 - Los estilos específicos van en el archivo `styles.ts` de cada componente, con clases de Tailwind.
 
 ---
+
+## End-to-End Testing (Playwright)
+
+Usamos [Playwright](https://playwright.dev/) para validar flujos críticos de la intranet (auth, navegación, formularios, tablas, estados responsive y tema dark/light).
+
+### Requisitos
+- Node 18+ (recomendado: 20).
+- Navegadores de Playwright instalados.
+
+```bash
+npm i -D @playwright/test
+npx playwright install --with-deps
+```
+
+### Estructura
+```
+/e2e
+  ├─ specs/               # suites de pruebas (auth, requisitions, smoke, etc.)
+  ├─ helpers/             # selectores, utilidades, setup de sesión
+  ├─ fixtures/            # storageState.json (sesión autenticada), datos
+  └─ playwright.config.ts # config por proyecto (desktop, mobile)
+```
+
+### Scripts
+```jsonc
+{
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report"
+  }
+}
+```
+
+### Configuración mínima
+Ver `PLAYWRIGHT.md` para el `playwright.config.ts` sugerido, buenas prácticas de selectores y ejemplos de specs.
+
+### Ejecutar
+```bash
+npm run test:e2e
+npm run test:e2e:ui
+npm run test:e2e:report
+```
+
+
 ## 🧠 Arquitectura de mapeo de datos
 
 Toda transformación de datos que proviene del backend debe hacerse dentro de la carpeta `mappings/`.

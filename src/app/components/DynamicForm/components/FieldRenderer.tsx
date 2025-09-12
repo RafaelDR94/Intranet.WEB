@@ -33,6 +33,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
   onBlur,
   variant,
   helperText,
+  formDataTestId,
 }) => {
   const baseProps = {
     label: field.label,
@@ -110,6 +111,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           label={field.label}
           disabled={field.disabled}
           className={field.className}
+          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
 
@@ -121,6 +123,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           label={field.label}
           className={field.className}
           disabled={field.disabled}
+          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
 
@@ -136,6 +139,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             className={field.className}
             icon={field.icon}
             initialFile={field.initialFile}
+            dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
           />
           {helperText && (
             <span className={helperClasses(variant as InputVariant)}>
@@ -158,6 +162,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           disabled={field.disabled}
           helperText={helperText}
           className={field.className}
+          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
     case "textarea":
@@ -172,6 +177,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           }
           onBlur={onBlur}
           variant={field.disabled ? "disabled" : variant}
+          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
 
@@ -188,6 +194,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           type={field.type === "email" ? "email" : field.type}
           variant={field.disabled ? "disabled" : variant}
           inputMode={field.type === "number" ? "decimal" : undefined} // opcional
+          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
   }

@@ -78,6 +78,16 @@ describe('ToggleButton component', () => {
       'space-x-reverse'
     )
   })
+  it('propaga dataTestId al contenedor', () => {
+    render(
+      <ToggleButton
+        checked={false}
+        onChange={() => {}}
+        dataTestId="toggle1"
+      />
+    )
+    expect(screen.getByTestId('toggle1')).toBeInTheDocument()
+  })
    it('aplica un color personalizado a la etiqueta', () => {
     render(
       <ToggleButton

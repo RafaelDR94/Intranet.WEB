@@ -74,6 +74,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   className,
   icon,
   initialFile,
+  dataTestId,
 }) => {
   const {
     inputRef,
@@ -85,8 +86,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
   const IconToUse: React.FC<SVGProps<SVGSVGElement>> = icon ?? UploadIcon;
 
-  return (
-    <div className="flex flex-col gap-2">
+    return (
+      <div className="flex flex-col gap-2" data-testid={dataTestId}>
       {label && <label className={labelClasses()}>{label}</label>}
       <div className={buttoncontainerstyle}>
         <input

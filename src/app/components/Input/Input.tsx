@@ -77,8 +77,9 @@ export const Input: React.FC<InputProps> = ({
   type = 'text',
   icon,
   onIconClick,
-  as = 'input',          
-  rows = 4,             
+  as = 'input',
+  rows = 4,
+  dataTestId,
   ...props
 }) => {
   const size = inputSize;
@@ -91,12 +92,13 @@ export const Input: React.FC<InputProps> = ({
   const Icon = icon;
 
   return (
-    <div className={containerClasses()}>
+    <div className={containerClasses()}  data-testid={`${dataTestId}-container`}>
       {label && <label className={labelClasses()}>{label}</label>}
 
       <div className="relative mb-2">
         {isTextarea ? (
           <textarea
+            data-testid={dataTestId}
             {...(props as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
             rows={rows}
             disabled={isDisabled}
@@ -106,6 +108,7 @@ export const Input: React.FC<InputProps> = ({
         ) : (
           <>
             <input
+              data-testid={dataTestId}
               {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
               type={isPassword && showPassword ? 'text' : (type as string)}
               disabled={isDisabled}
@@ -114,6 +117,7 @@ export const Input: React.FC<InputProps> = ({
 
             {Icon && (
               <button
+                data-testid={`${dataTestId}-icon`}
                 type="button"
                 onClick={onIconClick}
                 className={eyesicontyles.eyeButton}
@@ -125,6 +129,7 @@ export const Input: React.FC<InputProps> = ({
 
             {isPassword && (
               <button
+                data-testid={`${dataTestId}-icon`}
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
                 className={eyesicontyles.eyeButton}
@@ -141,7 +146,7 @@ export const Input: React.FC<InputProps> = ({
         )}
       </div>
 
-      {helperText && <span className={helperClasses(state)}>{helperText}</span>}
+      {helperText && <span  data-testid={`${dataTestId}-helpertext`} className={helperClasses(state)}>{helperText}</span>}
     </div>
   );
 };
