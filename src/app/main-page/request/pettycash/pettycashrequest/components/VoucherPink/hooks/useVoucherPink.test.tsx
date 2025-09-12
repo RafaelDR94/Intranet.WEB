@@ -9,7 +9,11 @@ vi.mock('../utilities/voucherPink', () => ({
 }));
 
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({
-  useAuth: () => ({ currentPagePermissions: {} }),
+  useAuth: () => ({ currentPagePermissions: {}, user: { idEmployee: '1', fullName: 'Test User' } }),
+}));
+
+vi.mock('@/app/context/FirebaseContext/FirebaseContext', () => ({
+  useFirebase: () => ({ firebasestorage: { uploadFile: vi.fn() } }),
 }));
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
@@ -17,10 +21,6 @@ vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
     usePrincipalLoading: { showSpinner: vi.fn(), hideSpinner: vi.fn() },
     usePrincipalAlert: { showAlert: vi.fn(), hideAlert: vi.fn() },
   }),
-}));
-
-vi.mock('@/app/stores/useEmployeesStore/useEmployeesStore', () => ({
-  useEmployeesStore: (sel: any) => sel({ employees: [], error: undefined, fetchEmployees: vi.fn() }),
 }));
 
 vi.mock('@/app/stores/useProyectsStore/useProyectsStore', () => ({

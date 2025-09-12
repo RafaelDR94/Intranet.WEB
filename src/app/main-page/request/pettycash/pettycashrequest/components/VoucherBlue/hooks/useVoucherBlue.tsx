@@ -14,6 +14,7 @@ import {
 
 import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
@@ -32,7 +33,9 @@ export const useVoucherBlue = ({
   startDisabled,
 }: UseVoucherFormProps): UseVoucherFormReturn => {
   const formId = `petty-cash-voucher-blue-form-${mode}`;
+  const isEdit = mode === "edit";
   const { currentPagePermissions, user } = useAuth();
+  const { firebasestorage } = useFirebase();
   // Principal (spinner + alert)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -165,6 +168,12 @@ export const useVoucherBlue = ({
     }
   }, [dataEdit, formId, loadingFormInfo, updateField]);
 
+  useEffect(() => {
+    if (user?.fullName) {
+      updateField(formId, "personName", { value: user.fullName });
+    }
+  }, [user?.fullName, formId, updateField]);
+
   // Loading de catálogos
 
   useEffect(() => {
@@ -243,34 +252,76 @@ export const useVoucherBlue = ({
     });
   }, [opError, mode, showAlert, hideAlert, resetFlags]);
 
+  const uploadXmlIfNeeded = async (file: any): Promise<string> => {
+    const maybeFile = file instanceof File ? file : null;
+    if (maybeFile) {
+      const unique = `${user?.idEmployee}-${Date.now()}`;
+      const url = await firebasestorage.uploadFile(
+        maybeFile,
+        `Billings/PettyCashVouchers/${unique}.xml`,
+      );
+      if (!url) throw new Error("Hubo un problema al subir el XML");
+      return url;
+    }
+    if (isEdit && dataEdit?.xml) return dataEdit.xml;
+    const urlObj = (file as { url?: string })?.url;
+    if (urlObj) return urlObj;
+    throw new Error("No se encontró XML válido para continuar");
+  };
+
+  const uploadPdfIfNeeded = async (file: any): Promise<string> => {
+    const maybeFile = file instanceof File ? file : null;
+    if (maybeFile) {
+      const unique = `${user?.idEmployee}-${Date.now()}`;
+      const url = await firebasestorage.uploadFile(
+        maybeFile,
+        `Billings/PettyCashVouchers/${unique}.pdf`,
+      );
+      if (!url) throw new Error("Hubo un problema al subir el PDF");
+      return url;
+    }
+    if (isEdit && dataEdit?.pdf) return dataEdit.pdf;
+    const urlObj = (file as { url?: string })?.url;
+    if (urlObj) return urlObj;
+    throw new Error("No se encontró PDF válido para continuar");
+  };
+
   // Submit (para DynamicForm) -> decide create o update
   const handleSubmit = useCallback(
     async (values: Record<string, any>) => {
       setOpRunning(true);
-      const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
-        values,
-        proyects,
-        fields,
-        pettyCashFundId: pettyCashFunds?.[0]?.id,
-        getOptionLabel: (fieldName: string, value: unknown) =>
-          getOptionLabel(fields, fieldName, value),
-        employeeId: user?.idEmployee ?? "",
-      });
+      try {
+        const xmlUrl = await uploadXmlIfNeeded(values.xml);
+        const pdfUrl = await uploadPdfIfNeeded(values.pdf);
 
-      const res =
-        mode === "edit" && dataEdit?.id
-          ? await updatePettyCashVoucher({ ...payload, id: dataEdit.id })
-          : await createPettyCashVoucher(payload);
+        const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
+          values: { ...values, xml: { url: xmlUrl }, pdf: { url: pdfUrl } },
+          proyects,
+          fields,
+          pettyCashFundId: pettyCashFunds?.[0]?.id,
+          getOptionLabel: (fieldName: string, value: unknown) =>
+            getOptionLabel(fields, fieldName, value),
+          employeeId: user?.idEmployee ?? "",
+        });
 
-      setOpRunning(false);
-      if (res) {
-        setOpSuccess(true);
-        return;
+        const res =
+          mode === "edit" && dataEdit?.id
+            ? await updatePettyCashVoucher({ ...payload, id: dataEdit.id })
+            : await createPettyCashVoucher(payload);
+
+        setOpRunning(false);
+        if (res) {
+          setOpSuccess(true);
+          return;
+        }
+        setOpError(
+          useBillingPettyCash.getState().error ||
+            "Ocurrió un error. Intenta de nuevo.",
+        );
+      } catch (err) {
+        setOpRunning(false);
+        setOpError(String(err));
       }
-      setOpError(
-        useBillingPettyCash.getState().error ||
-          "Ocurrió un error. Intenta de nuevo.",
-      );
     },
     [
       mode,
@@ -280,6 +331,9 @@ export const useVoucherBlue = ({
       pettyCashFunds,
       createPettyCashVoucher,
       updatePettyCashVoucher,
+      user?.idEmployee,
+      uploadXmlIfNeeded,
+      uploadPdfIfNeeded,
     ],
   );
 

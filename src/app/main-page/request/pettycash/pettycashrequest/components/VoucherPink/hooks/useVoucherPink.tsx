@@ -14,10 +14,10 @@ import {
 
 import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
-import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
@@ -35,7 +35,9 @@ export const useVoucherPink = ({
   startDisabled,
 }: UseVoucherFormProps): UseVoucherFormReturn => {
   const formId = `petty-cash-voucher-form-${mode}`;
-  const { currentPagePermissions } = useAuth();
+  const isEdit = mode === "edit";
+  const { currentPagePermissions, user } = useAuth();
+  const { firebasestorage } = useFirebase();
   // Principal (spinner + alert)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -52,19 +54,6 @@ export const useVoucherPink = ({
     (s) => s.fieldsByFormId[formId] ?? emptyRef.current,
   );
   const { setFields, updateField, resetFields } = useFormFieldsStore.getState();
-
-  // Employees (prefetch)
-  const { employees, employeesError, fetchEmployees } = useEmployeesStore(
-    (s) => ({
-      employees: s.employees,
-      employeesError: s.error,
-      fetchEmployees: s.fetchEmployees,
-    }),
-    shallow,
-  );
-  useEffect(() => {
-    fetchEmployees();
-  }, [fetchEmployees]);
 
   // Proyects (prefetch)
   const { proyects, proyectsError, fetchProyects } = useProyectsStore(
@@ -87,7 +76,6 @@ export const useVoucherPink = ({
       setFields(formId, initialFields);
       setTimeout(() => {
         UpdateProyects();
-        UpdateEmployees();
       }, 250);
     }, 500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,18 +118,6 @@ export const useVoucherPink = ({
     }
   }, [proyects, formId, updateField, dataEdit]);
 
-  const UpdateEmployees = useCallback(() => {
-    if (employees?.length) {
-      updateField(formId, "employees", {
-        options: employees.map((e) => ({
-          label: e.fullname,
-          value: e.employee_id,
-        })),
-        value: dataEdit?.employee_id ?? "",
-      });
-    }
-  }, [employees, formId, updateField, dataEdit]);
-
   // Monta iniciales y limpia
   useEffect(() => {
     const initialFields: FieldModel[] = createInitialFields(dataEdit);
@@ -157,10 +133,6 @@ export const useVoucherPink = ({
     UpdateProyects();
   }, [proyects, formId, UpdateProyects]);
 
-  useEffect(() => {
-    UpdateEmployees();
-  }, [employees, formId, UpdateEmployees]);
-
   // Setear valores iniciales cuando existan (modo edit)
   const loadingFormInfo = useMemo(
     () => computeLoadingFormInfo(fields),
@@ -168,9 +140,6 @@ export const useVoucherPink = ({
   );
   useEffect(() => {
     if (!dataEdit || loadingFormInfo) return;
-    if (dataEdit.employee_id !== undefined) {
-      updateField(formId, "employees", { value: dataEdit.employee_id });
-    }
     if (dataEdit.project_id !== undefined) {
       updateField(formId, "project", { value: dataEdit.project_id });
     }
@@ -201,27 +170,13 @@ export const useVoucherPink = ({
     }
   }, [dataEdit, formId, loadingFormInfo, updateField]);
 
-  // Loading de catálogos
-
-  // Errores de catálogos
   useEffect(() => {
-    if (!employeesError) return;
-    showAlert({
-      type: "error",
-      variant: "filled",
-      title: "No se pudo cargar la lista de empleados",
-      description: String(employeesError) || "Intenta refrescar.",
-      showPrimaryButton: true,
-      primaryLabel: "Entendido",
-      onPrimaryClick: hideAlert,
-      showSecondaryButton: true,
-      secondaryLabel: "Refrescar",
-      onSecondaryClick: () => {
-        hideAlert();
-        fetchEmployees();
-      },
-    });
-  }, [employeesError, fetchEmployees, hideAlert, showAlert]);
+    if (user?.fullName) {
+      updateField(formId, "personName", { value: user.fullName });
+    }
+  }, [user?.fullName, formId, updateField]);
+
+  // Loading de catálogos
 
   useEffect(() => {
     if (!proyectsError) return;
@@ -299,43 +254,87 @@ export const useVoucherPink = ({
     });
   }, [opError, mode, showAlert, hideAlert, resetFlags]);
 
+  const uploadXmlIfNeeded = async (file: any): Promise<string> => {
+    const maybeFile = file instanceof File ? file : null;
+    if (maybeFile) {
+      const unique = `${user?.idEmployee}-${Date.now()}`;
+      const url = await firebasestorage.uploadFile(
+        maybeFile,
+        `Billings/PettyCashVouchers/${unique}.xml`,
+      );
+      if (!url) throw new Error("Hubo un problema al subir el XML");
+      return url;
+    }
+    if (isEdit && dataEdit?.xml) return dataEdit.xml;
+    const urlObj = (file as { url?: string })?.url;
+    if (urlObj) return urlObj;
+    throw new Error("No se encontró XML válido para continuar");
+  };
+
+  const uploadPdfIfNeeded = async (file: any): Promise<string> => {
+    const maybeFile = file instanceof File ? file : null;
+    if (maybeFile) {
+      const unique = `${user?.idEmployee}-${Date.now()}`;
+      const url = await firebasestorage.uploadFile(
+        maybeFile,
+        `Billings/PettyCashVouchers/${unique}.pdf`,
+      );
+      if (!url) throw new Error("Hubo un problema al subir el PDF");
+      return url;
+    }
+    if (isEdit && dataEdit?.pdf) return dataEdit.pdf;
+    const urlObj = (file as { url?: string })?.url;
+    if (urlObj) return urlObj;
+    throw new Error("No se encontró PDF válido para continuar");
+  };
+
   const handleSubmit = useCallback(
     async (values: Record<string, any>) => {
       setOpRunning(true);
-      const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
-        values,
-        employees,
-        proyects,
-        fields,
-        pettyCashFundId: pettyCashFunds?.[0]?.id,
-        getOptionLabel: (fieldName: string, value: unknown) =>
-        getOptionLabel(fields, fieldName, value),
-      });
+      try {
+        const xmlUrl = await uploadXmlIfNeeded(values.xml);
+        const pdfUrl = await uploadPdfIfNeeded(values.pdf);
 
-      const res =
-        mode === "edit" && dataEdit?.id
-          ? await updatePettyCashVoucher({ ...payload, id: dataEdit.id })
-          : await createPettyCashVoucher(payload);
+        const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
+          values: { ...values, xml: { url: xmlUrl }, pdf: { url: pdfUrl } },
+          proyects,
+          fields,
+          pettyCashFundId: pettyCashFunds?.[0]?.id,
+          getOptionLabel: (fieldName: string, value: unknown) =>
+            getOptionLabel(fields, fieldName, value),
+          employeeId: user?.idEmployee ?? "",
+        });
 
-      setOpRunning(false);
-      if (res) {
-        setOpSuccess(true);
-        return;
+        const res =
+          mode === "edit" && dataEdit?.id
+            ? await updatePettyCashVoucher({ ...payload, id: dataEdit.id })
+            : await createPettyCashVoucher(payload);
+
+        setOpRunning(false);
+        if (res) {
+          setOpSuccess(true);
+          return;
+        }
+        setOpError(
+          useBillingPettyCash.getState().error ||
+            "Ocurrió un error. Intenta de nuevo.",
+        );
+      } catch (err) {
+        setOpRunning(false);
+        setOpError(String(err));
       }
-      setOpError(
-        useBillingPettyCash.getState().error ||
-          "Ocurrió un error. Intenta de nuevo.",
-      );
     },
     [
       mode,
       dataEdit,
       fields,
-      employees,
       proyects,
       pettyCashFunds,
       createPettyCashVoucher,
       updatePettyCashVoucher,
+      user?.idEmployee,
+      uploadXmlIfNeeded,
+      uploadPdfIfNeeded,
     ],
   );
 

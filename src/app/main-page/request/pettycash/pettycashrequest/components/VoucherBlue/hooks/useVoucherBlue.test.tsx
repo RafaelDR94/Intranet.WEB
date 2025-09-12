@@ -9,7 +9,11 @@ vi.mock('../utilities/voucherBlue', () => ({
 }));
 
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({
-  useAuth: () => ({ currentPagePermissions: {} }),
+  useAuth: () => ({ currentPagePermissions: {}, user: { idEmployee: '1', fullName: 'Test User' } }),
+}));
+
+vi.mock('@/app/context/FirebaseContext/FirebaseContext', () => ({
+  useFirebase: () => ({ firebasestorage: { uploadFile: vi.fn() } }),
 }));
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({

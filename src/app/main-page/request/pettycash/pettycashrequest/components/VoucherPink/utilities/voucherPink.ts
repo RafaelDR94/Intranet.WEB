@@ -1,5 +1,4 @@
 import type { FieldModel } from "@/app/components/DynamicForm/types";
-import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import type {
   PettyCashVoucherData,
@@ -16,12 +15,9 @@ import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
  */
 export const computeLoadingFormInfo = (fields: FieldModel[]) => {
   const prj = fields.find((f) => f.name === "project");
-  const emp = fields.find((f) => f.name === "employees");
   const projectsReady =
     Array.isArray(prj?.options) && (prj?.options?.length ?? 0) > 0;
-  const employeesReady =
-    Array.isArray(emp?.options) && (emp?.options?.length ?? 0) > 0;
-  return !(projectsReady && employeesReady);
+  return !projectsReady;
 };
 
 /**
@@ -49,20 +45,19 @@ export const getOptionLabel = (
  */
 export const buildPettyCashVoucherPayload = ({
   values,
-  employees: _employees,
   proyects: _proyects,
   fields: _fields,
   pettyCashFundId,
   getOptionLabel: _getOptionLabel,
+  employeeId,
 }: {
   values: Record<string, unknown>;
-  employees: EmployeeType[];
   proyects: Proyect[];
   fields: FieldModel[];
   pettyCashFundId?: string;
   getOptionLabel: (fieldName: string, value: unknown) => string | undefined;
+  employeeId: string;
 }): PostPettyCashVoucher => {
-  const employeeId = String(values.employees ?? "");
   const projectId = String(values.project ?? "");
   const application_date = String(values.asignamentdate ?? "");
   const concept = String(values.concept ?? "");
@@ -103,20 +98,6 @@ export const createInitialFields = (
     className: "max-w-[400px]",
     onlyText: true,
     showIf: () => Boolean(!dataEdit),
-  },
-  {
-    type: "select",
-    name: "employees",
-    label: "Empleado",
-    placeholder: "Seleccione un empleado",
-    value: dataEdit?.employee_id ?? "",
-    options: [],
-    className: "max-w-[400px]",
-    validations: [{ type: "required" }],
-    showIf: (_v, all) => {
-      const f = all.find((x) => x.name === "employees");
-      return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-    },
   },
   {
     type: "input",

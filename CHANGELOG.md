@@ -444,3 +444,9 @@ Bug Fix:
 Fix:
 
 - Send authenticated employee IDs and preserve XML/PDF files when editing petty cash vouchers. (Agente IA) [#]()
+
+### 1.47.12 Petty cash voucher file upload 2025-09-16
+
+Fix:
+
+- Upload XML/PDF files for petty cash vouchers and auto-fill employee data. (Agente IA) [#]()
