@@ -66,6 +66,18 @@ export const useVoucherBlue = ({
     fetchProyects();
   }, [fetchProyects]);
 
+  const UpdateProyects = useCallback(() => {
+    if (proyects?.length) {
+      updateField(formId, "project", {
+        options: proyects.map((p: Proyect) => ({
+          label: p.proyectKey,
+          value: p.id,
+        })),
+        value: dataEdit?.project_id ?? "",
+      });
+    }
+  }, [proyects, formId, updateField, dataEdit]);
+
   const ResetForm = useCallback(() => {
     resetFields(formId);
     setTimeout(() => {
@@ -75,8 +87,7 @@ export const useVoucherBlue = ({
         UpdateProyects();
       }, 250);
     }, 500);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formId, resetFields, setFields]);
+  }, [formId, resetFields, setFields, UpdateProyects]);
 
   const {
     createPettyCashVoucher,
@@ -102,18 +113,6 @@ export const useVoucherBlue = ({
   const [opRunning, setOpRunning] = useState(false);
   const [opSuccess, setOpSuccess] = useState(false);
   const [opError, setOpError] = useState<string | undefined>();
-
-  const UpdateProyects = useCallback(() => {
-    if (proyects?.length) {
-      updateField(formId, "project", {
-        options: proyects.map((p: Proyect) => ({
-          label: p.proyectKey,
-          value: p.id,
-        })),
-        value: dataEdit?.project_id ?? "",
-      });
-    }
-  }, [proyects, formId, updateField, dataEdit]);
 
   // Monta iniciales y limpia
   useEffect(() => {

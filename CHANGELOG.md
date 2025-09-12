@@ -450,3 +450,9 @@ Fix:
 Fix:
 
 - Upload XML/PDF files for petty cash vouchers and auto-fill employee data. (Agente IA) [#]()
+
+### 1.47.13 Voucher form project reload fix 2025-09-17
+
+Fix:
+
+- Repopulate project options after sending petty cash vouchers to prevent endless loading. (Agente IA) [#]()
