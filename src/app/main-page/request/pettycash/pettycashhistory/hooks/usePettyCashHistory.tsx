@@ -7,6 +7,7 @@ import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
+import { useBillingPettyCash } from "../../../../../stores/useBillingPettyCash/useBillingPettyCash"
 
 const usePettyCashHistory = () => {
     const { user } = useAuth();
@@ -15,6 +16,7 @@ const usePettyCashHistory = () => {
     const { usePrincipalLoading } = usePrincipal();
     const { showSpinner, hideSpinner } = usePrincipalLoading
     // Mock adaptado al nuevo tipo
+    const { fetchPettyCashVouchers } = useBillingPettyCash()
     const { history, loading, forceFetchBillingHistory } = useBillingHistoryStore(
         (s) => ({
             history: s.history,

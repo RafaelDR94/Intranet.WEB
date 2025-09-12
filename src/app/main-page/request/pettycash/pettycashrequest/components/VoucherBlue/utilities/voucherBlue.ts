@@ -56,10 +56,12 @@ export const buildPettyCashVoucherPayload = ({
   const xmlValue = values.xml as { url: string } | undefined;
   const pdfValue = values.pdf as { url: string } | undefined;
 
+  console.log('employeeId', employeeId);
+  
   return {
     petty_cash_funds_id: pettyCashFundId ?? "",
     employee_id: "4d57db6c-686a-4f76-b180-03fcedab13d4",
-    voucher_type: "a",
+    voucher_type: "A",
     application_date,
     concept,
     amount,
@@ -77,12 +79,12 @@ export const createInitialFields = (): FieldModel[] => [
   {
     type: "input",
     name: "personName",
-    label: "Nombre del Deudor",
+    label: "Nombre",
     placeholder: "Ingrese el nombre completo",
     value: "",
     className: "max-w-[400px]",
     onlyText: true,
-    showIf: () => Boolean(true),
+    showIf: () => Boolean(!dataEdit),  
   },
   {
     type: "input",

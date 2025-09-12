@@ -27,15 +27,15 @@ const PettyCashHistory = () => {
       label: "FECHA",
     },
     {
-      key: "dateCreate",
+      key: "status",
       label: "CONCEPTO",
     },
     {
-      key: "dateCreate",
+      key: "status",
       label: "TIPO DE VALE",
     },
     {
-      key: "dateCreate",
+      key: "status",
       label: "MONTO",
     },
     {
@@ -50,7 +50,7 @@ const PettyCashHistory = () => {
     },
     {
       key: "details" as unknown as keyof HistoryRow,
-      label: "DETALLES",
+      label: "",
       render: (row) => (
           <Button
             size="small"

@@ -67,8 +67,8 @@ export const buildPettyCashVoucherPayload = ({
 
   return {
     petty_cash_funds_id: pettyCashFundId ?? "",
-    employee_id: "4d57db6c-686a-4f76-b180-03fcedab13d4",
-    voucher_type: "r",
+    employee_id: employeeId,
+    voucher_type: "R",
     application_date,
     concept,
     amount,
@@ -89,11 +89,12 @@ export const createInitialFields = (): FieldModel[] => [
   {
     type: "input",
     name: "personName",
-    label: "Nombre del Deudor",
+    label: "Nombre",
     placeholder: "Ingrese el nombre completo",
     value: "",
     className: "max-w-[400px]",
     onlyText: true,
+    // showIf: () => Boolean(!dataEdit),
   },
   {
     type: "input",

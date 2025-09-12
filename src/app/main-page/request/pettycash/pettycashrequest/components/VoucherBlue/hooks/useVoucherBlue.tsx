@@ -81,11 +81,6 @@ export const useVoucherBlue = ({
     resetFlags,
     fetchPettyCashFunds,
     pettyCashFunds,
-    creating,
-    updating,
-    successPostVoucher,
-    successPutVoucher,
-    error,
   } = useBillingPettyCash(
     (s) => ({
       createPettyCashVoucher: s.createPettyCashVoucher,
@@ -93,11 +88,6 @@ export const useVoucherBlue = ({
       resetFlags: s.resetFlags,
       fetchPettyCashFunds: s.fetchPettyCashFunds,
       pettyCashFunds: s.pettyCashFunds,
-      creating: s.creating,
-      updating: s.updating,
-      successPostVoucher: s.successPostVoucher,
-      successPutVoucher: s.successPutVoucher,
-      error: s.error,
     }),
     shallow,
   );
@@ -106,13 +96,9 @@ export const useVoucherBlue = ({
     fetchPettyCashFunds();
   }, [fetchPettyCashFunds]);
 
-  /// Error contextual
-  const opRunning = mode === "create" ? creating : updating;
-  const opSuccess = mode === "create" ? successPostVoucher : successPutVoucher;
-  const opError = useMemo(
-    () => (!opRunning && !opSuccess ? error : undefined),
-    [opRunning, opSuccess, error],
-  );
+  const [opRunning, setOpRunning] = useState(false);
+  const [opSuccess, setOpSuccess] = useState(false);
+  const [opError, setOpError] = useState<string | undefined>();
 
   const UpdateProyects = useCallback(() => {
     if (proyects?.length) {
@@ -188,7 +174,6 @@ export const useVoucherBlue = ({
     });
   }, [proyectsError, fetchProyects, hideAlert, showAlert]);
 
-  // Spinner + alert según operación (create/update)
   useEffect(() => {
     if (opRunning) {
       showSpinner({
@@ -197,65 +182,59 @@ export const useVoucherBlue = ({
       return;
     }
     hideSpinner();
+  }, [opRunning, showSpinner, hideSpinner]);
 
-    if (opSuccess) {
-      ResetForm();
-      showAlert({
-        type: "success",
-        variant: "filled",
-        title: mode === "create" ? "Envio Exitoso" : "Actualizado Exitoso",
-        description:
-          mode === "create"
-            ? "Tu vale se ha enviado exitosamente."
-            : "Tu vale se actualizó exitosamente.",
-        autoCloseMs: 1500,
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        onClose: () => {
-          resetFlags();
-        },
-      });
-    }
+  useEffect(() => {
+    if (!opSuccess) return;
+    ResetForm();
+    showAlert({
+      type: "success",
+      variant: "filled",
+      title: mode === "create" ? "Envio Exitoso" : "Actualizado Exitoso",
+      description:
+        mode === "create"
+          ? "Tu vale se ha enviado exitosamente."
+          : "Tu vale se actualizó exitosamente.",
+      autoCloseMs: 1500,
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      onClose: () => {
+        resetFlags();
+        setOpSuccess(false);
+      },
+    });
+  }, [opSuccess, ResetForm, showAlert, mode, resetFlags]);
 
-    if (opError) {
-      showAlert({
-        type: "error",
-        variant: "filled",
-        title:
-          mode === "create"
-            ? "No se pudo crear el vale"
-            : "No se pudo actualizar el vale",
-        description: String(opError) || "Ocurrió un error. Intenta de nuevo.",
-        showPrimaryButton: true,
-        primaryLabel: "Entendido",
-        onPrimaryClick: () => {
-          hideAlert();
-          resetFlags();
-        },
-        showSecondaryButton: true,
-        secondaryLabel: "Reintentar",
-        onSecondaryClick: () => {
-          hideAlert();
-          submitRef.current?.();
-        },
-      });
-    }
-  }, [
-    opRunning,
-    opSuccess,
-    opError,
-    mode,
-    showSpinner,
-    hideSpinner,
-    showAlert,
-    hideAlert,
-    resetFlags,
-    ResetForm,
-  ]);
+  useEffect(() => {
+    if (!opError) return;
+    showAlert({
+      type: "error",
+      variant: "filled",
+      title:
+        mode === "create"
+          ? "No se pudo crear el vale"
+          : "No se pudo actualizar el vale",
+      description: opError || "Ocurrió un error. Intenta de nuevo.",
+      showPrimaryButton: true,
+      primaryLabel: "Entendido",
+      onPrimaryClick: () => {
+        hideAlert();
+        resetFlags();
+        setOpError(undefined);
+      },
+      showSecondaryButton: true,
+      secondaryLabel: "Reintentar",
+      onSecondaryClick: () => {
+        hideAlert();
+        submitRef.current?.();
+      },
+    });
+  }, [opError, mode, showAlert, hideAlert, resetFlags]);
 
   // Submit (para DynamicForm) -> decide create o update
   const handleSubmit = useCallback(
     async (values: Record<string, any>) => {
+      setOpRunning(true);
       const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
         values,
         proyects,
@@ -265,11 +244,20 @@ export const useVoucherBlue = ({
           getOptionLabel(fields, fieldName, value),
       });
 
-      if (mode === "edit" && dataEdit?.id) {
-        await updatePettyCashVoucher({ ...payload, id: dataEdit.id });
+      const res =
+        mode === "edit" && dataEdit?.id
+          ? await updatePettyCashVoucher({ ...payload, id: dataEdit.id })
+          : await createPettyCashVoucher(payload);
+
+      setOpRunning(false);
+      if (res) {
+        setOpSuccess(true);
         return;
       }
-      await createPettyCashVoucher(payload);
+      setOpError(
+        useBillingPettyCash.getState().error ||
+          "Ocurrió un error. Intenta de nuevo.",
+      );
     },
     [
       mode,

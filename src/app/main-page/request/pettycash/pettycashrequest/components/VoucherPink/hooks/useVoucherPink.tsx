@@ -15,7 +15,6 @@ import {
 import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
@@ -76,6 +75,8 @@ export const useVoucherPink = ({
     }),
     shallow,
   );
+  console.log('dataEdit',dataEdit);
+  
   useEffect(() => {
     fetchProyects();
   }, [fetchProyects]);
@@ -99,11 +100,6 @@ export const useVoucherPink = ({
     resetFlags,
     fetchPettyCashFunds,
     pettyCashFunds,
-    creating,
-    updating,
-    successPostVoucher,
-    successPutVoucher,
-    error,
   } = useBillingPettyCash(
     (s) => ({
       createPettyCashVoucher: s.createPettyCashVoucher,
@@ -111,11 +107,6 @@ export const useVoucherPink = ({
       resetFlags: s.resetFlags,
       fetchPettyCashFunds: s.fetchPettyCashFunds,
       pettyCashFunds: s.pettyCashFunds,
-      creating: s.creating,
-      updating: s.updating,
-      successPostVoucher: s.successPostVoucher,
-      successPutVoucher: s.successPutVoucher,
-      error: s.error,
     }),
     shallow,
   );
@@ -124,25 +115,9 @@ export const useVoucherPink = ({
     fetchPettyCashFunds();
   }, [fetchPettyCashFunds]);
 
-  /// Error contextual
-  const opRunning = mode === "create" ? creating : updating;
-  const opSuccess = mode === "create" ? successPostVoucher : successPutVoucher;
-  const opError = useMemo(
-    () => (!opRunning && !opSuccess ? error : undefined),
-    [opRunning, opSuccess, error],
-  );
-
-  // const UpdateEmployees = useCallback(() => {
-  //   if (employees?.length) {
-  //     updateField(formId, "employees", {
-  //       options: employees.map((e: EmployeeType) => ({
-  //         label: e.fullname,
-  //         value: e.employee_id,
-  //       })),
-  //       value: "",
-  //     });
-  //   }
-  // }, [employees, formId, updateField]);
+  const [opRunning, setOpRunning] = useState(false);
+  const [opSuccess, setOpSuccess] = useState(false);
+  const [opError, setOpError] = useState<string | undefined>();
 
   const UpdateProyects = useCallback(() => {
     if (proyects?.length) {
@@ -165,11 +140,6 @@ export const useVoucherPink = ({
       resetFlags();
     };
   }, [formId, resetFields, resetFlags, setFields]);
-
-  // Popular opciones: empleados
-  // useEffect(() => {
-  //   UpdateEmployees();
-  // }, [employees, formId, UpdateEmployees]);
 
   // Popular opciones: proyectos
   useEffect(() => {
@@ -257,7 +227,6 @@ export const useVoucherPink = ({
     });
   }, [proyectsError, fetchProyects, hideAlert, showAlert]);
 
-  // Spinner + alert según operación (create/update)
   useEffect(() => {
     if (opRunning) {
       showSpinner({
@@ -266,65 +235,58 @@ export const useVoucherPink = ({
       return;
     }
     hideSpinner();
+  }, [opRunning, showSpinner, hideSpinner]);
 
-    if (opSuccess) {
-      ResetForm();
-      showAlert({
-        type: "success",
-        variant: "filled",
-        title: mode === "create" ? "Envio Exitoso" : "Actualizado Exitoso",
-        description:
-          mode === "create"
-            ? "Tu vale se ha enviado exitosamente."
-            : "Tu vale se actualizó exitosamente.",
-        autoCloseMs: 1500,
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        onClose: () => {
-          resetFlags();
-        },
-      });
-    }
+  useEffect(() => {
+    if (!opSuccess) return;
+    ResetForm();
+    showAlert({
+      type: "success",
+      variant: "filled",
+      title: mode === "create" ? "Envio Exitoso" : "Actualizado Exitoso",
+      description:
+        mode === "create"
+          ? "Tu vale se ha enviado exitosamente."
+          : "Tu vale se actualizó exitosamente.",
+      autoCloseMs: 1500,
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      onClose: () => {
+        resetFlags();
+        setOpSuccess(false);
+      },
+    });
+  }, [opSuccess, ResetForm, showAlert, mode, resetFlags]);
 
-    if (opError) {
-      showAlert({
-        type: "error",
-        variant: "filled",
-        title:
-          mode === "create"
-            ? "No se pudo crear el vale"
-            : "No se pudo actualizar el vale",
-        description: String(opError) || "Ocurrió un error. Intenta de nuevo.",
-        showPrimaryButton: true,
-        primaryLabel: "Entendido",
-        onPrimaryClick: () => {
-          hideAlert();
-          resetFlags();
-        },
-        showSecondaryButton: true,
-        secondaryLabel: "Reintentar",
-        onSecondaryClick: () => {
-          hideAlert();
-          submitRef.current?.();
-        },
-      });
-    }
-  }, [
-    opRunning,
-    opSuccess,
-    opError,
-    mode,
-    showSpinner,
-    hideSpinner,
-    showAlert,
-    hideAlert,
-    resetFlags,
-    ResetForm,
-  ]);
+  useEffect(() => {
+    if (!opError) return;
+    showAlert({
+      type: "error",
+      variant: "filled",
+      title:
+        mode === "create"
+          ? "No se pudo crear el vale"
+          : "No se pudo actualizar el vale",
+      description: opError || "Ocurrió un error. Intenta de nuevo.",
+      showPrimaryButton: true,
+      primaryLabel: "Entendido",
+      onPrimaryClick: () => {
+        hideAlert();
+        resetFlags();
+        setOpError(undefined);
+      },
+      showSecondaryButton: true,
+      secondaryLabel: "Reintentar",
+      onSecondaryClick: () => {
+        hideAlert();
+        submitRef.current?.();
+      },
+    });
+  }, [opError, mode, showAlert, hideAlert, resetFlags]);
 
-  // Submit (para DynamicForm) -> decide create o update
   const handleSubmit = useCallback(
     async (values: Record<string, any>) => {
+      setOpRunning(true);
       const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
         values,
         employees,
@@ -332,14 +294,23 @@ export const useVoucherPink = ({
         fields,
         pettyCashFundId: pettyCashFunds?.[0]?.id,
         getOptionLabel: (fieldName: string, value: unknown) =>
-          getOptionLabel(fields, fieldName, value),
+        getOptionLabel(fields, fieldName, value),
       });
 
-      if (mode === "edit" && dataEdit?.id) {
-        await updatePettyCashVoucher({ ...payload, id: dataEdit.id });
+      const res =
+        mode === "edit" && dataEdit?.id
+          ? await updatePettyCashVoucher({ ...payload, id: dataEdit.id })
+          : await createPettyCashVoucher(payload);
+
+      setOpRunning(false);
+      if (res) {
+        setOpSuccess(true);
         return;
       }
-      await createPettyCashVoucher(payload);
+      setOpError(
+        useBillingPettyCash.getState().error ||
+          "Ocurrió un error. Intenta de nuevo.",
+      );
     },
     [
       mode,

@@ -46,11 +46,6 @@ vi.mock('@/app/stores/useBillingPettyCash/useBillingPettyCash', () => ({
     resetFlags: vi.fn(),
     fetchPettyCashFunds: vi.fn(),
     pettyCashFunds: [],
-    creating: false,
-    updating: false,
-    successPostVoucher: false,
-    successPutVoucher: false,
-    error: undefined,
   }),
 }));
 

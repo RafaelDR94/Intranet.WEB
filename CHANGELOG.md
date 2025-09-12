@@ -432,3 +432,9 @@ Feature:
 Feature:
 
 - Added shared petty cash context for voucher forms. (Agente IA) [#]()
+
+### 1.47.10 Independent petty cash voucher submissions 2025-09-14
+
+Bug Fix:
+
+- Prevent VoucherPink and VoucherBlue from triggering each other's requests and loading states. (Agente IA) [#]()
