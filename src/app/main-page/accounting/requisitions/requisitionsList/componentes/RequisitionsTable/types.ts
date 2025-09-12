@@ -25,12 +25,3 @@ export type RequisitionRow = {
   state?:string,
 }
 
-/** Props for the contextual action cell. */
-export type ActionMenuCellProps = {
-  /** Current row information. */
-  row: RequisitionRow
-  /** Called when the edit option is selected. */
-  onEdit: (row: RequisitionRow) => void
-  /** Called when the delete option is selected. */
-  onDelete: (row: RequisitionRow) => void
-}

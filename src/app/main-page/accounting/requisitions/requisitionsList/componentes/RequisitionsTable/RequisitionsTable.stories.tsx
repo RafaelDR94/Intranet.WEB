@@ -21,7 +21,7 @@ import RequisitionsTable from './RequisitionsTable'
 })
 
 const meta: Meta<typeof RequisitionsTable> = {
-  title: 'Accounting/Requisitions/RequisitionsTable',
+  title: 'MAINPAGE/Accounting/Requisitions/RequisitionsList/RequisitionsTable/RequisitionsTable',
   component: RequisitionsTable,
   tags: ['autodocs'],
 }

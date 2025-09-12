@@ -1,6 +1,6 @@
 import { Meta } from '@storybook/blocks';
 
-<Meta title="Hooks/useProyectsStore" />
+<Meta title="STORES/useProyectsStore/useProyectsStore" />
 
 # useProyectsStore
 
@@ -9,19 +9,37 @@ Store basado en **Zustand** para el catálogo de proyectos.
 ## API
 
 - `proyects: Proyect[]`
-- `loading: boolean`
+- `currentProyect: Proyect | null`
+- `loading | creating | updating | removing: boolean`
+- `successGet | successPost | successPut | successDelete: boolean`
 - `error?: string`
 - `fetchProyects(force?: boolean): Promise<void>`
 - `forceFetchProyects(): Promise<void>`
+- `createProyect(payload: ProyectPost): Promise<Proyect | null>`
+- `updateProyect(payload: ProyectPut): Promise<Proyect | null>`
+- `deleteProyect(id: string): Promise<boolean>`
+- `setCurrentProyect(p: Proyect | null): void`
+- `clearCurrentProyect(): void`
 - `reset(): void`
+- `resetFlags(): void`
 
 ## Uso
 
 ```tsx
+import { useEffect } from 'react'
 import { useProyectsStore } from './useProyectsStore';
 
 export const Example = () => {
-  const { proyects } = useProyectsStore();
-  return <pre>{JSON.stringify(proyects)}</pre>;
+  const { proyects, currentProyect, setCurrentProyect, clearCurrentProyect, fetchProyects } = useProyectsStore();
+  useEffect(() => { fetchProyects(); }, [fetchProyects]);
+  return (
+    <div>
+      <pre>{JSON.stringify(proyects)}</pre>
+      <button onClick={() => setCurrentProyect(proyects[0] ?? null)}>Seleccionar primero</button>
+      <button onClick={() => clearCurrentProyect()}>Limpiar selección</button>
+      <div>Actual: {currentProyect?.name ?? 'Ninguno'}</div>
+    </div>
+  );
 };
 ```
+
