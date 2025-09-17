@@ -212,13 +212,16 @@ export const useVoucherPink = ({
 
   useEffect(() => {
     if (!opSuccess) return;
+
     if (user?.idEmployee) {
       fetchPettyCashVouchersByIdEmployee(user.idEmployee);
     }
     if (isEdit && dataEdit?.id) {
       fetchPettyCashVoucherById(dataEdit.id, true);
     }
-    ResetForm();
+    if (!isEdit) {
+      ResetForm();
+    }
     showAlert({
       type: "success",
       variant: "filled",
@@ -232,9 +235,9 @@ export const useVoucherPink = ({
       showSecondaryButton: false,
       onClose: () => {
         resetFlags();
-        setOpSuccess(false);
       },
     });
+    setOpSuccess(false);
   }, [
     opSuccess,
     ResetForm,
@@ -324,9 +327,6 @@ export const useVoucherPink = ({
             getOptionLabel(fields, fieldName, value),
           employeeId: user?.idEmployee ?? "",
         });
-
-        console.log('payload ', payload);
-        
 
         const res =
           mode === "edit" && dataEdit?.id

@@ -198,13 +198,16 @@ export const useVoucherBlue = ({
 
   useEffect(() => {
     if (!opSuccess) return;
+
     if (user?.idEmployee) {
       fetchPettyCashVouchersByIdEmployee(user.idEmployee);
     }
     if (isEdit && dataEdit?.id) {
       fetchPettyCashVoucherById(dataEdit.id, true);
     }
-    ResetForm();
+    if (!isEdit) {
+      ResetForm();
+    }
     showAlert({
       type: "success",
       variant: "filled",
@@ -218,9 +221,9 @@ export const useVoucherBlue = ({
       showSecondaryButton: false,
       onClose: () => {
         resetFlags();
-        setOpSuccess(false);
       },
     });
+    setOpSuccess(false);
   }, [
     opSuccess,
     ResetForm,

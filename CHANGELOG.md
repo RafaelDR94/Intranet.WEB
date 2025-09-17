@@ -468,3 +468,9 @@ Fix:
 Fix:
 
 - Normalize petty cash edit dates and refresh vouchers after resubmission. (Agente IA) [#]()
+
+### 1.47.16 Petty cash edit success loop fix 2025-09-18
+
+Fix:
+
+- Stop repeated petty cash voucher resets after editing and keep success refreshes scoped to the updated record. (Agente IA) [#]()
