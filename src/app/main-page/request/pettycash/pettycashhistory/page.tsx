@@ -18,7 +18,8 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
 import DeleteIcon from "@/assets/icons/acciones/trash.svg";
-import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg"
+import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
+import type { ContextMenuItem } from "@/app/components/ContextMenu/types";
 
 type PettyCashActionMenuProps = {
   row: PettyCashHistoryRow;
@@ -34,6 +35,8 @@ const ActionMenuCell: React.FC<PettyCashActionMenuProps> = ({
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const { details: canViewDetailsPermission, delete: canCancelPermission } =
+    currentPagePermissions ?? {};
 
   const handleEdit = React.useCallback(() => {
     onEdit(row);
@@ -45,21 +48,37 @@ const ActionMenuCell: React.FC<PettyCashActionMenuProps> = ({
     setMenuOpen(false);
   }, [onDelete, row]);
 
-  const menuItems: any[] = [];
-  if (currentPagePermissions?.details)
-    menuItems.push({
-      label: "Ver Detalle",
-      icon: EditIcon,
-      onClick: handleEdit,
-    });
-  if (currentPagePermissions?.delete)
-    menuItems.push({
-      label: "Cancelar",
-      icon: DeleteIcon,
-      danger: true,
-      onClick: handleDelete,
-    });
-  if (!menuItems.length) return null;
+  const menuItems = React.useMemo<ContextMenuItem[]>(() => {
+    const items: ContextMenuItem[] = [];
+    const canViewDetail = canViewDetailsPermission ?? true;
+    const canCancelVoucher = canCancelPermission ?? false;
+
+    if (canViewDetail) {
+      items.push({
+        label: "Ver Detalle",
+        icon: EditIcon,
+        onClick: handleEdit,
+      });
+    }
+
+    if (canCancelVoucher) {
+      items.push({
+        label: "Cancelar",
+        icon: DeleteIcon,
+        danger: true,
+        onClick: handleDelete,
+      });
+    }
+
+    if (!items.length) {
+      items.push({
+        label: "Sin acciones disponibles",
+        disabled: true,
+      });
+    }
+
+    return items;
+  }, [canCancelPermission, canViewDetailsPermission, handleDelete, handleEdit]);
   return (
     <ContextMenu
       alignRight
