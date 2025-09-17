@@ -10,9 +10,49 @@ import { PettyCashHistoryRow } from "./types";
 import { Button } from "@/app/components/Button/Button";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { DataTable } from "@/app/components/DataTable/DataTable";
-import { ColumnDefinition } from "@/app/components/DataTable/types";
+import { ColumnDefinition, ActionMenuCellProps } from "@/app/components/DataTable/types";
 import { Label } from "@/app/components/Label/Label";
+import ContextMenu from "@/app/components/ContextMenu/ContextMenu";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
+import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
+import DeleteIcon from "@/assets/icons/acciones/trash.svg";
+import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg"
 
+const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
+  row,
+  onEdit,
+  onDelete,
+}) => {
+  const isMobile = useIsMobile();
+  const { currentPagePermissions } = useAuth();
+  const menuItems: any[] = [];
+  if (currentPagePermissions?.details)
+    menuItems.push({
+      label: "Ver Detalle",
+      icon: EditIcon,
+      onClick: () => {
+        onEdit(row);
+      },
+    });
+  if (currentPagePermissions?.delete)
+    menuItems.push({
+      label: "Cancelar",
+      icon: DeleteIcon,
+      danger: true,
+      onClick: () => {
+        onDelete(row);
+      },
+    });
+  return (
+    <ContextMenu
+      alignRight
+      autoFlip
+      trigger={<Button size="xsmall" variant="ghost" icon={isMobile ? RightArrowIcon : DotsIcon} />}
+      items={menuItems}
+    />
+  );
+};
 const PettyCashHistory = () => {
   const {
     panelOpen,
@@ -22,12 +62,14 @@ const PettyCashHistory = () => {
     pettyCashAsHistoryRows,
     selectedDetail,
     detailLoading,
+    onEdit, 
+    onDelete,
   } = usePettyCashHistory();
 
   const isMobile = useIsMobile();
 
   // Columnas de escritorio
-  const columnsDesktop: ColumnDefinition<PettyCashHistoryRow>[] = [
+  const columnsDesktop: ColumnDefinition<PettyCashHistoryRow>[] = React.useMemo( () => [
     {
       key: "date",
       label: "FECHA",
@@ -86,7 +128,19 @@ const PettyCashHistory = () => {
         </Button>
       ),
     },
-  ];
+    {
+      key: "actions" as unknown as keyof PettyCashHistoryRow,
+      label: "",
+      render: (row) => (
+        <div className="flex justify-end pr-2">
+          <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+        </div>
+      ),
+
+      invisible: false,
+    },
+  ],
+  [onEdit, onDelete]);
 
   // Columnas móviles
   const columnsMobile: ColumnDefinition<PettyCashHistoryRow>[] = [

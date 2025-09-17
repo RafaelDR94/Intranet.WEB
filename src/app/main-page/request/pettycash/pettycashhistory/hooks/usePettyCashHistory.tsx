@@ -1,4 +1,6 @@
+'use client';
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { shallow } from "zustand/shallow";
 
 import { useBillingPettyCash } from "../../../../../stores/useBillingPettyCash/useBillingPettyCash";
@@ -16,25 +18,27 @@ function voucherTypeToLabelType(voucher?: string): LabelType {
   const v = (voucher ?? "").toLowerCase();
   if (v.includes("rosa")) return "vale-rosa";
   if (v.includes("azul")) return "vale-azul";
-  // Fallback neutro si llega algo no esperado
   return "restringido";
 }
 
 const usePettyCashHistory = () => {
   const { user } = useAuth();
-  const [panelOpen, setPanelOpen] = useState(false);
-  const [selected, internalSetSelected] = useState<PettyCashHistoryRow | null>(
-    null,
-  );
-  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(
-    null,
-  );
+  const path = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  // Spinner global
+  const hasIdParam =
+    typeof (searchParams as any)?.has === "function"
+      ? (searchParams as any).has("id")
+      : new URLSearchParams((searchParams as any) ?? "").has("id");
+
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [selected, internalSetSelected] = useState<PettyCashHistoryRow | null>(null);
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(null);
+
   const { usePrincipalLoading } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
 
-  // Mantén el history clásico si aún lo usas en otras vistas
   const {
     history,
     loading: loadingHistory,
@@ -45,24 +49,23 @@ const usePettyCashHistory = () => {
       loading: s.loading,
       forceFetchBillingHistory: s.forceFetchBillingHistory,
     }),
-    shallow,
+    shallow
   );
 
   const { successPut } = useBillingDocumentsStore(
     (s) => ({
       successPut: s.successPut,
     }),
-    shallow,
+    shallow
   );
 
   const { successPut: successPutImages } = useBillingImagesStore(
     (s) => ({
       successPut: s.successPut,
     }),
-    shallow,
+    shallow
   );
 
-  // Función para formatear fecha
   function formatDate(dateString?: string): string {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -72,7 +75,6 @@ const usePettyCashHistory = () => {
     return `${day} / ${month} / ${year}`;
   }
 
-  // ======== PETTY CASH: vouchers por empleado (FULL) ========
   const {
     vouchersFull,
     loading: loadingPetty,
@@ -85,39 +87,26 @@ const usePettyCashHistory = () => {
       vouchersFull: state.vouchersFull,
       loading: state.loading,
       error: state.error,
-      fetchPettyCashVouchersByIdEmployee:
-        state.fetchPettyCashVouchersByIdEmployee,
+      fetchPettyCashVouchersByIdEmployee: state.fetchPettyCashVouchersByIdEmployee,
       fetchPettyCashVoucherById: state.fetchPettyCashVoucherById,
       pettyCashVoucherFull: state.pettyCashVoucherFull,
     }),
-    shallow,
+    shallow
   );
 
-  // Disparo de datos
   useEffect(() => {
     if (!user?.idEmployee) return;
-
-    // Si aún necesitas el historial general, mantenlo
     try {
       forceFetchBillingHistory(user.idEmployee);
-    } catch {
-      // no-op si no aplica
-    }
-
-    // Historial de vales por empleado (endpoint ByIdEmployee/{idEmployee})
+    } catch {}
     fetchPettyCashVouchersByIdEmployee(user.idEmployee);
-  }, [
-    user?.idEmployee,
-    forceFetchBillingHistory,
-    fetchPettyCashVouchersByIdEmployee,
-  ]);
+  }, [user?.idEmployee, forceFetchBillingHistory, fetchPettyCashVouchersByIdEmployee]);
 
   useEffect(() => {
     if (!selectedVoucherId) return;
     fetchPettyCashVoucherById(selectedVoucherId);
   }, [selectedVoucherId, fetchPettyCashVoucherById]);
 
-  // Spinners + cierre de panel por éxito
   useEffect(() => {
     const isLoading = loadingHistory || loadingPetty;
     if (isLoading) {
@@ -136,13 +125,11 @@ const usePettyCashHistory = () => {
     showSpinner,
   ]);
 
-  // Rechazados del history clásico (si lo sigues mostrando en otra sección)
   const rejected = history.filter((r) => {
     const s = (r.status || "").toLowerCase();
     return s === "valido" || s === "en-proceso" || s === "rechazado";
   });
 
-  // Proyección de vouchers Full -> filas HistoryRow para la tabla
   const pettyCashAsHistoryRows = useMemo<PettyCashHistoryRow[]>(
     () =>
       (vouchersFull ?? []).map((v) => {
@@ -150,8 +137,8 @@ const usePettyCashHistory = () => {
           typeof v.total === "number" && !Number.isNaN(v.total)
             ? v.total
             : typeof v.amount === "number" && !Number.isNaN(v.amount)
-              ? v.amount
-              : 0;
+            ? v.amount
+            : 0;
 
         const voucherType = v.voucher_type ?? "";
 
@@ -185,8 +172,8 @@ const usePettyCashHistory = () => {
           numpersons: 0,
           numnights: 0,
           amount: v.amount,
-          voucherType, // texto a mostrar
-          voucherLabelType: voucherTypeToLabelType(voucherType), // tipo para <Label />
+          voucherType,
+          voucherLabelType: voucherTypeToLabelType(voucherType),
           date: formatDate(v.application_date),
           total,
           subtotal:
@@ -197,7 +184,7 @@ const usePettyCashHistory = () => {
           employeeName: v.employeename ?? "",
         } satisfies PettyCashHistoryRow;
       }),
-    [vouchersFull],
+    [vouchersFull]
   );
 
   const setSelected = useCallback(
@@ -205,30 +192,49 @@ const usePettyCashHistory = () => {
       internalSetSelected(row);
       setSelectedVoucherId(row?.id ?? null);
     },
-    [setSelectedVoucherId],
+    [setSelectedVoucherId]
   );
 
   const loading = loadingPetty || loadingHistory;
   const detailLoading = loadingPetty && !!selectedVoucherId;
 
+  // ======= NUEVAS FUNCIONES INTEGRADAS =======
+
+  const onEdit = (row: PettyCashHistoryRow) => {
+    const clean = path.endsWith('/') ? path.slice(0, -1) : path;
+    const qs = new URLSearchParams(searchParams.toString());
+    qs.set("id", row.id);
+    router.push(`${clean}?${qs.toString()}`);
+  };
+
+  const onDelete = (row: PettyCashHistoryRow) => {
+    setSelected(row);
+    setPanelOpen(true); // podría abrir confirmación aquí si lo implementas
+  };
+
+  const refresh = () => {
+    if (!user?.idEmployee) return;
+    fetchPettyCashVouchersByIdEmployee(user.idEmployee);
+  };
+
+  // ======= RETURN =======
   return {
     panelOpen,
     setPanelOpen,
     selected,
     setSelected,
-
-    // Historial clásico (si aún lo usas en otra vista)
+    onEdit,
+    onDelete,
+    refresh,
     history,
     rejected,
-
-    // Vales (FULL) y proyección para la tabla
     pettyCash: vouchersFull,
     pettyCashAsHistoryRows,
     selectedDetail: pettyCashVoucherFull ?? null,
     detailLoading,
-
     pettyError,
     loading,
+    hasIdParam
   };
 };
 
