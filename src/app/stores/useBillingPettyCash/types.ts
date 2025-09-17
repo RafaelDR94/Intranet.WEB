@@ -6,6 +6,7 @@ import {
   PettyCashVoucherData,
   PostPettyCashVoucher,
   PutPettyCashVoucher,
+  PettyCashVoucherFull,
 } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 
 /**
@@ -16,10 +17,14 @@ export type BillingPettyCashState = {
   pettyCashFunds: PettyCashFundData[];
   /** Vales de caja chica */
   pettyCashVouchers: PettyCashVoucherData[];
+  /** Vales completos de caja chica */
+  vouchersFull: PettyCashVoucherFull[];
   /** Fondo por ID */
   pettyCashFund?: PettyCashFundData;
   /** Vale por ID */
   pettyCashVoucher?: PettyCashVoucherData;
+  /** Vale completo obtenido por ID */
+  pettyCashVoucherFull?: PettyCashVoucherFull;
   /** Flags de proceso */
   loading: boolean;
   creating: boolean;
@@ -53,7 +58,8 @@ export type BillingPettyCashState = {
   deletePettyCashFund: (id: string) => Promise<boolean>;
   updateCashOnHand: (payload: PutCashOnHand) => Promise<boolean>;
   fetchPettyCashVouchers: (force?: boolean) => Promise<void> | void;
-  fetchPettyCashVoucherById: (id: string, force?: boolean) => Promise<PettyCashVoucherData | null>;
+  fetchPettyCashVoucherById: (id: string, force?: boolean) => Promise<PettyCashVoucherFull | null>;
+  fetchPettyCashVouchersByIdEmployee: (idEmployee: string) => Promise<PettyCashVoucherFull[] | null>;
   createPettyCashVoucher: (payload: PostPettyCashVoucher) => Promise<PettyCashVoucherData | null>;
   updatePettyCashVoucher: (payload: PutPettyCashVoucher) => Promise<PettyCashVoucherData | null>;
   deletePettyCashVoucher: (id: string) => Promise<boolean>;

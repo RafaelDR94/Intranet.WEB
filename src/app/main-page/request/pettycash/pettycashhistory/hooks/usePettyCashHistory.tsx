@@ -1,21 +1,20 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
+
+import { useBillingPettyCash } from "../../../../../stores/useBillingPettyCash/useBillingPettyCash";
+import { PettyCashHistoryRow } from "../types";
 
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
-
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 
-import { useBillingPettyCash } from "../../../../../stores/useBillingPettyCash/useBillingPettyCash";
-import { PettyCashVoucherFull } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
-
 const usePettyCashHistory = () => {
   const { user } = useAuth();
   const [panelOpen, setPanelOpen] = useState(false);
-  const [selected, setSelected] = useState<HistoryRow | null>(null);
+  const [selected, internalSetSelected] = useState<PettyCashHistoryRow | null>(null);
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(null);
 
   // Spinner global
   const { usePrincipalLoading } = usePrincipal();
@@ -46,17 +45,18 @@ const usePettyCashHistory = () => {
   );
 
   // ======== PETTY CASH: vouchers por empleado (FULL) ========
-  const {
-    vouchersFull,
-    loading: loadingPetty,
-    error: pettyError,
-    fetchPettyCashVouchersByIdEmployee,
-  } = useBillingPettyCash() as {
-    vouchersFull: PettyCashVoucherFull[];
-    loading: boolean;
-    error?: string;
-    fetchPettyCashVouchersByIdEmployee: (idEmployee: string) => Promise<PettyCashVoucherFull[] | null>;
-  };
+  const { vouchersFull, loading: loadingPetty, error: pettyError, fetchPettyCashVouchersByIdEmployee, fetchPettyCashVoucherById, pettyCashVoucherFull } =
+    useBillingPettyCash(
+      (state) => ({
+        vouchersFull: state.vouchersFull,
+        loading: state.loading,
+        error: state.error,
+        fetchPettyCashVouchersByIdEmployee: state.fetchPettyCashVouchersByIdEmployee,
+        fetchPettyCashVoucherById: state.fetchPettyCashVoucherById,
+        pettyCashVoucherFull: state.pettyCashVoucherFull,
+      }),
+      shallow
+    );
 
   // Disparo de datos
   useEffect(() => {
@@ -72,6 +72,11 @@ const usePettyCashHistory = () => {
     // Historial de vales por empleado (endpoint ByIdEmployee/{idEmployee})
     fetchPettyCashVouchersByIdEmployee(user.idEmployee);
   }, [user?.idEmployee, forceFetchBillingHistory, fetchPettyCashVouchersByIdEmployee]);
+
+  useEffect(() => {
+    if (!selectedVoucherId) return;
+    fetchPettyCashVoucherById(selectedVoucherId);
+  }, [selectedVoucherId, fetchPettyCashVoucherById]);
 
   // Spinners + cierre de panel por éxito
   useEffect(() => {
@@ -92,41 +97,68 @@ const usePettyCashHistory = () => {
   });
 
   // Proyección de vouchers Full -> filas HistoryRow para la tabla
-  const pettyCashAsHistoryRows: HistoryRow[] = (vouchersFull ?? []).map((v) => {
-    const row: any = {
-      id: v.id,
-      // Fecha del vale
-      date: v.application_date,
-      // En caso de que tu DataTable aún use "dateCreate" como sortKey por default
-      dateCreate: v.application_date,
+  const pettyCashAsHistoryRows = useMemo<PettyCashHistoryRow[]>(
+    () =>
+      (vouchersFull ?? []).map((v) => {
+        const total =
+          typeof v.total === "number" && !Number.isNaN(v.total)
+            ? v.total
+            : typeof v.amount === "number" && !Number.isNaN(v.amount)
+            ? v.amount
+            : 0;
 
-      // Texto y montos
-      concept: v.concept,
-      voucherType: v.voucher_type,
-      amount: typeof v.total === "number" ? v.total : v.amount,
+        return {
+          id: v.id,
+          billing_image_id: "",
+          billingdocument_id: v.uuid ?? v.id,
+          project: {
+            id: v.project?.id ?? "",
+            name: v.project?.name ?? "",
+            proyectKey: v.project?.proyectkey ?? "",
+            client: v.project?.client ?? "",
+          },
+          requisitionkey: v.project?.proyectkey ?? "",
+          status: "valido",
+          xml: v.xml ?? "",
+          pdf: v.pdf ?? "",
+          image: "",
+          comments: v.comments ?? "",
+          dateCreate: v.application_date ?? "",
+          certificationDate: v.application_date ?? "",
+          uuid: v.uuid ?? "",
+          description: {
+            id_billingdescription: "",
+            name: v.concept ?? "",
+          },
+          category: {
+            id_billingcategory: "",
+            name: v.voucher_type ?? "",
+          },
+          numpersons: 0,
+          numnights: 0,
+          amount: total,
+          voucherType: v.voucher_type ?? "",
+          date: v.application_date ?? "",
+          total,
+          subtotal:
+            typeof v.subtotal === "number" && !Number.isNaN(v.subtotal) ? v.subtotal : 0,
+          iva: typeof v.iva === "number" && !Number.isNaN(v.iva) ? v.iva : 0,
+          employeeName: v.employeename ?? "",
+        } satisfies PettyCashHistoryRow;
+      }),
+    [vouchersFull]
+  );
 
-      // Estatus (ajusta si el backend te regresa uno real)
-      status: "registrado",
-
-      // Datos de proyecto/empleado útiles en detalle
-      projectKey: v.project?.proyectkey ?? "",
-      projectName: v.project?.name ?? "",
-      employeeName: v.employeename ?? "",
-
-      // Extras por si tu SideMenu los requiere
-      xml: v.xml,
-      pdf: v.pdf,
-      uuid: v.uuid,
-      rfc_emisor: v.rfc_emisor,
-      rfc_receptor: v.rfc_receptor,
-      subtotal: v.subtotal,
-      iva: v.iva,
-      total: v.total,
-    };
-    return row as HistoryRow;
-  });
+  const setSelected = useCallback(
+    (row: PettyCashHistoryRow | null) => {
+      internalSetSelected(row);
+      setSelectedVoucherId(row?.id ?? null);
+    },
+    [setSelectedVoucherId]
+  );
 
   const loading = loadingPetty || loadingHistory;
+  const detailLoading = loadingPetty && !!selectedVoucherId;
 
   return {
     panelOpen,
@@ -141,6 +173,8 @@ const usePettyCashHistory = () => {
     // Vales (FULL) y proyección para la tabla
     pettyCash: vouchersFull,
     pettyCashAsHistoryRows,
+    selectedDetail: pettyCashVoucherFull ?? null,
+    detailLoading,
 
     pettyError,
     loading,

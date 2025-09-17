@@ -5,14 +5,13 @@ import { PettyCashProvider } from "../pettycashrequest/context/PettyCashContext"
 import SideMenu from "./components/SideMenu";
 
 import usePettyCashHistory from "./hooks/usePettyCashHistory";
+import { PettyCashHistoryRow } from "./types";
 
 import { Button } from "@/app/components/Button/Button";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { Label } from "@/app/components/Label/Label";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
 
 const PettyCashHistory = () => {
   const {
@@ -20,32 +19,33 @@ const PettyCashHistory = () => {
     setPanelOpen,
     selected,
     setSelected,
-    pettyCashAsHistoryRows, // <-- NUEVO: datos proyectados desde vouchers full
+    pettyCashAsHistoryRows,
+    selectedDetail,
+    detailLoading,
   } = usePettyCashHistory();
 
   const isMobile = useIsMobile();
-  const { currentPagePermissions } = useAuth(); // si lo usas para permisos, se mantiene
 
-  console.log('pettyCashAsHistoryRows ', pettyCashAsHistoryRows);
-  
 
   // Columnas de escritorio
-  const columnsDesktop: ColumnDefinition<HistoryRow>[] = [
+  const columnsDesktop: ColumnDefinition<PettyCashHistoryRow>[] = [
     {
-      key: "date" as keyof HistoryRow,
+      key: "date",
       label: "FECHA",
+      render: (row) => <span>{row.date}</span>,
     },
     {
-      key: "concept" as keyof HistoryRow,
+      key: "description",
       label: "CONCEPTO",
+      render: (row) => <span>{row.description.name}</span>,
     },
     {
-      key: "voucherType" as unknown as keyof HistoryRow,
+      key: "voucherType",
       label: "TIPO DE VALE",
-      render: (row) => <span>{(row as any).voucherType ?? ""}</span>,
+      render: (row) => <span>{row.voucherType ?? ""}</span>,
     },
     {
-      key: "amount" as keyof HistoryRow,
+      key: "amount",
       label: "MONTO",
       render: (row) => (
         <span>
@@ -59,7 +59,7 @@ const PettyCashHistory = () => {
       ),
     },
     {
-      key: "status" as keyof HistoryRow,
+      key: "status",
       label: "ESTATUS",
       render: (row) => (
         <Label
@@ -69,7 +69,7 @@ const PettyCashHistory = () => {
       ),
     },
     {
-      key: "details" as unknown as keyof HistoryRow,
+      key: "id",
       label: "",
       render: (row) => (
         <Button
@@ -88,9 +88,9 @@ const PettyCashHistory = () => {
   ];
 
   // Columnas móviles
-  const columnsMobile: ColumnDefinition<HistoryRow>[] = [
+  const columnsMobile: ColumnDefinition<PettyCashHistoryRow>[] = [
     {
-      key: "amount" as keyof HistoryRow,
+      key: "amount",
       label: "MONTO",
       render: (row) => (
         <span>
@@ -104,16 +104,17 @@ const PettyCashHistory = () => {
       ),
     },
     {
-      key: "date" as keyof HistoryRow,
+      key: "date",
       label: "FECHA",
+      render: (row) => <span>{row.date}</span>,
     },
     {
-      key: "voucherType" as unknown as keyof HistoryRow,
+      key: "voucherType",
       label: "TIPO DE VALE",
-      render: (row) => <span>{(row as any).voucherType ?? ""}</span>,
+      render: (row) => <span>{row.voucherType ?? ""}</span>,
     },
     {
-      key: "status" as keyof HistoryRow,
+      key: "status",
       label: "ESTATUS",
       render: (row) => (
         <Label
@@ -141,7 +142,7 @@ const PettyCashHistory = () => {
               enableSelection: true,
               title: "Historial Vales",
               enableCollaps: true,
-              defaultSortKey: "date", // <-- Ordena por la fecha del vale
+              defaultSortKey: "date",
               defaultSortDirection: "desc",
             },
           ]}
@@ -153,6 +154,8 @@ const PettyCashHistory = () => {
           panelOpen={panelOpen}
           setPanelOpen={setPanelOpen}
           selected={selected}
+          detail={selectedDetail}
+          isDetailLoading={detailLoading}
         />
       </PettyCashProvider>
     </>

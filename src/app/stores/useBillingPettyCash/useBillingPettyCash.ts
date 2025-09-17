@@ -29,8 +29,10 @@ export const useBillingPettyCash = createWithEqualityFn<BillingPettyCashState>()
   devtools((set, get) => ({
     pettyCashFunds: [],
     pettyCashVouchers: [],
+    vouchersFull: [],
     pettyCashFund: undefined,
     pettyCashVoucher: undefined,
+    pettyCashVoucherFull: undefined,
     loading: false,
     creating: false,
     updating: false,
@@ -76,8 +78,10 @@ export const useBillingPettyCash = createWithEqualityFn<BillingPettyCashState>()
       set({
         pettyCashFunds: [],
         pettyCashVouchers: [],
+        vouchersFull: [],
         pettyCashFund: undefined,
         pettyCashVoucher: undefined,
+        pettyCashVoucherFull: undefined,
         error: undefined,
         warning: undefined,
         successGetFunds: false,

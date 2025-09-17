@@ -1,4 +1,4 @@
-import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
+import { PettyCashHistoryDetail, PettyCashHistoryRow } from "../types";
 
 /** Props for the history side menu component. */
 export interface SideMenuProps {
@@ -7,5 +7,9 @@ export interface SideMenuProps {
   /** Callback to toggle the panel visibility. */
   setPanelOpen: (open: boolean) => void;
   /** Currently selected history row. */
-  selected: HistoryRow | null;
+  selected: PettyCashHistoryRow | null;
+  /** Detailed information fetched by id. */
+  detail: PettyCashHistoryDetail | null;
+  /** Whether the detail is loading. */
+  isDetailLoading: boolean;
 }

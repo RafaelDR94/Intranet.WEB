@@ -15,8 +15,10 @@ describe('useBillingPettyCash', () => {
     useBillingPettyCash.setState({
       pettyCashFunds: [],
       pettyCashVouchers: [],
+      vouchersFull: [],
       pettyCashFund: undefined,
       pettyCashVoucher: undefined,
+      pettyCashVoucherFull: undefined,
       loading: false,
       creating: false,
       updating: false,
