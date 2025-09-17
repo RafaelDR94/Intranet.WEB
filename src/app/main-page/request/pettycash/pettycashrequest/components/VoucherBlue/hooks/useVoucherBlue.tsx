@@ -153,18 +153,6 @@ export const useVoucherBlue = ({
     if (dataEdit.concept !== undefined) {
       updateField(formId, "concept", { value: dataEdit.concept });
     }
-    if (dataEdit.xml) {
-      updateField(formId, "xml", {
-        value: { name: dataEdit.xml, url: dataEdit.xml },
-        initialFile: { name: dataEdit.xml, url: dataEdit.xml },
-      });
-    }
-    if (dataEdit.pdf) {
-      updateField(formId, "pdf", {
-        value: { name: dataEdit.pdf, url: dataEdit.pdf },
-        initialFile: { name: dataEdit.pdf, url: dataEdit.pdf },
-      });
-    }
   }, [dataEdit, formId, loadingFormInfo, updateField]);
 
   useEffect(() => {
@@ -251,50 +239,14 @@ export const useVoucherBlue = ({
     });
   }, [opError, mode, showAlert, hideAlert, resetFlags]);
 
-  const uploadXmlIfNeeded = async (file: any): Promise<string> => {
-    const maybeFile = file instanceof File ? file : null;
-    if (maybeFile) {
-      const unique = `${user?.idEmployee}-${Date.now()}`;
-      const url = await firebasestorage.uploadFile(
-        maybeFile,
-        `Billings/PettyCashVouchers/${unique}.xml`,
-      );
-      if (!url) throw new Error("Hubo un problema al subir el XML");
-      return url;
-    }
-    if (isEdit && dataEdit?.xml) return dataEdit.xml;
-    const urlObj = (file as { url?: string })?.url;
-    if (urlObj) return urlObj;
-    throw new Error("No se encontró XML válido para continuar");
-  };
-
-  const uploadPdfIfNeeded = async (file: any): Promise<string> => {
-    const maybeFile = file instanceof File ? file : null;
-    if (maybeFile) {
-      const unique = `${user?.idEmployee}-${Date.now()}`;
-      const url = await firebasestorage.uploadFile(
-        maybeFile,
-        `Billings/PettyCashVouchers/${unique}.pdf`,
-      );
-      if (!url) throw new Error("Hubo un problema al subir el PDF");
-      return url;
-    }
-    if (isEdit && dataEdit?.pdf) return dataEdit.pdf;
-    const urlObj = (file as { url?: string })?.url;
-    if (urlObj) return urlObj;
-    throw new Error("No se encontró PDF válido para continuar");
-  };
-
   // Submit (para DynamicForm) -> decide create o update
   const handleSubmit = useCallback(
     async (values: Record<string, any>) => {
       setOpRunning(true);
       try {
-        const xmlUrl = await uploadXmlIfNeeded(values.xml);
-        const pdfUrl = await uploadPdfIfNeeded(values.pdf);
 
         const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
-          values: { ...values, xml: { url: xmlUrl }, pdf: { url: pdfUrl } },
+          values: { ...values },
           proyects,
           fields,
           pettyCashFundId: pettyCashFunds?.[0]?.id,
@@ -331,8 +283,6 @@ export const useVoucherBlue = ({
       createPettyCashVoucher,
       updatePettyCashVoucher,
       user?.idEmployee,
-      uploadXmlIfNeeded,
-      uploadPdfIfNeeded,
     ],
   );
 

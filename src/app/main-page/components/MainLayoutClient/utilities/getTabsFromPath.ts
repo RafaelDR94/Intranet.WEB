@@ -19,6 +19,16 @@ export const getTabsFromPath = (
         path: "/main-page/home/important-information",
       },
     ],
+    "treasury/treasurypettycash": [
+      {
+        label: "Control",
+        path: "/main-page/treasury/treasurypettycash/treasurycontrol",
+      },
+      {
+        label: "Solicitud",
+        path: "/main-page/treasury/treasurypettycash/treasuryrequest",
+      }
+    ],
     "request/pettycash": [
       {
         label: "Solicitud Caja Chica",

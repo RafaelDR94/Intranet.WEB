@@ -130,24 +130,4 @@ export const createInitialFields = (
       return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
     },
   },
-  {
-    type: "file",
-    name: "xml",
-    label: "Documento XML",
-    value: { name: dataEdit?.xml ? "Documento XML" : "", url: dataEdit?.xml },
-    initialFile: { name: dataEdit?.xml ?? "", url: dataEdit?.xml ?? "" },
-    accept: ".xml",
-    className: "max-w-[300px]",
-    validations: dataEdit ? [] : [{ type: "required" }],
-  },
-  {
-    type: "file",
-    name: "pdf",
-    label: "Documento PDF",
-    value: { name: dataEdit?.pdf ? "Documento PDF" : "", url: dataEdit?.pdf },
-    initialFile: { name: dataEdit?.pdf ?? "", url: dataEdit?.pdf ?? "" },
-    accept: ".pdf",
-    className: "max-w-[300px]",
-    validations: dataEdit ? [] : [{ type: "required" }],
-  },
 ];

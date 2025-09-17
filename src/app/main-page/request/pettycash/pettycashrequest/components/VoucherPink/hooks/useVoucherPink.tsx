@@ -304,6 +304,9 @@ export const useVoucherPink = ({
           employeeId: user?.idEmployee ?? "",
         });
 
+        console.log('payload ', payload);
+        
+
         const res =
           mode === "edit" && dataEdit?.id
             ? await updatePettyCashVoucher({ ...payload, id: dataEdit.id })

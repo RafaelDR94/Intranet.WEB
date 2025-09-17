@@ -19,6 +19,9 @@ import {
   validatePettyCashVoucher,
 } from './utilities'
 
+// 👉 Nueva utilidad para historial por empleado
+import { fetchPettyCashVouchersByIdEmployee } from './utilities/fetchPettyCashVouchersByIdEmployee'
+
 /**
  * Store global para la gestión de caja chica.
  */
@@ -56,6 +59,7 @@ export const useBillingPettyCash = createWithEqualityFn<BillingPettyCashState>()
     updatePettyCashFund: (payload) => updatePettyCashFund(set, get, payload),
     deletePettyCashFund: (id) => deletePettyCashFund(set, id),
     updateCashOnHand: (payload) => updateCashOnHand(set, payload),
+
     fetchPettyCashVouchers: (force = false) => fetchPettyCashVouchers(set, get, force),
     fetchPettyCashVoucherById: (id, force = false) => fetchPettyCashVoucherById(id, set, get, force),
     createPettyCashVoucher: (payload) => createPettyCashVoucher(set, get, payload),
@@ -63,6 +67,10 @@ export const useBillingPettyCash = createWithEqualityFn<BillingPettyCashState>()
     deletePettyCashVoucher: (id) => deletePettyCashVoucher(set, id),
     rejectPettyCashVoucher: (id, comments) => rejectPettyCashVoucher(set, id, comments),
     validatePettyCashVoucher: (id) => validatePettyCashVoucher(set, id),
+
+    // ✅ Nueva acción: historial de vales por empleado
+    fetchPettyCashVouchersByIdEmployee: (idEmployee: string) =>
+      fetchPettyCashVouchersByIdEmployee(set, get, idEmployee),
 
     reset: () =>
       set({
@@ -118,4 +126,3 @@ export const useBillingPettyCash = createWithEqualityFn<BillingPettyCashState>()
       }),
   }))
 )
-

@@ -126,3 +126,4 @@ export const BillingPettyCashVoucher = process.env.NEXT_PUBLIC_BILLINGS_PETTYCAS
 export const BillingPettyCashVoucherById = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_BYID ?? "/Billings/PettyCashVoucher/ById";
 export const BillingPettyCashVoucherReject = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_REJECT ?? "/Billings/PettyCashVoucher/Reject";
 export const BillingPettyCashVoucherValidate = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_VALIDATE ?? "/Billings/PettyCashVoucher/Validate";
+export const BillingPettyCashVoucherByIdEmployee = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_BYIDEMPLOYEE ?? "/Billings/PettyCashVoucher/ByIdEmployee"

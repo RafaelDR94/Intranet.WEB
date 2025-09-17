@@ -1,3 +1,4 @@
+// ---- Fondos de Caja Chica ----
 export type PettyCashFundData = {
   id: string;
   year_month: string;
@@ -52,6 +53,8 @@ export type PutCashOnHand = {
   id_petty_cash_found: string;
   cash_on_hand: number;
 };
+
+// ---- Vales de Caja Chica (versión ligera para POST/PUT) ----
 export type PettyCashVoucherData = {
   id: string;
   petty_cash_funds_id: string;
@@ -108,4 +111,71 @@ export type PutPettyCashRejectId = {
 
 export type PutPettyCashValidateId = {
   id: string;
+};
+
+// ---- Detalles para la respuesta enriquecida de Vales (GET) ----
+export type PettyCashVoucherConcept = {
+  clave_sat: string;
+  clavesat_description: string;
+  cantidad: number;
+  valor_unitario: number;
+  importe: number;
+};
+
+export type PettyCashVoucherProject = {
+  id: string;
+  name: string;
+  proyectkey: string;
+  client: string;
+};
+
+// Reutiliza PettyCashFundData
+export type PettyCashVoucherFund = PettyCashFundData;
+
+export type PettyCashVoucherFull = {
+  id: string;
+  petty_cash_funds: PettyCashVoucherFund;
+  employee_id: string;
+  employeename: string;
+  voucher_type: string;
+  application_date: string;
+  concept: string;
+  amount: number;
+  comments: string;
+  project: PettyCashVoucherProject;
+  xml: string;
+  pdf: string;
+  uuid: string;
+  rfc_emisor: string;
+  rfc_receptor: string;
+  subtotal: number;
+  iva: number;
+  total: number;
+  conceptos: PettyCashVoucherConcept[];
+};
+
+export type GetPettyCashVoucherFullById = {
+  data: PettyCashVoucherFull;
+  success: boolean;
+  error_Message: string;
+  error_Code: number;
+};
+
+export type GetPettyCashVoucherFull = {
+  data: PettyCashVoucherFull[];
+  success: boolean;
+  error_Message: string;
+  error_Code: number;
+};
+
+// ---- Historial de vales por empleado (GET /Billings/PettyCashVoucher/ByIdEmployee/{idEmployee}) ----
+export type GetPettyCashVoucherByIdEmployeeParams = {
+  idEmployee: string; // UUID del empleado
+};
+
+export type GetPettyCashVoucherByIdEmployee = {
+  data: PettyCashVoucherFull[]; // lista de vales (respuesta FULL)
+  success: boolean;
+  error_Message: string;
+  error_Code: number;
 };
