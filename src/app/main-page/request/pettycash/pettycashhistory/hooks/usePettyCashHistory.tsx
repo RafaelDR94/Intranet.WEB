@@ -34,6 +34,14 @@ const usePettyCashHistory = () => {
   const [selected, internalSetSelected] = useState<PettyCashHistoryRow | null>(null);
   const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(null);
 
+  const setSelected = useCallback(
+    (row: PettyCashHistoryRow | null) => {
+      internalSetSelected(row);
+      setSelectedVoucherId(row?.id ?? null);
+    },
+    [internalSetSelected, setSelectedVoucherId]
+  );
+
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
@@ -269,14 +277,6 @@ const usePettyCashHistory = () => {
         } satisfies PettyCashHistoryRow;
       }),
     [vouchersFull]
-  );
-
-  const setSelected = useCallback(
-    (row: PettyCashHistoryRow | null) => {
-      internalSetSelected(row);
-      setSelectedVoucherId(row?.id ?? null);
-    },
-    [setSelectedVoucherId]
   );
 
   const loading = loadingPetty || loadingHistory;
