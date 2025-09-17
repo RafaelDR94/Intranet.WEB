@@ -305,6 +305,12 @@ const usePettyCashHistory = () => {
     await deletePettyCashVoucher(current.id);
   };
 
+  const handleCancelDelete = () => {
+    setConfirmOpen(false);
+    setRowToDelete(null);
+    setRowPendingDelete(null);
+  };
+
   const refresh = () => {
     if (!user?.idEmployee) return;
     fetchPettyCashVouchersByIdEmployee(user.idEmployee);
@@ -318,8 +324,8 @@ const usePettyCashHistory = () => {
     setSelected,
     onEdit,
     onDelete,
+    handleCancelDelete,
     confirmOpen,
-    setConfirmOpen,
     rowToDelete,
     handleConfirmDelete,
     removing,

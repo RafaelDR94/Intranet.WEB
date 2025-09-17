@@ -21,6 +21,39 @@ import DeleteIcon from "@/assets/icons/acciones/trash.svg";
 import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
 import type { ContextMenuItem } from "@/app/components/ContextMenu/types";
 
+const truthyPermissionStrings = new Set(["true", "1", "yes", "y", "si", "sí", "allow"]);
+const falsyPermissionStrings = new Set(["false", "0", "no", "deny"]);
+
+const interpretPermission = (value: unknown): boolean | undefined => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) return undefined;
+    if (truthyPermissionStrings.has(normalized)) return true;
+    if (falsyPermissionStrings.has(normalized)) return false;
+  }
+  return undefined;
+};
+
+const cancelPermissionKeys = [
+  "delete",
+  "cancel",
+  "cancelvoucher",
+  "cancelVoucher",
+  "cancelvale",
+  "cancelVale",
+  "cancelpettycash",
+  "cancelPettycash",
+  "cancel_petty_cash",
+  "cancelPettyCash",
+  "deleteVoucher",
+  "deleteVale",
+  "deletevoucher",
+  "deletevale",
+  "remove",
+];
+
 type PettyCashActionMenuProps = {
   row: PettyCashHistoryRow;
   onEdit: (row: PettyCashHistoryRow) => void;
@@ -35,9 +68,6 @@ const ActionMenuCell: React.FC<PettyCashActionMenuProps> = ({
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
-  const { details: canViewDetailsPermission, delete: canCancelPermission } =
-    currentPagePermissions ?? {};
-
   const handleEdit = React.useCallback(() => {
     onEdit(row);
     setMenuOpen(false);
@@ -50,10 +80,10 @@ const ActionMenuCell: React.FC<PettyCashActionMenuProps> = ({
 
   const menuItems = React.useMemo<ContextMenuItem[]>(() => {
     const items: ContextMenuItem[] = [];
-    const canViewDetail = canViewDetailsPermission ?? true;
-    const canCancelVoucher = canCancelPermission ?? false;
+    const rawPermissions = (currentPagePermissions ?? {}) as Record<string, unknown>;
 
-    if (canViewDetail) {
+    const detailPermission = interpretPermission(rawPermissions.details);
+    if (detailPermission !== false) {
       items.push({
         label: "Ver Detalle",
         icon: EditIcon,
@@ -61,7 +91,16 @@ const ActionMenuCell: React.FC<PettyCashActionMenuProps> = ({
       });
     }
 
-    if (canCancelVoucher) {
+    let cancelPermission = interpretPermission(rawPermissions.delete);
+    if (cancelPermission === undefined) {
+      for (const key of cancelPermissionKeys) {
+        if (!(key in rawPermissions)) continue;
+        cancelPermission = interpretPermission(rawPermissions[key]);
+        if (cancelPermission !== undefined) break;
+      }
+    }
+
+    if (cancelPermission ?? true) {
       items.push({
         label: "Cancelar",
         icon: DeleteIcon,
@@ -78,7 +117,7 @@ const ActionMenuCell: React.FC<PettyCashActionMenuProps> = ({
     }
 
     return items;
-  }, [canCancelPermission, canViewDetailsPermission, handleDelete, handleEdit]);
+  }, [currentPagePermissions, handleDelete, handleEdit]);
   return (
     <ContextMenu
       alignRight
@@ -100,8 +139,8 @@ const PettyCashHistory = () => {
     detailLoading,
     onEdit,
     onDelete,
+    handleCancelDelete,
     confirmOpen,
-    setConfirmOpen,
     rowToDelete,
     handleConfirmDelete,
     removing,
@@ -218,7 +257,7 @@ const PettyCashHistory = () => {
     <>
       <PopUp
         open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
+        onClose={handleCancelDelete}
         title="¿Deseas eliminar el vale seleccionado?"
         content={
           rowToDelete
@@ -227,7 +266,7 @@ const PettyCashHistory = () => {
         }
         showSecondaryButton
         secondaryButtonText="Cancelar"
-        onSecondaryButtonClick={() => setConfirmOpen(false)}
+        onSecondaryButtonClick={handleCancelDelete}
         showPrimaryButton
         primaryButtonText={removing ? "Eliminando…" : "Eliminar"}
         onPrimaryButtonClick={handleConfirmDelete}
