@@ -10,6 +10,7 @@ import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 
+import type { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { SideMenuProps } from "./types";
 
 const SideMenu = ({
@@ -22,7 +23,41 @@ const SideMenu = ({
   const submitRef = useRef<() => void | Promise<void>>(null);
   const { user, currentPagePermissions } = useAuth();
 
-  console.log("detail ", detail);
+  const voucherDataEdit = useMemo<PettyCashVoucherData | undefined>(() => {
+    if (!selected) return undefined;
+
+    const detailMatchesSelection = detail && detail.id === selected.id ? detail : null;
+    const amountFromSelection =
+      typeof selected.amount === "number" && !Number.isNaN(selected.amount)
+        ? selected.amount
+        : 0;
+
+    return {
+      id: detailMatchesSelection?.id ?? selected.id,
+      petty_cash_funds_id: detailMatchesSelection?.petty_cash_funds?.id ?? "",
+      employee_id: detailMatchesSelection?.employee_id ?? "",
+      voucher_type:
+        detailMatchesSelection?.voucher_type ??
+        selected.voucherType ??
+        selected.category?.name ??
+        "",
+      application_date:
+        detailMatchesSelection?.application_date ??
+        selected.certificationDate ??
+        selected.dateCreate ??
+        "",
+      concept:
+        detailMatchesSelection?.concept ??
+        selected.description?.name ??
+        "",
+      amount: detailMatchesSelection?.amount ?? amountFromSelection,
+      comments: detailMatchesSelection?.comments ?? selected.comments ?? "",
+      project_id:
+        detailMatchesSelection?.project?.id ?? selected.project?.id ?? "",
+      xml: detailMatchesSelection?.xml ?? selected.xml ?? "",
+      pdf: detailMatchesSelection?.pdf ?? selected.pdf ?? "",
+    } satisfies PettyCashVoucherData;
+  }, [detail, selected]);
 
   const projectCode =
     detail?.project?.proyectkey ?? selected?.project?.proyectKey ?? "";
@@ -69,29 +104,18 @@ const SideMenu = ({
       leftLabel={selected ? `Usuario: ${employeeName}` : undefined}
       rightLabel={selected ? `Proyecto: ${projectCode}` : undefined}
       actionButton={
-        // <>
-        //   {(currentPagePermissions?.canAddPicture ||
-        //     currentPagePermissions?.canAddDocuments) && (
-        //     <Button
-        //       size="large"
-        //       variant="solid"
-        //       hideIcon
-        //       onClick={() => submitRef.current?.()}
-        //       disabled={selected?.status?.toLocaleLowerCase() !== "rechazado"}
-        //     >
-        //       Reenviar
-        //     </Button>
-        //   )}
-        // </>
-        <Button
-              size="large"
-              variant="solid"
-              hideIcon
-              onClick={() => submitRef.current?.()}
-              disabled={selected?.status?.toLocaleLowerCase() !== "rechazado"}
-            >
-              Reenviar
-            </Button>
+        (currentPagePermissions?.canAddPicture ||
+          currentPagePermissions?.canAddDocuments) && (
+          <Button
+            size="large"
+            variant="solid"
+            hideIcon
+            onClick={() => submitRef.current?.()}
+            disabled={selected?.status?.toLocaleLowerCase() !== "rechazado"}
+          >
+            Reenviar
+          </Button>
+        )
       }
       renderActions={() =>
         selected && (
@@ -227,6 +251,7 @@ const SideMenu = ({
               {selected.xml || selected.pdf ? (
                 <div>
                   <VoucherPink
+                    mode="edit"
                     responsiveLayoutMatrix={{
                       sm: [
                         [10],
@@ -262,13 +287,14 @@ const SideMenu = ({
                         [10],
                       ],
                     }}
-                    dataEdit={selected}
+                    dataEdit={voucherDataEdit}
                     externalSubmitRef={submitRef}
                   />
                 </div>
               ) : (
                 <div>
                   <VoucherBlue
+                    mode="edit"
                     responsiveLayoutMatrix={{
                       sm: [
                         [10],
@@ -304,7 +330,7 @@ const SideMenu = ({
                         [10],
                       ],
                     }}
-                    dataEdit={selected}
+                    dataEdit={voucherDataEdit}
                     externalSubmitRef={submitRef}
                   />
                 </div>

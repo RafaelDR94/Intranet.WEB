@@ -1,3 +1,5 @@
+import { MutableRefObject } from 'react';
+
 import { ResponsiveLayoutMatrix } from '@/app/components/DynamicForm/types';
 import { PettyCashVoucherData } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 
@@ -7,6 +9,8 @@ export interface VoucherFormProps {
   mode?: 'create' | 'edit';
   /** Datos para edición del vale */
   dataEdit?: PettyCashVoucherData;
+  /** Permite controlar el submit desde un contenedor externo */
+  externalSubmitRef?: MutableRefObject<(() => void | Promise<void>) | null>;
   /** Para cerrar panel/modal si lo usas embebido */
   onClose?: () => void;
   /** Para controlar la distribucion */

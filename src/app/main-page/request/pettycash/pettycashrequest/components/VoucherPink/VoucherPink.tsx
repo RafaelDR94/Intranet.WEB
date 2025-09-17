@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useVoucherPink } from "./hooks/useVoucherPink";
 
@@ -21,6 +21,7 @@ const VoucherPink: React.FC<VoucherFormProps> = ({
   onClose,
   responsiveLayoutMatrix,
   startDisabled,
+  externalSubmitRef,
 }) => {
   const {
     fields,
@@ -34,6 +35,14 @@ const VoucherPink: React.FC<VoucherFormProps> = ({
     disableForm,
     setDisableForm,
   } = useVoucherPink({ mode, dataEdit, startDisabled });
+
+  useEffect(() => {
+    if (!externalSubmitRef) return;
+    externalSubmitRef.current = () => submitRef.current?.() ?? undefined;
+    return () => {
+      externalSubmitRef.current = null;
+    };
+  }, [externalSubmitRef, submitRef]);
 
   return (
     <FormsLayout

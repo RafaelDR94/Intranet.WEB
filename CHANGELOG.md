@@ -456,3 +456,9 @@ Fix:
 Fix:
 
 - Repopulate project options after sending petty cash vouchers to prevent endless loading. (Agente IA) [#]()
+
+### 1.47.14 Petty cash SideMenu edit fix 2025-09-17
+
+Fix:
+
+- Ensure petty cash SideMenu resubmissions use PUT and preload concept and project fields. (Agente IA) [#]()
