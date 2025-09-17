@@ -13,6 +13,33 @@ import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import type { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { SideMenuProps } from "./types";
 
+function normalizeDateForInput(raw?: string): string {
+  if (!raw) return "";
+
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+
+  const isoLikeMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoLikeMatch) {
+    return `${isoLikeMatch[1]}-${isoLikeMatch[2]}-${isoLikeMatch[3]}`;
+  }
+
+  const slashMatch = trimmed.match(
+    /^(\d{1,2})\s*[\/-]\s*(\d{1,2})\s*[\/-]\s*(\d{4})$/,
+  );
+  if (slashMatch) {
+    const [, day, month, year] = slashMatch;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+
+  const parsed = new Date(trimmed);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toISOString().slice(0, 10);
+  }
+
+  return "";
+}
+
 const SideMenu = ({
   panelOpen,
   setPanelOpen,
@@ -41,11 +68,12 @@ const SideMenu = ({
         selected.voucherType ??
         selected.category?.name ??
         "",
-      application_date:
+      application_date: normalizeDateForInput(
         detailMatchesSelection?.application_date ??
-        selected.certificationDate ??
-        selected.dateCreate ??
-        "",
+          selected.certificationDate ??
+          selected.dateCreate ??
+          "",
+      ),
       concept:
         detailMatchesSelection?.concept ??
         selected.description?.name ??

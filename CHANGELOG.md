@@ -462,3 +462,9 @@ Fix:
 Fix:
 
 - Ensure petty cash SideMenu resubmissions use PUT and preload concept and project fields. (Agente IA) [#]()
+
+### 1.47.15 Petty cash edit date refresh 2025-09-18
+
+Fix:
+
+- Normalize petty cash edit dates and refresh vouchers after resubmission. (Agente IA) [#]()

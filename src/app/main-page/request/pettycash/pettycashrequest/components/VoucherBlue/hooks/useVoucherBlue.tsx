@@ -94,6 +94,8 @@ export const useVoucherBlue = ({
     updatePettyCashVoucher,
     resetFlags,
     fetchPettyCashFunds,
+    fetchPettyCashVouchersByIdEmployee,
+    fetchPettyCashVoucherById,
     pettyCashFunds,
   } = useBillingPettyCash(
     (s) => ({
@@ -101,6 +103,8 @@ export const useVoucherBlue = ({
       updatePettyCashVoucher: s.updatePettyCashVoucher,
       resetFlags: s.resetFlags,
       fetchPettyCashFunds: s.fetchPettyCashFunds,
+      fetchPettyCashVouchersByIdEmployee: s.fetchPettyCashVouchersByIdEmployee,
+      fetchPettyCashVoucherById: s.fetchPettyCashVoucherById,
       pettyCashFunds: s.pettyCashFunds,
     }),
     shallow,
@@ -194,6 +198,12 @@ export const useVoucherBlue = ({
 
   useEffect(() => {
     if (!opSuccess) return;
+    if (user?.idEmployee) {
+      fetchPettyCashVouchersByIdEmployee(user.idEmployee);
+    }
+    if (isEdit && dataEdit?.id) {
+      fetchPettyCashVoucherById(dataEdit.id, true);
+    }
     ResetForm();
     showAlert({
       type: "success",
@@ -211,7 +221,18 @@ export const useVoucherBlue = ({
         setOpSuccess(false);
       },
     });
-  }, [opSuccess, ResetForm, showAlert, mode, resetFlags]);
+  }, [
+    opSuccess,
+    ResetForm,
+    showAlert,
+    mode,
+    resetFlags,
+    user?.idEmployee,
+    fetchPettyCashVouchersByIdEmployee,
+    isEdit,
+    dataEdit?.id,
+    fetchPettyCashVoucherById,
+  ]);
 
   useEffect(() => {
     if (!opError) return;
