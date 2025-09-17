@@ -26,7 +26,6 @@ const PettyCashHistory = () => {
 
   const isMobile = useIsMobile();
 
-
   // Columnas de escritorio
   const columnsDesktop: ColumnDefinition<PettyCashHistoryRow>[] = [
     {
@@ -42,7 +41,9 @@ const PettyCashHistory = () => {
     {
       key: "voucherType",
       label: "TIPO DE VALE",
-      render: (row) => <span>{row.voucherType ?? ""}</span>,
+      render: (row) => (
+        <Label type={row?.voucherLabelType} text={row?.voucherType} />
+      ),
     },
     {
       key: "amount",
@@ -111,7 +112,9 @@ const PettyCashHistory = () => {
     {
       key: "voucherType",
       label: "TIPO DE VALE",
-      render: (row) => <span>{row.voucherType ?? ""}</span>,
+      render: (row) => (
+        <Label type={row?.voucherLabelType} text={row?.voucherType} />
+      ),
     },
     {
       key: "status",

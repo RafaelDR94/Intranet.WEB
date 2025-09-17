@@ -9,54 +9,89 @@ import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
+import type { LabelType } from "@/app/components/Label/types";
+
+/** Mapea el texto de voucher a un LabelType mostrado por <Label /> */
+function voucherTypeToLabelType(voucher?: string): LabelType {
+  const v = (voucher ?? "").toLowerCase();
+  if (v.includes("rosa")) return "vale-rosa";
+  if (v.includes("azul")) return "vale-azul";
+  // Fallback neutro si llega algo no esperado
+  return "restringido";
+}
 
 const usePettyCashHistory = () => {
   const { user } = useAuth();
   const [panelOpen, setPanelOpen] = useState(false);
-  const [selected, internalSetSelected] = useState<PettyCashHistoryRow | null>(null);
-  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(null);
+  const [selected, internalSetSelected] = useState<PettyCashHistoryRow | null>(
+    null,
+  );
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(
+    null,
+  );
 
   // Spinner global
   const { usePrincipalLoading } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
 
   // Mantén el history clásico si aún lo usas en otras vistas
-  const { history, loading: loadingHistory, forceFetchBillingHistory } = useBillingHistoryStore(
+  const {
+    history,
+    loading: loadingHistory,
+    forceFetchBillingHistory,
+  } = useBillingHistoryStore(
     (s) => ({
       history: s.history,
       loading: s.loading,
       forceFetchBillingHistory: s.forceFetchBillingHistory,
     }),
-    shallow
+    shallow,
   );
 
   const { successPut } = useBillingDocumentsStore(
     (s) => ({
       successPut: s.successPut,
     }),
-    shallow
+    shallow,
   );
 
   const { successPut: successPutImages } = useBillingImagesStore(
     (s) => ({
       successPut: s.successPut,
     }),
-    shallow
+    shallow,
   );
 
+  // Función para formatear fecha
+  function formatDate(dateString?: string): string {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day} / ${month} / ${year}`;
+  }
+
   // ======== PETTY CASH: vouchers por empleado (FULL) ========
-  const { vouchersFull, loading: loadingPetty, error: pettyError, fetchPettyCashVouchersByIdEmployee, fetchPettyCashVoucherById, pettyCashVoucherFull } =
-    useBillingPettyCash(
-      (state) => ({
-        vouchersFull: state.vouchersFull,
-        loading: state.loading,
-        error: state.error,
-        fetchPettyCashVouchersByIdEmployee: state.fetchPettyCashVouchersByIdEmployee,
-        fetchPettyCashVoucherById: state.fetchPettyCashVoucherById,
-        pettyCashVoucherFull: state.pettyCashVoucherFull,
-      }),
-      shallow
-    );
+  const {
+    vouchersFull,
+    loading: loadingPetty,
+    error: pettyError,
+    fetchPettyCashVouchersByIdEmployee,
+    fetchPettyCashVoucherById,
+    pettyCashVoucherFull,
+  } = useBillingPettyCash(
+    (state) => ({
+      vouchersFull: state.vouchersFull,
+      loading: state.loading,
+      error: state.error,
+      fetchPettyCashVouchersByIdEmployee:
+        state.fetchPettyCashVouchersByIdEmployee,
+      fetchPettyCashVoucherById: state.fetchPettyCashVoucherById,
+      pettyCashVoucherFull: state.pettyCashVoucherFull,
+    }),
+    shallow,
+  );
 
   // Disparo de datos
   useEffect(() => {
@@ -71,7 +106,11 @@ const usePettyCashHistory = () => {
 
     // Historial de vales por empleado (endpoint ByIdEmployee/{idEmployee})
     fetchPettyCashVouchersByIdEmployee(user.idEmployee);
-  }, [user?.idEmployee, forceFetchBillingHistory, fetchPettyCashVouchersByIdEmployee]);
+  }, [
+    user?.idEmployee,
+    forceFetchBillingHistory,
+    fetchPettyCashVouchersByIdEmployee,
+  ]);
 
   useEffect(() => {
     if (!selectedVoucherId) return;
@@ -88,12 +127,19 @@ const usePettyCashHistory = () => {
     if (successPut) setPanelOpen(false);
     if (successPutImages) setPanelOpen(false);
     hideSpinner();
-  }, [loadingHistory, loadingPetty, successPut, successPutImages, hideSpinner, showSpinner]);
+  }, [
+    loadingHistory,
+    loadingPetty,
+    successPut,
+    successPutImages,
+    hideSpinner,
+    showSpinner,
+  ]);
 
   // Rechazados del history clásico (si lo sigues mostrando en otra sección)
   const rejected = history.filter((r) => {
     const s = (r.status || "").toLowerCase();
-    return s === "prohibido" || s === "invalido" || s === "rechazado" || s === "restringido";
+    return s === "valido" || s === "en-proceso" || s === "rechazado";
   });
 
   // Proyección de vouchers Full -> filas HistoryRow para la tabla
@@ -104,8 +150,10 @@ const usePettyCashHistory = () => {
           typeof v.total === "number" && !Number.isNaN(v.total)
             ? v.total
             : typeof v.amount === "number" && !Number.isNaN(v.amount)
-            ? v.amount
-            : 0;
+              ? v.amount
+              : 0;
+
+        const voucherType = v.voucher_type ?? "";
 
         return {
           id: v.id,
@@ -118,13 +166,13 @@ const usePettyCashHistory = () => {
             client: v.project?.client ?? "",
           },
           requisitionkey: v.project?.proyectkey ?? "",
-          status: "valido",
+          status: "rechazado",
           xml: v.xml ?? "",
           pdf: v.pdf ?? "",
           image: "",
           comments: v.comments ?? "",
-          dateCreate: v.application_date ?? "",
-          certificationDate: v.application_date ?? "",
+          dateCreate: formatDate(v.application_date),
+          certificationDate: formatDate(v.application_date),
           uuid: v.uuid ?? "",
           description: {
             id_billingdescription: "",
@@ -136,17 +184,20 @@ const usePettyCashHistory = () => {
           },
           numpersons: 0,
           numnights: 0,
-          amount: total,
-          voucherType: v.voucher_type ?? "",
-          date: v.application_date ?? "",
+          amount: v.amount,
+          voucherType, // texto a mostrar
+          voucherLabelType: voucherTypeToLabelType(voucherType), // tipo para <Label />
+          date: formatDate(v.application_date),
           total,
           subtotal:
-            typeof v.subtotal === "number" && !Number.isNaN(v.subtotal) ? v.subtotal : 0,
+            typeof v.subtotal === "number" && !Number.isNaN(v.subtotal)
+              ? v.subtotal
+              : 0,
           iva: typeof v.iva === "number" && !Number.isNaN(v.iva) ? v.iva : 0,
           employeeName: v.employeename ?? "",
         } satisfies PettyCashHistoryRow;
       }),
-    [vouchersFull]
+    [vouchersFull],
   );
 
   const setSelected = useCallback(
@@ -154,7 +205,7 @@ const usePettyCashHistory = () => {
       internalSetSelected(row);
       setSelectedVoucherId(row?.id ?? null);
     },
-    [setSelectedVoucherId]
+    [setSelectedVoucherId],
   );
 
   const loading = loadingPetty || loadingHistory;

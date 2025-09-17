@@ -23,13 +23,15 @@ export const fetchPettyCashVouchersByIdEmployee = async (
   set({ loading: true, error: undefined });
 
   try {
-    const getReq = pGet(requireGateway('get'), [200]);
+    const getReq = pGet(requireGateway('get'));
     const res: AxiosResponse = await getReq(
       `${BillingPettyCashVoucherByIdEmployee}/${idEmployee}`
     );
 
     const vouchers = PettyCashVoucherByIdEmployeeMap(res?.data);
     set({ vouchersFull: vouchers, loading: false });
+    console.log('vouchers ', vouchers);
+    
     return vouchers;
   } catch (e) {
     const err = normalizeApiError(e);

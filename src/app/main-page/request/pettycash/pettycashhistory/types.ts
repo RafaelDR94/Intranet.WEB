@@ -1,6 +1,7 @@
 import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
 import { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
 import { PettyCashVoucherFull } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type { LabelType } from "@/app/components/Label/types";
 
 /**
  * Props para el componente {@link PictureTable}.
@@ -20,6 +21,7 @@ export type PettyCashHistoryRow = HistoryRow & {
   amount: number;
   /** Tipo de vale. */
   voucherType: string;
+    voucherLabelType: LabelType;
   /** Fecha normalizada para la tabla. */
   date: string;
   /** Total del vale. */

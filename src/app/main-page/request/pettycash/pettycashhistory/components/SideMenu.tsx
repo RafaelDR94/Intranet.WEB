@@ -4,37 +4,62 @@ import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import Label from "@/app/components/Label/Label";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import InvoicesForm from "@/app/main-page/accounting/personalInvoices/invoices/components/InvoicesForm/InvoicesForm";
-import TicketForm from "@/app/main-page/accounting/personalInvoices/invoices/components/TicketForm/TicketForm";
+import VoucherPink from "../../pettycashrequest/components/VoucherPink/VoucherPink";
+import VoucherBlue from "../../pettycashrequest/components/VoucherBlue/VoucherBlue";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 
 import { SideMenuProps } from "./types";
 
-
-
-
-const SideMenu = ({ panelOpen, setPanelOpen, selected, detail, isDetailLoading }: SideMenuProps) => {
+const SideMenu = ({
+  panelOpen,
+  setPanelOpen,
+  selected,
+  detail,
+  isDetailLoading,
+}: SideMenuProps) => {
   const submitRef = useRef<() => void | Promise<void>>(null);
   const { user, currentPagePermissions } = useAuth();
 
-  const projectCode = detail?.project?.proyectkey ?? selected?.project?.proyectKey ?? "";
-  const employeeName = detail?.employeename ?? selected?.employeeName ?? user?.fullName ?? "";
-  const certificationDate = detail?.application_date ?? selected?.dateCreate ?? "";
+  console.log("detail ", detail);
+
+  const projectCode =
+    detail?.project?.proyectkey ?? selected?.project?.proyectKey ?? "";
+  const employeeName =
+    detail?.employeename ?? selected?.employeeName ?? user?.fullName ?? "";
+  const certificationDate =
+    detail?.application_date ?? selected?.dateCreate ?? "";
   const voucherUuid = detail?.uuid ?? selected?.billingdocument_id ?? "";
   const xmlUrl = detail?.xml ?? selected?.xml ?? "";
   const pdfUrl = detail?.pdf ?? selected?.pdf ?? "";
   const imageUrl = selected?.image ?? "";
   const comments = detail?.comments ?? selected?.comments ?? "";
+  const rfcEmisor = detail?.rfc_emisor ?? "";
+  const rfcReceptor = detail?.rfc_receptor ?? "";
+  const subtotal = detail?.subtotal ?? "";
+  const iva = detail?.iva ?? "";
 
-  const amountValue = detail?.total ?? detail?.amount ?? selected?.total ?? selected?.amount ?? 0;
+  const amountValue =
+    detail?.total ?? detail?.amount ?? selected?.total ?? selected?.amount ?? 0;
 
   const formattedAmount = useMemo(() => {
     if (typeof amountValue !== "number") return "—";
     if (Number.isNaN(amountValue)) return "—";
-    return amountValue.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+    return amountValue.toLocaleString("es-MX", {
+      style: "currency",
+      currency: "MXN",
+    });
   }, [amountValue]);
+
+  function formatDate(dateString?: string): string {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day} / ${month} / ${year}`;
+  }
 
   return (
     <DetailsPanelLayout
@@ -44,9 +69,21 @@ const SideMenu = ({ panelOpen, setPanelOpen, selected, detail, isDetailLoading }
       leftLabel={selected ? `Usuario: ${employeeName}` : undefined}
       rightLabel={selected ? `Proyecto: ${projectCode}` : undefined}
       actionButton={
-        <>
-          {(currentPagePermissions?.canAddPicture || currentPagePermissions?.canAddDocuments) && (
-            <Button
+        // <>
+        //   {(currentPagePermissions?.canAddPicture ||
+        //     currentPagePermissions?.canAddDocuments) && (
+        //     <Button
+        //       size="large"
+        //       variant="solid"
+        //       hideIcon
+        //       onClick={() => submitRef.current?.()}
+        //       disabled={selected?.status?.toLocaleLowerCase() !== "rechazado"}
+        //     >
+        //       Reenviar
+        //     </Button>
+        //   )}
+        // </>
+        <Button
               size="large"
               variant="solid"
               hideIcon
@@ -55,14 +92,13 @@ const SideMenu = ({ panelOpen, setPanelOpen, selected, detail, isDetailLoading }
             >
               Reenviar
             </Button>
-          )}
-        </>
-
-
       }
       renderActions={() =>
         selected && (
-          <Label type={selected?.status?.toLocaleLowerCase() as any} text={(selected?.status ?? "").toUpperCase()} />
+          <Label
+            type={selected?.status?.toLocaleLowerCase() as any}
+            text={(selected?.status ?? "").toUpperCase()}
+          />
         )
       }
     >
@@ -72,21 +108,33 @@ const SideMenu = ({ panelOpen, setPanelOpen, selected, detail, isDetailLoading }
             <div className="text-gray-70 text-b4">Cargando detalle...</div>
           )}
 
-          {/* Código de Solicitud */}
-          <div className="flex items-baseline gap-2">
-            <span className="text-gray-90 text-b4 font-medium">Proyecto:</span>
-            <span className="text-gray-90 text-b3 font-regular">{projectCode || "—"}</span>
-          </div>
-
           {/* UUID */}
-          <div className="text-gray-90 text-s1 font-semibold ">
+          <div className="text-gray-90 text-s1 font-semibold">
             {voucherUuid || "—"}
           </div>
 
           {/* Fecha */}
           <div className="text-gray-90 text-b4 font-medium">
-            FECHA DEL VALE:&nbsp;
-            <span className="text-gray-90 text-b3 font-regular">{certificationDate || "—"}</span>
+            FECHA Y HORA DE CERTIFICACIÓN:&nbsp;
+            <span className="text-gray-90 text-b3 font-regular">
+              {formatDate(certificationDate) || "—"}
+            </span>
+          </div>
+
+          {/* RFC EMISOR */}
+          <div className="text-gray-90 text-b4 font-medium">
+            RFC EMISOR:&nbsp;
+            <span className="text-gray-90 text-b3 font-regular">
+              {rfcEmisor || "—"}
+            </span>
+          </div>
+
+          {/* RFC RECEPTOR */}
+          <div className="text-gray-90 text-b4 font-medium">
+            RFC RECEPTOR:&nbsp;
+            <span className="text-gray-90 text-b3 font-regular">
+              {rfcReceptor || "—"}
+            </span>
           </div>
 
           {/* Concepto */}
@@ -99,79 +147,175 @@ const SideMenu = ({ panelOpen, setPanelOpen, selected, detail, isDetailLoading }
 
           {/* Monto */}
           <div className="text-gray-90 text-b4 font-medium">
-            MONTO:&nbsp;
-            <span className="text-gray-90 text-b3 font-regular">{formattedAmount}</span>
+            <div className="flex flex-col items-end">
+              <p>
+                SUBTOTAL:&nbsp;
+                <span className="text-gray-90 text-b3 font-regular">
+                  ${subtotal}
+                </span>
+              </p>
+              <p>
+                (IVA 16%):&nbsp;
+                <span className="text-gray-90 text-b3 font-regular">
+                  ${iva}
+                </span>
+              </p>
+              <p>
+                TOTAL:&nbsp;
+                <span className="text-gray-90 text-b3 font-regular">
+                  {formattedAmount}
+                </span>
+              </p>
+            </div>
           </div>
 
           {/* Archivos enviados */}
           <div className="flex items-center justify-between">
-            <span className="text-gray-90 text-b4 font-medium">Archivos Enviados</span>
+            <span className="text-gray-90 text-b4 font-medium">
+              Archivos Enviados
+            </span>
             <div className="flex items-center gap-2">
-              {xmlUrl && <Button
-                size="xsmall"
-                variant="ghost"
-                icon={XMLIcon}
-                disabled={!xmlUrl}
-                onClick={() => window.open(xmlUrl, '_blank')}
-              />}
-              {pdfUrl && <Button
-                size="xsmall"
-                variant="ghost"
-                icon={PDFIcon}
-                disabled={!pdfUrl}
-                onClick={() => window.open(pdfUrl, '_blank')}
-              />}
-              {imageUrl && (
-                <Button size="xsmall" variant="ghost" icon={ImageIcon} onClick={() => window.open(imageUrl, '_blank')} />
+              {xmlUrl && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={XMLIcon}
+                  disabled={!xmlUrl}
+                  onClick={() => window.open(xmlUrl, "_blank")}
+                />
               )}
-
+              {pdfUrl && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={PDFIcon}
+                  disabled={!pdfUrl}
+                  onClick={() => window.open(pdfUrl, "_blank")}
+                />
+              )}
+              {imageUrl && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={ImageIcon}
+                  onClick={() => window.open(imageUrl, "_blank")}
+                />
+              )}
             </div>
           </div>
 
           {/* Comentarios */}
-          {comments &&
+          {comments && (
             <div className="space-y-1">
-              <div className="text-gray-90 text-b4 font-medium">Comentarios en Factura:</div>
-              <p className="text-gray-50 text-b4 font-medium p-2">
+              <div className="text-gray-90 text-b4 font-medium">
+                Comentarios:
+              </div>
+              <p className="text-b4 p-2 font-medium text-gray-50">
                 {comments || "—"}
               </p>
             </div>
-          }
+          )}
           {/* Editar Documento (como en la maqueta) */}
 
-          {selected.status?.toLocaleLowerCase() == "rechazado" && <>
-            <div className="text-gray-90 text-b4 font-medium">Editar documento:</div>
+          {selected.status?.toLocaleLowerCase() == "rechazado" && (
+            <>
+              <div className="text-gray-90 text-b4 font-medium">
+                Editar documento:
+              </div>
 
-            {/* Formulario */}
-            {(selected.xml || selected.pdf) ?
-              <div id="ticket-form">
-                <InvoicesForm
-                  responsiveLayoutMatrix={{
-                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                    md: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                    lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                  }}
-                  dataEdit={selected}
-                  externalSubmitRef={submitRef}
-                />
-              </div> :
-              <div id="ticket-form">
-                <TicketForm
-                  responsiveLayoutMatrix={{
-                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                    md: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                    lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                  }}
-                  dataEdit={selected}
-                  externalSubmitRef={submitRef}
-                />
-              </div>}
-          </>}
-
-
+              {/* Formulario */}
+              {selected.xml || selected.pdf ? (
+                <div>
+                  <VoucherPink
+                    responsiveLayoutMatrix={{
+                      sm: [
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                      ],
+                      md: [
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                      ],
+                      lg: [
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                      ],
+                    }}
+                    dataEdit={selected}
+                    externalSubmitRef={submitRef}
+                  />
+                </div>
+              ) : (
+                <div>
+                  <VoucherBlue
+                    responsiveLayoutMatrix={{
+                      sm: [
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                      ],
+                      md: [
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                      ],
+                      lg: [
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                      ],
+                    }}
+                    dataEdit={selected}
+                    externalSubmitRef={submitRef}
+                  />
+                </div>
+              )}
+            </>
+          )}
         </div>
       ) : (
-        <div className="text-gray-70 text-b3">Selecciona un registro para ver el detalle.</div>
+        <div className="text-gray-70 text-b3">
+          Selecciona un registro para ver el detalle.
+        </div>
       )}
     </DetailsPanelLayout>
   );
