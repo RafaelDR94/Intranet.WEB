@@ -34,8 +34,9 @@ const usePettyCashHistory = () => {
   const [selected, internalSetSelected] = useState<PettyCashHistoryRow | null>(null);
   const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(null);
 
-  const { usePrincipalLoading } = usePrincipal();
+  const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
+  const { showAlert, hideAlert } = usePrincipalAlert;
 
   const {
     history,
@@ -80,6 +81,10 @@ const usePettyCashHistory = () => {
     fetchPettyCashVouchersByIdEmployee,
     fetchPettyCashVoucherById,
     pettyCashVoucherFull,
+    deletePettyCashVoucher,
+    removing,
+    successDeleteVoucher,
+    resetFlags,
   } = useBillingPettyCash(
     (state) => ({
       vouchersFull: state.vouchersFull,
@@ -88,9 +93,17 @@ const usePettyCashHistory = () => {
       fetchPettyCashVouchersByIdEmployee: state.fetchPettyCashVouchersByIdEmployee,
       fetchPettyCashVoucherById: state.fetchPettyCashVoucherById,
       pettyCashVoucherFull: state.pettyCashVoucherFull,
+      deletePettyCashVoucher: state.deletePettyCashVoucher,
+      removing: state.removing,
+      successDeleteVoucher: state.successDeleteVoucher,
+      resetFlags: state.resetFlags,
     }),
     shallow
   );
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState<PettyCashHistoryRow | null>(null);
+  const [rowPendingDelete, setRowPendingDelete] = useState<PettyCashHistoryRow | null>(null);
 
   useEffect(() => {
     if (!user?.idEmployee) return;
@@ -106,9 +119,13 @@ const usePettyCashHistory = () => {
   }, [selectedVoucherId, fetchPettyCashVoucherById]);
 
   useEffect(() => {
-    const isLoading = loadingHistory || loadingPetty;
+    const isLoading = loadingHistory || loadingPetty || removing;
     if (isLoading) {
-      showSpinner({ message: "Obteniendo vales de caja chica..." });
+      showSpinner({
+        message: removing
+          ? "Espera un momento, el vale se está eliminando..."
+          : "Obteniendo vales de caja chica...",
+      });
       return;
     }
     if (successPut) setPanelOpen(false);
@@ -117,10 +134,79 @@ const usePettyCashHistory = () => {
   }, [
     loadingHistory,
     loadingPetty,
+    removing,
     successPut,
     successPutImages,
     hideSpinner,
     showSpinner,
+  ]);
+
+  useEffect(() => {
+    if (!rowPendingDelete) return;
+
+    if (successDeleteVoucher) {
+      if (user?.idEmployee) {
+        fetchPettyCashVouchersByIdEmployee(user.idEmployee);
+      }
+
+      if (selected?.id === rowPendingDelete.id) {
+        setSelected(null);
+        setPanelOpen(false);
+      }
+
+      showAlert({
+        type: "warning",
+        variant: "filled",
+        title: "Vale cancelado",
+        description:
+          rowPendingDelete.description?.name
+            ? `${rowPendingDelete.description.name} fue eliminado correctamente.`
+            : "El vale fue eliminado correctamente.",
+        autoCloseMs: 1800,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        onClose: hideAlert,
+      });
+
+      setRowPendingDelete(null);
+      resetFlags();
+      return;
+    }
+
+    if (!removing && pettyError) {
+      showAlert({
+        type: "error",
+        variant: "filled",
+        title: "No se pudo cancelar el vale",
+        description: pettyError,
+        showPrimaryButton: true,
+        primaryLabel: "Entendido",
+        onPrimaryClick: hideAlert,
+        showSecondaryButton: true,
+        secondaryLabel: "Reintentar",
+        onSecondaryClick: () => {
+          hideAlert();
+          setConfirmOpen(true);
+          setRowToDelete(rowPendingDelete);
+        },
+      });
+
+      setRowPendingDelete(null);
+      resetFlags();
+    }
+  }, [
+    fetchPettyCashVouchersByIdEmployee,
+    hideAlert,
+    pettyError,
+    removing,
+    resetFlags,
+    rowPendingDelete,
+    selected,
+    setPanelOpen,
+    setSelected,
+    showAlert,
+    successDeleteVoucher,
+    user?.idEmployee,
   ]);
 
   const rejected = history.filter((r) => {
@@ -204,8 +290,19 @@ const usePettyCashHistory = () => {
   };
 
   const onDelete = (row: PettyCashHistoryRow) => {
-    setSelected(row);
-    setPanelOpen(true); // podría abrir confirmación aquí si lo implementas
+    setRowToDelete(row);
+    setConfirmOpen(true);
+    setRowPendingDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!rowToDelete) return;
+
+    const current = rowToDelete;
+    setConfirmOpen(false);
+    setRowToDelete(null);
+    setRowPendingDelete(current);
+    await deletePettyCashVoucher(current.id);
   };
 
   const refresh = () => {
@@ -221,6 +318,11 @@ const usePettyCashHistory = () => {
     setSelected,
     onEdit,
     onDelete,
+    confirmOpen,
+    setConfirmOpen,
+    rowToDelete,
+    handleConfirmDelete,
+    removing,
     refresh,
     history,
     rejected,

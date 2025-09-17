@@ -10,46 +10,64 @@ import { PettyCashHistoryRow } from "./types";
 import { Button } from "@/app/components/Button/Button";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { DataTable } from "@/app/components/DataTable/DataTable";
-import { ColumnDefinition, ActionMenuCellProps } from "@/app/components/DataTable/types";
+import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { Label } from "@/app/components/Label/Label";
 import ContextMenu from "@/app/components/ContextMenu/ContextMenu";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { PopUp } from "@/app/components/PopUp/PopUp";
 import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
 import DeleteIcon from "@/assets/icons/acciones/trash.svg";
 import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg"
 
-const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
+type PettyCashActionMenuProps = {
+  row: PettyCashHistoryRow;
+  onEdit: (row: PettyCashHistoryRow) => void;
+  onDelete: (row: PettyCashHistoryRow) => void;
+};
+
+const ActionMenuCell: React.FC<PettyCashActionMenuProps> = ({
   row,
   onEdit,
   onDelete,
 }) => {
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  const handleEdit = React.useCallback(() => {
+    onEdit(row);
+    setMenuOpen(false);
+  }, [onEdit, row]);
+
+  const handleDelete = React.useCallback(() => {
+    onDelete(row);
+    setMenuOpen(false);
+  }, [onDelete, row]);
+
   const menuItems: any[] = [];
   if (currentPagePermissions?.details)
     menuItems.push({
       label: "Ver Detalle",
       icon: EditIcon,
-      onClick: () => {
-        onEdit(row);
-      },
+      onClick: handleEdit,
     });
   if (currentPagePermissions?.delete)
     menuItems.push({
       label: "Cancelar",
       icon: DeleteIcon,
       danger: true,
-      onClick: () => {
-        onDelete(row);
-      },
+      onClick: handleDelete,
     });
+  if (!menuItems.length) return null;
   return (
     <ContextMenu
       alignRight
       autoFlip
       trigger={<Button size="xsmall" variant="ghost" icon={isMobile ? RightArrowIcon : DotsIcon} />}
       items={menuItems}
+      isOpen={menuOpen}
+      setIsOpen={setMenuOpen}
     />
   );
 };
@@ -58,12 +76,16 @@ const PettyCashHistory = () => {
     panelOpen,
     setPanelOpen,
     selected,
-    setSelected,
     pettyCashAsHistoryRows,
     selectedDetail,
     detailLoading,
-    onEdit, 
+    onEdit,
     onDelete,
+    confirmOpen,
+    setConfirmOpen,
+    rowToDelete,
+    handleConfirmDelete,
+    removing,
   } = usePettyCashHistory();
 
   const isMobile = useIsMobile();
@@ -167,8 +189,30 @@ const PettyCashHistory = () => {
 
   const columns = isMobile ? columnsMobile : columnsDesktop;
 
+  const deleteTargetLabel =
+    rowToDelete?.description?.name?.trim() ||
+    rowToDelete?.requisitionkey?.trim() ||
+    rowToDelete?.voucherType?.trim() ||
+    rowToDelete?.id;
+
   return (
     <>
+      <PopUp
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="¿Deseas eliminar el vale seleccionado?"
+        content={
+          rowToDelete
+            ? `Esta acción cancelará el vale ${deleteTargetLabel}.`
+            : "Esta acción cancelará el vale seleccionado."
+        }
+        showSecondaryButton
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={() => setConfirmOpen(false)}
+        showPrimaryButton
+        primaryButtonText={removing ? "Eliminando…" : "Eliminar"}
+        onPrimaryButtonClick={handleConfirmDelete}
+      />
       <div className="space-y-8 overflow-auto">
         <DataTable
           showCalendar={true}
