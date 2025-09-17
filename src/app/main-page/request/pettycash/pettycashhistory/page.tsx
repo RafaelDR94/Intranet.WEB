@@ -112,23 +112,6 @@ const PettyCashHistory = () => {
       ),
     },
     {
-      key: "id",
-      label: "",
-      render: (row) => (
-        <Button
-          size="small"
-          variant="ghost"
-          hideIcon
-          onClick={() => {
-            setSelected(row);
-            setPanelOpen(true);
-          }}
-        >
-          Ver Detalle
-        </Button>
-      ),
-    },
-    {
       key: "actions" as unknown as keyof PettyCashHistoryRow,
       label: "",
       render: (row) => (

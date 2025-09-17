@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { shallow } from "zustand/shallow";
 
 import { useBillingPettyCash } from "../../../../../stores/useBillingPettyCash/useBillingPettyCash";
@@ -23,8 +23,6 @@ function voucherTypeToLabelType(voucher?: string): LabelType {
 
 const usePettyCashHistory = () => {
   const { user } = useAuth();
-  const path = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const hasIdParam =
@@ -201,10 +199,8 @@ const usePettyCashHistory = () => {
   // ======= NUEVAS FUNCIONES INTEGRADAS =======
 
   const onEdit = (row: PettyCashHistoryRow) => {
-    const clean = path.endsWith('/') ? path.slice(0, -1) : path;
-    const qs = new URLSearchParams(searchParams.toString());
-    qs.set("id", row.id);
-    router.push(`${clean}?${qs.toString()}`);
+    setSelected(row);
+    setPanelOpen(true);
   };
 
   const onDelete = (row: PettyCashHistoryRow) => {
