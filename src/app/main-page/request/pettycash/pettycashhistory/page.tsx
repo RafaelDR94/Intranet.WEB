@@ -10,7 +10,7 @@ import { PettyCashHistoryRow } from "./types";
 import { Button } from "@/app/components/Button/Button";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { DataTable } from "@/app/components/DataTable/DataTable";
-import { ColumnDefinition } from "@/app/components/DataTable/types";
+import { ColumnDefinition, ActionMenuCellProps } from "@/app/components/DataTable/types";
 import { Label } from "@/app/components/Label/Label";
 import ContextMenu from "@/app/components/ContextMenu/ContextMenu";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
