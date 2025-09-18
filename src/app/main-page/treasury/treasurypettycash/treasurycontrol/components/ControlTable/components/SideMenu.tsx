@@ -6,7 +6,7 @@ import { Button } from '@/app/components/Button/Button';
 import DetailsPanelLayout from '@/app/components/DetailsPanelLayout/DetailsPanelLayout';
 import Label from '@/app/components/Label/Label';
 import type { LabelType } from '@/app/components/Label/types';
-import type { ControlDetailPanelProps } from '../../types';
+import type { ControlSideMenuProps } from '../types';
 import PDFIcon from '@/assets/icons/Docs/page.svg';
 import XMLIcon from '@/assets/icons/Docs/privacy policy.svg';
 
@@ -20,25 +20,25 @@ const statusToLabelType = (status?: string): LabelType => {
   return normalized ? 'actualizado' : 'pendiente';
 };
 
-const ControlDetailPanel: React.FC<ControlDetailPanelProps> = ({
-  open,
-  onClose,
-  selectedRow,
+const SideMenu: React.FC<ControlSideMenuProps> = ({
+  panelOpen,
+  setPanelOpen,
+  selected,
   detail,
-  loading,
+  isDetailLoading,
   formatDate,
   formatMoney,
 }) => {
-  const employeeName = detail?.employeename || selectedRow?.employeeName || '';
+  const employeeName = detail?.employeename || selected?.employeeName || '';
   const projectCode = detail?.project?.proyectkey || detail?.petty_cash_funds?.year_month || '';
-  const status = selectedRow?.status;
-  const applicationDate = detail?.application_date || selectedRow?.applicationDate;
-  const provider = detail?.rfc_emisor || selectedRow?.provider || '';
-  const concept = detail?.concept || selectedRow?.concept || '';
-  const subtotal = detail?.subtotal ?? selectedRow?.subtotal;
-  const iva = detail?.iva ?? selectedRow?.iva;
-  const total = detail?.total ?? detail?.amount ?? selectedRow?.total;
-  const voucherType = detail?.voucher_type || selectedRow?.voucherType || '';
+  const status = selected?.status;
+  const applicationDate = detail?.application_date || selected?.applicationDate;
+  const provider = detail?.rfc_emisor || selected?.provider || selected?.rfcEmisor || '';
+  const concept = detail?.concept || selected?.concept || '';
+  const subtotal = detail?.subtotal ?? selected?.subtotal;
+  const iva = detail?.iva ?? selected?.iva;
+  const total = detail?.total ?? detail?.amount ?? selected?.total;
+  const voucherType = detail?.voucher_type || selected?.voucherType || '';
   const uuid = detail?.uuid || '';
   const comments = detail?.comments || '';
   const xmlUrl = detail?.xml || '';
@@ -49,18 +49,18 @@ const ControlDetailPanel: React.FC<ControlDetailPanelProps> = ({
 
   return (
     <DetailsPanelLayout
-      open={open}
+      open={panelOpen}
       withinContainer
-      onClose={onClose}
+      onClose={() => setPanelOpen(false)}
       leftLabel={employeeName ? `Colaborador: ${employeeName}` : undefined}
       rightLabel={projectCode ? `Proyecto: ${projectCode}` : undefined}
       renderActions={() =>
         status ? <Label type={statusToLabelType(status)} text={status.toUpperCase()} /> : null
       }
     >
-      {selectedRow ? (
+      {selected ? (
         <div className="space-y-4">
-          {loading && <div className="text-gray-70 text-b4">Cargando detalle...</div>}
+          {isDetailLoading && <div className="text-gray-70 text-b4">Cargando detalle...</div>}
 
           {uuid ? <div className="text-gray-90 text-s1 font-semibold">{uuid}</div> : null}
 
@@ -154,7 +154,7 @@ const ControlDetailPanel: React.FC<ControlDetailPanelProps> = ({
             </div>
           ) : null}
 
-          {!loading && !detail && (
+          {!isDetailLoading && !detail && (
             <div className="text-gray-70 text-b3">No se encontró información adicional del vale.</div>
           )}
         </div>
@@ -165,4 +165,4 @@ const ControlDetailPanel: React.FC<ControlDetailPanelProps> = ({
   );
 };
 
-export default ControlDetailPanel;
+export default SideMenu;

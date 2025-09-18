@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import ControlDetailPanel from './components/DetailPanel/ControlDetailPanel';
+import SideMenu from './components/SideMenu';
 import { useControlTable } from './hooks/useControlTable';
 import { actionCell, container } from './styles';
 import type { ActionMenuCellProps, ControlRow } from './types';
@@ -219,12 +219,16 @@ const ControlTable = () => {
         onPrimaryButtonClick={handleConfirmDelete}
       />
 
-      <ControlDetailPanel
-        open={detailOpen}
-        onClose={handleCloseDetail}
-        selectedRow={selectedRow}
+      <SideMenu
+        panelOpen={detailOpen}
+        setPanelOpen={(open) => {
+          if (!open) {
+            handleCloseDetail();
+          }
+        }}
+        selected={selectedRow}
         detail={detailData}
-        loading={detailLoading}
+        isDetailLoading={detailLoading}
         formatDate={formatDate}
         formatMoney={formatMoney}
       />
