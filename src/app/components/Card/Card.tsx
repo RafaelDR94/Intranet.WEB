@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { cardStyles } from './styles';
 import { CardProps } from './types';
@@ -46,14 +46,24 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
 export const Card: React.FC<CardProps> = ({
   orientation = 'vertical',
   imageSrc,
+  fallbackSrc,
   label,
   title,
   description,
   onAccept,
   onCancel,
-  showCancelButton = false,
+  showPrimaryButton = true,
+  showSecondaryButton = false,
+  primaryLabel = 'Aceptar',
+  secondaryLabel = 'Cancelar',
 }) => {
   const isVertical = orientation === 'vertical';
+  // Compute initial image: if empty, use fallback immediately
+  const initialSrc = useMemo(() => {
+    const main = (imageSrc ?? '').trim();
+    return main.length > 0 ? main : (fallbackSrc ?? '')
+  }, [imageSrc, fallbackSrc])
+  const [currentSrc, setCurrentSrc] = useState<string>(initialSrc)
 
   return (
     <div
@@ -69,11 +79,16 @@ export const Card: React.FC<CardProps> = ({
         )}
       >
         <Image
-          src={imageSrc}
+          src={currentSrc}
           alt="card image"
           layout="fill"
           objectFit="cover"
           className={cardStyles.Image}
+          onError={() => {
+            if (fallbackSrc && currentSrc !== fallbackSrc) {
+              setCurrentSrc(fallbackSrc)
+            }
+          }}
         />
       </div>
 
@@ -88,26 +103,28 @@ export const Card: React.FC<CardProps> = ({
             isVertical ? cardStyles.ActionsVertical : cardStyles.ActionsHorizontal
           )}
         >
-          {showCancelButton && (
+          {showSecondaryButton && (
             <button
               type="button"
               onClick={onCancel}
               className={cardStyles.CancelBtn}
             >
-              Cancelar
+              {secondaryLabel}
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={onAccept}
-            className={cx(
-              cardStyles.AcceptBtn,
-              !showCancelButton && cardStyles.AcceptBtnFull
-            )}
-          >
-            Aceptar
-          </button>
+          {showPrimaryButton && (
+            <button
+              type="button"
+              onClick={onAccept}
+              className={cx(
+                cardStyles.AcceptBtn,
+                !showSecondaryButton && cardStyles.AcceptBtnFull
+              )}
+            >
+              {primaryLabel}
+            </button>
+          )}
         </div>
       </div>
     </div>

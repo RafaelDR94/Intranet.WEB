@@ -119,6 +119,15 @@ export const monthRange = (ref: Date = new Date()) => ({
 // ------------------------------
 export const formatDateES = (date: Date | null): string =>
   date ? date.toLocaleDateString("es-ES") : "";
+export const  formatDate = (iso?: string) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}/${mm}/${dd}`;
+};
 
 // Acepta "YYYY-MM-DD HH:mm:ss(.fff)" o "YYYY-MM-DDTHH:mm:ss" y devuelve "YYYY-MM-DD HH:mm"
 export const formatDateHour = (s: string): string => {

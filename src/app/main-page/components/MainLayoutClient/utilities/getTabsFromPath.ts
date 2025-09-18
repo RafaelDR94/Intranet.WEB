@@ -30,22 +30,37 @@ export const getTabsFromPath = (
       { label: 'Requisiciones', path: '/main-page/accounting/requisitions/requisitions' },
       { label: 'Listado de Requisiciones', path: '/main-page/accounting/requisitions/requisitionsList' },
     ],
+    'sip/proyects': [
+      { label: 'Nuevo Proyecto', path: '/main-page/sip/proyects/newproyect' },
+      { label: 'Proyectos', path: '/main-page/sip/proyects/proyectslist' },
+    ],
   };
 
   let tabs = tabsMap[key] || tabsMap[first] || [];
 
   let id: string | null = null;
+  let labelparam: string | null = null;
   if (search) {
     const sp = typeof search === 'string' ? new URLSearchParams(search) : search;
     id = sp.get('id');
+    labelparam = sp.get('label');
   }
 
   // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id
-  if (first === 'accounting' && second === 'requisitions' && third =='requisitionsList'&& id) {
+  if (first === 'accounting' && second === 'requisitions' && third == 'requisitionsList' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
     const detailPath = `${clean}?id=${id}`;
     if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
-      tabs = [...tabs, { label: 'Detalle de Requisición', path: detailPath }];
+      tabs = [...tabs, { label: labelparam||'Detalle de Requisición', path: detailPath }];
+    }
+  }
+
+  // SIP/Proyectos: agrega tab dinámica para edición si viene un id
+  if (first === 'sip' && second === 'proyects' && id) {
+    const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+    const detailPath = `${clean}?id=${id}`;
+    if (!tabs.some(t => t.label === 'Editar Proyecto')) {
+      tabs = [...tabs, { label: labelparam||'Editar Proyecto', path: detailPath }];
     }
   }
 

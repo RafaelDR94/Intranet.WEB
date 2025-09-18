@@ -29,7 +29,7 @@ vi.mock('@/app/components/Button/Button', () => ({ Button: (props: any) => <butt
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({ useAuth: () => ({ currentPagePermissions: { downloadDocuments: true } }) }))
 
 const meta: Meta<typeof RequisitionDetailsDocument> = {
-  title: 'MainPage/Accounting/Requisitions/RequisitionDetailsDocument',
+  title: 'MainPage/Accounting/Requisitions/RequisitionsList/RequisitionDetails/RequisitionDetailsDocument',
   component: RequisitionDetailsDocument,
   tags: ['autodocs'],
 }

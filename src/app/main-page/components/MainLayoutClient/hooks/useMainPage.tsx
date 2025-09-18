@@ -38,7 +38,14 @@ export const sidebarRoutes = [
       { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
     ],
   },
-
+  {
+    label: 'SIP',
+    path: '/main-page/sip',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Proyectos', path: '/main-page/sip/proyects' },
+    ],
+  },
 
 ];
 
@@ -124,8 +131,8 @@ export const useMainPage = () => {
         type: 'notification',
         showSecondaryButton: false,
         primaryLabel: 'Cerrar',
-        onPrimaryClick:firebaseMessaging.closeNotificacion,
-        onClose:firebaseMessaging.closeNotificacion
+        onPrimaryClick: firebaseMessaging.closeNotificacion,
+        onClose: firebaseMessaging.closeNotificacion
       });
     }
   }, [firebaseMessaging, showAlert]);

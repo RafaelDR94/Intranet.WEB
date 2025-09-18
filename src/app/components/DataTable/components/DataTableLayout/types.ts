@@ -35,4 +35,11 @@ export interface TableLayoutProps {
   downloadDisabled?: boolean
   /** Maneja la acción de descarga */
   onDownload?: (kind: 'pdf' | 'excel') => void
+
+  /** Muestra conmutador de vista (lista/tarjetas) */
+  showViewToggle?: boolean
+  /** Vista actual: true si es tarjetas */
+  isCardsView?: boolean
+  /** Cambia la vista */
+  onToggleView?: (isCards: boolean) => void
 }

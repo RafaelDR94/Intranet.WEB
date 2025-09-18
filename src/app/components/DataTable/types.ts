@@ -70,6 +70,8 @@ export interface DataTableGroup<T> {
    * Acepta valores en px o cualquier unidad CSS válida.
    */
   scrollMaxHeight?: number | string
+  /** Adaptador para vista como tarjetas (opcional por tabla) */
+  cardAdapt?: CardAdapt<T>
 }
 
 /**
@@ -160,4 +162,33 @@ export interface DataTableProps<T = any> {
   dataTableTitle?: string;
   /** Inicia con la tabla colapsada. */
   startCollpas?:boolean; 
+  /** Si es verdadero, intenta renderizar cada tabla como grilla de tarjetas usando `cardAdapt` */
+  useCardsView?: boolean;
+  /** Muestra el conmutador de vista en el layout */
+  showViewSwitcher?: boolean;
+}
+
+/** Mapeo de campos para adaptar filas (T) a tarjetas renderizables */
+export interface CardAdapt<T> {
+  /** key o función para el título */
+  titleKey: keyof T | ((row: T) => string)
+  /** key o función para el label pequeño */
+  labelKey?: keyof T | ((row: T) => string)
+  /** key o función para la descripción */
+  descriptionKey?: keyof T | ((row: T) => string)
+  /** key o función para la URL de imagen */
+  imageKey?: keyof T | ((row: T) => string)
+  /** Acción primaria (click en botón principal) */
+  onPrimaryAction: (row: T) => void
+  /** Etiqueta de botón primario */
+  primaryLabel?: string
+  /** Acción secundaria opcional */
+  onSecondaryAction?: (row: T) => void
+  /** Etiqueta de botón secundario */
+  secondaryLabel?: string
+  /** Mostrar/ocultar botones */
+  showPrimaryButton?: boolean
+  showSecondaryButton?: boolean
+  /** Número de tarjetas por página (opcional, por defecto `rowsPerPage`) */
+  cardsPerPage?: number
 }

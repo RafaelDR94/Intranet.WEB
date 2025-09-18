@@ -1,0 +1,60 @@
+"use client";
+import React from 'react';
+
+import useActivitiesViewer from './hooks/useActivitiesViewe';
+import { ActivitiesViewerProps } from './types';
+
+import { Card } from '@/app/components/Card/Card';
+import PaginationDots from '@/app/components/PaginationDots/PaginationDots';
+export const ActivitiesViewer: React.FC<ActivitiesViewerProps> = ({
+  items,
+  dataTestId = 'activities-viewer',
+  maxWidthClassName = 'max-w-6xl',
+  columns,
+}) => {
+  const {pageItems,start,totalPages, containerRef, effectiveCols, currentInWindow, visibleCount, windowStart, setPage } = useActivitiesViewer(
+    items,
+    columns,
+  );
+
+
+  return (
+    <div className="w-full">
+      <div ref={containerRef} className={`w-full mx-auto ${maxWidthClassName}`} data-testid={dataTestId}>
+        <div
+          className="grid gap-6"
+          style={{ gridTemplateColumns: `repeat(${effectiveCols}, minmax(0, 1fr))` }}
+          data-testid={`${dataTestId}-grid`}
+        >
+          {pageItems.map((it, idx) => (
+            <div key={`${start + idx}`} className="flex justify-center">
+              <Card
+                orientation="vertical"
+                imageSrc={it.image ?? ''}
+                fallbackSrc={it.image ?? ''}
+                label=""
+                title={it.title}
+                description={it.description ?? ''}
+                showPrimaryButton={false}
+                showSecondaryButton={false}
+                onAccept={() => { }}
+              />
+            </div>
+          ))}
+        </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-center pt-4">
+            <PaginationDots
+              totalPages={visibleCount}
+              currentPage={currentInWindow}
+              onPageChange={(localIdx) => setPage(windowStart + localIdx)}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ActivitiesViewer;

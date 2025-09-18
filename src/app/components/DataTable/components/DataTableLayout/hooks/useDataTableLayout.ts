@@ -71,6 +71,11 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     isDownloadOpen,
     setIsDownloadOpen,
     handleDownload
+    ,
+    // Passthrough view toggle
+    showViewToggle: props.showViewToggle,
+    isCardsView: props.isCardsView,
+    onToggleView: props.onToggleView
   };
 };
 

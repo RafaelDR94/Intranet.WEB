@@ -1,9 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import CollapsibleSection from '../CollapsibleSection/CollapsibleSection'
 
+import CardsGrid from './components/CardsGrid/CardsGrid'
 import DataTableContent from './components/DataTableContent/DataTableContent'
 import DataTableLayout from './components/DataTableLayout/DataTableLayout'
 import useDataTable from './hooks/useDataTable'
@@ -41,7 +42,9 @@ export const DataTable = <T extends { id: string | number }>({
   dateKey,
   onSelectedChange,
   dataTableTitle,
-  startCollpas=false
+  startCollpas = false,
+  useCardsView = false,
+  showViewSwitcher = false
 
 
 }: DataTableProps<T>) => {
@@ -59,15 +62,19 @@ export const DataTable = <T extends { id: string | number }>({
     enableInternalSearch,
     searchableKeys,
     dateKey,
-    
+
   })
 
+const [isCardsView, setIsCardsView] = React.useState(false);
 
+useEffect(() => {
+  setIsCardsView(!!useCardsView);
+}, [useCardsView]);
   return (
     <div className="space-y-8">
       {tables.length > 1 && (
         <DataTableLayout
-        
+
           onSearchChange={handleSearchChange}
           onCalendarClick={onCalendarClick}
           onFilterClick={onFilterClick}
@@ -83,7 +90,10 @@ export const DataTable = <T extends { id: string | number }>({
           onTableActionClick={onTableActionClick}
           showDownloadTable={showDownloadTable}
           downloadDisabled={!Object.values(selectedRows).some((r) => r?.length)}
-          onDownload={(kind) => handleDownload(kind,tables,dataTableTitle)}
+          onDownload={(kind) => handleDownload(kind, tables, dataTableTitle)}
+          showViewToggle={showViewSwitcher}
+          isCardsView={isCardsView}
+          onToggleView={(v) => setIsCardsView(!!v)}
         />
       )}
 
@@ -115,27 +125,50 @@ export const DataTable = <T extends { id: string | number }>({
                 actionsRender={actionsRender}
                 onTableActionClick={onTableActionClick}
                 downloadDisabled={!(selectedRows[index]?.length)}
-                onDownload={(kind) => handleDownload(kind,tables,dataTableTitle,index)}
+                onDownload={(kind) => handleDownload(kind, tables, dataTableTitle, index)}
+                showViewToggle={showViewSwitcher}
+                isCardsView={isCardsView}
+                onToggleView={(v) => setIsCardsView(!!v)}
               />
             )}
-            <DataTableContent
-              data={filteredData}
-              columns={table.columns}
-              enableSelection={table.enableSelection}
-              defaultSortDirection={table?.defaultSortDirection}
-              defaultSortKey={table.defaultSortKey}
-              enablePagination={enablePagination}
-              rowsPerPage={rowsPerPage}
-              totalRows={table.totalRows}
-              enableInternalSearch={enableInternalSearch}
-              onPageChange={onPageChange}
-              onSelectedChange={(rows) => handleSelectedChange(index, rows)}
-              scrollMaxHeight={table.scrollMaxHeight}
-              showButton={showButton}
-              actionsRender={actionsRender}
-              onTableActionClick={onTableActionClick}
-              actionLabel={actionLabel}
-            />
+            {isCardsView && table.cardAdapt ? (
+              <CardsGrid
+                data={filteredData as unknown as T[]}
+                adapt={{
+                  titleKey: table.cardAdapt.titleKey as any,
+                  labelKey: table.cardAdapt.labelKey as any,
+                  descriptionKey: table.cardAdapt.descriptionKey as any,
+                  imageKey: table.cardAdapt.imageKey as any,
+                  onPrimaryAction: table.cardAdapt.onPrimaryAction as any,
+                  primaryLabel: table.cardAdapt.primaryLabel,
+                  onSecondaryAction: table.cardAdapt.onSecondaryAction as any,
+                  secondaryLabel: table.cardAdapt.secondaryLabel,
+                  showPrimaryButton: table.cardAdapt.showPrimaryButton,
+                  showSecondaryButton: table.cardAdapt.showSecondaryButton,
+                  cardsPerPage: table.cardAdapt.cardsPerPage,
+                }}
+                rowsPerPage={rowsPerPage}
+              />
+            ) : (
+              <DataTableContent
+                data={filteredData}
+                columns={table.columns}
+                enableSelection={table.enableSelection}
+                defaultSortDirection={table?.defaultSortDirection}
+                defaultSortKey={table.defaultSortKey}
+                enablePagination={enablePagination}
+                rowsPerPage={rowsPerPage}
+                totalRows={table.totalRows}
+                enableInternalSearch={enableInternalSearch}
+                onPageChange={onPageChange}
+                onSelectedChange={(rows) => handleSelectedChange(index, rows)}
+                scrollMaxHeight={table.scrollMaxHeight}
+                showButton={showButton}
+                actionsRender={actionsRender}
+                onTableActionClick={onTableActionClick}
+                actionLabel={actionLabel}
+              />
+            )}
           </CollapsibleSection>
         )
       })}
