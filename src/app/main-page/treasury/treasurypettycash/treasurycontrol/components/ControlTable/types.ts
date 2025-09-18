@@ -39,3 +39,20 @@ export type ActionMenuCellProps = {
 };
 
 export type ControlDetail = PettyCashVoucherFull;
+
+export type ControlDetailPanelProps = {
+  /** Controls whether the detail sidebar is visible. */
+  open: boolean;
+  /** Handler used to close the detail sidebar. */
+  onClose: () => void;
+  /** Row currently selected in the table. */
+  selectedRow: ControlRow | null;
+  /** Detail information loaded from the backend. */
+  detail: ControlDetail | null;
+  /** Indicates whether the detail information is still loading. */
+  loading: boolean;
+  /** Formats dates to human readable strings. */
+  formatDate: (date?: string) => string;
+  /** Formats monetary values in MXN. */
+  formatMoney: (value?: number) => string;
+};

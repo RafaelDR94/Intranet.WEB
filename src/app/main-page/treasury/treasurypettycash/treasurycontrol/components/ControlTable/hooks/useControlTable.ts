@@ -142,11 +142,9 @@ export const useControlTable = () => {
     setSelectedRow(row);
     setDetailOpen(true);
     setDetailLoading(true);
+    setDetailData(null);
     const detail = await fetchPettyCashVoucherById(row.id, true);
     if (!detail) {
-      setDetailData(null);
-      setDetailOpen(false);
-      setSelectedRow(null);
       showAlert({
         type: 'error',
         variant: 'filled',

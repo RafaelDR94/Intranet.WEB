@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import ControlDetailPanel from './components/DetailPanel/ControlDetailPanel';
 import { useControlTable } from './hooks/useControlTable';
 import { actionCell, container } from './styles';
 import type { ActionMenuCellProps, ControlRow } from './types';
@@ -218,32 +219,15 @@ const ControlTable = () => {
         onPrimaryButtonClick={handleConfirmDelete}
       />
 
-      <PopUp
+      <ControlDetailPanel
         open={detailOpen}
         onClose={handleCloseDetail}
-        title="Detalle del vale"
-        content={detailLoading ? 'Cargando detalle…' : ''}
-        showSecondaryButton
-        secondaryButtonText="Cerrar"
-        onSecondaryButtonClick={handleCloseDetail}
-      >
-        {!detailLoading && detailData && (
-          <div className="space-y-2 text-left">
-            <p><strong>Colaborador:</strong> {detailData.employeename || '—'}</p>
-            <p><strong>Fecha:</strong> {formatDate(detailData.application_date) || '—'}</p>
-            <p><strong>Proveedor:</strong> {detailData.rfc_emisor || '—'}</p>
-            <p><strong>Concepto:</strong> {detailData.concept || '—'}</p>
-            <p><strong>Subtotal:</strong> {formatMoney(detailData.subtotal)}</p>
-            <p><strong>IVA:</strong> {formatMoney(detailData.iva)}</p>
-            <p><strong>Total:</strong> {formatMoney(detailData.total ?? detailData.amount)}</p>
-            <p><strong>Tipo de vale:</strong> {detailData.voucher_type || '—'}</p>
-            <p><strong>Status:</strong> {selectedRow?.status || '—'}</p>
-          </div>
-        )}
-        {!detailLoading && !detailData && (
-          <p className="text-left">No se encontró información del vale.</p>
-        )}
-      </PopUp>
+        selectedRow={selectedRow}
+        detail={detailData}
+        loading={detailLoading}
+        formatDate={formatDate}
+        formatMoney={formatMoney}
+      />
 
       {currentPagePermissions?.read && (
         <DataTable
