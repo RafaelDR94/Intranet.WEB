@@ -53,6 +53,15 @@ export const useTreasuryVoucherBlue = ({
   );
   const { setFields, updateField, resetFields } = useFormFieldsStore.getState();
 
+  const getFieldValue = useCallback(
+    (fieldName: string) => {
+      const formFields =
+        useFormFieldsStore.getState().fieldsByFormId[formId] ?? [];
+      return formFields.find((field) => field.name === fieldName)?.value;
+    },
+    [formId],
+  );
+
   const { proyects, proyectsError, fetchProyects } = useProyectsStore(
     (s) => ({
       proyects: s.proyects,
@@ -89,8 +98,7 @@ export const useTreasuryVoucherBlue = ({
       value: employee.employee_id,
     }));
 
-    const currentField = fields.find((f) => f.name === "personName");
-    const currentValue = currentField?.value as string | undefined;
+    const currentValue = getFieldValue("personName") as string | undefined;
     const defaultValue =
       currentValue && options.some((opt) => opt.value === currentValue)
         ? currentValue
@@ -102,24 +110,25 @@ export const useTreasuryVoucherBlue = ({
     });
   }, [
     employees,
-    fields,
     formId,
     updateField,
     dataEdit?.employee_id,
     user?.idEmployee,
+    getFieldValue,
   ]);
 
   const UpdateProyects = useCallback(() => {
     if (proyects?.length) {
+      const currentValue = getFieldValue("project") as string | undefined;
       updateField(formId, "project", {
         options: proyects.map((p: Proyect) => ({
           label: p.proyectKey,
           value: p.id,
         })),
-        value: dataEdit?.project_id ?? fields.find((f) => f.name === "project")?.value ?? "",
+        value: dataEdit?.project_id ?? currentValue ?? "",
       });
     }
-  }, [proyects, formId, updateField, dataEdit?.project_id, fields]);
+  }, [proyects, formId, updateField, dataEdit?.project_id, getFieldValue]);
 
   const ResetForm = useCallback(() => {
     resetFields(formId);
