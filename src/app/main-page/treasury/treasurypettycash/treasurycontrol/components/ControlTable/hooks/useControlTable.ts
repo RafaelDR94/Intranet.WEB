@@ -9,6 +9,14 @@ import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore';
 import { useBillingPettyCash } from '@/app/stores/useBillingPettyCash/useBillingPettyCash';
 import { formatDateES } from '@/app/utilities/DatesHelper/Dateshelper';
+import type { LabelType } from "@/app/components/Label/types";
+
+function voucherTypeToLabelType(voucher?: string): LabelType {
+  const v = (voucher ?? "").toLowerCase();
+  if (v.includes("rosa")) return "vale-rosa";
+  if (v.includes("azul")) return "vale-azul";
+  return "restringido";
+}
 
 /**
  * Handles data loading, filtering and row actions for the petty cash control table.
@@ -104,6 +112,8 @@ export const useControlTable = () => {
           : typeof voucher.amount === 'number' && !Number.isNaN(voucher.amount)
           ? voucher.amount
           : undefined;
+        
+        const voucherType = voucher.voucher_type ?? "";
 
       return {
         id: voucher.id,
@@ -115,6 +125,7 @@ export const useControlTable = () => {
         iva,
         total: totalCandidate,
         voucherType: voucher.voucher_type,
+        voucherLabelType: voucherTypeToLabelType(voucherType),
         status: voucher.status,
         rfcEmisor: voucher.rfc_emisor,
       } satisfies ControlRow;

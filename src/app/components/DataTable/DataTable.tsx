@@ -9,6 +9,7 @@ import DataTableContent from './components/DataTableContent/DataTableContent'
 import DataTableLayout from './components/DataTableLayout/DataTableLayout'
 import useDataTable from './hooks/useDataTable'
 import { DataTableProps } from './types'
+import type { TextSize } from './components/DataTableContent/components/DataTableBody/DataTableBody'
 
 /**
  * `DataTable` – Renderiza una o varias tablas con:
@@ -19,7 +20,6 @@ import { DataTableProps } from './types'
  * - Selección de filas y descarga (opcional)
  *
  * @template T Debe incluir `{ id: string | number }`.
- *
  */
 export const DataTable = <T extends { id: string | number }>({
   onSearch,
@@ -44,9 +44,8 @@ export const DataTable = <T extends { id: string | number }>({
   dataTableTitle,
   startCollpas = false,
   useCardsView = false,
-  showViewSwitcher = false
-
-
+  showViewSwitcher = false,
+  textSize, // <-- NUEVO: tamaño global opcional
 }: DataTableProps<T>) => {
 
   const {
@@ -62,24 +61,23 @@ export const DataTable = <T extends { id: string | number }>({
     enableInternalSearch,
     searchableKeys,
     dateKey,
-
   })
 
-const [isCardsView, setIsCardsView] = React.useState(false);
+  const [isCardsView, setIsCardsView] = React.useState(false)
 
-useEffect(() => {
-  setIsCardsView(!!useCardsView);
-}, [useCardsView]);
+  useEffect(() => {
+    setIsCardsView(!!useCardsView)
+  }, [useCardsView])
+
   return (
     <div className="space-y-8">
       {tables.length > 1 && (
         <DataTableLayout
-
           onSearchChange={handleSearchChange}
           onCalendarClick={onCalendarClick}
           onFilterClick={onFilterClick}
           onDateRangeChange={(s?: Date | null, e?: Date | null) => {
-            handleDateChange(s ?? null, e ?? null);
+            handleDateChange(s ?? null, e ?? null)
           }}
           onSearch={onSearch}
           actionLabel={actionLabel}
@@ -97,24 +95,24 @@ useEffect(() => {
         />
       )}
 
-
       {tables.map((table, index) => {
         const filteredData = getFilteredData(table)
+        const effectiveTextSize: TextSize | undefined = table.textSize ?? textSize
+
         return (
           <CollapsibleSection
-            key={index + "table"}
+            key={index + 'table'}
             title={table?.title}
             enableCollapse={table.enableCollaps}
             defaultOpen={!startCollpas}
           >
-
             {tables.length === 1 && (
               <DataTableLayout
                 onSearchChange={handleSearchChange}
                 onCalendarClick={onCalendarClick}
                 onFilterClick={onFilterClick}
                 onDateRangeChange={(s?: Date | null, e?: Date | null) => {
-                  handleDateChange(s ?? null, e ?? null); // normaliza undefined -> null
+                  handleDateChange(s ?? null, e ?? null)
                 }}
                 onSearch={onSearch}
                 actionLabel={actionLabel}
@@ -125,12 +123,15 @@ useEffect(() => {
                 actionsRender={actionsRender}
                 onTableActionClick={onTableActionClick}
                 downloadDisabled={!(selectedRows[index]?.length)}
-                onDownload={(kind) => handleDownload(kind, tables, dataTableTitle, index)}
+                onDownload={(kind) =>
+                  handleDownload(kind, tables, dataTableTitle, index)
+                }
                 showViewToggle={showViewSwitcher}
                 isCardsView={isCardsView}
                 onToggleView={(v) => setIsCardsView(!!v)}
               />
             )}
+
             {isCardsView && table.cardAdapt ? (
               <CardsGrid
                 data={filteredData as unknown as T[]}
@@ -167,6 +168,7 @@ useEffect(() => {
                 actionsRender={actionsRender}
                 onTableActionClick={onTableActionClick}
                 actionLabel={actionLabel}
+                textSize={effectiveTextSize} // <-- aplica aquí
               />
             )}
           </CollapsibleSection>

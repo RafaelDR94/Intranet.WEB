@@ -1,35 +1,49 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
-import SideMenu from './components/SideMenu';
-import { useControlTable } from './hooks/useControlTable';
-import { actionCell, container } from './styles';
-import type { ActionMenuCellProps, ControlRow } from './types';
+import SideMenu from "./components/SideMenu";
+import { useControlTable } from "./hooks/useControlTable";
+import { actionCell, container } from "./styles";
+import type { ActionMenuCellProps, ControlRow } from "./types";
 
-import { Button } from '@/app/components/Button/Button';
-import { ContextMenu } from '@/app/components/ContextMenu/ContextMenu';
-import type { ContextMenuItem } from '@/app/components/ContextMenu/types';
-import { DataTable } from '@/app/components/DataTable/DataTable';
-import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery';
-import type { ColumnDefinition } from '@/app/components/DataTable/types';
-import Label from '@/app/components/Label/Label';
-import type { LabelType } from '@/app/components/Label/types';
-import { PopUp } from '@/app/components/PopUp/PopUp';
-import { useAuth } from '@/app/context/AuthContext/AuthContext';
-import { formatCurrency } from '@/app/utilities/FormatHelpers/FormatHelpets';
-import DeleteIcon from '@/assets/icons/acciones/trash.svg';
-import EditIcon from '@/assets/icons/Editor/edit-pencil.svg';
-import DotsIcon from '@/assets/icons/navegacion/more-horiz.svg';
-import RightArrowIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
+import { Button } from "@/app/components/Button/Button";
+import { ContextMenu } from "@/app/components/ContextMenu/ContextMenu";
+import type { ContextMenuItem } from "@/app/components/ContextMenu/types";
+import { DataTable } from "@/app/components/DataTable/DataTable";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import type { ColumnDefinition } from "@/app/components/DataTable/types";
+import Label from "@/app/components/Label/Label";
+import type { LabelType } from "@/app/components/Label/types";
+import { PopUp } from "@/app/components/PopUp/PopUp";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
+import DeleteIcon from "@/assets/icons/acciones/trash.svg";
+import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
+import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
+import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
 
-const truthyPermissionStrings = new Set(['true', '1', 'yes', 'y', 'si', 'sí', 'allow']);
-const falsyPermissionStrings = new Set(['false', '0', 'no', 'deny', 'disabled']);
+const truthyPermissionStrings = new Set([
+  "true",
+  "1",
+  "yes",
+  "y",
+  "si",
+  "sí",
+  "allow",
+]);
+const falsyPermissionStrings = new Set([
+  "false",
+  "0",
+  "no",
+  "deny",
+  "disabled",
+]);
 
 const interpretPermission = (value: unknown): boolean | undefined => {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'number') return value !== 0;
-  if (typeof value === 'string') {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value === "string") {
     const normalized = value.trim().toLowerCase();
     if (!normalized) return undefined;
     if (truthyPermissionStrings.has(normalized)) return true;
@@ -39,38 +53,45 @@ const interpretPermission = (value: unknown): boolean | undefined => {
 };
 
 const formatMoney = (value?: number) => {
-  if (typeof value === 'number' && !Number.isNaN(value)) {
+  if (typeof value === "number" && !Number.isNaN(value)) {
     return formatCurrency(value);
   }
-  return '—';
+  return "—";
 };
 
 const statusToLabelType = (status?: string): LabelType => {
-  const normalized = (status ?? '').toLowerCase();
-  if (normalized.includes('rechaz')) return 'rechazado';
-  if (normalized.includes('proceso')) return 'en-proceso';
-  if (normalized.includes('valid')) return 'valido';
-  if (normalized.includes('pend')) return 'pendiente';
-  if (normalized.includes('no deducible')) return 'prohibido';
-  return normalized ? 'actualizado' : 'pendiente';
+  const normalized = (status ?? "").toLowerCase();
+  if (normalized.includes("rechaz")) return "rechazado";
+  if (normalized.includes("proceso")) return "en-proceso";
+  if (normalized.includes("valid")) return "valido";
+  if (normalized.includes("pend")) return "pendiente";
+  if (normalized.includes("no deducible")) return "prohibido";
+  return normalized ? "actualizado" : "pendiente";
 };
 
 const StatusBadge: React.FC<{ status?: string }> = ({ status }) => (
-  <Label type={statusToLabelType(status)} text={status || 'Pendiente'} />
+  <Label type={statusToLabelType(status)} text={status || "Pendiente"} />
 );
 
-const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onView, onDelete }) => {
+const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
+  row,
+  onView,
+  onDelete,
+}) => {
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   const menuItems = React.useMemo<ContextMenuItem[]>(() => {
     const items: ContextMenuItem[] = [];
-    const rawPermissions = (currentPagePermissions ?? {}) as Record<string, unknown>;
+    const rawPermissions = (currentPagePermissions ?? {}) as Record<
+      string,
+      unknown
+    >;
     const canView = interpretPermission(rawPermissions.details);
     if (canView !== false) {
       items.push({
-        label: 'Ver Detalle',
+        label: "Ver Detalle",
         icon: EditIcon,
         onClick: () => {
           onView(row);
@@ -82,7 +103,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onView, onDelete }
     const canDelete = interpretPermission(rawPermissions.delete);
     if (canDelete ?? true) {
       items.push({
-        label: 'Eliminar',
+        label: "Eliminar",
         icon: DeleteIcon,
         danger: true,
         onClick: () => {
@@ -93,7 +114,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onView, onDelete }
     }
 
     if (!items.length) {
-      items.push({ label: 'Sin acciones disponibles', disabled: true });
+      items.push({ label: "Sin acciones disponibles", disabled: true });
     }
 
     return items;
@@ -105,7 +126,13 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onView, onDelete }
       setIsOpen={setMenuOpen}
       alignRight
       autoFlip
-      trigger={<Button size="xsmall" variant="ghost" icon={isMobile ? RightArrowIcon : DotsIcon} />}
+      trigger={
+        <Button
+          size="xsmall"
+          variant="ghost"
+          icon={isMobile ? RightArrowIcon : DotsIcon}
+        />
+      }
       items={menuItems}
     />
   );
@@ -136,42 +163,56 @@ const ControlTable = () => {
 
   const columnsDesktop: ColumnDefinition<ControlRow>[] = React.useMemo(
     () => [
-      { key: 'employeeName', label: 'COLABORADOR', render: (row) => <span>{row.employeeName || '—'}</span> },
       {
-        key: 'applicationDate',
-        label: 'FECHA',
-        render: (row) => <span>{formatDate(row.applicationDate) || '—'}</span>,
+        key: "employeeName",
+        label: "COLABORADOR",
+        render: (row) => <span>{row.employeeName || "—"}</span>,
       },
-      { key: 'provider', label: 'PROVEEDOR', render: (row) => <span>{row.provider || '—'}</span> },
-      { key: 'concept', label: 'CONCEPTO', render: (row) => <span>{row.concept || '—'}</span> },
       {
-        key: 'subtotal',
-        label: 'SUBTOTAL',
+        key: "applicationDate",
+        label: "FECHA",
+        render: (row) => <span>{formatDate(row.applicationDate) || "—"}</span>,
+      },
+      {
+        key: "provider",
+        label: "PROVEEDOR",
+        render: (row) => <span>{row.provider || "—"}</span>,
+      },
+      {
+        key: "concept",
+        label: "CONCEPTO",
+        render: (row) => <span>{row.concept || "—"}</span>,
+      },
+      {
+        key: "subtotal",
+        label: "SUBTOTAL",
         render: (row) => <span>{formatMoney(row.subtotal)}</span>,
       },
       {
-        key: 'iva',
-        label: 'IVA',
+        key: "iva",
+        label: "IVA",
         render: (row) => <span>{formatMoney(row.iva)}</span>,
       },
       {
-        key: 'total',
-        label: 'TOTAL',
+        key: "total",
+        label: "TOTAL",
         render: (row) => <span>{formatMoney(row.total)}</span>,
       },
       {
-        key: 'voucherType',
-        label: 'TIPO DE VALE',
-        render: (row) => <span className="capitalize">{row.voucherType || '—'}</span>,
+        key: "voucherType",
+        label: "TIPO DE VALE",
+        render: (row) => (
+          <Label type={row?.voucherLabelType} text={row?.voucherType} />
+        ),
       },
       {
-        key: 'status',
-        label: 'STATUS',
+        key: "status",
+        label: "STATUS",
         render: (row) => <StatusBadge status={row.status} />,
       },
       {
-        key: 'actions' as unknown as keyof ControlRow,
-        label: '',
+        key: "actions" as unknown as keyof ControlRow,
+        label: "",
         render: (row) => (
           <div className={actionCell}>
             <ActionMenuCell row={row} onView={onView} onDelete={onDelete} />
@@ -180,31 +221,31 @@ const ControlTable = () => {
         invisible: false,
       },
     ],
-    [onDelete, onView]
+    [onDelete, onView],
   );
 
   const columnsMobile: ColumnDefinition<ControlRow>[] = React.useMemo(
     () => [
-      { key: 'employeeName', label: 'COLABORADOR' },
+      { key: "employeeName", label: "COLABORADOR" },
       {
-        key: 'status',
-        label: 'STATUS',
+        key: "status",
+        label: "STATUS",
         render: (row) => <StatusBadge status={row.status} />,
       },
       {
-        key: 'actions' as unknown as keyof ControlRow,
-        label: '',
+        key: "actions" as unknown as keyof ControlRow,
+        label: "",
         render: (row) => (
           <div className="flex justify-end pr-2">
             <ActionMenuCell row={row} onView={onView} onDelete={onDelete} />
           </div>
         ),
-        cellClass: 'w-12 text-right',
-        headerClass: 'w-12',
+        cellClass: "w-12 text-right",
+        headerClass: "w-12",
         invisible: false,
       },
     ],
-    [onDelete, onView]
+    [onDelete, onView],
   );
 
   const columns = isMobile ? columnsMobile : columnsDesktop;
@@ -218,13 +259,13 @@ const ControlTable = () => {
         content={
           rowToDelete
             ? `Esta acción confirmará la eliminación del vale seleccionado. Una vez confirmada no podrás revertirla.`
-            : 'Esta acción confirmará la eliminación del vale seleccionado.'
+            : "Esta acción confirmará la eliminación del vale seleccionado."
         }
         showSecondaryButton
         secondaryButtonText="Cancelar"
         onSecondaryButtonClick={() => setConfirmOpen(false)}
         showPrimaryButton
-        primaryButtonText={removing ? 'Eliminando…' : 'Eliminar'}
+        primaryButtonText={removing ? "Eliminando…" : "Eliminar"}
         onPrimaryButtonClick={handleConfirmDelete}
       />
 
@@ -242,23 +283,24 @@ const ControlTable = () => {
         formatMoney={formatMoney}
       />
 
-      {currentPagePermissions?.read && (
+      {!currentPagePermissions?.read && (
         <DataTable
-          showCalendar={false}
-          showFilter={false}
+          showCalendar={true}
+          showFilter={true}
           showDownloadTable
           showButton={false}
-          onSearchChange={(value) => setQuery(value ?? '')}
+          onSearchChange={(value) => setQuery(value ?? "")}
           onFilterClick={refresh}
+          textSize={{ mobile: 'c2', desktop: 'text-d3' }}
           tables={[
             {
               data: rows,
               columns,
               enableSelection: true,
-              title: 'Control de vales',
+              title: "Reporte de gastos de caja chica",
               enableCollaps: true,
-              defaultSortKey: 'applicationDate',
-              defaultSortDirection: 'desc',
+              defaultSortKey: "applicationDate",
+              defaultSortDirection: "desc",
             },
           ]}
         />

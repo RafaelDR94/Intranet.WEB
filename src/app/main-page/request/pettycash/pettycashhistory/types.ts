@@ -21,7 +21,7 @@ export type PettyCashHistoryRow = HistoryRow & {
   amount: number;
   /** Tipo de vale. */
   voucherType: string;
-    voucherLabelType: LabelType;
+  voucherLabelType: LabelType;
   /** Fecha normalizada para la tabla. */
   date: string;
   /** Total del vale. */

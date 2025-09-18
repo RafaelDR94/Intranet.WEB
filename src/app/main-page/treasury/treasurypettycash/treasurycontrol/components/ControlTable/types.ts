@@ -1,4 +1,5 @@
 import type { PettyCashVoucherFull } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
+import type { LabelType } from "@/app/components/Label/types";
 
 /**
  * Row shape used by the petty cash control table.
@@ -22,6 +23,7 @@ export type ControlRow = {
   total?: number;
   /** Voucher type label. */
   voucherType?: string;
+  VoucherLabelType: LabelType;
   /** Current status for the voucher. */
   status?: string;
   /** RFC del emisor for quick reference. */

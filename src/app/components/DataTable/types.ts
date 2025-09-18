@@ -1,3 +1,5 @@
+import type { TextSize } from "./components/DataTableContent/components/DataTableBody/DataTableBody"
+
 /**
  * Define la estructura de cada columna de la tabla.
  *
@@ -166,6 +168,8 @@ export interface DataTableProps<T = any> {
   useCardsView?: boolean;
   /** Muestra el conmutador de vista en el layout */
   showViewSwitcher?: boolean;
+   /** Nuevo: tamaño de texto global (fallback si la tabla no define textSize) */
+  textSize?: TextSize
 }
 
 /** Mapeo de campos para adaptar filas (T) a tarjetas renderizables */
