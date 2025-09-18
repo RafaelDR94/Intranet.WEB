@@ -16,8 +16,8 @@ export const deletePettyCashVoucher = async (set: Set, id: string): Promise<bool
   set({ removing: true, error: undefined, successDeleteVoucher: false })
 
   try {
-    const del = pDelete(requireGateway('delete'), [200, 201])
-    const res: AxiosResponse = await del(`${BillingPettyCashVoucher}/${id}`, DeletePettyCashVoucherIdMap({ id }))
+    const del = pDelete(requireGateway('del'), [200, 204])
+    const res: AxiosResponse = await del(`${BillingPettyCashVoucher}/${id}`)
     set({ removing: false, successDeleteVoucher: true })
     return Boolean(res)
   } catch (e) {

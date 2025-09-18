@@ -13,7 +13,7 @@ import Summary from "./components/Summary/Summary";
 const ControlCards = () => {
   return (
     <div className="flex justify-between">
-      <div className="rounded-lg">
+      <div className="rounded-lg w-[36%]">
         <Summary
           date={new Date(2025, 8, 25)}
           assigned={30010.03}

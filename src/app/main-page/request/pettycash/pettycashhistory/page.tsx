@@ -258,11 +258,11 @@ const PettyCashHistory = () => {
       <PopUp
         open={confirmOpen}
         onClose={handleCancelDelete}
-        title="¿Deseas eliminar el vale seleccionado?"
+        title="Eliminar Vale"
         content={
           rowToDelete
-            ? `Esta acción cancelará el vale ${deleteTargetLabel}.`
-            : "Esta acción cancelará el vale seleccionado."
+            ? `Esta acción confirmará la eliminación del vale seleccionado. Una vez confirmado, no podrás revertir el cambio.`
+            : "Esta acción confirmará la eliminación del vale seleccionado"
         }
         showSecondaryButton
         secondaryButtonText="Cancelar"

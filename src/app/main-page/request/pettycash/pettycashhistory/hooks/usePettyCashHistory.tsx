@@ -296,14 +296,41 @@ const usePettyCashHistory = () => {
   };
 
   const handleConfirmDelete = async () => {
-    if (!rowToDelete) return;
+    const current = rowToDelete
+    if (!current) return
+    setConfirmOpen(false)
 
-    const current = rowToDelete;
-    setConfirmOpen(false);
-    setRowToDelete(null);
-    setRowPendingDelete(current);
-    await deletePettyCashVoucher(current.id);
-  };
+    showSpinner({ message: 'Espera un momento, el documento se está eliminando' })
+    const ok = await deletePettyCashVoucher(current.id)
+    hideSpinner()
+    setRowToDelete(null)
+
+    if (ok) {
+      showAlert({
+        type: 'warning',
+        variant: 'filled',
+        title: 'Requisición eliminada',
+        description: `Fue eliminada correctamente.`,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+        onClose: hideAlert,
+      })
+    } else {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'No se pudo eliminar',
+        description: 'Intenta de nuevo en unos segundos.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+        showSecondaryButton: true,
+        secondaryLabel: 'Reintentar',
+        onSecondaryClick: () => { hideAlert(); onDelete(current) },
+      })
+    }
+  }
 
   const handleCancelDelete = () => {
     setConfirmOpen(false);
