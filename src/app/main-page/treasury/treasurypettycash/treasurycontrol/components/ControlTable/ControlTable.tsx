@@ -62,6 +62,7 @@ const StatusBadge: React.FC<{ status?: string }> = ({ status }) => (
 const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onView, onDelete }) => {
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   const menuItems = React.useMemo<ContextMenuItem[]>(() => {
     const items: ContextMenuItem[] = [];
@@ -71,7 +72,10 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onView, onDelete }
       items.push({
         label: 'Ver Detalle',
         icon: EditIcon,
-        onClick: () => onView(row),
+        onClick: () => {
+          onView(row);
+          setMenuOpen(false);
+        },
       });
     }
 
@@ -81,7 +85,10 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onView, onDelete }
         label: 'Eliminar',
         icon: DeleteIcon,
         danger: true,
-        onClick: () => onDelete(row),
+        onClick: () => {
+          onDelete(row);
+          setMenuOpen(false);
+        },
       });
     }
 
@@ -90,10 +97,12 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onView, onDelete }
     }
 
     return items;
-  }, [currentPagePermissions, onDelete, onView, row]);
+  }, [currentPagePermissions, onDelete, onView, row, setMenuOpen]);
 
   return (
     <ContextMenu
+      isOpen={menuOpen}
+      setIsOpen={setMenuOpen}
       alignRight
       autoFlip
       trigger={<Button size="xsmall" variant="ghost" icon={isMobile ? RightArrowIcon : DotsIcon} />}
