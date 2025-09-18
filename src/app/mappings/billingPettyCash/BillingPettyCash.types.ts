@@ -67,6 +67,24 @@ export type PettyCashVoucherData = {
   project_id: string;
   xml: string;
   pdf: string;
+  /** Nombre del colaborador asociado al vale (si está disponible). */
+  employeename?: string;
+  /** Identificador del proveedor o emisor de la factura. */
+  provider?: string;
+  /** UUID del comprobante si el API lo expone en la respuesta ligera. */
+  uuid?: string;
+  /** RFC del emisor del comprobante. */
+  rfc_emisor?: string;
+  /** RFC del receptor del comprobante. */
+  rfc_receptor?: string;
+  /** Subtotal del comprobante. */
+  subtotal?: number;
+  /** IVA del comprobante. */
+  iva?: number;
+  /** Total del comprobante. */
+  total?: number;
+  /** Estatus del vale (pendiente, válido, rechazado, etc.). */
+  status?: string;
 };
 
 export type GetPettyCashVoucherById = {

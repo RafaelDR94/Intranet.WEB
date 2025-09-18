@@ -64,6 +64,22 @@ export const PettyCashVoucherMap = (raw: any): PettyCashVoucherData => ({
 
   xml: toString(raw?.xml),
   pdf: toString(raw?.pdf),
+
+  // Campos adicionales expuestos en algunas respuestas del endpoint general
+  employeename: toString(raw?.employeename ?? raw?.employee_name),
+  provider: toString(
+    raw?.provider ??
+      raw?.petty_cash_funds?.provider ??
+      raw?.petty_cash_funds?.provider_name ??
+      raw?.rfc_emisor
+  ),
+  uuid: toString(raw?.uuid),
+  rfc_emisor: toString(raw?.rfc_emisor),
+  rfc_receptor: toString(raw?.rfc_receptor),
+  subtotal: toNumber(raw?.subtotal),
+  iva: toNumber(raw?.iva),
+  total: toNumber(raw?.total ?? raw?.amount),
+  status: toString(raw?.status),
 });
 
 export const PettyCashVouchersMap = (list: any[]): PettyCashVoucherData[] =>
