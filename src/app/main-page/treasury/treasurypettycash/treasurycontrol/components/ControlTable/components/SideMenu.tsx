@@ -2,21 +2,11 @@
 
 import React from "react";
 
+import type { ControlSideMenuProps } from "../types";
+
 import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import Label from "@/app/components/Label/Label";
-import type { LabelType } from "@/app/components/Label/types";
-import type { ControlSideMenuProps } from "../types";
-
-const statusToLabelType = (status?: string): LabelType => {
-  const normalized = (status ?? "").toLowerCase();
-  if (normalized.includes("rechaz")) return "rechazado";
-  if (normalized.includes("proceso")) return "en-proceso";
-  if (normalized.includes("valid")) return "valido";
-  if (normalized.includes("pend")) return "pendiente";
-  if (normalized.includes("no deducible")) return "prohibido";
-  return normalized ? "actualizado" : "pendiente";
-};
 
 const SideMenu: React.FC<ControlSideMenuProps> = ({
   panelOpen,
@@ -26,11 +16,14 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   isDetailLoading,
   formatDate,
   formatMoney,
+  onValidate,
+  onReject,
+  isValidating = false,
+  isRejecting = false,
 }) => {
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
     detail?.project?.proyectkey || detail?.petty_cash_funds?.year_month || "";
-  const status = selected?.status;
   const applicationDate = detail?.application_date || selected?.applicationDate;
   const provider =
     detail?.rfc_emisor || selected?.provider || selected?.rfcEmisor || "";
@@ -63,21 +56,27 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               size="medium"
               variant="solid"
               hideIcon
+              disabled={!selected || isDetailLoading || isValidating}
               onClick={() => {
-                /**To Do enviar a SAP */
+                if (onValidate) {
+                  onValidate(selected);
+                }
               }}
             >
-              Validar
+              {isValidating ? "Validando…" : "Validar"}
             </Button>
             <Button
               size="medium"
               variant="outline"
               hideIcon
+              disabled={!selected || isDetailLoading || isRejecting}
               onClick={() => {
-                /**To Do enviar a SAP */
+                if (onReject) {
+                  onReject(selected);
+                }
               }}
             >
-              Rechazar
+              {isRejecting ? "Rechazando…" : "Rechazar"}
             </Button>
         </div>
       }

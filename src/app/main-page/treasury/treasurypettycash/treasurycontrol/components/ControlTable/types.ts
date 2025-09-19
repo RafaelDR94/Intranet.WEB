@@ -1,5 +1,5 @@
-import type { PettyCashVoucherFull } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 import type { LabelType } from "@/app/components/Label/types";
+import type { PettyCashVoucherFull } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 
 /**
  * Row shape used by the petty cash control table.
@@ -57,4 +57,12 @@ export type ControlSideMenuProps = {
   formatDate: (date?: string) => string;
   /** Formats monetary values in MXN. */
   formatMoney: (value?: number) => string;
+  /** Callback executed when the user validates a voucher. */
+  onValidate?: (row: ControlRow | null) => void;
+  /** Callback executed when the user rejects a voucher. */
+  onReject?: (row: ControlRow | null) => void;
+  /** Indicates whether a validation action is currently executing. */
+  isValidating?: boolean;
+  /** Indicates whether a rejection action is currently executing. */
+  isRejecting?: boolean;
 };

@@ -5,11 +5,12 @@ import { shallow } from 'zustand/shallow';
 
 import type { ControlDetail, ControlRow } from '../types';
 
+import type { LabelType } from "@/app/components/Label/types";
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import type { PettyCashVoucherData } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore';
 import { useBillingPettyCash } from '@/app/stores/useBillingPettyCash/useBillingPettyCash';
 import { formatDateES } from '@/app/utilities/DatesHelper/Dateshelper';
-import type { LabelType } from "@/app/components/Label/types";
 
 function voucherTypeToLabelType(voucher?: string): LabelType {
   const v = (voucher ?? "").toLowerCase();
@@ -17,6 +18,40 @@ function voucherTypeToLabelType(voucher?: string): LabelType {
   if (v.includes("azul")) return "vale-azul";
   return "restringido";
 }
+
+const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
+  const subtotal =
+    typeof voucher.subtotal === 'number' && !Number.isNaN(voucher.subtotal)
+      ? voucher.subtotal
+      : undefined;
+  const iva =
+    typeof voucher.iva === 'number' && !Number.isNaN(voucher.iva)
+      ? voucher.iva
+      : undefined;
+  const totalCandidate =
+    typeof voucher.total === 'number' && !Number.isNaN(voucher.total)
+      ? voucher.total
+      : typeof voucher.amount === 'number' && !Number.isNaN(voucher.amount)
+      ? voucher.amount
+      : undefined;
+
+  const voucherType = voucher.voucher_type ?? '';
+
+  return {
+    id: voucher.id,
+    employeeName: voucher.employeename?.trim() || voucher.employee_id || '',
+    applicationDate: voucher.application_date,
+    provider: voucher.provider?.trim() || voucher.rfc_emisor?.trim() || '',
+    concept: voucher.concept,
+    subtotal,
+    iva,
+    total: totalCandidate,
+    voucherType: voucher.voucher_type,
+    voucherLabelType: voucherTypeToLabelType(voucherType),
+    status: voucher.status,
+    rfcEmisor: voucher.rfc_emisor,
+  } satisfies ControlRow;
+};
 
 /**
  * Handles data loading, filtering and row actions for the petty cash control table.
@@ -42,9 +77,14 @@ export const useControlTable = () => {
     loading,
     error,
     removing,
+    validating,
+    rejecting,
     fetchPettyCashVouchers,
     fetchPettyCashVoucherById,
+    fetchPettyCashFunds,
     deletePettyCashVoucher,
+    validatePettyCashVoucher,
+    rejectPettyCashVoucher,
     resetFlags,
   } = useBillingPettyCash(
     (state) => ({
@@ -52,9 +92,14 @@ export const useControlTable = () => {
       loading: state.loading,
       error: state.error,
       removing: state.removing,
+      validating: state.validating,
+      rejecting: state.rejecting,
       fetchPettyCashVouchers: state.fetchPettyCashVouchers,
       fetchPettyCashVoucherById: state.fetchPettyCashVoucherById,
+      fetchPettyCashFunds: state.fetchPettyCashFunds,
       deletePettyCashVoucher: state.deletePettyCashVoucher,
+      validatePettyCashVoucher: state.validatePettyCashVoucher,
+      rejectPettyCashVoucher: state.rejectPettyCashVoucher,
       resetFlags: state.resetFlags,
     }),
     shallow
@@ -94,42 +139,12 @@ export const useControlTable = () => {
   }, [error, fetchPettyCashVouchers, hideAlert, isFetchingDetail, showAlert]);
 
   useEffect(() => {
-    if (loading || removing || isFetchingDetail) return;
+    if (loading || removing || validating || rejecting || isFetchingDetail) return;
     resetFlags();
-  }, [isFetchingDetail, loading, removing, resetFlags]);
+  }, [isFetchingDetail, loading, removing, validating, rejecting, resetFlags]);
 
   const rows: ControlRow[] = useMemo(() => {
-    const base = pettyCashVouchers.map((voucher) => {
-      const subtotal = typeof voucher.subtotal === 'number' && !Number.isNaN(voucher.subtotal)
-        ? voucher.subtotal
-        : undefined;
-      const iva = typeof voucher.iva === 'number' && !Number.isNaN(voucher.iva)
-        ? voucher.iva
-        : undefined;
-      const totalCandidate =
-        typeof voucher.total === 'number' && !Number.isNaN(voucher.total)
-          ? voucher.total
-          : typeof voucher.amount === 'number' && !Number.isNaN(voucher.amount)
-          ? voucher.amount
-          : undefined;
-        
-        const voucherType = voucher.voucher_type ?? "";
-
-      return {
-        id: voucher.id,
-        employeeName: voucher.employeename?.trim() || voucher.employee_id || '',
-        applicationDate: voucher.application_date,
-        provider: voucher.provider?.trim() || voucher.rfc_emisor?.trim() || '',
-        concept: voucher.concept,
-        subtotal,
-        iva,
-        total: totalCandidate,
-        voucherType: voucher.voucher_type,
-        voucherLabelType: voucherTypeToLabelType(voucherType),
-        status: voucher.status,
-        rfcEmisor: voucher.rfc_emisor,
-      } satisfies ControlRow;
-    });
+    const base = pettyCashVouchers.map(mapVoucherToControlRow);
 
     if (!query) return base;
     const normalized = query.toLowerCase();
@@ -147,6 +162,20 @@ export const useControlTable = () => {
       return haystack.includes(normalized);
     });
   }, [pettyCashVouchers, query]);
+
+  useEffect(() => {
+    const selectedId = selectedRow?.id;
+    if (!selectedId) return;
+
+    const updatedVoucher = pettyCashVouchers.find((voucher) => voucher.id === selectedId);
+    if (!updatedVoucher) return;
+
+    setSelectedRow((prev) => {
+      if (!prev || prev.id !== selectedId) return prev;
+      const mapped = mapVoucherToControlRow(updatedVoucher);
+      return { ...prev, ...mapped };
+    });
+  }, [pettyCashVouchers, selectedRow?.id]);
 
   const onView = async (row: ControlRow) => {
     setIsFetchingDetail(true);
@@ -219,6 +248,102 @@ export const useControlTable = () => {
     }
   };
 
+  const handleValidate = async (row: ControlRow | null) => {
+    const target = row ?? selectedRow;
+    if (!target) return;
+
+    showSpinner({ message: 'Validando vale seleccionado…' });
+    const ok = await validatePettyCashVoucher(target.id);
+    const selectedId = selectedRow?.id;
+    const panelOpen = detailOpen;
+
+    if (ok) {
+      await Promise.all([fetchPettyCashVouchers(true), fetchPettyCashFunds(true)]);
+
+      if (panelOpen && selectedId === target.id) {
+        setDetailLoading(true);
+        try {
+          const detail = await fetchPettyCashVoucherById(target.id, true);
+          setDetailData(detail);
+        } finally {
+          setDetailLoading(false);
+        }
+      }
+
+      hideSpinner();
+      showAlert({
+        type: 'success',
+        variant: 'filled',
+        title: 'Vale validado',
+        description: 'El vale se validó correctamente.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2000,
+        onClose: hideAlert,
+      });
+    } else {
+      hideSpinner();
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'No se pudo validar el vale',
+        description: 'Intenta de nuevo en unos segundos.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      resetFlags();
+    }
+  };
+
+  const handleReject = async (row: ControlRow | null) => {
+    const target = row ?? selectedRow;
+    if (!target) return;
+
+    showSpinner({ message: 'Rechazando vale seleccionado…' });
+    const ok = await rejectPettyCashVoucher(target.id);
+    const selectedId = selectedRow?.id;
+    const panelOpen = detailOpen;
+
+    if (ok) {
+      await Promise.all([fetchPettyCashVouchers(true), fetchPettyCashFunds(true)]);
+
+      if (panelOpen && selectedId === target.id) {
+        setDetailLoading(true);
+        try {
+          const detail = await fetchPettyCashVoucherById(target.id, true);
+          setDetailData(detail);
+        } finally {
+          setDetailLoading(false);
+        }
+      }
+
+      hideSpinner();
+      showAlert({
+        type: 'warning',
+        variant: 'filled',
+        title: 'Vale rechazado',
+        description: 'El vale se rechazó correctamente.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2000,
+        onClose: hideAlert,
+      });
+    } else {
+      hideSpinner();
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'No se pudo rechazar el vale',
+        description: 'Intenta de nuevo en unos segundos.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      resetFlags();
+    }
+  };
+
   const refresh = (start?: Date, end?: Date) => {
     void start;
     void end;
@@ -258,5 +383,9 @@ export const useControlTable = () => {
     selectedRow,
     handleCloseDetail,
     formatDate,
+    handleValidate,
+    handleReject,
+    validating,
+    rejecting,
   };
 };
