@@ -10,8 +10,8 @@ import type { ActionMenuCellProps, ControlRow } from "./types";
 import { Button } from "@/app/components/Button/Button";
 import { ContextMenu } from "@/app/components/ContextMenu/ContextMenu";
 import type { ContextMenuItem } from "@/app/components/ContextMenu/types";
-import { DataTable } from "@/app/components/DataTable/DataTable";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import type { LabelType } from "@/app/components/Label/types";
@@ -156,6 +156,10 @@ const ControlTable = () => {
     selectedRow,
     handleCloseDetail,
     formatDate,
+    handleValidate,
+    handleReject,
+    validating,
+    rejecting,
   } = useControlTable();
 
   const isMobile = useIsMobile();
@@ -221,7 +225,7 @@ const ControlTable = () => {
         invisible: false,
       },
     ],
-    [onDelete, onView],
+    [formatDate, onDelete, onView],
   );
 
   const columnsMobile: ColumnDefinition<ControlRow>[] = React.useMemo(
@@ -281,6 +285,10 @@ const ControlTable = () => {
         isDetailLoading={detailLoading}
         formatDate={formatDate}
         formatMoney={formatMoney}
+        onValidate={handleValidate}
+        onReject={handleReject}
+        isValidating={validating}
+        isRejecting={rejecting}
       />
 
       {!currentPagePermissions?.read && (

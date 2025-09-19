@@ -1,42 +1,50 @@
 import React from "react";
+
+import { Button } from "@/app/components/Button/Button";
 // Ajusta esta ruta a donde tengas tu componente Donut
 import Donut from "@/app/components/Donut/Donut";
-import { Button } from "@/app/components/Button/Button";
+
+type SummaryProps = {
+  title?: string;
+  date?: Date | string | null;
+  assigned?: number;
+  available?: number;
+  percent?: number;
+  className?: string;
+};
 
 /**
  * Tarjeta estilo "Control de Fondo Fijo de Caja Chica".
- *
- * Props:
- * - title?: string
- * - date?: Date | string  // se formatea a "25 de Septiembre"
- * - assigned: number      // monto asignado
- * - available: number     // monto disponible
- * - percent: number       // 0-100, porcentaje para la gráfica
- * - className?: string
  */
 export default function Summary({
   title = "Control de Fondo Fijo de Caja Chica",
-  date = new Date(),
-  assigned = 30010.03,
-  available = 15000,
-  percent = 50,
+  date = null,
+  assigned = 0,
+  available = 0,
+  percent = 0,
   className = "",
-}) {
-  const percentClamped = Math.max(0, Math.min(100, Number(percent) || 0));
+}: SummaryProps) {
+  const percentValue =
+    typeof percent === "number" && !Number.isNaN(percent) ? percent : 0;
+  const percentClamped = Math.max(0, Math.min(100, percentValue));
 
-  const formatCurrency = (n) =>
+  const formatCurrency = (n?: number) =>
     new Intl.NumberFormat("es-MX", {
       style: "currency",
       currency: "MXN",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(Number(n || 0));
+    }).format(typeof n === "number" && !Number.isNaN(n) ? n : 0);
 
-  const capitalize = (s) =>
+  const capitalize = (s?: string) =>
     (s?.charAt(0)?.toUpperCase() || "") + (s?.slice(1) || "");
 
-  const formatDateEs = (d) => {
+  const formatDateEs = (d: SummaryProps["date"]) => {
+    if (!d) return "—";
     const dateObj = typeof d === "string" ? new Date(d) : d;
+    if (!(dateObj instanceof Date) || Number.isNaN(dateObj.getTime())) {
+      return "—";
+    }
     const day = dateObj.getDate();
     const month = dateObj.toLocaleString("es-MX", { month: "long" });
     return `${day} de ${capitalize(month)}`;
