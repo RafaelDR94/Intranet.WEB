@@ -10,14 +10,14 @@ import { PettyCashHistoryRow } from "./types";
 import { Button } from "@/app/components/Button/Button";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { DataTable } from "@/app/components/DataTable/DataTable";
-import { ColumnDefinition, ActionMenuCellProps } from "@/app/components/DataTable/types";
+import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { Label } from "@/app/components/Label/Label";
 import ContextMenu from "@/app/components/ContextMenu/ContextMenu";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
-import DeleteIcon from "@/assets/icons/acciones/trash.svg";
+import CancelIcon from "@/assets/icons/acciones/cancel.svg"
 import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
 import type { ContextMenuItem } from "@/app/components/ContextMenu/types";
 
@@ -103,7 +103,7 @@ const ActionMenuCell: React.FC<PettyCashActionMenuProps> = ({
     if (cancelPermission ?? true) {
       items.push({
         label: "Cancelar",
-        icon: DeleteIcon,
+        icon: CancelIcon,
         danger: true,
         onClick: handleDelete,
       });
@@ -247,12 +247,6 @@ const PettyCashHistory = () => {
 
   const columns = isMobile ? columnsMobile : columnsDesktop;
 
-  const deleteTargetLabel =
-    rowToDelete?.description?.name?.trim() ||
-    rowToDelete?.requisitionkey?.trim() ||
-    rowToDelete?.voucherType?.trim() ||
-    rowToDelete?.id;
-
   return (
     <>
       <PopUp
@@ -277,9 +271,10 @@ const PettyCashHistory = () => {
           showFilter={true}
           showDownloadTable
           showButton={false}
+          textSize={{ mobile: 'c2', desktop: 'text-c2' }}
           tables={[
             {
-              data: pettyCashAsHistoryRows, // <-- Usa vales (FULL) proyectados a HistoryRow
+              data: pettyCashAsHistoryRows, 
               columns,
               enableSelection: true,
               title: "Historial Vales",

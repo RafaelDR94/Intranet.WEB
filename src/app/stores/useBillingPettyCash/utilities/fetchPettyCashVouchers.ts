@@ -20,7 +20,7 @@ export const fetchPettyCashVouchers = async (set: Set, get: Get, force = false) 
   try {
     const getFn = requireGateway('get')
     const getReq = pGet(getFn)
-    const res: AxiosResponse = await getReq(BillingPettyCashVoucher)
+    const res: AxiosResponse = await getReq(`${BillingPettyCashVoucher}?IsActive=true`)
     const mapped = PettyCashVouchersMap(res.data?.data ?? [])
     set({ pettyCashVouchers: mapped, loading: false, successGetVouchers: true })
   } catch (e) {

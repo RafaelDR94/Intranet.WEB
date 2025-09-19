@@ -13,7 +13,8 @@ import {
 export const computeLoadingFormInfo = (fields: FieldModel[]) => {
   const projectField = fields.find((f) => f.name === "project");
   const projectsReady =
-    Array.isArray(projectField?.options) && (projectField.options?.length ?? 0) > 0;
+    Array.isArray(projectField?.options) &&
+    (projectField.options?.length ?? 0) > 0;
 
   const employeeField = fields.find((f) => f.name === "personName");
   const employeesReady =
@@ -36,7 +37,7 @@ export const createInitialFields = ({
   {
     type: "select",
     name: "personName",
-    label: "Nombre",
+    label: "Empleado",
     placeholder: "Selecciona el colaborador",
     value: dataEdit?.employee_id ?? defaultEmployeeId ?? "",
     className: "max-w-[400px]",
@@ -44,6 +45,19 @@ export const createInitialFields = ({
     validations: [{ type: "required" }],
     showIf: (_value, all) => {
       const field = all.find((x) => x.name === "personName");
+      return Array.isArray(field?.options) && (field.options?.length ?? 0) > 0;
+    },
+  },
+  {
+    type: "select",
+    name: "project",
+    label: "Proyecto",
+    placeholder: "Selecciona el proyecto ",
+    value: dataEdit?.project_id ?? "",
+    className: "max-w-[400px]",
+    validations: [{ type: "required" }],
+    showIf: (_value, all) => {
+      const field = all.find((x) => x.name === "project");
       return Array.isArray(field?.options) && (field.options?.length ?? 0) > 0;
     },
   },
@@ -73,19 +87,6 @@ export const createInitialFields = ({
     value: dataEdit?.concept ?? "",
     className: "max-w-[400px]",
     validations: [{ type: "required" }],
-  },
-  {
-    type: "select",
-    name: "project",
-    label: "Proyecto",
-    placeholder: "Selecciona el proyecto ",
-    value: dataEdit?.project_id ?? "",
-    className: "max-w-[400px]",
-    validations: [{ type: "required" }],
-    showIf: (_value, all) => {
-      const field = all.find((x) => x.name === "project");
-      return Array.isArray(field?.options) && (field.options?.length ?? 0) > 0;
-    },
   },
 ];
 

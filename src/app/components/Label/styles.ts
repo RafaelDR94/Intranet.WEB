@@ -8,7 +8,7 @@ const variantMap: Record<LabelType, string> = {
   invalido: 'bg-alert-yellow-10 text-alert-yellow-100 border border-alert-yellow-100',
   prohibido: 'bg-alert-red-10 text-alert-red-100 border border-alert-red-100',
   actualizado: 'bg-alert-blue-10 text-alert-blue-100 border border-alert-blue-100',
-  pendiente: 'bg-alert-orange-10 text-alert-orange-100 border border-alert-orange-100',
+  pendiente: 'bg-alert-yellow-10 text-alert-yellow-100 border border-alert-yellow-100',
   "en-proceso": "bg-alert-yellow-10 text-alert-yellow-100 border border-alert-yellow-100",
   rechazado: 'bg-alert-red-10 text-alert-red-100 border border-alert-red-100',
   restringido: 'bg-gray-20 text-gray-100 border border-gray-100',

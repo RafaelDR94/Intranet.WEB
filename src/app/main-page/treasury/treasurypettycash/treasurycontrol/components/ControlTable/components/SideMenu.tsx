@@ -1,23 +1,21 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
-import { Button } from '@/app/components/Button/Button';
-import DetailsPanelLayout from '@/app/components/DetailsPanelLayout/DetailsPanelLayout';
-import Label from '@/app/components/Label/Label';
-import type { LabelType } from '@/app/components/Label/types';
-import type { ControlSideMenuProps } from '../types';
-import PDFIcon from '@/assets/icons/Docs/page.svg';
-import XMLIcon from '@/assets/icons/Docs/privacy policy.svg';
+import { Button } from "@/app/components/Button/Button";
+import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
+import Label from "@/app/components/Label/Label";
+import type { LabelType } from "@/app/components/Label/types";
+import type { ControlSideMenuProps } from "../types";
 
 const statusToLabelType = (status?: string): LabelType => {
-  const normalized = (status ?? '').toLowerCase();
-  if (normalized.includes('rechaz')) return 'rechazado';
-  if (normalized.includes('proceso')) return 'en-proceso';
-  if (normalized.includes('valid')) return 'valido';
-  if (normalized.includes('pend')) return 'pendiente';
-  if (normalized.includes('no deducible')) return 'prohibido';
-  return normalized ? 'actualizado' : 'pendiente';
+  const normalized = (status ?? "").toLowerCase();
+  if (normalized.includes("rechaz")) return "rechazado";
+  if (normalized.includes("proceso")) return "en-proceso";
+  if (normalized.includes("valid")) return "valido";
+  if (normalized.includes("pend")) return "pendiente";
+  if (normalized.includes("no deducible")) return "prohibido";
+  return normalized ? "actualizado" : "pendiente";
 };
 
 const SideMenu: React.FC<ControlSideMenuProps> = ({
@@ -29,23 +27,20 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   formatDate,
   formatMoney,
 }) => {
-  const employeeName = detail?.employeename || selected?.employeeName || '';
-  const projectCode = detail?.project?.proyectkey || detail?.petty_cash_funds?.year_month || '';
+  const employeeName = detail?.employeename || selected?.employeeName || "";
+  const projectCode =
+    detail?.project?.proyectkey || detail?.petty_cash_funds?.year_month || "";
   const status = selected?.status;
   const applicationDate = detail?.application_date || selected?.applicationDate;
-  const provider = detail?.rfc_emisor || selected?.provider || selected?.rfcEmisor || '';
-  const concept = detail?.concept || selected?.concept || '';
+  const provider =
+    detail?.rfc_emisor || selected?.provider || selected?.rfcEmisor || "";
+  const concept = detail?.concept || selected?.concept || "";
   const subtotal = detail?.subtotal ?? selected?.subtotal;
   const iva = detail?.iva ?? selected?.iva;
   const total = detail?.total ?? detail?.amount ?? selected?.total;
-  const voucherType = detail?.voucher_type || selected?.voucherType || '';
-  const uuid = detail?.uuid || '';
-  const comments = detail?.comments || '';
-  const xmlUrl = detail?.xml || '';
-  const pdfUrl = detail?.pdf || '';
-  const rfcReceptor = detail?.rfc_receptor || '';
-
-  const conceptos = detail?.conceptos ?? [];
+  const voucherType = detail?.voucher_type || selected?.voucherType || "";
+  const uuid = detail?.uuid || "";
+  const rfcReceptor = detail?.rfc_receptor || "";
 
   return (
     <DetailsPanelLayout
@@ -54,112 +49,118 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       onClose={() => setPanelOpen(false)}
       leftLabel={employeeName ? `Colaborador: ${employeeName}` : undefined}
       rightLabel={projectCode ? `Proyecto: ${projectCode}` : undefined}
-      renderActions={() =>
-        status ? <Label type={statusToLabelType(status)} text={status.toUpperCase()} /> : null
+      label={() =>
+        voucherType ? (
+          <Label
+            type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
+            text={voucherType}
+          />
+        ) : null
+      }
+      actionButton={
+        <div className="flex flex-row items-center gap-3">
+            <Button
+              size="medium"
+              variant="solid"
+              hideIcon
+              onClick={() => {
+                /**To Do enviar a SAP */
+              }}
+            >
+              Validar
+            </Button>
+            <Button
+              size="medium"
+              variant="outline"
+              hideIcon
+              onClick={() => {
+                /**To Do enviar a SAP */
+              }}
+            >
+              Rechazar
+            </Button>
+        </div>
       }
     >
       {selected ? (
         <div className="space-y-4">
-          {isDetailLoading && <div className="text-gray-70 text-b4">Cargando detalle...</div>}
+          {isDetailLoading && (
+            <div className="text-gray-70 text-b4">Cargando detalle...</div>
+          )}
 
-          {uuid ? <div className="text-gray-90 text-s1 font-semibold">{uuid}</div> : null}
+          {uuid ? (
+            <div className="text-gray-90 text-s1 font-semibold">{uuid}</div>
+          ) : null}
 
           <div className="text-gray-90 text-b4 font-medium">
-            FECHA DE APLICACIÓN:&nbsp;
-            <span className="text-gray-90 text-b3 font-regular">{formatDate(applicationDate) || '—'}</span>
+            FECHA DE CERTIFICACIÓN:&nbsp;
+            <span className="text-gray-90 text-b3 font-regular">
+              {formatDate(applicationDate) || "—"}
+            </span>
           </div>
 
           <div className="text-gray-90 text-b4 font-medium">
             RFC EMISOR:&nbsp;
-            <span className="text-gray-90 text-b3 font-regular">{provider || '—'}</span>
+            <span className="text-gray-90 text-b3 font-regular">
+              {provider || "—"}
+            </span>
           </div>
 
           {rfcReceptor ? (
             <div className="text-gray-90 text-b4 font-medium">
               RFC RECEPTOR:&nbsp;
-              <span className="text-gray-90 text-b3 font-regular">{rfcReceptor}</span>
+              <span className="text-gray-90 text-b3 font-regular">
+                {rfcReceptor}
+              </span>
             </div>
           ) : null}
 
           <div className="text-gray-90 text-b4 font-medium">
             CONCEPTO:&nbsp;
-            <span className="text-gray-90 text-b3 font-regular">{concept || '—'}</span>
+            <span className="text-gray-90 text-b3 font-regular">
+              {concept || "—"}
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div>
-              <div className="text-gray-70 text-c2 uppercase">Subtotal</div>
-              <div className="text-gray-90 text-b3 font-medium">{formatMoney(subtotal)}</div>
-            </div>
-            <div>
-              <div className="text-gray-70 text-c2 uppercase">IVA</div>
-              <div className="text-gray-90 text-b3 font-medium">{formatMoney(iva)}</div>
-            </div>
-            <div>
-              <div className="text-gray-70 text-c2 uppercase">Total</div>
-              <div className="text-gray-90 text-b3 font-semibold">{formatMoney(total)}</div>
-            </div>
-            <div>
-              <div className="text-gray-70 text-c2 uppercase">Tipo de vale</div>
-              <div className="text-gray-90 text-b3 font-medium">{voucherType || '—'}</div>
-            </div>
-          </div>
+          <div className="mt-40 h-[0.1px] w-[auto] bg-green-100"></div>
 
-          <div className="flex items-center justify-between">
-            <span className="text-gray-90 text-b4 font-medium">Archivos enviados</span>
-            <div className="flex items-center gap-2">
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={XMLIcon}
-                disabled={!xmlUrl}
-                onClick={() => xmlUrl && window.open(xmlUrl, '_blank')}
-              />
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={PDFIcon}
-                disabled={!pdfUrl}
-                onClick={() => pdfUrl && window.open(pdfUrl, '_blank')}
-              />
-            </div>
-          </div>
-
-          {comments ? (
-            <div className="space-y-1">
-              <div className="text-gray-90 text-b4 font-medium">Comentarios</div>
-              <p className="text-gray-50 text-b4 font-medium whitespace-pre-line">{comments}</p>
-            </div>
-          ) : null}
-
-          {conceptos.length ? (
-            <div className="space-y-3">
-              <div className="text-gray-90 text-b4 font-medium">Conceptos</div>
-              <div className="space-y-2">
-                {conceptos.map((item) => (
-                  <div
-                    key={`${item.clave_sat}-${item.clavesat_description}`}
-                    className="rounded-lg border border-gray-20 p-3"
-                  >
-                    <div className="text-gray-90 text-b4 font-semibold">{item.clavesat_description}</div>
-                    <div className="text-gray-70 text-c2">{item.clave_sat}</div>
-                    <div className="mt-2 grid grid-cols-2 gap-2 text-gray-90 text-b4">
-                      <span>Cantidad: {item.cantidad}</span>
-                      <span>Valor unitario: {formatMoney(item.valor_unitario)}</span>
-                      <span className="col-span-2">Importe: {formatMoney(item.importe)}</span>
-                    </div>
-                  </div>
-                ))}
+          <div className="flex flex-col">
+            <div className="flex content-center justify-end">
+              <div className="text-gray-70 text-b4 text-gray-90 mr-5 font-medium uppercase">
+                Subtotal:
+              </div>
+              <div className="text-gray-90 text-b3 text-gray-90">
+                {formatMoney(subtotal)}
               </div>
             </div>
-          ) : null}
+            <div className="flex content-center justify-end">
+              <div className="text-gray-70 text-b4 text-gray-90 mr-12 font-medium uppercase">
+                IVA(16%):
+              </div>
+              <div className="text-gray-90 text-b3 text-gray-90">
+                {formatMoney(iva)}
+              </div>
+            </div>
+            <div className="flex content-center justify-end">
+              <div className="text-gray-70 text-b4 text-gray-90 mr-12 font-medium uppercase">
+                Total:
+              </div>
+              <div className="text-gray-90 text-b3 text-gray-90">
+                {formatMoney(total)}
+              </div>
+            </div>
+          </div>
 
           {!isDetailLoading && !detail && (
-            <div className="text-gray-70 text-b3">No se encontró información adicional del vale.</div>
+            <div className="text-gray-70 text-b3">
+              No se encontró información adicional del vale.
+            </div>
           )}
         </div>
       ) : (
-        <div className="text-gray-70 text-b3">Selecciona un vale para ver su detalle.</div>
+        <div className="text-gray-70 text-b3">
+          Selecciona un vale para ver su detalle.
+        </div>
       )}
     </DetailsPanelLayout>
   );

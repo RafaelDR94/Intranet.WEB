@@ -7,8 +7,12 @@ import { PettyCashProvider } from "./context/PettyCashContext";
 const PettyCashRequest = () => {
   return (
     <PettyCashProvider>
-      <VoucherPink />
-      <VoucherBlue />
+      <div>
+        <VoucherPink />
+      </div>
+      <div className="mt-5">
+        <VoucherBlue />
+      </div>
     </PettyCashProvider>
   );
 };

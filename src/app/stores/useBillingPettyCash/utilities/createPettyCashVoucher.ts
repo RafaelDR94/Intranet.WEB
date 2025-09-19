@@ -24,7 +24,7 @@ export const createPettyCashVoucher = async (
 
   try {
     const post = pPost(requireGateway('post'), [200, 201])
-    const res: AxiosResponse = await post(BillingPettyCashVoucher, PostPettyCashVoucherMap(payload))
+    const res: AxiosResponse = await post(`${BillingPettyCashVoucher}?IsActive=true`, PostPettyCashVoucherMap(payload))
     const raw = res.data?.data
     const created = raw ? PettyCashVoucherMap(raw) : null
 

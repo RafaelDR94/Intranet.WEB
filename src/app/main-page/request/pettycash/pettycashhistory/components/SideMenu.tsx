@@ -132,10 +132,8 @@ const SideMenu = ({
       leftLabel={selected ? `Usuario: ${employeeName}` : undefined}
       rightLabel={selected ? `Proyecto: ${projectCode}` : undefined}
       actionButton={
-        (currentPagePermissions?.canAddPicture ||
-          currentPagePermissions?.canAddDocuments) && (
           <Button
-            size="large"
+            size="medium"
             variant="solid"
             hideIcon
             onClick={() => submitRef.current?.()}
@@ -143,7 +141,6 @@ const SideMenu = ({
           >
             Reenviar
           </Button>
-        )
       }
       renderActions={() =>
         selected && (

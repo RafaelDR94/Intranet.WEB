@@ -1,8 +1,8 @@
 import React from "react";
 
-import Ellipse from "@/assets/icons/acciones/Ellipse.svg"
-import VectorUp from "@/assets/icons/acciones/VectorUp.svg"
-import VectorDown from "@/assets/icons/acciones/VectorDown.svg"
+import Ellipse from "@/assets/icons/acciones/Ellipse.svg";
+import VectorUp from "@/assets/icons/acciones/VectorUp.svg";
+import VectorDown from "@/assets/icons/acciones/VectorDown.svg";
 
 export type SummaryCardProps = {
   title: string;
@@ -79,8 +79,8 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
     <article
       className={cx(
         "relative overflow-hidden rounded-lg bg-white shadow-sm transition-shadow",
-        "h-[110px] w-[380px] mb-2 ml-4",
-        className
+        "mb-2 ml-4 h-[110px] w-[380px]",
+        className,
       )}
       role="region"
       aria-label={title}
@@ -89,8 +89,8 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
       {SvgIcon && (
         <div
           className={cx(
-            "pointer-events-none absolute -right-8 -bottom-0 rotate-0 flex",
-            palette.deco
+            "pointer-events-none absolute -right-8 -bottom-0 flex rotate-0",
+            palette.deco,
           )}
           aria-hidden="true"
         >
@@ -102,8 +102,8 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
       {SvgSecondIcon && (
         <div
           className={cx(
-            "pointer-events-none absolute -right-0 -bottom-10 rotate-[-15deg] flex",
-            palette.deco
+            "pointer-events-none absolute -right-0 -bottom-10 flex rotate-[-15deg]",
+            palette.deco,
           )}
           aria-hidden="true"
         >
@@ -115,11 +115,9 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
       {/** Cards **/}
       <div className="p-6">
         <header className="mb-3">
-          <h3 className="text-b2 font-medium text-green-100">
-            {title}
-          </h3>
+          <h3 className="text-b2 font-medium text-green-100">{title}</h3>
           {subtitle && (
-            <p className="text-d3 font-medium text-gray-90">{subtitle}</p>
+            <p className="text-d3 text-gray-90 font-medium">{subtitle}</p>
           )}
         </header>
 
@@ -127,21 +125,15 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
           <span className={cx("flex items-center", palette.text)}>
             <TrendIcon type={trend} />
           </span>
-          <p
-            className={cx(
-              "text-s1 font-semibold",
-              palette.text
-            )}
-          >
+          <p className={cx("text-s1 font-semibold", palette.text)}>
             {amountStr}
           </p>
+          {statusLabel && (
+            <p className="text-d3 font-medium text-gray-90 mx-2">
+              {statusLabel}
+            </p>
+          )}
         </div>
-
-        {statusLabel && (
-          <p className="mt-4 text-sm font-medium text-slate-500">
-            {statusLabel}
-          </p>
-        )}
       </div>
     </article>
   );

@@ -245,7 +245,6 @@ const usePettyCashHistory = () => {
             client: v.project?.client ?? "",
           },
           requisitionkey: v.project?.proyectkey ?? "",
-          status: "rechazado",
           xml: v.xml ?? "",
           pdf: v.pdf ?? "",
           image: "",
