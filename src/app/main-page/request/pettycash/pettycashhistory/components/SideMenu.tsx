@@ -266,7 +266,6 @@ const SideMenu = ({
           )}
           {/* Editar Documento (como en la maqueta) */}
 
-          {selected.status?.toLocaleLowerCase() == "rechazado" && (
             <>
               <div className="text-gray-90 text-b4 font-medium">
                 Editar documento:
@@ -361,7 +360,6 @@ const SideMenu = ({
                 </div>
               )}
             </>
-          )}
         </div>
       ) : (
         <div className="text-gray-70 text-b3">

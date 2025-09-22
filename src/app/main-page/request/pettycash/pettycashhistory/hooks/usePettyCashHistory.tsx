@@ -236,6 +236,7 @@ const usePettyCashHistory = () => {
 
         return {
           id: v.id,
+          status: v.status ?? "",
           billing_image_id: "",
           billingdocument_id: v.uuid ?? v.id,
           project: {

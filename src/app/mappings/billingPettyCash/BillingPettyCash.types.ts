@@ -155,6 +155,7 @@ export type PettyCashVoucherFull = {
   petty_cash_funds: PettyCashVoucherFund;
   employee_id: string;
   employeename: string;
+  status: string;
   voucher_type: string;
   application_date: string;
   concept: string;

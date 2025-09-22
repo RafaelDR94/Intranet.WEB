@@ -267,8 +267,8 @@ const PettyCashHistory = () => {
       />
       <div className="space-y-8 overflow-auto">
         <DataTable
-          showCalendar={true}
-          showFilter={true}
+          showCalendar={false}
+          showFilter={false}
           showDownloadTable
           showButton={false}
           textSize={{ mobile: 'c2', desktop: 'text-c2' }}

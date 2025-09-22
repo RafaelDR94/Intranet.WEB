@@ -106,11 +106,9 @@ export const PettyCashVoucherConceptMap = (raw: any): PettyCashVoucherConcept =>
 
 export const PettyCashVoucherFullMap = (raw: any): PettyCashVoucherFull => ({
   id: toString(raw?.id),
-
-  // Fondo anidado (mapeado a tu tipo PettyCashFundData)
   petty_cash_funds: PettyCashFundMap(raw?.petty_cash_funds ?? {}),
-
   employee_id: toString(raw?.employee_id),
+  status: toString(raw?.status),
   employeename: toString(raw?.employeename),
   voucher_type: toString(raw?.voucher_type),
   application_date: toString(raw?.application_date),

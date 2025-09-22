@@ -293,8 +293,8 @@ const ControlTable = () => {
 
       {!currentPagePermissions?.read && (
         <DataTable
-          showCalendar={true}
-          showFilter={true}
+          showCalendar={false}
+          showFilter={false}
           showDownloadTable
           showButton={false}
           onSearchChange={(value) => setQuery(value ?? "")}
