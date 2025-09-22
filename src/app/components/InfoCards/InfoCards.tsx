@@ -6,13 +6,9 @@ import type { InfoCardsProps } from './types';
 
 import { useMediaBreakpoints } from '@/app/components/DynamicForm/hooks/useMediaBreakpoints';
 import type { ResponsiveLayoutMatrix } from '@/app/components/DynamicForm/types';
+import { containerCls, rowGridCls, cardBaseCls, labelCls, valueCls, staticCls } from './styles';
+import { useIsMobile } from '../DataTable/components/DataTableLayout/hooks/useMediaQuery';
 
-
-const containerCls = 'space-y-3 w-full';
-const rowGridCls = 'grid grid-cols-10 gap-y-4 gap-x-5 md:gap-x-6 w-full isolate';
-const cardBaseCls = 'bg-white rounded-xl shadow-sm border border-gray-200 p-4';
-const labelCls = 'font-semibold text-gray-90 text-b3';
-const valueCls = 'text-gray-90 text-b3';
 
 function resolveEffectiveLayout(
   layoutMatrix: number[][] | undefined,
@@ -42,7 +38,7 @@ export const InfoCards: React.FC<InfoCardsProps> = ({
   dataTestId = 'info-cards',
 }) => {
   const { current } = useMediaBreakpoints(breakpoints ?? { sm: 640, md: 1024 });
-
+  const isMobile = useIsMobile();
   const effective = useMemo(
     () => resolveEffectiveLayout(layoutMatrix, responsiveLayoutMatrix, current),
     [layoutMatrix, responsiveLayoutMatrix, current]
@@ -90,8 +86,7 @@ export const InfoCards: React.FC<InfoCardsProps> = ({
                   className={clsx(
                     cardBaseCls,
                     cardClassName,
-                    // clase estática usando arbitrary property
-                    '[grid-column:span_var(--span)_/_span_var(--span)]',
+                    staticCls,
                     'w-full'
                   )}
                   style={{ ['--span' as any]: String(span) }}
@@ -100,8 +95,14 @@ export const InfoCards: React.FC<InfoCardsProps> = ({
                   <div className="space-y-1">
                     {card.map((item, iIdx) => (
                       <div key={`kv-${item.dataTestId}-${iIdx}`} className={clsx('text-sm', itemClassName)} data-testid={item.dataTestId}>
-                        <span className={labelCls}>{item.label}: </span>
-                        <span className={valueCls}>{item.value ?? '—'}</span>
+
+                        <div className='flex gap-1'>
+                          {item.icon && <item.icon  className= {isMobile?'w-10 h-10':''}/>}
+                          <span className={labelCls}>{item.label}: </span>
+                          {!isMobile && <span className={valueCls}>{item.value ?? '—'}</span>}
+
+                        </div >
+                        {isMobile && <span className={valueCls}>{item.value ?? '—'}</span>}
                       </div>
                     ))}
                   </div>

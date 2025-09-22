@@ -12,11 +12,14 @@ import DetailsPanelLayout from '@/app/components/DetailsPanelLayout/DetailsPanel
 import { ReportView } from '@/app/mappings/reports/reports.types'
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-const ReportsTable: React.FC = () => {
-  const { currentReport, reports, setCurrent, reportId, handleCloseDetails, handleDownloadPicReport, handleDownloadDigitalReport } = useReportsTable()
+import NewReport from './components/NewReport/NewReport'
+import Label from '@/app/components/Label/Label'
 
-  const columns: ColumnDefinition<ReportView>[] = useMemo(() => [
-    {
+const ReportsTable: React.FC = () => {
+  const { newReport, isMobile, currentPagePermissions, currentReport, reports, setCurrent, reportId, handleCloseDetails, handleDownloadPicReport, handleDownloadDigitalReport } = useReportsTable()
+  if (newReport) return (<NewReport />)
+  const columns: ColumnDefinition<ReportView>[] = useMemo(() => {
+    if (isMobile) return ([{
       key: 'datecreate',
       label: 'FECHA',
 
@@ -25,39 +28,108 @@ const ReportsTable: React.FC = () => {
     {
       key: 'ticket',
       label: 'TICKET',
-      render: (r) => (r as any)?.ticket ?? (r as any)?.folio ?? r.id ?? '—',
-    },
-    {
-      key: 'type',
-      label: 'TIPO',
-      render: (r) => {
-        return r.reportcategories?.typesofreports?.name ?? r.type ?? '—'
-      },
-    },
-    {
-      key: 'category' as keyof Report,
-      label: 'CATEGORÍA',
-      render: (r) => r.reportcategories?.name ?? '—',
+      render: (r) => (r as any)?.ticket ?? (r as any)?.folio ?? r.id ?? '??"',
     },
     {
       key: 'location' as keyof Report,
-      label: 'UBICACIÓN',
-      render: (r) => (r as any)?.location?.name ?? (r as any)?.ubication ?? '—',
+      label: 'UBICACI?"N',
+      render: (r) => (r as any)?.location?.name ?? (r as any)?.ubication ?? '??"',
     },
     {
       key: 'actions' as unknown as keyof Report,
       label: '',
       render: (row) => (
         <div className="flex justify-end pr-2">
-          <Button size="small" variant="ghost" hideIcon onClick={() => setCurrent(row)}>
-            Ver Detalle
-          </Button>
+          {currentPagePermissions?.reportdetails && (
+            <Button
+              size="small"
+              variant="ghost"
+              hideIcon
+              aria-label="Ver Detalle"
+              onClick={() => setCurrent(row)}
+            >
+              <span className="sr-only">Ver Detalle</span>
+            </Button>
+          )}
+
         </div>
       ),
-      cellClass: 'w-40 text-right',
-      headerClass: 'w-40 text-right',
+
     },
-  ] as ColumnDefinition<ReportView>[], [setCurrent])
+    ] as ColumnDefinition<ReportView>[])
+    return (
+      [
+        {
+          key: 'datecreate',
+          label: 'FECHA',
+
+        },
+
+        {
+          key: 'ticket',
+          label: 'TICKET',
+          render: (r) => (r as any)?.ticket ?? (r as any)?.folio ?? r.id ?? '??"',
+        },
+        {
+          key: 'type',
+          label: 'TIPO',
+          render: (r) => {
+            return r.reportcategories?.typesofreports?.name ?? r.type ?? '??"'
+          },
+        },
+        {
+          key: 'category' as keyof Report,
+          label: 'CATEGOR??A',
+          render: (r) => r.reportcategories?.name ?? '??"',
+        },
+        {
+          key: 'location' as keyof Report,
+          label: 'UBICACI?"N',
+          render: (r) => (r as any)?.location?.name ?? (r as any)?.ubication ?? '??"',
+        },
+        {
+          key: "status",
+          label: "",
+          render: (row) => {
+            const obtainStatusLabel = (row: ReportView) => {
+              if (row?.clientsign) return ({ text: "Completo", type: "valido" });
+              else if (row?.activities?.length == 0) return ({ text: "Sin Act", type: "prohibido" });
+              else if (!row?.employeesignurl) return ({ text: "Sin F.Cliente", type: "invalido" });
+
+              else return ({ text: "No definido", type: "pendiente" });
+            }
+            const status = obtainStatusLabel(row);
+            return (
+              <Label type={status.type.toLocaleLowerCase() as any} text={status.text} />
+            )
+          }
+        },
+        {
+          key: 'actions' as unknown as keyof Report,
+          label: '',
+          render: (row) => (
+            <div className="flex justify-end pr-2">
+              {currentPagePermissions?.reportdetails && (
+                <Button
+                  size="small"
+                  variant="ghost"
+                  hideIcon
+                  aria-label="Ver Detalle"
+                  onClick={() => setCurrent(row)}
+                >
+                  Ver Detalle
+                </Button>
+              )}
+
+            </div>
+          ),
+          cellClass: 'w-40 text-right',
+          headerClass: 'w-40 text-right',
+        },
+      ] as ColumnDefinition<ReportView>[]
+
+    )
+  }, [setCurrent, currentPagePermissions, isMobile])
 
   return (
     <div className="space-y-6">
@@ -91,6 +163,7 @@ const ReportsTable: React.FC = () => {
       </DetailsPanelLayout>
       <DataTable<ReportView>
         tables={[{
+          hidetitle: true,
           title: 'Reportes',
           columns,
           data: reports,
@@ -100,7 +173,6 @@ const ReportsTable: React.FC = () => {
           defaultSortDirection: 'desc',
         }]}
         enableInternalSearch
-        // searchableKeys={searchableKeys as any}
         showCalendar={false}
         showFilter={false}
         showButton={false}

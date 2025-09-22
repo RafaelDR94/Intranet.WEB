@@ -1,10 +1,11 @@
 import clsx from 'clsx';
 
-export const container = 'flex gap-2 items-center max-w-300';
-
+export const container =
+  'flex flex-nowrap items-center justify-center gap-1 sm:gap-2';
 export const pageButton = (active: boolean, disabled: boolean) =>
   clsx(
-    'w-10 h-10 rounded-full flex items-center justify-center font-medium transition-all',
+    // shrink-0 evita que se “aplasten” en filas pequeñas
+    'shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-medium transition-all',
     {
       'bg-green-90 text-white-100': active,
       'text-gray-100 hover:bg-green-10': !disabled && !active,
@@ -15,7 +16,7 @@ export const pageButton = (active: boolean, disabled: boolean) =>
 
 export const arrowButton = (disabled: boolean) =>
   clsx(
-    'w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all',
+    'shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all',
     {
       'text-gray-100 hover:bg-green-10': !disabled,
       'focus:outline-none focus:ring-2 focus:ring-green-40': !disabled,

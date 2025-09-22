@@ -9,7 +9,6 @@ import { useDataTableContent } from "./hooks/useTableContent";
 import { containerDataTableContent } from "./styles";
 import { DataTableContentProps } from "./types";
 
-import { Button } from "@/app/components/Button/Button";
 import Pagination from "@/app/components/Pagination/Pagination";
 
 // Opcional: pequeño contenedor para las acciones en mobile, por estilo
@@ -44,7 +43,6 @@ const DataTableContent = <T extends { id: string | number }>(
     rowHeight = 56,
     scrollMaxHeight,
     onSelectedChange,
-    showButton,
     actionsRender,
     onTableActionClick,
     actionLabel = "Agregar",
@@ -111,19 +109,8 @@ const DataTableContent = <T extends { id: string | number }>(
 
       {isMobile && (
         <MobileActionsBar>
-          {/* `actionsRender` tiene prioridad */}
-          {actionsRender
-            ? actionsRender()
-            : showButton && (
-                <Button
-                  variant="solid"
-                  size="giant"
-                  hideIcon
-                  onClick={onTableActionClick}
-                >
-                  {actionLabel}
-                </Button>
-              )}
+          {/* `actionsRender` tiene prioridad sobre el botón, igual que en Layout */}
+          {actionsRender?.()}
         </MobileActionsBar>
       )}
 

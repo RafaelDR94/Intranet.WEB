@@ -59,7 +59,7 @@ export const DataTableBody = <T extends { id: string | number }>({
         const isSelected = selected.includes(row)
         return (
           <div
-            key={`${row.id}-${index}`}
+            key={`${row?.id}-${index}`}
             className={DataTableBodyStyles.bodyContainer}
           >
             {enableSelection && (

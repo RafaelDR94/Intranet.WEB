@@ -56,6 +56,8 @@ export interface DataTableGroup<T> {
   data: T[]
   /** Título visible de la tabla */
   title: string
+  /** Esconde el titulo */
+  hidetitle?: boolean
   /** Habilita selección de filas */
   enableSelection?: boolean
   /** Permite colapsar la sección que contiene la tabla */
@@ -123,7 +125,7 @@ export interface DataTableProps<T = any> {
     endDate?: Date | null
   ) => void;
   /** Se ejecuta al hacer clic en el botón de calendario (abrir date picker externo, etc.). */
-   onCalendarClick?: (start?: Date , end?: Date ) => void
+  onCalendarClick?: (start?: Date, end?: Date) => void
   /** Se ejecuta al hacer clic en el botón de filtros (abrir un drawer o modal de filtros). */
   onFilterClick?: () => void;
   /** Se ejecuta al hacer clic en el botón de acción principal (p.ej. “Agregar”). */
@@ -192,7 +194,7 @@ export interface DataTableProps<T = any> {
   /** Título global de la (o las) tablas. Se usa en descargas y cabeceras. */
   dataTableTitle?: string;
   /** Inicia con la tabla colapsada. */
-  startCollpas?:boolean; 
+  startCollpas?: boolean;
   /** Si es verdadero, intenta renderizar cada tabla como grilla de tarjetas usando `cardAdapt` */
   useCardsView?: boolean;
   /** Muestra el conmutador de vista en el layout */

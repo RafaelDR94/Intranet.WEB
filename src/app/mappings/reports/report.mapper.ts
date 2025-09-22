@@ -15,13 +15,18 @@ export const mapTypeReport = (type: any): TypesOfReportType => ({
 
 export const mapTypesOfReports = (types: any[]): TypesOfReportType[] =>
   types.map(mapTypeReport);
-
+export const mapDevicesExternal = (devs: any[]): DeviceExternalView[] =>
+  devs.map(mapDeviceExternal);
 export const mapDeviceExternal = (dev: any): DeviceExternalView => ({
   id: dev?.id,
   brand: dev?.brand,
   model: dev?.model,
   serialnumber: dev?.serialnumber,
-  fullInformation: dev?.fullInformation,
+  "idproyect": dev?.idproyect,
+  "keyproyect": dev?.keyproyect,
+  "idlocation": dev?.idlocation,
+  "locationname": dev?.locationname,
+  "is_active": dev?.is_active
 });
 
 export const mapClientSignature = (sign: any): ClientSignatureinterface => ({
@@ -119,7 +124,7 @@ export const ReportMap = (raw: any): ReportView => {
     "model": modelRaw,
     "startdate": formatDate(src?.startdate) ?? '',
     "enddate": formatDate(src?.enddate) ?? '',
-    "datecreate":formatDate( src?.datecreate) ?? '',
+    "datecreate": formatDate(src?.datecreate) ?? '',
     "proyect": ProyectMap(src?.proyect ?? {}),
     "type": src?.type ?? '',
     "reportcategories": reportCategory,

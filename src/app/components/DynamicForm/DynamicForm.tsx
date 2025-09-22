@@ -14,6 +14,42 @@ import type {
   DynamicFormProps,
   ResponsiveLayoutMatrix,
 } from "./types";
+
+
+type FormStateWatcherProps = {
+  isValid: boolean;
+  onValidChange?: (v: boolean) => void;
+  values: Record<string, any>;
+  onValuesChange?: (vals: Record<string, any>) => void;
+};
+
+const FormStateWatcher: React.FC<FormStateWatcherProps> = ({
+  isValid,
+  onValidChange,
+  values,
+  onValuesChange,
+}) => {
+  const prevIsValid = useRef<boolean | undefined>(undefined);
+  const prevValuesSnapshot = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (prevIsValid.current !== isValid) {
+      prevIsValid.current = isValid;
+      onValidChange?.(isValid);
+    }
+  }, [isValid, onValidChange]);
+
+  useEffect(() => {
+    if (!onValuesChange) return;
+    const serialized = JSON.stringify(values);
+    if (prevValuesSnapshot.current === serialized) return;
+    prevValuesSnapshot.current = serialized;
+    onValuesChange(values);
+  }, [values, onValuesChange]);
+
+  return null;
+};
+
 /**
  * Formulario dinámico con renderizado de campos a partir de un modelo (`FieldModel[]`),
  * validaciones (Yup via `useDynamicForm`), estados visuales y **layout responsivo**.
@@ -75,6 +111,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   showSubmitIf,
   showSecondaryButtonIf,
   onSecondaryButtonClick,
+  onValuesChange,
   secondaryButtonLabel,
   children,
   loading,
@@ -144,17 +181,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             externalSubmitRef.current = submitForm;
           }
           // Notificar cambios de validez usando un subcomponente para respetar las reglas de hooks
-          const OnValidChange: React.FC<{ isValid: boolean; onValidChange?: (v: boolean) => void }> = ({ isValid, onValidChange }) => {
-            const prev = useRef<boolean | undefined>(undefined);
-            useEffect(() => {
-              if (prev.current !== isValid) {
-                prev.current = isValid;
-                onValidChange?.(isValid);
-              }
-            }, [isValid, onValidChange]);
-            return null;
-          };
-
           const visibleFields = fields.filter(
             (field) => !field.showIf || field.showIf(values, fields)
           );
@@ -170,7 +196,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
           return (
             <Form className={dynamicFormStyles.form}>
-              <OnValidChange isValid={isValid} onValidChange={onValidChange} />
+              <FormStateWatcher isValid={isValid} onValidChange={onValidChange} values={values} onValuesChange={onValuesChange} />
               {effectiveLayoutMatrix
                 ? effectiveLayoutMatrix.map((row, rowIndex) => (
                     <div

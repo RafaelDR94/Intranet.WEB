@@ -3,7 +3,7 @@
 import React from 'react';
 
 import usePagination from './hooks/usePagination';
-import { container } from './styles';
+import { container ,arrowButton, pageButton} from './styles';
 import { PaginationProps } from './types';
 /**
  * Paginador simple con botones numerados y flechas anterior/siguiente.
@@ -32,34 +32,74 @@ import { PaginationProps } from './types';
  * ```
  */
 const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
-  const { getPageClass, getArrowClass } = usePagination(currentPage);
-
-  const renderPages = () =>
-    Array.from({ length: totalPages }, (_, i) => (
-      <button
-        key={i + 1}
-        className={getPageClass(i + 1)}
-        onClick={() => onPageChange(i + 1)}
-        disabled={i + 1 === currentPage}
-      >
-        {i + 1}
-      </button>
-    ));
+  const {
+    items,                // (number | 'dots-left' | 'dots-right')[]
+    canPrev,
+    canNext,
+    jumpLeft,             // () => number (página a saltar al pulsar '…' izquierda)
+    jumpRight,            // () => number (página a saltar al pulsar '…' derecha)
+  } = usePagination(currentPage, totalPages);
 
   return (
-    <div className={container}>
+    <div className={container} role="navigation" aria-label="Pagination">
+      {/* Prev */}
       <button
-        className={getArrowClass(currentPage === 1)}
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+        className={arrowButton(!canPrev)}
+        onClick={() => canPrev && onPageChange(currentPage - 1)}
+        disabled={!canPrev}
+        aria-label="Página anterior"
       >
         &#x2039;
       </button>
-      {renderPages()}
+
+      {/* Números + puntos */}
+      {items.map((it, idx) => {
+        if (it === 'dots-left') {
+          return (
+            <button
+              key={`dl-${idx}`}
+              className={pageButton(false, false)}
+              aria-label="Saltar hacia atrás"
+              onClick={() => onPageChange(jumpLeft())}
+            >
+              …
+            </button>
+          );
+        }
+        if (it === 'dots-right') {
+          return (
+            <button
+              key={`dr-${idx}`}
+              className={pageButton(false, false)}
+              aria-label="Saltar hacia adelante"
+              onClick={() => onPageChange(jumpRight())}
+            >
+              …
+            </button>
+          );
+        }
+        const pageNum = it as number;
+        const isActive = pageNum === currentPage;
+        return (
+          <button
+            key={pageNum}
+            className={pageButton(isActive, isActive)}
+            onClick={() => onPageChange(pageNum)}
+            disabled={isActive}
+            aria-current={isActive ? 'page' : undefined}
+            aria-label={`Ir a la página ${pageNum}`}
+          >
+            {pageNum}
+          </button>
+        );
+      })}
+
+      {/* Next */}
       <button
-        className={getArrowClass(currentPage === totalPages)}
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        className={arrowButton(!canNext)}
+        onClick={() => canNext && onPageChange(currentPage + 1)}
+        disabled={!canNext}
+        aria-label="Página siguiente"
       >
         &#x203A;
       </button>

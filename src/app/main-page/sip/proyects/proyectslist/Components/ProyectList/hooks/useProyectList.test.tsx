@@ -55,7 +55,7 @@ const sampleProjects: Proyect[] = [
 ];
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: routerPushMock }),
+  useRouter: () => ({ push: routerPushMock }), usePathname: () => '/main-page/sip/proyects',
 }));
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({

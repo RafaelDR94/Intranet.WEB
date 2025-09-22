@@ -1,4 +1,4 @@
-﻿import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -15,6 +15,9 @@ const dataTableSpy = vi.fn();
 vi.mock("./hooks/useReportsTable", () => ({
   __esModule: true,
   default: () => ({
+    newReport: false,
+    isMobile: false,
+    currentPagePermissions: { reportdetails: true },
     currentReport: sampleReports[0],
     reportId: sampleReports[0].id,
     reports: sampleReports,

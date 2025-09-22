@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { SVGProps } from 'react';
 
 import type { Breakpoints, ResponsiveLayoutMatrix } from '@/app/components/DynamicForm/types';
 
@@ -7,6 +7,7 @@ export type InfoItem = {
   value?: React.ReactNode;
   className?: string;
   dataTestId?: string;
+  icon?: React.FC<SVGProps<SVGSVGElement>>;
 };
 
 export interface InfoCardsProps {

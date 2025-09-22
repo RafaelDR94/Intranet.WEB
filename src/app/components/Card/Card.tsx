@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 
 import { cardStyles } from './styles';
 import { CardProps } from './types';
-
+import { Button } from '../Button/Button';
 /**
  * Concatena clases condicionales de forma segura.
  *
@@ -104,26 +104,30 @@ export const Card: React.FC<CardProps> = ({
           )}
         >
           {showSecondaryButton && (
-            <button
-              type="button"
+            <Button
+              size='small'
+              variant='outline'
               onClick={onCancel}
+              hideIcon
               className={cardStyles.CancelBtn}
             >
               {secondaryLabel}
-            </button>
+            </Button>
           )}
 
           {showPrimaryButton && (
-            <button
-              type="button"
+            <Button
+              size='small'
+              variant='solid'
               onClick={onAccept}
+              hideIcon
               className={cx(
                 cardStyles.AcceptBtn,
                 !showSecondaryButton && cardStyles.AcceptBtnFull
               )}
             >
               {primaryLabel}
-            </button>
+            </Button>
           )}
         </div>
       </div>

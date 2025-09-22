@@ -1,11 +1,11 @@
 export const cardStyles = {
   Container: 'bg-white-100 shadow-300 rounded-lg overflow-hidden flex',
-  ContainerVertical: 'flex-col w-[280px]',
+  ContainerVertical: 'flex-col w-[281px]',
   ContainerHorizontal: 'flex-row w-[360px]',
 
   ImageWrapperBase: 'relative',
-  ImageWrapperVertical: 'h-40 w-full',
-  ImageWrapperHorizontal: 'w-32 h-auto',
+  ImageWrapperVertical: 'h-[104px] w-full',
+  ImageWrapperHorizontal: 'w-[100px] h-auto',
   Image: 'object-cover',
 
   Body: 'py-4 px-6 flex flex-col gap-2 flex-1',

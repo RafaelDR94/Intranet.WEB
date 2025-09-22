@@ -49,6 +49,7 @@ export const ReportsTypesReports = process.env.NEXT_PUBLIC_REPORTS_TYPESREPORTS 
 export const ReportsCategories = process.env.NEXT_PUBLIC_REPORTS_REPORTSCATEGORIES ?? "/Reports/ReportCategories";
 export const ReportsCategoriesByIdType = process.env.NEXT_PUBLIC_REPORTS_REPORTSCATEGORIESBYIDTYPE ?? "/Reports/ReportCategoriesByIdType";
 export const ReportsDevices = process.env.NEXT_PUBLIC_REPORTS_DEVICES ?? "/Reports/DevicesExternal";
+export const ReportsDevicesByLocation = process.env.NEXT_PUBLIC_REPORTS_DEVICESBYLOCATION ?? "/Reports/DevicesByProyectLocationId";
 export const ReportsLocation = process.env.NEXT_PUBLIC_REPORTS_LOCATION ?? "/Reports/Location";
 export const LocationProyect = process.env.NEXT_PUBLIC_LOCATION_REPORTS ?? "/Reports/ProyectLocation";
 export const ReportsLocationProyect = process.env.NEXT_PUBLIC_REPORTS_LOCATIONPROYECT ?? "/Reports/LocationProyect";

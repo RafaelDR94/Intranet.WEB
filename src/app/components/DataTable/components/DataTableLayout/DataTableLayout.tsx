@@ -154,8 +154,8 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
         {/* ✅ Botón primario por defecto SOLO si no hay actionsRender */}
         {showButton && !actionsRender && (
           <Button
-            variant="solid"
-            size="large"
+            variant="solid" 
+            size={isMobile ? "small" : "medium"}
             hideIcon
             onClick={onTableActionClick}
           >

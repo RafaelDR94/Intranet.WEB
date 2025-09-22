@@ -1,0 +1,146 @@
+
+import { Step, ModelsList } from "../types";
+import { FieldModel } from "@/app/components/DynamicForm/types";
+import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
+export const BASE_STEPS: Step[] = [
+  { id: 'avance', label: 'Avance' },
+  { id: 'actividades', label: 'Actividades' },
+  { id: 'equipos', label: 'Equipos' },
+  { id: 'mapas', label: 'Mapas de Trabajo' },
+  { id: 'refacciones', label: 'Refacciones' },
+  { id: 'firma', label: 'Firma' },
+];
+
+export const BASE_FIELDS: FieldModel[] = [
+  {
+    type: 'input',
+    name: 'ticket',
+    label: 'Ticket*',
+    placeholder: 'Numero de ticket',
+    value: 'S/T',
+    validations: [{ type: 'required' }],
+  },
+  {
+    type: 'select',
+    name: 'category',
+    label: 'Categoria*',
+    placeholder: 'Escoge una categoria',
+    value: '',
+    options: [],
+    validations: [{ type: 'required' }],
+    disabled: true,
+  },
+  {
+    type: 'select',
+    name: 'location',
+    label: 'Ubicación*',
+    placeholder: 'Escoge una ubicación',
+    value: '',
+    options: [],
+    validations: [{ type: 'required' }],
+    disabled: true,
+  },
+  {
+    type: 'date',
+    name: 'startDate',
+    label: 'Fecha de Inicio*',
+    value: currentDate(),
+    validations: [{ type: 'required' }],
+  },
+  {
+    type: 'date',
+    name: 'endDate',
+    label: 'Fecha Final*',
+    value: currentDate(),
+    validations: [{ type: 'required' }],
+  },
+  {
+    type: 'number',
+    name: 'progress',
+    label: 'Progreso*',
+    value: 100,
+    validations: [{ type: 'required' }],
+  },
+  {
+    type: 'textarea',
+    name: 'remarks',
+    label: 'Observaciones',
+    value: 'Si observaciones',
+    rows: 4,
+  },
+  {
+    type: 'textarea',
+    name: 'diagnostic',
+    label: 'Diagnostico*',
+    value: '',
+    rows: 4,
+    validations: [{ type: 'required' }],
+  },
+  {
+    type: 'textarea',
+    name: 'solution',
+    label: 'Solucion*',
+    value: '',
+    rows: 4,
+    validations: [{ type: 'required' }],
+  },
+];
+
+export const ReportsModels: ModelsList = {
+  Avance: {
+    maps: true,
+    diagnostic: false,
+    solution: false,
+    refactions: false,
+    clientsign: true,
+    ticket: true,
+  },
+  'Capacitación': {
+    maps: true,
+    diagnostic: false,
+    solution: false,
+    refactions: false,
+    clientsign: true,
+    ticket: true,
+  },
+  Capacitacion: {
+    maps: true,
+    diagnostic: false,
+    solution: false,
+    refactions: false,
+    clientsign: true,
+    ticket: true,
+  },
+  Preventivo: {
+    maps: false,
+    diagnostic: false,
+    solution: false,
+    refactions: true,
+    clientsign: true,
+    ticket: true,
+  },
+  Correctivo: {
+    maps: false,
+    diagnostic: true,
+    solution: true,
+    refactions: true,
+    clientsign: true,
+    ticket: true,
+  },
+  Instalacion: {
+    maps: false,
+    diagnostic: true,
+    solution: true,
+    refactions: true,
+    clientsign: true,
+    ticket: true,
+  },
+  'Instalación': {
+    maps: false,
+    diagnostic: false,
+    solution: false,
+    refactions: true,
+    clientsign: true,
+    ticket: true,
+  },
+};

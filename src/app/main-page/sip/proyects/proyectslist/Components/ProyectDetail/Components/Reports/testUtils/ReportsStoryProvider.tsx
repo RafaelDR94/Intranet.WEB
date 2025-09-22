@@ -26,23 +26,34 @@ export const ReportsStoryProvider: React.FC<ReportsStoryProviderProps> = ({
   }, [initialReport]);
 
   useEffect(() => {
-    useReportsStore.setState((prev:any) => ({
+    const syncReport = (report: ReportView | null) => {
+      action("setCurrentReport")(report);
+      setCurrentReport(report ?? null);
+    };
+
+    useReportsStore.setState((prev: any) => ({
       ...prev,
       reports: resolvedReports,
       currentReport,
       loading: false,
+      loadingCurrent: false,
       successGet: true,
+      succesCurrent: Boolean(currentReport),
+      error: undefined,
       fetchAllReportsByProyect: async () => {
         action("fetchAllReportsByProyect")(sampleProyect.id);
         return resolvedReports;
       },
-      setCurrentReport: (report) => {
-        action("setCurrentReport")(report);
-        setCurrentReport(report ?? null);
+      fetchReportsById: async (id: string) => {
+        action("fetchReportsById")(id);
+        const found = resolvedReports.find((report) => report.id === id) ?? null;
+        syncReport(found);
+        return found;
       },
+      setCurrentReport: (report?: ReportView | null) => syncReport(report ?? null),
       clearCurrentReport: () => {
         action("clearCurrentReport")();
-        setCurrentReport(null);
+        syncReport(null);
       },
     }));
     return () => {

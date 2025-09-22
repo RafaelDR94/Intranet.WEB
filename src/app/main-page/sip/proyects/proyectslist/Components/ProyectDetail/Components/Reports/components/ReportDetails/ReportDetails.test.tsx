@@ -4,9 +4,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createSampleReport } from "../../testUtils/reportFixtures";
 
-import ReportDetails from "./ReportDetails";
-
 let currentReportMock = createSampleReport();
+
+vi.mock("./hooks/useReportDetails", () => ({
+  __esModule: true,
+  default: () => ({ currentReport: currentReportMock, loadingCurrent: false }),
+}));
+
+import ReportDetails from "./ReportDetails";
 
 vi.mock("@/app/stores/useReportsStore/useReportsStore", () => ({
   useReportsStore: (selector?: any) => {

@@ -36,13 +36,13 @@ export type ValidationRule =
 /** Reglas de advertencia no bloqueantes. */
 export interface WarningRule {
   type:
-    | 'minLengthWarning'
-    | 'maxLengthWarning'
-    | 'weakPassword'
-    | 'deprecatedEmailDomain'
-    | 'ageIsLowButValid'
-    | 'ageIsHighButValid'
-    | 'unverifiedLanguage';
+  | 'minLengthWarning'
+  | 'maxLengthWarning'
+  | 'weakPassword'
+  | 'deprecatedEmailDomain'
+  | 'ageIsLowButValid'
+  | 'ageIsHighButValid'
+  | 'unverifiedLanguage';
   value?: number;
 }
 
@@ -71,7 +71,7 @@ export interface FieldModel {
 
   onChange?: (value: any, values: Record<string, any>) => void;
   /**Numero de filas en multilinea*/
-  rows?:number
+  rows?: number
   /** Propiedades para campos numéricos */
   min?: number;
   max?: number;
@@ -109,6 +109,9 @@ export interface DynamicFormProps {
   onSecondaryButtonClick?: (values: Record<string, any>) => void;
   /** Callback ejecutado cuando cambia la validez del formulario. */
   onValidChange?: (isvalid: boolean) => void;
+
+  /** Callback ejecutado cuando cambia la validez del formulario. */
+  onValuesChange?: (values: Record<string, any>) => void;
   /** Texto del botón secundario. */
   secondaryButtonLabel?: string;
   /** Contenido adicional que se renderiza dentro del formulario. */
@@ -140,7 +143,7 @@ export interface DynamicFormProps {
   /** Muestra un spinner de carga en lugar del formulario. */
   loadingFormInfo?: boolean;
   /** Deshabilita todos los campos del formulario */
-  disabled?:boolean
+  disabled?: boolean
   /** Identificador base para data-testid del formulario */
   dataTestId?: string
 }

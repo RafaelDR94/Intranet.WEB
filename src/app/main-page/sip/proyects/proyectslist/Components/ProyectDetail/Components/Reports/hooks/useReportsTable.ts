@@ -1,24 +1,28 @@
 'use client'
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useCallback } from 'react'
 
 import useDocument from './useDocument/useDocument'
 
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useReportsStore } from '@/app/stores/useReportsStore/useReportsStore'
 import { CreatePDF } from '@/app/utilities/PDF/PDF'
+import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
+import useQuery from '@/app/hooks/useQuery/useQuery'
 
 const useReportsTable = () => {
   const searchParams = useSearchParams()
-  const pathname = usePathname()
-  const router = useRouter()
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
+  const { currentPagePermissions } = useAuth();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert } = usePrincipalAlert
   const { makePictureDocument, exportExcel } = useDocument();
   const idproyect = searchParams.get('id') ?? ''
   const reportId = searchParams.get('reportId') ?? ''
+  const newReport = searchParams.get('newReport') ?? false
+  const isMobile = useIsMobile();
   const {
     currentReport,
     reports,
@@ -26,26 +30,19 @@ const useReportsTable = () => {
     fetchAllReportsByProyect,
     setCurrentReport,
   } = useReportsStore()
+  const { updateQuery } = useQuery();
 
-  // Helper: fusiona params actuales con updates y navega sin perder nada
-  const updateQuery = useCallback((updates: Record<string, string | null | undefined>) => {
-    const params = new URLSearchParams(searchParams) // clona los actuales
-    for (const [k, v] of Object.entries(updates)) {
-      if (v == null || v === '') params.delete(k)
-      else params.set(k, String(v))
-    }
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
-  }, [router, pathname, searchParams])
 
   const handleCloseDetails = useCallback(() => {
     updateQuery({ reportId: null }) // elimina reportId de la URL
-    setCurrentReport(null) // limpia el reporte actual en el store
+    setCurrentReport(null);
+    // limpia el reporte actual en el store
   }, [updateQuery, setCurrentReport])
 
   useEffect(() => {
-    if (idproyect) fetchAllReportsByProyect(idproyect, true)
+    if (idproyect && !newReport) fetchAllReportsByProyect(idproyect, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idproyect])
+  }, [idproyect,newReport])
 
   // Cuando hay reporte seleccionado, añade ?reportId=<id> SIN perder otros params
   useEffect(() => {
@@ -153,7 +150,10 @@ const useReportsTable = () => {
     reportId,
     handleCloseDetails,
     handleDownloadPicReport,
-    handleDownloadDigitalReport
+    handleDownloadDigitalReport,
+    currentPagePermissions,
+    isMobile,
+    newReport
   }
 }
 
