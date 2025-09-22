@@ -31,6 +31,12 @@ const parseYearMonthToDate = (value?: string): Date | undefined => {
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
 };
 
+const formatDateToYearMonth = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+};
+
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-MX", {
     style: "currency",
@@ -61,18 +67,27 @@ const getLatestFund = (funds: PettyCashFundData[]): PettyCashFundData | null => 
 };
 
 const buildDateParam = (fund: PettyCashFundData | null): string => {
-  const today = new Date().toISOString().split("T")[0];
+  const fallback = formatDateToYearMonth(new Date());
   const yearMonth = fund?.year_month?.trim();
 
   if (!yearMonth) {
-    return today;
+    return fallback;
   }
 
   if (/^\d{4}-\d{2}$/.test(yearMonth)) {
-    return `${yearMonth}-01`;
+    return yearMonth;
   }
 
-  return yearMonth;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(yearMonth)) {
+    return yearMonth.slice(0, 7);
+  }
+
+  const parsed = parseYearMonthToDate(yearMonth);
+  if (parsed) {
+    return formatDateToYearMonth(parsed);
+  }
+
+  return fallback;
 };
 
 const ControlCards = () => {
