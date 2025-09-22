@@ -3,6 +3,7 @@ import type { AxiosResponse } from 'axios'
 
 import { Get, Set } from '../types'
 
+import { fetchPettyCashFundById } from './fetchPettyCashFundById'
 import { fetchPettyCashFunds } from './fetchPettyCashFunds'
 
 import { BillingPettyCashFund } from '@/app/configurations/Axios/urls'
@@ -27,6 +28,14 @@ export const createPettyCashFund = async (
     const res: AxiosResponse = await post(BillingPettyCashFund, PostPettyCashFundMap(payload))
     const raw = res.data?.data
     const created = raw ? PettyCashFundMap(raw) : null
+
+    if (created) {
+      set({ pettyCashFund: created })
+
+      if (created.id) {
+        await fetchPettyCashFundById(created.id, set, get, true)
+      }
+    }
 
     await fetchPettyCashFunds(set, get, true)
 
