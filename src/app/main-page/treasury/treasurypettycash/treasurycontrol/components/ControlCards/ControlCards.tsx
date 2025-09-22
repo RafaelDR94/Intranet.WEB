@@ -6,7 +6,7 @@ import { shallow } from "zustand/shallow";
 import Summary from "./components/Summary/Summary";
 import { SummaryCard } from "./components/SummaryCard/SummaryCard";
 
-import { BillingPettyCashFundByDate } from "@/app/configurations/Axios/urls";
+import { BillingPettyCashFund } from "@/app/configurations/Axios/urls";
 import type { PettyCashFundData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { PettyCashFundsMap } from "@/app/mappings/billingPettyCash/billingPettyCash.mapper";
 import { useIntranetGatewayStore } from "@/app/stores/system/useIntranetGatewayStore";
@@ -125,7 +125,7 @@ const ControlCards = () => {
         const getFn = requireGateway("get");
         const getReq = pGet(getFn);
         const response = await getReq(
-          `${BillingPettyCashFundByDate}?date=${encodeURIComponent(candidateDate)}`,
+          `${BillingPettyCashFund}ByDate?date=${encodeURIComponent(candidateDate)}`,
         );
         if (cancelled) return;
 

@@ -20,7 +20,15 @@ export const fetchPettyCashFunds = async (set: Set, get: Get, force = false) => 
   try {
     const getFn = requireGateway('get')
     const getReq = pGet(getFn)
-    const res: AxiosResponse = await getReq(BillingPettyCashFund)
+
+    // Obtener año y mes actual en formato YYYY-MM
+    const now = new Date()
+    const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+
+    const res: AxiosResponse = await getReq(
+      `${BillingPettyCashFund}ByDate?date=${yearMonth}`
+    )
+
     const mapped = PettyCashFundsMap(res.data?.data ?? [])
     set({ pettyCashFunds: mapped, loading: false, successGetFunds: true })
   } catch (e) {
@@ -28,4 +36,3 @@ export const fetchPettyCashFunds = async (set: Set, get: Get, force = false) => 
     set({ error: err.message, loading: false, successGetFunds: false })
   }
 }
-
