@@ -16,7 +16,9 @@ const PettyCashRequest = () => {
         }
       </div>
       <div className="mt-5">
-        <VoucherBlue />
+        {currentPagePermissions?.voucherblue && 
+          <VoucherBlue />
+        }
       </div>
     </PettyCashProvider>
   );

@@ -22,6 +22,7 @@ import TicketBlue from "@/assets/svgs/ticket-blue.svg";
 import TicketGreen from "@/assets/svgs/ticket-green.svg";
 import TicketPink from "@/assets/svgs/ticket-pink.svg";
 import TicketYellow from "@/assets/svgs/ticket-yellow.svg";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
 const parseYearMonthToDate = (value?: string): Date | undefined => {
   if (!value) return undefined;
@@ -45,7 +46,9 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 2,
   }).format(value);
 
-const getLatestFund = (funds: PettyCashFundData[]): PettyCashFundData | null => {
+const getLatestFund = (
+  funds: PettyCashFundData[],
+): PettyCashFundData | null => {
   if (!Array.isArray(funds) || funds.length === 0) {
     return null;
   }
@@ -93,16 +96,20 @@ const buildDateParam = (fund: PettyCashFundData | null): string => {
 const ControlCards = () => {
   const isGatewayReady = useIntranetGatewayStore((state) => state.isReady);
 
-  const { pettyCashFunds, pettyCashFund, fetchPettyCashFunds, fetchPettyCashFundById } =
-    useBillingPettyCash(
-      (state) => ({
-        pettyCashFunds: state.pettyCashFunds,
-        pettyCashFund: state.pettyCashFund,
-        fetchPettyCashFunds: state.fetchPettyCashFunds,
-        fetchPettyCashFundById: state.fetchPettyCashFundById,
-      }),
-      shallow,
-    );
+  const {
+    pettyCashFunds,
+    pettyCashFund,
+    fetchPettyCashFunds,
+    fetchPettyCashFundById,
+  } = useBillingPettyCash(
+    (state) => ({
+      pettyCashFunds: state.pettyCashFunds,
+      pettyCashFund: state.pettyCashFund,
+      fetchPettyCashFunds: state.fetchPettyCashFunds,
+      fetchPettyCashFundById: state.fetchPettyCashFundById,
+    }),
+    shallow,
+  );
 
   React.useEffect(() => {
     if (!isGatewayReady) return;
@@ -178,6 +185,9 @@ const ControlCards = () => {
     if (assignedAmount <= 0) return undefined;
     return `Fijo asignado: ${formatCurrency(assignedAmount)}`;
   }, [assignedAmount]);
+  const canEditCash = true;
+
+  const { currentPagePermissions } = useAuth();
 
   return (
     <div className="flex justify-between">
@@ -212,6 +222,16 @@ const ControlCards = () => {
             trend="down"
             accent="green"
             amountDigits={2}
+            editable={currentPagePermissions?.editMoney} // ← muestra u oculta el lápiz según permiso
+            onEditSubmit={(nuevoValor) => {
+              // Aquí harás el POST más tarde
+              // Por ahora, solo deja un log o integra tu store para refrescar
+              console.log("Nuevo efectivo capturado:", nuevoValor);
+
+              // (Opcional) si quieres reflejarlo en UI sin recargar:
+              // Si tienes un setter en el store, podrías actualizarlo aquí.
+              // updatePettyCashFund({ cash_on_hand: nuevoValor });
+            }}
           />
         </div>
         <div className="flex">

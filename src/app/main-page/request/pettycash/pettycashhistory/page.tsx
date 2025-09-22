@@ -147,6 +147,7 @@ const PettyCashHistory = () => {
   } = usePettyCashHistory();
 
   const isMobile = useIsMobile();
+  const { currentPagePermissions } = useAuth();
 
   // Columnas de escritorio
   const columnsDesktop: ColumnDefinition<PettyCashHistoryRow>[] = React.useMemo( () => [
@@ -266,6 +267,7 @@ const PettyCashHistory = () => {
         onPrimaryButtonClick={handleConfirmDelete}
       />
       <div className="space-y-8 overflow-auto">
+        {currentPagePermissions?.voucherhistory && 
         <DataTable
           showCalendar={false}
           showFilter={false}
@@ -284,6 +286,7 @@ const PettyCashHistory = () => {
             },
           ]}
         />
+      }
       </div>
 
       <PettyCashProvider>

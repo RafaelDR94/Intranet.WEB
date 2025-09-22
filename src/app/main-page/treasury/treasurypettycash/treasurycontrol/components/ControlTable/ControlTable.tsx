@@ -291,7 +291,7 @@ const ControlTable = () => {
         isRejecting={rejecting}
       />
 
-      {!currentPagePermissions?.read && (
+      {currentPagePermissions?.read && (
         <DataTable
           showCalendar={false}
           showFilter={false}

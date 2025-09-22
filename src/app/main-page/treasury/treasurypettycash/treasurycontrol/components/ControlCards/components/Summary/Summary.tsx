@@ -8,6 +8,7 @@ import Donut from "@/app/components/Donut/Donut";
 import { Input } from "@/app/components/Input/Input";
 import { useIntranetGatewayStore } from "@/app/stores/system/useIntranetGatewayStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
 type SummaryProps = {
   title?: string;
@@ -147,25 +148,21 @@ export default function Summary({
   const canSave = showInput && !headerDisabled && isAmountValid;
   const containerHeight = showInput ? "h-[230px]" : "h-[184px]";
 
+  const { currentPagePermissions } = useAuth();
+  const canCreate = Boolean(currentPagePermissions?.createfound);
+
   return (
     <div className={containerHeight}>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <p className="text-b4 text-blue-60">Control de Fondo</p>
-          <div className="h-[1px] w-[26px] bg-blue-60" />
-        </div>
+        {canCreate && !showInput && (
+          <div className="flex items-center gap-3">
+            <p className="text-b4 text-blue-60">Control de Fondo</p>
+            <div className="h-[1px] w-[26px] bg-blue-60" />
+          </div>
+        )}
 
         <div className="flex items-center gap-2">
-          {showInput ? (
-            <Button
-              hideIcon
-              variant="outline"
-              onClick={handleCancel}
-              disabled={creating}
-            >
-              Cancelar
-            </Button>
-          ) : (
+          {canCreate && !showInput && (
             <Button
               hideIcon
               variant="outline"
@@ -175,14 +172,30 @@ export default function Summary({
               Crear
             </Button>
           )}
-          <Button
-            hideIcon
-            variant="outline"
-            onClick={handleSave}
-            disabled={!canSave || creating}
-          >
-            Guardar Ajustes
-          </Button>
+
+          {showInput && (
+            <>
+              <Button
+                hideIcon
+                variant="outline"
+                onClick={handleCancel}
+                disabled={creating}
+              >
+                Cancelar
+              </Button>
+
+              {canCreate && (
+                <Button
+                  hideIcon
+                  variant="outline"
+                  onClick={handleSave}
+                  disabled={!canSave || creating}
+                >
+                  Guardar Ajustes
+                </Button>
+              )}
+            </>
+          )}
         </div>
       </div>
 
