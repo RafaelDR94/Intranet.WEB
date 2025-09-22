@@ -6,8 +6,14 @@ import { shallow } from "zustand/shallow";
 import Summary from "./components/Summary/Summary";
 import { SummaryCard } from "./components/SummaryCard/SummaryCard";
 
+import { BillingPettyCashFundByDate } from "@/app/configurations/Axios/urls";
+import type { PettyCashFundData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import { PettyCashFundsMap } from "@/app/mappings/billingPettyCash/billingPettyCash.mapper";
 import { useIntranetGatewayStore } from "@/app/stores/system/useIntranetGatewayStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
+import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
+import { pGet } from "@/app/utilities/Http/promisifyIntranet";
+import { requireGateway } from "@/app/utilities/Http/requireGateway";
 import SecTicketBlue from "@/assets/svgs/secondTicketB.svg";
 import SecTicketGreen from "@/assets/svgs/secondTicketG.svg";
 import SecTicketPink from "@/assets/svgs/secondTicketP.svg";
@@ -16,24 +22,6 @@ import TicketBlue from "@/assets/svgs/ticket-blue.svg";
 import TicketGreen from "@/assets/svgs/ticket-green.svg";
 import TicketPink from "@/assets/svgs/ticket-pink.svg";
 import TicketYellow from "@/assets/svgs/ticket-yellow.svg";
-
-type FundTotals = {
-  assigned: number;
-  verified: number;
-  cash: number;
-  unverified: number;
-  pending: number;
-  available: number;
-};
-
-const INITIAL_TOTALS: FundTotals = {
-  assigned: 0,
-  verified: 0,
-  cash: 0,
-  unverified: 0,
-  pending: 0,
-  available: 0,
-};
 
 const parseYearMonthToDate = (value?: string): Date | undefined => {
   if (!value) return undefined;
@@ -51,69 +39,138 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 2,
   }).format(value);
 
+const getLatestFund = (funds: PettyCashFundData[]): PettyCashFundData | null => {
+  if (!Array.isArray(funds) || funds.length === 0) {
+    return null;
+  }
+
+  let latest: PettyCashFundData | null = null;
+  let latestTime = -Infinity;
+
+  funds.forEach((fund) => {
+    const parsed = parseYearMonthToDate(fund.year_month);
+    if (!parsed) return;
+    const time = parsed.getTime();
+    if (time >= latestTime) {
+      latestTime = time;
+      latest = fund;
+    }
+  });
+
+  return latest;
+};
+
+const buildDateParam = (fund: PettyCashFundData | null): string => {
+  const today = new Date().toISOString().split("T")[0];
+  const yearMonth = fund?.year_month?.trim();
+
+  if (!yearMonth) {
+    return today;
+  }
+
+  if (/^\d{4}-\d{2}$/.test(yearMonth)) {
+    return `${yearMonth}-01`;
+  }
+
+  return yearMonth;
+};
+
 const ControlCards = () => {
   const isGatewayReady = useIntranetGatewayStore((state) => state.isReady);
 
-  const { pettyCashFunds, fetchPettyCashFunds } = useBillingPettyCash(
-    (state) => ({
-      pettyCashFunds: state.pettyCashFunds,
-      fetchPettyCashFunds: state.fetchPettyCashFunds,
-    }),
-    shallow,
-  );
+  const { pettyCashFunds, pettyCashFund, fetchPettyCashFunds, fetchPettyCashFundById } =
+    useBillingPettyCash(
+      (state) => ({
+        pettyCashFunds: state.pettyCashFunds,
+        pettyCashFund: state.pettyCashFund,
+        fetchPettyCashFunds: state.fetchPettyCashFunds,
+        fetchPettyCashFundById: state.fetchPettyCashFundById,
+      }),
+      shallow,
+    );
 
   React.useEffect(() => {
     if (!isGatewayReady) return;
     fetchPettyCashFunds();
   }, [isGatewayReady, fetchPettyCashFunds]);
 
-  const totals = React.useMemo<FundTotals>(() => {
-    if (!pettyCashFunds.length) {
-      return INITIAL_TOTALS;
-    }
+  const latestFundFromList = React.useMemo(
+    () => getLatestFund(pettyCashFunds),
+    [pettyCashFunds],
+  );
 
-    return pettyCashFunds.reduce<FundTotals>(
-      (acc, fund) => ({
-        assigned: acc.assigned + fund.assigned_amount,
-        verified: acc.verified + fund.verified_amount,
-        cash: acc.cash + fund.cash_on_hand,
-        unverified: acc.unverified + fund.unverified_amount,
-        pending: acc.pending + fund.pending_verification,
-        available: acc.available + fund.available_amount,
-      }),
-      INITIAL_TOTALS,
-    );
-  }, [pettyCashFunds]);
+  React.useEffect(() => {
+    if (!isGatewayReady) return undefined;
 
-  const latestDate = React.useMemo(() => {
-    let latest: Date | undefined;
-    pettyCashFunds.forEach((fund) => {
-      const parsed = parseYearMonthToDate(fund.year_month);
-      if (!parsed) return;
-      if (!latest || parsed.getTime() > latest.getTime()) {
-        latest = parsed;
+    let cancelled = false;
+
+    const loadLatestFund = async () => {
+      try {
+        const candidateDate = buildDateParam(latestFundFromList);
+        const getFn = requireGateway("get");
+        const getReq = pGet(getFn);
+        const response = await getReq(
+          `${BillingPettyCashFundByDate}?date=${encodeURIComponent(candidateDate)}`,
+        );
+        if (cancelled) return;
+
+        const funds = PettyCashFundsMap(response.data?.data ?? []);
+        const newestFund = getLatestFund(funds) ?? latestFundFromList;
+
+        if (!newestFund?.id) {
+          return;
+        }
+
+        await fetchPettyCashFundById(newestFund.id, true);
+      } catch (error) {
+        const normalized = normalizeApiError(error);
+        if (process.env.NODE_ENV !== "production") {
+          console.error(
+            "No se pudo obtener el fondo de caja chica más reciente:",
+            normalized?.message ?? error,
+          );
+        }
       }
-    });
-    return latest;
-  }, [pettyCashFunds]);
+    };
+
+    void loadLatestFund();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchPettyCashFundById, isGatewayReady, latestFundFromList]);
+
+  const activeFund = pettyCashFund ?? latestFundFromList;
+
+  const assignedAmount = activeFund?.assigned_amount ?? 0;
+  const availableAmount = activeFund?.available_amount ?? 0;
+  const verifiedAmount = activeFund?.verified_amount ?? 0;
+  const cashAmount = activeFund?.cash_on_hand ?? 0;
+  const unverifiedAmount = activeFund?.unverified_amount ?? 0;
+  const pendingAmount = activeFund?.pending_verification ?? 0;
+
+  const summaryDate = React.useMemo(
+    () => parseYearMonthToDate(activeFund?.year_month),
+    [activeFund?.year_month],
+  );
 
   const percent = React.useMemo(() => {
-    if (totals.assigned <= 0) return 0;
-    return (totals.available / totals.assigned) * 100;
-  }, [totals.assigned, totals.available]);
+    if (assignedAmount <= 0) return 0;
+    return (availableAmount / assignedAmount) * 100;
+  }, [assignedAmount, availableAmount]);
 
   const assignedSubtitle = React.useMemo(() => {
-    if (totals.assigned <= 0) return undefined;
-    return `Fijo asignado: ${formatCurrency(totals.assigned)}`;
-  }, [totals.assigned]);
+    if (assignedAmount <= 0) return undefined;
+    return `Fijo asignado: ${formatCurrency(assignedAmount)}`;
+  }, [assignedAmount]);
 
   return (
     <div className="flex justify-between">
       <div className="w-[36%] rounded-lg">
         <Summary
-          date={latestDate ?? null}
-          assigned={totals.assigned}
-          available={totals.available}
+          date={summaryDate ?? null}
+          assigned={assignedAmount}
+          available={availableAmount}
           percent={percent}
         />
       </div>
@@ -121,7 +178,7 @@ const ControlCards = () => {
         <div className="flex">
           <SummaryCard
             title="Monto comprobado"
-            amount={totals.verified}
+            amount={verifiedAmount}
             statusLabel="Comprobados"
             SvgIcon={TicketPink}
             SvgSecondIcon={SecTicketPink}
@@ -133,7 +190,7 @@ const ControlCards = () => {
           <SummaryCard
             title="Efectivo"
             subtitle={assignedSubtitle}
-            amount={totals.cash}
+            amount={cashAmount}
             statusLabel="Utilizados"
             SvgIcon={TicketGreen}
             SvgSecondIcon={SecTicketGreen}
@@ -145,7 +202,7 @@ const ControlCards = () => {
         <div className="flex">
           <SummaryCard
             title="Monto no comprobado"
-            amount={totals.unverified}
+            amount={unverifiedAmount}
             statusLabel="No deducibles"
             SvgIcon={TicketBlue}
             SvgSecondIcon={SecTicketBlue}
@@ -156,7 +213,7 @@ const ControlCards = () => {
 
           <SummaryCard
             title="Pendientes por comprobar"
-            amount={totals.pending}
+            amount={pendingAmount}
             statusLabel="Pendientes"
             SvgIcon={TicketYellow}
             SvgSecondIcon={SecTicketYellow}
