@@ -6,6 +6,7 @@ import { shallow } from "zustand/shallow";
 import { Button } from "@/app/components/Button/Button";
 import Donut from "@/app/components/Donut/Donut";
 import { Input } from "@/app/components/Input/Input";
+import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useIntranetGatewayStore } from "@/app/stores/system/useIntranetGatewayStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
@@ -69,17 +70,21 @@ export default function Summary({
   const [isCreating, setIsCreating] = React.useState(false);
   const [assignedInput, setAssignedInput] = React.useState("");
   const [inputError, setInputError] = React.useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [pendingAmount, setPendingAmount] = React.useState<number | null>(null);
 
   const isGatewayReady = useIntranetGatewayStore((state) => state.isReady);
 
-  const { createPettyCashFund, creating, error } = useBillingPettyCash(
-    (state) => ({
-      createPettyCashFund: state.createPettyCashFund,
-      creating: state.creating,
-      error: state.error,
-    }),
-    shallow,
-  );
+  const { createPettyCashFund, fetchPettyCashVouchers, creating, error } =
+    useBillingPettyCash(
+      (state) => ({
+        createPettyCashFund: state.createPettyCashFund,
+        fetchPettyCashVouchers: state.fetchPettyCashVouchers,
+        creating: state.creating,
+        error: state.error,
+      }),
+      shallow,
+    );
 
   const percentValue =
     typeof percent === "number" && !Number.isNaN(percent) ? percent : 0;
@@ -110,9 +115,11 @@ export default function Summary({
     setIsCreating(false);
     setAssignedInput("");
     setInputError(null);
+    setConfirmOpen(false);
+    setPendingAmount(null);
   }, [creating]);
 
-  const handleSave = React.useCallback(async () => {
+  const handleSaveRequest = React.useCallback(() => {
     if (!isCreating || creating) return;
 
     const parsed = Number.parseFloat(assignedInput);
@@ -122,23 +129,46 @@ export default function Summary({
     }
 
     const normalized = Math.round(parsed * 100) / 100;
+    setPendingAmount(normalized);
+    setConfirmOpen(true);
+  }, [assignedInput, creating, isCreating]);
+
+  const closeConfirm = React.useCallback(() => {
+    if (creating) return;
+    setConfirmOpen(false);
+    setPendingAmount(null);
+  }, [creating]);
+
+  const handleConfirmSave = React.useCallback(async () => {
+    if (!isCreating || creating) return;
+    if (pendingAmount == null) return;
 
     const result = await createPettyCashFund({
       year_month: yearMonth,
-      assigned_amount: normalized,
+      assigned_amount: pendingAmount,
       verified_amount: 0,
       cash_on_hand: 0,
       unverified_amount: 0,
       pending_verification: 0,
-      available_amount: normalized,
+      available_amount: pendingAmount,
     });
 
     if (result) {
       setIsCreating(false);
       setAssignedInput("");
       setInputError(null);
+      setPendingAmount(null);
+      setConfirmOpen(false);
+      await fetchPettyCashVouchers(true);
     }
-  }, [assignedInput, createPettyCashFund, creating, isCreating, yearMonth]);
+  }, [
+    createPettyCashFund,
+    creating,
+    fetchPettyCashVouchers,
+    isCreating,
+    pendingAmount,
+    yearMonth,
+  ]);
 
   const showInput = isCreating;
   const parsedAmount = Number.parseFloat(assignedInput);
@@ -153,6 +183,18 @@ export default function Summary({
 
   return (
     <div className={containerHeight}>
+      <PopUp
+        open={confirmOpen}
+        onClose={closeConfirm}
+        title="Confirmación"
+        content="¿Desea guardar los cambios realizados?"
+        showPrimaryButton
+        showSecondaryButton
+        primaryButtonText={creating ? "Guardando..." : "Guardar"}
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={closeConfirm}
+        onPrimaryButtonClick={handleConfirmSave}
+      />
       <div className="mb-3 flex items-center justify-between gap-3">
         {canCreate && !showInput && (
           <div className="flex items-center gap-3">
@@ -188,7 +230,7 @@ export default function Summary({
                 <Button
                   hideIcon
                   variant="outline"
-                  onClick={handleSave}
+                  onClick={handleSaveRequest}
                   disabled={!canSave || creating}
                 >
                   Guardar Ajustes

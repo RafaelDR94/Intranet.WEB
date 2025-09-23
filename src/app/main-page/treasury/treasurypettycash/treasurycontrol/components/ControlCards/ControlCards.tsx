@@ -6,14 +6,12 @@ import { shallow } from "zustand/shallow";
 import Summary from "./components/Summary/Summary";
 import { SummaryCard } from "./components/SummaryCard/SummaryCard";
 
-import { BillingPettyCashFund } from "@/app/configurations/Axios/urls";
-import type { PettyCashFundData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
-import { PettyCashFundsMap } from "@/app/mappings/billingPettyCash/billingPettyCash.mapper";
+import type {
+  PettyCashFundData,
+  PettyCashVoucherData,
+} from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { useIntranetGatewayStore } from "@/app/stores/system/useIntranetGatewayStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
-import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
-import { pGet } from "@/app/utilities/Http/promisifyIntranet";
-import { requireGateway } from "@/app/utilities/Http/requireGateway";
 import SecTicketBlue from "@/assets/svgs/secondTicketB.svg";
 import SecTicketGreen from "@/assets/svgs/secondTicketG.svg";
 import SecTicketPink from "@/assets/svgs/secondTicketP.svg";
@@ -30,12 +28,6 @@ const parseYearMonthToDate = (value?: string): Date | undefined => {
   if (!Number.isFinite(year) || !Number.isFinite(month)) return undefined;
   const parsed = new Date(year, month - 1, 1);
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
-};
-
-const formatDateToYearMonth = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  return `${year}-${month}`;
 };
 
 const formatCurrency = (value: number) =>
@@ -69,28 +61,32 @@ const getLatestFund = (
   return latest;
 };
 
-const buildDateParam = (fund: PettyCashFundData | null): string => {
-  const fallback = formatDateToYearMonth(new Date());
-  const yearMonth = fund?.year_month?.trim();
+const parseApplicationDate = (value?: string) => {
+  if (!value) return null;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
+};
 
-  if (!yearMonth) {
-    return fallback;
+const getLatestVoucherInfo = (
+  vouchers: PettyCashVoucherData[],
+): { voucher: PettyCashVoucherData; date: Date } | null => {
+  if (!Array.isArray(vouchers) || vouchers.length === 0) {
+    return null;
   }
 
-  if (/^\d{4}-\d{2}$/.test(yearMonth)) {
-    return yearMonth;
-  }
+  let latest: { voucher: PettyCashVoucherData; date: Date } | null = null;
 
-  if (/^\d{4}-\d{2}-\d{2}$/.test(yearMonth)) {
-    return yearMonth.slice(0, 7);
-  }
+  vouchers.forEach((voucher) => {
+    const parsed = parseApplicationDate(voucher.application_date);
+    if (!parsed) return;
 
-  const parsed = parseYearMonthToDate(yearMonth);
-  if (parsed) {
-    return formatDateToYearMonth(parsed);
-  }
+    if (!latest || parsed.getTime() >= latest.date.getTime()) {
+      latest = { voucher, date: parsed };
+    }
+  });
 
-  return fallback;
+  return latest;
 };
 
 const ControlCards = () => {
@@ -99,14 +95,16 @@ const ControlCards = () => {
   const {
     pettyCashFunds,
     pettyCashFund,
+    pettyCashVouchers,
     fetchPettyCashFunds,
-    fetchPettyCashFundById,
+    fetchPettyCashVouchers,
   } = useBillingPettyCash(
     (state) => ({
       pettyCashFunds: state.pettyCashFunds,
       pettyCashFund: state.pettyCashFund,
+      pettyCashVouchers: state.pettyCashVouchers,
       fetchPettyCashFunds: state.fetchPettyCashFunds,
-      fetchPettyCashFundById: state.fetchPettyCashFundById,
+      fetchPettyCashVouchers: state.fetchPettyCashVouchers,
     }),
     shallow,
   );
@@ -116,53 +114,33 @@ const ControlCards = () => {
     fetchPettyCashFunds();
   }, [isGatewayReady, fetchPettyCashFunds]);
 
+  React.useEffect(() => {
+    if (!isGatewayReady) return;
+    fetchPettyCashVouchers();
+  }, [isGatewayReady, fetchPettyCashVouchers]);
+
   const latestFundFromList = React.useMemo(
     () => getLatestFund(pettyCashFunds),
     [pettyCashFunds],
   );
 
-  React.useEffect(() => {
-    if (!isGatewayReady) return undefined;
+  const latestVoucherInfo = React.useMemo(
+    () => getLatestVoucherInfo(pettyCashVouchers),
+    [pettyCashVouchers],
+  );
 
-    let cancelled = false;
+  const fundFromLatestVoucher = React.useMemo(() => {
+    const fundId = latestVoucherInfo?.voucher?.petty_cash_funds_id;
+    if (!fundId) return null;
 
-    const loadLatestFund = async () => {
-      try {
-        const candidateDate = buildDateParam(latestFundFromList);
-        const getFn = requireGateway("get");
-        const getReq = pGet(getFn);
-        const response = await getReq(
-          `${BillingPettyCashFund}ByDate?date=${encodeURIComponent(candidateDate)}`,
-        );
-        if (cancelled) return;
+    if (pettyCashFund?.id === fundId) {
+      return pettyCashFund;
+    }
 
-        const funds = PettyCashFundsMap(response.data?.data ?? []);
-        const newestFund = getLatestFund(funds) ?? latestFundFromList;
+    return pettyCashFunds.find((fund) => fund.id === fundId) ?? null;
+  }, [latestVoucherInfo?.voucher?.petty_cash_funds_id, pettyCashFund, pettyCashFunds]);
 
-        if (!newestFund?.id) {
-          return;
-        }
-
-        await fetchPettyCashFundById(newestFund.id, true);
-      } catch (error) {
-        const normalized = normalizeApiError(error);
-        if (process.env.NODE_ENV !== "production") {
-          console.error(
-            "No se pudo obtener el fondo de caja chica más reciente:",
-            normalized?.message ?? error,
-          );
-        }
-      }
-    };
-
-    void loadLatestFund();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchPettyCashFundById, isGatewayReady, latestFundFromList]);
-
-  const activeFund = pettyCashFund ?? latestFundFromList;
+  const activeFund = fundFromLatestVoucher ?? pettyCashFund ?? latestFundFromList;
 
   const assignedAmount = activeFund?.assigned_amount ?? 0;
   const availableAmount = activeFund?.available_amount ?? 0;
@@ -172,8 +150,9 @@ const ControlCards = () => {
   const pendingAmount = activeFund?.pending_verification ?? 0;
 
   const summaryDate = React.useMemo(
-    () => parseYearMonthToDate(activeFund?.year_month),
-    [activeFund?.year_month],
+    () =>
+      latestVoucherInfo?.date ?? parseYearMonthToDate(activeFund?.year_month),
+    [activeFund?.year_month, latestVoucherInfo?.date],
   );
 
   const percent = React.useMemo(() => {
