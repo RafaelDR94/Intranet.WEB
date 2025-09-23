@@ -72,6 +72,7 @@ const ControlCards = () => {
     pettyCashVouchers,
     fetchPettyCashFunds,
     fetchPettyCashVouchers,
+    updateCashOnHand,
   } = useBillingPettyCash(
     (state) => ({
       pettyCashFunds: state.pettyCashFunds,
@@ -79,6 +80,7 @@ const ControlCards = () => {
       pettyCashVouchers: state.pettyCashVouchers,
       fetchPettyCashFunds: state.fetchPettyCashFunds,
       fetchPettyCashVouchers: state.fetchPettyCashVouchers,
+      updateCashOnHand: state.updateCashOnHand,
     }),
     shallow,
   );
@@ -104,6 +106,7 @@ const ControlCards = () => {
   const cashAmount = mostRecentFund?.cash_on_hand ?? 0;
   const unverifiedAmount = mostRecentFund?.unverified_amount ?? 0;
   const pendingAmount = mostRecentFund?.pending_verification ?? 0;
+  const mostRecentFundId = mostRecentFund?.id;
 
   const summaryDate = React.useMemo(() => getFundDate(mostRecentFund), [mostRecentFund]);
 
@@ -118,6 +121,22 @@ const ControlCards = () => {
   }, [assignedAmount]);
 
   const { currentPagePermissions } = useAuth();
+
+  const handleCashOnHandSubmit = React.useCallback(
+    async (nuevoValor: number) => {
+      if (!mostRecentFundId) return;
+
+      const success = await updateCashOnHand({
+        id_petty_cash_found: mostRecentFundId,
+        cash_on_hand: nuevoValor,
+      });
+
+      if (success) {
+        await fetchPettyCashFunds(true);
+      }
+    },
+    [fetchPettyCashFunds, mostRecentFundId, updateCashOnHand]
+  );
 
   return (
     <div className="flex justify-between">
@@ -152,9 +171,7 @@ const ControlCards = () => {
             accent="green"
             amountDigits={2}
             editable={currentPagePermissions?.editMoney}
-            onEditSubmit={(nuevoValor) => {
-              console.log("Nuevo efectivo capturado:", nuevoValor);
-            }}
+            onEditSubmit={handleCashOnHandSubmit}
           />
         </div>
         <div className="flex">
