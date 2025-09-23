@@ -22,19 +22,19 @@ import TicketPink from "@/assets/svgs/ticket-pink.svg";
 import TicketYellow from "@/assets/svgs/ticket-yellow.svg";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
+// Funciones utilitarias para fechas y formato
+const parseDateString = (value?: string | null): Date | null => {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
 const parseYearMonthToDate = (value?: string): Date | null => {
   if (!value) return null;
   const [year, month] = value.split("-").map(Number);
   if (!Number.isFinite(year) || !Number.isFinite(month)) return null;
   const parsed = new Date(year, month - 1, 1);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
-};
-
-const parseDateString = (value?: string | null): Date | null => {
-  if (!value) return null;
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return null;
-  return parsed;
 };
 
 const getFundDate = (fund?: PettyCashFundData | null): Date | null => {
@@ -50,60 +50,17 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 2,
   }).format(value);
 
-const getLatestFund = (
-  funds: PettyCashFundData[],
-): PettyCashFundData | null => {
-  if (!Array.isArray(funds) || funds.length === 0) {
-    return null;
-  }
+// 🚀 AQUÍ ordenamos la lista y tomamos el primer fondo más reciente
+const getMostRecentFund = (funds: PettyCashFundData[]): PettyCashFundData | null => {
+  if (!Array.isArray(funds) || funds.length === 0) return null;
 
-  let latest: PettyCashFundData | null = null;
-  let latestTime = -Infinity;
-  let fallback: PettyCashFundData | null = null;
-
-  funds.forEach((fund) => {
-    const parsed = getFundDate(fund);
-    if (!parsed) {
-      if (!fallback) {
-        fallback = fund;
-      }
-      return;
-    }
-    const time = parsed.getTime();
-    if (time >= latestTime) {
-      latestTime = time;
-      latest = fund;
-    }
+  const sorted = [...funds].sort((a, b) => {
+    const dateA = getFundDate(a)?.getTime() ?? 0;
+    const dateB = getFundDate(b)?.getTime() ?? 0;
+    return dateB - dateA;
   });
 
-  return latest ?? fallback;
-};
-
-const getLatestFundFromVouchers = (
-  vouchers: PettyCashVoucherData[],
-): { fundId: string; date: Date } | null => {
-  if (!Array.isArray(vouchers) || vouchers.length === 0) {
-    return null;
-  }
-
-  let latest: { fundId: string; date: Date } | null = null;
-
-  vouchers.forEach((voucher) => {
-    const fundId = voucher.petty_cash_funds_id;
-    if (!fundId) return;
-
-    const parsed =
-      parseDateString(voucher.fund_date_created) ??
-      parseDateString(voucher.date_created) ??
-      parseDateString(voucher.application_date);
-    if (!parsed) return;
-
-    if (!latest || parsed.getTime() >= latest.date.getTime()) {
-      latest = { fundId, date: parsed };
-    }
-  });
-
-  return latest;
+  return sorted[0] ?? null;
 };
 
 const ControlCards = () => {
@@ -126,85 +83,29 @@ const ControlCards = () => {
     shallow,
   );
 
+  // 🔄 Cargar fondos y vales al montar
   React.useEffect(() => {
-    if (!isGatewayReady) return;
-    fetchPettyCashFunds();
+    if (isGatewayReady) fetchPettyCashFunds();
   }, [isGatewayReady, fetchPettyCashFunds]);
 
   React.useEffect(() => {
-    if (!isGatewayReady) return;
-    fetchPettyCashVouchers();
+    if (isGatewayReady) fetchPettyCashVouchers();
   }, [isGatewayReady, fetchPettyCashVouchers]);
 
-  const latestFundFromList = React.useMemo(
-    () => getLatestFund(pettyCashFunds),
-    [pettyCashFunds],
+  // 📌 Seleccionar el fondo más reciente usando posición 0
+  const mostRecentFund = React.useMemo(
+    () => getMostRecentFund(pettyCashFunds),
+    [pettyCashFunds]
   );
 
-  const latestVoucherFund = React.useMemo(
-    () => getLatestFundFromVouchers(pettyCashVouchers),
-    [pettyCashVouchers],
-  );
+  const assignedAmount = mostRecentFund?.assigned_amount ?? 0;
+  const availableAmount = mostRecentFund?.available_amount ?? 0;
+  const verifiedAmount = mostRecentFund?.verified_amount ?? 0;
+  const cashAmount = mostRecentFund?.cash_on_hand ?? 0;
+  const unverifiedAmount = mostRecentFund?.unverified_amount ?? 0;
+  const pendingAmount = mostRecentFund?.pending_verification ?? 0;
 
-  const fundFromLatestVoucher = React.useMemo(() => {
-    const fundId = latestVoucherFund?.fundId;
-    if (!fundId) return null;
-
-    if (pettyCashFund?.id === fundId) {
-      return pettyCashFund;
-    }
-
-    return pettyCashFunds.find((fund) => fund.id === fundId) ?? null;
-  }, [latestVoucherFund?.fundId, pettyCashFund, pettyCashFunds]);
-
-  const candidateFunds = React.useMemo(() => {
-    const map = new Map<string, PettyCashFundData>();
-
-    [fundFromLatestVoucher, pettyCashFund, latestFundFromList]
-      .filter((fund): fund is PettyCashFundData => Boolean(fund))
-      .forEach((fund) => {
-        map.set(fund.id, fund);
-      });
-
-    return Array.from(map.values());
-  }, [fundFromLatestVoucher, pettyCashFund, latestFundFromList]);
-
-  const activeFund = React.useMemo(() => {
-    if (candidateFunds.length === 0) return null;
-
-    let latest: PettyCashFundData | null = null;
-    let latestTime = -Infinity;
-
-    candidateFunds.forEach((fund) => {
-      const parsed = getFundDate(fund);
-      if (!parsed) {
-        if (!latest) {
-          latest = fund;
-        }
-        return;
-      }
-
-      const time = parsed.getTime();
-      if (time >= latestTime) {
-        latestTime = time;
-        latest = fund;
-      }
-    });
-
-    return latest;
-  }, [candidateFunds]);
-
-  const assignedAmount = activeFund?.assigned_amount ?? 0;
-  const availableAmount = activeFund?.available_amount ?? 0;
-  const verifiedAmount = activeFund?.verified_amount ?? 0;
-  const cashAmount = activeFund?.cash_on_hand ?? 0;
-  const unverifiedAmount = activeFund?.unverified_amount ?? 0;
-  const pendingAmount = activeFund?.pending_verification ?? 0;
-
-  const summaryDate = React.useMemo(
-    () => getFundDate(activeFund) ?? latestVoucherFund?.date ?? null,
-    [activeFund, latestVoucherFund?.date],
-  );
+  const summaryDate = React.useMemo(() => getFundDate(mostRecentFund), [mostRecentFund]);
 
   const percent = React.useMemo(() => {
     if (assignedAmount <= 0) return 0;
@@ -220,7 +121,7 @@ const ControlCards = () => {
 
   return (
     <div className="flex justify-between">
-      <div className="w-[36%] rounded-lg">
+      <div className="w-[36%] h-[250px]">
         <Summary
           date={summaryDate ?? null}
           assigned={assignedAmount}
@@ -240,26 +141,19 @@ const ControlCards = () => {
             accent="green"
             amountDigits={2}
           />
-
           <SummaryCard
             title="Efectivo"
             subtitle={assignedSubtitle}
             amount={cashAmount}
-            statusLabel="Utilizados"
+            statusLabel=""
             SvgIcon={TicketGreen}
             SvgSecondIcon={SecTicketGreen}
             trend="down"
             accent="green"
             amountDigits={2}
-            editable={currentPagePermissions?.editMoney} // ← muestra u oculta el lápiz según permiso
+            editable={currentPagePermissions?.editMoney}
             onEditSubmit={(nuevoValor) => {
-              // Aquí harás el POST más tarde
-              // Por ahora, solo deja un log o integra tu store para refrescar
               console.log("Nuevo efectivo capturado:", nuevoValor);
-
-              // (Opcional) si quieres reflejarlo en UI sin recargar:
-              // Si tienes un setter en el store, podrías actualizarlo aquí.
-              // updatePettyCashFund({ cash_on_hand: nuevoValor });
             }}
           />
         </div>
@@ -274,7 +168,6 @@ const ControlCards = () => {
             accent="red"
             amountDigits={2}
           />
-
           <SummaryCard
             title="Pendientes por comprobar"
             amount={pendingAmount}

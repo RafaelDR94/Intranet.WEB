@@ -95,7 +95,7 @@ export const Input: React.FC<InputProps> = ({
     <div className={containerClasses()}  data-testid={`${dataTestId}-container`}>
       {label && <label className={labelClasses()}>{label}</label>}
 
-      <div className="relative mb-2">
+      <div className="relative mb-0">
         {isTextarea ? (
           <textarea
             data-testid={dataTestId}

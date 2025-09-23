@@ -18,6 +18,7 @@ type SummaryProps = {
   available?: number;
   percent?: number;
   className?: string;
+  onShowInputChange?: (show: boolean) => void;
 };
 
 const fallbackYearMonth = () => {
@@ -38,9 +39,10 @@ const formatCurrency = (n?: number) =>
   new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "MXN",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(typeof n === "number" && !Number.isNaN(n) ? n : 0);
+
 
 const capitalize = (s?: string) =>
   (s?.charAt(0)?.toUpperCase() || "") + (s?.slice(1) || "");
@@ -56,9 +58,6 @@ const formatDateEs = (value: SummaryProps["date"]) => {
   return `${day} de ${capitalize(month)}`;
 };
 
-/**
- * Tarjeta estilo "Control de Fondo Fijo de Caja Chica".
- */
 export default function Summary({
   title = "Control de Fondo Fijo de Caja Chica",
   date = null,
@@ -66,6 +65,7 @@ export default function Summary({
   available = 0,
   percent = 0,
   className = "",
+  onShowInputChange,
 }: SummaryProps) {
   const [isCreating, setIsCreating] = React.useState(false);
   const [assignedInput, setAssignedInput] = React.useState("");
@@ -98,7 +98,8 @@ export default function Summary({
     setIsCreating(true);
     setAssignedInput("");
     setInputError(null);
-  }, [isGatewayReady]);
+    onShowInputChange?.(true);
+  }, [isGatewayReady, onShowInputChange]);
 
   const handleAssignedChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,7 +118,8 @@ export default function Summary({
     setInputError(null);
     setConfirmOpen(false);
     setPendingAmount(null);
-  }, [creating]);
+    onShowInputChange?.(false);
+  }, [creating, onShowInputChange]);
 
   const handleSaveRequest = React.useCallback(() => {
     if (!isCreating || creating) return;
@@ -160,6 +162,7 @@ export default function Summary({
       setPendingAmount(null);
       setConfirmOpen(false);
       await fetchPettyCashVouchers(true);
+      onShowInputChange?.(false);
     }
   }, [
     createPettyCashFund,
@@ -168,6 +171,7 @@ export default function Summary({
     isCreating,
     pendingAmount,
     yearMonth,
+    onShowInputChange,
   ]);
 
   const showInput = isCreating;
@@ -176,18 +180,34 @@ export default function Summary({
   const headerDisabled = !isGatewayReady || creating;
   const helperMessage = inputError ?? (showInput ? error : undefined);
   const canSave = showInput && !headerDisabled && isAmountValid;
-  const containerHeight = showInput ? "h-[230px]" : "h-[184px]";
 
   const { currentPagePermissions } = useAuth();
   const canCreate = Boolean(currentPagePermissions?.createfound);
 
+  // ---------- Lógica de sumatoria ----------
+  const parseAmount = (v: string) => {
+    if (!v) return 0;
+    const n = Number.parseFloat(v.replace(/,/g, ""));
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const liveAssignedAmount = React.useMemo(
+    () => (showInput ? parseAmount(assignedInput) : 0),
+    [assignedInput, showInput],
+  );
+
+  const sumatoria = React.useMemo(
+    () => (available || 0) + liveAssignedAmount,
+    [available, liveAssignedAmount],
+  );
+  // ----------------------------------------
+
   return (
-    <div className={containerHeight}>
+    <div>
       <PopUp
         open={confirmOpen}
         onClose={closeConfirm}
-        title="Confirmación"
-        content="¿Desea guardar los cambios realizados?"
+        title="¿Desea guardar los cambios realizados?"
         showPrimaryButton
         showSecondaryButton
         primaryButtonText={creating ? "Guardando..." : "Guardar"}
@@ -195,24 +215,38 @@ export default function Summary({
         onSecondaryButtonClick={closeConfirm}
         onPrimaryButtonClick={handleConfirmSave}
       />
-      <div className="mb-3 flex items-center justify-between gap-3">
-        {canCreate && !showInput && (
+
+      <div
+        className={`mb-${canCreate ? "3" : "0"} flex items-center justify-between gap-3`}
+      >
+        {canCreate && (
           <div className="flex items-center gap-3">
             <p className="text-b4 text-blue-60">Control de Fondo</p>
-            <div className="h-[1px] w-[26px] bg-blue-60" />
+            <div className="bg-blue-60 h-[1px] w-[26px]" />
           </div>
         )}
 
         <div className="flex items-center gap-2">
           {canCreate && !showInput && (
-            <Button
-              hideIcon
-              variant="outline"
-              onClick={handleCreateClick}
-              disabled={headerDisabled}
-            >
-              Crear
-            </Button>
+            <>
+              <Button
+                hideIcon
+                variant="outline"
+                size="small"
+                onClick={handleCreateClick}
+                disabled={headerDisabled}
+              >
+                Crear
+              </Button>
+              <Button
+                hideIcon
+                variant="outline"
+                onClick={handleSaveRequest}
+                disabled={!canSave || creating}
+              >
+                Guardar Ajustes
+              </Button>
+            </>
           )}
 
           {showInput && (
@@ -220,6 +254,7 @@ export default function Summary({
               <Button
                 hideIcon
                 variant="outline"
+                size="small"
                 onClick={handleCancel}
                 disabled={creating}
               >
@@ -241,18 +276,20 @@ export default function Summary({
         </div>
       </div>
 
-      <div className={`flex h-full flex-col rounded-lg bg-white p-2 ${className}`}>
+      <div
+        className={`flex flex-col rounded-lg bg-white p-2 ${className} h-${canCreate ? "[205px]" : "[250px]"}`}
+      >
         <h2 className="text-s1 font-semibold text-green-100">{title}</h2>
 
         <div className="mt-1 flex flex-1 items-start justify-between gap-6">
           <div>
-            <p className="mt-3 text-d3 text-gray-90">
+            <p className="text-d3 text-gray-90 mt-3">
               <span className="text-d3 font-medium">Fecha:</span>{" "}
               {formattedDate}
             </p>
 
-            <div className="mt-5 space-y-2">
-              <div>
+            <div className="mt-3 space-y-2">
+              <div className="mb-0">
                 <p className="text-d3 text-gray-90">Fondo fijo asignado:</p>
                 {showInput ? (
                   <Input
@@ -264,9 +301,10 @@ export default function Summary({
                     onChange={handleAssignedChange}
                     placeholder="0.00"
                     min={0}
-                    step="0.01"
+                    step="1"
                     variant={helperMessage ? "error" : "default"}
                     helperText={helperMessage ?? undefined}
+                    className="m-0"
                   />
                 ) : (
                   <p className="text-s1 font-semibold text-green-100">
@@ -275,21 +313,50 @@ export default function Summary({
                 )}
               </div>
 
-              <div className="flex items-baseline gap-1 text-alert-green-100">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5l9 14H3z" />
-                </svg>
-                <span className="text-s1 font-semibold text-alert-green-100">
-                  {formatCurrency(available)}
-                </span>
+              {/* DISPONIBLES */}
+              <div className="flex">
+                <div className="mr-5">
+                  <div className="text-alert-green-100 flex items-baseline gap-1">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 5l9 14H3z" />
+                  </svg>
+                  <span className="text-s1 text-alert-green-100 font-semibold">
+                    {formatCurrency(available)}
+                  </span>
+                </div>
+                <p className="text-d3 text-gray-90 -mt-1 font-medium">
+                  Disponibles
+                </p>
+                </div>
+                {/* SUMATORIA solo si hay input */}
+                {showInput && (
+                  <div>
+                  <div className="text-alert-yellow-100 flex items-baseline gap-1">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 5l9 14H3z" />
+                  </svg>
+                  <span className="text-s1 text-alert-yellow-100 font-semibold">
+                    {formatCurrency(sumatoria)}
+                  </span>
+                </div>
+                <p className="text-d3 text-gray-90 -mt-1 font-medium">
+                  Sumatoria
+                </p>
+                </div>
+                )}
               </div>
-              <p className="-mt-1 text-d3 font-medium text-gray-90">Disponibles</p>
             </div>
           </div>
 

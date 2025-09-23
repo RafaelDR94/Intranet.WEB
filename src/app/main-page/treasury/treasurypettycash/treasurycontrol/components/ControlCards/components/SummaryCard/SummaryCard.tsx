@@ -3,11 +3,17 @@ import React from "react";
 import Ellipse from "@/assets/icons/acciones/Ellipse.svg";
 import VectorUp from "@/assets/icons/acciones/VectorUp.svg";
 import VectorDown from "@/assets/icons/acciones/VectorDown.svg";
+import { Button } from "@/app/components/Button/Button";
+import { Input } from "@/app/components/Input/Input";
 
 /** Pequeño ícono de lápiz inline para evitar dependencias */
 const PencilIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg viewBox="0 0 24 24" fill="none" {...props}>
-    <path d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25Z" stroke="currentColor" strokeWidth="1.5" />
+    <path
+      d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
     <path d="M14.06 6.19l3.75 3.75" stroke="currentColor" strokeWidth="1.5" />
   </svg>
 );
@@ -30,7 +36,7 @@ export type SummaryCardProps = {
   className?: string;
 
   /** === NUEVO: edición del monto === */
-  editable?: boolean;                  // controla la visibilidad del lápiz
+  editable?: boolean; // controla la visibilidad del lápiz
   onEditSubmit?: (value: number) => void; // callback cuando se guarda
 };
 
@@ -118,7 +124,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
     <article
       className={cx(
         "relative overflow-hidden rounded-lg bg-white shadow-sm transition-shadow",
-        "mb-2 ml-4 h-[110px] w-[380px]",
+        "mb-2 ml-4 h-[120px] w-[380px]",
         className,
       )}
       role="region"
@@ -154,26 +160,27 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
 
       {/* Contenido */}
       <div className="p-6">
-        <header className="mb-3 flex items-center justify-between">
+        <header className="mb-3 flex items-center">
           <div>
-            <h3 className="text-b2 font-medium text-green-100">{title}</h3>
+            <div className="flex">
+              <h3 className="text-b2 font-medium text-green-100">{title}</h3>
+              {/* LÁPIZ: visible solo con permiso */}
+              {editable && !isEditing && (
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  className="ml-2 rounded-md text-blue-600"
+                  aria-label="Editar monto"
+                  title="Editar monto"
+                >
+                  <PencilIcon className="h-5 w-5" />
+                </button>
+              )}
+            </div>
             {subtitle && (
               <p className="text-d3 text-gray-90 font-medium">{subtitle}</p>
             )}
           </div>
-
-          {/* LÁPIZ: visible solo con permiso */}
-          {editable && !isEditing && (
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              className="rounded-md p-1 text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              aria-label="Editar monto"
-              title="Editar monto"
-            >
-              <PencilIcon className="h-5 w-5" />
-            </button>
-          )}
         </header>
 
         {/* Monto / Editor */}
@@ -186,7 +193,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
               {amountStr}
             </p>
             {statusLabel && (
-              <p className="text-d3 font-medium text-gray-90 mx-2">
+              <p className="text-d3 text-gray-90 mx-2 font-medium">
                 {statusLabel}
               </p>
             )}
@@ -202,39 +209,37 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
               <span className={cx("text-s1 font-semibold", palette.text)}>
                 {currency}
               </span>
-              <input
+              <Input
                 type="number"
                 step={step}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className={cx(
-                  "w-32 rounded-md border border-gray-200 px-2 py-1",
-                  "text-s1 font-semibold outline-none focus:ring-2 focus:ring-blue-300",
-                )}
-                autoFocus
               />
             </div>
 
             {/* Acciones */}
             <div className="ml-1 flex items-center gap-2">
-              <button
-                type="button"
+              <Button
+                hideIcon
+                variant="outline"
+                size="small"
                 onClick={handleSave}
-                className="rounded-md bg-blue-600 px-2 py-1 text-white hover:bg-blue-700"
               >
                 Guardar
-              </button>
-              <button
-                type="button"
+              </Button>
+              
+              <Button
+                hideIcon
+                variant="outline"
+                size="small"
                 onClick={handleCancel}
-                className="rounded-md border border-gray-300 px-2 py-1 hover:bg-gray-50"
               >
                 Cancelar
-              </button>
+              </Button>
             </div>
 
             {statusLabel && (
-              <p className="text-d3 font-medium text-gray-90 mx-2">
+              <p className="text-d3 text-gray-90 mx-2 font-medium">
                 {statusLabel}
               </p>
             )}
