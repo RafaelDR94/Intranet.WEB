@@ -36,6 +36,7 @@ export const PettyCashFundMap = (raw: any): PettyCashFundData => ({
   unverified_amount: toNumber(raw?.unverified_amount),
   pending_verification: toNumber(raw?.pending_verification),
   available_amount: toNumber(raw?.available_amount),
+  date_created: toString(raw?.date_created),
 });
 
 export const PettyCashFundsMap = (list: any[]): PettyCashFundData[] =>
@@ -64,6 +65,14 @@ export const PettyCashVoucherMap = (raw: any): PettyCashVoucherData => ({
 
   xml: toString(raw?.xml),
   pdf: toString(raw?.pdf),
+  date_created: toString(raw?.date_created),
+  fund_date_created: toString(
+    raw?.fund_date_created ??
+      raw?.petty_cash_funds?.date_created ??
+      raw?.petty_cash_funds?.created_at ??
+      raw?.petty_cash_funds?.dateCreated ??
+      raw?.date_created_fund
+  ),
 
   // Campos adicionales expuestos en algunas respuestas del endpoint general
   employeename: toString(raw?.employeename ?? raw?.employee_name),
