@@ -8,6 +8,7 @@ export type PettyCashFundData = {
   unverified_amount: number;
   pending_verification: number;
   available_amount: number;
+  date_created?: string;
 };
 
 export type GetPettyCashFundById = {
@@ -67,6 +68,8 @@ export type PettyCashVoucherData = {
   project_id: string;
   xml: string;
   pdf: string;
+  date_created?: string;
+  fund_date_created?: string;
   /** Nombre del colaborador asociado al vale (si está disponible). */
   employeename?: string;
   /** Identificador del proveedor o emisor de la factura. */

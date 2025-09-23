@@ -22,12 +22,24 @@ import TicketPink from "@/assets/svgs/ticket-pink.svg";
 import TicketYellow from "@/assets/svgs/ticket-yellow.svg";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
-const parseYearMonthToDate = (value?: string): Date | undefined => {
-  if (!value) return undefined;
+const parseYearMonthToDate = (value?: string): Date | null => {
+  if (!value) return null;
   const [year, month] = value.split("-").map(Number);
-  if (!Number.isFinite(year) || !Number.isFinite(month)) return undefined;
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return null;
   const parsed = new Date(year, month - 1, 1);
-  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const parseDateString = (value?: string | null): Date | null => {
+  if (!value) return null;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
+};
+
+const getFundDate = (fund?: PettyCashFundData | null): Date | null => {
+  if (!fund) return null;
+  return parseDateString(fund.date_created) ?? parseYearMonthToDate(fund.year_month);
 };
 
 const formatCurrency = (value: number) =>
@@ -47,10 +59,16 @@ const getLatestFund = (
 
   let latest: PettyCashFundData | null = null;
   let latestTime = -Infinity;
+  let fallback: PettyCashFundData | null = null;
 
   funds.forEach((fund) => {
-    const parsed = parseYearMonthToDate(fund.year_month);
-    if (!parsed) return;
+    const parsed = getFundDate(fund);
+    if (!parsed) {
+      if (!fallback) {
+        fallback = fund;
+      }
+      return;
+    }
     const time = parsed.getTime();
     if (time >= latestTime) {
       latestTime = time;
@@ -58,31 +76,30 @@ const getLatestFund = (
     }
   });
 
-  return latest;
+  return latest ?? fallback;
 };
 
-const parseApplicationDate = (value?: string) => {
-  if (!value) return null;
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return null;
-  return parsed;
-};
-
-const getLatestVoucherInfo = (
+const getLatestFundFromVouchers = (
   vouchers: PettyCashVoucherData[],
-): { voucher: PettyCashVoucherData; date: Date } | null => {
+): { fundId: string; date: Date } | null => {
   if (!Array.isArray(vouchers) || vouchers.length === 0) {
     return null;
   }
 
-  let latest: { voucher: PettyCashVoucherData; date: Date } | null = null;
+  let latest: { fundId: string; date: Date } | null = null;
 
   vouchers.forEach((voucher) => {
-    const parsed = parseApplicationDate(voucher.application_date);
+    const fundId = voucher.petty_cash_funds_id;
+    if (!fundId) return;
+
+    const parsed =
+      parseDateString(voucher.fund_date_created) ??
+      parseDateString(voucher.date_created) ??
+      parseDateString(voucher.application_date);
     if (!parsed) return;
 
     if (!latest || parsed.getTime() >= latest.date.getTime()) {
-      latest = { voucher, date: parsed };
+      latest = { fundId, date: parsed };
     }
   });
 
@@ -124,13 +141,13 @@ const ControlCards = () => {
     [pettyCashFunds],
   );
 
-  const latestVoucherInfo = React.useMemo(
-    () => getLatestVoucherInfo(pettyCashVouchers),
+  const latestVoucherFund = React.useMemo(
+    () => getLatestFundFromVouchers(pettyCashVouchers),
     [pettyCashVouchers],
   );
 
   const fundFromLatestVoucher = React.useMemo(() => {
-    const fundId = latestVoucherInfo?.voucher?.petty_cash_funds_id;
+    const fundId = latestVoucherFund?.fundId;
     if (!fundId) return null;
 
     if (pettyCashFund?.id === fundId) {
@@ -138,9 +155,44 @@ const ControlCards = () => {
     }
 
     return pettyCashFunds.find((fund) => fund.id === fundId) ?? null;
-  }, [latestVoucherInfo?.voucher?.petty_cash_funds_id, pettyCashFund, pettyCashFunds]);
+  }, [latestVoucherFund?.fundId, pettyCashFund, pettyCashFunds]);
 
-  const activeFund = fundFromLatestVoucher ?? pettyCashFund ?? latestFundFromList;
+  const candidateFunds = React.useMemo(() => {
+    const map = new Map<string, PettyCashFundData>();
+
+    [fundFromLatestVoucher, pettyCashFund, latestFundFromList]
+      .filter((fund): fund is PettyCashFundData => Boolean(fund))
+      .forEach((fund) => {
+        map.set(fund.id, fund);
+      });
+
+    return Array.from(map.values());
+  }, [fundFromLatestVoucher, pettyCashFund, latestFundFromList]);
+
+  const activeFund = React.useMemo(() => {
+    if (candidateFunds.length === 0) return null;
+
+    let latest: PettyCashFundData | null = null;
+    let latestTime = -Infinity;
+
+    candidateFunds.forEach((fund) => {
+      const parsed = getFundDate(fund);
+      if (!parsed) {
+        if (!latest) {
+          latest = fund;
+        }
+        return;
+      }
+
+      const time = parsed.getTime();
+      if (time >= latestTime) {
+        latestTime = time;
+        latest = fund;
+      }
+    });
+
+    return latest;
+  }, [candidateFunds]);
 
   const assignedAmount = activeFund?.assigned_amount ?? 0;
   const availableAmount = activeFund?.available_amount ?? 0;
@@ -150,9 +202,8 @@ const ControlCards = () => {
   const pendingAmount = activeFund?.pending_verification ?? 0;
 
   const summaryDate = React.useMemo(
-    () =>
-      latestVoucherInfo?.date ?? parseYearMonthToDate(activeFund?.year_month),
-    [activeFund?.year_month, latestVoucherInfo?.date],
+    () => getFundDate(activeFund) ?? latestVoucherFund?.date ?? null,
+    [activeFund, latestVoucherFund?.date],
   );
 
   const percent = React.useMemo(() => {
@@ -164,7 +215,6 @@ const ControlCards = () => {
     if (assignedAmount <= 0) return undefined;
     return `Fijo asignado: ${formatCurrency(assignedAmount)}`;
   }, [assignedAmount]);
-  const canEditCash = true;
 
   const { currentPagePermissions } = useAuth();
 
