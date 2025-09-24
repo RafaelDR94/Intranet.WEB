@@ -1,8 +1,8 @@
 import { Dispatch, RefObject, SetStateAction } from 'react';
 
 import { FieldModel } from '@/app/components/DynamicForm/types';
-import { PettyCashVoucherData } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 import { SubmitFn } from '@/app/main-page/accounting/requisitions/requisitions/components/ExcelLoader/hooks/types';
+import { PettyCashVoucherData } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 
 /** Mode for voucher forms. */
 export type Mode = 'create' | 'edit';

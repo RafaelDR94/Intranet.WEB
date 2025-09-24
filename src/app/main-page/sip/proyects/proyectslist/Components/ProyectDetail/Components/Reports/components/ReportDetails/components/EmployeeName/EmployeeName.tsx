@@ -1,9 +1,9 @@
-﻿
+﻿import React from "react";
+
 import { containerstyle, label } from "./styles";
 
 import { useReportsStore } from "@/app/stores/useReportsStore/useReportsStore";
 
-import React from "react";
 const normalize = (value?: string | null) => {
   const trimmed = value?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : null;

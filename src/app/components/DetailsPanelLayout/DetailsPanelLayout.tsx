@@ -12,7 +12,6 @@ import { Button } from "@/app/components/Button/Button";
 import CloseIcon from "@/assets/icons/acciones/cancel.svg";
 import ExpandIcon from "@/assets/icons/navegacion/sidebar-collapse.svg";
 import CollapseIcon from "@/assets/icons/navegacion/sidebar-expand.svg";
-import Label from "../Label/Label";
 
 export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
   open,

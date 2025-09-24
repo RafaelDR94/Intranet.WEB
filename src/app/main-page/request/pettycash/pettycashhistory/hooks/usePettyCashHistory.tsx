@@ -1,17 +1,18 @@
 'use client';
-import { useCallback, useEffect, useMemo, useState } from "react";
+
 import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
 import { useBillingPettyCash } from "../../../../../stores/useBillingPettyCash/useBillingPettyCash";
 import { PettyCashHistoryRow } from "../types";
 
+import type { LabelType } from "@/app/components/Label/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
-import type { LabelType } from "@/app/components/Label/types";
 
 /** Mapea el texto de voucher a un LabelType mostrado por <Label /> */
 function voucherTypeToLabelType(voucher?: string): LabelType {
@@ -117,7 +118,9 @@ const usePettyCashHistory = () => {
     if (!user?.idEmployee) return;
     try {
       forceFetchBillingHistory(user.idEmployee);
-    } catch {}
+    } catch {
+      // No hacer nada
+    }
     fetchPettyCashVouchersByIdEmployee(user.idEmployee);
   }, [user?.idEmployee, forceFetchBillingHistory, fetchPettyCashVouchersByIdEmployee]);
 

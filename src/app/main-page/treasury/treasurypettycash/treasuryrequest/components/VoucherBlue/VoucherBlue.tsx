@@ -43,6 +43,26 @@ const TreasuryVoucherBlue: React.FC<VoucherFormProps> = ({
     };
   }, [externalSubmitRef, submitRef]);
 
+  if (externalSubmitRef) {
+    return (
+      <DynamicForm
+        loadingFormInfo={loadingFormInfo}
+        fields={fields}
+        responsiveLayoutMatrix={
+          responsiveLayoutMatrix ?? {
+            sm: [[10], [10], [10], [10]],
+            md: [[10], [10], [10], [10]],
+            lg: [[10], [10], [10], [10]],
+          }
+        }
+        onSubmit={handleSubmit}
+        onValidChange={setFormReady}
+        externalSubmitRef={submitRef}
+        showSubmitIf={() => false}
+      />
+    );
+  }
+
   return (
     <FormsLayout
       title="GASTOS NO DEDUCIBLES (Vale Azul)"

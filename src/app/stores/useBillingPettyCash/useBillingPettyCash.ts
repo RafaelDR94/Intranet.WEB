@@ -18,7 +18,6 @@ import {
   rejectPettyCashVoucher,
   validatePettyCashVoucher,
 } from './utilities'
-
 // 👉 Nueva utilidad para historial por empleado
 import { fetchPettyCashVouchersByIdEmployee } from './utilities/fetchPettyCashVouchersByIdEmployee'
 

@@ -1,17 +1,18 @@
 import { useMemo, useRef } from "react";
 
+import VoucherBlue from "../../pettycashrequest/components/VoucherBlue/VoucherBlue";
+import VoucherPink from "../../pettycashrequest/components/VoucherPink/VoucherPink";
+
+import { SideMenuProps } from "./types";
+
 import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import Label from "@/app/components/Label/Label";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import VoucherPink from "../../pettycashrequest/components/VoucherPink/VoucherPink";
-import VoucherBlue from "../../pettycashrequest/components/VoucherBlue/VoucherBlue";
-import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
+import type { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-
-import type { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
-import { SideMenuProps } from "./types";
+import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 
 function normalizeDateForInput(raw?: string): string {
   if (!raw) return "";
@@ -25,8 +26,9 @@ function normalizeDateForInput(raw?: string): string {
   }
 
   const slashMatch = trimmed.match(
-    /^(\d{1,2})\s*[\/-]\s*(\d{1,2})\s*[\/-]\s*(\d{4})$/,
+  /^(\d{1,2})\s*[-/]\s*(\d{1,2})\s*[-/]\s*(\d{4})$/,
   );
+
   if (slashMatch) {
     const [, day, month, year] = slashMatch;
     return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -48,7 +50,7 @@ const SideMenu = ({
   isDetailLoading,
 }: SideMenuProps) => {
   const submitRef = useRef<() => void | Promise<void>>(null);
-  const { user, currentPagePermissions } = useAuth();
+  const { user } = useAuth();
 
   const voucherDataEdit = useMemo<PettyCashVoucherData | undefined>(() => {
     if (!selected) return undefined;
@@ -266,7 +268,7 @@ const SideMenu = ({
           )}
           {/* Editar Documento (como en la maqueta) */}
 
-            <>
+            <div>
               <div className="text-gray-90 text-b4 font-medium">
                 Editar documento:
               </div>
@@ -359,7 +361,7 @@ const SideMenu = ({
                   />
                 </div>
               )}
-            </>
+            </div>
         </div>
       ) : (
         <div className="text-gray-70 text-b3">

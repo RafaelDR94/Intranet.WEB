@@ -2,24 +2,24 @@
 import React from "react";
 
 import { PettyCashProvider } from "../pettycashrequest/context/PettyCashContext";
-import SideMenu from "./components/SideMenu";
 
+import SideMenu from "./components/SideMenu";
 import usePettyCashHistory from "./hooks/usePettyCashHistory";
 import { PettyCashHistoryRow } from "./types";
 
 import { Button } from "@/app/components/Button/Button";
+import ContextMenu from "@/app/components/ContextMenu/ContextMenu";
+import type { ContextMenuItem } from "@/app/components/ContextMenu/types";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { Label } from "@/app/components/Label/Label";
-import ContextMenu from "@/app/components/ContextMenu/ContextMenu";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { PopUp } from "@/app/components/PopUp/PopUp";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import CancelIcon from "@/assets/icons/acciones/cancel.svg"
 import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
-import CancelIcon from "@/assets/icons/acciones/cancel.svg"
 import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
-import type { ContextMenuItem } from "@/app/components/ContextMenu/types";
 
 const truthyPermissionStrings = new Set(["true", "1", "yes", "y", "si", "sí", "allow"]);
 const falsyPermissionStrings = new Set(["false", "0", "no", "deny"]);

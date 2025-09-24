@@ -47,7 +47,7 @@ const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
     iva,
     total: totalCandidate,
     voucherType: voucher.voucher_type,
-    voucherLabelType: voucherTypeToLabelType(voucherType),
+    VoucherLabelType: voucherTypeToLabelType(voucherType),
     status: voucher.status,
     rfcEmisor: voucher.rfc_emisor,
   } satisfies ControlRow;

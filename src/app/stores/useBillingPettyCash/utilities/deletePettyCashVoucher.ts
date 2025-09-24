@@ -4,7 +4,6 @@ import type { AxiosResponse } from 'axios'
 import { Set } from '../types'
 
 import { BillingPettyCashVoucher } from '@/app/configurations/Axios/urls'
-import { DeletePettyCashVoucherIdMap } from '@/app/mappings/billingPettyCash/billingPettyCash.mapper'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pDelete } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'

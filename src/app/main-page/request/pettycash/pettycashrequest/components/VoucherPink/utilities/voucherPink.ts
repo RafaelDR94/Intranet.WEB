@@ -1,9 +1,9 @@
 import type { FieldModel } from "@/app/components/DynamicForm/types";
-import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import type {
   PettyCashVoucherData,
   PostPettyCashVoucher,
 } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
 // Ya existentes en tu archivo (mantén tus implementaciones)
 /**

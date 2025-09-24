@@ -7,9 +7,9 @@ import { Button } from "@/app/components/Button/Button";
 import Donut from "@/app/components/Donut/Donut";
 import { Input } from "@/app/components/Input/Input";
 import { PopUp } from "@/app/components/PopUp/PopUp";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { useIntranetGatewayStore } from "@/app/stores/system/useIntranetGatewayStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
 type SummaryProps = {
   title?: string;
@@ -217,7 +217,7 @@ export default function Summary({
       />
 
       <div
-        className={`mb-${canCreate ? "3" : "0"} flex items-center justify-between gap-3`}
+        className={`mb-${canCreate ? "6" : "0"} flex items-center justify-between gap-3`}
       >
         {canCreate && (
           <div className="flex items-center gap-3">

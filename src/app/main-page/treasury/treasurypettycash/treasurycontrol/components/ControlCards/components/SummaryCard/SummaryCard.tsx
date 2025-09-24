@@ -1,10 +1,10 @@
 import React from "react";
 
-import Ellipse from "@/assets/icons/acciones/Ellipse.svg";
-import VectorUp from "@/assets/icons/acciones/VectorUp.svg";
-import VectorDown from "@/assets/icons/acciones/VectorDown.svg";
 import { Button } from "@/app/components/Button/Button";
 import { Input } from "@/app/components/Input/Input";
+import Ellipse from "@/assets/icons/acciones/Ellipse.svg";
+import VectorDown from "@/assets/icons/acciones/VectorDown.svg";
+import VectorUp from "@/assets/icons/acciones/VectorUp.svg";
 
 /** Pequeño ícono de lápiz inline para evitar dependencias */
 const PencilIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (

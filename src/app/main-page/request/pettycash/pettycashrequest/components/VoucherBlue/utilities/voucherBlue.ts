@@ -1,9 +1,9 @@
 import type { FieldModel } from "@/app/components/DynamicForm/types";
-import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import type {
   PettyCashVoucherData,
   PostPettyCashVoucher,
 } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
 
 /**
@@ -39,10 +39,7 @@ export const getOptionLabel = (
  */
 export const buildPettyCashVoucherPayload = ({
   values,
-  proyects,
-  fields,
   pettyCashFundId,
-  getOptionLabel,
   employeeId,
 }: {
   values: Record<string, unknown>;

@@ -206,7 +206,7 @@ const ControlTable = () => {
         key: "voucherType",
         label: "TIPO DE VALE",
         render: (row) => (
-          <Label type={row?.voucherLabelType} text={row?.voucherType} />
+          <Label type={row?.VoucherLabelType} text={row?.voucherType} />
         ),
       },
       {

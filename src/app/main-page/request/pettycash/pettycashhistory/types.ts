@@ -1,7 +1,6 @@
-import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
+import type { LabelType } from "@/app/components/Label/types";
 import { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
 import { PettyCashVoucherFull } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
-import type { LabelType } from "@/app/components/Label/types";
 
 /**
  * Props para el componente {@link PictureTable}.
@@ -16,20 +15,55 @@ export interface PicturesTableProps {
  * Extiende las propiedades del historial de facturas con los campos necesarios
  * para la vista de la tabla.
  */
-export type PettyCashHistoryRow = HistoryRow & {
+export type PettyCashHistoryRow = {
+  id: string;
+  status: string;
+  billing_image_id: string;
+  billingdocument_id: string;
+  project: {
+    id: string;
+    name: string;
+    proyectKey: string;
+    client: string;
+  };
+  requisitionkey: string;
+  xml: string;
+  pdf: string;
+  image: string;
+  comments: string;
+  dateCreate: string;
+  certificationDate: string;
+  uuid: string;
+  description: {
+    id_billingdescription: string;
+    name: string;
+  };
+  category: {
+    id_billingcategory: string;
+    name: string;
+  };
+  numpersons: number;
+  numnights: number;
+
   /** Importe mostrado en la tabla. */
   amount: number;
+
   /** Tipo de vale. */
   voucherType: string;
   voucherLabelType: LabelType;
+
   /** Fecha normalizada para la tabla. */
   date: string;
+
   /** Total del vale. */
   total: number;
+
   /** Subtotal del vale. */
   subtotal: number;
+
   /** IVA del vale. */
   iva: number;
+
   /** Nombre del empleado asociado. */
   employeeName: string;
 };

@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
+
 import { useIsMobile } from "../DataTableLayout/hooks/useMediaQuery";
 
 import { DataTableBody } from "./components/DataTableBody/DataTableBody";
 import type { TextSize } from "./components/DataTableBody/DataTableBody";
-
 import { DataTableHeader } from "./components/DataTableHeader/DataTableHeader";
 import { useDataTableContent } from "./hooks/useTableContent";
 import { containerDataTableContent } from "./styles";

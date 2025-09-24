@@ -1,8 +1,8 @@
 import { FieldModel } from '@/app/components/DynamicForm/types';
 import { User } from '@/app/context/AuthContext/types';
+import { PettyCashFundData } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 import { EmployeeType } from '@/app/mappings/employees/employee.types';
 import { Proyect } from '@/app/mappings/proyects/proyects.types';
-import { PettyCashFundData } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 
 /** Shape of the petty cash context. */
 export interface PettyCashContextType {

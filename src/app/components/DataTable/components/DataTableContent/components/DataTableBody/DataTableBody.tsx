@@ -1,5 +1,7 @@
 import React from 'react'
+
 import { useIsMobile } from '../../../DataTableLayout/hooks/useMediaQuery'
+
 import { Checkbox } from '@/app/components/CheckBox/CheckBox'
 
 export type TextSize = {

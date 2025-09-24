@@ -5,11 +5,11 @@ import React, { useEffect } from 'react'
 import CollapsibleSection from '../CollapsibleSection/CollapsibleSection'
 
 import CardsGrid from './components/CardsGrid/CardsGrid'
+import type { TextSize } from './components/DataTableContent/components/DataTableBody/DataTableBody'
 import DataTableContent from './components/DataTableContent/DataTableContent'
 import DataTableLayout from './components/DataTableLayout/DataTableLayout'
 import useDataTable from './hooks/useDataTable'
 import { DataTableProps } from './types'
-import type { TextSize } from './components/DataTableContent/components/DataTableBody/DataTableBody'
 
 /**
  * `DataTable` – Renderiza una o varias tablas con:

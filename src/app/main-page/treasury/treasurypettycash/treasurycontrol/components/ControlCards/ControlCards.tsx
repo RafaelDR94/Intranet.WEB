@@ -6,9 +6,9 @@ import { shallow } from "zustand/shallow";
 import Summary from "./components/Summary/Summary";
 import { SummaryCard } from "./components/SummaryCard/SummaryCard";
 
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type {
   PettyCashFundData,
-  PettyCashVoucherData,
 } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { useIntranetGatewayStore } from "@/app/stores/system/useIntranetGatewayStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
@@ -20,7 +20,6 @@ import TicketBlue from "@/assets/svgs/ticket-blue.svg";
 import TicketGreen from "@/assets/svgs/ticket-green.svg";
 import TicketPink from "@/assets/svgs/ticket-pink.svg";
 import TicketYellow from "@/assets/svgs/ticket-yellow.svg";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
 // Funciones utilitarias para fechas y formato
 const parseDateString = (value?: string | null): Date | null => {
@@ -42,14 +41,6 @@ const getFundDate = (fund?: PettyCashFundData | null): Date | null => {
   return parseDateString(fund.date_created) ?? parseYearMonthToDate(fund.year_month);
 };
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-
 // 🚀 AQUÍ ordenamos la lista y tomamos el primer fondo más reciente
 const getMostRecentFund = (funds: PettyCashFundData[]): PettyCashFundData | null => {
   if (!Array.isArray(funds) || funds.length === 0) return null;
@@ -68,8 +59,6 @@ const ControlCards = () => {
 
   const {
     pettyCashFunds,
-    pettyCashFund,
-    pettyCashVouchers,
     fetchPettyCashFunds,
     fetchPettyCashVouchers,
     updateCashOnHand,
@@ -117,7 +106,7 @@ const ControlCards = () => {
 
   const assignedSubtitle = React.useMemo(() => {
     if (assignedAmount <= 0) return undefined;
-    return `Fijo asignado: ${formatCurrency(assignedAmount)}`;
+    return `Fijo asignado: 625.00`;
   }, [assignedAmount]);
 
   const { currentPagePermissions } = useAuth();

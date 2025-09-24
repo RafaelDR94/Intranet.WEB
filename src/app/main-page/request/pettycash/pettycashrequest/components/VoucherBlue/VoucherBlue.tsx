@@ -2,11 +2,12 @@
 
 import React, { useEffect } from "react";
 
+import { VoucherFormProps } from "../types";
+
 import { useVoucherBlue } from "./hooks/useVoucherBlue";
 
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
-import { VoucherFormProps } from "../types";
 
 /**
  * Formulario para crear o editar vales azules de caja chica.
@@ -43,6 +44,26 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
     };
   }, [externalSubmitRef, submitRef]);
 
+  if (externalSubmitRef) {
+    return (
+      <DynamicForm
+        loadingFormInfo={loadingFormInfo}
+        fields={fields}
+        responsiveLayoutMatrix={
+          responsiveLayoutMatrix ?? {
+            sm: [[10], [10], [10], [10]],
+            md: [[10], [10], [10], [10]],
+            lg: [[10], [10], [10], [10]],
+          }
+        }
+        onSubmit={handleSubmit}
+        onValidChange={setFormReady}
+        externalSubmitRef={submitRef}
+        showSubmitIf={() => false}
+      />
+    );
+  }
+
   return (
     <FormsLayout
       title="GASTOS NO DEDUCIBLES (Vale Azul)"
@@ -67,17 +88,8 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
         responsiveLayoutMatrix={
           responsiveLayoutMatrix ?? {
             sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-            md: [
-              [10],
-              [5, 5],
-              [5.5, 5.5],
-              [5, 5],
-            ],
-            lg: [
-              [10],
-              [3.3, 3.3, 3.3],
-              [3.3, 3.3],
-            ],
+            md: [[10], [5, 5], [5.5, 5.5], [5, 5]],
+            lg: [[10], [3.3, 3.3, 3.3], [3.3, 3.3]],
           }
         }
         onSubmit={handleSubmit}

@@ -18,5 +18,5 @@ export interface LabelProps {
   /** Variant style */
   type: LabelType;
   /** Text to display */
-  text: string;
+  text: any;
 }
