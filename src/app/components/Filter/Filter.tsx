@@ -98,13 +98,16 @@ const Filter: React.FC<FilterProps> = ({
   }, [options, handleSelect, menuName, currentValue]);
 
   return (
-    <ContextMenu
-      title={title}
-      trigger={trigger ?? <FilterIcon />}
-      items={items}
-      isOpen={menuOpen}
-      setIsOpen={setMenuOpen}
-    />
+    <div className='z-10'>
+        <ContextMenu
+          title={title}
+          trigger={trigger ?? <FilterIcon />}
+          items={items}
+          isOpen={menuOpen}
+          setIsOpen={setMenuOpen}
+          autoFlip={false}
+        />
+    </div>
   );
 };
 

@@ -136,6 +136,7 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
           setIsOpen(open);
         }}
         items={presets.map((p) => ({ label: p.label, onClick: p.action }))}
+        autoFlip={false}
       />
 
       {/* Modal personalizado para móviles */}
