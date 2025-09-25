@@ -91,21 +91,29 @@ export const createInitialFields = ({
     type: "file",
     name: "xml",
     label: "Documento XML",
-    value: { name: dataEdit?.xml ? "Documento XML" : "", url: dataEdit?.xml },
-    initialFile: { name: dataEdit?.xml ?? "", url: dataEdit?.xml ?? "" },
+    value: dataEdit?.xml
+      ? { name: "Documento XML", url: dataEdit.xml }
+      : null,
+    initialFile: dataEdit?.xml
+      ? { name: dataEdit.xml, url: dataEdit.xml }
+      : undefined,
     accept: ".xml",
     className: "max-w-[300px]",
-    validations: dataEdit ? [] : [{ type: "required" }],
+    validations: [],
   },
   {
     type: "file",
     name: "pdf",
     label: "Documento PDF",
-    value: { name: dataEdit?.pdf ? "Documento PDF" : "", url: dataEdit?.pdf },
-    initialFile: { name: dataEdit?.pdf ?? "", url: dataEdit?.pdf ?? "" },
+    value: dataEdit?.pdf
+      ? { name: "Documento PDF", url: dataEdit.pdf }
+      : null,
+    initialFile: dataEdit?.pdf
+      ? { name: dataEdit.pdf, url: dataEdit.pdf }
+      : undefined,
     accept: ".pdf",
     className: "max-w-[300px]",
-    validations: dataEdit ? [] : [{ type: "required" }],
+    validations: [],
   },
 ];
 

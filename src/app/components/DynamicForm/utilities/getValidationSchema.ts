@@ -32,7 +32,7 @@ export const getValidationSchema = (fields: FieldModel[]) => {
         });
         acc[field.name] = schema;
       } else if (field.type === 'file') {
-        let schema = Yup.mixed();
+        let schema = Yup.mixed().nullable(true);
         field.validations?.forEach((rule) => {
           if (rule.type === 'required') {
             schema = schema.required('Este campo es requerido');
