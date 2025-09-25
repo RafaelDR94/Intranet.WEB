@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { shallow } from 'zustand/shallow';
 
 import type { ControlDetail, ControlRow } from '../types';
@@ -11,6 +11,11 @@ import type { PettyCashVoucherData } from '@/app/mappings/billingPettyCash/Billi
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore';
 import { useBillingPettyCash } from '@/app/stores/useBillingPettyCash/useBillingPettyCash';
 import { formatDateES } from '@/app/utilities/DatesHelper/Dateshelper';
+import {
+  parseDateFlexible,
+  startOfDay,
+  endOfDay,
+} from '@/app/components/DataTable/utilities/datesTable';
 
 function voucherTypeToLabelType(voucher?: string): LabelType {
   const v = (voucher ?? "").toLowerCase();
@@ -61,7 +66,10 @@ export const useControlTable = () => {
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
 
-  const [query, setQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>('all');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState<ControlRow | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -145,9 +153,7 @@ export const useControlTable = () => {
 
   const rows: ControlRow[] = useMemo(() => {
     const base = pettyCashVouchers.map(mapVoucherToControlRow);
-
-    if (!query) return base;
-    const normalized = query.toLowerCase();
+    const normalizedSearch = searchTerm.trim().toLowerCase();
 
     return base.filter((row) => {
       const haystack = [
@@ -159,9 +165,49 @@ export const useControlTable = () => {
       ]
         .join(' ')
         .toLowerCase();
-      return haystack.includes(normalized);
+
+      const matchesSearch = normalizedSearch
+        ? haystack.includes(normalizedSearch)
+        : true;
+
+      const voucher = (row.voucherType ?? '').toLowerCase();
+      const status = (row.status ?? '').toLowerCase();
+
+      let matchesFilter = true;
+      switch (activeFilter) {
+        case 'voucher:rosa':
+          matchesFilter = voucher.includes('rosa');
+          break;
+        case 'voucher:azul':
+          matchesFilter = voucher.includes('azul');
+          break;
+        case 'status:validado':
+          matchesFilter = status.includes('valid');
+          break;
+        case 'status:rechazado':
+          matchesFilter = status.includes('rechaz');
+          break;
+        case 'status:proceso':
+          matchesFilter = status.includes('proceso');
+          break;
+        default:
+          matchesFilter = true;
+      }
+
+      let matchesDate = true;
+      if (startDate || endDate) {
+        const rowDate = parseDateFlexible(row.applicationDate ?? null);
+        if (rowDate) {
+          const ts = rowDate.getTime();
+          const from = startDate ? startOfDay(startDate).getTime() : -Infinity;
+          const to = endDate ? endOfDay(endDate).getTime() : Infinity;
+          matchesDate = ts >= from && ts <= to;
+        }
+      }
+
+      return matchesSearch && matchesFilter && matchesDate;
     });
-  }, [pettyCashVouchers, query]);
+  }, [pettyCashVouchers, searchTerm, activeFilter, startDate, endDate]);
 
   useEffect(() => {
     const selectedId = selectedRow?.id;
@@ -350,6 +396,19 @@ export const useControlTable = () => {
     fetchPettyCashVouchers(true);
   };
 
+  const handleSearchChange = useCallback(
+    (value?: string, start?: Date | null, end?: Date | null) => {
+      setSearchTerm((value ?? '').trim());
+      setStartDate(start ?? null);
+      setEndDate(end ?? null);
+    },
+    [],
+  );
+
+  const handleFilterChange = useCallback((value: string) => {
+    setActiveFilter(value || 'all');
+  }, []);
+
   const handleCloseDetail = () => {
     setDetailOpen(false);
     setDetailData(null);
@@ -368,7 +427,9 @@ export const useControlTable = () => {
 
   return {
     rows,
-    setQuery,
+    handleSearchChange,
+    handleFilterChange,
+    activeFilter,
     confirmOpen,
     setConfirmOpen,
     rowToDelete,

@@ -78,6 +78,18 @@ export interface DataTableGroup<T> {
   textSize?: TextSize
 }
 
+/** Opción disponible dentro del menú de filtros del DataTable. */
+export interface DataTableFilterOption<T, Value extends string = string> {
+  /** Texto mostrado en la opción. */
+  label: string
+  /** Valor que identifica la opción. */
+  value: Value
+  /** Permite deshabilitar la opción. */
+  disabled?: boolean
+  /** Predicado opcional utilizado por consumidores para filtrar datos. */
+  predicate?: (row: T) => boolean
+}
+
 /**
  * Props del componente `DataTable`.
  *
@@ -122,6 +134,17 @@ export interface DataTableProps<T = any> {
   showCalendar?: boolean;
   /** Muestra el botón de filtros (por defecto: `false`). */
   showFilter?: boolean;
+  /** Opciones mostradas dentro del menú contextual de filtros. */
+  filterOptions?: DataTableFilterOption<T>[];
+  /** Valor seleccionado actualmente en el filtro. */
+  filterValue?: string | null;
+  /** Título visible dentro del menú contextual de filtros. */
+  filterTitle?: string;
+  /** Callback ejecutado cuando se selecciona una opción del filtro. */
+  onFilterChange?: (
+    value: string,
+    option?: DataTableFilterOption<T>,
+  ) => void;
   /** Muestra el botón de acción principal (por defecto: `true`). */
   showButton?: boolean;
   /**

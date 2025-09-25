@@ -21,6 +21,15 @@ import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
 import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
 
+const pettyCashFilterOptions = [
+  { label: "Todos", value: "all" },
+  { label: "Vale Rosa", value: "voucher:rosa" },
+  { label: "Vale Azul", value: "voucher:azul" },
+  { label: "Validado", value: "status:validado" },
+  { label: "Rechazado", value: "status:rechazado" },
+  { label: "En Proceso", value: "status:proceso" },
+];
+
 const truthyPermissionStrings = new Set(["true", "1", "yes", "y", "si", "sí", "allow"]);
 const falsyPermissionStrings = new Set(["false", "0", "no", "deny"]);
 
@@ -134,7 +143,9 @@ const PettyCashHistory = () => {
     panelOpen,
     setPanelOpen,
     selected,
-    pettyCashAsHistoryRows,
+    filteredPettyCashRows,
+    handleFilterChange,
+    activeFilter,
     selectedDetail,
     detailLoading,
     onEdit,
@@ -144,6 +155,7 @@ const PettyCashHistory = () => {
     rowToDelete,
     handleConfirmDelete,
     removing,
+    refresh,
   } = usePettyCashHistory();
 
   const isMobile = useIsMobile();
@@ -267,16 +279,24 @@ const PettyCashHistory = () => {
         onPrimaryButtonClick={handleConfirmDelete}
       />
       <div className="space-y-8 overflow-auto">
-        {currentPagePermissions?.voucherhistory && 
+        {currentPagePermissions?.voucherhistory &&
         <DataTable
           showCalendar={true}
           showFilter={true}
+          filterOptions={pettyCashFilterOptions}
+          filterValue={activeFilter}
+          filterTitle="Filtrar vales"
           showDownloadTable
           showButton={false}
+          dateKey={(row) => row.dateValue}
+          onFilterChange={(value) => {
+            handleFilterChange(value);
+            refresh();
+          }}
           textSize={{ mobile: 'c2', desktop: 'text-c2' }}
           tables={[
             {
-              data: pettyCashAsHistoryRows, 
+              data: filteredPettyCashRows,
               columns,
               enableSelection: true,
               title: "Historial Vales",

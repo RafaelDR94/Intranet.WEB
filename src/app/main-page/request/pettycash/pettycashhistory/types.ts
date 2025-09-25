@@ -55,6 +55,9 @@ export type PettyCashHistoryRow = {
   /** Fecha normalizada para la tabla. */
   date: string;
 
+  /** Fecha cruda utilizada para filtros de rango. */
+  dateValue?: string;
+
   /** Total del vale. */
   total: number;
 
