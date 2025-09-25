@@ -14,6 +14,19 @@
   -webkit-text-size-adjust: 100%;
 }
 
+@layer utilities {
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
+}
+
+
 html,
 body {
   height: 100%;
@@ -103,6 +116,10 @@ body {
   --color-alert-purple-100: #A339FF;
   --color-alert-purple-50:  #C27DFF;
   --color-alert-purple-10:  #E1BFFF;
+
+  --color-alert-pink-100: #CF7BC0;
+  --color-alert-pink-50:  #CF7BC0;
+  --color-alert-pink-10:  #FFD4F7;
 
   --color-alert-green-100: #33CC33;
   --color-alert-green-50:  #71F58E;

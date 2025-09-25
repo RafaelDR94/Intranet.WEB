@@ -11,6 +11,7 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     onDateRangeChange, // “oficial”
     onSearch,
     onFilterClick,
+    onFilterChange,
     actionsRender,
     onTableActionClick,
     actionLabel = "Agregar",
@@ -75,7 +76,11 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     // Passthrough view toggle
     showViewToggle: props.showViewToggle,
     isCardsView: props.isCardsView,
-    onToggleView: props.onToggleView
+    onToggleView: props.onToggleView,
+    onFilterChange,
+    filterOptions: props.filterOptions,
+    filterValue: props.filterValue,
+    filterTitle: props.filterTitle
   };
 };
 

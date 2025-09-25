@@ -5,6 +5,7 @@ import React, { useEffect } from 'react'
 import CollapsibleSection from '../CollapsibleSection/CollapsibleSection'
 
 import CardsGrid from './components/CardsGrid/CardsGrid'
+import type { TextSize } from './components/DataTableContent/components/DataTableBody/DataTableBody'
 import DataTableContent from './components/DataTableContent/DataTableContent'
 import DataTableLayout from './components/DataTableLayout/DataTableLayout'
 import useDataTable from './hooks/useDataTable'
@@ -19,13 +20,16 @@ import { DataTableProps } from './types'
  * - Selección de filas y descarga (opcional)
  *
  * @template T Debe incluir `{ id: string | number }`.
- *
  */
 export const DataTable = <T extends { id: string | number }>({
   onSearch,
   onSearchChange,
   onCalendarClick,
   onFilterClick,
+  filterOptions,
+  filterValue,
+  filterTitle,
+  onFilterChange,
   onTableActionClick,
   actionLabel = 'Agregar',
   showCalendar = true,
@@ -44,9 +48,8 @@ export const DataTable = <T extends { id: string | number }>({
   dataTableTitle,
   startCollpas = false,
   useCardsView = false,
-  showViewSwitcher = false
-
-
+  showViewSwitcher = false,
+  textSize, // <-- NUEVO: tamaño global opcional
 }: DataTableProps<T>) => {
 
   const {
@@ -62,29 +65,41 @@ export const DataTable = <T extends { id: string | number }>({
     enableInternalSearch,
     searchableKeys,
     dateKey,
-
   })
 
-const [isCardsView, setIsCardsView] = React.useState(false);
+  const [isCardsView, setIsCardsView] = React.useState(false)
 
-useEffect(() => {
-  setIsCardsView(!!useCardsView);
-}, [useCardsView]);
+  useEffect(() => {
+    setIsCardsView(!!useCardsView)
+  }, [useCardsView])
+
+  const handleFilterSelect = React.useCallback(
+    (value: string) => {
+      if (!onFilterChange) return;
+      const option = filterOptions?.find((item) => item.value === value);
+      onFilterChange(value, option);
+    },
+    [filterOptions, onFilterChange]
+  )
+
   return (
     <div className="space-y-8">
       {tables.length > 1 && (
         <DataTableLayout
-
           onSearchChange={handleSearchChange}
           onCalendarClick={onCalendarClick}
           onFilterClick={onFilterClick}
+          onFilterChange={handleFilterSelect}
           onDateRangeChange={(s?: Date | null, e?: Date | null) => {
-            handleDateChange(s ?? null, e ?? null);
+            handleDateChange(s ?? null, e ?? null)
           }}
           onSearch={onSearch}
           actionLabel={actionLabel}
           showCalendar={showCalendar}
           showFilter={showFilter}
+          filterOptions={filterOptions}
+          filterValue={filterValue ?? undefined}
+          filterTitle={filterTitle}
           showButton={showButton}
           actionsRender={actionsRender}
           onTableActionClick={onTableActionClick}
@@ -97,40 +112,47 @@ useEffect(() => {
         />
       )}
 
-
       {tables.map((table, index) => {
         const filteredData = getFilteredData(table)
+        const effectiveTextSize: TextSize | undefined = table.textSize ?? textSize
+
         return (
           <CollapsibleSection
-            key={index + "table"}
+            key={index + 'table'}
             title={table?.title}
             enableCollapse={table.enableCollaps}
             defaultOpen={!startCollpas}
           >
-
             {tables.length === 1 && (
               <DataTableLayout
                 onSearchChange={handleSearchChange}
                 onCalendarClick={onCalendarClick}
                 onFilterClick={onFilterClick}
+                onFilterChange={handleFilterSelect}
                 onDateRangeChange={(s?: Date | null, e?: Date | null) => {
-                  handleDateChange(s ?? null, e ?? null); // normaliza undefined -> null
+                  handleDateChange(s ?? null, e ?? null)
                 }}
                 onSearch={onSearch}
                 actionLabel={actionLabel}
                 showCalendar={showCalendar}
                 showFilter={showFilter}
+                filterOptions={filterOptions}
+                filterValue={filterValue ?? undefined}
+                filterTitle={filterTitle}
                 showButton={showButton}
                 showDownloadTable={showDownloadTable}
                 actionsRender={actionsRender}
                 onTableActionClick={onTableActionClick}
                 downloadDisabled={!(selectedRows[index]?.length)}
-                onDownload={(kind) => handleDownload(kind, tables, dataTableTitle, index)}
+                onDownload={(kind) =>
+                  handleDownload(kind, tables, dataTableTitle, index)
+                }
                 showViewToggle={showViewSwitcher}
                 isCardsView={isCardsView}
                 onToggleView={(v) => setIsCardsView(!!v)}
               />
             )}
+
             {isCardsView && table.cardAdapt ? (
               <CardsGrid
                 data={filteredData as unknown as T[]}
@@ -167,6 +189,7 @@ useEffect(() => {
                 actionsRender={actionsRender}
                 onTableActionClick={onTableActionClick}
                 actionLabel={actionLabel}
+                textSize={effectiveTextSize} // <-- aplica aquí
               />
             )}
           </CollapsibleSection>

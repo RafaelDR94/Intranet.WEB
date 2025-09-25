@@ -21,11 +21,20 @@ export const sidebarRoutes = [
     icon: HomeIcon,
   },
   {
+    label: 'Tesorería',
+    path: '/main-page/treasury',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Caja Chica', path: '/main-page/treasury/treasurypettycash' },
+    ],
+  },
+  {
     label: 'Solicitudes',
     path: '/main-page/request',
     icon: FileIcon,
     subroutes: [
-      { label: 'Facturación', path: '/main-page/request/invoices' },
+      { label: 'Caja Chica', path: '/main-page/request/pettycash' },
+      { label: 'Facturación', path: '/main-page/request/invoices' }
     ],
   },
   {

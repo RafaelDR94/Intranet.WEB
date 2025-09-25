@@ -1,0 +1,48 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useBillingPettyCash" />
+
+# useBillingPettyCash
+
+Store de **Zustand** para manejar fondos y vales de caja chica.
+
+## API
+
+- `pettyCashFunds: PettyCashFundData[]`
+- `pettyCashVouchers: PettyCashVoucherData[]`
+- `loading: boolean`
+- `creating: boolean`
+- `updating: boolean`
+- `removing: boolean`
+- `validating: boolean`
+- `rejecting: boolean`
+- `fetchPettyCashFunds(force?: boolean): Promise<void>`
+- `createPettyCashFund(payload: PostPettyCashFund): Promise<PettyCashFundData | null>`
+- `updatePettyCashFund(payload: PutPettyCashFund): Promise<PettyCashFundData | null>`
+- `deletePettyCashFund(id: string): Promise<boolean>`
+- `updateCashOnHand(payload: PutCashOnHand): Promise<boolean>`
+- `fetchPettyCashVouchers(force?: boolean): Promise<void>`
+- `createPettyCashVoucher(payload: PostPettyCashVoucher): Promise<PettyCashVoucherData | null>`
+- `updatePettyCashVoucher(payload: PutPettyCashVoucher): Promise<PettyCashVoucherData | null>`
+- `deletePettyCashVoucher(id: string): Promise<boolean>`
+- `rejectPettyCashVoucher(id: string, comments?: string): Promise<boolean>`
+- `validatePettyCashVoucher(id: string): Promise<boolean>`
+- `reset(): void`
+- `resetFlags(): void`
+
+## Uso
+
+```tsx
+import { useBillingPettyCash } from './useBillingPettyCash';
+
+export const Example = () => {
+  const { fetchPettyCashFunds, pettyCashFunds } = useBillingPettyCash();
+  return (
+    <div>
+      <button onClick={() => fetchPettyCashFunds()}>cargar</button>
+      <pre>{JSON.stringify(pettyCashFunds)}</pre>
+    </div>
+  );
+};
+```
+

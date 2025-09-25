@@ -40,6 +40,8 @@ const Donut: React.FC<DonutProps> = ({
   thickness = 30,
   innerRadius = 70,
   showLabel = false, // <— NUEVO
+  sizeLabel = "",
+  colorLabel = "",
 }) => {
   const ratio = Math.max(0, Math.min(1, percentage / 100));
   const cx = size / 2;
@@ -98,10 +100,10 @@ const Donut: React.FC<DonutProps> = ({
           y={cy}
           textAnchor="middle"
           dominantBaseline="middle"
-          fontSize={fontSize}
+          fontSize={sizeLabel || fontSize}
           fontWeight={700}
           // usa el color del texto heredado; puedes controlar con Tailwind: `text-blue-90`, etc.
-          fill="currentColor"
+          fill={colorLabel || "currentColor"}
         >
           {`${Math.round(percentage)}%`}
         </text>

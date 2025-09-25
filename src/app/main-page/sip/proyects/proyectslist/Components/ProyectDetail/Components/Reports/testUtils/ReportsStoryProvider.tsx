@@ -1,12 +1,11 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+﻿import { action } from "@storybook/addon-actions";
+import React, { useEffect, useMemo, useState } from "react";
 
-import { action } from "@storybook/addon-actions";
+import { sampleProyect, sampleReports } from "./reportFixtures";
 
 import type { ReportView } from "@/app/mappings/reports/reports.types";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
 import { useReportsStore } from "@/app/stores/useReportsStore/useReportsStore";
-
-import { sampleProyect, sampleReports } from "./reportFixtures";
 
 type ReportsStoryProviderProps = {
   children: React.ReactNode;

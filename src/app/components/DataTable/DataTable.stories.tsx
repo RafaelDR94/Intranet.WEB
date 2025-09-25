@@ -21,6 +21,12 @@ const data: Person[] = [
   { id: 3, name: 'Charlie', role: 'Developer' },
 ];
 
+const filterOptions = [
+  { label: 'Todos', value: 'all' },
+  { label: 'Admins', value: 'admin' },
+  { label: 'No admins', value: 'others' },
+];
+
 const meta: Meta<typeof DataTable<Person>> = {
   title: 'Components/DataTable',
   component: DataTable<Person>,
@@ -52,6 +58,7 @@ Componente de tabla con **búsqueda**, **filtros**, **paginación** y **selecci�
     onTableActionClick: { action: 'onTableActionClick' },
     onCalendarClick: { action: 'onCalendarClick' },
     onFilterClick: { action: 'onFilterClick' },
+    onFilterChange: { action: 'onFilterChange' },
     onSearch: { action: 'onSearch' },
     onSearchChange: { action: 'onSearchChange' },
     onPageChange: { action: 'onPageChange' },
@@ -127,6 +134,9 @@ export const ConAcciones: Story = {
     showButton: true,
     showCalendar: true,
     showFilter: true,
+    filterOptions,
+    filterValue: 'all',
+    filterTitle: 'Filtrar usuarios',
   },
   parameters: {
     docs: {
