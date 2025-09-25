@@ -269,8 +269,8 @@ const PettyCashHistory = () => {
       <div className="space-y-8 overflow-auto">
         {currentPagePermissions?.voucherhistory && 
         <DataTable
-          showCalendar={false}
-          showFilter={false}
+          showCalendar={true}
+          showFilter={true}
           showDownloadTable
           showButton={false}
           textSize={{ mobile: 'c2', desktop: 'text-c2' }}

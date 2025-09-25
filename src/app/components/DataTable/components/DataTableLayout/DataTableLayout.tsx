@@ -14,8 +14,8 @@ import { Input } from "@/app/components/Input/Input";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import ListIcon from "@/assets/icons/Layout/table-rows.svg";
 import GridIcon from "@/assets/icons/Layout/view-grid.svg";
-import FilterIcon from "@/assets/icons/organization/filter-alt.svg";
 import SearchIcon from "@/assets/icons/organization/search.svg";
+import Filter from "@/app/components/Filter/Filter";
 
 const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
   const {
@@ -57,12 +57,7 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
       )}
 
       {showFilter && (
-        <Button
-          iconOnly
-          icon={FilterIcon}
-          variant="ghost"
-          onClick={onFilterClick}
-        />
+        <Filter></Filter>
       )}
 
       {/* Toggle vista lista/tarjetas */}

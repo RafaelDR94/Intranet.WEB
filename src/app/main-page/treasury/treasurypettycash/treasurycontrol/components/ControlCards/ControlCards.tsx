@@ -104,10 +104,10 @@ const ControlCards = () => {
     return (availableAmount / assignedAmount) * 100;
   }, [assignedAmount, availableAmount]);
 
-  const assignedSubtitle = React.useMemo(() => {
-    if (assignedAmount <= 0) return undefined;
-    return `Fijo asignado: 625.00`;
-  }, [assignedAmount]);
+  const assignedSubtitle = `Fijo asignado: 625.00`;
+  const totalVoucherP = ` vales Rosas`
+  const totalVoucherB = ` vales Azules`
+  const totalVouchersPending = ` vales Pendientes`;
 
   const { currentPagePermissions } = useAuth();
 
@@ -141,6 +141,7 @@ const ControlCards = () => {
         <div className="flex">
           <SummaryCard
             title="Monto comprobado"
+            subtitle={totalVoucherP}
             amount={verifiedAmount}
             statusLabel="Comprobados"
             SvgIcon={TicketPink}
@@ -166,6 +167,7 @@ const ControlCards = () => {
         <div className="flex">
           <SummaryCard
             title="Monto no comprobado"
+            subtitle={totalVoucherB}
             amount={unverifiedAmount}
             statusLabel="No deducibles"
             SvgIcon={TicketBlue}
@@ -176,6 +178,7 @@ const ControlCards = () => {
           />
           <SummaryCard
             title="Pendientes por comprobar"
+            subtitle={totalVouchersPending}
             amount={pendingAmount}
             statusLabel="Pendientes"
             SvgIcon={TicketYellow}

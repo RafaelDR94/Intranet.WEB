@@ -22,6 +22,7 @@ import DeleteIcon from "@/assets/icons/acciones/trash.svg";
 import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
 import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
+import Filter from "@/app/components/Filter/Filter";
 
 const truthyPermissionStrings = new Set([
   "true",
@@ -293,8 +294,8 @@ const ControlTable = () => {
 
       {currentPagePermissions?.read && (
         <DataTable
-          showCalendar={false}
-          showFilter={false}
+          showCalendar={true}
+          showFilter={true}
           showDownloadTable
           showButton={false}
           onSearchChange={(value) => setQuery(value ?? "")}
