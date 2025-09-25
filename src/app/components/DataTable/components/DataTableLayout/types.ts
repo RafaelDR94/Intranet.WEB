@@ -16,7 +16,7 @@ export interface TableLayoutProps {
   /** Maneja el clic en el botón de filtros */
   onFilterClick?: () => void
   /** Callback ejecutado cuando el usuario selecciona un filtro del menú. */
-  onFilterChange?: (value: string | null) => void
+  onFilterChange?: (value: any | null) => void
   /** Maneja el clic en el botón de acción principal */
   onTableActionClick?: () => void
   /** Se ejecuta al confirmar la búsqueda */
