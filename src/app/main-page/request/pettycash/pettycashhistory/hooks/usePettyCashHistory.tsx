@@ -34,6 +34,7 @@ const usePettyCashHistory = () => {
   const [panelOpen, setPanelOpen] = useState(false);
   const [selected, internalSetSelected] = useState<PettyCashHistoryRow | null>(null);
   const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>('all');
 
   const setSelected = useCallback(
     (row: PettyCashHistoryRow | null) => {
@@ -270,6 +271,7 @@ const usePettyCashHistory = () => {
           voucherType,
           voucherLabelType: voucherTypeToLabelType(voucherType),
           date: formatDate(v.application_date),
+          dateValue: v.application_date ?? '',
           total,
           subtotal:
             typeof v.subtotal === "number" && !Number.isNaN(v.subtotal)
@@ -281,6 +283,30 @@ const usePettyCashHistory = () => {
       }),
     [vouchersFull]
   );
+
+  const filteredPettyCashRows = useMemo(() => {
+    if (activeFilter === 'all') return pettyCashAsHistoryRows;
+
+    return pettyCashAsHistoryRows.filter((row) => {
+      const voucher = (row.voucherType ?? '').toLowerCase();
+      const status = (row.status ?? '').toLowerCase();
+
+      switch (activeFilter) {
+        case 'voucher:rosa':
+          return voucher.includes('rosa');
+        case 'voucher:azul':
+          return voucher.includes('azul');
+        case 'status:validado':
+          return status.includes('valid');
+        case 'status:rechazado':
+          return status.includes('rechaz');
+        case 'status:proceso':
+          return status.includes('proceso');
+        default:
+          return true;
+      }
+    });
+  }, [pettyCashAsHistoryRows, activeFilter]);
 
   const loading = loadingPetty || loadingHistory;
   const detailLoading = loadingPetty && !!selectedVoucherId;
@@ -346,6 +372,10 @@ const usePettyCashHistory = () => {
     fetchPettyCashVouchersByIdEmployee(user.idEmployee);
   };
 
+  const handleFilterChange = useCallback((value: string) => {
+    setActiveFilter(value || 'all');
+  }, []);
+
   // ======= RETURN =======
   return {
     panelOpen,
@@ -364,6 +394,9 @@ const usePettyCashHistory = () => {
     rejected,
     pettyCash: vouchersFull,
     pettyCashAsHistoryRows,
+    filteredPettyCashRows,
+    handleFilterChange,
+    activeFilter,
     selectedDetail: pettyCashVoucherFull ?? null,
     detailLoading,
     pettyError,

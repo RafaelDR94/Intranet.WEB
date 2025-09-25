@@ -5,6 +5,14 @@ import { describe, it, expect, vi } from 'vitest';
 import DataTableLayout from './DataTableLayout';
 
 vi.mock('@/assets/icons/organization/filter-alt.svg', () => ({ default: () => <span /> }));
+vi.mock('@/app/components/Filter/Filter', () => ({
+  __esModule: true,
+  default: ({ onChange }: { onChange?: (value: string) => void }) => (
+    <button type="button" onClick={() => onChange?.('selected')}>
+      Filter
+    </button>
+  ),
+}));
 vi.mock('@/assets/icons/organization/search.svg', () => ({ default: () => <span /> }));
 vi.mock('@/app/components/Calendar/Calendar', () => ({ Calendar: () => <span /> }));
 
@@ -16,11 +24,21 @@ describe('DataTableLayout', () => {
     expect(onSearchChange).toHaveBeenCalledWith('hola');
   });
 
-  it('triggers onFilterClick when filter button is clicked', () => {
+  it('propagates filter changes and click events', () => {
     const onFilterClick = vi.fn();
-    render(<DataTableLayout showFilter showButton={false} onFilterClick={onFilterClick} />);
-    const buttons = screen.getAllByRole('button');
-    fireEvent.click(buttons[1]);
+    const onFilterChange = vi.fn();
+    render(
+      <DataTableLayout
+        showFilter
+        showButton={false}
+        onFilterClick={onFilterClick}
+        onFilterChange={onFilterChange}
+        filterOptions={[{ label: 'Todos', value: 'selected' }]}
+      />,
+    );
+
+    fireEvent.click(screen.getByText('Filter'));
+    expect(onFilterChange).toHaveBeenCalledWith('selected');
     expect(onFilterClick).toHaveBeenCalled();
   });
 });

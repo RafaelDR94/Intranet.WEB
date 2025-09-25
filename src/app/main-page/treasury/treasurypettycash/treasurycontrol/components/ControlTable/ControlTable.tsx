@@ -22,7 +22,15 @@ import DeleteIcon from "@/assets/icons/acciones/trash.svg";
 import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
 import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
-import Filter from "@/app/components/Filter/Filter";
+
+const controlFilterOptions = [
+  { label: "Todos", value: "all" },
+  { label: "Vale Rosa", value: "voucher:rosa" },
+  { label: "Vale Azul", value: "voucher:azul" },
+  { label: "Validado", value: "status:validado" },
+  { label: "Rechazado", value: "status:rechazado" },
+  { label: "En Proceso", value: "status:proceso" },
+];
 
 const truthyPermissionStrings = new Set([
   "true",
@@ -143,7 +151,9 @@ const ControlTable = () => {
   const {
     rows,
     setConfirmOpen,
-    setQuery,
+    handleSearchChange,
+    handleFilterChange,
+    activeFilter,
     confirmOpen,
     rowToDelete,
     removing,
@@ -296,10 +306,17 @@ const ControlTable = () => {
         <DataTable
           showCalendar={true}
           showFilter={true}
+          filterOptions={controlFilterOptions}
+          filterValue={activeFilter}
+          filterTitle="Filtrar vales"
           showDownloadTable
           showButton={false}
-          onSearchChange={(value) => setQuery(value ?? "")}
-          onFilterClick={refresh}
+          dateKey={(row) => row.applicationDate}
+          onSearchChange={handleSearchChange}
+          onFilterChange={(value) => {
+            handleFilterChange(value);
+            refresh();
+          }}
           textSize={{ mobile: 'c2', desktop: 'text-d3' }}
           tables={[
             {

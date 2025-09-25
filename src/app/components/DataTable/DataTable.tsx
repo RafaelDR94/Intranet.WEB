@@ -26,6 +26,10 @@ export const DataTable = <T extends { id: string | number }>({
   onSearchChange,
   onCalendarClick,
   onFilterClick,
+  filterOptions,
+  filterValue,
+  filterTitle,
+  onFilterChange,
   onTableActionClick,
   actionLabel = 'Agregar',
   showCalendar = true,
@@ -69,6 +73,15 @@ export const DataTable = <T extends { id: string | number }>({
     setIsCardsView(!!useCardsView)
   }, [useCardsView])
 
+  const handleFilterSelect = React.useCallback(
+    (value: string) => {
+      if (!onFilterChange) return;
+      const option = filterOptions?.find((item) => item.value === value);
+      onFilterChange(value, option);
+    },
+    [filterOptions, onFilterChange]
+  )
+
   return (
     <div className="space-y-8">
       {tables.length > 1 && (
@@ -76,6 +89,7 @@ export const DataTable = <T extends { id: string | number }>({
           onSearchChange={handleSearchChange}
           onCalendarClick={onCalendarClick}
           onFilterClick={onFilterClick}
+          onFilterChange={handleFilterSelect}
           onDateRangeChange={(s?: Date | null, e?: Date | null) => {
             handleDateChange(s ?? null, e ?? null)
           }}
@@ -83,6 +97,9 @@ export const DataTable = <T extends { id: string | number }>({
           actionLabel={actionLabel}
           showCalendar={showCalendar}
           showFilter={showFilter}
+          filterOptions={filterOptions}
+          filterValue={filterValue ?? undefined}
+          filterTitle={filterTitle}
           showButton={showButton}
           actionsRender={actionsRender}
           onTableActionClick={onTableActionClick}
@@ -111,6 +128,7 @@ export const DataTable = <T extends { id: string | number }>({
                 onSearchChange={handleSearchChange}
                 onCalendarClick={onCalendarClick}
                 onFilterClick={onFilterClick}
+                onFilterChange={handleFilterSelect}
                 onDateRangeChange={(s?: Date | null, e?: Date | null) => {
                   handleDateChange(s ?? null, e ?? null)
                 }}
@@ -118,6 +136,9 @@ export const DataTable = <T extends { id: string | number }>({
                 actionLabel={actionLabel}
                 showCalendar={showCalendar}
                 showFilter={showFilter}
+                filterOptions={filterOptions}
+                filterValue={filterValue ?? undefined}
+                filterTitle={filterTitle}
                 showButton={showButton}
                 showDownloadTable={showDownloadTable}
                 actionsRender={actionsRender}

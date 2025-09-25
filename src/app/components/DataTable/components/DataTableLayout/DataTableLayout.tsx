@@ -24,6 +24,7 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
     handleSearchClick,
     handleInputKeyDown,
     onFilterClick,
+    onFilterChange,
     actionsRender,
     onTableActionClick,
     actionLabel,
@@ -33,6 +34,9 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
     isDownloadOpen,
     setIsDownloadOpen,
     handleDownload,
+    filterOptions,
+    filterValue,
+    filterTitle,
   } = useDataTableLayout(props);
   const tableLayoutStyles = useTableLayoutStyles();
   const { downloadDisabled = false } = props;
@@ -57,7 +61,15 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
       )}
 
       {showFilter && (
-        <Filter></Filter>
+        <Filter
+          title={filterTitle}
+          options={filterOptions ?? []}
+          selectedValue={filterValue ?? undefined}
+          onChange={(value) => {
+            onFilterChange?.(value);
+            onFilterClick?.();
+          }}
+        />
       )}
 
       {/* Toggle vista lista/tarjetas */}

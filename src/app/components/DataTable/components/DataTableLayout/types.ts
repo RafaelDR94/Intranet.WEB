@@ -15,6 +15,8 @@ export interface TableLayoutProps {
   onDateRangeChange?: (start?: Date , end?: Date ) => void
   /** Maneja el clic en el botón de filtros */
   onFilterClick?: () => void
+  /** Callback ejecutado cuando el usuario selecciona un filtro del menú. */
+  onFilterChange?: (value: string | null) => void
   /** Maneja el clic en el botón de acción principal */
   onTableActionClick?: () => void
   /** Se ejecuta al confirmar la búsqueda */
@@ -27,6 +29,12 @@ export interface TableLayoutProps {
   showCalendar?: boolean
   /** Muestra el botón de filtros */
   showFilter?: boolean
+  /** Opciones disponibles para el menú de filtros. */
+  filterOptions?: Array<{ label: string; value: string; disabled?: boolean }>
+  /** Valor seleccionado actualmente en el menú de filtros. */
+  filterValue?: string | null
+  /** Título mostrado en el menú contextual de filtros. */
+  filterTitle?: string
   /** Muestra el botón de acción principal */
   showButton?: boolean
   /** Muestra el botón de descarga de tabla */
