@@ -121,6 +121,46 @@ export const useVoucherPink = ({
   const [opSuccess, setOpSuccess] = useState(false);
   const [opError, setOpError] = useState<string | undefined>();
 
+  useEffect(() => {
+    if (!isEdit) return;
+    if (!fields.length) return;
+
+    const hasXmlField = fields.some((field) => field.name === "xml");
+    const hasPdfField = fields.some((field) => field.name === "pdf");
+
+    if (hasXmlField && hasPdfField) {
+      return;
+    }
+
+    const baseFields = createInitialFields(dataEdit);
+    const nextFields = [...fields];
+    const initialLength = nextFields.length;
+
+    const ensureField = (fieldName: "xml" | "pdf") => {
+      if (nextFields.some((field) => field.name === fieldName)) {
+        return;
+      }
+
+      const fieldFromBase = baseFields.find((field) => field.name === fieldName);
+      if (!fieldFromBase) {
+        return;
+      }
+
+      const targetIndex = baseFields.findIndex((field) => field.name === fieldName);
+      const insertIndex =
+        targetIndex === -1 ? nextFields.length : Math.min(targetIndex, nextFields.length);
+
+      nextFields.splice(insertIndex, 0, fieldFromBase);
+    };
+
+    ensureField("xml");
+    ensureField("pdf");
+
+    if (nextFields.length !== initialLength) {
+      setFields(formId, nextFields);
+    }
+  }, [dataEdit, fields, formId, isEdit, setFields]);
+
   // Monta iniciales y limpia
   useEffect(() => {
     const initialFields: FieldModel[] = createInitialFields(dataEdit);
