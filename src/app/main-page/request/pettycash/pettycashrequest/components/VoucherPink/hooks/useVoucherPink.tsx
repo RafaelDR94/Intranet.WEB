@@ -121,6 +121,46 @@ export const useVoucherPink = ({
   const [opSuccess, setOpSuccess] = useState(false);
   const [opError, setOpError] = useState<string | undefined>();
 
+  useEffect(() => {
+    if (!isEdit) return;
+    if (!fields.length) return;
+
+    const hasXmlField = fields.some((field) => field.name === "xml");
+    const hasPdfField = fields.some((field) => field.name === "pdf");
+
+    if (hasXmlField && hasPdfField) {
+      return;
+    }
+
+    const baseFields = createInitialFields(dataEdit);
+    const nextFields = [...fields];
+    const initialLength = nextFields.length;
+
+    const ensureField = (fieldName: "xml" | "pdf") => {
+      if (nextFields.some((field) => field.name === fieldName)) {
+        return;
+      }
+
+      const fieldFromBase = baseFields.find((field) => field.name === fieldName);
+      if (!fieldFromBase) {
+        return;
+      }
+
+      const targetIndex = baseFields.findIndex((field) => field.name === fieldName);
+      const insertIndex =
+        targetIndex === -1 ? nextFields.length : Math.min(targetIndex, nextFields.length);
+
+      nextFields.splice(insertIndex, 0, fieldFromBase);
+    };
+
+    ensureField("xml");
+    ensureField("pdf");
+
+    if (nextFields.length !== initialLength) {
+      setFields(formId, nextFields);
+    }
+  }, [dataEdit, fields, formId, isEdit, setFields]);
+
   // Monta iniciales y limpia
   useEffect(() => {
     const initialFields: FieldModel[] = createInitialFields(dataEdit);
@@ -277,7 +317,9 @@ export const useVoucherPink = ({
     });
   }, [opError, mode, showAlert, hideAlert, resetFlags]);
 
-  const uploadXmlIfNeeded = async (file: any): Promise<string> => {
+  const uploadXmlIfNeeded = async (
+    file: unknown,
+  ): Promise<string | undefined> => {
     const maybeFile = file instanceof File ? file : null;
     if (maybeFile) {
       const unique = `${user?.idEmployee}-${Date.now()}`;
@@ -288,13 +330,15 @@ export const useVoucherPink = ({
       if (!url) throw new Error("Hubo un problema al subir el XML");
       return url;
     }
-    if (isEdit && dataEdit?.xml) return dataEdit.xml;
-    const urlObj = (file as { url?: string })?.url;
+    const urlObj = (file as { url?: string } | null | undefined)?.url;
     if (urlObj) return urlObj;
-    throw new Error("No se encontró XML válido para continuar");
+    if (isEdit && dataEdit?.xml) return dataEdit.xml;
+    return undefined;
   };
 
-  const uploadPdfIfNeeded = async (file: any): Promise<string> => {
+  const uploadPdfIfNeeded = async (
+    file: unknown,
+  ): Promise<string | undefined> => {
     const maybeFile = file instanceof File ? file : null;
     if (maybeFile) {
       const unique = `${user?.idEmployee}-${Date.now()}`;
@@ -305,10 +349,10 @@ export const useVoucherPink = ({
       if (!url) throw new Error("Hubo un problema al subir el PDF");
       return url;
     }
-    if (isEdit && dataEdit?.pdf) return dataEdit.pdf;
-    const urlObj = (file as { url?: string })?.url;
+    const urlObj = (file as { url?: string } | null | undefined)?.url;
     if (urlObj) return urlObj;
-    throw new Error("No se encontró PDF válido para continuar");
+    if (isEdit && dataEdit?.pdf) return dataEdit.pdf;
+    return undefined;
   };
 
   const handleSubmit = useCallback(
@@ -318,8 +362,14 @@ export const useVoucherPink = ({
         const xmlUrl = await uploadXmlIfNeeded(values.xml);
         const pdfUrl = await uploadPdfIfNeeded(values.pdf);
 
+        const payloadValues = {
+          ...values,
+          xml: xmlUrl ? { url: xmlUrl } : undefined,
+          pdf: pdfUrl ? { url: pdfUrl } : undefined,
+        };
+
         const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
-          values: { ...values, xml: { url: xmlUrl }, pdf: { url: pdfUrl } },
+          values: payloadValues,
           proyects,
           fields,
           pettyCashFundId: pettyCashFunds?.[0]?.id,

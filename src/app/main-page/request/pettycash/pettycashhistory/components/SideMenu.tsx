@@ -89,6 +89,12 @@ const SideMenu = ({
     } satisfies PettyCashVoucherData;
   }, [detail, selected]);
 
+  const isVoucherPinkVoucher = useMemo(() => {
+    const rawVoucherType = voucherDataEdit?.voucher_type ?? "";
+    const normalizedVoucherType = rawVoucherType.toString().trim().toLowerCase();
+    return normalizedVoucherType === "r" || normalizedVoucherType.includes("rosa");
+  }, [voucherDataEdit?.voucher_type]);
+
   const projectCode =
     detail?.project?.proyectkey ?? selected?.project?.proyectKey ?? "";
   const employeeName =
@@ -274,7 +280,7 @@ const SideMenu = ({
               </div>
 
               {/* Formulario */}
-              {selected.xml || selected.pdf ? (
+              {isVoucherPinkVoucher ? (
                 <div>
                   <VoucherPink
                     mode="edit"
