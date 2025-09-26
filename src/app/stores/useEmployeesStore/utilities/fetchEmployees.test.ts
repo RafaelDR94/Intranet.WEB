@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { fetchEmployees } from './fetchEmployees'
+
 import type { EmployeesState, Set, Get } from '../types'
+
+import { fetchEmployees } from './fetchEmployees'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pGet: () => async () => ({ data: { data: [{ id: '1' }] } }) }))

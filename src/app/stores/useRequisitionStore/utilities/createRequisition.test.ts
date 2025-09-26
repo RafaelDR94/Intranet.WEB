@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
-import { createRequisition } from './createRequisition'
+
 import type { RequisitionsState, Set, Get } from '../types'
+
+import { createRequisition } from './createRequisition'
+
 import type { RequitionPost } from '@/app/mappings/requisitions/requisitions.types'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))

@@ -8,15 +8,18 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import CalendarIcon from "@/assets/icons/System/System/calendar.svg";
-import { ContextMenu } from "../ContextMenu/ContextMenu";
 import DatePicker from "react-datepicker";
+
+import { ContextMenu } from "../ContextMenu/ContextMenu";
+import { useIsMobile } from "../DataTable/components/DataTableLayout/hooks/useMediaQuery";
+
+import { useCalendar } from "./hooks/useCalendar";
 import { calendarStyles } from "./styles";
 import type { CalendarProps } from "./types";
+
+import CalendarIcon from "@/assets/icons/System/System/calendar.svg";
 import "react-datepicker/dist/react-datepicker.css";
 import "./datepicker.css";
-import { useCalendar } from "./hooks/useCalendar";
-import { useIsMobile } from "../DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
   const isDisabled = false; // Actualmente no se permite deshabilitar el calendario
@@ -117,7 +120,7 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
               focus:${calendarStyles.trigerFocus}`}
             onClick={handleTriggerClick}
             disabled={isDisabled}
-            aria-selected={isOpen}
+            aria-expanded={isOpen}
             aria-disabled={isDisabled}
           >
             <CalendarIcon />
@@ -133,6 +136,7 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
           setIsOpen(open);
         }}
         items={presets.map((p) => ({ label: p.label, onClick: p.action }))}
+        autoFlip={false}
       />
 
       {/* Modal personalizado para móviles */}

@@ -1,8 +1,9 @@
+import { statesList } from './statesList';
+
 import type { FieldModel } from '@/app/components/DynamicForm/types';
 import type { EmployeeType } from '@/app/mappings/employees/employee.types';
 import type { Proyect } from '@/app/mappings/proyects/proyects.types';
 import type { RequitionPost } from '@/app/mappings/requisitions/requisitions.types';
-import { statesList } from './statesList';
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper';
 // Ya existentes en tu archivo (mantén tus implementaciones)
 /**

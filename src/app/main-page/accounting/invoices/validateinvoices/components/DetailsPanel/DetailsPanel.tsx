@@ -1,19 +1,21 @@
 // File: /app/components/DetailsPanel/DetailsPanel.tsx
+import clsx from "clsx";
 import React from "react";
-import { DetailsPanelProps } from "./types";
-import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
-import { Button } from "@/app/components/Button/Button";
-import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import PDFIcon from "@/assets/icons/Docs/page.svg";
-import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
-import CollapsibleSection from "@/app/components/CollapsibleSection/CollapsibleSection";
-import { classes as s, mobileclasses as ms } from "./styles";
+
 import { useDetailsPanel } from "./hooks/useDetailsPanel";
+import { classes as s, mobileclasses as ms } from "./styles";
+import { DetailsPanelProps } from "./types";
+
+import { Button } from "@/app/components/Button/Button";
+import CollapsibleSection from "@/app/components/CollapsibleSection/CollapsibleSection";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
-import clsx from "clsx";
+import PDFIcon from "@/assets/icons/Docs/page.svg";
+import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
 const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
   setPanelOpen,
@@ -86,7 +88,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               variant="ghost"
               icon={ImageIcon}
               disabled={!selected.pdf}
-              onClick={() => window.open(selected?.image!, "_blank")}
+              onClick={() => window.open(selected?.image, "_blank")}
             />
           )}
         </div>
@@ -230,8 +232,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       >
         <div className={s.commentBoxPadding}>
           <DynamicForm
-            // @ts-ignore — adapta el nombre del prop si tu DynamicForm usa externalSubmitRef
-            initialValues={{ comments: selected?.comments ?? "" }}
+            // initialValues={{ comments: selected?.comments ?? "" }}
             fields={[
               {
                 type: "textarea",

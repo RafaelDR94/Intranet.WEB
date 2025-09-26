@@ -1,6 +1,6 @@
+import { ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
 import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
 import { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
-import { ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
 
 /** Props for invoice and ticket forms. */
 export interface InvoicesFormProps {

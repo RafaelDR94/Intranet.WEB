@@ -1,8 +1,10 @@
 'use client'
 import type { Set } from '../types'
+
+import { setInterceptor } from './interceptor'
+
 import type { User } from '@/app/context/AuthContext/types'
 import { logoutUser } from '@/app/context/AuthContext/utilities/AuthService'
-import { setInterceptor } from './interceptor'
 
 export const logout = async (set: Set): Promise<void> => {
   await logoutUser()

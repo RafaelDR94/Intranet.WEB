@@ -1,9 +1,5 @@
 "use client";
-import React, { createContext, useState, ReactNode, useEffect } from "react";
 import { initializeApp, FirebaseApp } from "firebase/app";
-import { getStorage, FirebaseStorage } from "firebase/storage";
-import { Messaging, getMessaging } from "firebase/messaging";
-import { getDatabase, Database } from "firebase/database";
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -11,26 +7,28 @@ import {
   onAuthStateChanged,
   User,
 } from "firebase/auth";
-import { AuthFirebaseConfiguration } from "@/app/configurations/Axios/urls";
-import { useAuth } from "../AuthContext/AuthContext";
-import useFirebaseStorageHelper, {
-  FirebaseStorageHelper,
-} from "./hooks/useFirebaseStorageHelper";
-import useFirebaseRealtimeHelper, {
-  FirebaseRealtimeHelper,
-} from "./hooks/useFirebaseRealTimeHelpet";
-import useFirebaseMessagingHelper, {
-  FirebaseMessagingHelper,
-} from "./hooks/useFirebaseMessaginHelper";
-import { usePermissionsListener } from "./hooks/usePermissionsListener";
+import { getDatabase, Database } from "firebase/database";
+import { Messaging, getMessaging } from "firebase/messaging";
+import { getStorage, FirebaseStorage } from "firebase/storage";
+import React, { createContext, useState, ReactNode, useEffect, useCallback } from "react";
+
+
 import useAxios from "../../hooks/useIntranetCRUD/useIntranetCRUD";
-import Uselogs from "./hooks/uselogs";
+import { useAuth } from "../AuthContext/AuthContext";
 import {
   getDeviceId,
   saveFirebaseToken,
   readFirebaseToken,
 } from "../AuthContext/utilities/AuthService";
+
+import useFirebaseMessagingHelper  from "./hooks/useFirebaseMessaginHelper";
+import useFirebaseRealtimeHelper from "./hooks/useFirebaseRealTimeHelpet";
+import useFirebaseStorageHelper from "./hooks/useFirebaseStorageHelper";
+import Uselogs from "./hooks/uselogs";
+import { usePermissionsListener } from "./hooks/usePermissionsListener";
 import { UseFirebasereturn } from "./types";
+
+import { AuthFirebaseConfiguration } from "@/app/configurations/Axios/urls";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
 export const FirebaseContext = createContext<UseFirebasereturn | undefined>(
@@ -60,7 +58,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     if (permissionsChanged.state) {
       state.updateUserPermissions(permissionsChanged.newPermissions);
     }
-  }, [permissionsChanged]);
+  }, [permissionsChanged, state]);
 
   useEffect(() => {
     if (!auth || !user?.idUser || !firebaserealtime || !firebaseMessaging)
@@ -123,6 +121,12 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Stable callbacks to satisfy exhaustive-deps
+  const authenticateWithEmailAndPasswordCb = useCallback(
+    authenticateWithEmailAndPassword,
+    [auth]
+  );
+
   const GetFirebaseConfigurations = async (attempt = 1) => {
     if (user?.token && !firebaseConfiguration && !offlineMode) {
       const onFirebaseConfigResponse = (response: any) => {
@@ -152,9 +156,14 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const GetFirebaseConfigurationsCb = useCallback(
+    GetFirebaseConfigurations,
+    [GetFirebaseConfigurations, IntranetGet, user?.token, firebaseConfiguration, offlineMode, setHasExpired]
+  );
+
   useEffect(() => {
-    setTimeout(GetFirebaseConfigurations, 1000);
-  }, [user?.token, firebaseConfiguration, offlineMode]);
+    setTimeout(GetFirebaseConfigurationsCb, 1000);
+  }, [user?.token, firebaseConfiguration, offlineMode, GetFirebaseConfigurationsCb]);
 
   useEffect(() => {
     if (firebaseConfiguration) {
@@ -174,9 +183,9 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (auth && user?.userName) {
       // authenticateWithEmailAndPassword(user?.userName, atob(firebaseConfiguration.paswordFirebase));
-      authenticateWithEmailAndPassword(user?.userName, "Dr123qwe");
+      authenticateWithEmailAndPasswordCb(user?.userName, "Dr123qwe");
     }
-  }, [auth, user]);
+  }, [auth, user, authenticateWithEmailAndPasswordCb]);
 
   return (
     <FirebaseContext.Provider

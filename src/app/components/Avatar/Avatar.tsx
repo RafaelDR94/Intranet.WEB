@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
 import clsx from 'clsx';
-import { AvatarProps } from './types';
-import { baseClasses, imageClass, sizes, onlineClasses } from './styles';
+import Image from 'next/image';
+import React from 'react';
+
 import useAvatar from './hooks/useAvatar';
+import { baseClasses, imageClass, sizes, onlineClasses } from './styles';
+import { AvatarProps } from './types';
 /**
  * Componente `Avatar`.
  *
@@ -46,7 +48,7 @@ const Avatar = ({
   return (
     <div className={clsx(baseClasses, sizes[size], className)}>
       {src ? (
-        <img src={src} alt={alt} className={imageClass} />
+        <Image src={src} alt={alt} className={imageClass} fill priority unoptimized />
       ) : (
         <span>{fallback}</span>
       )}

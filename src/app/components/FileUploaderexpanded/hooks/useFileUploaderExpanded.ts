@@ -1,9 +1,11 @@
 // src/app/components/FileUploaderExpanded/hooks/useFileUploaderExpanded.ts
 'use client';
-import { UseFileUploaderExpandedReturn } from './types';
 import { useState, DragEvent, useMemo } from 'react';
-import { FileUploaderProps ,InitialFile} from '@/app/components/FileUploader/types';
+
+import { UseFileUploaderExpandedReturn } from './types';
+
 import { useFileUploader } from '@/app/components/FileUploader/hooks/useFileUploader';
+import { FileUploaderProps ,InitialFile} from '@/app/components/FileUploader/types';
 
 
 export const useFileUploaderExpanded = (

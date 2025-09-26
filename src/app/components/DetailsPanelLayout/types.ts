@@ -27,4 +27,6 @@ export interface DetailsPanelProps {
     side?: 'left' | 'right';
     zIndex?: number;
     withinContainer?: boolean;
+    label?: () => React.ReactNode;
+
 }

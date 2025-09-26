@@ -1,15 +1,18 @@
 // src/app/.../hooks/useTicketForm.ts
 import { useEffect, useMemo } from 'react'
 import { shallow } from 'zustand/shallow'
-import { FieldModel } from '@/app/components/DynamicForm/types'
-import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
+
 import { useInvoices } from '../../../context/InvoicesContext'
 import useInitInvoicesForms from '../../../hooks/useInitInvoicesForms'
 import { createTicketFields } from '../../../utilities/InitialFields'
-import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
+
 import { UseTicketFormReturn, UseInvoicesFormProps } from './types'
+
+import { FieldModel } from '@/app/components/DynamicForm/types'
+import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useBillingHistoryStore } from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
+import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
 const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn => {
   const isEdit = Boolean(dataEdit)
   const { firebasestorage } = useFirebase()
@@ -183,7 +186,7 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
         type: 'error',
         variant: 'filled',
         title: isEdit ? 'No se pudo actualizar' : 'No se pudo enviar',
-        description: String(err) ?? 'Ocurrió un error al procesar tu ticket. Intenta de nuevo.',
+        description: String(err) || 'Ocurrió un error al procesar tu ticket. Intenta de nuevo.',
         showPrimaryButton: true,
         primaryLabel: 'Entendido',
         onPrimaryClick: hideAlert,
@@ -212,7 +215,7 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
         type: 'error',
         variant: 'filled',
         title: isEdit ? 'No se pudo actualizar' : 'No se pudo enviar',
-        description: error ?? 'Ocurrió un error al procesar tu ticket. Intenta de nuevo.',
+        description: error || 'Ocurrió un error al procesar tu ticket. Intenta de nuevo.',
         showPrimaryButton: true,
         primaryLabel: 'Entendido',
         onPrimaryClick: hideAlert,
@@ -246,11 +249,6 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
     error,
     successPost,
     successPut,
-    hideAlert,
-    hideSpinner,
-    resetFlags,
-    showAlert,
-    showSpinner,
     submitRef,
     isEdit,
   ])

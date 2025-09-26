@@ -1,6 +1,7 @@
 // useDataTable.ts
 import { useState, useCallback } from "react";
-import { Table, UseDataTableParams } from "./types";
+
+import { DataTableGroup } from "../types";
 import {
   parseDateFlexible,
   startOfDay,
@@ -11,8 +12,9 @@ import {
   endOfMonth,
 } from "../utilities/datesTable"; // ajusta la ruta según tu estructura
 import { exportFiles } from "../utilities/exportations";
-import { DataTableGroup } from "../types";
-import { C } from "vitest/dist/chunks/reporters.d.BFLkQcL6.js";
+
+import { Table, UseDataTableParams } from "./types";
+
 const useDataTable = <T extends { id: string | number }>({
   onSelectedChange,
   onSearchChange,
@@ -34,7 +36,7 @@ const useDataTable = <T extends { id: string | number }>({
       setSearchTerm(value);
       onSearchChange?.(value, startDate, endDate);
     },
-    [ startDate, endDate]
+    [ onSearchChange, startDate, endDate]
   );
 
   const handleDateChange = useCallback(
@@ -43,7 +45,7 @@ const useDataTable = <T extends { id: string | number }>({
       setEndDate(end);
       onSearchChange?.(searchTerm, start, end);
     },
-    [ searchTerm]
+    [ onSearchChange, searchTerm]
   );
 
   const getRowDate = useCallback(

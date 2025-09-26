@@ -1,4 +1,4 @@
-import type { Proyect } from '@/app/mappings/proyects/proyects.types'
+import type { Proyect, ProyectPost, ProyectPut } from '@/app/mappings/proyects/proyects.types'
 
 /**
  * Shape of the projects store state.
@@ -6,8 +6,21 @@ import type { Proyect } from '@/app/mappings/proyects/proyects.types'
 export type ProyectsState = {
   /** Lista de proyectos */
   proyects: Proyect[]
-  /** Flag de carga */
+  /** Proyecto seleccionado actualmente */
+  currentProyect: Proyect | null
+
+  /** Flags de proceso */
   loading: boolean
+  creating: boolean
+  updating: boolean
+  removing: boolean
+
+  /** Flags de éxito */
+  successGet: boolean
+  successPost: boolean
+  successPut: boolean
+  successDelete: boolean
+
   /** Mensaje de error si ocurre */
   error?: string
 
@@ -15,8 +28,23 @@ export type ProyectsState = {
   fetchProyects: (force?: boolean) => Promise<void>
   /** Refetch forzado */
   forceFetchProyects: () => Promise<void>
+
+  /** Crea un proyecto */
+  createProyect: (payload: ProyectPost) => Promise<Proyect | null>
+  /** Actualiza un proyecto */
+  updateProyect: (payload: ProyectPut) => Promise<Proyect | null>
+  /** Elimina un proyecto */
+  deleteProyect: (id: string) => Promise<boolean>
+
+  /** Asigna el proyecto actual */
+  setCurrentProyect: (p: Proyect | null) => void
+  /** Limpia el proyecto actual */
+  clearCurrentProyect: () => void
+
   /** Limpia estado */
   reset: () => void
+  /** Limpia solo flags */
+  resetFlags: () => void
 }
 
 export type Set = (

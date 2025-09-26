@@ -1,9 +1,11 @@
-import React from 'react';
 import { pdf, Document, Page, Text, View, Image, Font } from '@react-pdf/renderer';
-import HojaMembretada from '@/assets/images/Walpapers/HojaMembretada.png';
 import { StaticImageData } from 'next/dist/shared/lib/image-external';
+import React from 'react';
+
 import { styles } from './styles';
 import type { Table, FullDocument } from './types';
+
+import HojaMembretada from '@/assets/images/Walpapers/HojaMembretada.png';
 Font.register({ family: 'Izayoi', src: '/fonts/IzayoiMonospaced-nwoY.ttf' });
 Font.register({ family: 'Mechanical', src: '/fonts/Mechanical-g5Y5.otf' });
 
@@ -78,6 +80,7 @@ const MyDocument: React.FC<{ data: FullDocument | null }> = ({ data }) => (
       return (
         <Page key={pageIndex} style={styles.page} size={pageData.orientation === 'horizontal' ? [792, 612] : [612, 792]} wrap>
           <View style={styles.watermark}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
             <Image src={hojaSrc} style={{
               position: 'absolute',
               top: 0,
@@ -172,6 +175,7 @@ const MyDocument: React.FC<{ data: FullDocument | null }> = ({ data }) => (
                           {element.pictures.map((picture, idx) => (
                             <View key={idx} style={{ ...styles.imageCard, width: picture.width || styles.imageCard.width }}>
                               <Text style={styles.imageTitle}>{picture.title}</Text>
+                              {/* eslint-disable-next-line jsx-a11y/alt-text */}
                               <Image style={{ ...styles.imageStyle, width: picture.width || styles.imageStyle.width, height: picture.height || styles.imageStyle.height }} src={picture.urlimage} />
                               {picture.description && (
                                 <Text style={styles.imageDescription}>{picture.description}</Text>
@@ -209,6 +213,7 @@ const MyDocument: React.FC<{ data: FullDocument | null }> = ({ data }) => (
                       {element.signatures.map((signature, idx) => (
                         <View key={idx} style={{ ...styles.signatureBox, width: signatureBoxWidth, alignItems: 'center', justifyContent: 'center' }}>
                           {signature.signature && (
+                            // eslint-disable-next-line jsx-a11y/alt-text
                             <Image style={styles.signatureImage} src={signature.signature} />
                           )}
                           <View style={styles.signatureLine} />

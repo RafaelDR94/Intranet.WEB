@@ -1,7 +1,7 @@
 // src/app/components/Button/Button.test.tsx
+import { render, screen } from '@testing-library/react'
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
 
 // --- Mocks para los SVGs que propagan className ---
 vi.mock('@/assets/icons/navegacion/nav-arrow-right.svg', () => ({
@@ -57,6 +57,10 @@ describe('Button component', () => {
     const CustomIcon = (props: any) => <svg data-testid="custom-icon" {...props} />
     render(<Button icon={CustomIcon}>Texto</Button>)
     expect(screen.getByTestId('custom-icon')).toBeInTheDocument()
+  })
+    it('propaga dataTestId al botón', () => {
+    render(<Button dataTestId="btn1">Id</Button>)
+    expect(screen.getByTestId('btn1')).toBeInTheDocument()
   })
     it('no renderiza el icono cuando hideIcon es true', () => {
     render(<Button hideIcon>Sin icono</Button>)

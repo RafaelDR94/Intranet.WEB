@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import RequisitionsTable from './RequisitionsTable'
+
 import * as hook from './hooks/useRequisitionsTable'
 
 // Provide static data for Storybook rendering
-;(hook as any).useRequisitionTable = () => ({
+;
+import RequisitionsTable from './RequisitionsTable'
+(hook as any).useRequisitionTable = () => ({
   rows: [
     { id: '1', snCode: 'REQ-1', debtorName: 'John Doe', projectCode: 'PRJ-1', date_created: '2025-01-01' },
   ],
@@ -19,7 +21,7 @@ import * as hook from './hooks/useRequisitionsTable'
 })
 
 const meta: Meta<typeof RequisitionsTable> = {
-  title: 'Accounting/Requisitions/RequisitionsTable',
+  title: 'MAINPAGE/Accounting/Requisitions/RequisitionsList/RequisitionsTable/RequisitionsTable',
   component: RequisitionsTable,
   tags: ['autodocs'],
 }

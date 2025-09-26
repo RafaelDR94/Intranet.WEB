@@ -1,6 +1,7 @@
 // src/app/components/FileUploader/hooks/useFileUploader.test.ts
-import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+
 import { useFileUploader } from './useFileUploader';
 
 describe('useFileUploader hook', () => {

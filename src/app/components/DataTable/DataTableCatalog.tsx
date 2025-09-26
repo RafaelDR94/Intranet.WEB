@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+
 import { DataTable } from './DataTable';
 import type { ColumnDefinition } from './types';
 

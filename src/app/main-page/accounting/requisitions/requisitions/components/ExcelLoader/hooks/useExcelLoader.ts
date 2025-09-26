@@ -1,10 +1,12 @@
 'use client';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { shallow } from 'zustand/shallow';
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
-import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore';
-import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore';
+
 import { SubmitFn } from './types';
+
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore';
+import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore';
 
 /**
  * Hook que maneja el flujo de carga de un archivo Excel de requisiciones.
@@ -45,6 +47,11 @@ export const useExcelLoader = () => {
   const [file, setFile] = useState<File | null>(null);
   const [ready, setReady] = useState(false);
 
+  const secondaryclickSumbit = useCallback(async () => {
+    hideAlert();
+    await submitRef.current?.();
+  }, [hideAlert]);
+
   const handleFile = (incoming: File | File[] | null) => {
     const f = Array.isArray(incoming) ? incoming[0] ?? null : incoming;
     setFile(f);
@@ -52,14 +59,14 @@ export const useExcelLoader = () => {
     resetFlags();
   };
 
-  const doUpload = async () => {
+  const doUpload = useCallback(async () => {
     if (!file) throw new Error('Selecciona un archivo Excel primero.');
     await updateExcelRequisition(file);
-  };
+  }, [file, updateExcelRequisition]);
 
   useEffect(() => {
     submitRef.current = doUpload;
-  }, [file, updateExcelRequisition]);
+  }, [doUpload]);
 
   useEffect(() => {
     if (updatingExcel) {
@@ -110,7 +117,7 @@ export const useExcelLoader = () => {
         variant: 'filled',
         title: 'No se pudo enviar',
         description:
-          String(requisitionExcelError) ??
+          String(requisitionExcelError) ||
           'Ocurrió un error al subir el archivo. Intenta de nuevo.',
         showPrimaryButton: true,
         primaryLabel: 'Entendido',
@@ -120,10 +127,7 @@ export const useExcelLoader = () => {
         },
         showSecondaryButton: true,
         secondaryLabel: 'Reintentar',
-        onSecondaryClick: async () => {
-          hideAlert();
-          await submitRef.current?.();
-        },
+        onSecondaryClick: () => { secondaryclickSumbit(); }
       });
 
       resetFlags();
@@ -138,6 +142,7 @@ export const useExcelLoader = () => {
     resetFlags,
     showAlert,
     showSpinner,
+    secondaryclickSumbit,
   ]);
 
   return {

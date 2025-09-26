@@ -1,8 +1,10 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import DataTableContent from './DataTableContent';
+
 import type { ColumnDefinition } from '../../types';
+
+import DataTableContent from './DataTableContent';
 
 vi.mock('@/app/components/Pagination/Pagination', () => ({
   default: ({ onPageChange }: { onPageChange: (page: number) => void }) => (

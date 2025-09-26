@@ -1,12 +1,15 @@
-import React from "react";
-import PerDiemBalanceCard from "./components/DemoPerDiemBalanceCard/PerDiemBalanceCard";
-import RequisitionsForm from "../../../components/RequisitionsForm/RequisitionsForm";
-import useRequisitionsDetails from "./hooks/useRequisitionsDetails";
-import RequisitionDetailsDocument from "./components/RequisitionDetailsDocuments/RequisitionDetailsDocument";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import clsx from "clsx";
+import React from "react";
+
+import RequisitionsForm from "../../../components/RequisitionsForm/RequisitionsForm";
+
+import PerDiemBalanceCard from "./components/DemoPerDiemBalanceCard/PerDiemBalanceCard";
+import RequisitionDetailsDocument from "./components/RequisitionDetailsDocuments/RequisitionDetailsDocument";
+import useRequisitionsDetails from "./hooks/useRequisitionsDetails";
+
 import CollapsibleSection from "@/app/components/CollapsibleSection/CollapsibleSection";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 /**
  * Muestra el formulario de requisición junto con información adicional como
  * el balance de viáticos y los documentos relacionados. Renderiza secciones

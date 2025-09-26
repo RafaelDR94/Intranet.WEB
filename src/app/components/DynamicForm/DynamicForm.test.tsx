@@ -1,8 +1,9 @@
 // src/app/components/DynamicForm/DynamicForm.test.tsx
-import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
+
 import { DynamicForm } from './DynamicForm'
 import { FieldModel } from './types'
 // --- MOCK de TODOS los SVGs que se importan a lo largo del formulario ---
@@ -193,6 +194,38 @@ describe('DynamicForm', () => {
 
     // Después de proporcionar un valor válido se notifica validez true
     await waitFor(() => expect(handleValid).toHaveBeenCalledWith(true))
+  })
+
+  it('propaga dataTestId a campos y acciones', () => {
+    const fields: FieldModel[] = [
+      { type: 'input', name: 'name', label: 'Nombre', value: '' },
+    ]
+    const { rerender } = render(
+      <DynamicForm
+        fields={fields}
+        onSubmit={() => {}}
+        dataTestId="form"
+        showSecondaryButtonIf={() => true}
+        onSecondaryButtonClick={() => {}}
+        secondaryButtonLabel="Sec"
+      />
+    )
+    expect(screen.getByTestId('form')).toBeInTheDocument()
+    expect(screen.getByTestId('form-name')).toBeInTheDocument()
+    expect(screen.getByTestId('form-primary')).toBeInTheDocument()
+    expect(screen.getByTestId('form-secondary')).toBeInTheDocument()
+    rerender(
+      <DynamicForm
+        fields={fields}
+        onSubmit={() => {}}
+        dataTestId="form"
+        showSecondaryButtonIf={() => true}
+        onSecondaryButtonClick={() => {}}
+        secondaryButtonLabel="Sec"
+        loading
+      />
+    )
+    expect(screen.getByTestId('form-spinner')).toBeInTheDocument()
   })
 
   it('maneja NumberControl y envía el valor actualizado', async () => {

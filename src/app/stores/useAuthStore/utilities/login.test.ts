@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
-import { login } from './login'
+
 import type { AuthState, Set, Get } from '../types'
+
+import { login } from './login'
+
 import type { LoginCredentials } from '@/app/context/AuthContext/types'
 
 vi.mock('./interceptor', () => ({ setInterceptor: vi.fn() }))

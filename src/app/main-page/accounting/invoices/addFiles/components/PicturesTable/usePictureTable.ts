@@ -1,11 +1,12 @@
 
-import { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
-import { shallow } from "zustand/shallow"
 import { useEffect, useState } from "react";
+import { shallow } from "zustand/shallow"
+
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
+import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 const usePictureTable = () => {
     const { usePrincipalImage, usePrincipalLoading, usePrincipalAlert } = usePrincipal();
     const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -38,7 +39,7 @@ const usePictureTable = () => {
     )
     useEffect(() => {
         fetchBillingImages(true)
-    }, [])
+    }, [fetchBillingImages])
 
     useEffect(() => {
 
@@ -62,7 +63,7 @@ const usePictureTable = () => {
             showAlert({
                 type: "error",
                 title: "Ocurrio un error",
-                description: String(error) ?? "Hubo un problema desconocido",
+                description: String(error) || "Hubo un problema desconocido",
                 showPrimaryButton: false,
                 showSecondaryButton: false,
                 autoCloseMs: 1500,

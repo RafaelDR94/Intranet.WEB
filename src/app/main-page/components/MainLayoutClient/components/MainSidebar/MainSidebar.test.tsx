@@ -1,12 +1,16 @@
+import { render, screen } from '@testing-library/react';
+import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+
 import MainSidebar from './MainSidebar';
-import HomeIcon from '@/assets/icons/navegacion/home.svg';
+
+import { createMockRouter } from '@/__mocks__/mockRouter';
 import { AuthProvider } from '@/app/context/AuthContext/AuthContext';
 import { PrincipalProvider } from '@/app/context/PrincipalContext/PrincipalContext';
-import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
-import { createMockRouter } from '@/__mocks__/mockRouter';
+import HomeIcon from '@/assets/icons/navegacion/home.svg';
+
+
 vi.mock('next/navigation', () => ({
   usePathname: vi.fn(() => '/main-page/home'),
 }));

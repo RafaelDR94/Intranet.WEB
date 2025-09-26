@@ -1,3 +1,5 @@
+import type { TextSize } from "./components/DataTableContent/components/DataTableBody/DataTableBody"
+
 /**
  * Define la estructura de cada columna de la tabla.
  *
@@ -70,6 +72,22 @@ export interface DataTableGroup<T> {
    * Acepta valores en px o cualquier unidad CSS válida.
    */
   scrollMaxHeight?: number | string
+  /** Adaptador para vista como tarjetas (opcional por tabla) */
+  cardAdapt?: CardAdapt<T>
+  /** Nuevo: tamaño de texto específico para esta tabla (fallback global en DataTable) */
+  textSize?: TextSize
+}
+
+/** Opción disponible dentro del menú de filtros del DataTable. */
+export interface DataTableFilterOption<T, Value extends string = string> {
+  /** Texto mostrado en la opción. */
+  label: string
+  /** Valor que identifica la opción. */
+  value: Value
+  /** Permite deshabilitar la opción. */
+  disabled?: boolean
+  /** Predicado opcional utilizado por consumidores para filtrar datos. */
+  predicate?: (row: T) => boolean
 }
 
 /**
@@ -116,6 +134,17 @@ export interface DataTableProps<T = any> {
   showCalendar?: boolean;
   /** Muestra el botón de filtros (por defecto: `false`). */
   showFilter?: boolean;
+  /** Opciones mostradas dentro del menú contextual de filtros. */
+  filterOptions?: DataTableFilterOption<T>[];
+  /** Valor seleccionado actualmente en el filtro. */
+  filterValue?: string | null;
+  /** Título visible dentro del menú contextual de filtros. */
+  filterTitle?: string;
+  /** Callback ejecutado cuando se selecciona una opción del filtro. */
+  onFilterChange?: (
+    value: string,
+    option?: DataTableFilterOption<T>,
+  ) => void;
   /** Muestra el botón de acción principal (por defecto: `true`). */
   showButton?: boolean;
   /**
@@ -160,4 +189,71 @@ export interface DataTableProps<T = any> {
   dataTableTitle?: string;
   /** Inicia con la tabla colapsada. */
   startCollpas?:boolean; 
+  /** Si es verdadero, intenta renderizar cada tabla como grilla de tarjetas usando `cardAdapt` */
+  useCardsView?: boolean;
+  /** Muestra el conmutador de vista en el layout */
+  showViewSwitcher?: boolean;
+   /** Nuevo: tamaño de texto global (fallback si la tabla no define textSize) */
+  textSize?: TextSize
+}
+
+/** Mapeo de campos para adaptar filas (T) a tarjetas renderizables */
+export interface CardAdapt<T> {
+  /** key o función para el título */
+  titleKey: keyof T | ((row: T) => string)
+  /** key o función para el label pequeño */
+  labelKey?: keyof T | ((row: T) => string)
+  /** key o función para la descripción */
+  descriptionKey?: keyof T | ((row: T) => string)
+  /** key o función para la URL de imagen */
+  imageKey?: keyof T | ((row: T) => string)
+  /** Acción primaria (click en botón principal) */
+  onPrimaryAction: (row: T) => void
+  /** Etiqueta de botón primario */
+  primaryLabel?: string
+  /** Acción secundaria opcional */
+  onSecondaryAction?: (row: T) => void
+  /** Etiqueta de botón secundario */
+  secondaryLabel?: string
+  /** Mostrar/ocultar botones */
+  showPrimaryButton?: boolean
+  showSecondaryButton?: boolean
+  /** Número de tarjetas por página (opcional, por defecto `rowsPerPage`) */
+  cardsPerPage?: number
+}
+
+/** Props for the contextual action cell. */
+export type ActionMenuCellProps = {
+  /** Current row information. */
+  row: RequisitionRow
+  /** Called when the edit option is selected. */
+  onEdit: (row: RequisitionRow) => void
+  /** Called when the delete option is selected. */
+  onDelete: (row: RequisitionRow) => void
+}
+
+/**
+ * Row shape used by the requisitions table.
+ */
+export type RequisitionRow = {
+  /** Unique identifier for the requisition. */
+  id: string
+  /** Serial number displayed in the list. */
+  snCode: string
+  /** Name of the debtor associated with the requisition. */
+  debtorName: string
+  /** Project code for the requisition. */
+  projectCode: string
+  /** Assignment date (raw ISO or yyyy-mm-dd). */
+  assignmentDate?: string
+  /** Due date/termino (raw ISO or yyyy-mm-dd). */
+  dueDate?: string
+  /** Amount deposited/requested as number for formatting. */
+  amount?: number
+  /** Status text to display as a pill. */
+  status?: string
+  /** ISO formatted creation date. */
+  date_created?: string
+  
+  state?:string,
 }

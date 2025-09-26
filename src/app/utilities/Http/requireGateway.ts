@@ -1,11 +1,11 @@
 // src/app/utilities/http/requireGateway.ts
-import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
 import type {
   IntranetGetType,
   IntranetPostType,
   IntranetPutType,
   IntranetDeleteType,
 } from '@/app/hooks/useIntranetCRUD/types'
+import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
 
 type GatewayFns = {
   get: IntranetGetType

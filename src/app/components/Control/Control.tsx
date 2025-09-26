@@ -1,9 +1,10 @@
 // src/app/components/Control/Control.tsx
-import React from 'react';
-import { Minus, Plus } from 'lucide-react';
 import clsx from 'clsx';
-import { ControlProps } from './types';
+import { Minus, Plus } from 'lucide-react';
+import React from 'react';
+
 import { controlCtn, controlBtn, controlDivider, iconClass } from './styles';
+import { ControlProps } from './types';
 
 /**
  * Control numérico con soporte de tamaños (`sm`, `md`, `lg`) y disables granulares.

@@ -1,8 +1,8 @@
 'use client'
 import { useEffect } from 'react'
-import type { ServiceWorkerRegisterProps } from './types'
 
-export const ServiceWorkerRegister: React.FC<ServiceWorkerRegisterProps> = () => {
+
+export const ServiceWorkerRegister = () => {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker

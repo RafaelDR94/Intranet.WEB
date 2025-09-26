@@ -1,11 +1,13 @@
 // src/app/stores/useBillingDocumentsStore/utilities/deleteBillingDocument.ts
 'use client'
 import type { AxiosResponse } from 'axios'
-import { BillingDocument as BillingDocumentUrl } from '@/app/configurations/Axios/urls'
+
 import type { Set, Get } from '../types'
-import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { pDelete } from '@/app/utilities/Http/promisifyIntranet'
+
+import { BillingDocument as BillingDocumentUrl } from '@/app/configurations/Axios/urls'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+import { pDelete } from '@/app/utilities/Http/promisifyIntranet'
+import { requireGateway } from '@/app/utilities/Http/requireGateway'
 
 /**
  * Elimina un documento de factura por ID.

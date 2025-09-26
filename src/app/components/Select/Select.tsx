@@ -1,12 +1,15 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
+import React, { useEffect, useMemo, useState } from "react";
+
+import useSelect from "./hooks/useSelect";
+import { baseStyles } from "./styles";
+import { SelectProps } from "./types";
+
+import Check from "@/assets/icons/acciones/check.svg";
 import ChevronDown from "@/assets/icons/navegacion/nav-arrow-down.svg";
 import ChevronUp from "@/assets/icons/navegacion/nav-arrow-up.svg";
-import Check from "@/assets/icons/acciones/check.svg";
-import { SelectProps } from "./types";
-import { baseStyles } from "./styles";
-import useSelect from "./hooks/useSelect";
+
 
 
 /**
@@ -68,7 +71,7 @@ export const Select: React.FC<SelectProps> = ({
   });
 
   // Asegura que `selected` siempre sea un array
-  const safeSelected = Array.isArray(selected) ? selected : [];
+  const safeSelected = useMemo(() => (Array.isArray(selected) ? selected : []), [selected]);
 
   // --- Estado para typeahead (sin input) ---
   const [searchTerm, setSearchTerm] = useState("");

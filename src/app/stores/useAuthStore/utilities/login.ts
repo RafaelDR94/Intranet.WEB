@@ -1,8 +1,10 @@
 'use client'
 import type { Set, Get } from '../types'
+
+import { setInterceptor } from './interceptor'
+
 import type { LoginCredentials } from '@/app/context/AuthContext/types'
 import { authenticateUser, readUser, saveLastUserRemebered, forgetUser } from '@/app/context/AuthContext/utilities/AuthService'
-import { setInterceptor } from './interceptor'
 
 export const login = async (
   set: Set,

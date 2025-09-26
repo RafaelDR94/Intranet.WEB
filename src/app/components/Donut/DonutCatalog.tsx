@@ -1,4 +1,5 @@
 import React from 'react';
+
 import Donut from './Donut';
 
 export const DonutCatalog: React.FC = () => (

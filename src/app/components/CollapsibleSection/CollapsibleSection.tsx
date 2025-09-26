@@ -1,12 +1,16 @@
 'use client'
 
 import React, { useState } from 'react';
-import { CollapsibleSectionProps } from './types';
-import { cn } from '@/app/utilities/classname';
+
+import { useIsMobile } from '../DataTable/components/DataTableLayout/hooks/useMediaQuery';
+
 import styles from './styles';
+import { CollapsibleSectionProps } from './types';
+
+import { cn } from '@/app/utilities/classname';
 import ArrowDown from '@/assets/icons/navegacion/nav-arrow-down.svg';
 import ArrowUp from '@/assets/icons/navegacion/nav-arrow-up.svg';
-import { useIsMobile } from '../DataTable/components/DataTableLayout/hooks/useMediaQuery';
+
 /**
  * `CollapsibleSection` es un componente reutilizable que permite mostrar y ocultar contenido de forma interactiva.
  * Utiliza un botón con íconos SVG personalizados (flecha hacia arriba o abajo) y un divisor visual alineado a la derecha del título.

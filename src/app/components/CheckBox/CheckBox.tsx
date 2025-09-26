@@ -1,6 +1,7 @@
-import React, { useRef } from 'react'
 import clsx from 'clsx'
-import { CheckboxProps } from './types'
+import React, { useRef } from 'react'
+
+import { useIndeterminate } from './hooks/useCheckbox'
 import {
   baseLabel,
   layoutMap,
@@ -10,7 +11,7 @@ import {
   labelTextBase,
   labelTextDisabled,
 } from './styles'
-import { useIndeterminate } from './hooks/useCheckbox'
+import { CheckboxProps } from './types'
 
 /**
  * Casilla de verificación controlada que admite:
@@ -59,6 +60,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   labelPosition = 'right',
   name,
   className,
+  dataTestId,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null)
   useIndeterminate(inputRef, indeterminate)
@@ -87,6 +89,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 
   return (
     <label
+      data-testid={dataTestId}
       className={clsx(
         baseLabel,
         layoutMap[labelPosition],

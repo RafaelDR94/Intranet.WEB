@@ -1,7 +1,8 @@
-import { EmployeeType } from "./employee.types";
 import { mapDepartment } from "../department/department.mapper";
-import { mapWorkPosition } from "../workposition/workposition.mapper";
 import { mapUser } from "../users/user.mapper";
+import { mapWorkPosition } from "../workposition/workposition.mapper";
+
+import { EmployeeType } from "./employee.types";
 
 export const mapEmployee = (emp: any): EmployeeType => ({
   employee_id: emp?.employee_id ?? emp?.id,

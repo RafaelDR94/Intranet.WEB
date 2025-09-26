@@ -1,6 +1,6 @@
 
-import { Requisition } from "../requisitions/requisitions.types"
 import { BillingDocumentCategory, BillingDocumentDescription } from "../billingdocuments/billingdocuments.types"
+import { Requisition } from "../requisitions/requisitions.types"
 export type BillingImages = {
     "billing_image_id": string,
     "requisition": Requisition,

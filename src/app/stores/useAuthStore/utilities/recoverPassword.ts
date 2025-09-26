@@ -1,9 +1,10 @@
 'use client'
-import { AuthRecoverPassword } from '@/app/configurations/Axios/urls'
-import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { pPut } from '@/app/utilities/Http/promisifyIntranet'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import type { Set, Get, RecoverPasswordPayload } from '../types'
+
+import { AuthRecoverPassword } from '@/app/configurations/Axios/urls'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+import { pPut } from '@/app/utilities/Http/promisifyIntranet'
+import { requireGateway } from '@/app/utilities/Http/requireGateway'
 
 export const recoverPassword = async (
   set: Set,

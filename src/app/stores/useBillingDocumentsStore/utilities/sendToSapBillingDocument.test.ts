@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { sendToSapBillingDocument } from './sendToSapBillingDocument'
+
 import type { BillingDocumentsState, Set, Get } from '../types'
+
+import { sendToSapBillingDocument } from './sendToSapBillingDocument'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pPost: () => async () => ({ data: { data: { id: '1' } } }) }))

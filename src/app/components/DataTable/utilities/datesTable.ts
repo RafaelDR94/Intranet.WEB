@@ -1,4 +1,4 @@
-/** Intenta parsear Date | string (ISO, DD/MM/YYYY o DD-MM-YYYY). */
+/// Intenta parsear Date | string (ISO, DD/MM/YYYY o DD-MM-YYYY). /
 const ISO_RE =/^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
 
 export function parseDateFlexible(
@@ -22,11 +22,9 @@ export function parseDateFlexible(
     .replace(/p\s*\.?\s*m\.?/gi, "PM");// p. m., pm → PM
 
   // 1) DD/MM/YYYY [HH:MM[:SS]] [AM|PM]  (también admite "-")
-  const dm = normalized.match(
-    /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i
-  );
+  const dm = normalized.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i);
   if (dm) {
-    let [, dd, mm, yyyy, hh, mi, ss, mer] = dm;
+    const [, dd, mm, yyyy, hh, mi, ss, mer] = dm;
     const year = Number(yyyy.length === 2 ? Number(yyyy) + 2000 : yyyy);
     const month = Number(mm) - 1; // 0-based
     const day = Number(dd);
@@ -47,7 +45,7 @@ export function parseDateFlexible(
   }
 
   // 2) Solo fecha DD/MM/YYYY (fallback, mantiene mediodía para evitar TZ shift)
-  const dmOnly = normalized.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  const dmOnly = normalized.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/)
   if (dmOnly) {
     const [, dd, mm, yyyy] = dmOnly;
     return new Date(Number(yyyy), Number(mm) - 1, Number(dd), 12, 0, 0, 0);

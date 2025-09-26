@@ -1,60 +1,22 @@
 "use client";
 import React from "react";
-import { DataTable } from "@/app/components/DataTable/DataTable";
-import { PopUp } from "@/app/components/PopUp/PopUp";
-import type { ColumnDefinition } from "@/app/components/DataTable/types";
-import { Button } from "@/app/components/Button/Button";
-import { ContextMenu } from "@/app/components/ContextMenu/ContextMenu";
-import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
-import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg"
+
 import { useRequisitionTable } from "./hooks/useRequisitionsTable";
+import { container, actionCell } from "./styles";
 import {
-  ActionMenuCellProps,
   RequisitionRow,
 } from "./types";
-import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
-import DeleteIcon from "@/assets/icons/acciones/trash.svg";
-import { container, actionCell } from "./styles";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
+import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { DataTable } from "@/app/components/DataTable/DataTable";
+import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
+import { PopUp } from "@/app/components/PopUp/PopUp";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
-const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
-  row,
-  onEdit,
-  onDelete,
-}) => {
-  const isMobile = useIsMobile();
-  const { currentPagePermissions } = useAuth();
-  const menuItems: any[] = [];
-  if (currentPagePermissions?.details)
-    menuItems.push({
-      label: "Ver Detalle",
-      icon: EditIcon,
-      onClick: () => {
-        onEdit(row);
-      },
-    });
-  if (currentPagePermissions?.delete)
-    menuItems.push({
-      label: "Cancelar",
-      icon: DeleteIcon,
-      danger: true,
-      onClick: () => {
-        onDelete(row);
-      },
-    });
-  return (
-    <ContextMenu
-      alignRight
-      autoFlip
-      trigger={<Button size="xsmall" variant="ghost" icon={isMobile ? RightArrowIcon : DotsIcon} />}
-      items={menuItems}
-    />
-  );
-};
+
 
 const RequisitionsTable = () => {
   const {
@@ -75,6 +37,8 @@ const RequisitionsTable = () => {
 
 
   const StatusBadge = ({ status }: { status?: string }) => {
+    console.log(status);
+    
     const s = (status || "").toLowerCase();
     let type: LabelType = "pendiente"
     if (s.includes("cierre de periodo")) type = "invalido";

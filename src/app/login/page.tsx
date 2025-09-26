@@ -1,12 +1,15 @@
 "use client";
-import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import DynamicForm from "../components/DynamicForm/DynamicForm";
+import React from "react";
+
 import { Alert } from "../components/Alert/Alert";
+import DynamicForm from "../components/DynamicForm/DynamicForm";
 import { ToggleButton } from "../components/ToogleButton/ToogleButton";
+
 import useLogin from "./hooks/useLogin";
 import { loginStyles } from "./styles";
+
 import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
 import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile.png";
 
@@ -30,6 +33,7 @@ const LoginPage = () => {
             onSubmit={handleLogin}
             submitLabel="Iniciar sesión"
             loading={isLoading}
+            dataTestId="login"
           >
             <div className={loginStyles.rememberContainer}>
               <ToggleButton
@@ -37,11 +41,13 @@ const LoginPage = () => {
                 onChange={(checked) => handleRemember(checked)}
                 label="Recordarme"
                 labelColor="text-black-100"
+                dataTestId="login-remeberme"
               />
               <Link
                 href="/login/recover-password"
                 className="text-label hover:text-black-100"
                 prefetch={false}
+                data-testid="login-forgorpassword"
               >
                 ¿Olvidaste tu contraseña?
               </Link>

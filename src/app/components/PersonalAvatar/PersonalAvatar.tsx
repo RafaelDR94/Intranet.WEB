@@ -1,11 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Spinner } from '../Spinner/Spinner';
+
 import Avatar from '../Avatar/Avatar';
+import { Spinner } from '../Spinner/Spinner';
+
 import usePersonalAvatar from './hooks/usePersonalAvatar';
-import { PersonalAvatarProps } from './types';
 import { containerClass } from './styles';
+import { PersonalAvatarProps } from './types';
 
 /**
  * Muestra el avatar del usuario autenticado.
@@ -28,10 +30,10 @@ import { containerClass } from './styles';
  * <PersonalAvatar size="md" />
  * ```
  */
-const PersonalAvatar: React.FC<PersonalAvatarProps> = ({ size }) => {
+const PersonalAvatar: React.FC<PersonalAvatarProps> = ({ size,dataTestId }) => {
   const { avatarInit } = usePersonalAvatar();
   return (
-    <div className={containerClass}>
+    <div className={containerClass} data-testid={dataTestId}>
       {avatarInit.initials ? (
         <Avatar initials={avatarInit.initials} size={size} src={avatarInit.src} online />
       ) : (

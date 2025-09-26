@@ -391,3 +391,86 @@ Fix:
 Fix:
 
 - To show the Excel download button. (Katherine Negrete) [#109](https://github.com/DR-Mexico/dr.intranet.web/pull/109)
+### 1.46.4 Style Fixes 2025-09-09
+
+Fix:
+
+- To display designs according to Figma (Katherine Negrete) [#113](https://github.com/DR-Mexico/dr.intranet.web/pull/113)
+### 1.47.4 Add data-testid support to DynamicForm and components 2025-09-10
+
+Fix:
+
+- Enabled data-testid prop across DynamicForm, FieldRenderer, and related controls to improve Playwright testing. (Agente IA) [#]()
+
+
+### 1.47.5 Billing petty cash store implementation 2025-09-10
+
+Feature:
+
+- Implemented `useBillingPettyCash` store with utilities, mappings, and tests. (Agente IA) [#]()
+
+### 1.47.6 Petty cash voucher form 2025-09-11
+
+Feature:
+
+- Switched VoucherPink form logic to use petty cash voucher store. (Agente IA) [#]()
+
+### 1.47.7 Voucher forms refactor 2025-09-12
+
+Feature:
+
+- Refactored VoucherPink and VoucherBlue forms to align with TicketForm and InvoicesForm architecture, adding stories and hook tests. (Agente IA) [#]()
+
+### 1.47.8 Voucher forms data edit support 2025-09-13
+
+Feature:
+
+- Enabled dataEdit prefill for VoucherPink and VoucherBlue forms. (Agente IA) [#]()
+
+### 1.47.9 Petty cash context provider 2025-09-12
+
+Feature:
+
+- Added shared petty cash context for voucher forms. (Agente IA) [#]()
+
+### 1.47.10 Independent petty cash voucher submissions 2025-09-14
+
+Bug Fix:
+
+- Prevent VoucherPink and VoucherBlue from triggering each other's requests and loading states. (Agente IA) [#]()
+
+### 1.47.11 Voucher forms employee and file support 2025-09-15
+
+Fix:
+
+- Send authenticated employee IDs and preserve XML/PDF files when editing petty cash vouchers. (Agente IA) [#]()
+
+### 1.47.12 Petty cash voucher file upload 2025-09-16
+
+Fix:
+
+- Upload XML/PDF files for petty cash vouchers and auto-fill employee data. (Agente IA) [#]()
+
+### 1.47.13 Voucher form project reload fix 2025-09-17
+
+Fix:
+
+- Repopulate project options after sending petty cash vouchers to prevent endless loading. (Agente IA) [#]()
+
+### 1.47.14 Petty cash SideMenu edit fix 2025-09-17
+
+Fix:
+
+- Ensure petty cash SideMenu resubmissions use PUT and preload concept and project fields. (Agente IA) [#]()
+
+### 1.47.15 Petty cash edit date refresh 2025-09-18
+
+Fix:
+
+- Normalize petty cash edit dates and refresh vouchers after resubmission. (Agente IA) [#]()
+
+### 1.47.16 Petty cash edit success loop fix 2025-09-18
+
+Fix:
+
+- Stop repeated petty cash voucher resets after editing and keep success refreshes scoped to the updated record. (Agente IA) [#]()

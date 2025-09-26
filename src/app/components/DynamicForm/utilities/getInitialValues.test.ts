@@ -1,6 +1,8 @@
 import { describe,it,expect } from 'vitest'
-import { getInitialValues } from './getInitialValues'
+
 import { FieldModel } from '../types'
+
+import { getInitialValues } from './getInitialValues'
 
 describe('getInitialValues',()=>{
   it('creates initial values for each field',()=>{

@@ -18,7 +18,7 @@ export const CardCatalog = () => (
       title="Title"
       description="Description"
       onAccept={() => {}}
-      showCancelButton
+      showSecondaryButton
     />
   </div>
 )

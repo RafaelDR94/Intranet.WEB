@@ -1,9 +1,10 @@
 'use client'
-import { AuthChangeNIP } from '@/app/configurations/Axios/urls'
-import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { pPut } from '@/app/utilities/Http/promisifyIntranet'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import type { Set, Get, NipPayload } from '../types'
+
+import { AuthChangeNIP } from '@/app/configurations/Axios/urls'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+import { pPut } from '@/app/utilities/Http/promisifyIntranet'
+import { requireGateway } from '@/app/utilities/Http/requireGateway'
 
 export const changeNip = async (
   set: Set,

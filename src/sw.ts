@@ -1,4 +1,5 @@
 /// <reference lib="webworker" />
+import { skipWaiting, clientsClaim } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, matchPrecache } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
@@ -6,7 +7,6 @@ import {
   NetworkFirst,
   StaleWhileRevalidate,
 } from 'workbox-strategies';
-import { skipWaiting, clientsClaim } from 'workbox-core';
 
 // —————————————————————————————————————————
 // 0) Instalación rápida y toma de control
@@ -149,7 +149,7 @@ registerRoute(
 
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js");
-declare var firebase: any; // Asegúrate de que firebase esté disponible
+declare let firebase: any; // Asegúrate de que firebase esté disponible
 firebase.initializeApp({
   apiKey: "AIzaSyBtlZct5NCo1_a6pxywUnuzESfj69HEQtY",
   authDomain: "intranetdr-50f9e.firebaseapp.com",
@@ -161,7 +161,7 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload: any) => {
-  console.log('[firebase-messaging-sw.js] Mensaje en background:', payload);
+
 
   const notification = payload.notification ?? {};
   const title = notification.title ?? 'Notificación';

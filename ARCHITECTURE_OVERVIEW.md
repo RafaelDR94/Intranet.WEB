@@ -208,6 +208,41 @@ Todos los módulos reutilizables deben tener pruebas unitarias:
 
 ---
 
+## Capas de Pruebas y ubicación de E2E
+
+### Pirámide de pruebas
+- **Unitarias (Vitest)**: lógica pura, hooks, utilidades.
+- **Integración (Vitest/RTL)**: componentes integrados sin red real.
+- **E2E (Playwright)**: flujos de usuario de extremo a extremo sobre la app levantada.
+
+### Dónde vive cada cosa
+```
+src/
+  app/ ...               # aplicación Next.js
+  components/ ...        # UI (Tailwind)
+  utilities/ ...         # helpers (unitarias primero)
+e2e/
+  specs/                 # suites end-to-end
+  helpers/               # auth, selectores, utilidades cross-suite
+  fixtures/              # estado de sesión, datos estáticos
+playwright.config.ts     # proyectos (desktop/mobile), servidor, baseURL
+```
+
+### Convenciones E2E
+- `data-testid="..."` en elementos interactivos.
+- Si el tema se controla con `data-theme`, incluir 1 spec que valide dark.
+- Proyectos móviles (`Pixel 7`, `iPhone 14`) habilitados.
+- `storageState.json` para sesiones pre-logueadas donde aplique.
+
+### Integración CI/CD (resumen)
+1) `npx playwright install --with-deps`
+2) `npm run build`
+3) `npm run test:e2e`
+4) Publicar `playwright-report/` como artifact si falla.
+
+> Nota: si el pipeline ya publica un staging, puedes desactivar `webServer` y apuntar `baseURL` a esa URL.
+
+
 ## 📖 Documentación con Storybook `.docs.mdx`
 
 Todos los módulos reutilizables deben incluir documentación técnica en Storybook:
@@ -651,5 +686,32 @@ Genera nesting excesivo y es menos legible que `custom hooks` o `Compound Compon
 
 
 ---
+
+
+## 🚀 Infraestructura CI/CD
+
+Este proyecto implementa un flujo completo de **Integración y Despliegue Continuo** con GitHub Actions.
+
+### Archivos relevantes
+- `.github/workflows/ci.yml` → Validación de build, lint y pruebas en cada push/PR a `dev`.
+- `.github/workflows/cd-dev.yml` → Despliegue automático al entorno **dev**.
+- `.github/workflows/cd-staggin.yml` → Despliegue automático al entorno **staging**.
+- `.github/workflows/cd-main.yml` → Despliegue automático al entorno **producción**.
+
+###  Reglas de Calidad y Validación” (añade bullets)
+
+- **ESLint**: `next lint` con reglas para TS/React/Imports.
+- **Prettier**: formato consistente y orden de clases Tailwind (v4) vía `prettier-plugin-tailwindcss`.
+- Scripts: `lint`, `lint:fix`, `format`.
+
+
+### Flujo de ramas y despliegues
+```mermaid
+graph TD
+A[feature/* o fix/*] -->|PR| B(dev)
+B -->|CI + merge| C[Entorno dev]
+C --> D(staging)
+D --> E(main)
+
 
 Seguir esta guía garantiza una base de código modular, coherente y fácil de escalar en el tiempo. 🎯

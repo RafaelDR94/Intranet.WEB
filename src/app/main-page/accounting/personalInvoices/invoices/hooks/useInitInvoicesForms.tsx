@@ -1,9 +1,13 @@
-import { FieldModel } from "@/app/components/DynamicForm/types";
-import { useInvoices } from "../context/InvoicesContext";
 import { useMemo, useEffect, useRef, useState } from "react";
-import { Requisition } from "@/app/mappings/requisitions/requisitions.types";
+
+import { useInvoices } from "../context/InvoicesContext";
+
+
 import { InitInvoicesForms } from "./types";
+
+import { FieldModel } from "@/app/components/DynamicForm/types";
 import { BillingDocumentCategory, BillingDocumentDescription } from "@/app/mappings/billingdocuments/billingdocuments.types";
+import { Requisition } from "@/app/mappings/requisitions/requisitions.types";
 
 
 
@@ -70,6 +74,7 @@ const useInitInvoicesForms = ({ initialformFields, field, formId, dataEdit, bill
 
     useEffect(() => {
         setUser();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.fullName, fieldsReady, formId]);
 
     useEffect(() => {
@@ -80,6 +85,7 @@ const useInitInvoicesForms = ({ initialformFields, field, formId, dataEdit, bill
             SetInitRequisitions();
 
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formId]);
 
 
@@ -87,14 +93,17 @@ const useInitInvoicesForms = ({ initialformFields, field, formId, dataEdit, bill
 
     useEffect(() => {
         SetInitRequisitions();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [requisitions]);
 
 
     useEffect(() => {
         SetDescriptions();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [billingDocumentDescription])
     useEffect(() => {
         SetCategories();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [billingCategories])
 
 
@@ -116,7 +125,7 @@ const useInitInvoicesForms = ({ initialformFields, field, formId, dataEdit, bill
             updateField(formId, 'numpersons', { value: billingImages?.numpersons, onlyText: Boolean(billingImages), label: "No. Personas" });
         const debtorName = field.find(f => f.name === 'personName');
         if (debtorName) updateField(formId, 'personName', { value: billingImages?.deudor ?? "" });
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataEdit, requisitions, billingImages, billingCategories, billingDocumentDescription]);
 
     const computeLoadingFormInfo = (fields: FieldModel[]) => {
@@ -129,14 +138,6 @@ const useInitInvoicesForms = ({ initialformFields, field, formId, dataEdit, bill
         const reqReady = Array.isArray(req?.options) && (req?.options?.length ?? 0) > 0;
         const descReady = Array.isArray(description?.options) && (description?.options?.length ?? 0) > 0;
         const catReady = Array.isArray(category?.options) && (category?.options?.length ?? 0) > 0;
-
-        console.log("reqReady", reqReady);
-        console.log("descReady", descReady);
-        console.log("catReady", catReady);
-
-        console.log("debtorName?.value", debtorName?.value);
-        console.log("hasDebtor", hasDebtor);
-
         return !(reqReady && descReady && catReady && (debtorName?.value || !hasDebtor));
     };
 
@@ -145,4 +146,4 @@ const useInitInvoicesForms = ({ initialformFields, field, formId, dataEdit, bill
     return { requisitions, loadingFormInfo, submitRef, formReady, setFormReady, ResetForm, updateField }
 
 }
-export default useInitInvoicesForms;
+export default useInitInvoicesForms;  

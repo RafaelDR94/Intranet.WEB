@@ -1,5 +1,6 @@
-import { useFileUploader } from "../../FileUploader/hooks/useFileUploader";
 import { DragEvent } from "react";
+
+import { useFileUploader } from "../../FileUploader/hooks/useFileUploader";
 export type UseFileUploaderExpandedReturn = {
   // de useFileUploader original
   inputRef: ReturnType<typeof useFileUploader>['inputRef'];

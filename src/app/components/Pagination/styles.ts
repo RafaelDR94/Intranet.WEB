@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 
-export const container = 'flex gap-2 items-center';
+export const container = 'flex gap-2 items-center max-w-300';
 
 export const pageButton = (active: boolean, disabled: boolean) =>
   clsx(

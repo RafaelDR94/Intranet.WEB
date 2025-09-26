@@ -1,8 +1,7 @@
 import { db, Document } from './/bases';
 
 function handleError(error: any, operation: string): never {
-  //console.error(`Error ${operation}:`, error);
-  operation;
+  console.error(`Error ${operation}:`, error);
   throw error;
 }
 

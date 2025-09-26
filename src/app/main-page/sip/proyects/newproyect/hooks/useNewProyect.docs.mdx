@@ -1,0 +1,59 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Hooks/useNewProyect" />
+
+# useNewProyect
+
+Hook para gestionar el formulario de “Nuevo Proyecto” (SIP) usando DynamicForm + Zustand.
+
+## API
+
+- `fields: FieldModel[]` — definición dinámica de campos.
+- `loadingFormInfo: boolean` — indicador de carga de catálogos.
+- `formReady: boolean` — validez del formulario (Formik.isValid).
+- `setFormReady(v: boolean): void` — marca el formulario como válido/ inválido.
+- `submitRef: Ref<() => void>` — para disparar submit externo.
+- `handleSubmit(values): Promise<void>` — mapea y ejecuta `createProyect`.
+- `responsiveLayout: number[][]` — layout sugerido para el formulario.
+- `creating: boolean` — estado de envío.
+
+## Campos
+
+- `Departamento` (input, deshabilitado, valor “SIP”).
+- `Cliente*` (input requerido, texto libre).
+- `Nombre del Proyecto*` (input requerido).
+- `Llave del Proyecto*` (input requerido).
+- `Encargado del proyecto` (select, opciones desde Employees).
+- `Colaboradores` (multiSelect, opciones desde Employees).
+
+## Uso básico
+
+```tsx
+import FormsLayout from '@/app/components/FormsLayout/FormsLayout';
+import DynamicForm from '@/app/components/DynamicForm/DynamicForm';
+import useNewProyect from './useNewProyect';
+
+export default function Page() {
+  const { fields, loadingFormInfo, submitRef, handleSubmit, formReady, setFormReady, responsiveLayout, creating } = useNewProyect();
+  return (
+    <FormsLayout
+      title="Registra aquí un nuevo proyecto"
+      primaryLabel="Registrar Proyecto"
+      onPrimaryClick={() => submitRef.current?.()}
+      primaryDisabled={!formReady}
+    >
+      <DynamicForm
+        fields={fields}
+        onSubmit={handleSubmit}
+        externalSubmitRef={submitRef}
+        showSubmitIf={() => false}
+        loadingFormInfo={loadingFormInfo}
+        loading={creating}
+        onValidChange={(valid) => setFormReady(valid)}
+        responsiveLayoutMatrix={responsiveLayout}
+      />
+    </FormsLayout>
+  );
+}
+```
+

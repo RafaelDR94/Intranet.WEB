@@ -1,10 +1,12 @@
 
-import { intranetClient, isProduction } from "@/app/configurations/Axios/Clients";
-import { FirebaseRealtimeHelper } from "./useFirebaseRealTimeHelpet";
 import { Database } from "firebase/database";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+
 import { User } from "../../AuthContext/types";
 
+import { FirebaseRealtimeHelper } from "./useFirebaseRealTimeHelpet";
+
+import { intranetClient, isProduction } from "@/app/configurations/Axios/Clients";
 import { currentDateDataBase, getTime } from "@/app/utilities/DatesHelper/Dateshelper";
 interface Uselogsprops {
     firebaserealtime: FirebaseRealtimeHelper;
@@ -16,7 +18,7 @@ interface Uselogsprops {
 const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode }: Uselogsprops) => {
     const path = isProduction() ? "Production" : "Sandbox"
     const errorQueueRef = useRef<any[]>([]);
-    const flushErrorQueue = async () => {
+    const flushErrorQueue = useCallback(async () => {
         if (firebaserealtime && errorQueueRef.current.length > 0) {
             const queueToFlush = [...errorQueueRef.current];
             // Vaciar la cola
@@ -25,13 +27,14 @@ const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode 
                 try {
                     await firebaserealtime.pushData("Logs/" + path + "/Front/" + currentDateDataBase() + "/" + getTime(), errorData);
                 } catch (err) {
+                    console.error(err);
                     errorQueueRef.current.push(errorData);
                 }
             }
         }
-    };
+    }, [firebaserealtime, path]);
 
-    const logError = async (service: string, error: any) => {
+    const logError = useCallback(async (service: string, error: any) => {
 
         const errorDetails = {
             advisor: user?.userName,
@@ -54,7 +57,7 @@ const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode 
             errorQueueRef.current.push({ service, ...errorDetails });
             console.error("Error al registrar en Firebase:", firebaseError);
         }
-    };
+    }, [firebaserealtime, path, user]);
 
     useEffect(() => {
         const handleOnline = () => {
@@ -64,12 +67,12 @@ const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode 
         return () => {
             window.removeEventListener("online", handleOnline);
         };
-    }, [firebaserealtime]);
+    }, [firebaserealtime, flushErrorQueue]);
 
 
     useEffect(() => {
         if (database) flushErrorQueue();
-    }, [database]);
+    }, [database, flushErrorQueue]);
 
 
 
@@ -118,7 +121,7 @@ const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode 
                 intranetClient.interceptors.response.eject(interceptor);
             };
         }
-    }, [firebaserealtime, intranetClient]);
+    }, [firebaserealtime, logError, offlineMode, setHasExpired]);
 
 
     return {}

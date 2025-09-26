@@ -1,12 +1,15 @@
 'use client'
 
+import React,{ useState, useEffect } from 'react'
+import { shallow } from 'zustand/shallow'
+
 import AddFilesComponent from './components/AddFIlesComponent/AddFilesComponent'
 import PictureTable from './components/PicturesTable/PicturesTable'
-import React,{ useState, useEffect } from 'react'
+
 import { BillingImagesTable } from '@/app/mappings/billingimages/billingimages.types'
 import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore'
 import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
-import { shallow } from 'zustand/shallow'
+
 
 const AddFilesPage = () => {
   const [selectedPicture, setSelectedPicture] = useState<BillingImagesTable | null>(null);
@@ -23,9 +26,8 @@ const AddFilesPage = () => {
     shallow
   )
   useEffect(() => {
-    if(successPost)fetchBillingImages(true);
-
-  }, [successPost])
+    if (successPost) fetchBillingImages(true);
+  }, [successPost, fetchBillingImages])
 
   return (
     <>

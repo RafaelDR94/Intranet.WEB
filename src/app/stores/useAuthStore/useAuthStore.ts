@@ -1,6 +1,7 @@
 'use client'
-import { createWithEqualityFn } from 'zustand/traditional'
 import { devtools } from 'zustand/middleware'
+import { createWithEqualityFn } from 'zustand/traditional'
+
 import type { AuthState } from './types'
 import {
   authValidate,
@@ -22,6 +23,7 @@ import {
   setInterceptor,
   updateUserPermissions
 } from './utilities'
+
 import { readUser, readUserRemebered } from '@/app/context/AuthContext/utilities/AuthService'
 
 /**
@@ -62,8 +64,8 @@ export const useAuthStore = createWithEqualityFn<AuthState>()(
     authValidate: (payload) => authValidate(set, get, payload),
     changePassword: (payload) => changePassword(set, get, payload),
     recoverPassword: (payload) => recoverPassword(set, get, payload),
-    fetchFirebaseConfiguration: () => fetchFirebaseConfiguration(set, get),
-    changeNipStatusByIdUser: (id) => changeNipStatusByIdUser(id, set, get),
+    fetchFirebaseConfiguration: () => fetchFirebaseConfiguration(set),
+    changeNipStatusByIdUser: (id) => changeNipStatusByIdUser(id, set),
     changeNip: (payload) => changeNip(set, get, payload),
     createNip: (payload) => createNip(set, get, payload),
     updateUserPermissions: (permissions: string) => updateUserPermissions(set, get, permissions),

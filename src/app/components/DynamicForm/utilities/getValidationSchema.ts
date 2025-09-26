@@ -1,6 +1,7 @@
 // DynamicForm/hooks/useValidationSchema.ts
 import * as Yup from 'yup';
 import type { NumberSchema, AnyObject, Flags } from 'yup';
+
 import { FieldModel } from '../types';
 /** Genera un esquema Yup a partir de los campos. */
 
@@ -31,7 +32,7 @@ export const getValidationSchema = (fields: FieldModel[]) => {
         });
         acc[field.name] = schema;
       } else if (field.type === 'file') {
-        let schema = Yup.mixed();
+        let schema = Yup.mixed().nullable();
         field.validations?.forEach((rule) => {
           if (rule.type === 'required') {
             schema = schema.required('Este campo es requerido');

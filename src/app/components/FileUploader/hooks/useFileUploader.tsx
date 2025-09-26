@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, ChangeEvent, useEffect } from 'react';
+
 import { InitialFile } from '../types';
 
 /**
@@ -18,6 +19,16 @@ export const useFileUploader = (
 ) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const onFileRef = useRef(onFile);
+  const loadedInitialKeyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    onFileRef.current = onFile;
+  }, [onFile]);
+
+  useEffect(() => {
+    setFileName(initialFile?.name ?? null);
+  }, [initialFile?.name]);
 
   useEffect(() => {
     const loadInitial = async () => {
@@ -25,18 +36,22 @@ export const useFileUploader = (
       try {
         const source = initialFile.url ?? initialFile.base64;
         if (!source) return;
+        const key = `${initialFile.name ?? ''}__${source}`;
+        if (loadedInitialKeyRef.current === key) return;
+        loadedInitialKeyRef.current = key;
         const response = await fetch(source);
         const blob = await response.blob();
         const file = new File([blob], initialFile.name, { type: blob.type });
         setFileName(initialFile.name);
-        onFile(file);
+        onFileRef.current(file);
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error('Failed to load initial file', err);
+        loadedInitialKeyRef.current = null;
       }
     };
     void loadInitial();
-  }, []);
+  }, [initialFile, initialFile?.base64, initialFile?.name, initialFile?.url]);
 
   const handleButtonClick = () => {
     if (!disabled) inputRef.current?.click();

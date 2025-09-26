@@ -1,12 +1,13 @@
 // src/app/mappings/billing/billing.mapper.ts
+import { BillingDocumentCategoryMap, BillingDocumentDescriptionMap } from '../billingdocuments/billingdocuments.mapper'
+import { RequisitionMap } from '../requisitions/requisitions.mapp'
+
 import {
   BillingImages,
   BillingImagesTable,
   BillingPost,
   BillingPut,
 } from './billingimages.types'
-import { RequisitionMap } from '../requisitions/requisitions.mapp'
-import { BillingDocumentCategoryMap, BillingDocumentDescriptionMap } from '../billingdocuments/billingdocuments.mapper'
 /**
  * BillingImageMap
  * Mapea un registro crudo de la API a un objeto tipado BillingImages.

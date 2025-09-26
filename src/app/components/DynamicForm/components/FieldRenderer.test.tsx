@@ -1,8 +1,11 @@
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { FieldRenderer } from './FieldRenderer';
+
 import { FieldModel } from '../types';
+
+import { FieldRenderer } from './FieldRenderer';
+
 
 // Opcional: mock del Select para evitar errores con SVGs
 vi.mock('../../Select/Select', () => ({
@@ -30,6 +33,26 @@ describe('FieldRenderer', () => {
     );
 
     expect(screen.getByText('Acepto')).toBeInTheDocument();
+  });
+
+  it('propaga dataTestId combinando formulario y nombre', () => {
+    const field: FieldModel = {
+      type: 'input',
+      name: 'nombre',
+      label: 'Nombre',
+      value: '',
+    };
+    render(
+      <FieldRenderer
+        field={field}
+        value=""
+        allValues={{}}
+        onChange={vi.fn()}
+        variant="default"
+        formDataTestId="form"
+      />
+    );
+    expect(screen.getByTestId('form-nombre')).toBeInTheDocument();
   });
 
   it('renderiza un select con opciones', () => {

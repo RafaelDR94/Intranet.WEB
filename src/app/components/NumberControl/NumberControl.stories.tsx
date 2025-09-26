@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { NumberControl } from './NumberControl';
 const meta: Meta<typeof NumberControl> = {
   title: 'Components/NumberControl',

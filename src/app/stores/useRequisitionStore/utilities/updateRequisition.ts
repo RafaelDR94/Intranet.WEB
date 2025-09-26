@@ -1,14 +1,18 @@
 // src/app/stores/useRequisitionStore/utilities/updateRequisition.ts
 'use client'
 import type { AxiosResponse } from 'axios'
+
+import type { Get, Set } from '../types'
+
+import { fetchRequisitions } from './fetchRequisitions'
+
 import { BillingRequisition } from '@/app/configurations/Axios/urls'
 import { RequisitionMap } from '@/app/mappings/requisitions/requisitions.mapp'
 import type { Requisition, RequitionPut } from '@/app/mappings/requisitions/requisitions.types'
-import type { Get, Set } from '../types'
-import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-import { fetchRequisitions } from './fetchRequisitions'
+import { pPut } from '@/app/utilities/Http/promisifyIntranet'
+import { requireGateway } from '@/app/utilities/Http/requireGateway'
+
 
 /**
  * Actualiza una requisición existente.
@@ -27,7 +31,6 @@ export const updateRequisition = async (
   try {
     const put = pPut(requireGateway('put')) // 200–299 OK por defecto
     const res: AxiosResponse = await put(BillingRequisition, payload)
-    console.log("res",res);
     const raw = res.data?.data
     const updated = raw ? RequisitionMap(raw) : undefined
     if (updated) {

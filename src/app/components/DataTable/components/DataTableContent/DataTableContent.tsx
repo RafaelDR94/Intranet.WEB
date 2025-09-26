@@ -1,17 +1,19 @@
 import React, { useEffect } from "react";
-import { DataTableContentProps } from "./types";
-import { DataTableHeader } from "./components/DataTableHeader/DataTableHeader";
-import { DataTableBody } from "./components/DataTableBody/DataTableBody";
-import { containerDataTableContent } from "./styles";
-import Pagination from "@/app/components/Pagination/Pagination";
-import { useDataTableContent } from "./hooks/useTableContent";
+
 import { useIsMobile } from "../DataTableLayout/hooks/useMediaQuery";
+
+import { DataTableBody } from "./components/DataTableBody/DataTableBody";
+import type { TextSize } from "./components/DataTableBody/DataTableBody";
+import { DataTableHeader } from "./components/DataTableHeader/DataTableHeader";
+import { useDataTableContent } from "./hooks/useTableContent";
+import { containerDataTableContent } from "./styles";
+import { DataTableContentProps } from "./types";
+
 import { Button } from "@/app/components/Button/Button";
+import Pagination from "@/app/components/Pagination/Pagination";
 
 // Opcional: pequeño contenedor para las acciones en mobile, por estilo
-const MobileActionsBar: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => (
+const MobileActionsBar: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="mt-4 flex w-full items-center justify-between gap-3">
     {children}
   </div>
@@ -20,6 +22,8 @@ const MobileActionsBar: React.FC<{ children: React.ReactNode }> = ({
 type ExtraProps = {
   rowHeight?: number;
   scrollMaxHeight?: number | string;
+  /** Nuevo: tamaños de texto para el body */
+  textSize?: TextSize;
 };
 
 const DataTableContent = <T extends { id: string | number }>(
@@ -44,6 +48,7 @@ const DataTableContent = <T extends { id: string | number }>(
     actionsRender,
     onTableActionClick,
     actionLabel = "Agregar",
+    textSize, // <-- NUEVO
   } = props;
 
   const {
@@ -75,6 +80,7 @@ const DataTableContent = <T extends { id: string | number }>(
 
   useEffect(() => {
     onSelectedChange?.(selected);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
   return (
@@ -99,12 +105,13 @@ const DataTableContent = <T extends { id: string | number }>(
           enableSelection={enableSelection}
           selected={selected}
           onToggleSelect={toggleSelect}
+          textSize={textSize}   // <-- pasa la prop
         />
       </div>
 
       {isMobile && (
         <MobileActionsBar>
-          {/* `actionsRender` tiene prioridad sobre el botón, igual que en Layout */}
+          {/* `actionsRender` tiene prioridad */}
           {actionsRender
             ? actionsRender()
             : showButton && (

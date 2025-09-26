@@ -1,4 +1,5 @@
 import type ExcelJS from "exceljs";
+
 import type { ColumnAlign } from "./types";
 
 /** Apply default header styling */

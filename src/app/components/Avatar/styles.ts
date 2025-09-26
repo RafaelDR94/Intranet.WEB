@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+
 import { AvatarSize } from './types';
 
 export const baseClasses =

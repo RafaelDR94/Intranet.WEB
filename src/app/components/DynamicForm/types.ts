@@ -1,5 +1,6 @@
 // components/DynamicForm/types.ts
 import type { FC, SVGProps } from 'react';
+
 import type { InitialFile } from '../FileUploader/types';
 
 /** Tipos de campo soportados por el formulario. */
@@ -140,4 +141,6 @@ export interface DynamicFormProps {
   loadingFormInfo?: boolean;
   /** Deshabilita todos los campos del formulario */
   disabled?:boolean
+  /** Identificador base para data-testid del formulario */
+  dataTestId?: string
 }

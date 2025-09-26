@@ -1,14 +1,17 @@
 import React from "react";
-import { FieldRendererProps } from "./types";
-import { Input } from "../../Input/Input";
-import { Select } from "../../Select/Select";
-import { ToggleButton } from "../../ToogleButton/ToogleButton";
+
 import { Checkbox } from "../../CheckBox/CheckBox";
 import { FileUploader } from "../../FileUploader/FileUploader";
-import { NumberControl } from "../../NumberControl/NumberControl";
+import { Input } from "../../Input/Input";
 import { helperClasses } from "../../Input/styles";
 import type { InputVariant } from "../../Input/types.tsx";
+import { NumberControl } from "../../NumberControl/NumberControl";
+import { Select } from "../../Select/Select";
+import { ToggleButton } from "../../ToogleButton/ToogleButton";
+
 import { fieldRendererStyles } from "./styles";
+import type { FieldRendererProps } from "./types";
+
 /**
  * Renderiza un campo individual dentro de un formulario dinámico.
  * El tipo de campo se determina por `field.type`.
@@ -21,6 +24,7 @@ import { fieldRendererStyles } from "./styles";
  * @param variant Variante visual del campo (`default`, `success`, `warning`, etc.)
  * @param helperText Texto auxiliar o mensaje de error
  */
+
 export const FieldRenderer: React.FC<FieldRendererProps> = ({
   field,
   value,
@@ -29,6 +33,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
   onBlur,
   variant,
   helperText,
+  formDataTestId,
 }) => {
   const baseProps = {
     label: field.label,
@@ -71,7 +76,12 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           {...baseProps}
           selected={[value ?? field.value]}
           onChange={(vals) => handleChange(vals[0])}
-          options={field.options || []}
+          options={(field.options || []).map((opt) => ({
+            ...opt,
+            label: opt.label
+              .toLowerCase()
+              .replace(/\b\w/g, (char) => char.toUpperCase()),
+          }))}
           disabled={field.disabled}
         />
       );
@@ -83,7 +93,12 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           multiple
           selected={value ?? field.value}
           onChange={(vals) => handleChange(vals)}
-          options={field.options || []}
+          options={(field.options || []).map((opt) => ({
+            ...opt,
+            label: opt.label
+              .toLowerCase()
+              .replace(/\b\w/g, (char) => char.toUpperCase()),
+          }))}
           disabled={field.disabled}
         />
       );
@@ -96,6 +111,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           label={field.label}
           disabled={field.disabled}
           className={field.className}
+          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
 
@@ -107,6 +123,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           label={field.label}
           className={field.className}
           disabled={field.disabled}
+          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
 
@@ -122,6 +139,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             className={field.className}
             icon={field.icon}
             initialFile={field.initialFile}
+            dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
           />
           {helperText && (
             <span className={helperClasses(variant as InputVariant)}>
@@ -144,6 +162,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           disabled={field.disabled}
           helperText={helperText}
           className={field.className}
+          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
     case "textarea":
@@ -158,6 +177,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           }
           onBlur={onBlur}
           variant={field.disabled ? "disabled" : variant}
+          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
 
@@ -174,6 +194,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           type={field.type === "email" ? "email" : field.type}
           variant={field.disabled ? "disabled" : variant}
           inputMode={field.type === "number" ? "decimal" : undefined} // opcional
+          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
   }

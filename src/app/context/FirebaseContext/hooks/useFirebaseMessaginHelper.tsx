@@ -1,5 +1,5 @@
 import { Messaging, getToken, onMessage } from 'firebase/messaging';
-import { useEffect ,useState} from 'react';
+import { useCallback, useEffect ,useState} from 'react';
 
 export interface FirebaseMessagingHelper {
   /** Obtiene el token de Firebase Messaging. */
@@ -32,8 +32,6 @@ const useFirebaseMessagingHelper = (messaging: Messaging | null): FirebaseMessag
       if (!token) {
         throw new Error("No se pudo obtener el token de Firebase Messaging.");
       }
-
-      console.log("Token de Firebase Messaging obtenido:", token);
       return token;
     } catch (error) {
       console.error("Error al obtener el token de Firebase Messaging:", error);
@@ -41,13 +39,13 @@ const useFirebaseMessagingHelper = (messaging: Messaging | null): FirebaseMessag
     }
   };
 
-  const onMessageReceived = (callback: (payload: any) => void) => {
+  const onMessageReceived = useCallback((callback: (payload: any) => void) => {
     if (!messaging) {
       throw new Error("Firebase Messaging no configurado correctamente");
     }
 
     onMessage(messaging, callback);
-  };
+  }, [messaging]);
 
   const closeNotificacion = ()=>{
     setNotification(null);
@@ -62,9 +60,8 @@ const useFirebaseMessagingHelper = (messaging: Messaging | null): FirebaseMessag
     }
     onMessageReceived((payload) => {
       setNotification(payload);
-      console.log("Mensaje recibido en foreground:", payload);
     });
-  }, [messaging]);  
+  }, [messaging, onMessageReceived]);  
 
   return {
     notification,

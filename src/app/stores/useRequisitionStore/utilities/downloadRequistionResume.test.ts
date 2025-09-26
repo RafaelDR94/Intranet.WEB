@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { downloadRequistionResume } from './downloadRequistionResume'
+
 import type { RequisitionsState, Set, Get } from '../types'
+
+import { downloadRequistionResume } from './downloadRequistionResume'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pGet: () => async () => { throw new Error('fail') } }))

@@ -1,7 +1,7 @@
-import React from "react"
-import { render, fireEvent } from '@testing-library/react'
+import { render } from '@testing-library/react'
+import React, { useRef } from "react"
 import { describe, it, expect } from 'vitest'
-import { useRef } from 'react'
+
 import { useIndeterminate } from './useCheckbox'
 
 function TestComponent({indeterminate}:{indeterminate:boolean}){

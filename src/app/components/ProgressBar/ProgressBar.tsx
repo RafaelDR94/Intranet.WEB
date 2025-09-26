@@ -1,5 +1,6 @@
 'use client'
 import React from 'react';
+
 import { progressBarStyles } from './styles';
 import { ProgressBarProps } from './types';
 

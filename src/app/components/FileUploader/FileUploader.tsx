@@ -1,13 +1,17 @@
 'use client';
 
-import React, { SVGProps } from 'react';
 import clsx from 'clsx';
-import UploadIcon from '@/assets/icons/acciones/upload.svg';
+import React, { SVGProps } from 'react';
+
+
 import { Button } from '../Button/Button';
-import { FileUploaderProps } from './types';
+import { labelClasses} from '../Input/styles';
+
 import { useFileUploader } from './hooks/useFileUploader';
 import { filenamestyle,typelabelstyle,buttoncontainerstyle } from './styles';
-import { labelClasses} from '../Input/styles';
+import { FileUploaderProps } from './types';
+
+import UploadIcon from '@/assets/icons/acciones/upload.svg';
 
 /**
  * Componente para subir archivos mediante un botón estilizado.
@@ -70,6 +74,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   className,
   icon,
   initialFile,
+  dataTestId,
 }) => {
   const {
     inputRef,
@@ -81,8 +86,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
   const IconToUse: React.FC<SVGProps<SVGSVGElement>> = icon ?? UploadIcon;
 
-  return (
-    <div className="flex flex-col gap-2">
+    return (
+      <div className="flex flex-col gap-2" data-testid={dataTestId}>
       {label && <label className={labelClasses()}>{label}</label>}
       <div className={buttoncontainerstyle}>
         <input

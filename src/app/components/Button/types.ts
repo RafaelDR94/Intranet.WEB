@@ -40,4 +40,6 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   icon?: React.FC<SVGProps<SVGSVGElement>>;
   /** Esconde el icono */
    hideIcon?: boolean;
+  /** Identificador de pruebas */
+  dataTestId?: string;
 }

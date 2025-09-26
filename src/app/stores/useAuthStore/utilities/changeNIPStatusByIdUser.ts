@@ -1,14 +1,14 @@
 'use client'
+import type { Set } from '../types'
+
 import { AuthChangeNIPStatusByIdUser } from '@/app/configurations/Axios/urls'
-import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-import type { Set, Get } from '../types'
+import { pPut } from '@/app/utilities/Http/promisifyIntranet'
+import { requireGateway } from '@/app/utilities/Http/requireGateway'
 
 export const changeNipStatusByIdUser = async (
   id: number,
   set: Set,
-  get: Get
 ): Promise<void> => {
   set({ loading: true, error: undefined, successChangeNIPStatus: false })
   try {

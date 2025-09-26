@@ -8,11 +8,12 @@
  */
 
 import React, { createContext, useContext, useMemo} from 'react';
-import { PrincipalContextValue } from './types';
-import useTheme from './hooks/useTheme/useTheme';
+
 import useAlert from './hooks/useAlert/useAlert';
 import useLoadingOverlay from './hooks/useLoadingOverlay/useLoadingOverlay';
 import useShowImage from './hooks/useShowImage/useShowImage';
+import useTheme from './hooks/useTheme/useTheme';
+import { PrincipalContextValue } from './types';
 
 const PrincipalContext = createContext<PrincipalContextValue | undefined>(undefined);
 

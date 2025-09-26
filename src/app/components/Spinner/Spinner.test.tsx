@@ -1,6 +1,7 @@
-import React from 'react';
 import { render } from '@testing-library/react';
+import React from 'react';
 import { describe, it, expect } from 'vitest';
+
 import { Spinner } from './Spinner';
 import type { SpinnerSize } from './types';
 
@@ -21,5 +22,9 @@ describe('Spinner', () => {
       expect(spinner).toBeDefined();
       expect(spinner.className).toContain('animate-spin');
     });
+  });
+  it('propaga dataTestId al contenedor', () => {
+    const { getByTestId } = render(<Spinner dataTestId="spin" />);
+    expect(getByTestId('spin')).toBeInTheDocument();
   });
 });

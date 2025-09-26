@@ -1,8 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext/AuthContext';
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import { useState, useEffect, useMemo } from 'react';
+
 import type { FieldModel } from '../../components/DynamicForm/types';
+import { useAuth } from '../../context/AuthContext/AuthContext';
+
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+
 
 /** Campos base (sin valores dinámicos) */
 const baseLoginFields: FieldModel[] = [
@@ -38,7 +41,8 @@ const REMEMBER_PASS_KEY = 'drs.remember.password';
 const REMEMBER_FLAG_KEY = 'drs.remember.flag';
 
 const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
-  const router = routerOverride ?? useRouter();
+  const routerFromHook = useRouter();
+  const router = routerOverride ?? routerFromHook;
   const { login, logout } = useAuth();
   const { usePrincipalTheme } = usePrincipal();
   const { setDarkTheme, theme } = usePrincipalTheme;
@@ -135,7 +139,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
   };
   useEffect(() => {
     logout();
-  }, [])
+  }, [logout])
   return {
     rememberStatus,
     isLoading,

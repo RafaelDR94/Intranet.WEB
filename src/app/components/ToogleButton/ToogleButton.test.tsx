@@ -1,7 +1,8 @@
 // src/app/components/ToggleButton/ToggleButton.test.tsx
-import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
+import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
+
 import { ToggleButton } from './ToogleButton'
 
 describe('ToggleButton component', () => {
@@ -76,6 +77,16 @@ describe('ToggleButton component', () => {
       'flex-row-reverse',
       'space-x-reverse'
     )
+  })
+  it('propaga dataTestId al contenedor', () => {
+    render(
+      <ToggleButton
+        checked={false}
+        onChange={() => {}}
+        dataTestId="toggle1"
+      />
+    )
+    expect(screen.getByTestId('toggle1')).toBeInTheDocument()
   })
    it('aplica un color personalizado a la etiqueta', () => {
     render(

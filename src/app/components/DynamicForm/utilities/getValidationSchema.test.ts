@@ -1,6 +1,8 @@
 import { describe,it,expect } from 'vitest'
-import { getValidationSchema } from './getValidationSchema'
+
 import { FieldModel } from '../types'
+
+import { getValidationSchema } from './getValidationSchema'
 
 describe('getValidationSchema',()=>{
   it('builds yup schema with required rule', async()=>{
