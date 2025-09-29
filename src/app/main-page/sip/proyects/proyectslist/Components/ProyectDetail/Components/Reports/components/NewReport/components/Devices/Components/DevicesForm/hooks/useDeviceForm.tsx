@@ -40,6 +40,7 @@ export function useDeviceForm(opts: { deviceId: string | null; onSuccess: () => 
 
     const {
         locationDevices,
+        devices,
         createDevice, updateDevice,
         creating, updating,
         successPost, successPut, error,
@@ -47,6 +48,7 @@ export function useDeviceForm(opts: { deviceId: string | null; onSuccess: () => 
     } = useReportDevicesStore(
         (s) => ({
             locationDevices: s.locationDevices,
+            devices: s.devices,
             createDevice: s.createDevice,
             updateDevice: s.updateDevice,
             creating: s.creating,
@@ -62,9 +64,19 @@ export function useDeviceForm(opts: { deviceId: string | null; onSuccess: () => 
     // valores iniciales
     const initialValues: Values = useMemo(() => {
         if (!deviceId) return emptyValues;
-        const row = locationDevices.find((d) => String(d.id ?? (d as any)?.device_external_view?.id) === deviceId);
-        return row ? resolveExternalView(row) : emptyValues;
-    }, [deviceId, locationDevices]);
+
+        const rowFromLocation = locationDevices.find((d) =>
+            String((d as any)?.id ?? (d as any)?.device_external_view?.id) === deviceId
+        );
+
+        if (rowFromLocation) {
+            return resolveExternalView((rowFromLocation as any)?.device_external_view ?? rowFromLocation);
+        }
+
+        const rowFromDevices = devices.find((d) => String((d as any)?.id ?? (d as any)?.device_external_view?.id) === deviceId);
+
+        return rowFromDevices ? resolveExternalView(rowFromDevices) : emptyValues;
+    }, [deviceId, locationDevices, devices]);
 
     const [values, setValues] = useState<Values>(initialValues);
     const [isValid, setIsValid] = useState(false);

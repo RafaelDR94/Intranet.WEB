@@ -5,15 +5,13 @@ import { PopUp } from '@/app/components/PopUp/PopUp';
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 import useReportBuilderStore from '@/app/stores/useReportBuilderStore/useReportBuilderStore';
 import useReportDevicesStore from '@/app/stores/useReportDevicesStore/useReportDevicesStore';
-import type { ReportDeviceView } from '@/app/mappings/reports/reports.types';
 import { DeviceExternalView } from '@/app/mappings/devices/devices.types';
-import { resolveExternalView, normalizeId, buildDeviceLabel } from '../../../utilities/DevicesUtilities';
+import { normalizeId, buildDeviceLabel } from '../../../utilities/DevicesUtilities';
 
 const PAGE_SIZE = 4;
 
 
 const useDevicesList = () => {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [toDelete, setToDelete] = useState<DeviceExternalView | null>(null);
 
@@ -21,15 +19,15 @@ const useDevicesList = () => {
   const { showAlert, hideAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
 
-  const { location, updateReportDevices } = useReportBuilderStore(
-    (s) => ({ location: s.report.location, updateReportDevices: s.updateReportDevices }),
+  const { selecteddevices,location, updateReportDevices ,} = useReportBuilderStore(
+    (s) => ({ location: s.report.location, updateReportDevices: s.updateReportDevices,selecteddevices:s.report.reportDeviceView }),
     shallow
   );
   const locationId = location?.id ? String(location.id) : '';
+  console.log("selecteddevices",selecteddevices);
 
   const {
-    locationDevices,
-    fetchDevicesByLocation,
+    devices,
     fetchDevices,
     deleteDevice,
     loadingByLocation,
@@ -39,8 +37,7 @@ const useDevicesList = () => {
     resetFlags,
   } = useReportDevicesStore(
     (s) => ({
-      locationDevices: s.devices,
-      fetchDevicesByLocation: s.fetchDevicesByLocation,
+      devices: s.devices,
       fetchDevices: s.fetchDevices,
       deleteDevice: s.deleteDevice,
       loadingByLocation: s.loadingByLocation,
@@ -54,33 +51,22 @@ const useDevicesList = () => {
 
   // fetch
   useEffect(() => {
-    if (!locationId) {
-      setSelectedIds(new Set());
-      updateReportDevices([]);
-      return;
-    }
-    // void fetchDevicesByLocation(locationId);
+    // updateReportDevices([]);
+    if (!locationId) return;
     void fetchDevices();
-  }, [fetchDevicesByLocation, locationId, updateReportDevices]);
+  }, [fetchDevices, locationId]);
 
   // map rows
   const rows: DeviceExternalView[] = useMemo(
     () =>
-      locationDevices.filter((d) => {
-      if( d.idlocation == locationId && d.is_active) return d;
-      }),
-    [locationDevices]
+      devices
+        .filter((d) => d?.idlocation === locationId && d?.is_active)
+        .map((device, index) => ({
+          ...device,
+          id: normalizeId(device, index),
+        })),
+    [devices, locationId]
   );
-
-  console.log("locationDevices",locationDevices);
-
-
-  // sync selección -> report
-  // useEffect(() => {
-  //   const list = rows.filter((r) => selectedIds.has(r.id)).map((r) => r);
-  //   updateReportDevices(list);
-  // }, [rows, selectedIds, updateReportDevices]);
-
   // spinner
   useEffect(() => {
     const message = removing
@@ -101,8 +87,7 @@ const useDevicesList = () => {
   }, []);
   const confirmDelete = useCallback(async () => {
     if (!toDelete?.id) return;
-    const ok = await deleteDevice(String(toDelete.id));
-    if (ok) setSelectedIds((prev) => { const next = new Set(prev); next.delete(String(toDelete.id)); return next; });
+    await deleteDevice(String(toDelete.id));
   }, [deleteDevice, toDelete]);
 
   useEffect(() => {
@@ -119,14 +104,14 @@ const useDevicesList = () => {
   }, [successDelete, error, toDelete, hideAlert, resetFlags, showAlert]);
 
   // selección
-  const toggleRowSelected = useCallback((row: DeviceExternalView, checked: boolean) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (checked) next.add(row.id);
-      else next.delete(row.id);
-      return next;
-    });
-  }, []);
+  const handleSelectedChange = useCallback((selected: DeviceExternalView[]) => {
+    console.log("Se estan actualizando aqui");
+    const devices = selected.map((device, index) => ({
+      id: normalizeId(device, index),
+      device_external_view: device,
+    }));
+    updateReportDevices(devices);
+  }, [updateReportDevices]);
 
   const confirmDeleteUI = (
     <PopUp
@@ -145,8 +130,7 @@ const useDevicesList = () => {
 
   return {
     rows,
-    selectedIds,
-    toggleRowSelected,
+    onSelectedChange: handleSelectedChange,
     deleteRow: askDelete,
     confirmDeleteUI,
     locationSelected: !!locationId,
