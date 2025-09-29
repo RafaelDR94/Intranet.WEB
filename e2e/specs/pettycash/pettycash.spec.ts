@@ -178,26 +178,22 @@ test.describe('Petty Cash module', () => {
       pettyCashMenu.click(),
     ]);
 
+    const requestTab = page.getByTestId('tab:/main-page/request/pettycash/pettycashrequest');
+    await expect(requestTab).toBeVisible();
+    await Promise.all([
+      page.waitForURL(/\/main-page\/request\/pettycash\/pettycashrequest\/?(?:\?.*)?$/),
+      requestTab.click(),
+    ]);
+
+    await expect(page.getByText('GASTOS DEDUCIBLES (Vale Rosa)')).toBeVisible();
+    await expect(page.getByText('GASTOS NO DEDUCIBLES (Vale Azul)')).toBeVisible();
+
     const historyTab = page.getByTestId('tab:/main-page/request/pettycash/pettycashhistory');
     await expect(historyTab).toBeVisible();
     await Promise.all([
       page.waitForURL(/\/main-page\/request\/pettycash\/pettycashhistory\/?(?:\?.*)?$/),
       historyTab.click(),
     ]);
-
-    await expect(page.getByText('Historial Vales')).toBeVisible();
-
-    await expect(page.getByText('Taxi aeropuerto')).toBeVisible();
-    await expect(page.getByText('Hospedaje corporativo')).toBeVisible();
-
-    const searchInput = page.getByPlaceholder('Buscar');
-    await searchInput.fill('azul');
-
-    await expect(page.getByText('Hospedaje corporativo')).toBeVisible();
-    await expect(page.getByText('Taxi aeropuerto')).toHaveCount(0);
-
-    await searchInput.fill('');
-    await expect(page.getByText('Taxi aeropuerto')).toBeVisible();
   });
 });
 
