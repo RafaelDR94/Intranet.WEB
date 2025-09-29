@@ -7,7 +7,7 @@ const SignaturePopUp: React.FC<SignaturePopUpProps> = ({ open, onClose, onAuthor
     const { fields, handleSubmit } = useSignaturePopUp({ onClose, onAuthorization, responsibleGuid, externalSignature});
     return (
         <PopUp open={open} onClose={onClose} title="Firmar" content="Ingresa tu firma para validar">
-            <DynamicForm fields={fields} onSubmit={handleSubmit} />
+            <DynamicForm fields={fields} onSubmit={handleSubmit} submitLabel="Aceptar" />
 
         </PopUp>
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import EmployeeName from '../EmployeeName/EmployeeName';
 
@@ -8,6 +8,7 @@ import InfoCards from '@/app/components/InfoCards/InfoCards';
 import ProgressCard from '@/app/components/ProgressCard/ProgressCard';
 const Information: React.FC = () => {
   const { cards, progressPct, currentReport } = useInformation();
+  useEffect(()=>{console.log("currentReport",currentReport);},[currentReport])
 
   if (!currentReport) {
     return (

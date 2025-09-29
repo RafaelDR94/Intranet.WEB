@@ -3,7 +3,7 @@ import { mapEmployee } from "../employees/employee.mapper";
 import { mapProyectLocation } from "../locations/location.mapper";
 import { ProyectMap } from "../proyects/proyects.mapper";
 import { mapWorkPosition } from "../workposition/workposition.mapper";
-import { formatDateHour, currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
+import { formatDateHour, currentDate ,formatDateOnlyDate} from "@/app/utilities/DatesHelper/Dateshelper";
 import { Activities, Refaction, ClientSignatureinterface, CategoriesType, TypesOfReportType, ReportDeviceView, ReportView, ReportPost, ReportPut, ReportsTable } from "./reports.types";
 
 export const mapTypeReport = (type: any): TypesOfReportType => ({
@@ -120,8 +120,8 @@ export const ReportMap = (raw: any): ReportView => {
   return {
     "id": String(src?.id ?? ''),
     "model": modelRaw,
-    "startdate": formatDateHour(src?.startdate) ?? '',
-    "enddate": formatDateHour(src?.enddate) ?? '',
+    "startdate": formatDateOnlyDate(src?.startdate) ?? '',
+    "enddate": formatDateOnlyDate(src?.enddate) ?? '',
     "datecreate": formatDateHour(src?.datecreate) ?? '',
     "proyect": ProyectMap(src?.proyect ?? {}),
     "type": src?.type ?? '',

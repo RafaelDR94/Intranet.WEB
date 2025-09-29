@@ -132,9 +132,18 @@ export const formatDate = () => {
 // Acepta "YYYY-MM-DD HH:mm:ss(.fff)" o "YYYY-MM-DDTHH:mm:ss" y devuelve "YYYY-MM-DD HH:mm"
 export const formatDateHour = (s: string): string => {
   if (!s) return s;
-  const normalized = s.replace("T", " ").trim();
+  const normalized = s.replace("T", " ").trim()
+  
   const m = normalized.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}):(\d{2})/);
   return m ? `${m[1]} ${m[2]}:${m[3]}` : normalized;
+};
+
+export const formatDateOnlyDate = (s: string): string => {
+  if (!s) return s;
+  const normalized = s.replace("T", " ").trim()
+  
+  const m = normalized.match(/^(\d{4}-\d{2}-\d{2})/);
+  return m ? `${m[1]}` : normalized;
 };
 
 export const formatDMY = (date: Date | null): string => {

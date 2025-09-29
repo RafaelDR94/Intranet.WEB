@@ -9,6 +9,7 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { Proyect } from "@/app/mappings/proyects/proyects.types";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
 import useProyectLocationStore from "@/app/stores/useProyectLocationStore/useProyectLocationStore";
+import { useReportsStore } from "@/app/stores/useReportsStore/useReportsStore";
 import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery';
 /**
  * Hook contenedor del listado de proyectos.
@@ -32,6 +33,10 @@ const useProyectList = () => {
     const { currentPagePermissions } = useAuth();
 
     const { reset } = useProyectLocationStore();
+
+    const { resetReports } = useReportsStore((s) => ({
+        resetReports: s.reset
+    }), shallow);
 
     const { resetFlags, error, loading, proyects, fetchProyects, setCurrentProyect, deleteProyect, removing, successDelete } = useProyectsStore(
 
@@ -64,6 +69,8 @@ const useProyectList = () => {
     const [openDelete, setOpenDelete] = useState(false);
 
     const [toRemove, setToRemove] = useState<Proyect | null>(null);
+
+
 
 
 
@@ -142,14 +149,16 @@ const useProyectList = () => {
     };
 
     const handleView = (p: Proyect) => {
+        
+        resetReports();
         reset();
         setCurrentProyect(p);
-
         router.push(`/main-page/sip/proyects/proyectslist?id=${p.id}&label=${p.proyectKey}`);
 
     };
 
     const handeReport = (p: Proyect) => {
+        reset();
         reset();
         setCurrentProyect(p);
         router.push(`/main-page/sip/proyects/proyectslist?id=${p.id}&label=${p.proyectKey}&newReport=true`);
