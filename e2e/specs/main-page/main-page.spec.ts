@@ -90,6 +90,7 @@ export const initialTest = async (page: Page) => {
   }
 
 }
+
 const withoutAccesTest = async (page: Page) => {
   await page.goto('/main-page'); // layout intenta cargar main
   // En algunos navegadores la exportación puede caer en /index.txt. Normalizamos a /login
