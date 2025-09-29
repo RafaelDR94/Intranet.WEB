@@ -132,6 +132,10 @@ const SideMenu = ({
     return `${day} / ${month} / ${year}`;
   }
 
+  const normalizedStatus = selected?.status?.toLocaleLowerCase().trim() ?? "";
+  const isEditableStatus =
+    normalizedStatus === "rechazado" || normalizedStatus === "sin factura";
+
   return (
     <DetailsPanelLayout
       open={panelOpen}
@@ -145,7 +149,7 @@ const SideMenu = ({
             variant="solid"
             hideIcon
             onClick={() => submitRef.current?.()}
-            disabled={selected?.status?.toLocaleLowerCase() !== "rechazado"}
+            disabled={!isEditableStatus}
           >
             Reenviar
           </Button>
@@ -237,7 +241,7 @@ const SideMenu = ({
                   size="xsmall"
                   variant="ghost"
                   icon={XMLIcon}
-                  disabled={!xmlUrl}
+                  disabled={!isEditableStatus || !xmlUrl}
                   onClick={() => window.open(xmlUrl, "_blank")}
                 />
               )}
@@ -246,7 +250,7 @@ const SideMenu = ({
                   size="xsmall"
                   variant="ghost"
                   icon={PDFIcon}
-                  disabled={!pdfUrl}
+                  disabled={!isEditableStatus || !pdfUrl}
                   onClick={() => window.open(pdfUrl, "_blank")}
                 />
               )}
@@ -255,6 +259,7 @@ const SideMenu = ({
                   size="xsmall"
                   variant="ghost"
                   icon={ImageIcon}
+                  disabled={!isEditableStatus}
                   onClick={() => window.open(imageUrl, "_blank")}
                 />
               )}
@@ -320,6 +325,7 @@ const SideMenu = ({
                       ],
                     }}
                     dataEdit={voucherDataEdit}
+                    startDisabled={!isEditableStatus}
                     externalSubmitRef={submitRef}
                   />
                 </div>
@@ -363,6 +369,7 @@ const SideMenu = ({
                       ],
                     }}
                     dataEdit={voucherDataEdit}
+                    startDisabled={!isEditableStatus}
                     externalSubmitRef={submitRef}
                   />
                 </div>
