@@ -65,7 +65,7 @@ export const BASE_FIELDS: FieldModel[] = [
     type: 'textarea',
     name: 'remarks',
     label: 'Observaciones',
-    value: 'Si observaciones',
+    value: 'Sin observaciones',
     rows: 4,
   },
   {

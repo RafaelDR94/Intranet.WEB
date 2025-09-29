@@ -2,7 +2,7 @@
 import React from "react";
 
 import useActivitiesViewer from "./hooks/useActivitiesViewe";
-import { ActivitiesViewerProps } from "./types";
+import type { ActivitiesViewerProps } from "./types";
 
 import { Card } from "@/app/components/Card/Card";
 import PaginationDots from "@/app/components/PaginationDots/PaginationDots";
@@ -26,12 +26,14 @@ import PaginationDots from "@/app/components/PaginationDots/PaginationDots";
  * - Los botones de paginacion provienen de `PaginationDots`, que ya incluye
  *   atributos ARIA para describir la pagina activa.
  */
-export const ActivitiesViewer: React.FC<ActivitiesViewerProps> = ({
+export const ActivitiesViewer = <TRow,>({
   items,
   dataTestId = "activities-viewer",
   maxWidthClassName = "max-w-6xl",
   columns,
-}) => {
+  forcehorizontal,
+  forcevertical,
+}: ActivitiesViewerProps<TRow>) => {
   const {
     isMobile,
     pageItems,
@@ -43,7 +45,13 @@ export const ActivitiesViewer: React.FC<ActivitiesViewerProps> = ({
     visibleCount,
     windowStart,
     setPage,
-  } = useActivitiesViewer(items, columns);
+  } = useActivitiesViewer<TRow>(items, columns);
+
+  const orientation: "horizontal" | "vertical" = React.useMemo(() => {
+    if (forcevertical) return "vertical";
+    if (forcehorizontal) return "horizontal";
+    return isMobile ? "horizontal" : "vertical";
+  }, [forcevertical, forcehorizontal, isMobile]);
 
   return (
     <div className="w-full">
@@ -59,8 +67,8 @@ export const ActivitiesViewer: React.FC<ActivitiesViewerProps> = ({
         >
           {pageItems.map((it, idx) => (
             <div key={`${start + idx}`} className="flex justify-center">
-              <Card
-                orientation={isMobile ? "horizontal" : "vertical"}
+              <Card<any>
+                orientation={orientation}
                 imageSrc={it.image ?? ""}
                 fallbackSrc={it.image ?? ""}
                 label=""
@@ -69,6 +77,7 @@ export const ActivitiesViewer: React.FC<ActivitiesViewerProps> = ({
                 showPrimaryButton={false}
                 showSecondaryButton={false}
                 onAccept={() => {}}
+                actionMenuProps={it.actionMenuProps}
               />
             </div>
           ))}
@@ -89,3 +98,4 @@ export const ActivitiesViewer: React.FC<ActivitiesViewerProps> = ({
 };
 
 export default ActivitiesViewer;
+

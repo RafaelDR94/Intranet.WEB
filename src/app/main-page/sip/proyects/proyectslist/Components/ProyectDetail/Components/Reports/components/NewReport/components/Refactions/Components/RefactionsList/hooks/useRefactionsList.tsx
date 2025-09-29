@@ -1,13 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { shallow } from 'zustand/shallow';
 
 import { PopUp } from '@/app/components/PopUp/PopUp';
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 import useReportBuilderStore from '@/app/stores/useReportBuilderStore/useReportBuilderStore';
 import type { Refaction } from '@/app/mappings/reports/reports.types';
-
+import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery';
 const PAGE_SIZE = 8;
 
 export type RefactionRow = Refaction & { id: string; index: number };
@@ -23,15 +23,16 @@ const buildRefactionLabel = (row: RefactionRow | null) => {
 const useRefactionsList = () => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [rowPendingDeletion, setRowPendingDeletion] = useState<RefactionRow | null>(null);
-
+  const isMobile = useIsMobile();
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert, hideAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
 
-  const { refactions, updateRefactions } = useReportBuilderStore(
+  const { refactions, updateRefactions, report } = useReportBuilderStore(
     (state) => ({
       refactions: state.report.refactions ?? [],
       updateRefactions: state.updateRefactions,
+      report: state.report
     }),
     shallow
   );
@@ -115,6 +116,8 @@ const useRefactionsList = () => {
     pageSize: PAGE_SIZE,
     deleteRow: askDelete,
     confirmDeleteUI,
+    report,
+    isMobile
   };
 };
 

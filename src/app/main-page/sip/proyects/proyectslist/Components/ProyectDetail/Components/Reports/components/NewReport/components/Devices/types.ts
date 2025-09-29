@@ -1,4 +1,4 @@
-import { ReportDeviceView } from "@/app/mappings/reports/reports.types";
+
 import { initialFormState } from "./utilities/DevicesUtilities";
 
 

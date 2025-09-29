@@ -106,7 +106,7 @@ const ProyectList = () => {
     }, [currentPagePermissions, isMobile, handleAskDelete, handleEdit, handleView]);
     return (
         <>
-            <div className="space-y-8 overflow-auto">
+            <div className="overflow-auto">
                 <DataTable
                     actionLabel="Nuevo Proyecto"
                     onTableActionClick={handleNew}
@@ -136,6 +136,11 @@ const ProyectList = () => {
                             secondaryLabel: 'Nuevo Reporte',
                             showPrimaryButton: true,
                             showSecondaryButton: currentPagePermissions?.createreport,
+                            actionMenuProps: (row) => ({
+                                row,
+                                onEdit: handleEdit,
+                                onDelete: handleAskDelete,
+                            }),
                         }
                     }]}
                 />

@@ -25,7 +25,7 @@ export const updateReportBD = async (
   try {
     const existing = await findReportDocumentByFrontId(frontId);
     const timestamp = formatNow();
-    const report = { ...state.report, front_identifier: frontId };
+    const report = { ...state.report, front_identifier: frontId};
 
     const payload: Omit<ReportDocument, 'id'> = {
       report,

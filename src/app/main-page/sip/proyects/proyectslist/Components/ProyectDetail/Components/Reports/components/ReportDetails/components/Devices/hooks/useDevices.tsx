@@ -24,7 +24,6 @@ const useDevices = () => {
       id: String(i + 1),
       index: i + 1,
       device:
-        rd?.device_external_view?.fullInformation ||
         [rd?.device_external_view?.brand, rd?.device_external_view?.model, rd?.device_external_view?.serialnumber]
           .filter(Boolean)
           .join(' ') || '—',

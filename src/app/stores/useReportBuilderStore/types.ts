@@ -12,9 +12,11 @@ import type { EmployeeType } from '@/app/mappings/employees/employee.types';
 import type { WorkPositionType } from '@/app/mappings/workposition/workposition.types';
 import type { ReportDocument } from './utilities/helpers';
 
+
 export type ReportBuilderState = {
   report: ReportView;
   currentReportfrontguid?: string;
+  currentReportbackguid?: string;
   isReportHydrated: boolean;
   creatingDB: boolean;
   deletingDB: boolean;
@@ -40,9 +42,10 @@ export type ReportBuilderState = {
     startdate?: string;
     enddate?: string;
     reportcategory?: CategoriesType;
-  }) => void;
 
-  updateModel: (payload: { model?: Model; type?: string; frontId?: string }) => void;
+  }) => void;
+  startNewReport: (idProyect: string, employee: string, workposition: string) => void;
+  updateModel: (payload: { model?: Model; type?: string; }) => void;
   updateActivities: (activities: Activities[]) => void;
   updateMaps: (maps: Activities[]) => void;
   updateRefactions: (refactions: Refaction[]) => void;
@@ -56,6 +59,9 @@ export type ReportBuilderState = {
   deleteReportByFrontId: (frontId?: string) => Promise<boolean>;
   reset: () => void;
   resetflags: () => void;
+  setReport: (report: ReportView) => void
+  readReportOnline: (idreport: string) => Promise<void>;
+  updateBackId: (reportid: string) => void;
 };
 
 export type SetReportState = (

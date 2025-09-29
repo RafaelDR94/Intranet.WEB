@@ -124,7 +124,7 @@ const baseReport: ReportView = {
         fullInformation: "Axis M2026 SN-AX-1",
       },
     },
-  ],
+  ] as any,
 };
 
 export const createSampleReport = (overrides: Partial<ReportView> = {}): ReportView => ({
@@ -176,7 +176,7 @@ export const sampleReports: ReportView[] = [
           fullInformation: "Hikvision DS-2 SN-HK-2",
         },
       },
-    ],
+    ] as any,
     activities: [
       {
         title: "Configuracion de NVR",

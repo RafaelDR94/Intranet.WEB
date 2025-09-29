@@ -1,20 +1,26 @@
 ﻿import { useReportsStore } from "@/app/stores/useReportsStore/useReportsStore"
 import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import useQuery from "@/app/hooks/useQuery/useQuery";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+
 const useReportDetails = () => {
-    const searchParams = useSearchParams();
-    const reportId = searchParams?.get?.('reportId') ?? '';
-    const { currentReport, fetchReportsById, loadingCurrent, error, resetFlags } = useReportsStore();
-    const { updateQuery } = useQuery();
+
+
+    const { currentReport, fetchReportsById, fetchLocalReportById, loadingCurrent, error, resetFlags } = useReportsStore();
+    const { updateQuery, all } = useQuery();
+    const reportId = all.reportId;
+    const frontId = all.frontId;
     const { usePrincipalAlert } = usePrincipal();
     const { showAlert } = usePrincipalAlert;
     useEffect(() => {
         if (!currentReport && reportId) {
-            void fetchReportsById(reportId, true);
+            void fetchReportsById(String(reportId), true);
+        }
+        if (!currentReport && frontId) {
+            void fetchLocalReportById(String(frontId), true);
         }
     }, []);
+
     useEffect(() => {
         if (loadingCurrent) return;
         if (error) {

@@ -12,8 +12,12 @@ import Refactions from './components/Refactions/Refactions';
 import Signatures from './components/Signatures/Signatures';
 import { Button } from '@/app/components/Button/Button';
 import { StepId } from './types';
+import WarningIcon from '@/assets/icons/acciones/warning-triangle.svg'
+import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery';
+import clsx from 'clsx';
 const NewReport = () => {
   const {
+    canStart,
     steps,
     typeOptions,
     selectedTypeId,
@@ -25,19 +29,23 @@ const NewReport = () => {
     submitRef,
     currentModelName,
     isAdvanceValid,
-    onAdvanceValidChange
-    
+    handleCanSaveReport,
+    isSaveValid,
+    isBackValid,
+    handleSaveReport,
+    handleBack,
+    report
   } = useNewReport();
 
   const selectedTypeValues = selectedTypeId ? [selectedTypeId] : [];
-
+  const isMobile = useIsMobile();
   const renderStepContent = (id: (typeof steps)[number]['id'], label: string) => {
-    if (id === 'avance') return <Advance submitRef={submitRef} currentModelName={currentModelName} onStepValidChange={onAdvanceValidChange} />
+    if (id === 'avance') return <Advance submitRef={submitRef} currentModelName={currentModelName} onStepValidChange={handleCanSaveReport} />
     else if (id === 'actividades') return <Activities />
     else if (id === 'equipos') return <Devices />
     else if (id === 'mapas') return <WorkMaps />
     else if (id === 'refacciones') return <Refactions />
-    else if (id === 'firma') return <Signatures />
+    else if (id === 'firma') return <Signatures  isSaveValid={isSaveValid}  />
     return (
       <div className="rounded-lg border border-gray-30 bg-white-70 p-6 text-gray-80">
         {label}
@@ -45,21 +53,26 @@ const NewReport = () => {
     );
   };
 
-  return (
-    <FormsLayout title="Registra aqui un nuevo reporte" primaryLabel="Finalizar Reporte">
+  if (canStart) return (
+    <FormsLayout title="Registra aqui un nuevo reporte" primaryLabel="Guardar Reporte" primaryDisabled={!isSaveValid} onPrimaryClick={handleSaveReport}>
 
       <div className="grid w-full gap-4 md:grid-cols-2">
         <Select
+          
           label="Tipo de Reporte*"
           options={typeOptions}
           placeholder={loadingTypes ? 'Cargando tipos...' : 'Selecciona un tipo'}
           selected={selectedTypeValues}
           onChange={onTypeChange}
-          disabled={loadingTypes}
+          disabled={loadingTypes||Boolean(report?.clientsign?.url)}
         />
       </div>
 
-      <div className="w-full ">
+      <div className={clsx("w-full ", !isMobile && "h-[60vh]")}>
+        {(!isSaveValid && currentStep != "avance") && <div className="flex bg-white-70  text-blue-60 font-semibold text-label">
+          <WarningIcon className="mr-5" />
+          {"Para poder guardar tu reporte o pasarlo a firma del cliente, asegúrate de completar la sección de Avances. Así garantizamos un registro claro y completo de este."}
+        </div>}
 
 
         <Breadcrumbs activeId={currentStep} onActiveChange={(id) => onStepChange(id as StepId)}>
@@ -68,15 +81,19 @@ const NewReport = () => {
               key={step.id}
               id={step.id}
               label={step.label}
-              renderContent={() => renderStepContent(step.id, step.label)}
+              renderContent={() => <div className={clsx("w-full ", !isMobile && "h-[50vh]")}>{renderStepContent(step.id, step.label)}</div>}
             />
           ))}
         </Breadcrumbs>
 
-        <div className="flex justify-end">
-          <Button onClick={handleNext} disabled={currentStep === 'avance' && !isAdvanceValid} hideIcon>
+        <div className={clsx(!isMobile && "flex justify-end gap-5", isMobile && "flex flex-col gap-6")}>
+          <Button onClick={handleBack} disabled={!isBackValid} hideIcon variant='outline'>
+            Regresar
+          </Button>
+          <Button onClick={handleNext} disabled={!isAdvanceValid} hideIcon >
             Siguiente
           </Button>
+
         </div>
       </div>
     </FormsLayout>

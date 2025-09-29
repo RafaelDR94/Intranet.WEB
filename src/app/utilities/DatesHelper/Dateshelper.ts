@@ -118,10 +118,10 @@ export const monthRange = (ref: Date = new Date()) => ({
 // Formateadores amigables
 // ------------------------------
 export const formatDateES = (date: Date | null): string =>
-  date ? date.toLocaleDateString("es-ES") : "";
-export const  formatDate = (iso?: string) => {
-  if (!iso) return '—';
-  const d = new Date(iso);
+  date ? date.toLocaleDateString() : "";
+export const formatDate = () => {
+
+  const d = new Date();
   if (isNaN(d.getTime())) return '—';
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -143,6 +143,13 @@ export const formatDMY = (date: Date | null): string => {
   return `${pad2(date.getDate())}-${pad2(date.getMonth() + 1)}-${date.getFullYear()}`;
 };
 
+export const toDateInputValue = (value?: string | null) => {
+
+  if (!value) return "";
+  const newValue = value.includes("T") ? value.split("T")[0] : value;
+  if(newValue.includes("/")) return newValue.replaceAll("/","-");
+  return newValue
+};
 // ------------------------------
 // Querystring helpers y filtros
 // ------------------------------

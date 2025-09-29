@@ -51,6 +51,7 @@ export function CardsGrid<T>({ data, adapt, rowsPerPage }: Readonly<CardsGridPro
           const defaultSrc = defaultImages[absoluteIndex % defaultImages.length];
           const rawSrc = getVal(row, adapt.imageKey, "");
           const candidateSrc = rawSrc && rawSrc.trim().length > 0 ? rawSrc : defaultSrc;
+          const menuProps = adapt.actionMenuProps?.(row);
 
           return (
             <Card
@@ -67,6 +68,7 @@ export function CardsGrid<T>({ data, adapt, rowsPerPage }: Readonly<CardsGridPro
               showSecondaryButton={!!adapt.showSecondaryButton}
               primaryLabel={adapt.primaryLabel ?? "Ver"}
               secondaryLabel={adapt.secondaryLabel ?? "Cancelar"}
+              actionMenuProps={menuProps as any}
             />
           );
         })}

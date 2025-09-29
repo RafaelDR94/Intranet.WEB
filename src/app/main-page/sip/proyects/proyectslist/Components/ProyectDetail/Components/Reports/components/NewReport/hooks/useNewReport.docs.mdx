@@ -1,0 +1,36 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/SIP/Proyects/ProyectDetail/Reports/NewReport/hooks/useNewReport" />
+
+# useNewReport
+
+Orquesta el flujo de "Nuevo Reporte": sincroniza los pasos visibles con el
+modelo seleccionado, lee o crea borradores segun la URL y habilita las acciones
+de guardado y navegacion.
+
+```tsx
+const {
+  steps,
+  currentStep,
+  onStepChange,
+  handleNext,
+  typeOptions,
+  selectedTypeId,
+  onTypeChange,
+  isAdvanceValid,
+  isBackValid,
+  isSaveValid,
+  handleSaveReport,
+} = useNewReport();
+```
+
+## Responsabilidades principales
+
+- Lee `id`, `frontId` y `reportId` desde la URL para decidir si inicia un nuevo
+  borrador, sincroniza un reporte local u obtiene uno remoto.
+- Actualiza el store del builder (`useReportBuilderStore`) con el modelo
+  correcto y mantiene la referencia al reporte activo.
+- Publica banderas de navegacion (`isAdvanceValid`, `isBackValid`, `isSaveValid`)
+  consumidas por `NewReport` para habilitar botones y persistencia.
+- Expone `submitRef` y `handleCanSaveReport` para que el paso "Avance" reporte
+  validez antes de continuar.

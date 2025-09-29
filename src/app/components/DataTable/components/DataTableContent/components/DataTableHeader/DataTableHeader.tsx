@@ -18,6 +18,7 @@ export const DataTableHeader = <T,>({
   sortKey,
   sortDirection,
   onSort,
+  disableSelection
 }: TableHeaderProps<T>) => {
 
   const isMobile = useIsMobile()
@@ -26,7 +27,7 @@ export const DataTableHeader = <T,>({
     <div className={DataTableHeaderStyles.containerHeader}>
       {enableSelection && (
         <div className={DataTableHeaderStyles.checkboxContainer}>
-          <Checkbox checked={allSelected} onChange={onSelectAll} />
+          <Checkbox checked={allSelected} onChange={(val) => { if (disableSelection) return; else onSelectAll(val) }} />
         </div>
       )}
 

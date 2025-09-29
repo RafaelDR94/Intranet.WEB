@@ -38,4 +38,5 @@ export interface AdvanceProps {
   submitRef: RefObject<(() => void | Promise<void>) | null>
   currentModelName:string
   onStepValidChange: (isValid: boolean) => void;
+  
 }

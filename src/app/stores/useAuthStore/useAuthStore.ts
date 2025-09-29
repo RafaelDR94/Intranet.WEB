@@ -21,7 +21,8 @@ import {
   handleForgetUser,
   handleOfflineMode,
   setInterceptor,
-  updateUserPermissions
+  updateUserPermissions,
+  changeSignature
 } from './utilities'
 
 import { readUser, readUserRemebered } from '@/app/context/AuthContext/utilities/AuthService'
@@ -31,6 +32,7 @@ import { readUser, readUserRemebered } from '@/app/context/AuthContext/utilities
  */
 export const useAuthStore = createWithEqualityFn<AuthState>()(
   devtools((set, get) => ({
+    signature: "",
     loginData: undefined,
     firebaseConfig: undefined,
     user: null,
@@ -40,12 +42,14 @@ export const useAuthStore = createWithEqualityFn<AuthState>()(
     remeberMe: false,
     offlineMode: false,
     loading: false,
+    changingSignature: false,
     recoveringPassword: false,
     successLogin: false,
     successAuthValidate: false,
     successChangePassword: false,
     successRecoverPassword: false,
     successChangeNIPStatus: false,
+    succesChangeSignature: false,
     successChangeNIP: false,
     successCreateNIP: false,
     successFirebaseConfig: false,
@@ -61,16 +65,18 @@ export const useAuthStore = createWithEqualityFn<AuthState>()(
     handleRemeberMe: (rememberme) => handleRemeberMe(set, rememberme),
     handleForgetUser: () => handleForgetUser(set),
     handleOfflineMode: (offline) => handleOfflineMode(set, offline),
-    authValidate: (payload) => authValidate(set, get, payload),
+    authValidate: (payload) => authValidate(set, payload),
     changePassword: (payload) => changePassword(set, get, payload),
     recoverPassword: (payload) => recoverPassword(set, get, payload),
     fetchFirebaseConfiguration: () => fetchFirebaseConfiguration(set),
     changeNipStatusByIdUser: (id) => changeNipStatusByIdUser(id, set),
     changeNip: (payload) => changeNip(set, get, payload),
     createNip: (payload) => createNip(set, get, payload),
+    changeSignature: (payload) => changeSignature(set, payload),
     updateUserPermissions: (permissions: string) => updateUserPermissions(set, get, permissions),
     reset: () =>
       set({
+        signature: "",
         loginData: undefined,
         firebaseConfig: undefined,
         user: null,
@@ -90,6 +96,8 @@ export const useAuthStore = createWithEqualityFn<AuthState>()(
         successCreateNIP: false,
         successFirebaseConfig: false,
         recoveringPassword: false,
+        changingSignature: false,
+        succesChangeSignature: false
       }),
     resetFlags: () =>
       set({
@@ -104,7 +112,14 @@ export const useAuthStore = createWithEqualityFn<AuthState>()(
         successCreateNIP: false,
         successFirebaseConfig: false,
         recoveringPassword: false,
+        succesChangeSignature: false,
+        changingSignature: false,
+
         hasExpired: false,
+      }),
+    resetSignature: () =>
+      set({
+        signature: "",
       }),
   }))
 )

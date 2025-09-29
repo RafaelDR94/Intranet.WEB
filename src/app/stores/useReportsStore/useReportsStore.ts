@@ -12,11 +12,16 @@ import {
   fetchReportsById,
   fetchReportTypes,
   fetchReportCategories,
+  fetchLocalReports as fetchLocalReportsUtil,
+  deleteLocalReport,
+  deleteReport,
+  fetchLocalReportById
 } from './utilities'
 
 export const useReportsStore = createWithEqualityFn<ReportsState>()(
   devtools((set, get) => ({
     reports: [],
+    localReports: [],
     typesofReports: [],
     reportCategories: [],
     reportCategoriesTypeId: null,
@@ -28,10 +33,12 @@ export const useReportsStore = createWithEqualityFn<ReportsState>()(
     loadingCategories: false,
     creating: false,
     updating: false,
+    deleting: false,
 
     successGet: false,
     successPost: false,
     successPut: false,
+    successDelete: false,
     succesCurrent: false,
     succesTypes: false,
     succesCategories: false,
@@ -42,9 +49,14 @@ export const useReportsStore = createWithEqualityFn<ReportsState>()(
       fetchAllReportsByProyect(idproyect, set, get, force),
     fetchReportsById: async (idreport: string, force = false) =>
       fetchReportsById(idreport, set, get, force),
+    fetchLocalReportById: async (idreport: string, force = false) =>
+      fetchLocalReportById(idreport, set, get, force),
     fetchReportTypes: async (force = false) => fetchReportTypes(set, get, force),
     fetchReportCategories: async (idtype: string, force = false) =>
       fetchReportCategories(idtype, set, get, force),
+    fetchLocalReports: async (force = false, idProyect?: string) => fetchLocalReportsUtil(set, get, force, idProyect),
+    deleteLocal: async (frontId: string) => deleteLocalReport(set, get, frontId),
+    deleteReport: async (id: string, proyectId?: string) => deleteReport(set, get, id, proyectId),
     createReport: (payload) => createReport(set, get, payload),
     updateReport: (payload) => updateReport(set, get, payload),
 
@@ -53,6 +65,7 @@ export const useReportsStore = createWithEqualityFn<ReportsState>()(
 
     reset: () => set({
       reports: [],
+      localReports: [],
       typesofReports: [],
       reportCategories: [],
       reportCategoriesTypeId: null,
@@ -63,9 +76,11 @@ export const useReportsStore = createWithEqualityFn<ReportsState>()(
       loadingCategories: false,
       creating: false,
       updating: false,
+      deleting: false,
       successGet: false,
       successPost: false,
       successPut: false,
+      successDelete: false,
       succesCurrent: false,
       succesTypes: false,
       succesCategories: false,
@@ -79,13 +94,23 @@ export const useReportsStore = createWithEqualityFn<ReportsState>()(
       loadingCategories: false,
       creating: false,
       updating: false,
+      deleting: false,
       successGet: false,
       successPost: false,
       successPut: false,
+      successDelete: false,
       succesCurrent: false,
       succesTypes: false,
       succesCategories: false,
       error: undefined,
     }),
+
+    resetCurrentReport: () => set({
+      currentReport: null
+    }),
   }))
 )
+
+
+
+

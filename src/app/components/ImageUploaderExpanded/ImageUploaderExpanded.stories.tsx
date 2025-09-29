@@ -45,7 +45,7 @@ export const Playground: Story = {
           cameraLabels={{ capture: 'Tomar fotografia', switchCamera: 'Cambiar camara', close: 'Cerrar visor' }}
         />
         <p style={{ marginTop: 16, fontSize: 12, color: '#475569' }}>
-          {fileName ? Ultimo archivo:  : 'Sin archivo seleccionado'}
+          {fileName ?" Ultimo archivo"  : 'Sin archivo seleccionado'}
         </p>
       </div>
     );

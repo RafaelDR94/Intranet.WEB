@@ -1,9 +1,20 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+﻿import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 
-import ActivitiesViewer from './ActivitiesViewer';
+type ActivitiesViewerComponent = (typeof import('./ActivitiesViewer'))['default'];
+let ActivitiesViewer: ActivitiesViewerComponent;
 
-// Utilidades para forzar anchos en JSDOM y mockear ResizeObserver
+const actionMenuCellMock = vi.fn();
+
+vi.mock('../ActionMenuCell/ActionMenuCell', () => ({
+  __esModule: true,
+  default: (props: any) => {
+    actionMenuCellMock(props);
+    return <div data-testid="action-menu-cell" />;
+  },
+}));
+
 const setGlobalClientWidth = (width: number) => {
   const desc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth');
   Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
@@ -17,18 +28,24 @@ const setGlobalClientWidth = (width: number) => {
   };
 };
 
-beforeAll(() => {
+beforeAll(async () => {
   (globalThis as any).ResizeObserver = class {
     private cb: () => void;
     constructor(cb: () => void) {
       this.cb = cb;
     }
     observe() {
-      // invoca al suscribirse
       this.cb();
     }
     disconnect() {}
   } as any;
+
+  const mod = await import('./ActivitiesViewer');
+  ActivitiesViewer = mod.default;
+});
+
+beforeEach(() => {
+  actionMenuCellMock.mockClear();
 });
 
 const makeItems = (n: number) =>
@@ -38,26 +55,30 @@ const makeItems = (n: number) =>
     image: '',
   }));
 
+const renderViewer = (props: React.ComponentProps<ActivitiesViewerComponent>) => {
+  if (!ActivitiesViewer) throw new Error('ActivitiesViewer not loaded');
+  const Viewer = ActivitiesViewer;
+  return render(<Viewer {...props} />);
+};
+
 describe('ActivitiesViewer', () => {
   it('renderiza 3x2 tarjetas cuando el contenedor permite 3 columnas y muestra paginación', () => {
-    const restore = setGlobalClientWidth(920); // ~3 columnas (280*3 + gaps)
-    render(<ActivitiesViewer items={makeItems(10)} dataTestId="av" columns={3} />);
+    const restore = setGlobalClientWidth(920);
+    renderViewer({ items: makeItems(10), dataTestId: 'av', columns: 3 });
 
-    // tarjetas visibles = cols*3
     const grid = screen.getByTestId('av-grid');
     const cols = Number((grid as HTMLElement).style.gridTemplateColumns.match(/repeat\((\d+)/)?.[1] ?? '0');
     const headings = screen.getAllByRole('heading', { level: 4 });
     expect(headings.length).toBe(cols * 2);
 
-    // Paginación de 2 páginas (10/9 = 2)
     const dots = screen.getAllByRole('button');
     expect(dots.length).toBe(2);
     restore();
   });
 
   it('renderiza 2x2 cuando el contenedor permite 2 columnas', () => {
-    const restore = setGlobalClientWidth(600); // ~2 columnas
-    render(<ActivitiesViewer items={makeItems(10)} dataTestId="av2" columns={2} />);
+    const restore = setGlobalClientWidth(600);
+    renderViewer({ items: makeItems(10), dataTestId: 'av2', columns: 2 });
     const grid = screen.getByTestId('av2-grid');
     const cols = Number((grid as HTMLElement).style.gridTemplateColumns.match(/repeat\((\d+)/)?.[1] ?? '0');
     const headings = screen.getAllByRole('heading', { level: 4 });
@@ -69,12 +90,36 @@ describe('ActivitiesViewer', () => {
 
   it('navega de página al hacer click en el segundo punto', async () => {
     const restore = setGlobalClientWidth(920);
-    render(<ActivitiesViewer items={makeItems(10)} dataTestId="av3" />);
-    // cambia a la segunda página
+    renderViewer({ items: makeItems(10), dataTestId: 'av3' });
     const dots = screen.getAllByRole('button');
     fireEvent.click(dots[1]);
-    // ahora debe verse la Actividad 10
     expect(await screen.findByText('Actividad 10')).toBeInTheDocument();
+    restore();
+  });
+
+  it('muestra ActionMenuCell cuando se proporcionan props', () => {
+    const restore = setGlobalClientWidth(600);
+    const onEdit = vi.fn();
+    const onDelete = vi.fn();
+    const items = [
+      {
+        title: 'Actividad 1',
+        description: 'Desc 1',
+        image: '',
+        actionMenuProps: {
+          row: { id: 1 },
+          onEdit,
+          onDelete,
+        },
+      },
+    ];
+
+    renderViewer({ items, dataTestId: 'av-menu', columns: 1 });
+
+    expect(screen.getByTestId('action-menu-cell')).toBeInTheDocument();
+    expect(actionMenuCellMock).toHaveBeenCalledWith(
+      expect.objectContaining({ row: { id: 1 }, onEdit, onDelete })
+    );
     restore();
   });
 });

@@ -1,3 +1,4 @@
+import type { ActionMenuCellProps } from "../ActionMenuCell/types"
 import type { TextSize } from "./components/DataTableContent/components/DataTableBody/DataTableBody"
 
 /**
@@ -54,6 +55,8 @@ export interface DataTableGroup<T> {
   columns: ColumnDefinition<T>[]
   /** Conjunto de filas que se mostrarán */
   data: T[]
+  /** Identificadores de filas que deben iniciar seleccionadas */
+  initialSelectedRowIds?: Array<any>
   /** Título visible de la tabla */
   title: string
   /** Esconde el titulo */
@@ -62,6 +65,9 @@ export interface DataTableGroup<T> {
   enableSelection?: boolean
   /** Permite colapsar la sección que contiene la tabla */
   enableCollaps?: boolean
+
+  /**Deja visible la seleccion pero no permite el click */
+  disableSelection?: boolean
   /** Clave inicial para ordenar */
   defaultSortKey?: keyof T
   /** Dirección inicial de ordenamiento */
@@ -224,42 +230,12 @@ export interface CardAdapt<T> {
   /** Mostrar/ocultar botones */
   showPrimaryButton?: boolean
   showSecondaryButton?: boolean
+  /** Props para renderizar el menu contextual en cada tarjeta */
+  actionMenuProps?: (row: T) => ActionMenuCellProps<T>
   /** Número de tarjetas por página (opcional, por defecto `rowsPerPage`) */
   cardsPerPage?: number
 }
 
-/** Props for the contextual action cell. */
-export type ActionMenuCellProps = {
-  /** Current row information. */
-  row: RequisitionRow
-  /** Called when the edit option is selected. */
-  onEdit: (row: RequisitionRow) => void
-  /** Called when the delete option is selected. */
-  onDelete: (row: RequisitionRow) => void
-}
 
-/**
- * Row shape used by the requisitions table.
- */
-export type RequisitionRow = {
-  /** Unique identifier for the requisition. */
-  id: string
-  /** Serial number displayed in the list. */
-  snCode: string
-  /** Name of the debtor associated with the requisition. */
-  debtorName: string
-  /** Project code for the requisition. */
-  projectCode: string
-  /** Assignment date (raw ISO or yyyy-mm-dd). */
-  assignmentDate?: string
-  /** Due date/termino (raw ISO or yyyy-mm-dd). */
-  dueDate?: string
-  /** Amount deposited/requested as number for formatting. */
-  amount?: number
-  /** Status text to display as a pill. */
-  status?: string
-  /** ISO formatted creation date. */
-  date_created?: string
-  
-  state?:string,
-}
+
+

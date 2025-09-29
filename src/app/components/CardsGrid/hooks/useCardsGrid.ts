@@ -1,8 +1,10 @@
-﻿import { useState, useMemo } from "react"
+﻿import { useState, useMemo, useEffect } from "react"
 
 import { useMediaBreakpoints } from "../../DynamicForm/hooks/useMediaBreakpoints"
 
-import { KeyOrFn ,CardsGridProps} from "../types"
+import { KeyOrFn, CardsGridProps } from "../types"
+
+import { useIsMobile } from "../../DataTable/components/DataTableLayout/hooks/useMediaQuery";
 /**
  * Calcula el grid y la paginacion maximo dos filas para CardsGrid.
  *
@@ -10,6 +12,7 @@ import { KeyOrFn ,CardsGridProps} from "../types"
  * @returns Estado memorizado para renderizar tarjetas y paginar.
  */
 function useCardsGrid<T>({ rowsPerPage, adapt, data }: CardsGridProps<T>) {
+     const isMobile = useIsMobile();
     const getVal = <T,>(row: T, k?: KeyOrFn<T>, fallback = ''): string => {
         if (!k) return fallback
         return typeof k === 'function' ? String(k(row) ?? fallback) : String((row as any)[k] ?? fallback)
@@ -17,7 +20,12 @@ function useCardsGrid<T>({ rowsPerPage, adapt, data }: CardsGridProps<T>) {
 
     const { current, width } = useMediaBreakpoints() // tÃ­picamente: 'sm' | 'md' | 'lg'
 
-
+    const [viewportHeight, setViewportHeight] = useState<number>(typeof window !== "undefined" ? window.innerHeight : 1080);
+    useEffect(() => {
+        const handleResize = () => setViewportHeight(window.innerHeight);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     let gridCols = 'grid-cols-1'
     let cols = 1;
@@ -31,11 +39,14 @@ function useCardsGrid<T>({ rowsPerPage, adapt, data }: CardsGridProps<T>) {
         cols = 2;
     }
 
-
+    const CARD_HEIGHT = isMobile? 105:226; // px aprox.
+    const RESERVED_SPACE = 450; // header/footer, margen inferior, etc.
+    const usableHeight = Math.max(0, viewportHeight - RESERVED_SPACE);
+    const rowsThatFit = Math.max(1, Math.floor(usableHeight / CARD_HEIGHT));
 
 
     // como mÃ¡ximo 2 filas => pageSize = cols * 2; respeta un valor menor si lo envÃ­an
-    const desired = cols * 2
+    const desired = cols * rowsThatFit;
     const requested = adapt.cardsPerPage ?? rowsPerPage ?? desired
     const pageSize = Math.max(1, Math.min(desired, requested)) // nunca excede 2 filas, nunca < 1
 

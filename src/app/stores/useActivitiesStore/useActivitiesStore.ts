@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { createWithEqualityFn } from 'zustand/traditional';
 
@@ -12,6 +12,14 @@ export const useActivitiesStore = createWithEqualityFn<ActivitiesStoreState>()((
     let updated: ActivitiesStoreState['activities'] = [];
     set((state) => {
       updated = [...state.activities, activity];
+      return { activities: updated };
+    });
+    return updated;
+  },
+  updateActivity: (index, activity) => {
+    let updated: ActivitiesStoreState['activities'] = [];
+    set((state) => {
+      updated = state.activities.map((item, idx) => (idx === index ? activity : item));
       return { activities: updated };
     });
     return updated;
@@ -35,3 +43,4 @@ export const useActivitiesStore = createWithEqualityFn<ActivitiesStoreState>()((
 }));
 
 export default useActivitiesStore;
+

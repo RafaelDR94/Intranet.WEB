@@ -1,5 +1,5 @@
 import type { DeviceExternalView } from '@/app/mappings/devices/devices.types';
-
+import { ReportDeviceView } from '@/app/mappings/reports/reports.types';
 
 export interface ReportDeviceCreatePayload {
   proyectLocationId?: string;
@@ -19,7 +19,7 @@ export interface ReportDeviceUpdatePayload extends ReportDeviceCreatePayload {
 
 export type ReportDevicesState = {
   devices: DeviceExternalView[];
-  locationDevices: DeviceExternalView[];
+  locationDevices: ReportDeviceView[];
   lastLocationId: string | null;
   currentDevice: DeviceExternalView | null;
 

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Button } from '@/app/components/Button/Button';
 import DynamicForm from '@/app/components/DynamicForm/DynamicForm';
 import type { FieldModel } from '@/app/components/DynamicForm/types';
@@ -59,13 +60,15 @@ const buildFields = (values: RefactionFormValues): FieldModel[] => [
 ];
 
 const RefactionsForm: React.FC<Props> = ({ selectedRowId, onClose, onSaved }) => {
-  if (!selectedRowId) return null;
+  const refactionIndex =
+    selectedRowId && selectedRowId !== NEW_REFACTION_ID ? Number(selectedRowId) : null;
 
-  const refactionIndex = selectedRowId === NEW_REFACTION_ID ? null : Number(selectedRowId);
   const { values, setValues, isValid, setIsValid, submitRef, handleSubmit } = useRefactionForm({
     refactionIndex,
     onSuccess: onSaved ?? onClose,
   });
+
+  if (!selectedRowId) return null;
 
   const fields = buildFields(values);
   const isEditing = refactionIndex !== null;

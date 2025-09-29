@@ -27,4 +27,6 @@ export type ActionMenuCellProps<T> = ActionMenuCellBaseProps<T> & {
   permissions?: ActionMenuPermissions;
   /** Fuerza el modo mobile/desktop (por defecto usa `useIsMobile`). */
   isMobile?: boolean;
+
+
 };

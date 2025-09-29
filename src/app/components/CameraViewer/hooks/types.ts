@@ -9,7 +9,7 @@ export interface UseCameraViewerOptions {
 }
 
 export interface UseCameraViewerReturn {
-  videoRef: RefObject<HTMLVideoElement>;
+  videoRef: RefObject<HTMLVideoElement | null>
   facingMode: FacingMode;
   isLoading: boolean;
   error: string | null;

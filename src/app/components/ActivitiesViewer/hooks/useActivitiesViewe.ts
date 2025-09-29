@@ -1,7 +1,6 @@
-﻿
-import { useRef, useState, useEffect } from "react";
+﻿import { useRef, useState, useEffect } from "react";
 import { useIsMobile } from "../../DataTable/components/DataTableLayout/hooks/useMediaQuery";
-import { Item } from "../types";
+import type { ActivitiesViewerItem } from "../types";
 /**
  * Calcula columnas, paginacion y orientacion responsiva para ActivitiesViewer.
  *
@@ -9,11 +8,11 @@ import { Item } from "../types";
  * @param columns - Numero de columnas forzado (1..3).
  * @returns Estado derivado para pintar la grilla y navegar por paginas.
  */
-const useActivitiesViewer = (items: Item[], columns?: number) => {
+const useActivitiesViewer = <TRow,>(items: ActivitiesViewerItem<TRow>[], columns?: number) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [cols, setCols] = useState(3); // nÃºmero de columnas efectivo (1..3)
+  const [cols, setCols] = useState(3); // número de columnas efectivo (1..3)
   const isMobile = useIsMobile();
-  // Medir ancho del contenedor y resolver columnas (1..3) segÃºn cardWidth estimado
+  // Medir ancho del contenedor y resolver columnas (1..3) según cardWidth estimado
 
   useEffect(() => {
     const el = containerRef.current;
@@ -34,14 +33,14 @@ const useActivitiesViewer = (items: Item[], columns?: number) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Page size dinÃ¡mico (hasta 3 filas)
+  // Page size dinámico (hasta 3 filas)
   const rows = 2;
   const forcedCols = columns && columns >= 1 && columns <= 3 ? columns : undefined;
   const effectiveCols = forcedCols ?? cols;
   const effectivePageSize = effectiveCols * rows;
   const [page, setPage] = useState(0);
 
-  // Reajusta pÃ¡gina si cambian columnas y la pÃ¡gina actual queda fuera de rango
+  // Reajusta página si cambian columnas y la página actual queda fuera de rango
   useEffect(() => {
     const total = Math.max(1, Math.ceil((items?.length ?? 0) / effectivePageSize));
     if (page >= total) setPage(0);
@@ -52,12 +51,13 @@ const useActivitiesViewer = (items: Item[], columns?: number) => {
   const start = page * effectivePageSize;
   const pageItems = (items ?? []).slice(start, start + effectivePageSize);
 
-  // ventana de 3 puntos mÃ¡ximo
+  // ventana de 3 puntos máximo
   const windowStart = Math.floor(page / 3) * 3;
   const visibleCount = Math.min(3, totalPages - windowStart);
   const currentInWindow = page - windowStart;
-  return {isMobile, start, containerRef, effectiveCols, pageItems, totalPages, visibleCount, currentInWindow, windowStart, setPage };
+  return { isMobile, start, containerRef, effectiveCols, pageItems, totalPages, visibleCount, currentInWindow, windowStart, setPage };
 };
 
 export default useActivitiesViewer;
+
 

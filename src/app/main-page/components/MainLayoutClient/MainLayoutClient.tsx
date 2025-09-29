@@ -15,6 +15,7 @@ import LoadingOverlay from "@/app/components/LoadingOverLay/LoadingOverlay";
 import { PermissionAgent } from "@/app/components/PermissionsAgent/PermissionsAgent";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import ShowImage from "@/app/components/ShowImage/ShowImage";
+import { getOfflineModeSuport } from "./utilities/getOfflineModeSuport";
 /**
  * Layout principal del sistema DR Intranet.
  *
@@ -145,7 +146,7 @@ export default function MainLayoutClient({
               validPermissionsbyroute={validPermissionsbyroute}
               onOpenMobileMenu={() => setMobileOpen(true)} // << abre el drawer
             />
-            <main className={mainLayoutStyles.main}>{children}</main>
+            <main className={mainLayoutStyles.main}>{offlineLoggin&&!getOfflineModeSuport(pathname)?"El modo offline no tiene soporte en este módulo":children}</main>
             <LoadingOverlay
               open={open}
               message={message}

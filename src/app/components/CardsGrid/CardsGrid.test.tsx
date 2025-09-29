@@ -5,6 +5,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CardsGridProps } from "./types";
 
+Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 1080 });
+window.dispatchEvent(new Event('resize'));
+
 vi.mock("@/app/components/Card/Card", () => ({
   __esModule: true,
   Card: (props: any) => (
@@ -86,10 +89,15 @@ describe("CardsGrid", () => {
   });
 
   it("renderiza la primera pagina respetando fallback de imagenes", async () => {
+    // 🔹 Forzar viewport alto (para asegurar 2 filas)
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 1080 });
+    window.dispatchEvent(new Event('resize'));
+
     render(<CardsGrid data={buildRows(9)} adapt={baseAdapt} />);
 
     const cards = screen.getAllByTestId(/card-/);
-    expect(cards).toHaveLength(8); // 4 columnas x 2 filas
+    // ahora sí deben ser 8 (4 columnas x 2 filas)
+    expect(cards).toHaveLength(8);
 
     const firstCard = screen.getByTestId("card-Item 1");
     expect(firstCard).toHaveAttribute("data-orientation", "vertical");
@@ -98,6 +106,7 @@ describe("CardsGrid", () => {
     await userEvent.click(screen.getByTestId("primary-Item 1"));
     expect(baseAdapt.onPrimaryAction).toHaveBeenCalledWith(expect.objectContaining({ id: "1" }));
   });
+
 
   it("usa layout horizontal en mobile y expone accion secundaria", async () => {
     mockedIsMobile = true;

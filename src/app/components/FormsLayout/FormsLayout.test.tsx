@@ -3,15 +3,17 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/assets/icons/navegacion/nav-arrow-right.svg', () => ({
-  default: (props: any) => <svg data-testid="arrow-right" {...props} />,
-}));
-vi.mock('@/assets/icons/navegacion/arrow-up.svg', () => ({
-  default: (props: any) => <svg data-testid="arrow-up" {...props} />,
-}));
-vi.mock('@/assets/icons/acciones/cancel.svg', () => ({
-  default: (props: any) => <svg data-testid="cancel" {...props} />,
-}));
+function createSvgMock(testId: string) {
+  return {
+    default: (props: any) => <svg data-testid={testId} {...props} />,
+  };
+}
+
+vi.mock('@/assets/icons/navegacion/nav-arrow-down.svg', () => createSvgMock('arrow-down'));
+vi.mock('@/assets/icons/navegacion/nav-arrow-up.svg', () => createSvgMock('arrow-up'));
+vi.mock('@/assets/icons/navegacion/nav-arrow-right.svg', () => createSvgMock('arrow-right'));
+vi.mock('@/assets/icons/navegacion/arrow-up.svg', () => createSvgMock('arrow-up'));
+vi.mock('@/assets/icons/acciones/cancel.svg', () => createSvgMock('cancel'));
 
 const useIsMobileMock = vi.fn(() => false);
 vi.mock('../DataTable/components/DataTableLayout/hooks/useMediaQuery', () => ({

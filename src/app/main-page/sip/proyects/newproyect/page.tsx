@@ -20,31 +20,33 @@ const NewProyectPage = () => {
       onPrimaryClick={() => setConfirmOpen(true)}
       primaryDisabled={!formReady}
     >
-      <div className="w-full">
-        <DynamicForm
-          fields={fields}
-          onSubmit={handleSubmit}
-          externalSubmitRef={submitRef}
-          showSubmitIf={() => false}
-          loadingFormInfo={loadingFormInfo}
-          loading={creating}
-          onValidChange={(valid) => setFormReady(valid)}
-          responsiveLayoutMatrix={responsiveLayout}
-          dataTestId="new-proyect-form"
-        />
-      </div>
+      <>
+        <div className="w-full">
+          <DynamicForm
+            fields={fields}
+            onSubmit={handleSubmit}
+            externalSubmitRef={submitRef}
+            showSubmitIf={() => false}
+            loadingFormInfo={loadingFormInfo}
+            loading={creating}
+            onValidChange={(valid) => setFormReady(valid)}
+            responsiveLayoutMatrix={responsiveLayout}
+            dataTestId="new-proyect-form"
+          />
+        </div>
 
-      <PopUp
-        open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        title="Confirmación Nuevo Proyecto"
-        content={"Se creará el nuevo proyecto. ¿Deseas continuar?"}
-        showSecondaryButton
-        secondaryButtonText="Cancelar"
-        showPrimaryButton
-        primaryButtonText="Continuar"
-        onPrimaryButtonClick={() => { setConfirmOpen(false); submitRef.current?.(); }}
-      />
+        <PopUp
+          open={confirmOpen}
+          onClose={() => setConfirmOpen(false)}
+          title="Confirmación Nuevo Proyecto"
+          content={"Se creará el nuevo proyecto. ¿Deseas continuar?"}
+          showSecondaryButton
+          secondaryButtonText="Cancelar"
+          showPrimaryButton
+          primaryButtonText="Continuar"
+          onPrimaryButtonClick={() => { setConfirmOpen(false); submitRef.current?.(); }}
+        />
+      </>
     </FormsLayout>
   );
 };

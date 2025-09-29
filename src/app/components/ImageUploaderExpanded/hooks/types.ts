@@ -13,7 +13,7 @@ export interface UseImageUploaderExpandedParams {
 
 export interface UseImageUploaderExpandedReturn
   extends Omit<UseFileUploaderExpandedReturn, 'mainText'> {
-  containerRef: RefObject<HTMLDivElement>;
+  containerRef: RefObject<HTMLDivElement | null>
   displayText: string;
   isCameraOpen: boolean;
   openCamera: () => void;

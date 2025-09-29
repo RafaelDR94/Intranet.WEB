@@ -5,3 +5,8 @@ export * from './updateReport'
 export * from './fetchReportById'
 export * from './fetchReportTypes'
 export * from './fetchReportCategories'
+export * from './fetchLocalReports'
+export * from './fetchLocalReportById'
+export * from './deleteLocalReport'
+export * from './deleteReport'
+

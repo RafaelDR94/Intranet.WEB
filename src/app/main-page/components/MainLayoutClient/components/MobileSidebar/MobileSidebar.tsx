@@ -40,7 +40,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
     <div
       data-testid="mobile-sidebar"
       aria-hidden={!isOpen}
-      className={`fixed inset-0 z-50 lg:hidden ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+      className={`fixed inset-0 z-95 lg:hidden ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
     >
       {/* Overlay */}
       <div

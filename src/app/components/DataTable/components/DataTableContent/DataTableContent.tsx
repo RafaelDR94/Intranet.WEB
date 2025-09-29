@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { useIsMobile } from "../DataTableLayout/hooks/useMediaQuery";
 
@@ -33,6 +33,7 @@ const DataTableContent = <T extends { id: string | number }>(
     data,
     columns,
     enableSelection = false,
+    initialSelectedIds,
     defaultSortKey,
     defaultSortDirection,
     enablePagination = true,
@@ -44,9 +45,8 @@ const DataTableContent = <T extends { id: string | number }>(
     scrollMaxHeight,
     onSelectedChange,
     actionsRender,
-    onTableActionClick,
-    actionLabel = "Agregar",
     textSize, // <-- NUEVO
+    disableSelection
   } = props;
 
   const {
@@ -67,6 +67,7 @@ const DataTableContent = <T extends { id: string | number }>(
     data,
     defaultSortKey,
     defaultSortDirection,
+    initialSelectedIds,
     enablePagination,
     rowsPerPage,
     totalRows,
@@ -75,9 +76,10 @@ const DataTableContent = <T extends { id: string | number }>(
     rowHeight,
     scrollMaxHeight,
   });
-
+  const init = useRef(false)
   useEffect(() => {
-    onSelectedChange?.(selected);
+    if (init.current) onSelectedChange?.(selected);
+    init.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
@@ -86,6 +88,7 @@ const DataTableContent = <T extends { id: string | number }>(
       <DataTableHeader
         columns={columns}
         enableSelection={enableSelection}
+        disableSelection={disableSelection}
         allSelected={allSelected}
         onSelectAll={selectAll}
         sortKey={sortKey}
@@ -101,6 +104,7 @@ const DataTableContent = <T extends { id: string | number }>(
           data={paginatedData}
           columns={columns}
           enableSelection={enableSelection}
+          disableSelection={disableSelection}
           selected={selected}
           onToggleSelect={toggleSelect}
           textSize={textSize}   // <-- pasa la prop

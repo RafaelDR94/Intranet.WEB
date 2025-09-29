@@ -2,10 +2,11 @@ import clsx from 'clsx';
 
 export const container =
   'flex flex-nowrap items-center justify-center gap-1 sm:gap-2';
-export const pageButton = (active: boolean, disabled: boolean) =>
+export const pageButton = (active: boolean, disabled: boolean,isMobile:boolean) =>
   clsx(
     // shrink-0 evita que se “aplasten” en filas pequeñas
-    'shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-medium transition-all',
+    isMobile?'w-7 h-7':'w-10 h-10',
+    'shrink-0  rounded-full flex items-center justify-center font-medium transition-all',
     {
       'bg-green-90 text-white-100': active,
       'text-gray-100 hover:bg-green-10': !disabled && !active,

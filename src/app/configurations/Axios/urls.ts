@@ -58,6 +58,7 @@ export const ReportsByID = process.env.NEXT_PUBLIC_REPORTS_BYID ?? "/Reports/Rep
 export const ReportsAllReportsByIdProyect = process.env.NEXT_PUBLIC_REPORTS_ALLREPORTSBYIDPROYECT ?? "/Reports/AllReportsByIdProyect";
 export const ReportsReportsDevices = process.env.NEXT_PUBLIC_REPORTS_REPORTDEVICES ?? "/Reports/ReportDevices";
 export const Reports = process.env.NEXT_PUBLIC_REPORTS ?? "/Reports";
+export const ReportsDelete = process.env.NEXT_PUBLIC_REPORTS_DELETE ?? "/Reports";
 
 export const BudgetCategory = process.env.NEXT_PUBLIC_BUDGETS_CATEGORY ?? "/Budget/BudgetCategory";
 export const AllBudgets = process.env.NEXT_PUBLIC_ALL_BUDGETS ?? "/Budget";

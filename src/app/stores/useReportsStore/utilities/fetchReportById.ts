@@ -17,15 +17,15 @@ export const fetchReportsById = async (
 ) => {
   // For this endpoint we usually need fresh data by project
   if (_get().currentReport && !force) return
-  set({ loadingCurrent: true, error: undefined, succesCurrent: false })
+  set({ currentReport:undefined,loadingCurrent: true, error: undefined, succesCurrent: false })
   try {
     const getFn = requireGateway('get')
     const url = `${ReportsByID}/${encodeURIComponent(idreport)}`
     const res: AxiosResponse = await pGet(getFn)(url)
     const list = res.data?.data ?? {}
     const mapped: ReportView = ReportMap(list);
-  
     set({ currentReport: mapped, loadingCurrent: false, succesCurrent: true })
+    
   } catch (e) {
     set({ loadingCurrent: false, succesCurrent: false, error: normalizeApiError(e).message })
   }

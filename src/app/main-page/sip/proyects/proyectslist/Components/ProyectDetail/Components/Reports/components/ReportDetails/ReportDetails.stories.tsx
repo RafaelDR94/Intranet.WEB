@@ -22,7 +22,7 @@ const buildDecorator = (reportId: string) => {
     prefetch: async (href: string) => action("router.prefetch")(href),
   };
 
-  return (Story: StoryFn) => {
+  return (Story: any) => {
     const searchParams = new URLSearchParams(`reportId=${reportId}`);
     return (
       <AppRouterContext.Provider value={mockRouter}>

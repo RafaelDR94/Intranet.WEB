@@ -89,9 +89,24 @@ const ButtonsNavigationBase: React.FC<ButtonsNavigationProps> = ({
 
   return (
     <div className={clsx('space-y-4', className)}>
-      <nav aria-label={ariaLabel} className={containerClasses} data-testid={dataTestId}>
-        {enhanced}
-      </nav>
+      {/* Contenedor scrolleable horizontal */}
+      <div
+        className={clsx(
+          'w-full overflow-x-auto max-w-full',
+          'scroll-smooth',
+          '[-ms-overflow-style:none] [scrollbar-width:none]', // oculta en Firefox
+          '[&::-webkit-scrollbar]:hidden' // oculta en Chrome/Safari
+        )}
+      >
+        <nav
+          aria-label={ariaLabel}
+          className={clsx(containerClasses, 'min-w-max px-1', 'flex-nowrap')}
+          data-testid={dataTestId}
+        >
+          {enhanced}
+        </nav>
+      </div>
+
       {activeContent && (
         <div className={contentClassName} data-testid={`${dataTestId}-content`}>
           {activeContent}

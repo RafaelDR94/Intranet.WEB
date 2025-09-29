@@ -5,6 +5,7 @@ import React from 'react';
 import usePagination from './hooks/usePagination';
 import { container ,arrowButton, pageButton} from './styles';
 import { PaginationProps } from './types';
+import { useIsMobile } from '../DataTable/components/DataTableLayout/hooks/useMediaQuery';
 /**
  * Paginador simple con botones numerados y flechas anterior/siguiente.
  *
@@ -39,7 +40,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
     jumpLeft,             // () => number (página a saltar al pulsar '…' izquierda)
     jumpRight,            // () => number (página a saltar al pulsar '…' derecha)
   } = usePagination(currentPage, totalPages);
-
+  const isMobile = useIsMobile();
   return (
     <div className={container} role="navigation" aria-label="Pagination">
       {/* Prev */}
@@ -58,7 +59,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
           return (
             <button
               key={`dl-${idx}`}
-              className={pageButton(false, false)}
+              className={pageButton(false, false,isMobile)}
               aria-label="Saltar hacia atrás"
               onClick={() => onPageChange(jumpLeft())}
             >
@@ -70,7 +71,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
           return (
             <button
               key={`dr-${idx}`}
-              className={pageButton(false, false)}
+              className={pageButton(false, false,isMobile)}
               aria-label="Saltar hacia adelante"
               onClick={() => onPageChange(jumpRight())}
             >
@@ -83,7 +84,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
         return (
           <button
             key={pageNum}
-            className={pageButton(isActive, isActive)}
+            className={pageButton(isActive, isActive,isMobile)}
             onClick={() => onPageChange(pageNum)}
             disabled={isActive}
             aria-current={isActive ? 'page' : undefined}

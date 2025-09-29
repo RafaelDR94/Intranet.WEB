@@ -49,12 +49,13 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
     <div className={tableLayoutStyles.headerdiv}>
       <Input
         placeholder="Buscar"
-        inputSize={isMobile ? "md" : "sm"}
+        inputSize={isMobile ? "sm" : "md"}
         className={tableLayoutStyles.inputSyle}
         onChange={(e) => handleInputChange(e.target.value)}
         onClick={handleSearchClick}
         onKeyDown={handleInputKeyDown}
-        icon={SearchIcon}
+        
+        icon={!isMobile&&SearchIcon||""}
       />
 
       {showCalendar && (

@@ -64,11 +64,10 @@ export const ReportsStoryProvider: React.FC<ReportsStoryProviderProps> = ({
   useEffect(() => {
     const devices = resolvedReports[0]?.reportDeviceView?.map((entry, index) => ({
       id: `dev-${index + 1}`,
-      fullInformation: entry.device_external_view.fullInformation,
       brand: entry.device_external_view.brand,
       model: entry.device_external_view.model,
       serialnumber: entry.device_external_view.serialnumber,
-    })) ?? [];
+    }))  ?? [];
 
     useProyectsStore.setState((prev) => ({
       ...prev,

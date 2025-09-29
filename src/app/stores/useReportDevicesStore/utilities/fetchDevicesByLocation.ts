@@ -15,6 +15,7 @@ export const fetchDevicesByLocation = async (
   get: GetReportDevicesState,
   force = false,
 ): Promise<ReportDeviceView[]> => {
+
   const trimmed = locationId?.trim();
   if (!trimmed) {
     set({ locationDevices: [], lastLocationId: null });

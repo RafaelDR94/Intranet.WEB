@@ -8,7 +8,9 @@ import { createReportDB } from './utilities/createReportDB';
 import { deleteReportDB } from './utilities/deleteReportDB';
 import { readReportDB } from './utilities/readReportDB';
 import { updateReportBD } from './utilities/updateReportBD';
-
+import { readReportOnline } from './utilities/readReportOnline';
+import { ReportView } from '@/app/mappings/reports/reports.types';
+import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper';
 export const useReportBuilderStore = createWithEqualityFn<ReportBuilderState>()((set, get) => {
   const persistIfHydrated = () => {
     if (!get().isReportHydrated) return;
@@ -77,32 +79,14 @@ export const useReportBuilderStore = createWithEqualityFn<ReportBuilderState>()(
       ensureFrontIdInState(frontId);
     },
 
-    updateModel: ({ model, type, frontId }) => {
+    updateModel: ({ model, type }) => {
       set((state) => ({
         report: {
           ...state.report,
           model: model ?? state.report.model,
           type: type ?? state.report.type,
-          front_identifier: frontId ?? state.report.front_identifier,
         },
       }));
-
-      if (frontId) {
-        ensureFrontIdInState(frontId);
-      }
-
-      const stateAfter = get();
-      const targetFrontId = frontId ?? stateAfter.currentReportfrontguid ?? stateAfter.report.front_identifier;
-
-      if (!targetFrontId) {
-        void createReportDB(set, get);
-        return;
-      }
-
-      if (!stateAfter.isReportHydrated) {
-        return;
-      }
-
       persistIfHydrated();
     },
 
@@ -136,6 +120,11 @@ export const useReportBuilderStore = createWithEqualityFn<ReportBuilderState>()(
       persistIfHydrated();
     },
 
+    updateBackId: (reportid: string) => {
+      set((state) => ({ report: { ...state.report, id: reportid } }));
+      persistIfHydrated();
+    },
+
     createReportInDB: (force) => createReportDB(set, get, force),
 
     readReportByFrontId: async (frontId) => {
@@ -150,10 +139,31 @@ export const useReportBuilderStore = createWithEqualityFn<ReportBuilderState>()(
 
     deleteReportByFrontId: (frontId) => deleteReportDB(set, get, frontId),
 
+    readReportOnline: (idreport) => readReportOnline(idreport, set, get),
+
     reset: () => {
+
       set({ report: createEmptyReport(), currentReportfrontguid: undefined, isReportHydrated: false });
+      const { resetflags } = get();
+      resetflags();
     },
 
+    setReport: (report: ReportView) => {
+      set({ report: report, currentReportfrontguid: report.front_identifier, isReportHydrated: false });
+    },
+    startNewReport: (idProyect, employee, wortposition) => {
+      const { report } = get();
+      const copyReport = { ...report }
+      copyReport.employe.employee_id = employee
+      copyReport.proyect.id = idProyect
+      copyReport.workposition.workposition_id = wortposition
+      copyReport.startdate = currentDate();
+      copyReport.enddate = currentDate();
+      copyReport.progress="0";
+      copyReport.ticket="S/T";
+      copyReport.remarks="Sin observacionnes";
+      set({ report: copyReport })
+    },
     resetflags: () => {
       set({
         creatingDB: false,

@@ -1,205 +1,138 @@
-import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { shallow } from 'zustand/shallow';
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import { useEffect, useMemo, useState, useRef, } from 'react';
 import { useReportsStore } from '@/app/stores/useReportsStore/useReportsStore';
-import { resolveModel } from '../utilities/newReportutilities';
-import { Step, StepId } from '../types';
-import { BASE_STEPS } from '../utilities/constants';
 import useReportBuilderStore from '@/app/stores/useReportBuilderStore/useReportBuilderStore';
 import useQuery from '@/app/hooks/useQuery/useQuery';
-
+import { useAuth } from '@/app/context/AuthContext/AuthContext';
+import { resolveModel } from '../utilities/newReportutilities';
+import useStepsController from './useStepsController';
+import useReportSaver from './useReportSaver';
+import useReportTypehandler from './useReportTypehandler';
+import { shallow } from 'zustand/shallow';
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 const useNewReport = () => {
-  const [selectedTypeId, setSelectedTypeId] = useState('');
-  const [currentStep, setCurrentStep] = useState<StepId>('avance');
-  const [currentModelName, setCurrentModelName] = useState<string>('');
-  const [isAdvanceValid, setIsAdvanceValid] = useState(false);
+  const { user } = useAuth();
+  const { all, updateQuery } = useQuery();
+  const [canStart, setCanStart] = useState(false);
+  const { usePrincipalLoading } = usePrincipal();
+  const { showSpinner, hideSpinner } = usePrincipalLoading
   const submitRef = useRef<() => void | Promise<void>>(null);
-  const attemptedFrontIdRef = useRef<string | null>(null);
-
+  const hassubmitedBySignaturedetect = useRef(false);
+  const [currentModelName, setCurrentModelName] = useState<string>('');
+  const currentModel = useMemo(() => resolveModel(currentModelName), [currentModelName]);
+  const { steps, currentStep, handleBackValidChange, handleAdvanceValidChange, handleCanSaveReport, handleBack, handleNext, handleStepChange, isBackValid, isAdvanceValid, isSaveValid } = useStepsController({ currentModel });
+  const { SaveReport } = useReportSaver();
+  const { typeOptions, selectedTypeId, handleTypeChange } = useReportTypehandler({ canStart: canStart });
+  const frontIdFromQuery = all.frontId;
+  const backIdFromQuery = all.reportId;
+  const proyectFromQuery = all.id;
   const {
     typesofReports,
-    fetchReportTypes,
-    fetchReportCategories,
     loadingTypes,
-    error,
-    resetFlags,
-    reportCategoriesTypeId,
-  } = useReportsStore(
-    (state) => ({
-      typesofReports: state.typesofReports,
-      reportCategories: state.reportCategories,
-      fetchReportTypes: state.fetchReportTypes,
-      fetchReportCategories: state.fetchReportCategories,
-      loadingTypes: state.loadingTypes,
-      loadingCategories: state.loadingCategories,
-      error: state.error,
-      resetFlags: state.resetFlags,
-      reportCategoriesTypeId: state.reportCategoriesTypeId,
-    }),
-    shallow
-  );
+  } = useReportsStore();
 
-  const { updateQuery, all } = useQuery();
-  const frontIdFromQuery = (() => {
-    const raw = all.frontId;
-    if (Array.isArray(raw)) return raw[0] ?? '';
-    return raw ? String(raw) : '';
-  })();
 
   const {
+    report,
     updateModel,
-    currentReportfrontguid,
-    setCurrentReportfrontguid,
     readReportByFrontId,
-    reportType,
-    isReportHydrated,
+    createReportInDB,
+    startNewReport,
+    readReportOnline,
+    reset
   } = useReportBuilderStore(
     (state) => ({
       updateModel: state.updateModel,
-      currentReportfrontguid: state.currentReportfrontguid,
-      setCurrentReportfrontguid: state.setCurrentReportfrontguid,
+      report: state.report,
       readReportByFrontId: state.readReportByFrontId,
-      reportType: state.report.type,
-      isReportHydrated: state.isReportHydrated,
+      startNewReport: state.startNewReport,
+      createReportInDB: state.createReportInDB,
+      readReportOnline: state.readReportOnline,
+      reset: state.reset,
+
     }),
     shallow
   );
 
-  const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
-  const { showAlert, hideAlert } = usePrincipalAlert;
-  const { showSpinner, hideSpinner } = usePrincipalLoading;
 
-  const currentModel = useMemo(() => resolveModel(currentModelName), [currentModelName]);
-
-  const steps = useMemo<Step[]>(() => {
-    return BASE_STEPS.filter((step) => {
-      if (step.id === 'mapas') return currentModel.maps;
-      if (step.id === 'refacciones') return currentModel.refactions;
-      if (step.id === 'firma') return currentModel.clientsign;
-      return true;
-    });
-  }, [currentModel]);
-
-  useEffect(() => {
-    fetchReportTypes();
-  }, [fetchReportTypes]);
-
-  useEffect(() => {
-    if (typesofReports.length === 0) return;
-
-    setSelectedTypeId((prev) => {
-      if (reportType && prev !== reportType) {
-        return reportType;
-      }
-
-      if (prev) return prev;
-
-      if (frontIdFromQuery) return prev;
-
-      const fallback = reportCategoriesTypeId ?? typesofReports[0]?.id ?? '';
-      return fallback ?? '';
-    });
-  }, [typesofReports, reportCategoriesTypeId, reportType, frontIdFromQuery]);
-
+  /**Asignamos el nombre del Modelo seleccionado dependiendo del tipo */
   useEffect(() => {
     if (!selectedTypeId) return;
     const selectedReport = typesofReports.find((type) => type.id === selectedTypeId);
     setCurrentModelName(selectedReport?.name ?? '');
-    fetchReportCategories(selectedTypeId);
-  }, [fetchReportCategories, selectedTypeId, typesofReports]);
+  }, [setCurrentModelName, selectedTypeId, typesofReports]);
+
 
   useEffect(() => {
     if (!selectedTypeId) return;
-    const frontIdForModel = frontIdFromQuery || currentReportfrontguid;
-    updateModel({ model: currentModel, type: selectedTypeId, frontId: frontIdForModel || undefined });
-  }, [currentModel, selectedTypeId, currentReportfrontguid, frontIdFromQuery, updateModel]);
+    if (user) {
+      updateModel({
+        model: currentModel,
+        type: selectedTypeId,
+      });
+
+    }
+  }, [currentModel, selectedTypeId, user, updateModel]);
+
+  const CreateReport = async () => {
+    const report = await createReportInDB();
+    updateQuery({ frontId: report?.frontId || "" })
+
+  }
 
   useEffect(() => {
-    if (currentReportfrontguid) {
-      updateQuery({ frontId: currentReportfrontguid });
+    if (canStart) {
+      CreateReport();
     }
-  }, [currentReportfrontguid, updateQuery]);
+  }, [canStart])
 
-  useEffect(() => {
-    if (!frontIdFromQuery) return;
-    if (currentReportfrontguid === frontIdFromQuery) return;
-    setCurrentReportfrontguid(frontIdFromQuery);
-  }, [frontIdFromQuery, currentReportfrontguid, setCurrentReportfrontguid]);
-
-  useEffect(() => {
-    if (!frontIdFromQuery) {
-      attemptedFrontIdRef.current = null;
-      return;
-    }
-
-    if (isReportHydrated && currentReportfrontguid === frontIdFromQuery) {
-      attemptedFrontIdRef.current = frontIdFromQuery;
-      return;
-    }
-
-    if (attemptedFrontIdRef.current === frontIdFromQuery) return;
-
-    attemptedFrontIdRef.current = frontIdFromQuery;
-    void readReportByFrontId(frontIdFromQuery);
-  }, [frontIdFromQuery, currentReportfrontguid, isReportHydrated, readReportByFrontId]);
-
-  useEffect(() => {
-    if (loadingTypes) {
-      showSpinner({ message: 'Cargando tipos de reporte...' });
-      return;
-    }
-
+  const readLocalReport = async () => {
+    await readReportByFrontId(String(frontIdFromQuery));
     hideSpinner();
-  }, [hideSpinner, loadingTypes, showSpinner]);
+    setCanStart(true);
+  }
+
+  const readOnlineReport = async () => {
+    if (!report.id) await readReportOnline(String(backIdFromQuery));
+    hideSpinner();
+    setCanStart(true);
+  }
 
   useEffect(() => {
-    if (!error) return;
-    hideSpinner();
-    showAlert({
-      type: 'error',
-      variant: 'filled',
-      title: 'No fue posible cargar la informacion',
-      description: error,
-      autoCloseMs: 4000,
-      showPrimaryButton: false,
-      showSecondaryButton: false,
-      onClose: hideAlert,
-    });
-    resetFlags();
-  }, [error, hideAlert, hideSpinner, resetFlags, showAlert]);
 
-  const typeOptions = useMemo(
-    () => typesofReports.map((type) => ({ label: type.name, value: type.id })),
-    [typesofReports]
-  );
-
-  const handleTypeChange = useCallback((values: string[]) => {
-    const next = values[0] ?? '';
-    setSelectedTypeId(next);
-  }, []);
-
-  const handleAdvanceValidChange = useCallback((isValid: boolean) => {
-    setIsAdvanceValid(isValid);
-  }, []);
-
-  const handleStepChange = useCallback((id: StepId) => {
-    setCurrentStep(id);
-  }, []);
-
-  const handleNext = useCallback(() => {
-    if (currentStep === 'avance') {
-      if (!isAdvanceValid) {
-        return;
-      }
-      submitRef.current?.();
+    showSpinner({ message: "Obteniendo información del reporte" });
+    if (backIdFromQuery) {
+      readOnlineReport();
+      return
+    }
+    if (frontIdFromQuery) {
+      readLocalReport();
       return;
     }
-    const currentIndex = steps.findIndex((step) => step.id === currentStep);
-    const next = steps[currentIndex + 1];
-    if (next) {
-      setCurrentStep(next.id);
+    if (user) {
+      reset();
+      setTimeout(() => {
+
+        startNewReport(String(proyectFromQuery), user.idEmployee, user.idWorkPosition);
+        hideSpinner();
+        setCanStart(true);
+      }, 500)
+
     }
-  }, [currentStep, steps, isAdvanceValid]);
+
+
+  }, [frontIdFromQuery, backIdFromQuery, user, reset, startNewReport, createReportInDB, readReportByFrontId]);
+
+  useEffect(() => {
+    if (report.clientsign.url && canStart && !hassubmitedBySignaturedetect.current) setTimeout(() => {
+      hassubmitedBySignaturedetect.current = true;
+      SaveReport(report)
+    }, 1000)
+
+  }, [report?.clientsign?.url, canStart])
+
+  const handleSaveReport = () => {
+    SaveReport(report)
+  }
 
   return {
     steps,
@@ -207,7 +140,6 @@ const useNewReport = () => {
     onStepChange: handleStepChange,
     handleNext,
     currentModel,
-    isAdvanceValid,
     typeOptions,
     selectedTypeId,
     onTypeChange: handleTypeChange,
@@ -215,6 +147,14 @@ const useNewReport = () => {
     onAdvanceValidChange: handleAdvanceValidChange,
     submitRef,
     currentModelName,
+    isSaveValid,
+    isBackValid,
+    isAdvanceValid,
+    handleCanSaveReport,
+    handleBackValidChange,
+    handleBack,
+    handleSaveReport, canStart,
+    report
   };
 };
 
