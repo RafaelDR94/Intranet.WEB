@@ -51,7 +51,7 @@ export type { ActionMenuPermissions } from "./types";
  * />
  * ```
  */
-const ActionMenuCell = <T extends Record<string, unknown>>({
+const ActionMenuCell = <T extends Record<string, any>>({
   permissions: permissionsOverride,
   isMobile: isMobileOverride,
   ...props
