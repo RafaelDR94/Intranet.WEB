@@ -18,6 +18,7 @@ export interface PicturesTableProps {
 export type PettyCashHistoryRow = {
   id: string;
   status: string;
+  statusLabelType: LabelType;
   billing_image_id: string;
   billingdocument_id: string;
   project: {

@@ -199,7 +199,7 @@ const PettyCashHistory = () => {
       label: "ESTATUS",
       render: (row) => (
         <Label
-          type={(row?.status ?? "").toLowerCase() as any}
+          type={row.statusLabelType}
           text={(row?.status ?? "").toUpperCase()}
         />
       ),
@@ -251,7 +251,7 @@ const PettyCashHistory = () => {
       label: "ESTATUS",
       render: (row) => (
         <Label
-          type={(row?.status ?? "").toLowerCase() as any}
+          type={row.statusLabelType}
           text={(row?.status ?? "").toUpperCase()}
         />
       ),

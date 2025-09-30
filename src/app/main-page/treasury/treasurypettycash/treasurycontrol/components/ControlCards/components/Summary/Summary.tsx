@@ -219,14 +219,7 @@ export default function Summary({
       <div
         className={`mb-${canCreate ? "6" : "0"} flex items-center justify-between gap-3`}
       >
-        {canCreate && (
-          <div className="flex items-center gap-3">
-            <p className="text-b4 text-blue-60">Control de Fondo</p>
-            <div className="bg-blue-60 h-[1px] w-[26px]" />
-          </div>
-        )}
-
-        <div className="flex items-center gap-2">
+        <div className="flex justify-between gap-3">
           {canCreate && !showInput && (
             <>
               <Button
@@ -277,7 +270,7 @@ export default function Summary({
       </div>
 
       <div
-        className={`flex flex-col rounded-lg bg-white p-2 ${className} h-${canCreate ? "[205px]" : "[250px]"}`}
+        className={`flex flex-col rounded-lg bg-white p-2 shadow-sm transition-shadow ${className} h-${canCreate ? "[205px]" : "[250px]"}`}
       >
         <h2 className="text-s1 font-semibold text-green-100">{title}</h2>
 

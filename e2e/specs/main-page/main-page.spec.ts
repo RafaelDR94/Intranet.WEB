@@ -68,7 +68,7 @@ const expetMainSideBarUI = async (page: Page) => {
   await expect(logout).toContainText(/Cerrar Sesión/i);
 }
 
-const initialTest = async (page: Page) => {
+export const initialTest = async (page: Page) => {
   await page.waitForURL(/\/main-page\/home\?$/, { timeout: 5_000 }).catch(() => { });
   const mobile = await isMobileViewport(page);
   if (!mobile) {
@@ -90,6 +90,7 @@ const initialTest = async (page: Page) => {
   }
 
 }
+
 const withoutAccesTest = async (page: Page) => {
   await page.goto('/main-page'); // layout intenta cargar main
   // En algunos navegadores la exportación puede caer en /index.txt. Normalizamos a /login
