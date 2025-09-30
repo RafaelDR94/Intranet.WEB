@@ -157,7 +157,7 @@ const SideMenu = ({
       renderActions={() =>
         selected && (
           <Label
-            type={selected?.status?.toLocaleLowerCase() as any}
+            type={selected.statusLabelType}
             text={(selected?.status ?? "").toUpperCase()}
           />
         )
