@@ -278,7 +278,7 @@ const PettyCashHistory = () => {
         primaryButtonText={removing ? "Eliminando…" : "Eliminar"}
         onPrimaryButtonClick={handleConfirmDelete}
       />
-      <div className="space-y-8 overflow-auto">
+      <div className="space-y-8 overflow-visible">
         {currentPagePermissions?.voucherhistory &&
         <DataTable
           showCalendar={true}

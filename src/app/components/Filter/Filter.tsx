@@ -98,7 +98,7 @@ const Filter: React.FC<FilterProps> = ({
   }, [options, handleSelect, menuName, currentValue]);
 
   return (
-    <div className="relative z-20 inline-block">
+    <div className="relative z-[70] inline-block">
       <ContextMenu
         title={title}
         trigger={trigger ?? <FilterIcon />}

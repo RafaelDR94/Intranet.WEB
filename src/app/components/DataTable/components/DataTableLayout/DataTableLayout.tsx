@@ -58,13 +58,13 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
       />
 
       {showCalendar && (
-        <div className="relative z-20 mx-1">
+        <div className="relative z-[70] mx-1">
           <Calendar onCalendarClick={handleDateRange} />
         </div>
       )}
 
       {showFilter && (
-        <div className="relative z-20">
+        <div className="relative z-[70]">
           <Filter
             title={filterTitle}
             options={filterOptions ?? []}
