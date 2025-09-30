@@ -58,24 +58,38 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
       />
 
       {showCalendar && (
-        <div className="mx-1">
+        <div className="relative z-20 mx-1">
           <Calendar onCalendarClick={handleDateRange} />
         </div>
       )}
 
       {showFilter && (
-        <Filter
-          title={filterTitle}
-          options={filterOptions ?? []}
-          selectedValue={filterValue ?? undefined}
-          onChange={(value) => {
-            onFilterChange?.(value);
-            onFilterClick?.();
-          }}
-        />
+        <div className="relative z-20">
+          <Filter
+            title={filterTitle}
+            options={filterOptions ?? []}
+            selectedValue={filterValue ?? undefined}
+            onChange={(value) => {
+              onFilterChange?.(value);
+              onFilterClick?.();
+            }}
+          />
+        </div>
       )}
 
-      {showRefresh && <RefreshDouble />}
+      {showRefresh && (
+        <Button
+          aria-label="Actualizar tabla"
+          title="Actualizar tabla"
+          iconOnly
+          variant="ghost"
+          size={isMobile ? "small" : "medium"}
+          icon={RefreshDouble}
+          onClick={onRefreshPage}
+          disabled={!onRefreshPage}
+          className="ml-1"
+        />
+      )}
 
       {/* Toggle vista lista/tarjetas */}
       {props.showViewToggle && (

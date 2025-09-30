@@ -283,6 +283,8 @@ const PettyCashHistory = () => {
         <DataTable
           showCalendar={true}
           showFilter={true}
+          showRefresh
+          onRefreshPage={refresh}
           filterOptions={pettyCashFilterOptions}
           filterValue={activeFilter}
           filterTitle="Filtrar vales"

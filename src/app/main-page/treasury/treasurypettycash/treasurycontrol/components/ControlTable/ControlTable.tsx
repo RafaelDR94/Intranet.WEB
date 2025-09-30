@@ -307,6 +307,8 @@ const ControlTable = () => {
         <DataTable
           showCalendar={true}
           showFilter={true}
+          showRefresh
+          onRefreshPage={refresh}
           filterOptions={controlFilterOptions}
           filterValue={activeFilter}
           filterTitle="Filtrar vales"

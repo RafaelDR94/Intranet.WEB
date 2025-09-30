@@ -1,5 +1,5 @@
 export const calendarStyles = {
-  calendarContainer: "calendar-container relative",
+  calendarContainer: "calendar-container relative z-20",
   triggerBtn: "calendar-icon p-1 rounded-[10px] transition-all",
   triggerDisabled: "opacity-40 cursor-not-allowed",
   triggerHover: "bg-green-10",
