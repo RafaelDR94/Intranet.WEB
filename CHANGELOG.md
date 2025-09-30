@@ -480,3 +480,9 @@ Fix:
 Fix:
 
 - Request a rejection comment before rejecting petty cash vouchers from the treasury control side menu. (Agente IA) [#]()
+
+### 1.47.18 Petty cash rejection focus improvement 2025-09-30
+
+Fix:
+
+- Close the side menu when the rejection comment popup opens so the confirmation dialog is the only visible focus. (Agente IA) [#]()

@@ -95,18 +95,27 @@ describe('Treasury Control SideMenu', () => {
     isRejecting: false,
   } as const;
 
-  it('opens the rejection modal and validates the comment', () => {
-    render(<SideMenu {...baseProps} />);
+  it('opens the rejection modal, closes the panel, and validates the comment', () => {
+    const onReject = vi.fn();
+    const setPanelOpen = vi.fn();
+    render(
+      <SideMenu
+        {...baseProps}
+        onReject={onReject}
+        setPanelOpen={setPanelOpen}
+      />,
+    );
 
     expect(screen.queryByText('Rechazar Vale')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Rechazar'));
 
+    expect(setPanelOpen).toHaveBeenCalledWith(false);
     expect(screen.getByText('Rechazar Vale')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Enviar Comentario'));
 
-    expect(baseProps.onReject).not.toHaveBeenCalled();
+    expect(onReject).not.toHaveBeenCalled();
     expect(screen.getByText('Agrega un comentario para continuar.')).toBeInTheDocument();
 
     fireEvent.change(screen.getByTestId('reject-comment'), {
@@ -115,7 +124,7 @@ describe('Treasury Control SideMenu', () => {
 
     fireEvent.click(screen.getByText('Enviar Comentario'));
 
-    expect(baseProps.onReject).toHaveBeenCalledWith(baseProps.selected, 'Falta información');
+    expect(onReject).toHaveBeenCalledWith(baseProps.selected, 'Falta información');
     expect(screen.queryByText('Rechazar Vale')).not.toBeInTheDocument();
   });
 });

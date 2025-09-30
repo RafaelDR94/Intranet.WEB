@@ -45,6 +45,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     if (!selected || isDetailLoading || !onReject) return;
     setRejectComment("");
     setRejectError(null);
+    setPanelOpen(false);
     setRejectModalOpen(true);
   };
 
