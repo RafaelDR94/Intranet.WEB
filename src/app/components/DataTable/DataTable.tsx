@@ -36,6 +36,8 @@ export const DataTable = <T extends { id: string | number }>({
   showFilter = false,
   showButton = true,
   showDownloadTable = false,
+  showRefresh = false,
+  onRefreshPage,
   actionsRender,
   tables,
   enableInternalSearch = true,
@@ -101,6 +103,8 @@ export const DataTable = <T extends { id: string | number }>({
           filterValue={filterValue ?? undefined}
           filterTitle={filterTitle}
           showButton={showButton}
+          showRefresh={showRefresh}
+          onRefreshPage={onRefreshPage}
           actionsRender={actionsRender}
           onTableActionClick={onTableActionClick}
           showDownloadTable={showDownloadTable}
@@ -140,6 +144,8 @@ export const DataTable = <T extends { id: string | number }>({
                 filterValue={filterValue ?? undefined}
                 filterTitle={filterTitle}
                 showButton={showButton}
+                showRefresh={showRefresh}
+                onRefreshPage={onRefreshPage}
                 showDownloadTable={showDownloadTable}
                 actionsRender={actionsRender}
                 onTableActionClick={onTableActionClick}

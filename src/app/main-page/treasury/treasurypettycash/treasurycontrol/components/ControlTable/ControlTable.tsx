@@ -161,7 +161,8 @@ const ControlTable = () => {
     handleConfirmDelete,
     onView,
     onDelete,
-    refresh,
+    refreshData,
+    refreshPage,
     detailOpen,
     detailLoading,
     detailData,
@@ -307,6 +308,8 @@ const ControlTable = () => {
         <DataTable
           showCalendar={true}
           showFilter={true}
+          showRefresh
+          onRefreshPage={refreshPage}
           filterOptions={controlFilterOptions}
           filterValue={activeFilter}
           filterTitle="Filtrar vales"
@@ -316,7 +319,7 @@ const ControlTable = () => {
           onSearchChange={handleSearchChange}
           onFilterChange={(value) => {
             handleFilterChange(value);
-            refresh();
+            refreshData();
           }}
           textSize={{ mobile: 'c2', desktop: 'text-d3' }}
           tables={[
