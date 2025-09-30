@@ -6,7 +6,9 @@ import type { ControlSideMenuProps } from "../types";
 
 import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
+import { Input } from "@/app/components/Input/Input";
 import Label from "@/app/components/Label/Label";
+import { PopUp } from "@/app/components/PopUp/PopUp";
 
 const SideMenu: React.FC<ControlSideMenuProps> = ({
   panelOpen,
@@ -21,6 +23,10 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   isValidating = false,
   isRejecting = false,
 }) => {
+  const [isRejectModalOpen, setRejectModalOpen] = React.useState(false);
+  const [rejectComment, setRejectComment] = React.useState("");
+  const [rejectError, setRejectError] = React.useState<string | null>(null);
+
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
     detail?.project?.proyectkey || detail?.petty_cash_funds?.year_month || "";
@@ -35,23 +41,88 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const uuid = detail?.uuid || "";
   const rfcReceptor = detail?.rfc_receptor || "";
 
+  const handleOpenRejectModal = () => {
+    if (!selected || isDetailLoading || !onReject) return;
+    setRejectComment("");
+    setRejectError(null);
+    setPanelOpen(false);
+    setRejectModalOpen(true);
+  };
+
+  const handleCloseRejectModal = () => {
+    setRejectModalOpen(false);
+    setRejectComment("");
+    setRejectError(null);
+  };
+
+  const handleRejectSubmit = () => {
+    if (!selected || !onReject || isRejecting) return;
+
+    const trimmed = rejectComment.trim();
+    if (!trimmed) {
+      setRejectError("Agrega un comentario para continuar.");
+      return;
+    }
+
+    onReject(selected, trimmed);
+    setRejectModalOpen(false);
+    setRejectComment("");
+    setRejectError(null);
+  };
+
+  const handleCommentChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    setRejectComment(event.target.value);
+    if (rejectError) {
+      setRejectError(null);
+    }
+  };
+
   return (
-    <DetailsPanelLayout
-      open={panelOpen}
-      withinContainer
-      onClose={() => setPanelOpen(false)}
-      leftLabel={employeeName ? `Colaborador: ${employeeName}` : undefined}
-      rightLabel={projectCode ? `Proyecto: ${projectCode}` : undefined}
-      label={() =>
-        voucherType ? (
-          <Label
-            type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
-            text={voucherType}
-          />
-        ) : null
-      }
-      actionButton={
-        <div className="flex flex-row items-center gap-3">
+    <>
+      <PopUp
+        open={isRejectModalOpen}
+        onClose={handleCloseRejectModal}
+        title="Rechazar Vale"
+        content="Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su vale."
+        showSecondaryButton
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={handleCloseRejectModal}
+        showPrimaryButton
+        primaryButtonText={isRejecting ? "Rechazando…" : "Enviar Comentario"}
+        onPrimaryButtonClick={handleRejectSubmit}
+      >
+        <Input
+          as="textarea"
+          label="Escribir comentario"
+          placeholder="Escribir comentario"
+          value={rejectComment}
+          onChange={handleCommentChange}
+          disabled={isRejecting}
+          variant={rejectError ? "error" : "default"}
+          helperText={rejectError ?? undefined}
+          dataTestId="reject-comment"
+          rows={4}
+        />
+      </PopUp>
+
+      <DetailsPanelLayout
+        open={panelOpen}
+        withinContainer
+        onClose={() => setPanelOpen(false)}
+        leftLabel={employeeName ? `Colaborador: ${employeeName}` : undefined}
+        rightLabel={projectCode ? `Proyecto: ${projectCode}` : undefined}
+        label={() =>
+          voucherType ? (
+            <Label
+              type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
+              text={voucherType}
+            />
+          ) : null
+        }
+        actionButton={
+          <div className="flex flex-row items-center gap-3">
             <Button
               size="medium"
               variant="solid"
@@ -70,17 +141,13 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               variant="outline"
               hideIcon
               disabled={!selected || isDetailLoading || isRejecting}
-              onClick={() => {
-                if (onReject) {
-                  onReject(selected);
-                }
-              }}
+              onClick={handleOpenRejectModal}
             >
               {isRejecting ? "Rechazando…" : "Rechazar"}
             </Button>
-        </div>
-      }
-    >
+          </div>
+        }
+      >
       {selected ? (
         <div className="space-y-4">
           {isDetailLoading && (
@@ -162,6 +229,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
         </div>
       )}
     </DetailsPanelLayout>
+  </>
   );
 };
 
