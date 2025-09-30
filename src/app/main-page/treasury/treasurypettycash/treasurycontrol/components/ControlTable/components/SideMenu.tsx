@@ -45,7 +45,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     if (!selected || isDetailLoading || !onReject) return;
     setRejectComment("");
     setRejectError(null);
-    setPanelOpen(false);
     setRejectModalOpen(true);
   };
 
@@ -109,6 +108,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       <DetailsPanelLayout
         open={panelOpen}
         withinContainer
+        zIndex={80}
         onClose={() => setPanelOpen(false)}
         leftLabel={employeeName ? `Colaborador: ${employeeName}` : undefined}
         rightLabel={projectCode ? `Proyecto: ${projectCode}` : undefined}
