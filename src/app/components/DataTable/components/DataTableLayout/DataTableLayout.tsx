@@ -83,11 +83,10 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
           title="Actualizar tabla"
           iconOnly
           variant="ghost"
-          size={isMobile ? "small" : "medium"}
+          size="small"
           icon={RefreshDouble}
           onClick={onRefreshPage}
           disabled={!onRefreshPage}
-          className="ml-1"
         />
       )}
 

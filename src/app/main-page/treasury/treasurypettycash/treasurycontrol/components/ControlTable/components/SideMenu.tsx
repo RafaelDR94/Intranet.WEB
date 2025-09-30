@@ -95,7 +95,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       >
         <Input
           as="textarea"
-          label="Escribir comentario"
           placeholder="Escribir comentario"
           value={rejectComment}
           onChange={handleCommentChange}
