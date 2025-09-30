@@ -22,6 +22,17 @@ function voucherTypeToLabelType(voucher?: string): LabelType {
   return "restringido";
 }
 
+function statusToLabelType(status?: string): LabelType {
+  const normalized = (status ?? "").toLowerCase();
+  if (normalized.includes("rechaz")) return "rechazado";
+  if (normalized.includes("proceso")) return "en-proceso";
+  if (normalized.includes("valid")) return "valido";
+  if (normalized.includes("pend")) return "pendiente";
+  if (normalized.includes("no deducible")) return "prohibido";
+  if (normalized.includes("sin factura")) return "sin-factura";
+  return normalized ? "actualizado" : "pendiente";
+}
+
 const usePettyCashHistory = () => {
   const { user } = useAuth();
   const searchParams = useSearchParams();
@@ -241,6 +252,7 @@ const usePettyCashHistory = () => {
         return {
           id: v.id,
           status: v.status ?? "",
+          statusLabelType: statusToLabelType(v.status),
           billing_image_id: "",
           billingdocument_id: v.uuid ?? v.id,
           project: {
