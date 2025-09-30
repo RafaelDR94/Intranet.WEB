@@ -75,6 +75,7 @@ const statusToLabelType = (status?: string): LabelType => {
   if (normalized.includes("valid")) return "valido";
   if (normalized.includes("pend")) return "pendiente";
   if (normalized.includes("no deducible")) return "prohibido";
+  if (normalized.includes("sin factura")) return "sin-factura";
   return normalized ? "actualizado" : "pendiente";
 };
 
