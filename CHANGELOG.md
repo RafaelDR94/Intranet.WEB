@@ -486,3 +486,9 @@ Fix:
 Fix:
 
 - Close the side menu when the rejection comment popup opens so the confirmation dialog is the only visible focus. (Agente IA) [#]()
+
+### 1.47.19 Petty cash rejection popup layering 2025-09-30
+
+Fix:
+
+- Render the rejection popup through a portal with a higher z-index so it always overlays the treasury control panel. (Agente IA) [#]()
