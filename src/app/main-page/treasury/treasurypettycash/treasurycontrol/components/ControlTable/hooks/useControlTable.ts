@@ -397,6 +397,10 @@ export const useControlTable = () => {
   }, [fetchPettyCashVouchers]);
 
   const refreshPage = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+      return;
+    }
     router.refresh();
   }, [router]);
 
