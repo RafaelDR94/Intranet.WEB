@@ -95,7 +95,7 @@ describe('Treasury Control SideMenu', () => {
     isRejecting: false,
   } as const;
 
-  it('opens the rejection modal, closes the panel, and validates the comment', () => {
+  it('opens the rejection modal while keeping the panel open and validates the comment', () => {
     const onReject = vi.fn();
     const setPanelOpen = vi.fn();
     render(
@@ -110,7 +110,8 @@ describe('Treasury Control SideMenu', () => {
 
     fireEvent.click(screen.getByText('Rechazar'));
 
-    expect(setPanelOpen).toHaveBeenCalledWith(false);
+    expect(setPanelOpen).not.toHaveBeenCalledWith(false);
+    expect(setPanelOpen).not.toHaveBeenCalled();
     expect(screen.getByText('Rechazar Vale')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Enviar Comentario'));
