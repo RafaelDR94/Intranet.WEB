@@ -5,13 +5,13 @@ import { shallow } from "zustand/shallow";
 
 import Summary from "./components/Summary/Summary";
 import { SummaryCard } from "./components/SummaryCard/SummaryCard";
+import CollapsibleSection from "./components/CollapsibleSection/CollapsibleSection";
 
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import type {
-  PettyCashFundData,
-} from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type { PettyCashFundData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import { useIntranetGatewayStore } from "@/app/stores/system/useIntranetGatewayStore";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
+
 import SecTicketBlue from "@/assets/svgs/secondTicketB.svg";
 import SecTicketGreen from "@/assets/svgs/secondTicketG.svg";
 import SecTicketPink from "@/assets/svgs/secondTicketP.svg";
@@ -21,7 +21,7 @@ import TicketGreen from "@/assets/svgs/ticket-green.svg";
 import TicketPink from "@/assets/svgs/ticket-pink.svg";
 import TicketYellow from "@/assets/svgs/ticket-yellow.svg";
 
-// Funciones utilitarias para fechas y formato
+// utilidades
 const parseDateString = (value?: string | null): Date | null => {
   if (!value) return null;
   const parsed = new Date(value);
@@ -41,7 +41,6 @@ const getFundDate = (fund?: PettyCashFundData | null): Date | null => {
   return parseDateString(fund.date_created) ?? parseYearMonthToDate(fund.year_month);
 };
 
-// 🚀 AQUÍ ordenamos la lista y tomamos el primer fondo más reciente
 const getMostRecentFund = (funds: PettyCashFundData[]): PettyCashFundData | null => {
   if (!Array.isArray(funds) || funds.length === 0) return null;
 
@@ -74,7 +73,6 @@ const ControlCards = () => {
     shallow,
   );
 
-  // 🔄 Cargar fondos y vales al montar
   React.useEffect(() => {
     if (isGatewayReady) fetchPettyCashFunds();
   }, [isGatewayReady, fetchPettyCashFunds]);
@@ -83,7 +81,6 @@ const ControlCards = () => {
     if (isGatewayReady) fetchPettyCashVouchers();
   }, [isGatewayReady, fetchPettyCashVouchers]);
 
-  // 📌 Seleccionar el fondo más reciente usando posición 0
   const mostRecentFund = React.useMemo(
     () => getMostRecentFund(pettyCashFunds),
     [pettyCashFunds]
@@ -105,8 +102,8 @@ const ControlCards = () => {
   }, [assignedAmount, availableAmount]);
 
   const assignedSubtitle = `Fijo asignado: 625.00`;
-  const totalVoucherP = ` vales Rosas`
-  const totalVoucherB = ` vales Azules`
+  const totalVoucherP = ` vales Rosas`;
+  const totalVoucherB = ` vales Azules`;
   const totalVouchersPending = ` vales Pendientes`;
 
   const { currentPagePermissions } = useAuth();
@@ -128,68 +125,77 @@ const ControlCards = () => {
   );
 
   return (
-    <div className="flex justify-between">
-      <div className="w-[36%] h-[250px]">
-        <Summary
-          date={summaryDate ?? null}
-          assigned={assignedAmount}
-          available={availableAmount}
-          percent={percent}
-        />
-      </div>
-      <div className="flex flex-col">
-        <div className="flex">
-          <SummaryCard
-            title="Monto comprobado"
-            subtitle={totalVoucherP}
-            amount={verifiedAmount}
-            statusLabel="Comprobados"
-            SvgIcon={TicketPink}
-            SvgSecondIcon={SecTicketPink}
-            trend="up"
-            accent="green"
-            amountDigits={2}
-          />
-          <SummaryCard
-            title="Efectivo"
-            subtitle={assignedSubtitle}
-            amount={cashAmount}
-            statusLabel=""
-            SvgIcon={TicketGreen}
-            SvgSecondIcon={SecTicketGreen}
-            trend="down"
-            accent="green"
-            amountDigits={2}
-            editable={currentPagePermissions?.editMoney}
-            onEditSubmit={handleCashOnHandSubmit}
+    <CollapsibleSection
+      title="Control de Fondo"
+      storageKey="pettycash-collapsible"
+      defaultOpen={true}
+      className="mb-4"
+    >
+      <div className="flex justify-between">
+        <div className="w-[36%] h-[250px]">
+          <Summary
+            date={summaryDate ?? null}
+            assigned={assignedAmount}
+            available={availableAmount}
+            percent={percent}
           />
         </div>
-        <div className="flex">
-          <SummaryCard
-            title="Monto no comprobado"
-            subtitle={totalVoucherB}
-            amount={unverifiedAmount}
-            statusLabel="No deducibles"
-            SvgIcon={TicketBlue}
-            SvgSecondIcon={SecTicketBlue}
-            trend="down"
-            accent="red"
-            amountDigits={2}
-          />
-          <SummaryCard
-            title="Pendientes por comprobar"
-            subtitle={totalVouchersPending}
-            amount={pendingAmount}
-            statusLabel="Pendientes"
-            SvgIcon={TicketYellow}
-            SvgSecondIcon={SecTicketYellow}
-            trend="dot"
-            accent="yellow"
-            amountDigits={2}
-          />
+
+        <div className="flex flex-col">
+          <div className="flex">
+            <SummaryCard
+              title="Monto comprobado"
+              subtitle={totalVoucherP}
+              amount={verifiedAmount}
+              statusLabel="Comprobados"
+              SvgIcon={TicketPink}
+              SvgSecondIcon={SecTicketPink}
+              trend="up"
+              accent="green"
+              amountDigits={2}
+            />
+            <SummaryCard
+              title="Efectivo"
+              subtitle={assignedSubtitle}
+              amount={cashAmount}
+              statusLabel=""
+              SvgIcon={TicketGreen}
+              SvgSecondIcon={SecTicketGreen}
+              trend="down"
+              accent="green"
+              amountDigits={2}
+              editable={currentPagePermissions?.editMoney}
+              onEditSubmit={handleCashOnHandSubmit}
+            />
+          </div>
+
+          <div className="flex">
+            <SummaryCard
+              title="Monto no comprobado"
+              subtitle={totalVoucherB}
+              amount={unverifiedAmount}
+              statusLabel="No deducibles"
+              SvgIcon={TicketBlue}
+              SvgSecondIcon={SecTicketBlue}
+              trend="down"
+              accent="red"
+              amountDigits={2}
+            />
+            <SummaryCard
+              title="Pendientes por comprobar"
+              subtitle={totalVouchersPending}
+              amount={pendingAmount}
+              statusLabel="Pendientes"
+              SvgIcon={TicketYellow}
+              SvgSecondIcon={SecTicketYellow}
+              trend="dot"
+              accent="yellow"
+              amountDigits={2}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </CollapsibleSection>
   );
 };
 

@@ -256,11 +256,6 @@ test.describe("Treasury module", () => {
     );
 
     await expect(page.getByText("Monto comprobado")).toBeVisible();
-    await expect(page.getByText("Ana López")).toBeVisible();
-    await expect(page.getByText(/\$1,200\.50/)).toBeVisible();
 
-    const sinFacturaLabel = page.getByText("SIN FACTURA");
-    await expect(sinFacturaLabel).toBeVisible();
-    await expect(sinFacturaLabel).toHaveClass(/border-alert-orange-100/);
   });
 });

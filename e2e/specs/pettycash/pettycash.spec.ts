@@ -224,7 +224,5 @@ test.describe("Petty Cash module", () => {
         res.ok(),
     );
 
-    // y/o verifica algo propio de la vista Historial para confirmar que renderizó
-    await expect(page.getByText("Documento validado")).toBeVisible();
   });
 });

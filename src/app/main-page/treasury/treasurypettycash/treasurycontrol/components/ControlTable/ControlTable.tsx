@@ -325,7 +325,7 @@ const ControlTable = () => {
               columns,
               enableSelection: true,
               title: "Reporte de gastos de caja chica",
-              enableCollaps: true,
+              enableCollaps: false,
               defaultSortKey: "applicationDate",
               defaultSortDirection: "desc",
             },
