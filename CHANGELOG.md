@@ -474,3 +474,9 @@ Fix:
 Fix:
 
 - Stop repeated petty cash voucher resets after editing and keep success refreshes scoped to the updated record. (Agente IA) [#]()
+
+### 1.47.17 Petty cash rejection comment popup 2025-09-30
+
+Fix:
+
+- Request a rejection comment before rejecting petty cash vouchers from the treasury control side menu. (Agente IA) [#]()

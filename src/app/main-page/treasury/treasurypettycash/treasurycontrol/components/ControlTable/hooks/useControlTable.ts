@@ -344,12 +344,12 @@ export const useControlTable = () => {
     }
   };
 
-  const handleReject = async (row: ControlRow | null) => {
+  const handleReject = async (row: ControlRow | null, comments?: string) => {
     const target = row ?? selectedRow;
     if (!target) return;
 
     showSpinner({ message: 'Rechazando vale seleccionado…' });
-    const ok = await rejectPettyCashVoucher(target.id);
+    const ok = await rejectPettyCashVoucher(target.id, comments);
     const selectedId = selectedRow?.id;
     const panelOpen = detailOpen;
 

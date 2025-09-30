@@ -59,8 +59,13 @@ export type ControlSideMenuProps = {
   formatMoney: (value?: number) => string;
   /** Callback executed when the user validates a voucher. */
   onValidate?: (row: ControlRow | null) => void;
-  /** Callback executed when the user rejects a voucher. */
-  onReject?: (row: ControlRow | null) => void;
+  /**
+   * Callback executed when the user rejects a voucher.
+   *
+   * @param row Voucher selected for rejection.
+   * @param comments Reason provided by the reviewer.
+   */
+  onReject?: (row: ControlRow | null, comments: string) => void;
   /** Indicates whether a validation action is currently executing. */
   isValidating?: boolean;
   /** Indicates whether a rejection action is currently executing. */
