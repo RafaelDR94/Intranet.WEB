@@ -40,13 +40,15 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const iva = detail?.iva ?? selected?.iva;
   const total = detail?.total ?? detail?.amount ?? selected?.total;
   const voucherType = detail?.voucher_type || selected?.voucherType || "";
+  const voucherStatus = (detail?.status ?? selected?.status ?? "").toLowerCase();
+  const isVoucherValid = voucherStatus === "valido";
   const uuid = detail?.uuid || "";
   const rfcReceptor = detail?.rfc_receptor || "";
   const xmlUrl = detail?.xml || "";
   const pdfUrl = detail?.pdf || "";
 
   const handleOpenRejectModal = () => {
-    if (!selected || isDetailLoading || !onReject) return;
+    if (!selected || isDetailLoading || !onReject || isVoucherValid) return;
     setRejectComment("");
     setRejectError(null);
     setRejectModalOpen(true);
@@ -128,7 +130,9 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               size="medium"
               variant="solid"
               hideIcon
-              disabled={!selected || isDetailLoading || isValidating}
+              disabled={
+                !selected || isDetailLoading || isValidating || isVoucherValid
+              }
               onClick={() => {
                 if (onValidate) {
                   onValidate(selected);
@@ -141,7 +145,9 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               size="medium"
               variant="outline"
               hideIcon
-              disabled={!selected || isDetailLoading || isRejecting}
+              disabled={
+                !selected || isDetailLoading || isRejecting || isVoucherValid
+              }
               onClick={handleOpenRejectModal}
             >
               {isRejecting ? "Rechazando…" : "Rechazar"}
