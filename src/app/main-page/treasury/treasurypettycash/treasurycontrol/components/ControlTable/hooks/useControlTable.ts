@@ -75,6 +75,7 @@ export const useControlTable = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState<ControlRow | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailData, setDetailData] = useState<ControlDetail | null>(null);
   const [isFetchingDetail, setIsFetchingDetail] = useState(false);
@@ -250,10 +251,17 @@ export const useControlTable = () => {
   const openDetail = async (row: ControlRow, editing = false) => {
     setIsFetchingDetail(true);
     setSelectedRow(row);
-    setDetailOpen(true);
     setDetailLoading(true);
     setDetailData(null);
-    setIsEditingAmount(editing);
+    setIsEditingAmount(false);
+
+    if (editing) {
+      setEditOpen(true);
+      setDetailOpen(false);
+    } else {
+      setDetailOpen(true);
+      setEditOpen(false);
+    }
     const detail = await fetchPettyCashVoucherById(row.id, true);
     if (!detail) {
       showAlert({
@@ -266,6 +274,8 @@ export const useControlTable = () => {
         onPrimaryClick: hideAlert,
       });
       setIsEditingAmount(false);
+      setEditOpen(false);
+      setDetailOpen(false);
     } else {
       setDetailData(detail);
     }
@@ -560,6 +570,7 @@ export const useControlTable = () => {
 
   const handleCloseDetail = () => {
     setDetailOpen(false);
+    setEditOpen(false);
     setDetailData(null);
     setSelectedRow(null);
     setIsEditingAmount(false);
@@ -591,6 +602,7 @@ export const useControlTable = () => {
     refreshData,
     refreshPage,
     detailOpen,
+    editOpen,
     detailLoading,
     detailData,
     selectedRow,

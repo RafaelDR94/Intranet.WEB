@@ -2,6 +2,7 @@
 
 import React from "react";
 
+import SideMenu from "./components/SideMenu";
 import SideMenuEdit from "./components/SideMenuEdit/SideMenuEdit";
 import { useControlTable } from "./hooks/useControlTable";
 import { actionCell, container } from "./styles";
@@ -102,7 +103,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
     const canView = interpretPermission(rawPermissions.details);
     if (canView !== false) {
       items.push({
-        label: "Ver Detalle",
+        label: "Ver detalles",
         icon: RightArrowIcon,
         onClick: () => {
           onView(row);
@@ -180,12 +181,15 @@ const ControlTable = () => {
     refreshData,
     refreshPage,
     detailOpen,
+    editOpen,
     detailLoading,
     detailData,
     selectedRow,
     handleCloseDetail,
     formatDate,
+    handleValidate,
     handleReject,
+    validating,
     rejecting,
     isEditing,
     handleEditModeChange,
@@ -314,8 +318,26 @@ const ControlTable = () => {
         onPrimaryButtonClick={handleConfirmDelete}
       />
 
-      <SideMenuEdit
+      <SideMenu
         panelOpen={detailOpen}
+        setPanelOpen={(open) => {
+          if (!open) {
+            handleCloseDetail();
+          }
+        }}
+        selected={selectedRow}
+        detail={detailData}
+        isDetailLoading={detailLoading}
+        formatDate={formatDate}
+        formatMoney={formatMoney}
+        onValidate={handleValidate}
+        isValidating={validating}
+        onReject={handleReject}
+        isRejecting={rejecting}
+      />
+
+      <SideMenuEdit
+        panelOpen={editOpen}
         setPanelOpen={(open) => {
           if (!open) {
             handleCloseDetail();
