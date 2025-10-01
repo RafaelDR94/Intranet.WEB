@@ -140,6 +140,7 @@ const SideMenu = ({
     <DetailsPanelLayout
       open={panelOpen}
       withinContainer
+      zIndex={80}
       onClose={() => setPanelOpen(false)}
       leftLabel={selected ? `Usuario: ${employeeName}` : undefined}
       rightLabel={selected ? `Proyecto: ${projectCode}` : undefined}

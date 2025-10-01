@@ -474,3 +474,27 @@ Fix:
 Fix:
 
 - Stop repeated petty cash voucher resets after editing and keep success refreshes scoped to the updated record. (Agente IA) [#]()
+
+### 1.47.17 Petty cash rejection comment popup 2025-09-30
+
+Fix:
+
+- Request a rejection comment before rejecting petty cash vouchers from the treasury control side menu. (Agente IA) [#]()
+
+### 1.47.18 Petty cash rejection focus improvement 2025-09-30
+
+Fix:
+
+- Close the side menu when the rejection comment popup opens so the confirmation dialog is the only visible focus. (Agente IA) [#]()
+
+### 1.47.19 Petty cash rejection popup layering 2025-09-30
+
+Fix:
+
+- Render the rejection popup through a portal with a higher z-index so it always overlays the treasury control panel. (Agente IA) [#]()
+
+### 1.47.20 Petty cash history form disabling 2025-09-30
+
+Fix:
+
+- Disable petty cash history voucher forms when the record status is not editable and resync the toggle whenever the status changes. (Agente IA) [#]()

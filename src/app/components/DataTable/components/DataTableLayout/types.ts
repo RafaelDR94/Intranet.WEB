@@ -50,4 +50,8 @@ export interface TableLayoutProps {
   isCardsView?: boolean
   /** Cambia la vista */
   onToggleView?: (isCards: boolean) => void
+  /** Refrescar página con icono de Refresh */
+  showRefresh?: boolean
+  /** Función para refrescar la página */
+  onRefreshPage?: () => void
 }

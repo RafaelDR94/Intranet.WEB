@@ -217,7 +217,7 @@ export default function Summary({
       />
 
       <div
-        className={`mb-${canCreate ? "6" : "0"} flex items-center justify-between gap-3`}
+        className={`mb-${canCreate ? "6" : "0"} mt-2 flex items-center justify-between gap-3`}
       >
         <div className="flex justify-between gap-3">
           {canCreate && !showInput && (
@@ -233,7 +233,7 @@ export default function Summary({
               </Button>
               <Button
                 hideIcon
-                variant="outline"
+                variant="solid"
                 onClick={handleSaveRequest}
                 disabled={!canSave || creating}
               >
@@ -249,7 +249,6 @@ export default function Summary({
                 variant="outline"
                 size="small"
                 onClick={handleCancel}
-                disabled={creating}
               >
                 Cancelar
               </Button>
@@ -257,9 +256,8 @@ export default function Summary({
               {canCreate && (
                 <Button
                   hideIcon
-                  variant="outline"
+                  variant="solid"
                   onClick={handleSaveRequest}
-                  disabled={!canSave || creating}
                 >
                   Guardar Ajustes
                 </Button>
@@ -270,7 +268,7 @@ export default function Summary({
       </div>
 
       <div
-        className={`flex flex-col rounded-lg bg-white p-2 shadow-sm transition-shadow ${className} h-${canCreate ? "[205px]" : "[250px]"}`}
+        className={`flex flex-col rounded-lg bg-white-70 p-2 shadow-sm transition-shadow ${className} h-${canCreate ? "[205px]" : "[250px]"}`}
       >
         <h2 className="text-s1 font-semibold text-green-100">{title}</h2>
 

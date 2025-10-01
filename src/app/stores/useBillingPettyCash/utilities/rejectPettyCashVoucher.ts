@@ -4,7 +4,6 @@ import type { AxiosResponse } from 'axios'
 import { Set } from '../types'
 
 import { BillingPettyCashVoucherReject } from '@/app/configurations/Axios/urls'
-import { PutPettyCashRejectIdMap } from '@/app/mappings/billingPettyCash/billingPettyCash.mapper'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
@@ -21,7 +20,10 @@ export const rejectPettyCashVoucher = async (
 
   try {
     const put = pPut(requireGateway('put'), [200, 201])
-    const res: AxiosResponse = await put(`${BillingPettyCashVoucherReject}/${id}`, PutPettyCashRejectIdMap({ id, comments }))
+    const normalizedComment = comments.trim()
+    const query = normalizedComment ? `?comment=${encodeURIComponent(normalizedComment)}` : ''
+    const url = `${BillingPettyCashVoucherReject}/${id}${query}`
+    const res: AxiosResponse = await put(url, undefined)
     set({ rejecting: false, successRejectVoucher: true })
     return Boolean(res)
   } catch (e) {

@@ -14,6 +14,7 @@ import { Input } from "@/app/components/Input/Input";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import ListIcon from "@/assets/icons/Layout/table-rows.svg";
 import GridIcon from "@/assets/icons/Layout/view-grid.svg";
+import RefreshDouble from "@/assets/icons/acciones/refresh-double.svg";
 import SearchIcon from "@/assets/icons/organization/search.svg";
 import Filter from "@/app/components/Filter/Filter";
 
@@ -37,6 +38,8 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
     filterOptions,
     filterValue,
     filterTitle,
+    showRefresh,
+    onRefreshPage,
   } = useDataTableLayout(props);
   const tableLayoutStyles = useTableLayoutStyles();
   const { downloadDisabled = false } = props;
@@ -55,35 +58,50 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
       />
 
       {showCalendar && (
-        <div className="mx-1">
+        <div className="relative z-[70] mx-1">
           <Calendar onCalendarClick={handleDateRange} />
         </div>
       )}
 
       {showFilter && (
-        <Filter
-          title={filterTitle}
-          options={filterOptions ?? []}
-          selectedValue={filterValue ?? undefined}
-          onChange={(value) => {
-            onFilterChange?.(value);
-            onFilterClick?.();
-          }}
+        <div className="relative z-[70]">
+          <Filter
+            title={filterTitle}
+            options={filterOptions ?? []}
+            selectedValue={filterValue ?? undefined}
+            onChange={(value) => {
+              onFilterChange?.(value);
+              onFilterClick?.();
+            }}
+          />
+        </div>
+      )}
+
+      {showRefresh && (
+        <Button
+          aria-label="Actualizar tabla"
+          title="Actualizar tabla"
+          iconOnly
+          variant="ghost"
+          size="small"
+          icon={RefreshDouble}
+          onClick={onRefreshPage}
+          disabled={!onRefreshPage}
         />
       )}
 
       {/* Toggle vista lista/tarjetas */}
       {props.showViewToggle && (
-        <div className="flex items-center gap-2 ml-2">
+        <div className="ml-2 flex items-center gap-2">
           <Button
             iconOnly
-            variant={props.isCardsView ? 'ghost' : 'outline'}
+            variant={props.isCardsView ? "ghost" : "outline"}
             icon={ListIcon}
             onClick={() => props.onToggleView?.(false)}
           />
           <Button
             iconOnly
-            variant={props.isCardsView ? 'outline' : 'ghost'}
+            variant={props.isCardsView ? "outline" : "ghost"}
             icon={GridIcon}
             onClick={() => props.onToggleView?.(true)}
           />
@@ -106,14 +124,24 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
                   iconOnly
                   icon={DownloadIcon}
                   variant="outline"
-                  size={isMobile ? "small" : "medium"}
+                  size={"xsmall"}
                   disabled={downloadDisabled}
                 />
               </div>
             }
             items={[
-              { label: "PDF", onClick: () => handleDownload("pdf"), controlType: "radio", controlSide: "left" },
-              { label: "Excel", onClick: () => handleDownload("excel"), controlType: "radio", controlSide: "left" },
+              {
+                label: "PDF",
+                onClick: () => handleDownload("pdf"),
+                controlType: "radio",
+                controlSide: "left",
+              },
+              {
+                label: "Excel",
+                onClick: () => handleDownload("excel"),
+                controlType: "radio",
+                controlSide: "left",
+              },
             ]}
           />
         )}
@@ -125,11 +153,15 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
 
         {/* ✅ Botón primario por defecto SOLO si no hay actionsRender */}
         {showButton && !actionsRender && (
-          <Button variant="solid" size="large" hideIcon onClick={onTableActionClick}>
+          <Button
+            variant="solid"
+            size="large"
+            hideIcon
+            onClick={onTableActionClick}
+          >
             {actionLabel}
           </Button>
         )}
-        
       </div>
     </div>
   );

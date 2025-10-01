@@ -48,6 +48,10 @@ export const useVoucherPink = ({
   const [formReady, setFormReady] = useState(false);
   const [disableForm, setDisableForm] = useState(startDisabled);
 
+  useEffect(() => {
+    setDisableForm(startDisabled);
+  }, [startDisabled]);
+
   // Form Fields (multi-instancia por formId)
   const emptyRef = useRef<FieldModel[]>([]);
   const fields = useFormFieldsStore(

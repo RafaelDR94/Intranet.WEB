@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { shallow } from 'zustand/shallow';
+import { useRouter } from 'next/navigation';
 
 import type { ControlDetail, ControlRow } from '../types';
 
@@ -62,6 +63,7 @@ const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
  * Handles data loading, filtering and row actions for the petty cash control table.
  */
 export const useControlTable = () => {
+  const router = useRouter();
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
@@ -342,12 +344,12 @@ export const useControlTable = () => {
     }
   };
 
-  const handleReject = async (row: ControlRow | null) => {
+  const handleReject = async (row: ControlRow | null, comments?: string) => {
     const target = row ?? selectedRow;
     if (!target) return;
 
     showSpinner({ message: 'Rechazando vale seleccionado…' });
-    const ok = await rejectPettyCashVoucher(target.id);
+    const ok = await rejectPettyCashVoucher(target.id, comments);
     const selectedId = selectedRow?.id;
     const panelOpen = detailOpen;
 
@@ -390,11 +392,17 @@ export const useControlTable = () => {
     }
   };
 
-  const refresh = (start?: Date, end?: Date) => {
-    void start;
-    void end;
+  const refreshData = useCallback(() => {
     fetchPettyCashVouchers(true);
-  };
+  }, [fetchPettyCashVouchers]);
+
+  const refreshPage = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+      return;
+    }
+    router.refresh();
+  }, [router]);
 
   const handleSearchChange = useCallback(
     (value?: string, start?: Date | null, end?: Date | null) => {
@@ -437,7 +445,8 @@ export const useControlTable = () => {
     handleConfirmDelete,
     onView,
     onDelete,
-    refresh,
+    refreshData,
+    refreshPage,
     detailOpen,
     detailLoading,
     detailData,

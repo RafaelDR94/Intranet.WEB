@@ -19,6 +19,8 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     showFilter = false,
     showButton = true,
     onDownload,
+    showRefresh = false,
+    onRefreshPage,
   } = props;
  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const closeDownloadMenu = () => setIsDownloadOpen(false);
@@ -69,10 +71,11 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     showCalendar,
     showFilter,
     showButton,
+    showRefresh,
     isDownloadOpen,
     setIsDownloadOpen,
-    handleDownload
-    ,
+    handleDownload,
+    onRefreshPage,
     // Passthrough view toggle
     showViewToggle: props.showViewToggle,
     isCardsView: props.isCardsView,

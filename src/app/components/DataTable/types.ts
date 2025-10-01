@@ -134,6 +134,8 @@ export interface DataTableProps<T = any> {
   showCalendar?: boolean;
   /** Muestra el botón de filtros (por defecto: `false`). */
   showFilter?: boolean;
+  /** Muestra el botón de recarga parcial del contenido. */
+  showRefresh?: boolean;
   /** Opciones mostradas dentro del menú contextual de filtros. */
   filterOptions?: DataTableFilterOption<T>[];
   /** Valor seleccionado actualmente en el filtro. */
@@ -145,6 +147,8 @@ export interface DataTableProps<T = any> {
     value: string,
     option?: DataTableFilterOption<T>,
   ) => void;
+  /** Ejecuta la recarga del contenido visible cuando se presiona el botón de actualizar. */
+  onRefreshPage?: () => void;
   /** Muestra el botón de acción principal (por defecto: `true`). */
   showButton?: boolean;
   /**
