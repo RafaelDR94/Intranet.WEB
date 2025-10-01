@@ -128,4 +128,24 @@ describe('Treasury Control SideMenu', () => {
     expect(onReject).toHaveBeenCalledWith(baseProps.selected, 'Falta información');
     expect(screen.queryByText('Rechazar Vale')).not.toBeInTheDocument();
   });
+
+  it('disables validation and rejection actions when voucher is already valid', () => {
+    const onValidate = vi.fn();
+    const onReject = vi.fn();
+
+    render(
+      <SideMenu
+        {...baseProps}
+        onValidate={onValidate}
+        onReject={onReject}
+        selected={{ ...baseProps.selected, status: 'valido' }}
+      />,
+    );
+
+    const validateButton = screen.getByText('Validar');
+    const rejectButton = screen.getByText('Rechazar');
+
+    expect(validateButton).toBeDisabled();
+    expect(rejectButton).toBeDisabled();
+  });
 });
