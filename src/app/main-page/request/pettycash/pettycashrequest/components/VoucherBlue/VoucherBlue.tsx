@@ -49,6 +49,7 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
       <DynamicForm
         loadingFormInfo={loadingFormInfo}
         fields={fields}
+        disabled={disableForm}
         responsiveLayoutMatrix={
           responsiveLayoutMatrix ?? {
             sm: [[10], [10], [10], [10]],
@@ -85,6 +86,7 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
       <DynamicForm
         loadingFormInfo={loadingFormInfo}
         fields={fields}
+        disabled={disableForm}
         responsiveLayoutMatrix={
           responsiveLayoutMatrix ?? {
             sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
