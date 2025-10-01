@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import type { ControlSideMenuProps } from "../types";
+import type { ControlSideMenuProps } from "../../types";
 
 import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
@@ -12,7 +12,7 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 
-const SideMenu: React.FC<ControlSideMenuProps> = ({
+const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
   panelOpen,
   setPanelOpen,
   selected,
@@ -85,8 +85,8 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       <PopUp
         open={isRejectModalOpen}
         onClose={handleCloseRejectModal}
-        title="Rechazar Vale"
-        content="Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su vale."
+        title="Rechazar Factura"
+        content="Deja aquí un comentario para que tu compañero sepa la razón del rechazo de la factura."
         showSecondaryButton
         secondaryButtonText="Cancelar"
         onSecondaryButtonClick={handleCloseRejectModal}
@@ -116,10 +116,16 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
         rightLabel={projectCode ? `Proyecto: ${projectCode}` : undefined}
         label={() =>
           voucherType ? (
-            <Label
-              type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
-              text={voucherType}
-            />
+            <>
+              <Label
+                type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
+                text={voucherType}
+              />
+              <Label
+                type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
+                text={voucherType}
+              />
+            </>
           ) : null
         }
         actionButton={
@@ -135,16 +141,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                 }
               }}
             >
-              {isValidating ? "Validando…" : "Validar"}
-            </Button>
-            <Button
-              size="medium"
-              variant="outline"
-              hideIcon
-              disabled={!selected || isDetailLoading || isRejecting}
-              onClick={handleOpenRejectModal}
-            >
-              {isRejecting ? "Rechazando…" : "Rechazar"}
+              Editar Monto
             </Button>
           </div>
         }
@@ -154,6 +151,45 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
             {isDetailLoading && (
               <div className="text-gray-70 text-b4">Cargando detalle...</div>
             )}
+
+            {/* Archivos enviados */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <span className="text-gray-90 text-b4 font-medium">
+                  Archivos Enviados:
+                </span>
+                <div className="flex items-center gap-2">
+                  {xmlUrl && (
+                    <Button
+                      size="xsmall"
+                      variant="ghost"
+                      icon={XMLIcon}
+                      // disabled={!isEditableStatus || !xmlUrl}
+                      onClick={() => window.open(xmlUrl, "_blank")}
+                    />
+                  )}
+                  {pdfUrl && (
+                    <Button
+                      size="xsmall"
+                      variant="ghost"
+                      icon={PDFIcon}
+                      // disabled={!isEditableStatus || !pdfUrl}
+                      onClick={() => window.open(pdfUrl, "_blank")}
+                    />
+                  )}
+                </div>
+              </div>
+              <div>
+                <Button
+                  size="small"
+                  variant="outline"
+                  onClick={handleOpenRejectModal}
+                  hideIcon
+                >
+                  Rechazar Factura
+                </Button>
+              </div>
+            </div>
 
             {uuid ? (
               <div className="text-gray-90 text-s1 font-semibold">{uuid}</div>
@@ -167,6 +203,13 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
             </div>
 
             <div className="text-gray-90 text-b4 font-medium">
+              CONCEPTO:&nbsp;
+              <span className="text-gray-90 text-b3 font-regular">
+                {concept || "—"}
+              </span>
+            </div>
+
+            <div className="text-gray-90 text-b4 font-medium mb-0">
               RFC EMISOR:&nbsp;
               <span className="text-gray-90 text-b3 font-regular">
                 {provider || "—"}
@@ -181,40 +224,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                 </span>
               </div>
             ) : null}
-
-            <div className="text-gray-90 text-b4 font-medium">
-              CONCEPTO:&nbsp;
-              <span className="text-gray-90 text-b3 font-regular">
-                {concept || "—"}
-              </span>
-            </div>
-
-            {/* Archivos enviados */}
-            <div className="flex items-center justify-between">
-              <span className="text-gray-90 text-b4 font-medium">
-                Archivos Enviados
-              </span>
-              <div className="flex items-center gap-2">
-                {xmlUrl && (
-                  <Button
-                    size="xsmall"
-                    variant="ghost"
-                    icon={XMLIcon}
-                    // disabled={!isEditableStatus || !xmlUrl}
-                    onClick={() => window.open(xmlUrl, "_blank")}
-                  />
-                )}
-                {pdfUrl && (
-                  <Button
-                    size="xsmall"
-                    variant="ghost"
-                    icon={PDFIcon}
-                    // disabled={!isEditableStatus || !pdfUrl}
-                    onClick={() => window.open(pdfUrl, "_blank")}
-                  />
-                )}
-              </div>
-            </div>
 
             <div className="mt-40 h-[0.1px] w-[auto] bg-green-100"></div>
 
@@ -261,4 +270,4 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   );
 };
 
-export default SideMenu;
+export default SideMenuEdit;

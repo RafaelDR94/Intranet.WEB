@@ -3,6 +3,7 @@
 import React from "react";
 
 import SideMenu from "./components/SideMenu";
+import SideMenuEdit from "./components/SideMenuEdit/SideMenuEdit";
 import { useControlTable } from "./hooks/useControlTable";
 import { actionCell, container } from "./styles";
 import type { ActionMenuCellProps, ControlRow } from "./types";
@@ -286,7 +287,7 @@ const ControlTable = () => {
         onPrimaryButtonClick={handleConfirmDelete}
       />
 
-      <SideMenu
+      <SideMenuEdit
         panelOpen={detailOpen}
         setPanelOpen={(open) => {
           if (!open) {
