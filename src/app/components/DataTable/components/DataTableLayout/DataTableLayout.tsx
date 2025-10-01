@@ -124,7 +124,7 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
                   iconOnly
                   icon={DownloadIcon}
                   variant="outline"
-                  size={isMobile ? "small" : "medium"}
+                  size={"xsmall"}
                   disabled={downloadDisabled}
                 />
               </div>

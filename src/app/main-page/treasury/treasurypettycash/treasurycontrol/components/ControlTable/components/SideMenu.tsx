@@ -9,6 +9,8 @@ import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanel
 import { Input } from "@/app/components/Input/Input";
 import Label from "@/app/components/Label/Label";
 import { PopUp } from "@/app/components/PopUp/PopUp";
+import PDFIcon from "@/assets/icons/Docs/page.svg";
+import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 
 const SideMenu: React.FC<ControlSideMenuProps> = ({
   panelOpen,
@@ -40,6 +42,8 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const voucherType = detail?.voucher_type || selected?.voucherType || "";
   const uuid = detail?.uuid || "";
   const rfcReceptor = detail?.rfc_receptor || "";
+  const xmlUrl = detail?.xml || "";
+  const pdfUrl = detail?.pdf || "";
 
   const handleOpenRejectModal = () => {
     if (!selected || isDetailLoading || !onReject) return;
@@ -185,6 +189,33 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
             <span className="text-gray-90 text-b3 font-regular">
               {concept || "—"}
             </span>
+          </div>
+
+          {/* Archivos enviados */}
+          <div className="flex items-center justify-between">
+            <span className="text-gray-90 text-b4 font-medium">
+              Archivos Enviados
+            </span>
+            <div className="flex items-center gap-2">
+              {xmlUrl && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={XMLIcon}
+                  // disabled={!isEditableStatus || !xmlUrl}
+                  onClick={() => window.open(xmlUrl, "_blank")}
+                />
+              )}
+              {pdfUrl && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={PDFIcon}
+                  // disabled={!isEditableStatus || !pdfUrl}
+                  onClick={() => window.open(pdfUrl, "_blank")}
+                />
+              )}
+            </div>
           </div>
 
           <div className="mt-40 h-[0.1px] w-[auto] bg-green-100"></div>

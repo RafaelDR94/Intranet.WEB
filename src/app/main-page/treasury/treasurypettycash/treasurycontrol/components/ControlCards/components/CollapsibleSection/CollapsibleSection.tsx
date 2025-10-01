@@ -69,7 +69,7 @@ export default function CollapsibleSection({
         }`}
       >
         <div className="overflow-hidden">
-          <div className="px-4 pb-4">{children}</div>
+          <div>{children}</div>
         </div>
       </div>
     </section>
