@@ -75,10 +75,12 @@ export const useControlTable = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState<ControlRow | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailData, setDetailData] = useState<ControlDetail | null>(null);
   const [isFetchingDetail, setIsFetchingDetail] = useState(false);
   const [selectedRow, setSelectedRow] = useState<ControlRow | null>(null);
+  const [isEditingAmount, setIsEditingAmount] = useState(false);
 
   const isGatewayReady = useIntranetGatewayStore((state) => state.isReady);
 
@@ -87,12 +89,14 @@ export const useControlTable = () => {
     loading,
     error,
     removing,
+    updating,
     validating,
     rejecting,
     fetchPettyCashVouchers,
     fetchPettyCashVoucherById,
     fetchPettyCashFunds,
     deletePettyCashVoucher,
+    updatePettyCashVoucher,
     validatePettyCashVoucher,
     rejectPettyCashVoucher,
     resetFlags,
@@ -102,12 +106,14 @@ export const useControlTable = () => {
       loading: state.loading,
       error: state.error,
       removing: state.removing,
+      updating: state.updating,
       validating: state.validating,
       rejecting: state.rejecting,
       fetchPettyCashVouchers: state.fetchPettyCashVouchers,
       fetchPettyCashVoucherById: state.fetchPettyCashVoucherById,
       fetchPettyCashFunds: state.fetchPettyCashFunds,
       deletePettyCashVoucher: state.deletePettyCashVoucher,
+      updatePettyCashVoucher: state.updatePettyCashVoucher,
       validatePettyCashVoucher: state.validatePettyCashVoucher,
       rejectPettyCashVoucher: state.rejectPettyCashVoucher,
       resetFlags: state.resetFlags,
@@ -149,9 +155,26 @@ export const useControlTable = () => {
   }, [error, fetchPettyCashVouchers, hideAlert, isFetchingDetail, showAlert]);
 
   useEffect(() => {
-    if (loading || removing || validating || rejecting || isFetchingDetail) return;
+    if (
+      loading ||
+      removing ||
+      updating ||
+      validating ||
+      rejecting ||
+      isFetchingDetail
+    ) {
+      return;
+    }
     resetFlags();
-  }, [isFetchingDetail, loading, removing, validating, rejecting, resetFlags]);
+  }, [
+    isFetchingDetail,
+    loading,
+    removing,
+    updating,
+    validating,
+    rejecting,
+    resetFlags,
+  ]);
 
   const rows: ControlRow[] = useMemo(() => {
     const base = pettyCashVouchers.map(mapVoucherToControlRow);
@@ -225,12 +248,20 @@ export const useControlTable = () => {
     });
   }, [pettyCashVouchers, selectedRow?.id]);
 
-  const onView = async (row: ControlRow) => {
+  const openDetail = async (row: ControlRow, editing = false) => {
     setIsFetchingDetail(true);
     setSelectedRow(row);
-    setDetailOpen(true);
     setDetailLoading(true);
     setDetailData(null);
+    setIsEditingAmount(false);
+
+    if (editing) {
+      setEditOpen(true);
+      setDetailOpen(false);
+    } else {
+      setDetailOpen(true);
+      setEditOpen(false);
+    }
     const detail = await fetchPettyCashVoucherById(row.id, true);
     if (!detail) {
       showAlert({
@@ -242,6 +273,9 @@ export const useControlTable = () => {
         primaryLabel: 'Entendido',
         onPrimaryClick: hideAlert,
       });
+      setIsEditingAmount(false);
+      setEditOpen(false);
+      setDetailOpen(false);
     } else {
       setDetailData(detail);
     }
@@ -249,9 +283,21 @@ export const useControlTable = () => {
     setIsFetchingDetail(false);
   };
 
+  const onView = (row: ControlRow) => {
+    void openDetail(row, false);
+  };
+
+  const onEdit = (row: ControlRow) => {
+    void openDetail(row, true);
+  };
+
   const onDelete = (row: ControlRow) => {
     setRowToDelete(row);
     setConfirmOpen(true);
+  };
+
+  const handleEditModeChange = (editing: boolean) => {
+    setIsEditingAmount(editing);
   };
 
   const handleConfirmDelete = async () => {
@@ -292,6 +338,111 @@ export const useControlTable = () => {
           setRowToDelete(current);
           setConfirmOpen(true);
         },
+      });
+    }
+  };
+
+  const handleUpdateAmount = async (amount: number) => {
+    const currentDetail = detailData;
+    const currentRow = selectedRow;
+
+    if (!currentRow) return;
+
+    if (!currentDetail) {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'Información incompleta',
+        description:
+          'Espera a que se cargue el detalle del vale para poder editar el monto.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      return;
+    }
+
+    const pettyCashFundId = currentDetail.petty_cash_funds?.id;
+    const projectId = currentDetail.project?.id;
+
+    if (!pettyCashFundId || !projectId) {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'Información incompleta',
+        description:
+          'El vale no cuenta con la información necesaria para actualizar el monto.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      return;
+    }
+
+    showSpinner({ message: 'Guardando monto solicitado…' });
+    let updated: PettyCashVoucherData | null = null;
+    try {
+      updated = await updatePettyCashVoucher({
+        id: currentDetail.id,
+        petty_cash_funds_id: pettyCashFundId,
+        employee_id: currentDetail.employee_id,
+        voucher_type: currentDetail.voucher_type,
+        application_date: currentDetail.application_date,
+        concept: currentDetail.concept,
+        amount,
+        comments: currentDetail.comments ?? '',
+        project_id: projectId,
+        xml: currentDetail.xml ?? '',
+        pdf: currentDetail.pdf ?? '',
+      });
+    } finally {
+      hideSpinner();
+    }
+
+    if (updated) {
+      setIsEditingAmount(false);
+      setDetailData((prev) =>
+        prev && prev.id === updated?.id
+          ? { ...prev, amount, total: amount }
+          : prev,
+      );
+      setSelectedRow((prev) => {
+        if (!prev || prev.id !== updated?.id) return prev;
+        const mapped = mapVoucherToControlRow(updated);
+        return { ...prev, ...mapped };
+      });
+
+      showAlert({
+        type: 'success',
+        variant: 'filled',
+        title: 'Monto actualizado',
+        description: 'El monto solicitado se actualizó correctamente.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2000,
+        onClose: hideAlert,
+      });
+
+      setDetailLoading(true);
+      try {
+        const refreshed = await fetchPettyCashVoucherById(updated.id, true);
+        if (refreshed) {
+          setDetailData(refreshed);
+        }
+      } finally {
+        setDetailLoading(false);
+      }
+
+      await Promise.all([fetchPettyCashVouchers(true), fetchPettyCashFunds(true)]);
+    } else {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'No se pudo actualizar el monto',
+        description: 'Intenta nuevamente en unos segundos.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
       });
     }
   };
@@ -419,8 +570,10 @@ export const useControlTable = () => {
 
   const handleCloseDetail = () => {
     setDetailOpen(false);
+    setEditOpen(false);
     setDetailData(null);
     setSelectedRow(null);
+    setIsEditingAmount(false);
   };
 
   const formatDate = (date?: string) => {
@@ -444,10 +597,12 @@ export const useControlTable = () => {
     removing,
     handleConfirmDelete,
     onView,
+    onEdit,
     onDelete,
     refreshData,
     refreshPage,
     detailOpen,
+    editOpen,
     detailLoading,
     detailData,
     selectedRow,
@@ -457,5 +612,9 @@ export const useControlTable = () => {
     handleReject,
     validating,
     rejecting,
+    isEditing: isEditingAmount,
+    handleEditModeChange,
+    handleUpdateAmount,
+    updatingAmount: updating,
   };
 };

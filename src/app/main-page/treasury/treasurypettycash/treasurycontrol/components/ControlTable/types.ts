@@ -36,6 +36,8 @@ export type ActionMenuCellProps = {
   row: ControlRow;
   /** Called when the view-detail option is selected. */
   onView: (row: ControlRow) => void;
+  /** Called when the edit option is selected. */
+  onEdit: (row: ControlRow) => void;
   /** Called when the delete option is selected. */
   onDelete: (row: ControlRow) => void;
 };
@@ -70,4 +72,12 @@ export type ControlSideMenuProps = {
   isValidating?: boolean;
   /** Indicates whether a rejection action is currently executing. */
   isRejecting?: boolean;
+  /** Indicates whether the sidebar should display the editing UI. */
+  isEditingAmount?: boolean;
+  /** Toggles the editing UI visibility. */
+  onEditModeChange?: (isEditing: boolean) => void;
+  /** Persists the updated amount for the selected voucher. */
+  onSaveAmount?: (amount: number) => Promise<void> | void;
+  /** Indicates whether an amount update is in progress. */
+  isSavingAmount?: boolean;
 };

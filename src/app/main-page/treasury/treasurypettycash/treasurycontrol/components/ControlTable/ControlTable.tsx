@@ -87,6 +87,7 @@ const StatusBadge: React.FC<{ status?: string }> = ({ status }) => (
 const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
   row,
   onView,
+  onEdit,
   onDelete,
 }) => {
   const isMobile = useIsMobile();
@@ -102,10 +103,24 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
     const canView = interpretPermission(rawPermissions.details);
     if (canView !== false) {
       items.push({
-        label: "Ver Detalle",
-        icon: EditIcon,
+        label: "Ver detalles",
+        icon: RightArrowIcon,
         onClick: () => {
           onView(row);
+          setMenuOpen(false);
+        },
+      });
+    }
+
+    const canEdit = interpretPermission(
+      rawPermissions.editMoney ?? rawPermissions.edit ?? rawPermissions.update,
+    );
+    if (canEdit ?? true) {
+      items.push({
+        label: "Editar",
+        icon: EditIcon,
+        onClick: () => {
+          onEdit(row);
           setMenuOpen(false);
         },
       });
@@ -129,7 +144,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
     }
 
     return items;
-  }, [currentPagePermissions, onDelete, onView, row, setMenuOpen]);
+  }, [currentPagePermissions, onDelete, onEdit, onView, row, setMenuOpen]);
 
   return (
     <ContextMenu
@@ -161,10 +176,12 @@ const ControlTable = () => {
     removing,
     handleConfirmDelete,
     onView,
+    onEdit,
     onDelete,
     refreshData,
     refreshPage,
     detailOpen,
+    editOpen,
     detailLoading,
     detailData,
     selectedRow,
@@ -174,6 +191,10 @@ const ControlTable = () => {
     handleReject,
     validating,
     rejecting,
+    isEditing,
+    handleEditModeChange,
+    handleUpdateAmount,
+    updatingAmount,
   } = useControlTable();
 
   const isMobile = useIsMobile();
@@ -233,13 +254,18 @@ const ControlTable = () => {
         label: "",
         render: (row) => (
           <div className={actionCell}>
-            <ActionMenuCell row={row} onView={onView} onDelete={onDelete} />
+            <ActionMenuCell
+              row={row}
+              onView={onView}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
           </div>
         ),
         invisible: false,
       },
     ],
-    [formatDate, onDelete, onView],
+    [formatDate, onDelete, onEdit, onView],
   );
 
   const columnsMobile: ColumnDefinition<ControlRow>[] = React.useMemo(
@@ -255,7 +281,12 @@ const ControlTable = () => {
         label: "",
         render: (row) => (
           <div className="flex justify-end pr-2">
-            <ActionMenuCell row={row} onView={onView} onDelete={onDelete} />
+            <ActionMenuCell
+              row={row}
+              onView={onView}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
           </div>
         ),
         cellClass: "w-12 text-right",
@@ -263,7 +294,7 @@ const ControlTable = () => {
         invisible: false,
       },
     ],
-    [onDelete, onView],
+    [onDelete, onEdit, onView],
   );
 
   const columns = isMobile ? columnsMobile : columnsDesktop;
@@ -287,7 +318,7 @@ const ControlTable = () => {
         onPrimaryButtonClick={handleConfirmDelete}
       />
 
-      <SideMenuEdit
+      <SideMenu
         panelOpen={detailOpen}
         setPanelOpen={(open) => {
           if (!open) {
@@ -300,9 +331,29 @@ const ControlTable = () => {
         formatDate={formatDate}
         formatMoney={formatMoney}
         onValidate={handleValidate}
-        onReject={handleReject}
         isValidating={validating}
+        onReject={handleReject}
         isRejecting={rejecting}
+      />
+
+      <SideMenuEdit
+        panelOpen={editOpen}
+        setPanelOpen={(open) => {
+          if (!open) {
+            handleCloseDetail();
+          }
+        }}
+        selected={selectedRow}
+        detail={detailData}
+        isDetailLoading={detailLoading}
+        formatDate={formatDate}
+        formatMoney={formatMoney}
+        onReject={handleReject}
+        isRejecting={rejecting}
+        isEditingAmount={isEditing}
+        onEditModeChange={handleEditModeChange}
+        onSaveAmount={handleUpdateAmount}
+        isSavingAmount={updatingAmount}
       />
 
       {currentPagePermissions?.read && (
