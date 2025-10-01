@@ -492,3 +492,9 @@ Fix:
 Fix:
 
 - Render the rejection popup through a portal with a higher z-index so it always overlays the treasury control panel. (Agente IA) [#]()
+
+### 1.47.20 Petty cash history form disabling 2025-09-30
+
+Fix:
+
+- Disable petty cash history voucher forms when the record status is not editable and resync the toggle whenever the status changes. (Agente IA) [#]()
