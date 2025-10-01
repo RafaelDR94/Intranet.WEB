@@ -73,13 +73,11 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     setRejectError(null);
   };
 
-  const handleCommentChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>,
-  ) => {
+  const handleCommentChange: React.ChangeEventHandler<
+    HTMLInputElement | HTMLTextAreaElement
+  > = (event) => {
     setRejectComment(event.target.value);
-    if (rejectError) {
-      setRejectError(null);
-    }
+    if (rejectError) setRejectError(null);
   };
 
   return (
@@ -151,115 +149,115 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
           </div>
         }
       >
-      {selected ? (
-        <div className="space-y-4">
-          {isDetailLoading && (
-            <div className="text-gray-70 text-b4">Cargando detalle...</div>
-          )}
+        {selected ? (
+          <div className="space-y-4">
+            {isDetailLoading && (
+              <div className="text-gray-70 text-b4">Cargando detalle...</div>
+            )}
 
-          {uuid ? (
-            <div className="text-gray-90 text-s1 font-semibold">{uuid}</div>
-          ) : null}
+            {uuid ? (
+              <div className="text-gray-90 text-s1 font-semibold">{uuid}</div>
+            ) : null}
 
-          <div className="text-gray-90 text-b4 font-medium">
-            FECHA DE CERTIFICACIÓN:&nbsp;
-            <span className="text-gray-90 text-b3 font-regular">
-              {formatDate(applicationDate) || "—"}
-            </span>
-          </div>
-
-          <div className="text-gray-90 text-b4 font-medium">
-            RFC EMISOR:&nbsp;
-            <span className="text-gray-90 text-b3 font-regular">
-              {provider || "—"}
-            </span>
-          </div>
-
-          {rfcReceptor ? (
             <div className="text-gray-90 text-b4 font-medium">
-              RFC RECEPTOR:&nbsp;
+              FECHA DE CERTIFICACIÓN:&nbsp;
               <span className="text-gray-90 text-b3 font-regular">
-                {rfcReceptor}
+                {formatDate(applicationDate) || "—"}
               </span>
             </div>
-          ) : null}
 
-          <div className="text-gray-90 text-b4 font-medium">
-            CONCEPTO:&nbsp;
-            <span className="text-gray-90 text-b3 font-regular">
-              {concept || "—"}
-            </span>
+            <div className="text-gray-90 text-b4 font-medium">
+              RFC EMISOR:&nbsp;
+              <span className="text-gray-90 text-b3 font-regular">
+                {provider || "—"}
+              </span>
+            </div>
+
+            {rfcReceptor ? (
+              <div className="text-gray-90 text-b4 font-medium">
+                RFC RECEPTOR:&nbsp;
+                <span className="text-gray-90 text-b3 font-regular">
+                  {rfcReceptor}
+                </span>
+              </div>
+            ) : null}
+
+            <div className="text-gray-90 text-b4 font-medium">
+              CONCEPTO:&nbsp;
+              <span className="text-gray-90 text-b3 font-regular">
+                {concept || "—"}
+              </span>
+            </div>
+
+            {/* Archivos enviados */}
+            <div className="flex items-center justify-between">
+              <span className="text-gray-90 text-b4 font-medium">
+                Archivos Enviados
+              </span>
+              <div className="flex items-center gap-2">
+                {xmlUrl && (
+                  <Button
+                    size="xsmall"
+                    variant="ghost"
+                    icon={XMLIcon}
+                    // disabled={!isEditableStatus || !xmlUrl}
+                    onClick={() => window.open(xmlUrl, "_blank")}
+                  />
+                )}
+                {pdfUrl && (
+                  <Button
+                    size="xsmall"
+                    variant="ghost"
+                    icon={PDFIcon}
+                    // disabled={!isEditableStatus || !pdfUrl}
+                    onClick={() => window.open(pdfUrl, "_blank")}
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="mt-40 h-[0.1px] w-[auto] bg-green-100"></div>
+
+            <div className="flex flex-col">
+              <div className="flex content-center justify-end">
+                <div className="text-gray-70 text-b4 text-gray-90 mr-5 font-medium uppercase">
+                  Subtotal:
+                </div>
+                <div className="text-gray-90 text-b3 text-gray-90">
+                  {formatMoney(subtotal)}
+                </div>
+              </div>
+              <div className="flex content-center justify-end">
+                <div className="text-gray-70 text-b4 text-gray-90 mr-12 font-medium uppercase">
+                  IVA(16%):
+                </div>
+                <div className="text-gray-90 text-b3 text-gray-90">
+                  {formatMoney(iva)}
+                </div>
+              </div>
+              <div className="flex content-center justify-end">
+                <div className="text-gray-70 text-b4 text-gray-90 mr-12 font-medium uppercase">
+                  Total:
+                </div>
+                <div className="text-gray-90 text-b3 text-gray-90">
+                  {formatMoney(total)}
+                </div>
+              </div>
+            </div>
+
+            {!isDetailLoading && !detail && (
+              <div className="text-gray-70 text-b3">
+                No se encontró información adicional del vale.
+              </div>
+            )}
           </div>
-
-          {/* Archivos enviados */}
-          <div className="flex items-center justify-between">
-            <span className="text-gray-90 text-b4 font-medium">
-              Archivos Enviados
-            </span>
-            <div className="flex items-center gap-2">
-              {xmlUrl && (
-                <Button
-                  size="xsmall"
-                  variant="ghost"
-                  icon={XMLIcon}
-                  // disabled={!isEditableStatus || !xmlUrl}
-                  onClick={() => window.open(xmlUrl, "_blank")}
-                />
-              )}
-              {pdfUrl && (
-                <Button
-                  size="xsmall"
-                  variant="ghost"
-                  icon={PDFIcon}
-                  // disabled={!isEditableStatus || !pdfUrl}
-                  onClick={() => window.open(pdfUrl, "_blank")}
-                />
-              )}
-            </div>
+        ) : (
+          <div className="text-gray-70 text-b3">
+            Selecciona un vale para ver su detalle.
           </div>
-
-          <div className="mt-40 h-[0.1px] w-[auto] bg-green-100"></div>
-
-          <div className="flex flex-col">
-            <div className="flex content-center justify-end">
-              <div className="text-gray-70 text-b4 text-gray-90 mr-5 font-medium uppercase">
-                Subtotal:
-              </div>
-              <div className="text-gray-90 text-b3 text-gray-90">
-                {formatMoney(subtotal)}
-              </div>
-            </div>
-            <div className="flex content-center justify-end">
-              <div className="text-gray-70 text-b4 text-gray-90 mr-12 font-medium uppercase">
-                IVA(16%):
-              </div>
-              <div className="text-gray-90 text-b3 text-gray-90">
-                {formatMoney(iva)}
-              </div>
-            </div>
-            <div className="flex content-center justify-end">
-              <div className="text-gray-70 text-b4 text-gray-90 mr-12 font-medium uppercase">
-                Total:
-              </div>
-              <div className="text-gray-90 text-b3 text-gray-90">
-                {formatMoney(total)}
-              </div>
-            </div>
-          </div>
-
-          {!isDetailLoading && !detail && (
-            <div className="text-gray-70 text-b3">
-              No se encontró información adicional del vale.
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="text-gray-70 text-b3">
-          Selecciona un vale para ver su detalle.
-        </div>
-      )}
-    </DetailsPanelLayout>
-  </>
+        )}
+      </DetailsPanelLayout>
+    </>
   );
 };
 

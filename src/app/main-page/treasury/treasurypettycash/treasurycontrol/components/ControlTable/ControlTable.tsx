@@ -275,7 +275,7 @@ const ControlTable = () => {
         title="Eliminar vale"
         content={
           rowToDelete
-            ? `Esta acción confirmará la eliminación del vale seleccionado. Una vez confirmada no podrás revertirla.`
+            ? `Esta acción confirmará la eliminación del vale seleccionado.\nUna vez confirmado, no podrás revertir el cambio.`
             : "Esta acción confirmará la eliminación del vale seleccionado."
         }
         showSecondaryButton
