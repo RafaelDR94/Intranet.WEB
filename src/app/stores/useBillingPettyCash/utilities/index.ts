@@ -11,4 +11,5 @@ export * from './updatePettyCashVoucher'
 export * from './deletePettyCashVoucher'
 export * from './rejectPettyCashVoucher'
 export * from './validatePettyCashVoucher'
+export * from './rejectBillingInvoice'
 

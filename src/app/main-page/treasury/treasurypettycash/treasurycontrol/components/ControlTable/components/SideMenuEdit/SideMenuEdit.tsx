@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { shallow } from "zustand/shallow";
 
 import type { ControlSideMenuProps } from "../../types";
 
@@ -12,6 +13,7 @@ import type { LabelType } from "@/app/components/Label/types";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
 
 const statusToLabelType = (status?: string): LabelType => {
   const normalized = (status ?? "").toLowerCase();
@@ -39,6 +41,13 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
   onSaveAmount,
   isSavingAmount = false,
 }) => {
+  const { rejectBillingInvoice, rejecting: storeRejecting } = useBillingPettyCash(
+    (state) => ({
+      rejectBillingInvoice: state.rejectBillingInvoice,
+      rejecting: state.rejecting,
+    }),
+    shallow,
+  );
   const [isRejectModalOpen, setRejectModalOpen] = React.useState(false);
   const [rejectComment, setRejectComment] = React.useState("");
   const [rejectError, setRejectError] = React.useState<string | null>(null);
@@ -47,6 +56,7 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
   const [amountError, setAmountError] = React.useState<string | null>(null);
   const [amountTouched, setAmountTouched] = React.useState(false);
   const [pendingAmount, setPendingAmount] = React.useState<number | null>(null);
+  const isInvoiceRejecting = isRejecting || storeRejecting;
 
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
@@ -111,8 +121,8 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
     setRejectError(null);
   };
 
-  const handleRejectSubmit = () => {
-    if (!selected || !onReject || isRejecting) return;
+  const handleRejectSubmit = async () => {
+    if (!selected || isDetailLoading || isInvoiceRejecting) return;
 
     const trimmed = rejectComment.trim();
     if (!trimmed) {
@@ -120,7 +130,21 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
       return;
     }
 
-    onReject(selected, trimmed);
+    const targetId = detail?.id ?? selected.id;
+    if (!targetId) {
+      setRejectError("No se encontró el identificador de la factura.");
+      return;
+    }
+
+    const ok = await rejectBillingInvoice({ id: targetId, comments: trimmed });
+    if (!ok) {
+      setRejectError("No se pudo rechazar la factura. Intenta nuevamente.");
+      return;
+    }
+
+    const maybePromise = onReject?.(selected, trimmed);
+    await Promise.resolve(maybePromise);
+
     setRejectModalOpen(false);
     setRejectComment("");
     setRejectError(null);
@@ -202,15 +226,17 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
         secondaryButtonText="Cancelar"
         onSecondaryButtonClick={handleCloseRejectModal}
         showPrimaryButton
-        primaryButtonText={isRejecting ? "Rechazando…" : "Enviar Comentario"}
-        onPrimaryButtonClick={handleRejectSubmit}
+        primaryButtonText={isInvoiceRejecting ? "Rechazando…" : "Enviar Comentario"}
+        onPrimaryButtonClick={() => {
+          void handleRejectSubmit();
+        }}
       >
         <Input
           as="textarea"
           placeholder="Escribir comentario"
           value={rejectComment}
           onChange={handleCommentChange}
-          disabled={isRejecting}
+          disabled={isInvoiceRejecting}
           variant={rejectError ? "error" : "default"}
           helperText={rejectError ?? undefined}
           dataTestId="reject-comment"
@@ -327,6 +353,7 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
                 <Button
                   size="small"
                   variant="outline"
+                  disabled={!selected || isDetailLoading || isInvoiceRejecting}
                   onClick={handleOpenRejectModal}
                   hideIcon
                 >

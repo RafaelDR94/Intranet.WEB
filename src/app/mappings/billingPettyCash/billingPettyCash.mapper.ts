@@ -10,6 +10,7 @@ import {
   DeletePettyCashVoucherId,
   PutPettyCashRejectId,
   PutPettyCashValidateId,
+  PutBillingsInvoiceReject,
   PettyCashVoucherFull,
   PettyCashVoucherProject,
   PettyCashVoucherConcept,
@@ -225,6 +226,13 @@ export const PutPettyCashRejectIdMap = (src: any): PutPettyCashRejectId => ({
 
 export const PutPettyCashValidateIdMap = (src: any): PutPettyCashValidateId => ({
   id: toString(src?.id),
+});
+
+export const PutBillingsInvoiceRejectMap = (
+  src: any,
+): PutBillingsInvoiceReject => ({
+  id: toString(src?.id),
+  comments: toString(src?.comments),
 });
 
 // Mapea la respuesta del endpoint de historial por empleado
