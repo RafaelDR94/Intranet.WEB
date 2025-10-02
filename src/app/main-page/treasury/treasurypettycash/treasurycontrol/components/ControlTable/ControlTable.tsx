@@ -88,7 +88,6 @@ const StatusBadge: React.FC<{ status?: string }> = ({ status }) => (
 const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
   row,
   onView,
-  onEdit,
   onDelete,
 }) => {
   const isMobile = useIsMobile();
@@ -113,20 +112,6 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
       });
     }
 
-    const canEdit = interpretPermission(
-      rawPermissions.editMoney ?? rawPermissions.edit ?? rawPermissions.update,
-    );
-    if (canEdit ?? true) {
-      items.push({
-        label: "Editar",
-        icon: EditIcon,
-        onClick: () => {
-          onEdit(row);
-          setMenuOpen(false);
-        },
-      });
-    }
-
     const canDelete = interpretPermission(rawPermissions.delete);
     if (canDelete ?? true) {
       items.push({
@@ -145,7 +130,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
     }
 
     return items;
-  }, [currentPagePermissions, onDelete, onEdit, onView, row, setMenuOpen]);
+  }, [currentPagePermissions, onDelete, onView, row, setMenuOpen]);
 
   return (
     <ContextMenu
@@ -177,7 +162,6 @@ const ControlTable = () => {
     removing,
     handleConfirmDelete,
     onView,
-    onEdit,
     onDelete,
     refreshData,
     refreshPage,
@@ -255,18 +239,13 @@ const ControlTable = () => {
         label: "",
         render: (row) => (
           <div className={actionCell}>
-            <ActionMenuCell
-              row={row}
-              onView={onView}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <ActionMenuCell row={row} onView={onView} onDelete={onDelete} />
           </div>
         ),
         invisible: false,
       },
     ],
-    [formatDate, onDelete, onEdit, onView],
+    [formatDate, onDelete, onView],
   );
 
   const columnsMobile: ColumnDefinition<ControlRow>[] = React.useMemo(
@@ -282,12 +261,7 @@ const ControlTable = () => {
         label: "",
         render: (row) => (
           <div className="flex justify-end pr-2">
-            <ActionMenuCell
-              row={row}
-              onView={onView}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <ActionMenuCell row={row} onView={onView} onDelete={onDelete} />
           </div>
         ),
         cellClass: "w-12 text-right",
@@ -295,7 +269,7 @@ const ControlTable = () => {
         invisible: false,
       },
     ],
-    [onDelete, onEdit, onView],
+    [onDelete, onView],
   );
 
   const columns = isMobile ? columnsMobile : columnsDesktop;

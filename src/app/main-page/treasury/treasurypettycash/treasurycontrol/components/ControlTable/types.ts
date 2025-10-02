@@ -36,8 +36,6 @@ export type ActionMenuCellProps = {
   row: ControlRow;
   /** Called when the view-detail option is selected. */
   onView: (row: ControlRow) => void;
-  /** Called when the edit option is selected. */
-  onEdit: (row: ControlRow) => void;
   /** Called when the delete option is selected. */
   onDelete: (row: ControlRow) => void;
 };
@@ -67,7 +65,11 @@ export type ControlSideMenuProps = {
    * @param row Voucher selected for rejection.
    * @param comments Reason provided by the reviewer.
    */
-  onReject?: (row: ControlRow | null, comments: string) => void;
+  onReject?: (
+    row: ControlRow | null,
+    comments: string,
+    options?: { skipSuccessAlert?: boolean },
+  ) => Promise<boolean> | boolean | void;
   /** Indicates whether a validation action is currently executing. */
   isValidating?: boolean;
   /** Indicates whether a rejection action is currently executing. */

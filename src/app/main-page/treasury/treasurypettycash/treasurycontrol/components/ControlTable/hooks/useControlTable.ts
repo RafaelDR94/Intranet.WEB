@@ -59,6 +59,16 @@ const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
   } satisfies ControlRow;
 };
 
+const isVoucherValid = (status?: string): boolean => {
+  if (!status) return false;
+  const normalized = status
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  return normalized.includes("valido");
+};
+
 /**
  * Handles data loading, filtering and row actions for the petty cash control table.
  */
@@ -248,20 +258,16 @@ export const useControlTable = () => {
     });
   }, [pettyCashVouchers, selectedRow?.id]);
 
-  const openDetail = async (row: ControlRow, editing = false) => {
+  const openDetail = async (row: ControlRow, mode: "detail" | "edit") => {
     setIsFetchingDetail(true);
     setSelectedRow(row);
     setDetailLoading(true);
     setDetailData(null);
     setIsEditingAmount(false);
 
-    if (editing) {
-      setEditOpen(true);
-      setDetailOpen(false);
-    } else {
-      setDetailOpen(true);
-      setEditOpen(false);
-    }
+    const openEditPanel = mode === "edit";
+    setEditOpen(openEditPanel);
+    setDetailOpen(!openEditPanel);
     const detail = await fetchPettyCashVoucherById(row.id, true);
     if (!detail) {
       showAlert({
@@ -284,11 +290,8 @@ export const useControlTable = () => {
   };
 
   const onView = (row: ControlRow) => {
-    void openDetail(row, false);
-  };
-
-  const onEdit = (row: ControlRow) => {
-    void openDetail(row, true);
+    const mode = isVoucherValid(row.status) ? "edit" : "detail";
+    void openDetail(row, mode);
   };
 
   const onDelete = (row: ControlRow) => {
@@ -495,9 +498,13 @@ export const useControlTable = () => {
     }
   };
 
-  const handleReject = async (row: ControlRow | null, comments?: string) => {
+  const handleReject = async (
+    row: ControlRow | null,
+    comments?: string,
+    options?: { skipSuccessAlert?: boolean },
+  ): Promise<boolean> => {
     const target = row ?? selectedRow;
-    if (!target) return;
+    if (!target) return false;
 
     showSpinner({ message: 'Rechazando vale seleccionado…' });
     const ok = await rejectPettyCashVoucher(target.id, comments);
@@ -518,16 +525,19 @@ export const useControlTable = () => {
       }
 
       hideSpinner();
-      showAlert({
-        type: 'warning',
-        variant: 'filled',
-        title: 'Vale rechazado',
-        description: 'El vale se rechazó correctamente.',
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 2000,
-        onClose: hideAlert,
-      });
+      if (!options?.skipSuccessAlert) {
+        showAlert({
+          type: 'warning',
+          variant: 'filled',
+          title: 'Vale rechazado',
+          description: 'El vale se rechazó correctamente.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 2000,
+          onClose: hideAlert,
+        });
+      }
+      return true;
     } else {
       hideSpinner();
       showAlert({
@@ -540,6 +550,7 @@ export const useControlTable = () => {
         onPrimaryClick: hideAlert,
       });
       resetFlags();
+      return false;
     }
   };
 
@@ -597,7 +608,6 @@ export const useControlTable = () => {
     removing,
     handleConfirmDelete,
     onView,
-    onEdit,
     onDelete,
     refreshData,
     refreshPage,
