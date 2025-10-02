@@ -12,6 +12,43 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 
+const toValidNumber = (value: unknown): number | undefined =>
+  typeof value === "number" && !Number.isNaN(value) ? value : undefined;
+
+const pickFirstNumber = (
+  ...values: Array<number | undefined>
+): number | undefined => {
+  for (const value of values) {
+    if (value !== undefined) return value;
+  }
+
+  return undefined;
+};
+
+const isBlueVoucher = (voucherType?: string): boolean => {
+  const normalized = (voucherType ?? "")
+    .trim()
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (!normalized) return false;
+  if (normalized.length === 1) return normalized === "a";
+
+  return normalized.includes("azul");
+};
+
+const isVoucherValid = (status?: string): boolean => {
+  if (!status) return false;
+
+  const normalized = status
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  return normalized.includes("valido");
+};
+
 const SideMenu: React.FC<ControlSideMenuProps> = ({
   panelOpen,
   setPanelOpen,
@@ -38,8 +75,15 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const concept = detail?.concept || selected?.concept || "";
   const subtotal = detail?.subtotal ?? selected?.subtotal;
   const iva = detail?.iva ?? selected?.iva;
-  const total = detail?.total ?? detail?.amount ?? selected?.total;
   const voucherType = detail?.voucher_type || selected?.voucherType || "";
+  const status = detail?.status || selected?.status;
+  const isAlreadyValid = isVoucherValid(status);
+  const detailTotal = toValidNumber(detail?.total);
+  const detailAmount = toValidNumber(detail?.amount);
+  const selectedTotal = toValidNumber(selected?.total);
+  const total = isBlueVoucher(voucherType)
+    ? pickFirstNumber(detailAmount, selectedTotal, detailTotal)
+    : pickFirstNumber(detailTotal, detailAmount, selectedTotal);
   const uuid = detail?.uuid || "";
   const rfcReceptor = detail?.rfc_receptor || "";
   const xmlUrl = detail?.xml || "";
@@ -148,7 +192,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               size="medium"
               variant="solid"
               hideIcon
-              disabled={!selected || isDetailLoading || isValidating}
+              disabled={!selected || isDetailLoading || isValidating || isAlreadyValid}
               onClick={() => {
                 if (onValidate) {
                   onValidate(selected);
@@ -161,7 +205,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               size="medium"
               variant="outline"
               hideIcon
-              disabled={!selected || isDetailLoading || isRejecting}
+              disabled={!selected || isDetailLoading || isRejecting || isAlreadyValid}
               onClick={handleOpenRejectModal}
             >
               {isRejecting ? "Rechazando…" : "Rechazar"}

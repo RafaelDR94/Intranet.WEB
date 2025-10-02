@@ -18,6 +18,19 @@ import {
   endOfDay,
 } from '@/app/components/DataTable/utilities/datesTable';
 
+const toValidNumber = (value: unknown): number | undefined =>
+  typeof value === 'number' && !Number.isNaN(value) ? value : undefined;
+
+const pickFirstNumber = (
+  ...values: Array<number | undefined>
+): number | undefined => {
+  for (const value of values) {
+    if (value !== undefined) return value;
+  }
+
+  return undefined;
+};
+
 function voucherTypeToLabelType(voucher?: string): LabelType {
   const v = (voucher ?? "").toLowerCase();
   if (v.includes("rosa")) return "vale-rosa";
@@ -68,22 +81,16 @@ const resolveVoucherTypeCode = (
 };
 
 const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
-  const subtotal =
-    typeof voucher.subtotal === 'number' && !Number.isNaN(voucher.subtotal)
-      ? voucher.subtotal
-      : undefined;
-  const iva =
-    typeof voucher.iva === 'number' && !Number.isNaN(voucher.iva)
-      ? voucher.iva
-      : undefined;
-  const totalCandidate =
-    typeof voucher.total === 'number' && !Number.isNaN(voucher.total)
-      ? voucher.total
-      : typeof voucher.amount === 'number' && !Number.isNaN(voucher.amount)
-      ? voucher.amount
-      : undefined;
-
+  const subtotal = toValidNumber(voucher.subtotal);
+  const iva = toValidNumber(voucher.iva);
+  const totalValue = toValidNumber(voucher.total);
+  const requestedAmount = toValidNumber(voucher.amount);
   const voucherType = voucher.voucher_type ?? '';
+  const voucherTypeCode = mapVoucherTypeToPayload(voucherType);
+  const totalCandidate =
+    voucherTypeCode === 'A'
+      ? pickFirstNumber(requestedAmount, totalValue)
+      : pickFirstNumber(totalValue, requestedAmount);
 
   return {
     id: voucher.id,
