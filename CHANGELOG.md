@@ -498,3 +498,9 @@ Fix:
 Fix:
 
 - Disable petty cash history voucher forms when the record status is not editable and resync the toggle whenever the status changes. (Agente IA) [#]()
+
+### 1.47.21 Petty cash blue voucher amount display 2025-09-30
+
+Fix:
+
+- Show the requested amount for blue petty cash vouchers in the edit side menu and suppress redundant loading errors after updating the amount. (Agente IA) [#]()

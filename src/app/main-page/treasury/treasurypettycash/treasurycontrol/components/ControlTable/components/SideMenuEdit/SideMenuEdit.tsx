@@ -28,6 +28,24 @@ const statusToLabelType = (status?: string): LabelType => {
   return normalized ? "actualizado" : "pendiente";
 };
 
+const toValidNumber = (value: unknown): number | undefined =>
+  typeof value === "number" && !Number.isNaN(value) ? value : undefined;
+
+const pickFirstNumber = (
+  values: Array<number | undefined>,
+  options: { allowZero?: boolean } = {},
+): number | undefined => {
+  const { allowZero = true } = options;
+
+  for (const value of values) {
+    if (value === undefined) continue;
+    if (!allowZero && value === 0) continue;
+    return value;
+  }
+
+  return undefined;
+};
+
 const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
   panelOpen,
   setPanelOpen,
@@ -72,7 +90,6 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
   const concept = detail?.concept || selected?.concept || "";
   const subtotal = detail?.subtotal ?? selected?.subtotal;
   const iva = detail?.iva ?? selected?.iva;
-  const total = detail?.total ?? detail?.amount ?? selected?.total;
   const voucherType = detail?.voucher_type || selected?.voucherType || "";
   const voucherStatus = detail?.status || selected?.status || "";
   const voucherTypeLabel =
@@ -82,15 +99,38 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
   const rfcReceptor = detail?.rfc_receptor || "";
   const xmlUrl = detail?.xml || "";
   const pdfUrl = detail?.pdf || "";
+  const normalizedVoucherType = React.useMemo(() => {
+    const source = voucherType || "";
+    return source.toLocaleLowerCase("es-MX");
+  }, [voucherType]);
+
   const requestedAmount = React.useMemo(() => {
-    const candidates = [detail?.amount, detail?.total, selected?.total];
-    for (const candidate of candidates) {
-      if (typeof candidate === "number" && !Number.isNaN(candidate)) {
-        return candidate;
-      }
-    }
-    return undefined;
+    return pickFirstNumber(
+      [
+        toValidNumber(detail?.amount),
+        toValidNumber(detail?.total),
+        toValidNumber(selected?.total),
+      ],
+      { allowZero: false },
+    );
   }, [detail?.amount, detail?.total, selected?.total]);
+
+  const resolvedTotal = React.useMemo(() => {
+    const isBlueVoucher = normalizedVoucherType.includes("azul");
+    const candidates = isBlueVoucher
+      ? [
+          toValidNumber(detail?.amount),
+          toValidNumber(detail?.total),
+          toValidNumber(selected?.total),
+        ]
+      : [
+          toValidNumber(detail?.total),
+          toValidNumber(selected?.total),
+          toValidNumber(detail?.amount),
+        ];
+
+    return pickFirstNumber(candidates, { allowZero: !isBlueVoucher });
+  }, [detail?.amount, detail?.total, normalizedVoucherType, selected?.total]);
   const formattedPendingAmount = formatMoney(pendingAmount ?? requestedAmount);
 
   React.useEffect(() => {
@@ -442,7 +482,7 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
                   Total:
                 </div>
                 <div className="text-gray-90 text-b3 text-gray-90">
-                  {formatMoney(total)}
+                  {formatMoney(resolvedTotal)}
                 </div>
               </div>
             </div>
