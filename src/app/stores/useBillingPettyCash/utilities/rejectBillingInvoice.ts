@@ -32,7 +32,7 @@ export const rejectBillingInvoice = async (
 
     const url = `${BillingInvoiceReject}?${searchParams.toString()}`
 
-    await put(url, undefined)
+    await put(url, {})
     set({ rejecting: false, successRejectInvoice: true })
     return true
   } catch (e) {

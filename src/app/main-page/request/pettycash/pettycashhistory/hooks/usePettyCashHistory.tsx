@@ -24,12 +24,13 @@ function voucherTypeToLabelType(voucher?: string): LabelType {
 
 function statusToLabelType(status?: string): LabelType {
   const normalized = (status ?? "").toLowerCase();
-  if (normalized.includes("rechaz")) return "rechazado";
+  if (normalized.includes("rechazado")) return "rechazado";
   if (normalized.includes("proceso")) return "en-proceso";
   if (normalized.includes("valid")) return "valido";
   if (normalized.includes("pend")) return "pendiente";
   if (normalized.includes("no deducible")) return "prohibido";
   if (normalized.includes("sin factura")) return "sin-factura";
+  if (normalized.includes("factura rechazada")) return "factura-rechazada";
   return normalized ? "actualizado" : "pendiente";
 }
 

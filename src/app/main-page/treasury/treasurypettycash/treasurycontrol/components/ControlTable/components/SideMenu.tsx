@@ -114,14 +114,34 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
         onClose={() => setPanelOpen(false)}
         leftLabel={employeeName ? `Colaborador: ${employeeName}` : undefined}
         rightLabel={projectCode ? `Proyecto: ${projectCode}` : undefined}
-        label={() =>
-          voucherType ? (
-            <Label
-              type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
-              text={voucherType}
-            />
-          ) : null
-        }
+        renderActions={() => (
+          <div className="flex">
+            {voucherType ? (
+              <Label
+                type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
+                text={voucherType}
+              />
+            ) : null}
+            {detail?.xml && (
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={XMLIcon}
+                disabled={!detail.xml}
+                onClick={() => window.open(detail.xml!, "_blank")}
+              />
+            )}
+            {detail?.pdf && (
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={PDFIcon}
+                disabled={!detail.pdf}
+                onClick={() => window.open(detail.pdf!, "_blank")}
+              />
+            )}
+          </div>
+        )}
         actionButton={
           <div className="flex flex-row items-center gap-3">
             <Button
@@ -187,33 +207,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               <span className="text-gray-90 text-b3 font-regular">
                 {concept || "—"}
               </span>
-            </div>
-
-            {/* Archivos enviados */}
-            <div className="flex items-center justify-between">
-              <span className="text-gray-90 text-b4 font-medium">
-                Archivos Enviados
-              </span>
-              <div className="flex items-center gap-2">
-                {xmlUrl && (
-                  <Button
-                    size="xsmall"
-                    variant="ghost"
-                    icon={XMLIcon}
-                    // disabled={!isEditableStatus || !xmlUrl}
-                    onClick={() => window.open(xmlUrl, "_blank")}
-                  />
-                )}
-                {pdfUrl && (
-                  <Button
-                    size="xsmall"
-                    variant="ghost"
-                    icon={PDFIcon}
-                    // disabled={!isEditableStatus || !pdfUrl}
-                    onClick={() => window.open(pdfUrl, "_blank")}
-                  />
-                )}
-              </div>
             </div>
 
             <div className="mt-40 h-[0.1px] w-[auto] bg-green-100"></div>
