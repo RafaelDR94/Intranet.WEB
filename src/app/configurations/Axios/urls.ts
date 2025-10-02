@@ -113,6 +113,7 @@ export const BillingRejectBillingDocument = process.env.NEXT_PUBLIC_BILLINGS_REJ
 export const BillingBillingDocumentByFilter = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTSBYFILTER??"/Billings/BillingDocumentByFilter"
 export const BillingSATBillingDocument = process.env.NEXT_PUBLIC_BILLINGS_SATBILLINGDOCUMENTS??"/Billings/GetAllSATBillingDocuments"
 export const BillingImagesReject = process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGESREJECT??"/Billings/BillingImagesReject"
+export const BillingInvoiceReject = process.env.NEXT_PUBLIC_BILLINGS_INVOICE_REJECT ?? "/Billings/Invoice/Reject"
 export const BillingDocumentsSendToSAP = process.env.NEXT_PUBLIC_BILLINGS_SENDTOSAPBILLINGDOCUMENTS??"/Billings/SendToSAPBillingDocuments"
 export const BillingRequisitionsByID= process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONBYID??"/Billings/BillingRequisitionById"
 export const BillingCategories= process.env.NEXT_PUBLIC_BILLINGS_BILLINGCATEGORIES??"/Billings/BillingCategory"

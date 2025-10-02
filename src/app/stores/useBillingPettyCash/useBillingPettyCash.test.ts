@@ -37,6 +37,7 @@ describe('useBillingPettyCash', () => {
       successPutVoucher: false,
       successDeleteVoucher: false,
       successRejectVoucher: false,
+      successRejectInvoice: false,
       successValidateVoucher: false,
       error: undefined,
       warning: undefined,

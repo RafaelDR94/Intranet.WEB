@@ -7,6 +7,7 @@ import {
   PostPettyCashVoucher,
   PutPettyCashVoucher,
   PettyCashVoucherFull,
+  PutBillingsInvoiceReject,
 } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 
 /**
@@ -45,6 +46,7 @@ export type BillingPettyCashState = {
   successPutVoucher: boolean;
   successDeleteVoucher: boolean;
   successRejectVoucher: boolean;
+  successRejectInvoice: boolean;
   successValidateVoucher: boolean;
   /** Mensaje de error global */
   error?: string;
@@ -64,6 +66,7 @@ export type BillingPettyCashState = {
   updatePettyCashVoucher: (payload: PutPettyCashVoucher) => Promise<PettyCashVoucherData | null>;
   deletePettyCashVoucher: (id: string) => Promise<boolean>;
   rejectPettyCashVoucher: (id: string, comments?: string) => Promise<boolean>;
+  rejectBillingInvoice: (payload: PutBillingsInvoiceReject) => Promise<boolean>;
   validatePettyCashVoucher: (id: string) => Promise<boolean>;
   reset: () => void;
   resetFlags: () => void;

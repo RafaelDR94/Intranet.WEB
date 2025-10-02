@@ -17,6 +17,7 @@ import {
   deletePettyCashVoucher,
   rejectPettyCashVoucher,
   validatePettyCashVoucher,
+  rejectBillingInvoice,
 } from './utilities'
 // 👉 Nueva utilidad para historial por empleado
 import { fetchPettyCashVouchersByIdEmployee } from './utilities/fetchPettyCashVouchersByIdEmployee'
@@ -50,6 +51,7 @@ export const useBillingPettyCash = createWithEqualityFn<BillingPettyCashState>()
     successPutVoucher: false,
     successDeleteVoucher: false,
     successRejectVoucher: false,
+    successRejectInvoice: false,
     successValidateVoucher: false,
     error: undefined,
     warning: undefined,
@@ -66,6 +68,7 @@ export const useBillingPettyCash = createWithEqualityFn<BillingPettyCashState>()
     updatePettyCashVoucher: (payload) => updatePettyCashVoucher(set, payload),
     deletePettyCashVoucher: (id) => deletePettyCashVoucher(set, id),
     rejectPettyCashVoucher: (id, comments) => rejectPettyCashVoucher(set, id, comments),
+    rejectBillingInvoice: (payload) => rejectBillingInvoice(set, get, payload),
     validatePettyCashVoucher: (id) => validatePettyCashVoucher(set, id),
 
     // ✅ Nueva acción: historial de vales por empleado
@@ -94,6 +97,7 @@ export const useBillingPettyCash = createWithEqualityFn<BillingPettyCashState>()
         successPutVoucher: false,
         successDeleteVoucher: false,
         successRejectVoucher: false,
+        successRejectInvoice: false,
         successValidateVoucher: false,
         loading: false,
         creating: false,
@@ -122,6 +126,7 @@ export const useBillingPettyCash = createWithEqualityFn<BillingPettyCashState>()
         successPutVoucher: false,
         successDeleteVoucher: false,
         successRejectVoucher: false,
+        successRejectInvoice: false,
         successValidateVoucher: false,
         error: undefined,
         warning: undefined,

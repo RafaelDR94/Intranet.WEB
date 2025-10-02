@@ -134,6 +134,11 @@ export type PutPettyCashValidateId = {
   id: string;
 };
 
+export type PutBillingsInvoiceReject = {
+  id: string;
+  comments: string;
+};
+
 // ---- Detalles para la respuesta enriquecida de Vales (GET) ----
 export type PettyCashVoucherConcept = {
   clave_sat: string;
