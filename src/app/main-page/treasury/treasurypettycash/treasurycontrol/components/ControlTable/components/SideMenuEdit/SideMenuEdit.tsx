@@ -196,17 +196,6 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
       return;
     }
 
-    const result = await Promise.resolve(
-      onReject?.(selected, trimmed, { skipSuccessAlert: true }),
-    );
-    const voucherRejected =
-      typeof result === "boolean" ? result : result !== false;
-
-    if (!voucherRejected) {
-      setRejectError("No se pudo rechazar el vale. Intenta nuevamente.");
-      return;
-    }
-
     showAlert({
       type: "warning",
       variant: "filled",

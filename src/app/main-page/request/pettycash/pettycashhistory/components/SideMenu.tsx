@@ -12,7 +12,6 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 
 function normalizeDateForInput(raw?: string): string {
   if (!raw) return "";
@@ -106,9 +105,6 @@ const SideMenu = ({
   const certificationDate =
     detail?.application_date ?? selected?.dateCreate ?? "";
   const voucherUuid = detail?.uuid ?? selected?.billingdocument_id ?? "";
-  const xmlUrl = detail?.xml ?? selected?.xml ?? "";
-  const pdfUrl = detail?.pdf ?? selected?.pdf ?? "";
-  const imageUrl = selected?.image ?? "";
   const comments = detail?.comments ?? selected?.comments ?? "";
   const rfcEmisor = detail?.rfc_emisor ?? "";
   const rfcReceptor = detail?.rfc_receptor ?? "";

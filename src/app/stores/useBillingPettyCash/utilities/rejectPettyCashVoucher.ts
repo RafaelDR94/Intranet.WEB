@@ -2,7 +2,8 @@
 
 import { Set } from '../types'
 
-import { BillingPettyCashVoucherReject } from '@/app/configurations/Axios/urls'
+import { BillingPettyCashVoucherReject } from '../../../configurations/Axios/urls'
+
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'

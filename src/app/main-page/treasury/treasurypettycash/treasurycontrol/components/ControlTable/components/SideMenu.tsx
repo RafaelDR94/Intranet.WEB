@@ -86,8 +86,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     : pickFirstNumber(detailTotal, detailAmount, selectedTotal);
   const uuid = detail?.uuid || "";
   const rfcReceptor = detail?.rfc_receptor || "";
-  const xmlUrl = detail?.xml || "";
-  const pdfUrl = detail?.pdf || "";
 
   const handleOpenRejectModal = () => {
     if (!selected || isDetailLoading || !onReject) return;
