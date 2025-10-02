@@ -119,6 +119,8 @@ export type PostPettyCashVoucher = {
 
 export type PutPettyCashVoucher = PostPettyCashVoucher & {
   id: string;
+  /** Total amount requested for the voucher. */
+  total?: number;
 };
 
 export type DeletePettyCashVoucherId = {
@@ -132,6 +134,11 @@ export type PutPettyCashRejectId = {
 
 export type PutPettyCashValidateId = {
   id: string;
+};
+
+export type PutBillingsInvoiceReject = {
+  id: string;
+  comments: string;
 };
 
 // ---- Detalles para la respuesta enriquecida de Vales (GET) ----

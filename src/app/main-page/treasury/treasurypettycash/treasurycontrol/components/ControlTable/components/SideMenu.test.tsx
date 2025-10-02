@@ -128,4 +128,76 @@ describe('Treasury Control SideMenu', () => {
     expect(onReject).toHaveBeenCalledWith(baseProps.selected, 'Falta información');
     expect(screen.queryByText('Rechazar Vale')).not.toBeInTheDocument();
   });
+
+  it('disables validation and rejection actions when voucher is already valid', () => {
+    const onValidate = vi.fn();
+    const onReject = vi.fn();
+
+    render(
+      <SideMenu
+        {...baseProps}
+        onValidate={onValidate}
+        onReject={onReject}
+        selected={{ ...baseProps.selected, status: 'valido' }}
+      />,
+    );
+
+    const validateButton = screen.getByText('Validar');
+    const rejectButton = screen.getByText('Rechazar');
+
+    expect(validateButton).toBeDisabled();
+    expect(rejectButton).toBeDisabled();
+  });
+
+  it('shows the requested amount as total for blue vouchers when the invoice total is zero', () => {
+    render(
+      <SideMenu
+        {...baseProps}
+        selected={{
+          ...baseProps.selected,
+          voucherType: 'Vale azul',
+          VoucherLabelType: 'vale-azul',
+          total: 0,
+        }}
+        detail={{
+          id: '1',
+          petty_cash_funds: {
+            id: 'fund-1',
+            year_month: '2025-09',
+            assigned_amount: 0,
+            verified_amount: 0,
+            cash_on_hand: 0,
+            unverified_amount: 0,
+            pending_verification: 0,
+            available_amount: 0,
+          },
+          employee_id: '1',
+          employeename: 'Colaborador',
+          status: 'Pendiente',
+          voucher_type: 'Vale azul',
+          application_date: '2025-09-30',
+          concept: 'Concepto',
+          amount: 150,
+          comments: '',
+          project: {
+            id: 'project-1',
+            name: 'Proyecto',
+            proyectkey: 'PRJ',
+            client: 'Cliente',
+          },
+          xml: '',
+          pdf: '',
+          uuid: '',
+          rfc_emisor: '',
+          rfc_receptor: '',
+          subtotal: 0,
+          iva: 0,
+          total: 0,
+          conceptos: [],
+        }}
+      />,
+    );
+
+    expect(screen.getByText('$150')).toBeInTheDocument();
+  });
 });

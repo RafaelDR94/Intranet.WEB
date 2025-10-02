@@ -10,6 +10,7 @@ import {
   DeletePettyCashVoucherId,
   PutPettyCashRejectId,
   PutPettyCashValidateId,
+  PutBillingsInvoiceReject,
   PettyCashVoucherFull,
   PettyCashVoucherProject,
   PettyCashVoucherConcept,
@@ -193,19 +194,27 @@ export const PostPettyCashVoucherMap = (src: any): PostPettyCashVoucher => ({
   pdf: toString(src?.pdf),
 });
 
-export const PutPettyCashVoucherMap = (src: any): PutPettyCashVoucher => ({
-  id: toString(src?.id),
-  petty_cash_funds_id: toString(src?.petty_cash_funds_id),
-  employee_id: toString(src?.employee_id),
-  voucher_type: toString(src?.voucher_type),
-  application_date: toString(src?.application_date),
-  concept: toString(src?.concept),
-  amount: toNumber(src?.amount),
-  comments: toString(src?.comments),
-  project_id: toString(src?.project_id),
-  xml: toString(src?.xml),
-  pdf: toString(src?.pdf),
-});
+export const PutPettyCashVoucherMap = (src: any): PutPettyCashVoucher => {
+  const payload: PutPettyCashVoucher = {
+    id: toString(src?.id),
+    petty_cash_funds_id: toString(src?.petty_cash_funds_id),
+    employee_id: toString(src?.employee_id),
+    voucher_type: toString(src?.voucher_type),
+    application_date: toString(src?.application_date),
+    concept: toString(src?.concept),
+    amount: toNumber(src?.amount),
+    comments: toString(src?.comments),
+    project_id: toString(src?.project_id),
+    xml: toString(src?.xml),
+    pdf: toString(src?.pdf),
+  };
+
+  if (src?.total !== undefined && src?.total !== null) {
+    payload.total = toNumber(src.total);
+  }
+
+  return payload;
+};
 
 /** =========================
  *  Otros payloads
@@ -225,6 +234,13 @@ export const PutPettyCashRejectIdMap = (src: any): PutPettyCashRejectId => ({
 
 export const PutPettyCashValidateIdMap = (src: any): PutPettyCashValidateId => ({
   id: toString(src?.id),
+});
+
+export const PutBillingsInvoiceRejectMap = (
+  src: any,
+): PutBillingsInvoiceReject => ({
+  id: toString(src?.id),
+  comments: toString(src?.comments),
 });
 
 // Mapea la respuesta del endpoint de historial por empleado

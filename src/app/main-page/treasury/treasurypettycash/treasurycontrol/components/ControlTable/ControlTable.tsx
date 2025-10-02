@@ -3,6 +3,7 @@
 import React from "react";
 
 import SideMenu from "./components/SideMenu";
+import SideMenuEdit from "./components/SideMenuEdit/SideMenuEdit";
 import { useControlTable } from "./hooks/useControlTable";
 import { actionCell, container } from "./styles";
 import type { ActionMenuCellProps, ControlRow } from "./types";
@@ -70,12 +71,13 @@ const formatMoney = (value?: number) => {
 
 const statusToLabelType = (status?: string): LabelType => {
   const normalized = (status ?? "").toLowerCase();
-  if (normalized.includes("rechaz")) return "rechazado";
+  if (normalized.includes("rechazado")) return "rechazado";
   if (normalized.includes("proceso")) return "en-proceso";
   if (normalized.includes("valid")) return "valido";
   if (normalized.includes("pend")) return "pendiente";
   if (normalized.includes("no deducible")) return "prohibido";
   if (normalized.includes("sin factura")) return "sin-factura";
+  if (normalized.includes("factura rechazada")) return "factura-rechazada";
   return normalized ? "actualizado" : "pendiente";
 };
 
@@ -101,7 +103,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
     const canView = interpretPermission(rawPermissions.details);
     if (canView !== false) {
       items.push({
-        label: "Ver Detalle",
+        label: "Ver detalles",
         icon: EditIcon,
         onClick: () => {
           onView(row);
@@ -164,6 +166,7 @@ const ControlTable = () => {
     refreshData,
     refreshPage,
     detailOpen,
+    editOpen,
     detailLoading,
     detailData,
     selectedRow,
@@ -173,6 +176,10 @@ const ControlTable = () => {
     handleReject,
     validating,
     rejecting,
+    isEditing,
+    handleEditModeChange,
+    handleUpdateAmount,
+    updatingAmount,
   } = useControlTable();
 
   const isMobile = useIsMobile();
@@ -299,9 +306,29 @@ const ControlTable = () => {
         formatDate={formatDate}
         formatMoney={formatMoney}
         onValidate={handleValidate}
-        onReject={handleReject}
         isValidating={validating}
+        onReject={handleReject}
         isRejecting={rejecting}
+      />
+
+      <SideMenuEdit
+        panelOpen={editOpen}
+        setPanelOpen={(open) => {
+          if (!open) {
+            handleCloseDetail();
+          }
+        }}
+        selected={selectedRow}
+        detail={detailData}
+        isDetailLoading={detailLoading}
+        formatDate={formatDate}
+        formatMoney={formatMoney}
+        onReject={handleReject}
+        isRejecting={rejecting}
+        isEditingAmount={isEditing}
+        onEditModeChange={handleEditModeChange}
+        onSaveAmount={handleUpdateAmount}
+        isSavingAmount={updatingAmount}
       />
 
       {currentPagePermissions?.read && (

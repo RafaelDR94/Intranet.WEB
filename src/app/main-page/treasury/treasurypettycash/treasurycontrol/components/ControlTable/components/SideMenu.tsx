@@ -12,6 +12,43 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 
+const toValidNumber = (value: unknown): number | undefined =>
+  typeof value === "number" && !Number.isNaN(value) ? value : undefined;
+
+const pickFirstNumber = (
+  ...values: Array<number | undefined>
+): number | undefined => {
+  for (const value of values) {
+    if (value !== undefined) return value;
+  }
+
+  return undefined;
+};
+
+const isBlueVoucher = (voucherType?: string): boolean => {
+  const normalized = (voucherType ?? "")
+    .trim()
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (!normalized) return false;
+  if (normalized.length === 1) return normalized === "a";
+
+  return normalized.includes("azul");
+};
+
+const isVoucherValid = (status?: string): boolean => {
+  if (!status) return false;
+
+  const normalized = status
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  return normalized.includes("valido");
+};
+
 const SideMenu: React.FC<ControlSideMenuProps> = ({
   panelOpen,
   setPanelOpen,
@@ -38,12 +75,17 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const concept = detail?.concept || selected?.concept || "";
   const subtotal = detail?.subtotal ?? selected?.subtotal;
   const iva = detail?.iva ?? selected?.iva;
-  const total = detail?.total ?? detail?.amount ?? selected?.total;
   const voucherType = detail?.voucher_type || selected?.voucherType || "";
+  const status = detail?.status || selected?.status;
+  const isAlreadyValid = isVoucherValid(status);
+  const detailTotal = toValidNumber(detail?.total);
+  const detailAmount = toValidNumber(detail?.amount);
+  const selectedTotal = toValidNumber(selected?.total);
+  const total = isBlueVoucher(voucherType)
+    ? pickFirstNumber(detailAmount, selectedTotal, detailTotal)
+    : pickFirstNumber(detailTotal, detailAmount, selectedTotal);
   const uuid = detail?.uuid || "";
   const rfcReceptor = detail?.rfc_receptor || "";
-  const xmlUrl = detail?.xml || "";
-  const pdfUrl = detail?.pdf || "";
 
   const handleOpenRejectModal = () => {
     if (!selected || isDetailLoading || !onReject) return;
@@ -81,7 +123,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   };
 
   return (
-    <>
+    <div className="m-0">
       <PopUp
         open={isRejectModalOpen}
         onClose={handleCloseRejectModal}
@@ -114,21 +156,41 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
         onClose={() => setPanelOpen(false)}
         leftLabel={employeeName ? `Colaborador: ${employeeName}` : undefined}
         rightLabel={projectCode ? `Proyecto: ${projectCode}` : undefined}
-        label={() =>
-          voucherType ? (
-            <Label
-              type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
-              text={voucherType}
-            />
-          ) : null
-        }
+        renderActions={() => (
+          <div className="flex">
+            {voucherType ? (
+              <Label
+                type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
+                text={voucherType}
+              />
+            ) : null}
+            {detail?.xml && (
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={XMLIcon}
+                disabled={!detail.xml}
+                onClick={() => window.open(detail.xml!, "_blank")}
+              />
+            )}
+            {detail?.pdf && (
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={PDFIcon}
+                disabled={!detail.pdf}
+                onClick={() => window.open(detail.pdf!, "_blank")}
+              />
+            )}
+          </div>
+        )}
         actionButton={
           <div className="flex flex-row items-center gap-3">
             <Button
               size="medium"
               variant="solid"
               hideIcon
-              disabled={!selected || isDetailLoading || isValidating}
+              disabled={!selected || isDetailLoading || isValidating || isAlreadyValid}
               onClick={() => {
                 if (onValidate) {
                   onValidate(selected);
@@ -141,7 +203,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               size="medium"
               variant="outline"
               hideIcon
-              disabled={!selected || isDetailLoading || isRejecting}
+              disabled={!selected || isDetailLoading || isRejecting || isAlreadyValid}
               onClick={handleOpenRejectModal}
             >
               {isRejecting ? "Rechazando…" : "Rechazar"}
@@ -189,33 +251,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               </span>
             </div>
 
-            {/* Archivos enviados */}
-            <div className="flex items-center justify-between">
-              <span className="text-gray-90 text-b4 font-medium">
-                Archivos Enviados
-              </span>
-              <div className="flex items-center gap-2">
-                {xmlUrl && (
-                  <Button
-                    size="xsmall"
-                    variant="ghost"
-                    icon={XMLIcon}
-                    // disabled={!isEditableStatus || !xmlUrl}
-                    onClick={() => window.open(xmlUrl, "_blank")}
-                  />
-                )}
-                {pdfUrl && (
-                  <Button
-                    size="xsmall"
-                    variant="ghost"
-                    icon={PDFIcon}
-                    // disabled={!isEditableStatus || !pdfUrl}
-                    onClick={() => window.open(pdfUrl, "_blank")}
-                  />
-                )}
-              </div>
-            </div>
-
             <div className="mt-40 h-[0.1px] w-[auto] bg-green-100"></div>
 
             <div className="flex flex-col">
@@ -257,7 +292,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
           </div>
         )}
       </DetailsPanelLayout>
-    </>
+    </div>
   );
 };
 

@@ -12,7 +12,6 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 
 function normalizeDateForInput(raw?: string): string {
   if (!raw) return "";
@@ -26,7 +25,7 @@ function normalizeDateForInput(raw?: string): string {
   }
 
   const slashMatch = trimmed.match(
-  /^(\d{1,2})\s*[-/]\s*(\d{1,2})\s*[-/]\s*(\d{4})$/,
+    /^(\d{1,2})\s*[-/]\s*(\d{1,2})\s*[-/]\s*(\d{4})$/,
   );
 
   if (slashMatch) {
@@ -55,7 +54,8 @@ const SideMenu = ({
   const voucherDataEdit = useMemo<PettyCashVoucherData | undefined>(() => {
     if (!selected) return undefined;
 
-    const detailMatchesSelection = detail && detail.id === selected.id ? detail : null;
+    const detailMatchesSelection =
+      detail && detail.id === selected.id ? detail : null;
     const amountFromSelection =
       typeof selected.amount === "number" && !Number.isNaN(selected.amount)
         ? selected.amount
@@ -77,9 +77,7 @@ const SideMenu = ({
           "",
       ),
       concept:
-        detailMatchesSelection?.concept ??
-        selected.description?.name ??
-        "",
+        detailMatchesSelection?.concept ?? selected.description?.name ?? "",
       amount: detailMatchesSelection?.amount ?? amountFromSelection,
       comments: detailMatchesSelection?.comments ?? selected.comments ?? "",
       project_id:
@@ -91,8 +89,13 @@ const SideMenu = ({
 
   const isVoucherPinkVoucher = useMemo(() => {
     const rawVoucherType = voucherDataEdit?.voucher_type ?? "";
-    const normalizedVoucherType = rawVoucherType.toString().trim().toLowerCase();
-    return normalizedVoucherType === "r" || normalizedVoucherType.includes("rosa");
+    const normalizedVoucherType = rawVoucherType
+      .toString()
+      .trim()
+      .toLowerCase();
+    return (
+      normalizedVoucherType === "r" || normalizedVoucherType.includes("rosa")
+    );
   }, [voucherDataEdit?.voucher_type]);
 
   const projectCode =
@@ -102,9 +105,6 @@ const SideMenu = ({
   const certificationDate =
     detail?.application_date ?? selected?.dateCreate ?? "";
   const voucherUuid = detail?.uuid ?? selected?.billingdocument_id ?? "";
-  const xmlUrl = detail?.xml ?? selected?.xml ?? "";
-  const pdfUrl = detail?.pdf ?? selected?.pdf ?? "";
-  const imageUrl = selected?.image ?? "";
   const comments = detail?.comments ?? selected?.comments ?? "";
   const rfcEmisor = detail?.rfc_emisor ?? "";
   const rfcReceptor = detail?.rfc_receptor ?? "";
@@ -134,34 +134,56 @@ const SideMenu = ({
 
   const normalizedStatus = selected?.status?.toLocaleLowerCase().trim() ?? "";
   const isEditableStatus =
-    normalizedStatus === "rechazado" || normalizedStatus === "sin factura";
+    normalizedStatus === "rechazado" ||
+    normalizedStatus === "sin factura" ||
+    normalizedStatus === "factura rechazada";
 
   return (
     <DetailsPanelLayout
       open={panelOpen}
       withinContainer
       zIndex={80}
+      renderActions={() => (
+        <div className="flex">
+          {selected && (
+            <Label
+              type={selected.statusLabelType}
+              text={(selected?.status ?? "").toUpperCase()}
+            />
+          )}
+          {selected?.xml && (
+            <Button
+              size="xsmall"
+              variant="ghost"
+              icon={XMLIcon}
+              disabled={!selected.xml}
+              onClick={() => window.open(selected.xml!, "_blank")}
+            />
+          )}
+          {selected?.pdf && (
+            <Button
+              size="xsmall"
+              variant="ghost"
+              icon={PDFIcon}
+              disabled={!selected.pdf}
+              onClick={() => window.open(selected.pdf!, "_blank")}
+            />
+          )}
+        </div>
+      )}
       onClose={() => setPanelOpen(false)}
       leftLabel={selected ? `Usuario: ${employeeName}` : undefined}
       rightLabel={selected ? `Proyecto: ${projectCode}` : undefined}
       actionButton={
-          <Button
-            size="medium"
-            variant="solid"
-            hideIcon
-            onClick={() => submitRef.current?.()}
-            disabled={!isEditableStatus}
-          >
-            Reenviar
-          </Button>
-      }
-      renderActions={() =>
-        selected && (
-          <Label
-            type={selected.statusLabelType}
-            text={(selected?.status ?? "").toUpperCase()}
-          />
-        )
+        <Button
+          size="medium"
+          variant="solid"
+          hideIcon
+          onClick={() => submitRef.current?.()}
+          disabled={!isEditableStatus}
+        >
+          Reenviar
+        </Button>
       }
     >
       {selected ? (
@@ -231,42 +253,6 @@ const SideMenu = ({
             </div>
           </div>
 
-          {/* Archivos enviados */}
-          <div className="flex items-center justify-between">
-            <span className="text-gray-90 text-b4 font-medium">
-              Archivos Enviados
-            </span>
-            <div className="flex items-center gap-2">
-              {xmlUrl && (
-                <Button
-                  size="xsmall"
-                  variant="ghost"
-                  icon={XMLIcon}
-                  disabled={!isEditableStatus || !xmlUrl}
-                  onClick={() => window.open(xmlUrl, "_blank")}
-                />
-              )}
-              {pdfUrl && (
-                <Button
-                  size="xsmall"
-                  variant="ghost"
-                  icon={PDFIcon}
-                  disabled={!isEditableStatus || !pdfUrl}
-                  onClick={() => window.open(pdfUrl, "_blank")}
-                />
-              )}
-              {imageUrl && (
-                <Button
-                  size="xsmall"
-                  variant="ghost"
-                  icon={ImageIcon}
-                  disabled={!isEditableStatus}
-                  onClick={() => window.open(imageUrl, "_blank")}
-                />
-              )}
-            </div>
-          </div>
-
           {/* Comentarios */}
           {comments && (
             <div className="space-y-1">
@@ -280,102 +266,42 @@ const SideMenu = ({
           )}
           {/* Editar Documento (como en la maqueta) */}
 
-            <div>
-              <div className="text-gray-90 text-b4 font-medium">
-                Editar documento:
-              </div>
-
-              {/* Formulario */}
-              {isVoucherPinkVoucher ? (
-                <div>
-                  <VoucherPink
-                    mode="edit"
-                    responsiveLayoutMatrix={{
-                      sm: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
-                      md: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
-                      lg: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
-                    }}
-                    dataEdit={voucherDataEdit}
-                    startDisabled={!isEditableStatus}
-                    externalSubmitRef={submitRef}
-                  />
-                </div>
-              ) : (
-                <div>
-                  <VoucherBlue
-                    mode="edit"
-                    responsiveLayoutMatrix={{
-                      sm: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
-                      md: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
-                      lg: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
-                    }}
-                    dataEdit={voucherDataEdit}
-                    startDisabled={!isEditableStatus}
-                    externalSubmitRef={submitRef}
-                  />
-                </div>
-              )}
+          <div>
+            <div className="text-gray-90 text-b4 font-medium">
+              Editar documento:
             </div>
+
+            {/* Formulario */}
+            {isVoucherPinkVoucher ? (
+              <div>
+                <VoucherPink
+                  mode="edit"
+                  responsiveLayoutMatrix={{
+                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    md: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                  }}
+                  dataEdit={voucherDataEdit}
+                  startDisabled={!isEditableStatus}
+                  externalSubmitRef={submitRef}
+                />
+              </div>
+            ) : (
+              <div>
+                <VoucherBlue
+                  mode="edit"
+                  responsiveLayoutMatrix={{
+                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    md: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                  }}
+                  dataEdit={voucherDataEdit}
+                  startDisabled={!isEditableStatus}
+                  externalSubmitRef={submitRef}
+                />
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         <div className="text-gray-70 text-b3">
