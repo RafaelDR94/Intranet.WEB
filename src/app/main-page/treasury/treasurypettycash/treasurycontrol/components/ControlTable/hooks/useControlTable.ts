@@ -18,6 +18,19 @@ import {
   endOfDay,
 } from '@/app/components/DataTable/utilities/datesTable';
 
+const toValidNumber = (value: unknown): number | undefined =>
+  typeof value === 'number' && !Number.isNaN(value) ? value : undefined;
+
+const pickFirstNumber = (
+  ...values: Array<number | undefined>
+): number | undefined => {
+  for (const value of values) {
+    if (value !== undefined) return value;
+  }
+
+  return undefined;
+};
+
 function voucherTypeToLabelType(voucher?: string): LabelType {
   const v = (voucher ?? "").toLowerCase();
   if (v.includes("rosa")) return "vale-rosa";
@@ -25,23 +38,59 @@ function voucherTypeToLabelType(voucher?: string): LabelType {
   return "restringido";
 }
 
-const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
-  const subtotal =
-    typeof voucher.subtotal === 'number' && !Number.isNaN(voucher.subtotal)
-      ? voucher.subtotal
-      : undefined;
-  const iva =
-    typeof voucher.iva === 'number' && !Number.isNaN(voucher.iva)
-      ? voucher.iva
-      : undefined;
-  const totalCandidate =
-    typeof voucher.total === 'number' && !Number.isNaN(voucher.total)
-      ? voucher.total
-      : typeof voucher.amount === 'number' && !Number.isNaN(voucher.amount)
-      ? voucher.amount
-      : undefined;
+/**
+ * Maps a descriptive voucher type (e.g. "Vale rosa") to the
+ * single-letter payload expected by the backend.
+ */
+const mapVoucherTypeToPayload = (voucherType?: string): 'R' | 'A' | '' => {
+  const normalized = (voucherType ?? '')
+    .trim()
+    .toLocaleLowerCase('es-MX')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 
+  if (!normalized) return '';
+  if (normalized.length === 1) {
+    if (normalized === 'r') return 'R';
+    if (normalized === 'a') return 'A';
+    return '';
+  }
+
+  if (normalized.includes('rosa')) return 'R';
+  if (normalized.includes('azul')) return 'A';
+  if (normalized.startsWith('r')) return 'R';
+  if (normalized.startsWith('a')) return 'A';
+
+  return '';
+};
+
+const resolveVoucherTypeCode = (
+  detail: ControlDetail | null,
+  row: ControlRow | null,
+): 'R' | 'A' | '' => {
+  const fromDetail = mapVoucherTypeToPayload(detail?.voucher_type);
+  if (fromDetail) return fromDetail;
+
+  const fromRow = mapVoucherTypeToPayload(row?.voucherType);
+  if (fromRow) return fromRow;
+
+  if (row?.VoucherLabelType === 'vale-rosa') return 'R';
+  if (row?.VoucherLabelType === 'vale-azul') return 'A';
+
+  return '';
+};
+
+const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
+  const subtotal = toValidNumber(voucher.subtotal);
+  const iva = toValidNumber(voucher.iva);
+  const totalValue = toValidNumber(voucher.total);
+  const requestedAmount = toValidNumber(voucher.amount);
   const voucherType = voucher.voucher_type ?? '';
+  const voucherTypeCode = mapVoucherTypeToPayload(voucherType);
+  const totalCandidate =
+    voucherTypeCode === 'A'
+      ? pickFirstNumber(requestedAmount, totalValue)
+      : pickFirstNumber(totalValue, requestedAmount);
 
   return {
     id: voucher.id,
@@ -382,6 +431,22 @@ export const useControlTable = () => {
       return;
     }
 
+    const voucherTypeCode = resolveVoucherTypeCode(currentDetail, currentRow);
+
+    if (!voucherTypeCode) {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'Tipo de vale desconocido',
+        description:
+          'No se pudo identificar si el vale es rosa o azul. Actualiza la información e inténtalo de nuevo.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      return;
+    }
+
     showSpinner({ message: 'Guardando monto solicitado…' });
     let updated: PettyCashVoucherData | null = null;
     try {
@@ -389,7 +454,7 @@ export const useControlTable = () => {
         id: currentDetail.id,
         petty_cash_funds_id: pettyCashFundId,
         employee_id: currentDetail.employee_id,
-        voucher_type: currentDetail.voucher_type,
+        voucher_type: voucherTypeCode,
         application_date: currentDetail.application_date,
         concept: currentDetail.concept,
         amount,
