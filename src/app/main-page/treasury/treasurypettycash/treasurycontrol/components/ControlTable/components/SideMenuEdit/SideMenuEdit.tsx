@@ -13,6 +13,7 @@ import type { LabelType } from "@/app/components/Label/types";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
 
 const statusToLabelType = (status?: string): LabelType => {
@@ -50,6 +51,8 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
       }),
       shallow,
     );
+  const { usePrincipalAlert } = usePrincipal();
+  const { showAlert, hideAlert } = usePrincipalAlert;
   const [isRejectModalOpen, setRejectModalOpen] = React.useState(false);
   const [rejectComment, setRejectComment] = React.useState("");
   const [rejectError, setRejectError] = React.useState<string | null>(null);
@@ -140,12 +143,40 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
 
     const ok = await rejectBillingInvoice({ id: targetId, comments: trimmed });
     if (!ok) {
+      showAlert({
+        type: "error",
+        variant: "filled",
+        title: "No se pudo rechazar la factura",
+        description: "Intenta de nuevo en unos segundos.",
+        showPrimaryButton: true,
+        primaryLabel: "Entendido",
+        onPrimaryClick: hideAlert,
+      });
       setRejectError("No se pudo rechazar la factura. Intenta nuevamente.");
       return;
     }
 
-    const maybePromise = onReject?.(selected, trimmed);
-    await Promise.resolve(maybePromise);
+    const result = await Promise.resolve(
+      onReject?.(selected, trimmed, { skipSuccessAlert: true }),
+    );
+    const voucherRejected =
+      typeof result === "boolean" ? result : result !== false;
+
+    if (!voucherRejected) {
+      setRejectError("No se pudo rechazar el vale. Intenta nuevamente.");
+      return;
+    }
+
+    showAlert({
+      type: "warning",
+      variant: "filled",
+      title: "Factura rechazada",
+      description: "Se rechazó la factura y el vale correctamente.",
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      autoCloseMs: 2000,
+      onClose: hideAlert,
+    });
 
     setRejectModalOpen(false);
     setRejectComment("");

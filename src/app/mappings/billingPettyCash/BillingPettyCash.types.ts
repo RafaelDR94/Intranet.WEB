@@ -119,6 +119,8 @@ export type PostPettyCashVoucher = {
 
 export type PutPettyCashVoucher = PostPettyCashVoucher & {
   id: string;
+  /** Total amount requested for the voucher. */
+  total?: number;
 };
 
 export type DeletePettyCashVoucherId = {
