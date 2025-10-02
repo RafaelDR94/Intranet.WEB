@@ -1,5 +1,4 @@
 'use client'
-import type { AxiosResponse } from 'axios'
 
 import { Set } from '../types'
 
@@ -23,9 +22,9 @@ export const rejectPettyCashVoucher = async (
     const normalizedComment = comments.trim()
     const query = normalizedComment ? `?comment=${encodeURIComponent(normalizedComment)}` : ''
     const url = `${BillingPettyCashVoucherReject}/${id}${query}`
-    const res: AxiosResponse = await put(url, undefined)
+    await put(url, undefined)
     set({ rejecting: false, successRejectVoucher: true })
-    return Boolean(res)
+    return true
   } catch (e) {
     const err = normalizeApiError(e)
     set({ rejecting: false, successRejectVoucher: false, error: err.message })

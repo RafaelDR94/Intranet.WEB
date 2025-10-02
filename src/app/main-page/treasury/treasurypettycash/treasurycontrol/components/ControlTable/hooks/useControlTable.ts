@@ -393,6 +393,7 @@ export const useControlTable = () => {
         application_date: currentDetail.application_date,
         concept: currentDetail.concept,
         amount,
+        total: amount,
         comments: currentDetail.comments ?? '',
         project_id: projectId,
         xml: currentDetail.xml ?? '',
