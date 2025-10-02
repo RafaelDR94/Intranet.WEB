@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { shallow } from 'zustand/shallow';
 import { useRouter } from 'next/navigation';
 
@@ -140,6 +140,8 @@ export const useControlTable = () => {
   const [isFetchingDetail, setIsFetchingDetail] = useState(false);
   const [selectedRow, setSelectedRow] = useState<ControlRow | null>(null);
   const [isEditingAmount, setIsEditingAmount] = useState(false);
+  const skipErrorAlertRef = useRef(false);
+  const suppressedErrorRef = useRef<string | undefined>(undefined);
 
   const isGatewayReady = useIntranetGatewayStore((state) => state.isReady);
 
@@ -194,7 +196,24 @@ export const useControlTable = () => {
   }, [hideSpinner, loading, isFetchingDetail, showSpinner]);
 
   useEffect(() => {
-    if (!error || isFetchingDetail) return;
+    if (!error) {
+      suppressedErrorRef.current = undefined;
+      return;
+    }
+
+    if (isFetchingDetail) return;
+
+    if (skipErrorAlertRef.current) {
+      skipErrorAlertRef.current = false;
+      suppressedErrorRef.current = error;
+      return;
+    }
+
+    if (suppressedErrorRef.current && suppressedErrorRef.current === error) {
+      return;
+    }
+
+    suppressedErrorRef.current = undefined;
 
     showAlert({
       type: 'error',
@@ -211,7 +230,13 @@ export const useControlTable = () => {
         fetchPettyCashVouchers(true);
       },
     });
-  }, [error, fetchPettyCashVouchers, hideAlert, isFetchingDetail, showAlert]);
+  }, [
+    error,
+    fetchPettyCashVouchers,
+    hideAlert,
+    isFetchingDetail,
+    showAlert,
+  ]);
 
   useEffect(() => {
     if (
@@ -447,6 +472,9 @@ export const useControlTable = () => {
       return;
     }
 
+    skipErrorAlertRef.current = true;
+    suppressedErrorRef.current = undefined;
+
     showSpinner({ message: 'Guardando monto solicitado…' });
     let updated: PettyCashVoucherData | null = null;
     try {
@@ -514,6 +542,8 @@ export const useControlTable = () => {
         onPrimaryClick: hideAlert,
       });
     }
+
+    skipErrorAlertRef.current = false;
   };
 
   const handleValidate = async (row: ControlRow | null) => {
