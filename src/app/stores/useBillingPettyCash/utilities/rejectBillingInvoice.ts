@@ -22,8 +22,17 @@ export const rejectBillingInvoice = async (
 
   try {
     const put = pPut(requireGateway('put'), [200, 201])
-    const mappedPayload = PutBillingsInvoiceRejectMap(payload)
-    await put(BillingInvoiceReject, mappedPayload)
+    const { id, comments } = PutBillingsInvoiceRejectMap(payload)
+    const normalizedComment = comments.trim()
+    const searchParams = new URLSearchParams({ id })
+
+    if (normalizedComment) {
+      searchParams.set('comment', normalizedComment)
+    }
+
+    const url = `${BillingInvoiceReject}?${searchParams.toString()}`
+
+    await put(url, undefined)
     set({ rejecting: false, successRejectInvoice: true })
     return true
   } catch (e) {

@@ -54,10 +54,10 @@ describe('rejectBillingInvoice', () => {
     expect(state.successRejectInvoice).toBe(true)
     expect(requireGatewayRecorder).toHaveBeenCalledWith('put')
     expect(pPutRecorder).toHaveBeenCalled()
-    expect(putSpy).toHaveBeenCalledWith('/Billings/Invoice/Reject', {
-      id: '99',
-      comments: ' Motivo ',
-    })
+    expect(putSpy).toHaveBeenCalledWith(
+      '/Billings/Invoice/Reject?id=99&comment=Motivo',
+      undefined,
+    )
   })
 
   it('propaga el error y actualiza el estado en fallo', async () => {
