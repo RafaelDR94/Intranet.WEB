@@ -20,8 +20,8 @@ export const rejectPettyCashVoucher = async (
   try {
     const put = pPut(requireGateway('put'), [200, 201])
     const normalizedComment = comments.trim()
-    const query = normalizedComment ? `?comment=${encodeURIComponent(normalizedComment)}` : ''
-    const url = `${BillingPettyCashVoucherReject}/${id}${query}`
+    const query = normalizedComment ? `&comment=${encodeURIComponent(normalizedComment)}` : ''
+    const url = `${BillingPettyCashVoucherReject}?id=${id}${query}`
     await put(url, undefined)
     set({ rejecting: false, successRejectVoucher: true })
     return true
