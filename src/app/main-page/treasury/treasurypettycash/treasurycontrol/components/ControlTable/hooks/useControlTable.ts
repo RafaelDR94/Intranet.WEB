@@ -680,6 +680,30 @@ export const useControlTable = () => {
     const panelOpen = detailOpen || editOpen;
 
     if (ok) {
+      const nextStatus = (() => {
+        const currentStatus = detailData?.status ?? target.status ?? '';
+        const normalized = currentStatus
+          .toLocaleLowerCase('es-MX')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+
+        if (normalized.includes('factura') && normalized.includes('rechaz')) {
+          return currentStatus;
+        }
+
+        return 'Factura rechazada';
+      })();
+
+      setDetailData((prev) => {
+        if (!prev || prev.id !== invoiceId) return prev;
+        return { ...prev, status: nextStatus };
+      });
+
+      setSelectedRow((prev) => {
+        if (!prev || prev.id !== target.id) return prev;
+        return { ...prev, status: nextStatus };
+      });
+
       await Promise.all([fetchPettyCashVouchers(true), fetchPettyCashFunds(true)]);
 
       if (panelOpen && selectedId === target.id) {
