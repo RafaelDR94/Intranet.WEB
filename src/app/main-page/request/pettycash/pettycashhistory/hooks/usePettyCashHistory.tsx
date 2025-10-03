@@ -31,6 +31,7 @@ function statusToLabelType(status?: string): LabelType {
   if (normalized.includes("no deducible")) return "prohibido";
   if (normalized.includes("sin factura")) return "sin-factura";
   if (normalized.includes("factura rechazada")) return "factura-rechazada";
+  if (normalized.includes("factura enviada")) return "purple";
   return normalized ? "actualizado" : "pendiente";
 }
 
