@@ -38,15 +38,28 @@ const isBlueVoucher = (voucherType?: string): boolean => {
   return normalized.includes("azul");
 };
 
-const isVoucherValid = (status?: string): boolean => {
-  if (!status) return false;
-
-  const normalized = status
+const normalizeStatus = (status?: string): string =>
+  (status ?? "")
     .toLocaleLowerCase("es-MX")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 
+const isVoucherValid = (status?: string): boolean => {
+  if (!status) return false;
+
+  const normalized = normalizeStatus(status);
+
   return normalized.includes("valido");
+};
+
+const isInvoiceRejected = (status?: string): boolean => {
+  if (!status) return false;
+
+  const normalized = normalizeStatus(status);
+
+  if (!normalized.includes("factura")) return false;
+
+  return normalized.includes("rechaz");
 };
 
 const SideMenu: React.FC<ControlSideMenuProps> = ({
@@ -78,6 +91,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const voucherType = detail?.voucher_type || selected?.voucherType || "";
   const status = detail?.status || selected?.status;
   const isAlreadyValid = isVoucherValid(status);
+  const invoiceRejected = isInvoiceRejected(status);
   const detailTotal = toValidNumber(detail?.total);
   const detailAmount = toValidNumber(detail?.amount);
   const selectedTotal = toValidNumber(selected?.total);
@@ -190,7 +204,13 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               size="medium"
               variant="solid"
               hideIcon
-              disabled={!selected || isDetailLoading || isValidating || isAlreadyValid}
+              disabled={
+                !selected ||
+                isDetailLoading ||
+                isValidating ||
+                isAlreadyValid ||
+                invoiceRejected
+              }
               onClick={() => {
                 if (onValidate) {
                   onValidate(selected);
@@ -203,7 +223,13 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               size="medium"
               variant="outline"
               hideIcon
-              disabled={!selected || isDetailLoading || isRejecting || isAlreadyValid}
+              disabled={
+                !selected ||
+                isDetailLoading ||
+                isRejecting ||
+                isAlreadyValid ||
+                invoiceRejected
+              }
               onClick={handleOpenRejectModal}
             >
               {isRejecting ? "Rechazando…" : "Rechazar"}

@@ -160,6 +160,7 @@ export const useControlTable = () => {
     updatePettyCashVoucher,
     validatePettyCashVoucher,
     rejectPettyCashVoucher,
+    rejectBillingInvoice,
     resetFlags,
   } = useBillingPettyCash(
     (state) => ({
@@ -177,6 +178,7 @@ export const useControlTable = () => {
       updatePettyCashVoucher: state.updatePettyCashVoucher,
       validatePettyCashVoucher: state.validatePettyCashVoucher,
       rejectPettyCashVoucher: state.rejectPettyCashVoucher,
+      rejectBillingInvoice: state.rejectBillingInvoice,
       resetFlags: state.resetFlags,
     }),
     shallow
@@ -650,6 +652,98 @@ export const useControlTable = () => {
     }
   };
 
+  const handleRejectInvoice = async (
+    row: ControlRow | null,
+    comments: string,
+  ): Promise<boolean> => {
+    const target = row ?? selectedRow;
+    const trimmedComment = comments.trim();
+    if (!target || !trimmedComment) return false;
+
+    const invoiceId = detailData?.id ?? target.id;
+    if (!invoiceId) {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'Información incompleta',
+        description: 'No se encontró el identificador de la factura para rechazarla.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      return false;
+    }
+
+    showSpinner({ message: 'Rechazando factura seleccionada…' });
+    const ok = await rejectBillingInvoice({ id: invoiceId, comments: trimmedComment });
+    const selectedId = selectedRow?.id;
+    const panelOpen = detailOpen || editOpen;
+
+    if (ok) {
+      const nextStatus = (() => {
+        const currentStatus = detailData?.status ?? target.status ?? '';
+        const normalized = currentStatus
+          .toLocaleLowerCase('es-MX')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+
+        if (normalized.includes('factura') && normalized.includes('rechaz')) {
+          return currentStatus;
+        }
+
+        return 'Factura rechazada';
+      })();
+
+      setDetailData((prev) => {
+        if (!prev || prev.id !== invoiceId) return prev;
+        return { ...prev, status: nextStatus };
+      });
+
+      setSelectedRow((prev) => {
+        if (!prev || prev.id !== target.id) return prev;
+        return { ...prev, status: nextStatus };
+      });
+
+      await Promise.all([fetchPettyCashVouchers(true), fetchPettyCashFunds(true)]);
+
+      if (panelOpen && selectedId === target.id) {
+        setDetailLoading(true);
+        try {
+          const detail = await fetchPettyCashVoucherById(target.id, true);
+          setDetailData(detail);
+        } finally {
+          setDetailLoading(false);
+        }
+      }
+
+      hideSpinner();
+      showAlert({
+        type: 'warning',
+        variant: 'filled',
+        title: 'Factura rechazada',
+        description: 'Se rechazó la factura y el vale correctamente.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2000,
+        onClose: hideAlert,
+      });
+      return true;
+    } else {
+      hideSpinner();
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'No se pudo rechazar la factura',
+        description: 'Intenta de nuevo en unos segundos.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      resetFlags();
+      return false;
+    }
+  };
+
   const refreshData = useCallback(() => {
     fetchPettyCashVouchers(true);
   }, [fetchPettyCashVouchers]);
@@ -716,6 +810,7 @@ export const useControlTable = () => {
     formatDate,
     handleValidate,
     handleReject,
+    handleRejectInvoice,
     validating,
     rejecting,
     isEditing: isEditingAmount,
