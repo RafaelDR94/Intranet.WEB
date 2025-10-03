@@ -326,7 +326,7 @@ const ControlTable = () => {
         isDetailLoading={detailLoading}
         formatDate={formatDate}
         formatMoney={formatMoney}
-        onReject={handleReject}
+        onRejectInvoice={handleRejectInvoice}
         isRejecting={rejecting}
         isEditingAmount={isEditing}
         onEditModeChange={handleEditModeChange}
