@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { shallow } from "zustand/shallow";
 
 import type { ControlSideMenuProps } from "../../types";
 
@@ -13,8 +12,6 @@ import type { LabelType } from "@/app/components/Label/types";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
 
 const statusToLabelType = (status?: string): LabelType => {
   const normalized = (status ?? "").toLowerCase();
@@ -55,23 +52,13 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
   isDetailLoading,
   formatDate,
   formatMoney,
-  onReject,
+  onRejectInvoice,
   isRejecting = false,
   isEditingAmount = false,
   onEditModeChange,
   onSaveAmount,
   isSavingAmount = false,
 }) => {
-  const { rejectBillingInvoice, rejecting: storeRejecting } =
-    useBillingPettyCash(
-      (state) => ({
-        rejectBillingInvoice: state.rejectBillingInvoice,
-        rejecting: state.rejecting,
-      }),
-      shallow,
-    );
-  const { usePrincipalAlert } = usePrincipal();
-  const { showAlert, hideAlert } = usePrincipalAlert;
   const [isRejectModalOpen, setRejectModalOpen] = React.useState(false);
   const [rejectComment, setRejectComment] = React.useState("");
   const [rejectError, setRejectError] = React.useState<string | null>(null);
@@ -80,7 +67,7 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
   const [amountError, setAmountError] = React.useState<string | null>(null);
   const [amountTouched, setAmountTouched] = React.useState(false);
   const [pendingAmount, setPendingAmount] = React.useState<number | null>(null);
-  const isInvoiceRejecting = isRejecting || storeRejecting;
+  const isInvoiceRejecting = isRejecting;
 
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
@@ -155,7 +142,7 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
   }, [amountTouched, isEditingAmount, requestedAmount]);
 
   const handleOpenRejectModal = () => {
-    if (!selected || isDetailLoading || !onReject) return;
+    if (!selected || isDetailLoading || !onRejectInvoice) return;
     setRejectComment("");
     setRejectError(null);
     setRejectModalOpen(true);
@@ -168,7 +155,8 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
   };
 
   const handleRejectSubmit = async () => {
-    if (!selected || isDetailLoading || isInvoiceRejecting) return;
+    if (!selected || isDetailLoading || isInvoiceRejecting || !onRejectInvoice)
+      return;
 
     const trimmed = rejectComment.trim();
     if (!trimmed) {
@@ -176,37 +164,11 @@ const SideMenuEdit: React.FC<ControlSideMenuProps> = ({
       return;
     }
 
-    const targetId = detail?.id ?? selected.id;
-    if (!targetId) {
-      setRejectError("No se encontró el identificador de la factura.");
-      return;
-    }
-
-    const ok = await rejectBillingInvoice({ id: targetId, comments: trimmed });
+    const ok = await onRejectInvoice(selected, trimmed);
     if (!ok) {
-      showAlert({
-        type: "error",
-        variant: "filled",
-        title: "No se pudo rechazar la factura",
-        description: "Intenta de nuevo en unos segundos.",
-        showPrimaryButton: true,
-        primaryLabel: "Entendido",
-        onPrimaryClick: hideAlert,
-      });
       setRejectError("No se pudo rechazar la factura. Intenta nuevamente.");
       return;
     }
-
-    showAlert({
-      type: "warning",
-      variant: "filled",
-      title: "Factura rechazada",
-      description: "Se rechazó la factura y el vale correctamente.",
-      showPrimaryButton: false,
-      showSecondaryButton: false,
-      autoCloseMs: 2000,
-      onClose: hideAlert,
-    });
 
     setRejectModalOpen(false);
     setRejectComment("");

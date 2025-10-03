@@ -175,6 +175,7 @@ const ControlTable = () => {
     formatDate,
     handleValidate,
     handleReject,
+    handleRejectInvoice,
     validating,
     rejecting,
     isEditing,
@@ -309,6 +310,7 @@ const ControlTable = () => {
         onValidate={handleValidate}
         isValidating={validating}
         onReject={handleReject}
+        onRejectInvoice={handleRejectInvoice}
         isRejecting={rejecting}
       />
 
@@ -324,7 +326,7 @@ const ControlTable = () => {
         isDetailLoading={detailLoading}
         formatDate={formatDate}
         formatMoney={formatMoney}
-        onReject={handleReject}
+        onRejectInvoice={handleRejectInvoice}
         isRejecting={rejecting}
         isEditingAmount={isEditing}
         onEditModeChange={handleEditModeChange}

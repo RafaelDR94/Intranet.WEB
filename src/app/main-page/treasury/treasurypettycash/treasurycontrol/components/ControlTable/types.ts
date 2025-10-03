@@ -70,6 +70,13 @@ export type ControlSideMenuProps = {
     comments: string,
     options?: { skipSuccessAlert?: boolean },
   ) => Promise<boolean> | boolean | void;
+  /**
+   * Callback executed when the reviewer rejects the billing invoice associated with the voucher.
+   */
+  onRejectInvoice?: (
+    row: ControlRow | null,
+    comments: string,
+  ) => Promise<boolean> | boolean | void;
   /** Indicates whether a validation action is currently executing. */
   isValidating?: boolean;
   /** Indicates whether a rejection action is currently executing. */

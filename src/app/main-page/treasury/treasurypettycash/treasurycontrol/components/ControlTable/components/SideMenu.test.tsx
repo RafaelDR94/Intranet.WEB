@@ -149,6 +149,21 @@ describe('Treasury Control SideMenu', () => {
     expect(rejectButton).toBeDisabled();
   });
 
+  it('disables validation and rejection actions when the invoice was rejected', () => {
+    render(
+      <SideMenu
+        {...baseProps}
+        selected={{
+          ...baseProps.selected,
+          status: 'Factura Rechazada',
+        }}
+      />,
+    );
+
+    expect(screen.getByText('Validar')).toBeDisabled();
+    expect(screen.getByText('Rechazar')).toBeDisabled();
+  });
+
   it('shows the requested amount as total for blue vouchers when the invoice total is zero', () => {
     render(
       <SideMenu
