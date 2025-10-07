@@ -74,6 +74,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   onReject,
   isValidating = false,
   isRejecting = false,
+  isEditingAmount = false,
 }) => {
   const [isRejectModalOpen, setRejectModalOpen] = React.useState(false);
   const [rejectComment, setRejectComment] = React.useState("");
@@ -134,6 +135,29 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   > = (event) => {
     setRejectComment(event.target.value);
     if (rejectError) setRejectError(null);
+  };
+
+  const handleSaveAmount = () => {
+    if (isDetailLoading || isSavingAmount) return;
+
+    const normalized = amountValue.replace(/,/g, "").trim();
+    const parsed = Number.parseFloat(normalized);
+
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      setAmountError("Ingresa un monto válido.");
+      return;
+    }
+
+    setAmountError(null);
+    setPendingAmount(parsed);
+    setConfirmModalOpen(true);
+  };
+
+  const handleStartEditing = () => {
+    if (!selected || isDetailLoading) return;
+    setAmountTouched(false);
+    setAmountError(null);
+    onEditModeChange?.(true);
   };
 
   return (
@@ -305,6 +329,71 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                 </div>
               </div>
             </div>
+
+            <div className="mt-40 h-[0.1px] w-[auto] bg-green-100"></div>
+
+            <div className="flex flex-row items-center gap-3">
+              {isEditingAmount ? (
+                <Button
+                  size="medium"
+                  variant="outline"
+                  hideIcon
+                  disabled={true}
+                  onClick={handleCancelEditing}
+                >
+                  Editar Monto
+                </Button>
+              ) : (
+                <Button
+                  size="medium"
+                  variant="solid"
+                  hideIcon
+                  disabled={!selected || isDetailLoading}
+                  onClick={handleStartEditing}
+                >
+                  Editar Monto
+                </Button>
+              )}
+            </div>
+
+            {isEditingAmount ? (
+              <div className="">
+                <div className="mt-10 mb-10 h-[0.1px] w-[auto] bg-green-100"></div>
+                {requestedAmount !== undefined ? (
+                  <p className="text-gray-70 text-b4 mt-2">
+                    MONTO SOLICITADO :&nbsp;
+                    <span className="text-gray-90 font-medium">
+                      {formatMoney(requestedAmount)}
+                    </span>
+                  </p>
+                ) : null}
+                <p className="text-b4 text-gray-90 my-2">
+                  Ingresa aquí el nuevo monto:
+                </p>
+                <p className="text-b4 text-gray-90 my-1">Monto:</p>
+                <div className="align-center flex justify-between">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={amountValue}
+                    onChange={handleAmountInputChange}
+                    disabled={isSavingAmount || isDetailLoading}
+                    variant={amountError ? "error" : "default"}
+                    helperText={amountError ?? undefined}
+                    dataTestId="requested-amount-input"
+                  />
+                  <Button
+                    size="medium"
+                    hideIcon
+                    onClick={handleSaveAmount}
+                    disabled={isSavingAmount || isDetailLoading || !selected}
+                  >
+                    {isSavingAmount ? "Guardando…" : "Guardar Monto"}
+                  </Button>
+                </div>
+              </div>
+            ) : null}
 
             {!isDetailLoading && !detail && (
               <div className="text-gray-70 text-b3">
