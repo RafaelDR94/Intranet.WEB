@@ -16,10 +16,15 @@ const toValidNumber = (value: unknown): number | undefined =>
   typeof value === "number" && !Number.isNaN(value) ? value : undefined;
 
 const pickFirstNumber = (
-  ...values: Array<number | undefined>
+  values: Array<number | undefined>,
+  options: { allowZero?: boolean } = {},
 ): number | undefined => {
+  const { allowZero = true } = options;
+
   for (const value of values) {
-    if (value !== undefined) return value;
+    if (value === undefined) continue;
+    if (!allowZero && value === 0) continue;
+    return value;
   }
 
   return undefined;
@@ -49,7 +54,7 @@ const isVoucherValid = (status?: string): boolean => {
 
   const normalized = normalizeStatus(status);
 
-  return normalized.includes("valido");
+  return normalized.includes("valid");
 };
 
 const isInvoiceRejected = (status?: string): boolean => {
@@ -72,13 +77,35 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   formatMoney,
   onValidate,
   onReject,
+  onRejectInvoice,
   isValidating = false,
   isRejecting = false,
   isEditingAmount = false,
+  onEditModeChange,
+  onSaveAmount,
+  isSavingAmount = false,
 }) => {
-  const [isRejectModalOpen, setRejectModalOpen] = React.useState(false);
-  const [rejectComment, setRejectComment] = React.useState("");
-  const [rejectError, setRejectError] = React.useState<string | null>(null);
+  const [voucherRejectModalOpen, setVoucherRejectModalOpen] =
+    React.useState(false);
+  const [voucherRejectComment, setVoucherRejectComment] =
+    React.useState("");
+  const [voucherRejectError, setVoucherRejectError] = React.useState<
+    string | null
+  >(null);
+  const [invoiceRejectModalOpen, setInvoiceRejectModalOpen] =
+    React.useState(false);
+  const [invoiceRejectComment, setInvoiceRejectComment] =
+    React.useState("");
+  const [invoiceRejectError, setInvoiceRejectError] = React.useState<
+    string | null
+  >(null);
+  const [confirmModalOpen, setConfirmModalOpen] = React.useState(false);
+  const [amountValue, setAmountValue] = React.useState<string>("");
+  const [amountError, setAmountError] = React.useState<string | null>(null);
+  const [amountTouched, setAmountTouched] = React.useState(false);
+  const [pendingAmount, setPendingAmount] = React.useState<number | null>(
+    null,
+  );
 
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
@@ -91,50 +118,171 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const iva = detail?.iva ?? selected?.iva;
   const voucherType = detail?.voucher_type || selected?.voucherType || "";
   const status = detail?.status || selected?.status;
-  const isAlreadyValid = isVoucherValid(status);
-  const invoiceRejected = isInvoiceRejected(status);
-  const detailTotal = toValidNumber(detail?.total);
-  const detailAmount = toValidNumber(detail?.amount);
-  const selectedTotal = toValidNumber(selected?.total);
-  const total = isBlueVoucher(voucherType)
-    ? pickFirstNumber(detailAmount, selectedTotal, detailTotal)
-    : pickFirstNumber(detailTotal, detailAmount, selectedTotal);
   const uuid = detail?.uuid || "";
   const rfcReceptor = detail?.rfc_receptor || "";
+  const xmlUrl = detail?.xml || "";
+  const pdfUrl = detail?.pdf || "";
 
-  const handleOpenRejectModal = () => {
+  const isAlreadyValid = isVoucherValid(status);
+  const invoiceRejected = isInvoiceRejected(status);
+  const voucherTypeLabel =
+    voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul";
+
+  const requestedAmount = React.useMemo(() => {
+    return pickFirstNumber(
+      [
+        toValidNumber(detail?.amount),
+        toValidNumber(detail?.total),
+        toValidNumber(selected?.total),
+      ],
+      { allowZero: false },
+    );
+  }, [detail?.amount, detail?.total, selected?.total]);
+
+  const resolvedTotal = React.useMemo(() => {
+    const isBlue = isBlueVoucher(voucherType);
+    const candidates = isBlue
+      ? [
+          toValidNumber(detail?.amount),
+          toValidNumber(detail?.total),
+          toValidNumber(selected?.total),
+        ]
+      : [
+          toValidNumber(detail?.total),
+          toValidNumber(selected?.total),
+          toValidNumber(detail?.amount),
+        ];
+
+    return pickFirstNumber(candidates, { allowZero: !isBlue });
+  }, [detail?.amount, detail?.total, selected?.total, voucherType]);
+
+  const formattedPendingAmount = formatMoney(
+    pendingAmount ?? requestedAmount,
+  );
+
+  React.useEffect(() => {
+    if (!isEditingAmount) {
+      setAmountValue("");
+      setAmountError(null);
+      setAmountTouched(false);
+      setPendingAmount(null);
+      setConfirmModalOpen(false);
+      return;
+    }
+
+    if (amountTouched) return;
+
+    if (typeof requestedAmount === "number" && !Number.isNaN(requestedAmount)) {
+      setAmountValue(requestedAmount.toFixed(2));
+    } else {
+      setAmountValue("");
+    }
+    setAmountError(null);
+  }, [amountTouched, isEditingAmount, requestedAmount]);
+
+  const handleOpenVoucherRejectModal = () => {
     if (!selected || isDetailLoading || !onReject) return;
-    setRejectComment("");
-    setRejectError(null);
-    setRejectModalOpen(true);
+    setVoucherRejectComment("");
+    setVoucherRejectError(null);
+    setVoucherRejectModalOpen(true);
   };
 
-  const handleCloseRejectModal = () => {
-    setRejectModalOpen(false);
-    setRejectComment("");
-    setRejectError(null);
+  const handleCloseVoucherRejectModal = () => {
+    setVoucherRejectModalOpen(false);
+    setVoucherRejectComment("");
+    setVoucherRejectError(null);
   };
 
-  const handleRejectSubmit = () => {
+  const handleVoucherRejectSubmit = () => {
     if (!selected || !onReject || isRejecting) return;
 
-    const trimmed = rejectComment.trim();
+    const trimmed = voucherRejectComment.trim();
     if (!trimmed) {
-      setRejectError("Agrega un comentario para continuar.");
+      setVoucherRejectError("Agrega un comentario para continuar.");
       return;
     }
 
     onReject(selected, trimmed);
-    setRejectModalOpen(false);
-    setRejectComment("");
-    setRejectError(null);
+    setVoucherRejectModalOpen(false);
+    setVoucherRejectComment("");
+    setVoucherRejectError(null);
   };
 
-  const handleCommentChange: React.ChangeEventHandler<
+  const handleVoucherCommentChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
   > = (event) => {
-    setRejectComment(event.target.value);
-    if (rejectError) setRejectError(null);
+    setVoucherRejectComment(event.target.value);
+    if (voucherRejectError) setVoucherRejectError(null);
+  };
+
+  const handleOpenInvoiceRejectModal = () => {
+    if (!selected || isDetailLoading || !onRejectInvoice) return;
+    setInvoiceRejectComment("");
+    setInvoiceRejectError(null);
+    setInvoiceRejectModalOpen(true);
+  };
+
+  const handleCloseInvoiceRejectModal = () => {
+    setInvoiceRejectModalOpen(false);
+    setInvoiceRejectComment("");
+    setInvoiceRejectError(null);
+  };
+
+  const handleInvoiceRejectSubmit = async () => {
+    if (!selected || isDetailLoading || !onRejectInvoice || isRejecting) return;
+
+    const trimmed = invoiceRejectComment.trim();
+    if (!trimmed) {
+      setInvoiceRejectError("Agrega un comentario para continuar.");
+      return;
+    }
+
+    const ok = await onRejectInvoice(selected, trimmed);
+    if (!ok) {
+      setInvoiceRejectError(
+        "No se pudo rechazar la factura. Intenta nuevamente.",
+      );
+      return;
+    }
+
+    setInvoiceRejectModalOpen(false);
+    setInvoiceRejectComment("");
+    setInvoiceRejectError(null);
+  };
+
+  const handleInvoiceCommentChange: React.ChangeEventHandler<
+    HTMLInputElement | HTMLTextAreaElement
+  > = (event) => {
+    setInvoiceRejectComment(event.target.value);
+    if (invoiceRejectError) setInvoiceRejectError(null);
+  };
+
+  const handleCloseConfirmModal = () => {
+    setConfirmModalOpen(false);
+    setPendingAmount(null);
+  };
+
+  const handleStartEditing = () => {
+    if (!selected || isDetailLoading || invoiceRejected) return;
+    setAmountTouched(false);
+    setAmountError(null);
+    onEditModeChange?.(true);
+  };
+
+  const handleCancelEditing = () => {
+    setAmountTouched(false);
+    setAmountError(null);
+    setPendingAmount(null);
+    setConfirmModalOpen(false);
+    onEditModeChange?.(false);
+  };
+
+  const handleAmountInputChange: React.ChangeEventHandler<HTMLInputElement> = (
+    event,
+  ) => {
+    setAmountTouched(true);
+    setAmountValue(event.target.value);
+    if (amountError) setAmountError(null);
   };
 
   const handleSaveAmount = () => {
@@ -153,119 +301,227 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     setConfirmModalOpen(true);
   };
 
-  const handleStartEditing = () => {
-    if (!selected || isDetailLoading) return;
-    setAmountTouched(false);
-    setAmountError(null);
-    onEditModeChange?.(true);
+  const handleConfirmSaveAmount = async () => {
+    if (pendingAmount === null || !onSaveAmount || isSavingAmount) {
+      handleCloseConfirmModal();
+      return;
+    }
+
+    try {
+      await onSaveAmount(pendingAmount);
+    } finally {
+      handleCloseConfirmModal();
+      setAmountTouched(false);
+    }
   };
+
+  const handlePanelClose = () => {
+    setPanelOpen(false);
+    setVoucherRejectModalOpen(false);
+    setInvoiceRejectModalOpen(false);
+    handleCancelEditing();
+  };
+
+  const showValidationActions = Boolean(
+    !isAlreadyValid && !invoiceRejected && selected,
+  );
+  const canValidate = Boolean(
+    selected && !isDetailLoading && !isValidating && !invoiceRejected,
+  );
+  const canRejectVoucher = Boolean(
+    selected && !isDetailLoading && !isRejecting && !invoiceRejected,
+  );
+  const canEditAmount = Boolean(
+    isAlreadyValid && selected && !isDetailLoading && !invoiceRejected && onSaveAmount,
+  );
+  const canRejectInvoice = Boolean(
+    isAlreadyValid && selected && !isDetailLoading && onRejectInvoice,
+  );
 
   return (
     <div className="m-0">
       <PopUp
-        open={isRejectModalOpen}
-        onClose={handleCloseRejectModal}
+        open={voucherRejectModalOpen}
+        onClose={handleCloseVoucherRejectModal}
         title="Rechazar Vale"
         content="Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su vale."
         showSecondaryButton
         secondaryButtonText="Cancelar"
-        onSecondaryButtonClick={handleCloseRejectModal}
+        onSecondaryButtonClick={handleCloseVoucherRejectModal}
         showPrimaryButton
         primaryButtonText={isRejecting ? "Rechazando…" : "Enviar Comentario"}
-        onPrimaryButtonClick={handleRejectSubmit}
+        onPrimaryButtonClick={handleVoucherRejectSubmit}
       >
         <Input
           as="textarea"
           placeholder="Escribir comentario"
-          value={rejectComment}
-          onChange={handleCommentChange}
+          value={voucherRejectComment}
+          onChange={handleVoucherCommentChange}
           disabled={isRejecting}
-          variant={rejectError ? "error" : "default"}
-          helperText={rejectError ?? undefined}
+          variant={voucherRejectError ? "error" : "default"}
+          helperText={voucherRejectError ?? undefined}
           dataTestId="reject-comment"
           rows={4}
         />
       </PopUp>
 
+      <PopUp
+        open={invoiceRejectModalOpen}
+        onClose={handleCloseInvoiceRejectModal}
+        title="Rechazar Factura"
+        content="Deja aquí un comentario para que tu compañero sepa la razón del rechazo de la factura."
+        showSecondaryButton
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={handleCloseInvoiceRejectModal}
+        showPrimaryButton
+        primaryButtonText={isRejecting ? "Rechazando…" : "Enviar Comentario"}
+        onPrimaryButtonClick={() => {
+          void handleInvoiceRejectSubmit();
+        }}
+      >
+        <Input
+          as="textarea"
+          placeholder="Escribir comentario"
+          value={invoiceRejectComment}
+          onChange={handleInvoiceCommentChange}
+          disabled={isRejecting}
+          variant={invoiceRejectError ? "error" : "default"}
+          helperText={invoiceRejectError ?? undefined}
+          dataTestId="invoice-reject-comment"
+          rows={4}
+        />
+      </PopUp>
+
+      <PopUp
+        open={confirmModalOpen}
+        onClose={handleCloseConfirmModal}
+        title="Guardar monto"
+        content={`Confirma que deseas actualizar el monto solicitado a ${formattedPendingAmount}.`}
+        showSecondaryButton
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={handleCloseConfirmModal}
+        showPrimaryButton
+        primaryButtonText={isSavingAmount ? "Guardando…" : "Guardar"}
+        onPrimaryButtonClick={handleConfirmSaveAmount}
+      />
+
       <DetailsPanelLayout
         open={panelOpen}
         withinContainer
         zIndex={80}
-        onClose={() => setPanelOpen(false)}
+        onClose={handlePanelClose}
         leftLabel={employeeName ? `Colaborador: ${employeeName}` : undefined}
         rightLabel={projectCode ? `Proyecto: ${projectCode}` : undefined}
         renderActions={() => (
-          <div className="flex">
+          <div className="flex items-center gap-2">
             {voucherType ? (
-              <Label
-                type={voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul"}
-                text={voucherType}
-              />
+              <Label type={voucherTypeLabel} text={voucherType} />
             ) : null}
-            {detail?.xml && (
+            {xmlUrl ? (
               <Button
                 size="xsmall"
                 variant="ghost"
                 icon={XMLIcon}
-                disabled={!detail.xml}
-                onClick={() => window.open(detail.xml!, "_blank")}
+                disabled={!xmlUrl}
+                onClick={() => window.open(xmlUrl, "_blank")}
               />
-            )}
-            {detail?.pdf && (
+            ) : null}
+            {pdfUrl ? (
               <Button
                 size="xsmall"
                 variant="ghost"
                 icon={PDFIcon}
-                disabled={!detail.pdf}
-                onClick={() => window.open(detail.pdf!, "_blank")}
+                disabled={!pdfUrl}
+                onClick={() => window.open(pdfUrl, "_blank")}
               />
-            )}
+            ) : null}
           </div>
         )}
         actionButton={
           <div className="flex flex-row items-center gap-3">
-            <Button
-              size="medium"
-              variant="solid"
-              hideIcon
-              disabled={
-                !selected ||
-                isDetailLoading ||
-                isValidating ||
-                isAlreadyValid ||
-                invoiceRejected
-              }
-              onClick={() => {
-                if (onValidate) {
-                  onValidate(selected);
-                }
-              }}
-            >
-              {isValidating ? "Validando…" : "Validar"}
-            </Button>
-            <Button
-              size="medium"
-              variant="outline"
-              hideIcon
-              disabled={
-                !selected ||
-                isDetailLoading ||
-                isRejecting ||
-                isAlreadyValid ||
-                invoiceRejected
-              }
-              onClick={handleOpenRejectModal}
-            >
-              {isRejecting ? "Rechazando…" : "Rechazar"}
-            </Button>
+            {showValidationActions ? (
+              <>
+                <Button
+                  size="medium"
+                  variant="solid"
+                  hideIcon
+                  disabled={!canValidate}
+                  onClick={() => {
+                    if (onValidate && selected) {
+                      onValidate(selected);
+                    }
+                  }}
+                >
+                  {isValidating ? "Validando…" : "Validar"}
+                </Button>
+                <Button
+                  size="medium"
+                  variant="outline"
+                  hideIcon
+                  disabled={!canRejectVoucher}
+                  onClick={handleOpenVoucherRejectModal}
+                >
+                  {isRejecting ? "Rechazando…" : "Rechazar"}
+                </Button>
+              </>
+            ) : canEditAmount ? (
+              <Button
+                size="medium"
+                variant={isEditingAmount ? "outline" : "solid"}
+                hideIcon
+                disabled={isSavingAmount}
+                onClick={isEditingAmount ? handleCancelEditing : handleStartEditing}
+              >
+                {isEditingAmount ? "Cancelar edición" : "Editar Monto"}
+              </Button>
+            ) : null}
           </div>
         }
       >
         {selected ? (
           <div className="space-y-4">
-            {isDetailLoading && (
+            {isDetailLoading ? (
               <div className="text-gray-70 text-b4">Cargando detalle...</div>
-            )}
+            ) : null}
+
+            {isAlreadyValid || xmlUrl || pdfUrl ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-90 text-b4 font-medium">
+                    Archivos Enviados:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {xmlUrl ? (
+                      <Button
+                        size="xsmall"
+                        variant="ghost"
+                        icon={XMLIcon}
+                        onClick={() => window.open(xmlUrl, "_blank")}
+                      />
+                    ) : null}
+                    {pdfUrl ? (
+                      <Button
+                        size="xsmall"
+                        variant="ghost"
+                        icon={PDFIcon}
+                        onClick={() => window.open(pdfUrl, "_blank")}
+                      />
+                    ) : null}
+                  </div>
+                </div>
+                {canRejectInvoice ? (
+                  <Button
+                    size="small"
+                    variant="outline"
+                    disabled={isRejecting}
+                    onClick={handleOpenInvoiceRejectModal}
+                    hideIcon
+                  >
+                    Rechazar Factura
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
 
             {uuid ? (
               <div className="text-gray-90 text-s1 font-semibold">{uuid}</div>
@@ -325,39 +581,13 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                   Total:
                 </div>
                 <div className="text-gray-90 text-b3 text-gray-90">
-                  {formatMoney(total)}
+                  {formatMoney(resolvedTotal)}
                 </div>
               </div>
             </div>
 
-            <div className="mt-40 h-[0.1px] w-[auto] bg-green-100"></div>
-
-            <div className="flex flex-row items-center gap-3">
-              {isEditingAmount ? (
-                <Button
-                  size="medium"
-                  variant="outline"
-                  hideIcon
-                  disabled={true}
-                  onClick={handleCancelEditing}
-                >
-                  Editar Monto
-                </Button>
-              ) : (
-                <Button
-                  size="medium"
-                  variant="solid"
-                  hideIcon
-                  disabled={!selected || isDetailLoading}
-                  onClick={handleStartEditing}
-                >
-                  Editar Monto
-                </Button>
-              )}
-            </div>
-
             {isEditingAmount ? (
-              <div className="">
+              <div>
                 <div className="mt-10 mb-10 h-[0.1px] w-[auto] bg-green-100"></div>
                 {requestedAmount !== undefined ? (
                   <p className="text-gray-70 text-b4 mt-2">
@@ -371,7 +601,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                   Ingresa aquí el nuevo monto:
                 </p>
                 <p className="text-b4 text-gray-90 my-1">Monto:</p>
-                <div className="align-center flex justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <Input
                     type="number"
                     step="0.01"
@@ -387,7 +617,9 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                     size="medium"
                     hideIcon
                     onClick={handleSaveAmount}
-                    disabled={isSavingAmount || isDetailLoading || !selected}
+                    disabled={
+                      isSavingAmount || isDetailLoading || !selected || !amountValue
+                    }
                   >
                     {isSavingAmount ? "Guardando…" : "Guardar Monto"}
                   </Button>
@@ -395,11 +627,11 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               </div>
             ) : null}
 
-            {!isDetailLoading && !detail && (
+            {!isDetailLoading && !detail ? (
               <div className="text-gray-70 text-b3">
                 No se encontró información adicional del vale.
               </div>
-            )}
+            ) : null}
           </div>
         ) : (
           <div className="text-gray-70 text-b3">
