@@ -3,7 +3,6 @@
 import React from "react";
 
 import SideMenu from "./components/SideMenu";
-import SideMenuEdit from "./components/SideMenuEdit/SideMenuEdit";
 import { useControlTable } from "./hooks/useControlTable";
 import { actionCell, container } from "./styles";
 import type { ActionMenuCellProps, ControlRow } from "./types";
@@ -296,7 +295,7 @@ const ControlTable = () => {
       />
 
       <SideMenu
-        panelOpen={detailOpen}
+        panelOpen={detailOpen || editOpen}
         setPanelOpen={(open) => {
           if (!open) {
             handleCloseDetail();
@@ -310,22 +309,6 @@ const ControlTable = () => {
         onValidate={handleValidate}
         isValidating={validating}
         onReject={handleReject}
-        onRejectInvoice={handleRejectInvoice}
-        isRejecting={rejecting}
-      />
-
-      <SideMenuEdit
-        panelOpen={editOpen}
-        setPanelOpen={(open) => {
-          if (!open) {
-            handleCloseDetail();
-          }
-        }}
-        selected={selectedRow}
-        detail={detailData}
-        isDetailLoading={detailLoading}
-        formatDate={formatDate}
-        formatMoney={formatMoney}
         onRejectInvoice={handleRejectInvoice}
         isRejecting={rejecting}
         isEditingAmount={isEditing}
