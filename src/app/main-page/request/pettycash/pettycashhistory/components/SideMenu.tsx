@@ -13,6 +13,13 @@ import type { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/Billi
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 
+const READ_ONLY_FIELDS: string[] = [
+  "monto",
+  "asignamentdate",
+  "concept",
+  "project",
+];
+
 function normalizeDateForInput(raw?: string): string {
   if (!raw) return "";
 
@@ -173,6 +180,8 @@ const SideMenu = ({
     normalizedStatus === "sin factura" ||
     normalizedStatus === "factura rechazada";
 
+  const shouldDisableFormInteractions = !isEditableStatus;
+
   return (
     <DetailsPanelLayout
       open={panelOpen}
@@ -317,7 +326,8 @@ const SideMenu = ({
                     lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
                   }}
                   dataEdit={voucherDataEdit}
-                  startDisabled
+                  startDisabled={shouldDisableFormInteractions}
+                  readOnlyFieldNames={READ_ONLY_FIELDS}
                   externalSubmitRef={submitRef}
                 />
               </div>
@@ -331,7 +341,8 @@ const SideMenu = ({
                     lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
                   }}
                   dataEdit={voucherDataEdit}
-                  startDisabled
+                  startDisabled={shouldDisableFormInteractions}
+                  readOnlyFieldNames={READ_ONLY_FIELDS}
                   externalSubmitRef={submitRef}
                 />
               </div>
