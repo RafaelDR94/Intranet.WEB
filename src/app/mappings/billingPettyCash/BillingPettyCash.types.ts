@@ -210,19 +210,19 @@ export type GetPettyCashVoucherByIdEmployee = {
 };
 
 export type PettyCashVoucherHistoryAmountItem = {
-  date: string; 
+  date: string;
   amount: number;
 };
 
 export type GetPettyCashVoucherHistoryAmountById = {
-  data: PettyCashVoucherHistoryAmountItem[],
-  success: boolean,
-  error_Message: string,
-  error_Code: number
-}
+  data: PettyCashVoucherHistoryAmountItem[];
+  success: boolean;
+  error_Message: string;
+  error_Code: number;
+};
 
 export type PutPettyCashVoucherHistoryAmount = {
-  id: string,
-  date: string,
-  amount: number
-}
+  id: string;
+  date: string;
+  amount: number;
+};

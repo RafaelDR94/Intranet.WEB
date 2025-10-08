@@ -64,22 +64,6 @@ const mapVoucherTypeToPayload = (voucherType?: string): 'R' | 'A' | '' => {
   return '';
 };
 
-const resolveVoucherTypeCode = (
-  detail: ControlDetail | null,
-  row: ControlRow | null,
-): 'R' | 'A' | '' => {
-  const fromDetail = mapVoucherTypeToPayload(detail?.voucher_type);
-  if (fromDetail) return fromDetail;
-
-  const fromRow = mapVoucherTypeToPayload(row?.voucherType);
-  if (fromRow) return fromRow;
-
-  if (row?.VoucherLabelType === 'vale-rosa') return 'R';
-  if (row?.VoucherLabelType === 'vale-azul') return 'A';
-
-  return '';
-};
-
 const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
   const subtotal = toValidNumber(voucher.subtotal);
   const iva = toValidNumber(voucher.iva);
@@ -154,11 +138,14 @@ export const useControlTable = () => {
     updating,
     validating,
     rejecting,
+    pettyCashVoucherAmountHistory,
+    loadingAmountHistory,
     fetchPettyCashVouchers,
     fetchPettyCashVoucherById,
     fetchPettyCashFunds,
     deletePettyCashVoucher,
-    updatePettyCashVoucher,
+    fetchPettyCashVoucherAmountHistory,
+    updatePettyCashVoucherAmount,
     validatePettyCashVoucher,
     rejectPettyCashVoucher,
     rejectBillingInvoice,
@@ -172,11 +159,14 @@ export const useControlTable = () => {
       updating: state.updating,
       validating: state.validating,
       rejecting: state.rejecting,
+      pettyCashVoucherAmountHistory: state.pettyCashVoucherAmountHistory,
+      loadingAmountHistory: state.loadingAmountHistory,
       fetchPettyCashVouchers: state.fetchPettyCashVouchers,
       fetchPettyCashVoucherById: state.fetchPettyCashVoucherById,
       fetchPettyCashFunds: state.fetchPettyCashFunds,
       deletePettyCashVoucher: state.deletePettyCashVoucher,
-      updatePettyCashVoucher: state.updatePettyCashVoucher,
+      fetchPettyCashVoucherAmountHistory: state.fetchPettyCashVoucherAmountHistory,
+      updatePettyCashVoucherAmount: state.updatePettyCashVoucherAmount,
       validatePettyCashVoucher: state.validatePettyCashVoucher,
       rejectPettyCashVoucher: state.rejectPettyCashVoucher,
       rejectBillingInvoice: state.rejectBillingInvoice,
@@ -335,6 +325,16 @@ export const useControlTable = () => {
     });
   }, [pettyCashVouchers, selectedRow?.id]);
 
+  useEffect(() => {
+    const detailId = detailData?.id;
+    if (!detailId) return;
+
+    const status = detailData?.status ?? selectedRow?.status;
+    if (!isVoucherValid(status)) return;
+
+    void fetchPettyCashVoucherAmountHistory(detailId);
+  }, [detailData?.id, detailData?.status, selectedRow?.status, fetchPettyCashVoucherAmountHistory]);
+
   const openDetail = async (row: ControlRow, mode: "detail" | "edit") => {
     setIsFetchingDetail(true);
     setSelectedRow(row);
@@ -426,51 +426,15 @@ export const useControlTable = () => {
   };
 
   const handleUpdateAmount = async (amount: number) => {
-    const currentDetail = detailData;
-    const currentRow = selectedRow;
+    const voucherId = detailData?.id ?? selectedRow?.id;
 
-    if (!currentRow) return;
-
-    if (!currentDetail) {
+    if (!voucherId) {
       showAlert({
         type: 'error',
         variant: 'filled',
         title: 'Información incompleta',
         description:
-          'Espera a que se cargue el detalle del vale para poder editar el monto.',
-        showPrimaryButton: true,
-        primaryLabel: 'Entendido',
-        onPrimaryClick: hideAlert,
-      });
-      return;
-    }
-
-    const pettyCashFundId = currentDetail.petty_cash_funds?.id;
-    const projectId = currentDetail.project?.id;
-
-    if (!pettyCashFundId || !projectId) {
-      showAlert({
-        type: 'error',
-        variant: 'filled',
-        title: 'Información incompleta',
-        description:
-          'El vale no cuenta con la información necesaria para actualizar el monto.',
-        showPrimaryButton: true,
-        primaryLabel: 'Entendido',
-        onPrimaryClick: hideAlert,
-      });
-      return;
-    }
-
-    const voucherTypeCode = resolveVoucherTypeCode(currentDetail, currentRow);
-
-    if (!voucherTypeCode) {
-      showAlert({
-        type: 'error',
-        variant: 'filled',
-        title: 'Tipo de vale desconocido',
-        description:
-          'No se pudo identificar si el vale es rosa o azul. Actualiza la información e inténtalo de nuevo.',
+          'No se encontró el identificador del vale para actualizar el monto.',
         showPrimaryButton: true,
         primaryLabel: 'Entendido',
         onPrimaryClick: hideAlert,
@@ -482,38 +446,29 @@ export const useControlTable = () => {
     suppressedErrorRef.current = undefined;
 
     showSpinner({ message: 'Guardando monto solicitado…' });
-    let updated: PettyCashVoucherData | null = null;
+    let ok = false;
     try {
-      updated = await updatePettyCashVoucher({
-        id: currentDetail.id,
-        petty_cash_funds_id: pettyCashFundId,
-        employee_id: currentDetail.employee_id,
-        voucher_type: voucherTypeCode,
-        application_date: currentDetail.application_date,
-        concept: currentDetail.concept,
+      ok = await updatePettyCashVoucherAmount({
+        id: voucherId,
+        date: new Date().toISOString(),
         amount,
-        total: amount,
-        comments: currentDetail.comments ?? '',
-        project_id: projectId,
-        xml: currentDetail.xml ?? '',
-        pdf: currentDetail.pdf ?? '',
       });
     } finally {
       hideSpinner();
     }
 
-    if (updated) {
+    if (ok) {
       setIsEditingAmount(false);
       setDetailData((prev) =>
-        prev && prev.id === updated?.id
-          ? { ...prev, amount, total: amount }
+        prev && prev.id === voucherId
+          ? { ...prev, amount: amount.toFixed(2), total: amount }
           : prev,
       );
-      setSelectedRow((prev) => {
-        if (!prev || prev.id !== updated?.id) return prev;
-        const mapped = mapVoucherToControlRow(updated);
-        return { ...prev, ...mapped };
-      });
+      setSelectedRow((prev) =>
+        prev && prev.id === voucherId
+          ? { ...prev, total: amount, amount: amount.toFixed(2) }
+          : prev,
+      );
 
       showAlert({
         type: 'success',
@@ -526,9 +481,11 @@ export const useControlTable = () => {
         onClose: hideAlert,
       });
 
+      await fetchPettyCashVoucherAmountHistory(voucherId, true);
+
       setDetailLoading(true);
       try {
-        const refreshed = await fetchPettyCashVoucherById(updated.id, true);
+        const refreshed = await fetchPettyCashVoucherById(voucherId, true);
         if (refreshed) {
           setDetailData(refreshed);
         }
@@ -821,5 +778,7 @@ export const useControlTable = () => {
     handleEditModeChange,
     handleUpdateAmount,
     updatingAmount: updating,
+    amountHistory: pettyCashVoucherAmountHistory,
+    isAmountHistoryLoading: loadingAmountHistory,
   };
 };

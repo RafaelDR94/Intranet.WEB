@@ -181,6 +181,8 @@ const ControlTable = () => {
     handleEditModeChange,
     handleUpdateAmount,
     updatingAmount,
+    amountHistory,
+    isAmountHistoryLoading,
   } = useControlTable();
 
   console.log('rows ', rows);
@@ -318,6 +320,8 @@ const ControlTable = () => {
         onEditModeChange={handleEditModeChange}
         onSaveAmount={handleUpdateAmount}
         isSavingAmount={updatingAmount}
+        amountHistory={amountHistory}
+        isHistoryLoading={isAmountHistoryLoading}
       />
 
       {currentPagePermissions?.read && (
