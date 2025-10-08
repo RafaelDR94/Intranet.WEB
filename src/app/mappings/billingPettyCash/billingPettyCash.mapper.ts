@@ -14,6 +14,8 @@ import {
   PettyCashVoucherFull,
   PettyCashVoucherProject,
   PettyCashVoucherConcept,
+  PettyCashVoucherHistoryAmountItem,
+  PutPettyCashVoucherHistoryAmount,
 } from './BillingPettyCash.types';
 
 /** Helpers */
@@ -241,6 +243,35 @@ export const PutBillingsInvoiceRejectMap = (
 ): PutBillingsInvoiceReject => ({
   id: toString(src?.id),
   comments: toString(src?.comments),
+});
+
+export const PettyCashVoucherHistoryAmountItemMap = (
+  raw: any,
+): PettyCashVoucherHistoryAmountItem => ({
+  date: toString(raw?.date),
+  amount: toNumber(raw?.amount),
+});
+
+export const PettyCashVoucherHistoryAmountMap = (
+  list: any,
+): PettyCashVoucherHistoryAmountItem[] => {
+  const payload = Array.isArray(list?.data)
+    ? list.data
+    : Array.isArray(list?.items)
+    ? list.items
+    : Array.isArray(list)
+    ? list
+    : [];
+
+  return payload.map(PettyCashVoucherHistoryAmountItemMap);
+};
+
+export const PutPettyCashVoucherHistoryAmountMap = (
+  src: any,
+): PutPettyCashVoucherHistoryAmount => ({
+  id: toString(src?.id),
+  date: toString(src?.date),
+  amount: toNumber(src?.amount),
 });
 
 // Mapea la respuesta del endpoint de historial por empleado

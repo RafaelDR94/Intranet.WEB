@@ -84,6 +84,8 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   onEditModeChange,
   onSaveAmount,
   isSavingAmount = false,
+  amountHistory = [],
+  isHistoryLoading = false,
 }) => {
   const [voucherRejectModalOpen, setVoucherRejectModalOpen] =
     React.useState(false);
@@ -102,6 +104,19 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const [amountError, setAmountError] = React.useState<string | null>(null);
   const [amountTouched, setAmountTouched] = React.useState(false);
   const [pendingAmount, setPendingAmount] = React.useState<number | null>(null);
+  const historyEntries = React.useMemo(() => {
+    if (!Array.isArray(amountHistory)) return [];
+
+    return [...amountHistory].sort((a, b) => {
+      const aTime = new Date(a?.date ?? '').getTime();
+      const bTime = new Date(b?.date ?? '').getTime();
+
+      if (Number.isNaN(aTime) && Number.isNaN(bTime)) return 0;
+      if (Number.isNaN(aTime)) return 1;
+      if (Number.isNaN(bTime)) return -1;
+      return bTime - aTime;
+    });
+  }, [amountHistory]);
 
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
@@ -587,6 +602,53 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                     {isSavingAmount ? "Guardando…" : "Guardar Monto"}
                   </Button>
                 </div>
+              </div>
+            ) : null}
+
+            {canRejectInvoice ? (
+              <div>
+                <Button
+                  size="medium"
+                  variant="outline"
+                  hideIcon
+                  disabled={isRejecting}
+                  onClick={handleOpenInvoiceRejectModal}
+                >
+                  {isRejecting ? "Rechazando…" : "Rechazar Factura"}
+                </Button>
+              </div>
+            ) : null}
+
+            {isAlreadyValid ? (
+              <div className="space-y-2">
+                <div className="mt-10 h-[0.1px] w-[auto] bg-green-100"></div>
+                <div className="flex items-center justify-between">
+                  <p className="text-gray-90 text-b4 font-medium">
+                    Historial de montos
+                  </p>
+                  {isHistoryLoading ? (
+                    <span className="text-gray-70 text-b5">Cargando…</span>
+                  ) : null}
+                </div>
+                {historyEntries.length ? (
+                  <ul className="space-y-1" data-testid="amount-history">
+                    {historyEntries.map((entry, index) => (
+                      <li
+                        key={`${entry.date}-${index}`}
+                        className="flex items-center justify-between text-b4 text-gray-90"
+                      >
+                        <span>{formatDate(entry.date) || entry.date || "—"}</span>
+                        <span className="font-medium">
+                          {formatMoney(entry.amount)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-70 text-b4">
+                    Sin cambios registrados.
+                  </p>
+                )}
               </div>
             ) : null}
 

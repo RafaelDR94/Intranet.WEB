@@ -1,5 +1,8 @@
 import type { LabelType } from "@/app/components/Label/types";
-import type { PettyCashVoucherFull } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
+import type {
+  PettyCashVoucherFull,
+  PettyCashVoucherHistoryAmountItem,
+} from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 
 /**
  * Row shape used by the petty cash control table.
@@ -91,4 +94,8 @@ export type ControlSideMenuProps = {
   onSaveAmount?: (amount: number) => Promise<void> | void;
   /** Indicates whether an amount update is in progress. */
   isSavingAmount?: boolean;
+  /** History of amount changes for the selected voucher. */
+  amountHistory?: PettyCashVoucherHistoryAmountItem[];
+  /** Indicates whether the history information is still loading. */
+  isHistoryLoading?: boolean;
 };

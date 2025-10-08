@@ -107,6 +107,8 @@ describe('Treasury Control SideMenu', () => {
     isRejecting: false,
     isEditingAmount: false,
     isSavingAmount: false,
+    amountHistory: [],
+    isHistoryLoading: false,
   } as const;
 
   it('opens the voucher rejection modal and validates the comment before submitting', () => {
@@ -335,5 +337,53 @@ describe('Treasury Control SideMenu', () => {
     );
 
     expect(screen.getByText('$150.00')).toBeInTheDocument();
+  });
+
+  it('renders the amount history when entries are provided', () => {
+    render(
+      <SideMenu
+        {...baseProps}
+        selected={{ ...baseProps.selected, status: 'Validado' }}
+        detail={{
+          id: '1',
+          petty_cash_funds: {
+            id: 'fund-1',
+            year_month: '2025-09',
+            assigned_amount: 0,
+            verified_amount: 0,
+            cash_on_hand: 0,
+            unverified_amount: 0,
+            pending_verification: 0,
+            available_amount: 0,
+          },
+          employee_id: '1',
+          employeename: 'Colaborador',
+          status: 'Validado',
+          voucher_type: 'Vale rosa',
+          application_date: '2025-09-30',
+          concept: 'Concepto',
+          amount: 150,
+          total: 150,
+          comments: '',
+          project: { id: 'project-1', name: 'Proyecto', proyectkey: 'PRJ' },
+          xml: '',
+          pdf: '',
+          uuid: '',
+          rfc_emisor: '',
+          rfc_receptor: '',
+          subtotal: 0,
+          iva: 0,
+          conceptos: [],
+        } as any}
+        amountHistory={[
+          { date: '2024-03-15T12:00:00.000Z', amount: 1800 },
+          { date: '2024-02-10T12:00:00.000Z', amount: 1500 },
+        ]}
+      />,
+    );
+
+    const history = screen.getByTestId('amount-history');
+    expect(history).toBeInTheDocument();
+    expect(history.textContent).toContain('$1800.00');
   });
 });
