@@ -32,7 +32,7 @@ export type ControlRow = {
   /** RFC del emisor for quick reference. */
   rfcEmisor?: string;
   /** Amount */
-  amount: string;
+  amount: string | number;
 };
 
 /** Props for the contextual action cell. */

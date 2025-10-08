@@ -67,6 +67,25 @@ const isInvoiceRejected = (status?: string): boolean => {
   return normalized.includes("rechaz");
 };
 
+const isNoInvoice = (status?: string): boolean => {
+  const n = normalizeStatus(status);
+  if (!n) return false;
+  return n.includes("sin factura") || n.replace(/\s+/g, "") === "sinfactura";
+};
+
+const isVoucherRejectedStatus = (status?: string): boolean => {
+  // Rechazado del VALE (no la factura)
+  const n = normalizeStatus(status);
+  if (!n) return false;
+  return n.includes("rechaz") && !n.includes("factura");
+};
+
+const isPendingOrInvoiceSent = (status?: string): boolean => {
+  const n = normalizeStatus(status);
+  if (!n) return false;
+  return n.includes("pendiente") || n.includes("factura enviada");
+};
+
 const SideMenu: React.FC<ControlSideMenuProps> = ({
   panelOpen,
   setPanelOpen,
@@ -77,7 +96,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   formatMoney,
   onValidate,
   onReject,
-  onRejectInvoice,
   isValidating = false,
   isRejecting = false,
   isEditingAmount = false,
@@ -93,12 +111,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const [voucherRejectError, setVoucherRejectError] = React.useState<
     string | null
   >(null);
-  const [invoiceRejectModalOpen, setInvoiceRejectModalOpen] =
-    React.useState(false);
-  const [invoiceRejectComment, setInvoiceRejectComment] = React.useState("");
-  const [invoiceRejectError, setInvoiceRejectError] = React.useState<
-    string | null
-  >(null);
   const [confirmModalOpen, setConfirmModalOpen] = React.useState(false);
   const [amountValue, setAmountValue] = React.useState<string>("");
   const [amountError, setAmountError] = React.useState<string | null>(null);
@@ -108,8 +120,8 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     if (!Array.isArray(amountHistory)) return [];
 
     return [...amountHistory].sort((a, b) => {
-      const aTime = new Date(a?.date ?? '').getTime();
-      const bTime = new Date(b?.date ?? '').getTime();
+      const aTime = new Date(a?.date ?? "").getTime();
+      const bTime = new Date(b?.date ?? "").getTime();
 
       if (Number.isNaN(aTime) && Number.isNaN(bTime)) return 0;
       if (Number.isNaN(aTime)) return 1;
@@ -224,48 +236,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     if (voucherRejectError) setVoucherRejectError(null);
   };
 
-  const handleOpenInvoiceRejectModal = () => {
-    if (!selected || isDetailLoading || !onRejectInvoice) return;
-    setInvoiceRejectComment("");
-    setInvoiceRejectError(null);
-    setInvoiceRejectModalOpen(true);
-  };
-
-  const handleCloseInvoiceRejectModal = () => {
-    setInvoiceRejectModalOpen(false);
-    setInvoiceRejectComment("");
-    setInvoiceRejectError(null);
-  };
-
-  const handleInvoiceRejectSubmit = async () => {
-    if (!selected || isDetailLoading || !onRejectInvoice || isRejecting) return;
-
-    const trimmed = invoiceRejectComment.trim();
-    if (!trimmed) {
-      setInvoiceRejectError("Agrega un comentario para continuar.");
-      return;
-    }
-
-    const ok = await onRejectInvoice(selected, trimmed);
-    if (!ok) {
-      setInvoiceRejectError(
-        "No se pudo rechazar la factura. Intenta nuevamente.",
-      );
-      return;
-    }
-
-    setInvoiceRejectModalOpen(false);
-    setInvoiceRejectComment("");
-    setInvoiceRejectError(null);
-  };
-
-  const handleInvoiceCommentChange: React.ChangeEventHandler<
-    HTMLInputElement | HTMLTextAreaElement
-  > = (event) => {
-    setInvoiceRejectComment(event.target.value);
-    if (invoiceRejectError) setInvoiceRejectError(null);
-  };
-
   const handleCloseConfirmModal = () => {
     setConfirmModalOpen(false);
     setPendingAmount(null);
@@ -327,19 +297,9 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const handlePanelClose = () => {
     setPanelOpen(false);
     setVoucherRejectModalOpen(false);
-    setInvoiceRejectModalOpen(false);
     handleCancelEditing();
   };
 
-  const showValidationActions = Boolean(
-    !isAlreadyValid && !invoiceRejected && selected,
-  );
-  const canValidate = Boolean(
-    selected && !isDetailLoading && !isValidating && !invoiceRejected,
-  );
-  const canRejectVoucher = Boolean(
-    selected && !isDetailLoading && !isRejecting && !invoiceRejected,
-  );
   const canEditAmount = Boolean(
     isAlreadyValid &&
       selected &&
@@ -347,9 +307,25 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       !invoiceRejected &&
       onSaveAmount,
   );
-  const canRejectInvoice = Boolean(
-    isAlreadyValid && selected && !isDetailLoading && onRejectInvoice,
-  );
+
+  // ¿Se deben mostrar los botones?
+  const showActionButtons = Boolean(selected && !isNoInvoice(status));
+
+  // ¿El estado de negocio exige deshabilitar (validado o rechazado)?
+  const disableByBusinessStatus =
+    isVoucherValid(status) || isVoucherRejectedStatus(status);
+
+  // ¿El estado de negocio permite habilitar (pendiente o factura enviada)?
+  const enableByBusinessStatus = isPendingOrInvoiceSent(status);
+
+  // Reglas finales para el "disabled"
+  const disableActions =
+    !enableByBusinessStatus || // no es pendiente / factura enviada
+    disableByBusinessStatus || // validado / rechazado
+    isDetailLoading || // estados de carga
+    isValidating ||
+    isRejecting || // en proceso
+    invoiceRejected; // factura rechazada (tu regla actual)
 
   return (
     <div className="m-0">
@@ -374,33 +350,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
           variant={voucherRejectError ? "error" : "default"}
           helperText={voucherRejectError ?? undefined}
           dataTestId="reject-comment"
-          rows={4}
-        />
-      </PopUp>
-
-      <PopUp
-        open={invoiceRejectModalOpen}
-        onClose={handleCloseInvoiceRejectModal}
-        title="Rechazar Factura"
-        content="Deja aquí un comentario para que tu compañero sepa la razón del rechazo de la factura."
-        showSecondaryButton
-        secondaryButtonText="Cancelar"
-        onSecondaryButtonClick={handleCloseInvoiceRejectModal}
-        showPrimaryButton
-        primaryButtonText={isRejecting ? "Rechazando…" : "Enviar Comentario"}
-        onPrimaryButtonClick={() => {
-          void handleInvoiceRejectSubmit();
-        }}
-      >
-        <Input
-          as="textarea"
-          placeholder="Escribir comentario"
-          value={invoiceRejectComment}
-          onChange={handleInvoiceCommentChange}
-          disabled={isRejecting}
-          variant={invoiceRejectError ? "error" : "default"}
-          helperText={invoiceRejectError ?? undefined}
-          dataTestId="invoice-reject-comment"
           rows={4}
         />
       </PopUp>
@@ -451,30 +400,35 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
           </div>
         )}
         actionButton={
-          <div className="flex flex-row items-center gap-3">
-            <Button
-              size="medium"
-              variant="solid"
-              hideIcon
-              disabled={!canValidate}
-              onClick={() => {
-                if (onValidate && selected) {
-                  onValidate(selected);
-                }
-              }}
-            >
-              {isValidating ? "Validando…" : "Validar"}
-            </Button>
-            <Button
-              size="medium"
-              variant="outline"
-              hideIcon
-              disabled={!canRejectVoucher}
-              onClick={handleOpenVoucherRejectModal}
-            >
-              {isRejecting ? "Rechazando…" : "Rechazar"}
-            </Button>
-          </div>
+          showActionButtons ? (
+            <div className="flex flex-row items-center gap-3">
+              <Button
+                size="medium"
+                variant="solid"
+                hideIcon
+                disabled={disableActions}
+                onClick={() => {
+                  if (!disableActions && onValidate && selected) {
+                    onValidate(selected);
+                  }
+                }}
+              >
+                {isValidating ? "Validando…" : "Validar"}
+              </Button>
+
+              <Button
+                size="medium"
+                variant="outline"
+                hideIcon
+                disabled={disableActions}
+                onClick={() => {
+                  if (!disableActions) handleOpenVoucherRejectModal();
+                }}
+              >
+                {isRejecting ? "Rechazando…" : "Rechazar"}
+              </Button>
+            </div>
+          ) : null
         }
       >
         {selected ? (
@@ -548,19 +502,21 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
 
             <div className="mt-10 h-[0.1px] w-[auto] bg-green-100"></div>
 
-            <div>
-              <Button
-                size="medium"
-                variant={isEditingAmount ? "outline" : "outline"}
-                hideIcon
-                disabled={isEditingAmount ? !canEditAmount : isSavingAmount}
-                onClick={
-                  isEditingAmount ? handleCancelEditing : handleStartEditing
-                }
-              >
-                Editar Monto
-              </Button>
-            </div>
+            {showActionButtons && (
+              <div>
+                <Button
+                  size="medium"
+                  variant={isEditingAmount ? "outline" : "outline"}
+                  hideIcon
+                  disabled={isEditingAmount ? !canEditAmount : isSavingAmount}
+                  onClick={
+                    isEditingAmount ? handleCancelEditing : handleStartEditing
+                  }
+                >
+                  Editar Monto
+                </Button>
+              </div>
+            )}
 
             {isEditingAmount ? (
               <div>
@@ -605,39 +561,28 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               </div>
             ) : null}
 
-            {canRejectInvoice ? (
-              <div>
-                <Button
-                  size="medium"
-                  variant="outline"
-                  hideIcon
-                  disabled={isRejecting}
-                  onClick={handleOpenInvoiceRejectModal}
-                >
-                  {isRejecting ? "Rechazando…" : "Rechazar Factura"}
-                </Button>
-              </div>
-            ) : null}
-
             {isAlreadyValid ? (
               <div className="space-y-2">
-                <div className="mt-10 h-[0.1px] w-[auto] bg-green-100"></div>
                 <div className="flex items-center justify-between">
                   <p className="text-gray-90 text-b4 font-medium">
-                    Historial de montos
+                    MONTO SOLICITADO: <span>${requestedAmount}</span>
                   </p>
                   {isHistoryLoading ? (
                     <span className="text-gray-70 text-b5">Cargando…</span>
                   ) : null}
                 </div>
                 {historyEntries.length ? (
-                  <ul className="space-y-1" data-testid="amount-history">
+                  <ul className="" data-testid="amount-history">
                     {historyEntries.map((entry, index) => (
                       <li
                         key={`${entry.date}-${index}`}
-                        className="flex items-center justify-between text-b4 text-gray-90"
+                        className="text-b3 text-gray-90"
                       >
-                        <span>{formatDate(entry.date) || entry.date || "—"}</span>
+                        {" "}
+                        • Monto Editado &nbsp;
+                        <span>
+                          {formatDate(entry.date) || entry.date || "—"}: &nbsp;
+                        </span>
                         <span className="font-medium">
                           {formatMoney(entry.amount)}
                         </span>

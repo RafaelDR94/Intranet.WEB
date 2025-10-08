@@ -47,7 +47,7 @@ export type PettyCashHistoryRow = {
   numnights: number;
 
   /** Importe mostrado en la tabla. */
-  amount: number;
+  amount: string | number;
 
   /** Tipo de vale. */
   voucherType: string;

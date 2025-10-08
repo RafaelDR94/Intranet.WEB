@@ -100,7 +100,6 @@ describe('Treasury Control SideMenu', () => {
     formatMoney,
     onValidate: vi.fn(),
     onReject: vi.fn(),
-    onRejectInvoice: vi.fn(),
     onEditModeChange: vi.fn(),
     onSaveAmount: vi.fn(),
     isValidating: false,
@@ -229,66 +228,6 @@ describe('Treasury Control SideMenu', () => {
 
     await waitFor(() => {
       expect(onSaveAmount).toHaveBeenCalledWith(250.5);
-    });
-  });
-
-  it('requires a comment to reject the invoice and propagates it once provided', async () => {
-    const onRejectInvoice = vi.fn().mockResolvedValue(true);
-
-    render(
-      <SideMenu
-        {...baseProps}
-        selected={{ ...baseProps.selected, status: 'Validado' }}
-        detail={{
-          id: '1',
-          employeename: 'Colaborador',
-          status: 'Validado',
-          amount: 150,
-          total: 150,
-          xml: 'xml-url',
-          pdf: 'pdf-url',
-          petty_cash_funds: {
-            id: 'fund-1',
-            year_month: '2025-09',
-            assigned_amount: 0,
-            verified_amount: 0,
-            cash_on_hand: 0,
-            unverified_amount: 0,
-            pending_verification: 0,
-            available_amount: 0,
-          },
-          employee_id: '1',
-          voucher_type: 'Vale rosa',
-          application_date: '2025-09-30',
-          concept: 'Concepto',
-          comments: '',
-          project: { id: 'project-1', name: 'Proyecto', proyectkey: 'PRJ' },
-        } as any}
-        onRejectInvoice={onRejectInvoice}
-      />,
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: 'Rechazar Factura' }));
-    expect(
-      screen.getByRole('heading', { name: 'Rechazar Factura' }),
-    ).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText('Enviar Comentario'));
-    expect(onRejectInvoice).not.toHaveBeenCalled();
-    expect(
-      screen.getByText('Agrega un comentario para continuar.'),
-    ).toBeInTheDocument();
-
-    fireEvent.change(screen.getByTestId('invoice-reject-comment'), {
-      target: { value: 'Datos incorrectos' },
-    });
-
-    fireEvent.click(screen.getByText('Enviar Comentario'));
-    await waitFor(() => {
-      expect(onRejectInvoice).toHaveBeenCalledWith(
-        { ...baseProps.selected, status: 'Validado' },
-        'Datos incorrectos',
-      );
     });
   });
 

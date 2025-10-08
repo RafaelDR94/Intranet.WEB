@@ -201,7 +201,7 @@ const ControlTable = () => {
       {
         key: "amount",
         label: "MTO. SOL.",
-        render: (row) => <span>{formatMoney(row.amount)}</span>,
+        render: (row) => <span>${(row.amount)}</span>,
       },
       {
         key: "applicationDate",

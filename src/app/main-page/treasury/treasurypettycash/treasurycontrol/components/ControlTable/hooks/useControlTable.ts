@@ -82,7 +82,7 @@ const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
     applicationDate: voucher.application_date,
     provider: voucher.provider?.trim() || voucher.rfc_emisor?.trim() || '',
     concept: voucher.concept,
-    amount: voucher.amount,
+    amount: voucher.amount || '0',
     subtotal,
     iva,
     total: totalCandidate,

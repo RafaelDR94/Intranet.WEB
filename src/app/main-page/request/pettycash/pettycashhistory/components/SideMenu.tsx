@@ -56,11 +56,7 @@ const SideMenu = ({
 
     const detailMatchesSelection =
       detail && detail.id === selected.id ? detail : null;
-    const amountFromSelection =
-      typeof selected.amount === "number" && !Number.isNaN(selected.amount)
-        ? selected.amount
-        : 0;
-
+    
     return {
       id: detailMatchesSelection?.id ?? selected.id,
       petty_cash_funds_id: detailMatchesSelection?.petty_cash_funds?.id ?? "",
@@ -78,7 +74,6 @@ const SideMenu = ({
       ),
       concept:
         detailMatchesSelection?.concept ?? selected.description?.name ?? "",
-      amount: detailMatchesSelection?.amount ?? amountFromSelection,
       comments: detailMatchesSelection?.comments ?? selected.comments ?? "",
       project_id:
         detailMatchesSelection?.project?.id ?? selected.project?.id ?? "",

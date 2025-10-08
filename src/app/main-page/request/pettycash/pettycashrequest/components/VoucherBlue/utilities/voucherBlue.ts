@@ -52,7 +52,7 @@ export const buildPettyCashVoucherPayload = ({
   const projectId = String(values.project ?? "");
   const application_date = String(values.asignamentdate ?? "");
   const concept = String(values.concept ?? "");
-  const amount = Number(values.monto ?? 0);
+  const amount = String(values.monto ?? 0);
 
   const xmlValue = values.xml as { url: string } | undefined;
   const pdfValue = values.pdf as { url: string } | undefined;

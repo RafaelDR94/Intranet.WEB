@@ -63,7 +63,6 @@ export type PettyCashVoucherData = {
   voucher_type: string;
   application_date: string;
   concept: string;
-  amount: string;
   comments: string;
   project_id: string;
   xml: string;
@@ -88,6 +87,7 @@ export type PettyCashVoucherData = {
   total?: number;
   /** Estatus del vale (pendiente, válido, rechazado, etc.). */
   status?: string;
+  amount?: string | number;
 };
 
 export type GetPettyCashVoucherById = {
