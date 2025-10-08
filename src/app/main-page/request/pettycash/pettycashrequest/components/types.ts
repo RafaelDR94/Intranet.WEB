@@ -9,6 +9,8 @@ export interface VoucherFormProps {
   mode?: 'create' | 'edit';
   /** Datos para edición del vale */
   dataEdit?: PettyCashVoucherData;
+  /** Lista de campos que deben permanecer solo lectura. */
+  readOnlyFieldNames?: string[];
   /** Permite controlar el submit desde un contenedor externo */
   externalSubmitRef?: MutableRefObject<(() => void | Promise<void>) | null>;
   /** Para cerrar panel/modal si lo usas embebido */

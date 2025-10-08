@@ -21,6 +21,7 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
   onClose,
   responsiveLayoutMatrix,
   startDisabled,
+  readOnlyFieldNames,
   externalSubmitRef,
 }) => {
   const {
@@ -34,7 +35,12 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
     currentPagePermissions,
     disableForm,
     setDisableForm,
-  } = useVoucherBlue({ mode, dataEdit, startDisabled });
+  } = useVoucherBlue({
+    mode,
+    dataEdit,
+    startDisabled,
+    readOnlyFieldNames,
+  });
 
   useEffect(() => {
     if (!externalSubmitRef) return;

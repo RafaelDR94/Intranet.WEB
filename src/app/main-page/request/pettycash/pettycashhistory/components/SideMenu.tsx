@@ -13,6 +13,13 @@ import type { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/Billi
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 
+const READ_ONLY_FIELDS: string[] = [
+  "monto",
+  "asignamentdate",
+  "concept",
+  "project",
+];
+
 function normalizeDateForInput(raw?: string): string {
   if (!raw) return "";
 
@@ -51,6 +58,44 @@ const SideMenu = ({
   const submitRef = useRef<() => void | Promise<void>>(null);
   const { user } = useAuth();
 
+  const { amountRaw, amountNumeric } = useMemo<{
+    amountRaw: string | number | undefined;
+    amountNumeric: number | undefined;
+  }>(
+    () => {
+      const candidate =
+        detail?.total ??
+        detail?.amount ??
+        selected?.total ??
+        selected?.amount;
+
+      if (candidate === undefined || candidate === null) {
+        return {
+          amountRaw: undefined,
+          amountNumeric: undefined,
+        };
+      }
+
+      const numericCandidate =
+        typeof candidate === "number"
+          ? candidate
+          : Number.parseFloat(
+              candidate
+                .toString()
+                .replace(/[^0-9.,-]/g, "")
+                .replace(/,/g, ""),
+            );
+
+      return {
+        amountRaw: candidate,
+        amountNumeric: Number.isFinite(numericCandidate)
+          ? numericCandidate
+          : undefined,
+      };
+    },
+    [detail?.amount, detail?.total, selected?.amount, selected?.total],
+  );
+
   const voucherDataEdit = useMemo<PettyCashVoucherData | undefined>(() => {
     if (!selected) return undefined;
 
@@ -79,8 +124,14 @@ const SideMenu = ({
         detailMatchesSelection?.project?.id ?? selected.project?.id ?? "",
       xml: detailMatchesSelection?.xml ?? selected.xml ?? "",
       pdf: detailMatchesSelection?.pdf ?? selected.pdf ?? "",
+      amount:
+        detailMatchesSelection?.total ??
+        detailMatchesSelection?.amount ??
+        amountRaw ??
+        "",
+      total: amountNumeric,
     } satisfies PettyCashVoucherData;
-  }, [detail, selected]);
+  }, [amountNumeric, amountRaw, detail, selected]);
 
   const isVoucherPinkVoucher = useMemo(() => {
     const rawVoucherType = voucherDataEdit?.voucher_type ?? "";
@@ -106,17 +157,13 @@ const SideMenu = ({
   const subtotal = detail?.subtotal ?? "";
   const iva = detail?.iva ?? "";
 
-  const amountValue =
-    detail?.total ?? detail?.amount ?? selected?.total ?? selected?.amount ?? 0;
-
   const formattedAmount = useMemo(() => {
-    if (typeof amountValue !== "number") return "—";
-    if (Number.isNaN(amountValue)) return "—";
-    return amountValue.toLocaleString("es-MX", {
+    if (amountNumeric === undefined) return "—";
+    return amountNumeric.toLocaleString("es-MX", {
       style: "currency",
       currency: "MXN",
     });
-  }, [amountValue]);
+  }, [amountNumeric]);
 
   function formatDate(dateString?: string): string {
     if (!dateString) return "";
@@ -132,6 +179,8 @@ const SideMenu = ({
     normalizedStatus === "rechazado" ||
     normalizedStatus === "sin factura" ||
     normalizedStatus === "factura rechazada";
+
+  const shouldDisableFormInteractions = !isEditableStatus;
 
   return (
     <DetailsPanelLayout
@@ -277,7 +326,8 @@ const SideMenu = ({
                     lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
                   }}
                   dataEdit={voucherDataEdit}
-                  startDisabled={!isEditableStatus}
+                  startDisabled={shouldDisableFormInteractions}
+                  readOnlyFieldNames={READ_ONLY_FIELDS}
                   externalSubmitRef={submitRef}
                 />
               </div>
@@ -291,7 +341,8 @@ const SideMenu = ({
                     lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
                   }}
                   dataEdit={voucherDataEdit}
-                  startDisabled={!isEditableStatus}
+                  startDisabled={shouldDisableFormInteractions}
+                  readOnlyFieldNames={READ_ONLY_FIELDS}
                   externalSubmitRef={submitRef}
                 />
               </div>
