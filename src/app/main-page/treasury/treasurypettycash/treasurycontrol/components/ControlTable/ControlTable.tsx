@@ -3,7 +3,6 @@
 import React from "react";
 
 import SideMenu from "./components/SideMenu";
-import SideMenuEdit from "./components/SideMenuEdit/SideMenuEdit";
 import { useControlTable } from "./hooks/useControlTable";
 import { actionCell, container } from "./styles";
 import type { ActionMenuCellProps, ControlRow } from "./types";
@@ -182,7 +181,12 @@ const ControlTable = () => {
     handleEditModeChange,
     handleUpdateAmount,
     updatingAmount,
+    amountHistory,
+    isAmountHistoryLoading,
   } = useControlTable();
+
+  console.log('rows ', rows);
+  
 
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
@@ -195,14 +199,14 @@ const ControlTable = () => {
         render: (row) => <span>{row.employeeName || "—"}</span>,
       },
       {
+        key: "amount",
+        label: "MTO. SOL.",
+        render: (row) => <span>${(row.amount)}</span>,
+      },
+      {
         key: "applicationDate",
         label: "FECHA",
         render: (row) => <span>{formatDate(row.applicationDate) || "—"}</span>,
-      },
-      {
-        key: "provider",
-        label: "PROVEEDOR",
-        render: (row) => <span>{row.provider || "—"}</span>,
       },
       {
         key: "concept",
@@ -296,7 +300,7 @@ const ControlTable = () => {
       />
 
       <SideMenu
-        panelOpen={detailOpen}
+        panelOpen={detailOpen || editOpen}
         setPanelOpen={(open) => {
           if (!open) {
             handleCloseDetail();
@@ -312,26 +316,12 @@ const ControlTable = () => {
         onReject={handleReject}
         onRejectInvoice={handleRejectInvoice}
         isRejecting={rejecting}
-      />
-
-      <SideMenuEdit
-        panelOpen={editOpen}
-        setPanelOpen={(open) => {
-          if (!open) {
-            handleCloseDetail();
-          }
-        }}
-        selected={selectedRow}
-        detail={detailData}
-        isDetailLoading={detailLoading}
-        formatDate={formatDate}
-        formatMoney={formatMoney}
-        onRejectInvoice={handleRejectInvoice}
-        isRejecting={rejecting}
         isEditingAmount={isEditing}
         onEditModeChange={handleEditModeChange}
         onSaveAmount={handleUpdateAmount}
         isSavingAmount={updatingAmount}
+        amountHistory={amountHistory}
+        isHistoryLoading={isAmountHistoryLoading}
       />
 
       {currentPagePermissions?.read && (

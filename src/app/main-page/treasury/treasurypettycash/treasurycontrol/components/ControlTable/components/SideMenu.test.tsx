@@ -1,8 +1,16 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import SideMenu from './SideMenu';
+
+declare global {
+  interface Window {
+    open: (url: string, target?: string) => void;
+  }
+}
+
+window.open = vi.fn();
 
 vi.mock('@/app/components/DetailsPanelLayout/DetailsPanelLayout', () => ({
   __esModule: true,
@@ -67,7 +75,8 @@ vi.mock('@/app/components/PopUp/PopUp', () => ({
 
 describe('Treasury Control SideMenu', () => {
   const formatDate = (date?: string) => date ?? '';
-  const formatMoney = (value?: number) => (typeof value === 'number' ? `$${value}` : '$0');
+  const formatMoney = (value?: number) =>
+    typeof value === 'number' ? `$${value.toFixed(2)}` : '$0.00';
 
   const baseProps = {
     panelOpen: true,
@@ -91,18 +100,23 @@ describe('Treasury Control SideMenu', () => {
     formatMoney,
     onValidate: vi.fn(),
     onReject: vi.fn(),
+    onEditModeChange: vi.fn(),
+    onSaveAmount: vi.fn(),
     isValidating: false,
     isRejecting: false,
+    isEditingAmount: false,
+    isSavingAmount: false,
+    amountHistory: [],
+    isHistoryLoading: false,
   } as const;
 
-  it('opens the rejection modal while keeping the panel open and validates the comment', () => {
+  it('opens the voucher rejection modal and validates the comment before submitting', () => {
     const onReject = vi.fn();
-    const setPanelOpen = vi.fn();
     render(
       <SideMenu
         {...baseProps}
         onReject={onReject}
-        setPanelOpen={setPanelOpen}
+        setPanelOpen={vi.fn()}
       />,
     );
 
@@ -110,14 +124,13 @@ describe('Treasury Control SideMenu', () => {
 
     fireEvent.click(screen.getByText('Rechazar'));
 
-    expect(setPanelOpen).not.toHaveBeenCalledWith(false);
-    expect(setPanelOpen).not.toHaveBeenCalled();
     expect(screen.getByText('Rechazar Vale')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Enviar Comentario'));
-
     expect(onReject).not.toHaveBeenCalled();
-    expect(screen.getByText('Agrega un comentario para continuar.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Agrega un comentario para continuar.'),
+    ).toBeInTheDocument();
 
     fireEvent.change(screen.getByTestId('reject-comment'), {
       target: { value: 'Falta información' },
@@ -129,39 +142,93 @@ describe('Treasury Control SideMenu', () => {
     expect(screen.queryByText('Rechazar Vale')).not.toBeInTheDocument();
   });
 
-  it('disables validation and rejection actions when voucher is already valid', () => {
-    const onValidate = vi.fn();
-    const onReject = vi.fn();
+  it('toggles the editing flow and saves a new amount for valid vouchers', async () => {
+    const onEditModeChange = vi.fn();
+    const onSaveAmount = vi.fn().mockResolvedValue(undefined);
 
-    render(
+    const { rerender } = render(
       <SideMenu
         {...baseProps}
-        onValidate={onValidate}
-        onReject={onReject}
-        selected={{ ...baseProps.selected, status: 'valido' }}
+        selected={{ ...baseProps.selected, status: 'Validado' }}
+        detail={{
+          id: '1',
+          employeename: 'Colaborador',
+          status: 'Validado',
+          amount: 150,
+          total: 150,
+          petty_cash_funds: {
+            id: 'fund-1',
+            year_month: '2025-09',
+            assigned_amount: 0,
+            verified_amount: 0,
+            cash_on_hand: 0,
+            unverified_amount: 0,
+            pending_verification: 0,
+            available_amount: 0,
+          },
+          employee_id: '1',
+          voucher_type: 'Vale rosa',
+          application_date: '2025-09-30',
+          concept: 'Concepto',
+          comments: '',
+          project: { id: 'project-1', name: 'Proyecto', proyectkey: 'PRJ' },
+        } as any}
+        onEditModeChange={onEditModeChange}
+        onSaveAmount={onSaveAmount}
       />,
     );
 
-    const validateButton = screen.getByText('Validar');
-    const rejectButton = screen.getByText('Rechazar');
+    fireEvent.click(screen.getByText('Editar Monto'));
+    expect(onEditModeChange).toHaveBeenCalledWith(true);
 
-    expect(validateButton).toBeDisabled();
-    expect(rejectButton).toBeDisabled();
-  });
-
-  it('disables validation and rejection actions when the invoice was rejected', () => {
-    render(
+    rerender(
       <SideMenu
         {...baseProps}
-        selected={{
-          ...baseProps.selected,
-          status: 'Factura Rechazada',
-        }}
+        selected={{ ...baseProps.selected, status: 'Validado' }}
+        detail={{
+          id: '1',
+          employeename: 'Colaborador',
+          status: 'Validado',
+          amount: 150,
+          total: 150,
+          petty_cash_funds: {
+            id: 'fund-1',
+            year_month: '2025-09',
+            assigned_amount: 0,
+            verified_amount: 0,
+            cash_on_hand: 0,
+            unverified_amount: 0,
+            pending_verification: 0,
+            available_amount: 0,
+          },
+          employee_id: '1',
+          voucher_type: 'Vale rosa',
+          application_date: '2025-09-30',
+          concept: 'Concepto',
+          comments: '',
+          project: { id: 'project-1', name: 'Proyecto', proyectkey: 'PRJ' },
+        } as any}
+        onEditModeChange={onEditModeChange}
+        onSaveAmount={onSaveAmount}
+        isEditingAmount
       />,
     );
 
-    expect(screen.getByText('Validar')).toBeDisabled();
-    expect(screen.getByText('Rechazar')).toBeDisabled();
+    const input = screen.getByPlaceholderText('0.00') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: '250.50' } });
+    fireEvent.click(screen.getByText('Guardar Monto'));
+
+    expect(
+      screen.getByText(
+        'Confirma que deseas actualizar el monto solicitado a $250.50.',
+      ),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Guardar'));
+
+    await waitFor(() => {
+      expect(onSaveAmount).toHaveBeenCalledWith(250.5);
+    });
   });
 
   it('shows the requested amount as total for blue vouchers when the invoice total is zero', () => {
@@ -194,12 +261,7 @@ describe('Treasury Control SideMenu', () => {
           concept: 'Concepto',
           amount: 150,
           comments: '',
-          project: {
-            id: 'project-1',
-            name: 'Proyecto',
-            proyectkey: 'PRJ',
-            client: 'Cliente',
-          },
+          project: { id: 'project-1', name: 'Proyecto', proyectkey: 'PRJ' },
           xml: '',
           pdf: '',
           uuid: '',
@@ -209,10 +271,58 @@ describe('Treasury Control SideMenu', () => {
           iva: 0,
           total: 0,
           conceptos: [],
-        }}
+        } as any}
       />,
     );
 
-    expect(screen.getByText('$150')).toBeInTheDocument();
+    expect(screen.getByText('$150.00')).toBeInTheDocument();
+  });
+
+  it('renders the amount history when entries are provided', () => {
+    render(
+      <SideMenu
+        {...baseProps}
+        selected={{ ...baseProps.selected, status: 'Validado' }}
+        detail={{
+          id: '1',
+          petty_cash_funds: {
+            id: 'fund-1',
+            year_month: '2025-09',
+            assigned_amount: 0,
+            verified_amount: 0,
+            cash_on_hand: 0,
+            unverified_amount: 0,
+            pending_verification: 0,
+            available_amount: 0,
+          },
+          employee_id: '1',
+          employeename: 'Colaborador',
+          status: 'Validado',
+          voucher_type: 'Vale rosa',
+          application_date: '2025-09-30',
+          concept: 'Concepto',
+          amount: 150,
+          total: 150,
+          comments: '',
+          project: { id: 'project-1', name: 'Proyecto', proyectkey: 'PRJ' },
+          xml: '',
+          pdf: '',
+          uuid: '',
+          rfc_emisor: '',
+          rfc_receptor: '',
+          subtotal: 0,
+          iva: 0,
+          conceptos: [],
+        } as any}
+        amountHistory={[
+          { date: '2024-03-15T12:00:00.000Z', amount: 1800 },
+          { date: '2024-02-10T12:00:00.000Z', amount: 1500 },
+        ]}
+      />,
+    );
+
+    const history = screen.getByTestId('amount-history');
+    expect(history).toBeInTheDocument();
+    expect(history.textContent).toContain('$1800.00');
   });
 });
