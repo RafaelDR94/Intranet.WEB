@@ -87,15 +87,13 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
 }) => {
   const [voucherRejectModalOpen, setVoucherRejectModalOpen] =
     React.useState(false);
-  const [voucherRejectComment, setVoucherRejectComment] =
-    React.useState("");
+  const [voucherRejectComment, setVoucherRejectComment] = React.useState("");
   const [voucherRejectError, setVoucherRejectError] = React.useState<
     string | null
   >(null);
   const [invoiceRejectModalOpen, setInvoiceRejectModalOpen] =
     React.useState(false);
-  const [invoiceRejectComment, setInvoiceRejectComment] =
-    React.useState("");
+  const [invoiceRejectComment, setInvoiceRejectComment] = React.useState("");
   const [invoiceRejectError, setInvoiceRejectError] = React.useState<
     string | null
   >(null);
@@ -103,9 +101,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const [amountValue, setAmountValue] = React.useState<string>("");
   const [amountError, setAmountError] = React.useState<string | null>(null);
   const [amountTouched, setAmountTouched] = React.useState(false);
-  const [pendingAmount, setPendingAmount] = React.useState<number | null>(
-    null,
-  );
+  const [pendingAmount, setPendingAmount] = React.useState<number | null>(null);
 
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
@@ -156,9 +152,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     return pickFirstNumber(candidates, { allowZero: !isBlue });
   }, [detail?.amount, detail?.total, selected?.total, voucherType]);
 
-  const formattedPendingAmount = formatMoney(
-    pendingAmount ?? requestedAmount,
-  );
+  const formattedPendingAmount = formatMoney(pendingAmount ?? requestedAmount);
 
   React.useEffect(() => {
     if (!isEditingAmount) {
@@ -332,7 +326,11 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     selected && !isDetailLoading && !isRejecting && !invoiceRejected,
   );
   const canEditAmount = Boolean(
-    isAlreadyValid && selected && !isDetailLoading && !invoiceRejected && onSaveAmount,
+    isAlreadyValid &&
+      selected &&
+      !isDetailLoading &&
+      !invoiceRejected &&
+      onSaveAmount,
   );
   const canRejectInvoice = Boolean(
     isAlreadyValid && selected && !isDetailLoading && onRejectInvoice,
@@ -439,42 +437,28 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
         )}
         actionButton={
           <div className="flex flex-row items-center gap-3">
-            {showValidationActions ? (
-              <>
-                <Button
-                  size="medium"
-                  variant="solid"
-                  hideIcon
-                  disabled={!canValidate}
-                  onClick={() => {
-                    if (onValidate && selected) {
-                      onValidate(selected);
-                    }
-                  }}
-                >
-                  {isValidating ? "Validando…" : "Validar"}
-                </Button>
-                <Button
-                  size="medium"
-                  variant="outline"
-                  hideIcon
-                  disabled={!canRejectVoucher}
-                  onClick={handleOpenVoucherRejectModal}
-                >
-                  {isRejecting ? "Rechazando…" : "Rechazar"}
-                </Button>
-              </>
-            ) : canEditAmount ? (
-              <Button
-                size="medium"
-                variant={isEditingAmount ? "outline" : "solid"}
-                hideIcon
-                disabled={isSavingAmount}
-                onClick={isEditingAmount ? handleCancelEditing : handleStartEditing}
-              >
-                {isEditingAmount ? "Cancelar edición" : "Editar Monto"}
-              </Button>
-            ) : null}
+            <Button
+              size="medium"
+              variant="solid"
+              hideIcon
+              disabled={!canValidate}
+              onClick={() => {
+                if (onValidate && selected) {
+                  onValidate(selected);
+                }
+              }}
+            >
+              {isValidating ? "Validando…" : "Validar"}
+            </Button>
+            <Button
+              size="medium"
+              variant="outline"
+              hideIcon
+              disabled={!canRejectVoucher}
+              onClick={handleOpenVoucherRejectModal}
+            >
+              {isRejecting ? "Rechazando…" : "Rechazar"}
+            </Button>
           </div>
         }
       >
@@ -482,45 +466,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
           <div className="space-y-4">
             {isDetailLoading ? (
               <div className="text-gray-70 text-b4">Cargando detalle...</div>
-            ) : null}
-
-            {isAlreadyValid || xmlUrl || pdfUrl ? (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-90 text-b4 font-medium">
-                    Archivos Enviados:
-                  </span>
-                  <div className="flex items-center gap-2">
-                    {xmlUrl ? (
-                      <Button
-                        size="xsmall"
-                        variant="ghost"
-                        icon={XMLIcon}
-                        onClick={() => window.open(xmlUrl, "_blank")}
-                      />
-                    ) : null}
-                    {pdfUrl ? (
-                      <Button
-                        size="xsmall"
-                        variant="ghost"
-                        icon={PDFIcon}
-                        onClick={() => window.open(pdfUrl, "_blank")}
-                      />
-                    ) : null}
-                  </div>
-                </div>
-                {canRejectInvoice ? (
-                  <Button
-                    size="small"
-                    variant="outline"
-                    disabled={isRejecting}
-                    onClick={handleOpenInvoiceRejectModal}
-                    hideIcon
-                  >
-                    Rechazar Factura
-                  </Button>
-                ) : null}
-              </div>
             ) : null}
 
             {uuid ? (
@@ -557,7 +502,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               </span>
             </div>
 
-            <div className="mt-40 h-[0.1px] w-[auto] bg-green-100"></div>
+            <div className="mt-10 h-[0.1px] w-[auto] bg-green-100"></div>
 
             <div className="flex flex-col">
               <div className="flex content-center justify-end">
@@ -586,9 +531,24 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               </div>
             </div>
 
+            <div className="mt-10 h-[0.1px] w-[auto] bg-green-100"></div>
+
+            <div>
+              <Button
+                size="medium"
+                variant={isEditingAmount ? "outline" : "outline"}
+                hideIcon
+                disabled={isEditingAmount ? !canEditAmount : isSavingAmount}
+                onClick={
+                  isEditingAmount ? handleCancelEditing : handleStartEditing
+                }
+              >
+                Editar Monto
+              </Button>
+            </div>
+
             {isEditingAmount ? (
               <div>
-                <div className="mt-10 mb-10 h-[0.1px] w-[auto] bg-green-100"></div>
                 {requestedAmount !== undefined ? (
                   <p className="text-gray-70 text-b4 mt-2">
                     MONTO SOLICITADO :&nbsp;
@@ -618,7 +578,10 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                     hideIcon
                     onClick={handleSaveAmount}
                     disabled={
-                      isSavingAmount || isDetailLoading || !selected || !amountValue
+                      isSavingAmount ||
+                      isDetailLoading ||
+                      !selected ||
+                      !amountValue
                     }
                   >
                     {isSavingAmount ? "Guardando…" : "Guardar Monto"}

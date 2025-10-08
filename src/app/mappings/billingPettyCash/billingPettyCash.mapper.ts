@@ -58,7 +58,7 @@ export const PettyCashVoucherMap = (raw: any): PettyCashVoucherData => ({
   voucher_type: toString(raw?.voucher_type),
   application_date: toString(raw?.application_date),
   concept: toString(raw?.concept),
-  amount: toNumber(raw?.amount),
+  amount: toString(raw?.amount),
   comments: toString(raw?.comments),
 
   // Tolerante con project anidado
@@ -123,7 +123,7 @@ export const PettyCashVoucherFullMap = (raw: any): PettyCashVoucherFull => ({
   voucher_type: toString(raw?.voucher_type),
   application_date: toString(raw?.application_date),
   concept: toString(raw?.concept),
-  amount: toNumber(raw?.amount),
+  amount: toString(raw?.amount),
   comments: toString(raw?.comments),
 
   // Proyecto anidado
@@ -187,7 +187,7 @@ export const PostPettyCashVoucherMap = (src: any): PostPettyCashVoucher => ({
   voucher_type: toString(src?.voucher_type),
   application_date: toString(src?.application_date),
   concept: toString(src?.concept),
-  amount: toNumber(src?.amount),
+  amount: toString(src?.amount),
   comments: toString(src?.comments),
   project_id: toString(src?.project_id),
   xml: toString(src?.xml),
@@ -202,7 +202,7 @@ export const PutPettyCashVoucherMap = (src: any): PutPettyCashVoucher => {
     voucher_type: toString(src?.voucher_type),
     application_date: toString(src?.application_date),
     concept: toString(src?.concept),
-    amount: toNumber(src?.amount),
+    amount: toString(src?.amount),
     comments: toString(src?.comments),
     project_id: toString(src?.project_id),
     xml: toString(src?.xml),

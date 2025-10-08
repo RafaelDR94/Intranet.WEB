@@ -28,6 +28,8 @@ export type ControlRow = {
   status?: string;
   /** RFC del emisor for quick reference. */
   rfcEmisor?: string;
+  /** Amount */
+  amount: string;
 };
 
 /** Props for the contextual action cell. */

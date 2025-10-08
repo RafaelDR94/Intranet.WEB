@@ -98,6 +98,7 @@ const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
     applicationDate: voucher.application_date,
     provider: voucher.provider?.trim() || voucher.rfc_emisor?.trim() || '',
     concept: voucher.concept,
+    amount: voucher.amount,
     subtotal,
     iva,
     total: totalCandidate,
@@ -400,7 +401,10 @@ export const useControlTable = () => {
         autoCloseMs: 1500,
         onClose: hideAlert,
       });
-      fetchPettyCashVouchers(true);
+      await Promise.all([
+        fetchPettyCashVouchers(true),
+        fetchPettyCashFunds(true),
+      ]);
     } else {
       showAlert({
         type: 'error',

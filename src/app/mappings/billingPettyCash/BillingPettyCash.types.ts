@@ -63,7 +63,7 @@ export type PettyCashVoucherData = {
   voucher_type: string;
   application_date: string;
   concept: string;
-  amount: number;
+  amount: string;
   comments: string;
   project_id: string;
   xml: string;
@@ -110,7 +110,7 @@ export type PostPettyCashVoucher = {
   voucher_type: string;
   application_date: string;
   concept: string;
-  amount: number;
+  amount: string;
   comments: string;
   project_id: string;
   xml: string;
@@ -169,7 +169,7 @@ export type PettyCashVoucherFull = {
   voucher_type: string;
   application_date: string;
   concept: string;
-  amount: number;
+  amount: string;
   comments: string;
   project: PettyCashVoucherProject;
   xml: string;
@@ -208,3 +208,21 @@ export type GetPettyCashVoucherByIdEmployee = {
   error_Message: string;
   error_Code: number;
 };
+
+export type PettyCashVoucherHistoryAmountItem = {
+  date: string; 
+  amount: number;
+};
+
+export type GetPettyCashVoucherHistoryAmountById = {
+  data: PettyCashVoucherHistoryAmountItem[],
+  success: boolean,
+  error_Message: string,
+  error_Code: number
+}
+
+export type PutPettyCashVoucherHistoryAmount = {
+  id: string,
+  date: string,
+  amount: number
+}

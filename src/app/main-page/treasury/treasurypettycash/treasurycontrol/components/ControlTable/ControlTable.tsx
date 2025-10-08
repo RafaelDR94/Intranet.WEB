@@ -183,6 +183,9 @@ const ControlTable = () => {
     updatingAmount,
   } = useControlTable();
 
+  console.log('rows ', rows);
+  
+
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
 
@@ -194,14 +197,14 @@ const ControlTable = () => {
         render: (row) => <span>{row.employeeName || "—"}</span>,
       },
       {
+        key: "amount",
+        label: "MTO. SOL.",
+        render: (row) => <span>{formatMoney(row.amount)}</span>,
+      },
+      {
         key: "applicationDate",
         label: "FECHA",
         render: (row) => <span>{formatDate(row.applicationDate) || "—"}</span>,
-      },
-      {
-        key: "provider",
-        label: "PROVEEDOR",
-        render: (row) => <span>{row.provider || "—"}</span>,
       },
       {
         key: "concept",
