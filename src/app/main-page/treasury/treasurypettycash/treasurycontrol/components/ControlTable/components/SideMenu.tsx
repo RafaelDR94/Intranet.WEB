@@ -304,14 +304,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     handleCancelEditing();
   };
 
-  const canEditAmount = Boolean(
-    isAlreadyValid &&
-      selected &&
-      !isDetailLoading &&
-      !invoiceRejected &&
-      onSaveAmount,
-  );
-
   // ¿Se deben mostrar los botones?
   const showActionButtons = Boolean(selected && !isNoInvoice(status));
 
