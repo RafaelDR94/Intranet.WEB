@@ -1,90 +1,184 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+﻿import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import ActionMenuCell from './ActionMenuCell'
+import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
+import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
+import type { ActionMenuPermissions } from "./types";
 
-// Mock de ContextMenu para exponer items como botones simples
-vi.mock('../ContextMenu/ContextMenu', () => ({
+let lastButtonIcon: any = null;
+
+vi.mock("../ContextMenu/ContextMenu", () => ({
   __esModule: true,
   default: ({ items, trigger }: any) => (
     <div>
       <div data-testid="trigger">{trigger}</div>
       <div data-testid="menu">
-        {(items || []).map((it: any, idx: number) => (
-          <button key={idx} onClick={it.onClick} data-testid={`item-${idx}`}>
-            {it.label}
+        {(items || []).map((item: any, index: number) => (
+          <button key={index} data-testid={`item-${index}`} onClick={item.onClick}>
+            {item.label}
           </button>
         ))}
       </div>
     </div>
   ),
-}))
+}));
 
-// Mock del botón para no arrastrar estilos ni íconos
-vi.mock('../Button/Button', () => ({
-  Button: (props: any) => <button type="button" {...props} />,
-}))
+vi.mock("../Button/Button", () => ({
+  __esModule: true,
+  Button: (props: any) => {
+    const { icon, ...rest } = props;
+    lastButtonIcon = icon;
+    return <button type="button" data-testid="action-button" {...rest} />;
+  },
+}));
 
-// Hook de permisos
-// setter provisto por el mock del módulo
-let setPerms = (perms: any) => {}
+let mockedAuthPermissions: ActionMenuPermissions = { details: true, delete: true };
+vi.mock("@/app/context/AuthContext/AuthContext", () => ({
+  useAuth: () => ({ currentPagePermissions: mockedAuthPermissions }),
+}));
 
-vi.mock('@/app/context/AuthContext/AuthContext', async () => {
-  let current = { currentPagePermissions: { details: true, delete: true } }
-  return {
-    useAuth: () => current,
-    // util de pruebas
-    __set: (p: any) => (current = { currentPagePermissions: p }),
-  }
-})
-import * as AuthModule from '@/app/context/AuthContext/AuthContext'
-setPerms = (perms: any) => (AuthModule as any).__set(perms)
+let mockedIsMobile = false;
+vi.mock("../DataTable/components/DataTableLayout/hooks/useMediaQuery", () => ({
+  useIsMobile: () => mockedIsMobile,
+}));
 
-// Hook de viewport
-vi.mock('../DataTable/components/DataTableLayout/hooks/useMediaQuery', () => ({
-  useIsMobile: () => false,
-}))
+import ActionMenuCell, { ActionMenuCellView, buildActionMenuItems } from "./ActionMenuCell";
 
-describe('ActionMenuCell', () => {
-  const row = { id: '1', name: 'Row 1' }
-  const onEdit = vi.fn()
-  const onDelete = vi.fn()
+describe("buildActionMenuItems", () => {
+  const row = { id: 1 };
+  const onEdit = vi.fn();
+  const onDelete = vi.fn();
 
   beforeEach(() => {
-    onEdit.mockClear()
-    onDelete.mockClear()
-    setPerms({ details: true, delete: true })
-  })
+    onEdit.mockReset();
+    onDelete.mockReset();
+  });
 
-  it('muestra items según permisos y dispara callbacks', async () => {
-    render(<ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />)
+  it("crea opciones de editar y eliminar segun permisos", () => {
+    const items = buildActionMenuItems({
+      row,
+      onEdit,
+      onDelete,
+      permissions: { details: true, delete: true },
+    });
 
-    // Debe existir trigger y el menú renderizado por el mock
-    expect(screen.getByTestId('trigger')).toBeInTheDocument()
-    expect(screen.getByTestId('menu')).toBeInTheDocument()
+    expect(items).toHaveLength(2);
+    expect(items[0].label).toBe("Ver Detalle");
+    items[0].onClick?.();
+    expect(onEdit).toHaveBeenCalledWith(row);
 
-    // Click en "Ver Detalle" (índice 0)
-    await userEvent.click(screen.getByText(/Ver Detalle/i))
-    expect(onEdit).toHaveBeenCalledWith(row)
+    expect(items[1].label).toBe("Cancelar o eliminar");
+    items[1].onClick?.();
+    expect(onDelete).toHaveBeenCalledWith(row);
+  });
 
-    // Click en "Cancelar" (índice 1)
-    await userEvent.click(screen.getByText(/Cancelar/i))
-    expect(onDelete).toHaveBeenCalledWith(row)
-  })
+  it("usa etiqueta 'Actualizar' cuando solo existe permiso de update", () => {
+    const items = buildActionMenuItems({
+      row,
+      onEdit,
+      onDelete,
+      permissions: { update: true },
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0].label).toBe("Actualizar");
+  });
 
-  it('oculta opciones cuando no hay permisos', async () => {
-    setPerms({ details: false, delete: true })
-    const { rerender } = render(
-      <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
-    )
-    expect(screen.queryByText(/Ver Detalle/i)).toBeNull()
-    expect(screen.getByText(/Cancelar/i)).toBeInTheDocument()
+  it("devuelve una lista vacia cuando no hay permisos", () => {
+    const items = buildActionMenuItems({
+      row,
+      onEdit,
+      onDelete,
+      permissions: {},
+    });
+    expect(items).toHaveLength(0);
+  });
+});
 
-    setPerms({ details: true, delete: false })
-    rerender(<ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />)
-    expect(screen.getByText(/Ver Detalle/i)).toBeInTheDocument()
-    expect(screen.queryByText(/Cancelar/i)).toBeNull()
-  })
-})
+describe("ActionMenuCellView", () => {
+  const row = { id: "row-1", name: "Fila 1" };
+  const onEdit = vi.fn();
+  const onDelete = vi.fn();
+
+  beforeEach(() => {
+    onEdit.mockReset();
+    onDelete.mockReset();
+    lastButtonIcon = null;
+  });
+
+  it("renderiza botones para cada item y respeta el modo mobile", async () => {
+    render(
+      <ActionMenuCellView
+        row={row}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        permissions={{ details: true, delete: true }}
+        isMobile={true}
+      />
+    );
+
+    expect(screen.getByTestId("trigger")).toBeInTheDocument();
+    expect(screen.getByTestId("menu")).toBeInTheDocument();
+    expect(lastButtonIcon).toBe(RightArrowIcon);
+
+    await userEvent.click(screen.getByTestId("item-0"));
+    expect(onEdit).toHaveBeenCalledWith(row);
+
+    await userEvent.click(screen.getByTestId("item-1"));
+    expect(onDelete).toHaveBeenCalledWith(row);
+    expect(screen.getByTestId("action-button").getAttribute("aria-label")).toBe("Abrir menu de acciones");
+  });
+
+  it("usa el icono de tres puntos en desktop", () => {
+    render(
+      <ActionMenuCellView
+        row={row}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        permissions={{ details: true }}
+        isMobile={false}
+      />
+    );
+
+    expect(lastButtonIcon).toBe(DotsIcon);
+  });
+});
+
+describe("ActionMenuCell", () => {
+  const row = { id: "f-1" };
+  const onEdit = vi.fn();
+  const onDelete = vi.fn();
+
+  beforeEach(() => {
+    onEdit.mockReset();
+    onDelete.mockReset();
+    mockedAuthPermissions = { details: true, delete: false };
+    mockedIsMobile = false;
+  });
+
+  it("toma permisos del contexto cuando no se pasan overrides", () => {
+    render(<ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />);
+
+    expect(screen.queryByTestId("item-1")).toBeNull();
+    expect(lastButtonIcon).toBe(DotsIcon);
+  });
+
+  it("prioriza overrides de mobile y permisos", () => {
+    mockedAuthPermissions = { details: false, delete: false };
+    mockedIsMobile = false;
+
+    render(
+      <ActionMenuCell
+        row={row}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        permissions={{ delete: true }}
+        isMobile
+      />
+    );
+
+    expect(lastButtonIcon).toBe(RightArrowIcon);
+    expect(screen.getByText("Cancelar o eliminar")).toBeInTheDocument();
+  });
+});

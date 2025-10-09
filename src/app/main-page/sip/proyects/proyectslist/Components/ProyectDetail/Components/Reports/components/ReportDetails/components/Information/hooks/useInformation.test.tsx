@@ -32,7 +32,7 @@ describe("useInformation", () => {
 
     expect(result.current.cards[0][0].value).toBe("Servicio");
     expect(result.current.cards[0][1].value).toBe(currentReportMock.ticket);
-    expect(result.current.cards[1][0].value).toBe("2024/05/01");
+    expect(result.current.cards[1][0].value).toBe("2024-05-01T08:00:00");
     expect(result.current.progressPct).toBe(75);
   });
 

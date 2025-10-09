@@ -78,6 +78,20 @@ export interface ReportView {
   "reportDeviceView": ReportDeviceView[]
 }
 
+export interface ReportsTable {
+  "id": string,
+  "datecreate": string,
+  "ticket": string,
+  "type": string,
+  "category": string,
+  "location": string,
+  "employe": string,
+  "status": {
+    text: string;
+    type: string;
+  },
+}
+
 export type ReportPost = {
   "model": string,
   "startdate": string,
@@ -125,5 +139,6 @@ export type ReportPut = {
   "Solution": string,
   "Refactions": string,
   "Clientsign": string,
-  "front_identifier": string
+  "front_identifier": string,
+  "devices_external": string[]
 }

@@ -15,6 +15,16 @@ export async function createDocument(doc: Document, customDb?: any): Promise<num
   }
 }
 
+export async function readAllDocuments(customDb?: any): Promise<Document[]> {
+  try {
+    const dbInstance = customDb || db;
+    const docs = await dbInstance.documents.toArray();
+    return docs ?? [];
+  } catch (err) {
+    handleError(err, 'leyendo todos los documentos');
+  }
+}
+
 export async function readDocumentById(docId: number, customDb?: any): Promise<Document> {
   try {
     const dbInstance = customDb || db;

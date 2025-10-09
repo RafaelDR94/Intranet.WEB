@@ -1,0 +1,19 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/SIP/Proyects/ProyectDetail/Reports/NewReport/Refactions/hooks/useRefactionsList" />
+
+# useRefactionsList
+
+Expone la data necesaria para renderizar la tabla de refacciones y ofrece un
+popup listo para confirmar eliminaciones.
+
+```tsx
+const { rows, deleteRow, confirmDeleteUI, report } = useRefactionsList();
+```
+
+## Funciones
+
+- Concatena el indice de cada refaccion para generar ids estables.
+- Dispara `updateRefactions` en `useReportBuilderStore` al confirmar un borrado.
+- Usa `usePrincipal` para mostrar spinner y alert segun el resultado de la
+  operacion.

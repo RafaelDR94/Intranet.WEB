@@ -4,7 +4,7 @@ const cx: Cx = (...c) => c.filter(Boolean).join(' ');
 
 const overlayBase =
   // NOTA: absolute + inset-0 = cubre SOLO el contenedor relativo donde se renderice
-  'absolute inset-0 z-[60] flex items-center justify-center transition-all';
+  'absolute inset-0 z-[90] flex items-center justify-center transition-all';
 // Overlay pantalla completa (mismo enfoque visual que LoadingOverlay)
 
 const overlay = ({ blur }: OverlayOpts) =>
@@ -19,7 +19,6 @@ const card = () =>
   cx(
     'relative',
     'max-w-[min(90vw,560px)]',
-    
     'outline-none'
   );
 

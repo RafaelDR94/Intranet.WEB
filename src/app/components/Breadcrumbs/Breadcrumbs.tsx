@@ -79,11 +79,19 @@ const BreadcrumbsBase: React.FC<BreadcrumbsProps> = ({
   const activeContentRaw = activeChild?.props?.renderContent;
   const activeContent = typeof activeContentRaw === 'function' ? activeContentRaw() : activeContentRaw;
 
+
   return (
     <div className={clsx('space-y-4', className)}>
-      <nav aria-label={ariaLabel} className={clsx(breadcrumbsStyles.container)} data-testid={dataTestId}>
-        {enhanced}
-      </nav>
+      {childArray.length > 1 && (
+        <nav
+          aria-label={ariaLabel}
+          className={clsx(breadcrumbsStyles.container)}
+          data-testid={dataTestId}
+        >
+          {enhanced}
+        </nav>
+      )}
+
       {activeContent && (
         <div className={contentClassName} data-testid={`${dataTestId}-content`}>
           {activeContent}

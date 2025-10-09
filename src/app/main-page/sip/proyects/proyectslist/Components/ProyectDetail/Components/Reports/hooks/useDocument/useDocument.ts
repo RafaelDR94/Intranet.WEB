@@ -562,7 +562,6 @@ const useDocument = () => {
                 marca: sanitizeText(item.device_external_view?.brand, "Sin marca"),
                 modelo: sanitizeText(item.device_external_view?.model, "Sin modelo"),
                 numeroSerie: sanitizeText(item.device_external_view?.serialnumber, ""),
-                informacion: sanitizeText(item.device_external_view?.fullInformation, ""),
             }));
 
             sheets.push({

@@ -68,6 +68,7 @@ module.exports = {
         c2: ["12px", { lineHeight: "16px" }],
         c3: ["10px", { lineHeight: "14px" }],
         d3: ["10px", { lineHeight: "14px" }],
+        d4: ["8px", { lineHeight: "14px" }],
         label: ["12px", { lineHeight: "16px" }],
         labelm: ["10px", { lineHeight: "14px" }],
         "cta-giant": ["18px", { lineHeight: "24px" }],
@@ -184,7 +185,7 @@ module.exports = {
           900: "var(--color-alert-blue-900)",
           100: "var(--color-alert-blue-100)",
           50: "var(--color-alert-blue-50)",
-          10: "var(--color-alert-blue-10)"
+          10: "var(--color-alert-blue-10)",
         },
       },
     },

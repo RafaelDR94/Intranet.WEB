@@ -1,0 +1,17 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/SIP/Proyects/ProyectDetail/Reports/NewReport/Devices/hooks/useDevices" />
+
+# useDevices
+
+Hook minimo que centraliza el id seleccionado dentro del paso de dispositivos.
+Provee helpers para abrir el formulario en modo nuevo o edicion y regresar a la
+lista.
+
+```tsx
+const { selectedRowId, handleCreate, handleEdit, handleCloseForm } = useDevices();
+```
+
+- `handleCreate()` marca el formulario como nuevo (`__new__`).
+- `handleEdit(id)` coloca el identificador de la fila que se desea editar.
+- `handleCloseForm()` regresa a la tabla limpiando la seleccion.

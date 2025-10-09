@@ -3,10 +3,9 @@ import { mapEmployee } from "../employees/employee.mapper";
 import { mapProyectLocation } from "../locations/location.mapper";
 import { ProyectMap } from "../proyects/proyects.mapper";
 import { mapWorkPosition } from "../workposition/workposition.mapper";
+import { formatDateHour, currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
+import { Activities, Refaction, ClientSignatureinterface, CategoriesType, TypesOfReportType, ReportDeviceView, ReportView, ReportPost, ReportPut, ReportsTable } from "./reports.types";
 
-import { Activities, Refaction, ClientSignatureinterface, CategoriesType, TypesOfReportType, ReportDeviceView, ReportView, ReportPost, ReportPut } from "./reports.types";
-
-import { formatDate } from "@/app/utilities/DatesHelper/Dateshelper";
 export const mapTypeReport = (type: any): TypesOfReportType => ({
   id: type?.id,
   name: type?.name,
@@ -15,13 +14,18 @@ export const mapTypeReport = (type: any): TypesOfReportType => ({
 
 export const mapTypesOfReports = (types: any[]): TypesOfReportType[] =>
   types.map(mapTypeReport);
-
+export const mapDevicesExternal = (devs: any[]): DeviceExternalView[] =>
+  devs.map(mapDeviceExternal);
 export const mapDeviceExternal = (dev: any): DeviceExternalView => ({
   id: dev?.id,
   brand: dev?.brand,
   model: dev?.model,
   serialnumber: dev?.serialnumber,
-  fullInformation: dev?.fullInformation,
+  "idproyect": dev?.idproyect,
+  "keyproyect": dev?.keyproyect,
+  "idlocation": dev?.idlocation,
+  "locationname": dev?.locationname,
+  "is_active": dev?.is_active
 });
 
 export const mapClientSignature = (sign: any): ClientSignatureinterface => ({
@@ -80,20 +84,19 @@ const parseMaybeJson = <T = any>(val: any): T | undefined => {
 // Mapea un registro de Report. Soporta que las relaciones vengan como string JSON.
 export const ReportMap = (raw: any): ReportView => {
 
-
   const src = parseMaybeJson<any>(raw) ?? raw ?? {}
   const activitiesRaw = parseMaybeJson<any>(src?.Activities ?? src.activities) ?? []
   const mapsRaw = parseMaybeJson<any>(src?.Maps ?? src.maps) ?? []
   const modelRaw = parseMaybeJson<any>(src?.model ?? src?.Model) ?? []
-  const devicesRaw = parseMaybeJson<any>(src?.report_devices ?? src?.devices ?? src?.reportDevices) ?? []
+  const devicesRaw = parseMaybeJson<any>(src?.reportDeviceView ?? src?.devices ?? src?.reportDevices) ?? []
   const refaccionsRaw = parseMaybeJson<any>(src?.refactions ?? src?.Refactions) ?? []
-  const clientSignRaw = parseMaybeJson<any>(src?.clientsign ?? src?.Clientsign) ?? {}
+  const clientSignRaw = parseMaybeJson<any>(src?.Clientsign ?? src?.Clientsign) ?? {}
   const proyectLocation = mapProyectLocation(src?.location ?? src?.ProyectLocation)
   const rawEmployee = mapEmployee(src?.employe ?? src?.Employee)
   const raWorkposition = mapWorkPosition(src?.workposition ?? src?.WorkPosition)
   // Relaciones que pueden venir como string u objeto
   const reportCategory = mapCategory(src?.category ?? src?.reportcategories)
-  const clientSign = mapClientSignature(clientSignRaw?.clientsign ?? src?.Clientsign) ?? {}
+  const clientSign = mapClientSignature(clientSignRaw) ?? {}
   // Normaliza posibles estructuras: array directo o envoltorio con propiedad
   const refactionsList = Array.isArray(refaccionsRaw)
     ? refaccionsRaw
@@ -117,9 +120,9 @@ export const ReportMap = (raw: any): ReportView => {
   return {
     "id": String(src?.id ?? ''),
     "model": modelRaw,
-    "startdate": formatDate(src?.startdate) ?? '',
-    "enddate": formatDate(src?.enddate) ?? '',
-    "datecreate":formatDate( src?.datecreate) ?? '',
+    "startdate": formatDateHour(src?.startdate) ?? '',
+    "enddate": formatDateHour(src?.enddate) ?? '',
+    "datecreate": formatDateHour(src?.datecreate) ?? '',
     "proyect": ProyectMap(src?.proyect ?? {}),
     "type": src?.type ?? '',
     "reportcategories": reportCategory,
@@ -140,7 +143,83 @@ export const ReportMap = (raw: any): ReportView => {
     "reportDeviceView": devicesRaw ?? []
   }
 }
+export const mapReportViewToPost = (view: ReportView): ReportPost => {
+  return {
+    model: JSON.stringify(view.model ?? []) || "",                          // asumiendo que Model tiene un campo id
+    startdate: view.startdate,
+    enddate: view.enddate.replaceAll("/", "-"),
+    datecreated: view.datecreate.replaceAll("/", "-"),                         // ojo: en ReportView es "datecreate"
+    idproyect: view.proyect?.id || "",
+    idtype: view.type || "",                              // depende si "type" es string o un objeto
+    idreportcategories: view.reportcategories?.id || "",
+    idlocation: view.location?.id || "",
+    idemploye: view.employe?.employee_id || "",
+    IdWorkposition: view.workposition?.workposition_id || "",
+    remarks: view.remarks,
+    progress: view.progress,
+    Ticket: view.ticket,
+    Employeesignurl: view.employeesignurl,
+    Activities: JSON.stringify(view.activities ?? []),    // convertir a string
+    Maps: JSON.stringify(view.maps ?? []),
+    Diagnostic: view.diagnostic,
+    Solution: view.solution,
+    Refactions: JSON.stringify(view.refactions ?? []),
+    Clientsign: JSON.stringify(view.clientsign ?? {}),    // si es objeto lo serializamos
+    front_identifier: view.front_identifier,
+    devices_external: view.reportDeviceView?.map(d => d.id) ?? []
+  };
+};
 
+export const ReportsTableMap = (reports: ReportView[]): ReportsTable[] => {
+
+  const obtainStatusLabel = (current: ReportView) => {
+    if (current?.clientsign?.url) return ({ text: "Completo", type: "valido" });
+    else if (current?.activities?.length == 0) return ({ text: "Sin Act", type: "prohibido" });
+    else if (!current?.clientsign?.url) return ({ text: "Sin F.Cliente", type: "invalido" });
+    else return ({ text: "No definido", type: "pendiente" });
+  };
+  return reports.map(report => ({
+    "id": report.id,
+    "datecreate": report.datecreate,
+    "ticket": report.ticket,
+    "type": report.reportcategories.typesofreports.name,
+    "category": report.reportcategories.name,
+    "location": report.location.name,
+    "employe": report.employe.fullname,
+    "status":obtainStatusLabel(report)
+  })
+  )
+
+
+}
+
+export const mapReportViewToPut = (view: ReportView): ReportPut => {
+  return {
+    id: view.id,
+    model: JSON.stringify(view.model ?? []) || "",                          // asumiendo que Model tiene un campo id
+    startdate: view.startdate.replaceAll("/", "-"),
+    enddate: view.enddate.replaceAll("/", "-"),
+    datecreated: currentDate(),                         // ojo: en ReportView es "datecreate"
+    idproyect: view.proyect?.id || "",
+    idtype: view.type || "",                              // depende si "type" es string o un objeto
+    idreportcategories: view.reportcategories?.id || "",
+    idlocation: view.location?.id || "",
+    idemploye: view.employe?.employee_id || "",
+    IdWorkposition: view.workposition?.workposition_id || "",
+    remarks: view.remarks,
+    progress: view.progress,
+    Ticket: view.ticket,
+    Employeesignurl: view.employeesignurl,
+    Activities: JSON.stringify(view.activities ?? []),    // convertir a string
+    Maps: JSON.stringify(view.maps ?? []),
+    Diagnostic: view.diagnostic,
+    Solution: view.solution,
+    Refactions: JSON.stringify(view.refactions ?? []),
+    Clientsign: JSON.stringify(view.clientsign ?? {}),    // si es objeto lo serializamos
+    front_identifier: view.front_identifier,
+    devices_external: view.reportDeviceView?.map(d => d.id) ?? []
+  };
+};
 export const ReportsMap = (list: any[]): ReportView[] => {
   if (!Array.isArray(list)) return []
   const output: ReportView[] = []

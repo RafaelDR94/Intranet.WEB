@@ -6,7 +6,7 @@ export const useTableLayoutStyles = () => {
   return {
     headerdiv: "relative z-[60] flex items-center flex-wrap gap-2",
     inputSyle: isMobile
-      ? "max-w-[300px] min-w-[285px]"
+      ? "max-w-[285px] min-w-[250px]"
       : "max-w-[400px] min-w-[380px]",
     buttonsStyle: "flex items-center gap-2 ml-auto",
   } as const;

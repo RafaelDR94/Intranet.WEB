@@ -28,33 +28,31 @@ const ProyectList = () => {
         handleNew,
         handleAskDelete,
         handleConfirmDelete,
+        handeReport,
         toRemove,
-        removing
+        removing,
+        currentPagePermissions,
+        isMobile
     } = useProyectList();
+
 
     /**
      * Column definitions reused by the table and the cards layout.
      * Wrapped in useMemo to keep referential stability between renders.
      */
-    const columns: ColumnDefinition<Proyect>[] = useMemo(() => [
-        { key: 'name', label: 'PROYECTO' },
-        { key: 'client', label: 'CLIENTE' },
-        { key: 'proyectKey', label: 'LLAVE DEL PROYECTO' },
-        {
-            key: 'manager' as any,
-            label: 'ENCARGADO',
-            render: (row) => row.collaborators?.[0]?.fullname ?? '—',
-        },
-        {
+    const columns: ColumnDefinition<Proyect>[] = useMemo(() => {
+
+        if (isMobile) return ([{ key: 'proyectKey', label: 'LLAVE DEL PROYECTO' }, {
             key: 'seeproyect' as unknown as keyof Proyect,
             label: "",
             render: (row) => (
+
                 <div className="flex gap-2 justify-end">
-                    <Button size="small" variant="ghost" hideIcon onClick={() => handleView(row)}>Ver Proyecto</Button>
+                    {currentPagePermissions?.currentproyect && <Button size="small" variant="ghost" hideIcon onClick={() => handleView(row)}>Ver Proyecto</Button>}
+
                 </div>
             ),
-            cellClass: 'w-56 text-right',
-            headerClass: 'w-56 text-right',
+
         },
 
         {
@@ -65,24 +63,61 @@ const ProyectList = () => {
                     <ActionMenuCell row={row} onEdit={() => handleEdit(row)} onDelete={() => handleAskDelete(row)} />
                 </div>
             ),
-
+            cellClass: 'w-20 text-right',
+            headerClass: 'w-20 text-right',
             invisible: false,
-        },
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-    ], []);
+        },])
+        return ([
+            { key: 'name', label: 'PROYECTO' },
+            { key: 'client', label: 'CLIENTE' },
+            { key: 'proyectKey', label: 'LLAVE DEL PROYECTO' },
+            {
+                key: 'manager' as any,
+                label: 'ENCARGADO',
+                render: (row) => row.collaborators?.[0]?.fullname ?? '—',
+            },
+            {
+                key: 'seeproyect' as unknown as keyof Proyect,
+                label: "",
+                render: (row) => (
+
+                    <div className="flex gap-2 justify-end">
+                        {currentPagePermissions?.currentproyect && <Button size="small" variant="ghost" hideIcon onClick={() => handleView(row)}>Ver Proyecto</Button>}
+
+                    </div>
+                ),
+                cellClass: 'w-56 text-right',
+                headerClass: 'w-56 text-right',
+            },
+
+            {
+                key: "actions" as unknown as keyof Proyect,
+                label: "",
+                render: (row) => (
+                    <div className="flex justify-end pr-2">
+                        <ActionMenuCell row={row} onEdit={() => handleEdit(row)} onDelete={() => handleAskDelete(row)} />
+                    </div>
+                ),
+
+                invisible: false,
+            },
+
+        ])
+    }, [currentPagePermissions, isMobile, handleAskDelete, handleEdit, handleView]);
     return (
         <>
-            <div className="space-y-8 overflow-auto">
+            <div className="overflow-auto">
                 <DataTable
                     actionLabel="Nuevo Proyecto"
                     onTableActionClick={handleNew}
-                    showButton
+                    showButton={currentPagePermissions?.create}
                     showDownloadTable={false}
                     showViewSwitcher
                     showCalendar={false}
                     useCardsView={true}
                     showFilter={false}
                     tables={[{
+                        hidetitle: true,
                         data: proyects,
                         columns,
                         enableSelection: false,
@@ -91,14 +126,21 @@ const ProyectList = () => {
                         defaultSortKey: 'name',
                         defaultSortDirection: 'asc',
                         cardAdapt: {
-                            titleKey: 'name' as any,
-                            labelKey: 'client' as any,
-                            descriptionKey: 'proyectKey' as any,
-                            imageKey: (p: any) => p.imageUrl ?? '/images/placeholder.png',
+                            titleKey: 'proyectKey' as any,
+                            labelKey: 'name' as any,
+                            // descriptionKey: 'client' as any,
+                            imageKey: (p: any) => p.imageUrl,
                             onPrimaryAction: (p: Proyect) => handleView(p),
+                            onSecondaryAction: (p: Proyect) => handeReport(p),
                             primaryLabel: 'Ver Proyecto',
+                            secondaryLabel: 'Nuevo Reporte',
                             showPrimaryButton: true,
-                            showSecondaryButton: false,
+                            showSecondaryButton: currentPagePermissions?.createreport,
+                            actionMenuProps: (row) => ({
+                                row,
+                                onEdit: handleEdit,
+                                onDelete: handleAskDelete,
+                            }),
                         }
                     }]}
                 />

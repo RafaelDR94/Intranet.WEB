@@ -155,9 +155,9 @@ const useNewProyect = () => {
   }, [createProyect, updateProyect, editId]);
 
   const responsiveLayout = useMemo(() => ({
-    lg: [[5, 5], [5, 5], [5, 5]],
-    md: [[10], [10], [10], [10]],
-    sm: [[10], [10], [10], [10]],
+    lg: [[5, 5], [5, 5], [5]],
+    md: [[10], [10], [10], [10],[10]],
+    sm: [[10], [10], [10], [10],[10]],
   }), []);
 
   useEffect(() => () => { resetFields(formId); }, [resetFields]);

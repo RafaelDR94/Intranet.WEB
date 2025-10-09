@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 
 import CollapsibleSection from '../CollapsibleSection/CollapsibleSection'
 
-import CardsGrid from './components/CardsGrid/CardsGrid'
+import CardsGrid from '../CardsGrid/CardsGrid'
 import type { TextSize } from './components/DataTableContent/components/DataTableBody/DataTableBody'
 import DataTableContent from './components/DataTableContent/DataTableContent'
 import DataTableLayout from './components/DataTableLayout/DataTableLayout'
@@ -51,7 +51,7 @@ export const DataTable = <T extends { id: string | number }>({
   startCollpas = false,
   useCardsView = false,
   showViewSwitcher = false,
-  textSize, // <-- NUEVO: tamaño global opcional
+  textSize, 
 }: DataTableProps<T>) => {
 
   const {
@@ -88,6 +88,7 @@ export const DataTable = <T extends { id: string | number }>({
     <div className="space-y-8">
       {tables.length > 1 && (
         <DataTableLayout
+          
           onSearchChange={handleSearchChange}
           onCalendarClick={onCalendarClick}
           onFilterClick={onFilterClick}
@@ -123,7 +124,7 @@ export const DataTable = <T extends { id: string | number }>({
         return (
           <CollapsibleSection
             key={index + 'table'}
-            title={table?.title}
+            title={table.hidetitle?"":table?.title}
             enableCollapse={table.enableCollaps}
             defaultOpen={!startCollpas}
           >
@@ -173,6 +174,7 @@ export const DataTable = <T extends { id: string | number }>({
                   secondaryLabel: table.cardAdapt.secondaryLabel,
                   showPrimaryButton: table.cardAdapt.showPrimaryButton,
                   showSecondaryButton: table.cardAdapt.showSecondaryButton,
+                  actionMenuProps: table.cardAdapt.actionMenuProps,
                   cardsPerPage: table.cardAdapt.cardsPerPage,
                 }}
                 rowsPerPage={rowsPerPage}
@@ -182,6 +184,7 @@ export const DataTable = <T extends { id: string | number }>({
                 data={filteredData}
                 columns={table.columns}
                 enableSelection={table.enableSelection}
+                initialSelectedIds={table.initialSelectedRowIds}
                 defaultSortDirection={table?.defaultSortDirection}
                 defaultSortKey={table.defaultSortKey}
                 enablePagination={enablePagination}
@@ -195,6 +198,7 @@ export const DataTable = <T extends { id: string | number }>({
                 actionsRender={actionsRender}
                 onTableActionClick={onTableActionClick}
                 actionLabel={actionLabel}
+                disableSelection={table.disableSelection}
                 textSize={effectiveTextSize} // <-- aplica aquí
               />
             )}

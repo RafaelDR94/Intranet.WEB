@@ -5,5 +5,9 @@ export const mapDeviceExternal = (dev: any): DeviceExternalView => ({
   brand: dev?.brand,
   model: dev?.model,
   serialnumber: dev?.serialnumber,
-  fullInformation: dev?.fullInformation,
+  idproyect: dev.idproyect,
+  keyproyect: dev.keyproyect,
+  idlocation: dev.idlocation,
+  locationname: dev.locationname,
+  is_active: dev.is_active
 });

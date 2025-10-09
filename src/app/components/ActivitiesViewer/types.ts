@@ -1,13 +1,18 @@
-export type Item = {
-  title: string;
-  description?: string;
-  image?: string;
-};
+import type { ActionMenuCellProps } from '../ActionMenuCell/types'
 
-export interface ActivitiesViewerProps {
-  items: Item[];
-  dataTestId?: string;
-  maxWidthClassName?: string; // e.g. max-w-6xl
+export type ActivitiesViewerItem<TRow = unknown> = {
+  title: string
+  description?: string
+  image?: string
+  actionMenuProps?: ActionMenuCellProps<TRow>
+}
+
+export interface ActivitiesViewerProps<TRow = unknown> {
+  items: ActivitiesViewerItem<TRow>[]
+  dataTestId?: string
+  maxWidthClassName?: string // e.g. max-w-6xl
   /** Opcional: forzar columnas (1..3). Útil para tests o contenedores especiales */
-  columns?: number;
+  columns?: number
+  forcevertical?: boolean
+  forcehorizontal?: boolean
 }

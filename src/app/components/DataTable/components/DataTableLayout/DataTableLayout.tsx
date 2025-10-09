@@ -49,12 +49,13 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
     <div className={tableLayoutStyles.headerdiv}>
       <Input
         placeholder="Buscar"
-        inputSize={isMobile ? "md" : "sm"}
+        inputSize={isMobile ? "sm" : "md"}
         className={tableLayoutStyles.inputSyle}
         onChange={(e) => handleInputChange(e.target.value)}
         onClick={handleSearchClick}
         onKeyDown={handleInputKeyDown}
-        icon={SearchIcon}
+        
+        icon={!isMobile&&SearchIcon||""}
       />
 
       {showCalendar && (
@@ -154,8 +155,8 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
         {/* ✅ Botón primario por defecto SOLO si no hay actionsRender */}
         {showButton && !actionsRender && (
           <Button
-            variant="solid"
-            size="large"
+            variant="solid" 
+            size={isMobile ? "small" : "medium"}
             hideIcon
             onClick={onTableActionClick}
           >

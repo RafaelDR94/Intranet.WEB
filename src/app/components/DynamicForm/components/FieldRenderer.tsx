@@ -78,9 +78,6 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           onChange={(vals) => handleChange(vals[0])}
           options={(field.options || []).map((opt) => ({
             ...opt,
-            label: opt.label
-              .toLowerCase()
-              .replace(/\b\w/g, (char) => char.toUpperCase()),
           }))}
           disabled={field.disabled}
         />
@@ -95,9 +92,6 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           onChange={(vals) => handleChange(vals)}
           options={(field.options || []).map((opt) => ({
             ...opt,
-            label: opt.label
-              .toLowerCase()
-              .replace(/\b\w/g, (char) => char.toUpperCase()),
           }))}
           disabled={field.disabled}
         />
@@ -199,3 +193,4 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
       );
   }
 };
+

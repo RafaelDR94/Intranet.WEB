@@ -1,27 +1,52 @@
-﻿import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { sampleReports } from "./testUtils/reportFixtures";
+import { ReportsTableMap } from "@/app/mappings/reports/report.mapper";
+
+const mappedReports = ReportsTableMap(sampleReports);
 
 import ReportsTable from "./ReportsTable";
 
-const handleCloseDetailsMock = vi.fn();
-const setCurrentMock = vi.fn();
-const downloadPicMock = vi.fn();
-const downloadDigitalMock = vi.fn();
+const hookState = {
+  newReport: false,
+  isMobile: false,
+  currentPagePermissions: { reportdetails: true },
+  currentReport: sampleReports[0],
+  reportId: sampleReports[0].id,
+  reportIdFront: null,
+  reportList: mappedReports,
+  reportLocalList: [] as typeof mappedReports,
+  reportPendingDelete: null as (typeof sampleReports)[number] | null,
+  forceActionButton: false,
+  activeFilter: "all",
+  controlFilterOptions: [],
+  handleFilterChange: vi.fn(),
+  handleSelectReportOnline: vi.fn(),
+  handleSelectReportOffline: vi.fn(),
+  handleDownloadPicReport: vi.fn(),
+  handleDownloadDigitalReport: vi.fn(),
+  handleClosePanel: vi.fn(),
+  handleDelete: vi.fn(),
+  handleEdit: vi.fn(),
+  handleNewReport: vi.fn(),
+  setReportPendingDelete: vi.fn(),
+};
+
 const dataTableSpy = vi.fn();
 
 vi.mock("./hooks/useReportsTable", () => ({
   __esModule: true,
-  default: () => ({
-    currentReport: sampleReports[0],
-    reportId: sampleReports[0].id,
-    reports: sampleReports,
-    setCurrent: setCurrentMock,
-    handleCloseDetails: handleCloseDetailsMock,
-    handleDownloadPicReport: downloadPicMock,
-    handleDownloadDigitalReport: downloadDigitalMock,
+  default: () => hookState,
+}));
+
+vi.mock("@/app/context/AuthContext/AuthContext", () => ({
+  useAuth: () => ({
+    user: {
+      idEmployee: sampleReports[0].employe.employee_id,
+      fullName: sampleReports[0].employe.fullname,
+    },
   }),
 }));
 
@@ -29,7 +54,9 @@ vi.mock("@/app/components/DataTable/DataTable", () => ({
   DataTable: (props: any) => {
     dataTableSpy(props);
     const table = props.tables?.[0];
-    const actionColumn = table?.columns?.find((col: any) => col.label === "" || col.key === "actions");
+    const actionColumn =
+      table?.columns?.find((col: any) => col.key === "actions") ??
+      table?.columns?.find((col: any) => col.label === "");
     const actionContent = actionColumn?.render?.(table.data[0]);
     return (
       <div data-testid="data-table">
@@ -67,6 +94,19 @@ vi.mock("./components/ReportDetails/ReportDetails", () => ({
 describe("ReportsTable", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    Object.assign(hookState, {
+      newReport: false,
+      isMobile: false,
+      currentPagePermissions: { reportdetails: true },
+      currentReport: sampleReports[0],
+      reportId: sampleReports[0].id,
+      reportIdFront: null,
+      reportList: mappedReports,
+      reportLocalList: [],
+      reportPendingDelete: null,
+      forceActionButton: false,
+      activeFilter: "all",
+    });
   });
 
   it("renderiza la tabla con los reportes disponibles", () => {
@@ -81,19 +121,22 @@ describe("ReportsTable", () => {
     render(<ReportsTable />);
 
     fireEvent.click(screen.getByRole("button", { name: "Ver Detalle" }));
-    expect(setCurrentMock).toHaveBeenCalledWith(sampleReports[0]);
+    expect(hookState.handleSelectReportOnline).toHaveBeenCalledWith(
+      expect.objectContaining({ id: sampleReports[0].id }),
+      { forceButton: false }
+    );
   });
 
   it("expone acciones de descarga y cierre dentro del panel lateral", () => {
     render(<ReportsTable />);
 
     fireEvent.click(screen.getAllByRole("button", { name: "icon-button" })[0]);
-    expect(downloadPicMock).toHaveBeenCalled();
+    expect(hookState.handleDownloadPicReport).toHaveBeenCalled();
 
     fireEvent.click(screen.getAllByRole("button", { name: "icon-button" })[1]);
-    expect(downloadDigitalMock).toHaveBeenCalled();
+    expect(hookState.handleDownloadDigitalReport).toHaveBeenCalled();
 
     fireEvent.click(screen.getByText("cerrar"));
-    expect(handleCloseDetailsMock).toHaveBeenCalled();
+    expect(hookState.handleClosePanel).toHaveBeenCalled();
   });
 });

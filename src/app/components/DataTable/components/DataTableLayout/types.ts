@@ -41,6 +41,7 @@ export interface TableLayoutProps {
   showDownloadTable?: boolean
     /** Deshabilita las opciones de descarga */
   downloadDisabled?: boolean
+  
   /** Maneja la acción de descarga */
   onDownload?: (kind: 'pdf' | 'excel') => void
 

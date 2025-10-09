@@ -25,7 +25,7 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
   children,
   className,
   side = "right",
-  zIndex = 50,
+  zIndex = 80,
   label,
   withinContainer = false,
 }) => {
