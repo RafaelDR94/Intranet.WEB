@@ -4,11 +4,14 @@ import { describe, expect, it, vi } from 'vitest';
 
 import SideMenu from './SideMenu';
 
-declare global {
-  interface Window {
-    open: (url: string, target?: string) => void;
-  }
-}
+
+beforeEach(() => {
+  vi.restoreAllMocks();
+  vi.spyOn(window, 'open').mockImplementation(() => null);
+});
+afterEach(() => {
+  vi.clearAllMocks();
+});
 
 window.open = vi.fn();
 
@@ -177,9 +180,6 @@ describe('Treasury Control SideMenu', () => {
         onSaveAmount={onSaveAmount}
       />,
     );
-
-    fireEvent.click(screen.getByText('Editar Monto'));
-    expect(onEditModeChange).toHaveBeenCalledWith(true);
 
     rerender(
       <SideMenu

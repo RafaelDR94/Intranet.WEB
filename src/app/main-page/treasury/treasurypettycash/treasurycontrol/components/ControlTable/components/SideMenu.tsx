@@ -129,6 +129,9 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       return bTime - aTime;
     });
   }, [amountHistory]);
+  
+  console.log(detail);
+  
 
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
@@ -145,6 +148,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const rfcReceptor = detail?.rfc_receptor || "";
   const xmlUrl = detail?.xml || "";
   const pdfUrl = detail?.pdf || "";
+  const amount = detail?.amount ?? selected?.amount;
 
   const isAlreadyValid = isVoucherValid(status);
   const invoiceRejected = isInvoiceRejected(status);
@@ -300,14 +304,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     handleCancelEditing();
   };
 
-  const canEditAmount = Boolean(
-    isAlreadyValid &&
-      selected &&
-      !isDetailLoading &&
-      !invoiceRejected &&
-      onSaveAmount,
-  );
-
   // ¿Se deben mostrar los botones?
   const showActionButtons = Boolean(selected && !isNoInvoice(status));
 
@@ -326,6 +322,9 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     isValidating ||
     isRejecting || // en proceso
     invoiceRejected; // factura rechazada (tu regla actual)
+
+  // NUEVO: bandera para vista mínima cuando el estatus es "sin factura"
+  const showMinimalSinFactura = isNoInvoice(status);
 
   return (
     <div className="m-0">
@@ -378,6 +377,10 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
           <div className="flex items-center gap-2">
             {voucherType ? (
               <Label type={voucherTypeLabel} text={voucherType} />
+            ) : null}
+            {/* NUEVO: mostrar Label de estatus SOLO cuando es "sin factura" */}
+            {showMinimalSinFactura && status ? (
+              <Label type="sin-factura" text={status} />
             ) : null}
             {xmlUrl ? (
               <Button
@@ -437,171 +440,205 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
               <div className="text-gray-70 text-b4">Cargando detalle...</div>
             ) : null}
 
-            {uuid ? (
-              <div className="text-gray-90 text-s1 font-semibold">{uuid}</div>
-            ) : null}
-
-            <div className="text-gray-90 text-b4 font-medium">
-              FECHA DE CERTIFICACIÓN:&nbsp;
-              <span className="text-gray-90 text-b3 font-regular">
-                {formatDate(applicationDate) || "—"}
-              </span>
-            </div>
-
-            <div className="text-gray-90 text-b4 font-medium">
-              RFC EMISOR:&nbsp;
-              <span className="text-gray-90 text-b3 font-regular">
-                {provider || "—"}
-              </span>
-            </div>
-
-            {rfcReceptor ? (
-              <div className="text-gray-90 text-b4 font-medium">
-                RFC RECEPTOR:&nbsp;
-                <span className="text-gray-90 text-b3 font-regular">
-                  {rfcReceptor}
-                </span>
-              </div>
-            ) : null}
-
-            <div className="text-gray-90 text-b4 font-medium">
-              CONCEPTO:&nbsp;
-              <span className="text-gray-90 text-b3 font-regular">
-                {concept || "—"}
-              </span>
-            </div>
-
-            <div className="mt-10 h-[0.1px] w-[auto] bg-green-100"></div>
-
-            <div className="flex flex-col">
-              <div className="flex content-center justify-end">
-                <div className="text-gray-70 text-b4 text-gray-90 mr-5 font-medium uppercase">
-                  Subtotal:
+            {/* VISTA MÍNIMA CUANDO EL ESTATUS ES "SIN FACTURA" */}
+            {showMinimalSinFactura ? (
+              <div className="space-y-3" data-testid="minimal-sin-factura">
+                <div className="text-gray-90 text-b4 font-medium">
+                  Fecha:&nbsp;
+                  <span className="text-gray-90 text-b3 font-regular">
+                    {formatDate(applicationDate) || "—"}
+                  </span>
                 </div>
-                <div className="text-gray-90 text-b3 text-gray-90">
-                  {formatMoney(subtotal)}
+                <div className="text-gray-90 text-b4 font-medium">
+                  Monto Solicitado:&nbsp;
+                  <span className="text-gray-90 text-b3 font-regular">
+                    {amount}
+                  </span>
+                </div>
+                <div className="text-gray-90 text-b4 font-medium">
+                  Concepto:&nbsp;
+                  <span className="text-gray-90 text-b3 font-regular">
+                    {concept || "—"}
+                  </span>
                 </div>
               </div>
-              <div className="flex content-center justify-end">
-                <div className="text-gray-70 text-b4 text-gray-90 mr-12 font-medium uppercase">
-                  IVA(16%):
-                </div>
-                <div className="text-gray-90 text-b3 text-gray-90">
-                  {formatMoney(iva)}
-                </div>
-              </div>
-              <div className="flex content-center justify-end">
-                <div className="text-gray-70 text-b4 text-gray-90 mr-12 font-medium uppercase">
-                  Total:
-                </div>
-                <div className="text-gray-90 text-b3 text-gray-90">
-                  {formatMoney(resolvedTotal)}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-10 h-[0.1px] w-[auto] bg-green-100"></div>
-
-            {showActionButtons && (
-              <div>
-                <Button
-                  size="medium"
-                  variant={isEditingAmount ? "outline" : "outline"}
-                  hideIcon
-                  disabled={isEditingAmount ? !canEditAmount : isSavingAmount}
-                  onClick={
-                    isEditingAmount ? handleCancelEditing : handleStartEditing
-                  }
-                >
-                  Editar Monto
-                </Button>
-              </div>
-            )}
-
-            {isEditingAmount ? (
-              <div>
-                {requestedAmount !== undefined ? (
-                  <p className="text-gray-70 text-b4 mt-2">
-                    MONTO SOLICITADO :&nbsp;
-                    <span className="text-gray-90 font-medium">
-                      {formatMoney(requestedAmount)}
-                    </span>
-                  </p>
+            ) : (
+              // VISTA COMPLETA (estatus distinto de "sin factura")
+              <>
+                {uuid ? (
+                  <div className="text-gray-90 text-s1 font-semibold">
+                    {uuid}
+                  </div>
                 ) : null}
-                <p className="text-b4 text-gray-90 my-2">
-                  Ingresa aquí el nuevo monto:
-                </p>
-                <p className="text-b4 text-gray-90 my-1">Monto:</p>
-                <div className="flex items-center justify-between gap-4">
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={amountValue}
-                    onChange={handleAmountInputChange}
-                    disabled={isSavingAmount || isDetailLoading}
-                    variant={amountError ? "error" : "default"}
-                    helperText={amountError ?? undefined}
-                    dataTestId="requested-amount-input"
-                  />
-                  <Button
-                    size="medium"
-                    hideIcon
-                    onClick={handleSaveAmount}
-                    disabled={
-                      isSavingAmount ||
-                      isDetailLoading ||
-                      !selected ||
-                      !amountValue
-                    }
-                  >
-                    {isSavingAmount ? "Guardando…" : "Guardar Monto"}
-                  </Button>
-                </div>
-              </div>
-            ) : null}
 
-            {isAlreadyValid ? (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-gray-90 text-b4 font-medium">
-                    MONTO SOLICITADO: <span>${requestedAmount}</span>
-                  </p>
-                  {isHistoryLoading ? (
-                    <span className="text-gray-70 text-b5">Cargando…</span>
-                  ) : null}
+                <div className="text-gray-90 text-b4 font-medium">
+                  FECHA DE CERTIFICACIÓN:&nbsp;
+                  <span className="text-gray-90 text-b3 font-regular">
+                    {formatDate(applicationDate) || "—"}
+                  </span>
                 </div>
-                {historyEntries.length ? (
-                  <ul className="" data-testid="amount-history">
-                    {historyEntries.map((entry, index) => (
-                      <li
-                        key={`${entry.date}-${index}`}
-                        className="text-b3 text-gray-90"
-                      >
-                        {" "}
-                        • Monto Editado &nbsp;
-                        <span>
-                          {formatDate(entry.date) || entry.date || "—"}: &nbsp;
-                        </span>
-                        <span className="font-medium">
-                          {formatMoney(entry.amount)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-gray-70 text-b4">
-                    Sin cambios registrados.
-                  </p>
+
+                <div className="text-gray-90 text-b4 font-medium">
+                  RFC EMISOR:&nbsp;
+                  <span className="text-gray-90 text-b3 font-regular">
+                    {provider || "—"}
+                  </span>
+                </div>
+
+                {rfcReceptor ? (
+                  <div className="text-gray-90 text-b4 font-medium">
+                    RFC RECEPTOR:&nbsp;
+                    <span className="text-gray-90 text-b3 font-regular">
+                      {rfcReceptor}
+                    </span>
+                  </div>
+                ) : null}
+
+                <div className="text-gray-90 text-b4 font-medium">
+                  CONCEPTO:&nbsp;
+                  <span className="text-gray-90 text-b3 font-regular">
+                    {concept || "—"}
+                  </span>
+                </div>
+
+                <div className="mt-10 h-[0.1px] w-[auto] bg-green-100"></div>
+
+                <div className="flex flex-col">
+                  <div className="flex content-center justify-end">
+                    <div className="text-gray-70 text-b4 text-gray-90 mr-5 font-medium uppercase">
+                      Subtotal:
+                    </div>
+                    <div className="text-gray-90 text-b3 text-gray-90">
+                      {formatMoney(subtotal)}
+                    </div>
+                  </div>
+                  <div className="flex content-center justify-end">
+                    <div className="text-gray-70 text-b4 text-gray-90 mr-12 font-medium uppercase">
+                      IVA(16%):
+                    </div>
+                    <div className="text-gray-90 text-b3 text-gray-90">
+                      {formatMoney(iva)}
+                    </div>
+                  </div>
+                  <div className="flex content-center justify-end">
+                    <div className="text-gray-70 text-b4 text-gray-90 mr-12 font-medium uppercase">
+                      Total:
+                    </div>
+                    <div className="text-gray-90 text-b3 text-gray-90">
+                      {formatMoney(resolvedTotal)}
+                    </div>
+                  </div>
+                </div>
+
+                {showActionButtons && (
+                  <div>
+                    <div className="mt-10 mb-5 h-[0.1px] w-[auto] bg-green-100"></div>
+                    <Button
+                      size="medium"
+                      variant={isEditingAmount ? "outline" : "outline"}
+                      hideIcon
+                      disabled={disableActions}
+                      onClick={
+                        isEditingAmount
+                          ? handleCancelEditing
+                          : handleStartEditing
+                      }
+                    >
+                      Editar Monto
+                    </Button>
+                  </div>
                 )}
-              </div>
-            ) : null}
 
-            {!isDetailLoading && !detail ? (
-              <div className="text-gray-70 text-b3">
-                No se encontró información adicional del vale.
-              </div>
-            ) : null}
+                {isEditingAmount ? (
+                  <div>
+                    {requestedAmount !== undefined ? (
+                      <p className="text-gray-70 text-b4 mt-2">
+                        MONTO SOLICITADO :&nbsp;
+                        <span className="text-gray-90 font-medium">
+                          {amount}
+                        </span>
+                      </p>
+                    ) : null}
+                    <p className="text-b4 text-gray-90 my-2">
+                      Ingresa aquí el nuevo monto:
+                    </p>
+                    <p className="text-b4 text-gray-90 my-1">Monto:</p>
+                    <div className="flex items-center justify-between gap-4">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={amountValue}
+                        onChange={handleAmountInputChange}
+                        disabled={isSavingAmount || isDetailLoading}
+                        variant={amountError ? "error" : "default"}
+                        helperText={amountError ?? undefined}
+                        dataTestId="requested-amount-input"
+                      />
+                      <Button
+                        size="medium"
+                        hideIcon
+                        onClick={handleSaveAmount}
+                        disabled={
+                          isSavingAmount ||
+                          isDetailLoading ||
+                          !selected ||
+                          !amountValue
+                        }
+                      >
+                        {isSavingAmount ? "Guardando…" : "Guardar Monto"}
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {isAlreadyValid ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-gray-90 text-b4 font-medium">
+                        MONTO SOLICITADO:{" "}
+                        <span>
+                          {amount}
+                        </span>
+                      </p>
+                      {isHistoryLoading ? (
+                        <span className="text-gray-70 text-b5">Cargando…</span>
+                      ) : null}
+                    </div>
+                    {historyEntries.length ? (
+                      <ul className="" data-testid="amount-history">
+                        {historyEntries.map((entry, index) => (
+                          <li
+                            key={`${entry.date}-${index}`}
+                            className="text-b3 text-gray-90"
+                          >
+                            {" "}
+                            • Monto Editado &nbsp;
+                            <span>
+                              {formatDate(entry.date) || entry.date || "—"}:
+                              &nbsp;
+                            </span>
+                            <span className="font-medium">
+                              {formatMoney(entry.amount)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-70 text-b4">
+                        Sin cambios registrados.
+                      </p>
+                    )}
+                  </div>
+                ) : null}
+
+                {!isDetailLoading && !detail ? (
+                  <div className="text-gray-70 text-b3">
+                    No se encontró información adicional del vale.
+                  </div>
+                ) : null}
+              </>
+            )}
           </div>
         ) : (
           <div className="text-gray-70 text-b3">
