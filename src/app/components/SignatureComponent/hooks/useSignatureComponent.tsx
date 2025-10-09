@@ -52,7 +52,7 @@ const useSignatureComponent = ({ onAuthorization, onClose, open, responsibleGuid
             })
         }
         catch (error) {
-            console.log(error);
+         
             showAlert({
                 type: "info",
                 title: "No se actualizo la firma",

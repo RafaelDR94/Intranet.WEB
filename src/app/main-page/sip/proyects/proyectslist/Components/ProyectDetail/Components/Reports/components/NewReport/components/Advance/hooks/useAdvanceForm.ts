@@ -232,11 +232,6 @@ const useAdvanceForm = (currentModelName: string) => {
     }, [resetFields, report, storedFields]);
 
 
-    useEffect(() => {
-        console.log("storedFields", storedFields);
-
-    }, [storedFields]);
-
 
     const effectiveFields = storedFields.length > 0 ? storedFields : filteredFields;
 

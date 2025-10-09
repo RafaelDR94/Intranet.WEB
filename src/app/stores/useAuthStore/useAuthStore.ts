@@ -39,6 +39,7 @@ export const useAuthStore = createWithEqualityFn<AuthState>()(
     userRemebered: null,
     token: null,
     hasExpired: false,
+    hydrated: false,
     remeberMe: false,
     offlineMode: false,
     loading: false,
@@ -137,6 +138,8 @@ const initAuthStore = async () => {
     }
   } catch {
     // ignore initialization errors
+  } finally {
+    useAuthStore.setState({ hydrated: true })
   }
 }
 

@@ -42,12 +42,6 @@ const ReportsTable: React.FC = () => {
     handleFilterChange,
     activeFilter
   } = useReportsTable();
-
-
-
-
-
-
   const buildColumns = useCallback(
     (forceButton: boolean, online: boolean): ColumnDefinition<ReportsTableI>[] => {
       if (isMobile) {

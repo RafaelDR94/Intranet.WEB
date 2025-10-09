@@ -1,10 +1,7 @@
 'use client'
-
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useCallback, useState } from 'react'
-
 import useDocument from './useDocument/useDocument'
-
 import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useReportsStore } from '@/app/stores/useReportsStore/useReportsStore'
@@ -21,17 +18,14 @@ const useReportsTable = () => {
   const searchParams = useSearchParams()
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { currentPagePermissions, user } = useAuth();
-  const { currentPagePermissions, user } = useAuth();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert } = usePrincipalAlert
   const { makePictureDocument, exportExcel } = useDocument();
-  const idproyect = searchParams.get('id') ?? ''
+  const idproyect = searchParams.get('id') ?? '';
   const reportId = searchParams.get('reportId') ?? ''
-  const reportIdFront = searchParams.get('frontId') ?? ''
   const reportIdFront = searchParams.get('frontId') ?? ''
   const newReport = searchParams.get('newReport') ?? false
   const isMobile = useIsMobile();
-  const { setReport } = useReportBuilderStore();
   const { setReport } = useReportBuilderStore();
   const {
     currentReport,
@@ -61,8 +55,7 @@ const useReportsTable = () => {
   const { updateQuery } = useQuery();
   const reportList = ReportsTableMap(reports);
   const reportLocalList = ReportsTableMap(localReports);
-  const reportList = ReportsTableMap(reports);
-  const reportLocalList = ReportsTableMap(localReports);
+
 
 
   const handleCloseDetails = useCallback(() => {
@@ -162,7 +155,6 @@ const useReportsTable = () => {
       showAlert({
         type: "error",
         title: "Error en la descarga",
-        description: String(e) || "Hubo uema al descargar el reporte",
         description: String(e) || "Hubo uema al descargar el reporte",
         showPrimaryButton: false,
         showSecondaryButton: false,
@@ -373,15 +365,8 @@ const useReportsTable = () => {
     reportPendingDelete,
     setReportPendingDelete,
     forceActionButton,
-    reportPendingDelete,
-    setReportPendingDelete,
-    forceActionButton,
     currentReport,
     reports,
-    reportList: reportListFiltered,
-    reportLocalList,
-    localReports,
-    fetchLocalReports: loadLocalReports,
     reportList: reportListFiltered,
     reportLocalList,
     localReports,
@@ -390,15 +375,9 @@ const useReportsTable = () => {
     searchableKeys,
     reportId,
     reportIdFront,
-    reportIdFront,
     handleCloseDetails,
     handleDownloadPicReport,
     handleDownloadDigitalReport,
-    handleEdit,
-    handleDelete,
-    handleNewReport,
-    handleSelectReportOnline,
-    handleSelectReportOffline,
     handleEdit,
     handleDelete,
     handleNewReport,
@@ -411,42 +390,7 @@ const useReportsTable = () => {
     controlFilterOptions,
     handleFilterChange,
     activeFilter,
-    handleClosePanel
-    newReport,
-    setForceActionButton,
-    controlFilterOptions,
-    handleFilterChange,
-    activeFilter,
-    handleClosePanel
+    handleClosePanel,
   }
 }
-
-export default useReportsTable
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default useReportsTable;
