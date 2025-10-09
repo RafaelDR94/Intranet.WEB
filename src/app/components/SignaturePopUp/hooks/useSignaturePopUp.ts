@@ -22,7 +22,7 @@ const useSignaturePopUp = ({ onAuthorization, responsibleGuid, onClose, external
     }
     const fields: FieldModel[] = useMemo(() => {
         if (!externalSignature) return ([
-            { type: 'input', name: 'auth', label: 'Autorización*', placeholder: 'Autorización', value: "", validations: [{ type: 'required' }] },
+            { type: 'password', name: 'auth', label: 'Autorización*', placeholder: 'Autorización', value: "", validations: [{ type: 'required' }] },
 
         ]);
         return [

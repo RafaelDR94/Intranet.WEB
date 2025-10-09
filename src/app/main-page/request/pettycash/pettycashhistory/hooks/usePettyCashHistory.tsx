@@ -250,7 +250,6 @@ const usePettyCashHistory = () => {
     return s === "valido" || s === "en-proceso" || s === "rechazado";
   });
 
-  console.log('vouchersFull ', vouchersFull);
   
 
   const pettyCashAsHistoryRows = useMemo<PettyCashHistoryRow[]>(

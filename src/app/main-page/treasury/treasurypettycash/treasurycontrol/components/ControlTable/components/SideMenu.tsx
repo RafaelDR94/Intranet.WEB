@@ -130,7 +130,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     });
   }, [amountHistory]);
   
-  console.log(detail);
+
   
 
   const employeeName = detail?.employeename || selected?.employeeName || "";

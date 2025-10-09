@@ -185,7 +185,7 @@ const ControlTable = () => {
     isAmountHistoryLoading,
   } = useControlTable();
 
-  console.log('rows ', rows);
+
   
 
   const isMobile = useIsMobile();

@@ -1,10 +1,7 @@
 'use client'
-
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useCallback, useState,useRef } from 'react'
-
+import { useEffect, useMemo, useCallback, useState } from 'react'
 import useDocument from './useDocument/useDocument'
-
 import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useReportsStore } from '@/app/stores/useReportsStore/useReportsStore'
@@ -14,8 +11,8 @@ import useQuery from '@/app/hooks/useQuery/useQuery'
 import { ReportView, ReportsTable } from '@/app/mappings/reports/reports.types'
 import useReportBuilderStore from '@/app/stores/useReportBuilderStore/useReportBuilderStore'
 import { ReportsTableMap } from '@/app/mappings/reports/report.mapper'
+import { shallow } from 'zustand/shallow'
 const useReportsTable = () => {
-  const firstListLoaded = useRef(false);
   const [reportPendingDelete, setReportPendingDelete] = useState<ReportView | null>(null);
   const [forceActionButton, setForceActionButton] = useState(false);
   const searchParams = useSearchParams()
@@ -24,7 +21,7 @@ const useReportsTable = () => {
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert } = usePrincipalAlert
   const { makePictureDocument, exportExcel } = useDocument();
-  const idproyect = searchParams.get('id') ?? ''
+  const idproyect = searchParams.get('id') ?? '';
   const reportId = searchParams.get('reportId') ?? ''
   const reportIdFront = searchParams.get('frontId') ?? ''
   const newReport = searchParams.get('newReport') ?? false
@@ -34,28 +31,51 @@ const useReportsTable = () => {
     currentReport,
     reports,
     localReports,
-    fetchLocalReports: loadLocalReports,
+    loadLocalReports,
     deleteLocal,
-    deleteReport: deleteRemoteReport,
+    deleteRemoteReport,
     loading,
     fetchAllReportsByProyect,
     setCurrentReport,
-  } = useReportsStore()
+    reset
+  } = useReportsStore((s) => ({
+    currentReport: s.currentReport,
+    reports: s.reports,
+    localReports: s.localReports,
+    loadLocalReports: s.fetchLocalReports,
+    deleteLocal: s.deleteLocal,
+    deleteRemoteReport: s.deleteReport,
+    loading: s.loading,
+    fetchAllReportsByProyect: s.fetchAllReportsByProyect,
+    setCurrentReport: s.setCurrentReport,
+    reset: s.reset
+  }), shallow)
+
+
   const { updateQuery } = useQuery();
   const reportList = ReportsTableMap(reports);
   const reportLocalList = ReportsTableMap(localReports);
 
 
+
   const handleCloseDetails = useCallback(() => {
+    updateQuery({ reportId: null, frontId: null }) // elimina reportId de la URL
     updateQuery({ reportId: null, frontId: null }) // elimina reportId de la URL
     setCurrentReport(null);
     // limpia el reporte actual en el store
   }, [updateQuery, setCurrentReport])
 
   useEffect(() => {
-    if (!newReport) { fetchAllReportsByProyect(idproyect, true); loadLocalReports(true, String(idproyect)); }
+    if (!newReport) {
+      setReportListFiltered([]);
+      reset();
+      fetchAllReportsByProyect(String(idproyect), true);
+      loadLocalReports(true, String(idproyect));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newReport])
+  }, [newReport]);
+
+
 
 
 
@@ -154,7 +174,7 @@ const useReportsTable = () => {
 
 
   const [activeFilter, setActiveFilter] = useState<string>('all:mine');
-  const [reportListFiltered, setReportListFiltered] = useState(reportList);
+  const [reportListFiltered, setReportListFiltered] = useState<ReportsTable[]>([]);
   const controlFilterOptions = [
     { label: "Todos", value: "all" },
     { label: "Reportes completos", value: "all:complete" },
@@ -190,11 +210,10 @@ const useReportsTable = () => {
   }
 
   useEffect(() => {
-    if (reportList.length>0 && activeFilter && !firstListLoaded.current) {
-      firstListLoaded.current= true;
+    if (reportList.length > 0 && activeFilter && reportListFiltered.length === 0) {
       handleFilterChange(activeFilter);
     }
-  }, [reportList,activeFilter])
+  }, [reportList, activeFilter])
 
 
   const handleSelectReportOnline = useCallback(
@@ -208,7 +227,7 @@ const useReportsTable = () => {
       }
 
     },
-    [setCurrentReport, updateQuery,setForceActionButton,reports]
+    [setCurrentReport, updateQuery, setForceActionButton, reports]
   );
 
   const handleSelectReportOffline = useCallback(
@@ -221,7 +240,7 @@ const useReportsTable = () => {
       }
 
     },
-    [setCurrentReport, updateQuery,setForceActionButton,localReports]
+    [setCurrentReport, updateQuery, setForceActionButton, localReports]
   );
 
 
@@ -238,7 +257,7 @@ const useReportsTable = () => {
   const handleClosePanel = useCallback(() => {
     setForceActionButton(false);
     handleCloseDetails();
-  }, [handleCloseDetails,setForceActionButton]);
+  }, [handleCloseDetails, setForceActionButton]);
 
   const handleDelete = useCallback(async (row: ReportView) => {
     if (!row) {
@@ -371,22 +390,7 @@ const useReportsTable = () => {
     controlFilterOptions,
     handleFilterChange,
     activeFilter,
-    handleClosePanel
+    handleClosePanel,
   }
 }
-
-export default useReportsTable
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default useReportsTable;

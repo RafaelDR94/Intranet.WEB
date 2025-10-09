@@ -45,6 +45,8 @@ export interface AuthState {
   token: string | null
   /** Indica si la sesión expiró */
   hasExpired: boolean
+  /** Marca cuando el estado inicial ya termino de hidratarse desde almacenamiento */
+  hydrated: boolean
   /** Indica si se debe recordar al usuario */
   remeberMe: boolean
   /** Modo offline habilitado */

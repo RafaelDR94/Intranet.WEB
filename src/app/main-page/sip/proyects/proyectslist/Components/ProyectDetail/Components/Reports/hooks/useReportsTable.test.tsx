@@ -11,6 +11,7 @@ const setCurrentReportMock = vi.fn();
 const deleteLocalMock = vi.fn();
 const deleteRemoteReportMock = vi.fn();
 const setReportMock = vi.fn();
+const resetReportsStoreMock = vi.fn();
 
 const makePictureDocumentMock = vi.fn();
 const exportExcelMock = vi.fn();
@@ -80,6 +81,7 @@ vi.mock("@/app/stores/useReportsStore/useReportsStore", () => ({
       loading: loadingRef,
       fetchAllReportsByProyect: fetchAllReportsByProyectMock,
       setCurrentReport: setCurrentReportMock,
+      reset: resetReportsStoreMock,
     };
     return typeof selector === "function" ? selector(state) : state;
   },
@@ -111,6 +113,7 @@ describe("useReportsTable", () => {
     deleteLocalMock.mockResolvedValue(true);
     deleteRemoteReportMock.mockResolvedValue(true);
     exportExcelMock.mockResolvedValue(undefined);
+    resetReportsStoreMock.mockImplementation(() => {});
     windowOpenSpy = vi.spyOn(window, "open").mockImplementation(() => null);
   });
 
