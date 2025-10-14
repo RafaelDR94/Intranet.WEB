@@ -70,6 +70,16 @@ export const getTabsFromPath = (
         path: "/main-page/accounting/requisitions/requisitionsList",
       },
     ],
+    "accounting/sap": [
+      {
+        label: "Administración",
+        path: "/main-page/accounting/sap/administration",
+      },
+      {
+        label: "Operaciones",
+        path: "/main-page/accounting/sap/operations",
+      },
+    ],
     'sip/proyects': [
       { label: 'Nuevo Proyecto', path: '/main-page/sip/proyects/newproyect' },
       { label: 'Proyectos', path: '/main-page/sip/proyects/proyectslist' },
