@@ -242,4 +242,49 @@ describe('DynamicForm', () => {
       expect(onSubmit).toHaveBeenCalledWith({ cantidad: 2 })
     })
   })
+
+  it('maneja ControlLevel y envía el valor actualizado', async () => {
+    const fields: FieldModel[] = [
+      {
+        type: 'controlLevel',
+        name: 'nivel',
+        label: 'Nivel de servicio',
+        value: 0.5,
+        controlLevelProps: { min: 0, max: 1, divisions: 4, showSemicircle: false },
+      },
+    ]
+    const { onSubmit } = renderForm(fields)
+
+    const slider = screen.getByRole('slider')
+    fireEvent.keyDown(slider, { key: 'ArrowRight' })
+
+    fireEvent.click(screen.getByText('Submit'))
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({ nivel: 0.75 })
+    })
+  })
+
+  it('maneja CheckBoxList y envía el valor actualizado', async () => {
+    const fields: FieldModel[] = [
+      {
+        type: 'checkboxList',
+        name: 'docs',
+        label: 'Documentos',
+        value: [],
+        options: [
+          { label: 'Tarjeta de Circulación', value: 'card' },
+          { label: 'Póliza de seguro', value: 'policy' },
+        ],
+      },
+    ]
+    const { onSubmit } = renderForm(fields)
+
+    const cardCheckbox = screen.getByLabelText('Tarjeta de Circulación')
+    fireEvent.click(cardCheckbox)
+
+    fireEvent.click(screen.getByText('Submit'))
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({ docs: ['card'] })
+    })
+  })
 })

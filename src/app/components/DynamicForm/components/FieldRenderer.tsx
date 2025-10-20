@@ -1,6 +1,10 @@
 import React from "react";
+import clsx from "clsx";
 
 import { Checkbox } from "../../CheckBox/CheckBox";
+import CheckBoxList from "../../CheckBoxList/CheckBoxList";
+import type { CheckBoxListOption } from "../../CheckBoxList/types";
+import { ControlLevel } from "../../ControlLevel/ControlLevel";
 import { FileUploader } from "../../FileUploader/FileUploader";
 import { Input } from "../../Input/Input";
 import { helperClasses } from "../../Input/styles";
@@ -159,6 +163,73 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
+    case "controlLevel": {
+      const controlLevelProps = field.controlLevelProps ?? {};
+      const {
+        className: controlLevelClassName,
+        title,
+        initialValue,
+        ...restControlProps
+      } = controlLevelProps;
+      const numericValue =
+        typeof value === "number"
+          ? value
+          : initialValue ?? restControlProps.min ?? 0;
+
+      return (
+        <div className="flex flex-col gap-1">
+          <ControlLevel
+            {...restControlProps}
+            title={title ?? field.label}
+            className={clsx(
+              controlLevelClassName,
+              field.className,
+              field.disabled && "pointer-events-none opacity-60"
+            )}
+            level={numericValue}
+            setLevel={field.disabled ? () => undefined : handleChange}
+            initialValue={initialValue}
+          />
+          {helperText && (
+            <span className={helperClasses(variant as InputVariant)}>
+              {helperText}
+            </span>
+          )}
+        </div>
+      );
+    }
+    case "checkboxList": {
+      const options = (field.options ?? []) as CheckBoxListOption[];
+      const arrayValue = Array.isArray(value)
+        ? value
+        : Array.isArray(field.value)
+        ? (field.value as string[])
+        : [];
+
+      return (
+        <div className="flex flex-col gap-1">
+          <CheckBoxList
+            title={field.label}
+            options={options}
+            value={arrayValue}
+            onChange={handleChange}
+            disabled={field.disabled}
+            className={field.className}
+            dataTestId={
+              formDataTestId ? `${formDataTestId}-${field.name}` : undefined
+            }
+            labelPosition={field.checkboxListProps?.labelPosition}
+            titleClassName={field.checkboxListProps?.titleClassName}
+            optionsClassName={field.checkboxListProps?.listClassName}
+          />
+          {helperText && (
+            <span className={helperClasses(variant as InputVariant)}>
+              {helperText}
+            </span>
+          )}
+        </div>
+      );
+    }
     case "textarea":
       return (
         <Input

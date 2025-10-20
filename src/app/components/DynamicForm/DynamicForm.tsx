@@ -123,9 +123,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   loadingFormInfo,
   disabled,
   dataTestId,
+  valuesVersion = 0,
 }) => {
   const { initialValues, validationSchema, cleanValues, resolveVariant } =
-    useDynamicForm(fields);
+    useDynamicForm(fields, valuesVersion);
 
   // 1) Resolver layout efectivo (fijo vs responsive)
   const { current } = useMediaBreakpoints(breakpoints ?? { sm: 640, md: 1024 });
