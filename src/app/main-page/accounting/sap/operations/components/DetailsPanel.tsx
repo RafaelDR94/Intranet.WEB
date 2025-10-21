@@ -210,7 +210,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                       {concept?.clavesat_description}
                     </td>
                     <td className="text-gray-90 px-2 py-1">
-                      {concept?.grupo_iva}
+                      {concept?.porcentajeiva}
                     </td>
                   </tr>
                 ))}
@@ -266,7 +266,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           )}
 
           {/* Editar Información */}
-          <div className={s.editInformationBox}>
+          {/* <div className={s.editInformationBox}>
             {!isEditing ? (
               <Button
                 hideIcon
@@ -333,7 +333,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       ) : (
         <div className={s.emptyState}>

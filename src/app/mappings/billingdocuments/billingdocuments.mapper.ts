@@ -1,6 +1,5 @@
 // src/app/mappings/billing/billingdocuments.mapper.ts
 import { RequisitionMap } from '../requisitions/requisitions.mapp';
-
 import {
   BillingDocuments,
   BillingDocumentsPost,
@@ -12,24 +11,19 @@ import {
   BillingDocumentCategory,
   BillingDocumentDescription,
   BillingDocumentFull
-} from './billingdocuments.types'
+} from './billingdocuments.types';
+import { toInputDateString, toInputDateTimeString } from '@/app/utilities/FormatHelpers/FormatHelpets';
 
-import { toInputDateString,toInputDateTimeString } from '@/app/utilities/FormatHelpers/FormatHelpets';
-/**
- * BillingDocumentMap
- * Mapea un registro crudo de la API a un objeto tipado BillingDocuments.
- */
+/** ---------------------- Helpers ---------------------- */
 const toString = (v: unknown, fallback = "") => (v == null ? fallback : String(v));
-
-
 const toNumberOrUndefined = (value: unknown): number | undefined => {
-  const parsed = Number(value)
-  return Number.isFinite(parsed) ? parsed : undefined
-}
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
 
+/** ---------------------- Conceptos ---------------------- */
 const mapConcepto = (raw: any): Concepto => ({
   clave_sat: toString(raw?.clave_sat),
-  // Acepta también 'descripcion' por si el backend la nombra distinto
   clavesat_description: toString(raw?.clavesat_description ?? raw?.descripcion),
   cantidad: toNumberOrUndefined(raw?.cantidad),
   valor_unitario: toNumberOrUndefined(raw?.valor_unitario),
@@ -39,16 +33,17 @@ const mapConcepto = (raw: any): Concepto => ({
   grupo_iva: raw?.grupo_iva == null ? undefined : toString(raw?.grupo_iva),
 });
 
-
-
+/** ---------------------- Submappers ---------------------- */
 export const BillingDocumentCategoryMap = (raw: any): BillingDocumentCategory => ({
   id_billingcategory: toString(raw?.id),
   name: toString(raw?.name)
-})
+});
+
 export const BillingDocumentDescriptionMap = (raw: any): BillingDocumentDescription => ({
   id_billingdescription: toString(raw?.id),
   name: toString(raw?.name)
-})
+});
+
 export const BillingAcuseMap = (raw: any): BillingAcuse => ({
   id: toString(raw?.id),
   statusCode: toString(raw?.statusCode),
@@ -57,9 +52,10 @@ export const BillingAcuseMap = (raw: any): BillingAcuse => ({
   cancelationStatus: toString(raw?.cancelationStatus),
   validationEFOS: toString(raw?.validationEFOS),
   dateCreated: toString(raw?.dateCreated),
-  billingDocuments: null, // según tu modelo actual siempre null
+  billingDocuments: null,
 });
 
+/** ---------------------- BillingDocumentMap ---------------------- */
 export const BillingDocumentMap = (raw: any): BillingDocuments => ({
   id: toString(raw?.billingdocument_id ?? raw?.id),
   billingdocument_id: toString(raw?.billingdocument_id ?? raw?.id),
@@ -92,27 +88,30 @@ export const BillingDocumentMap = (raw: any): BillingDocuments => ({
   validatedbyoperations: Boolean(raw?.validatedbyoperations)
 });
 
+/** ---------------------- BillingDocumentDetails ---------------------- */
 export const BillingDocumentDetailsTableMap = (raw: BillingDocuments): BillingDocumentDetailsTable => ({
-  "id": raw?.billingdocument_id,
-  "billingdocument_id": raw?.billingdocument_id,
-  "fecha": raw?.fecha,
-  "rfc_emisor": raw?.rfc_emisor,
-  "description": raw?.description?.name,
-  "numpersons": raw?.numpersons,
-  "numnights": raw?.numnights,
-  "uuid": raw?.uuid,
-  "subtotal": raw?.subtotal,
-  "iva": raw?.iva,
-  "total": raw?.total,
-  "otherinvoices": raw?.otherinvoices,
-  "status": raw?.status,
-  "xmlUrl": raw?.xml,
-  "pdfUrl": raw?.pdf,
-  "imageUrl": raw?.image,
+  id: raw?.billingdocument_id,
+  billingdocument_id: raw?.billingdocument_id,
+  fecha: raw?.fecha,
+  rfc_emisor: raw?.rfc_emisor,
+  description: raw?.description?.name,
+  numpersons: raw?.numpersons,
+  numnights: raw?.numnights,
+  uuid: raw?.uuid,
+  subtotal: raw?.subtotal,
+  iva: raw?.iva,
+  total: raw?.total,
+  otherinvoices: raw?.otherinvoices,
+  status: raw?.status,
+  xmlUrl: raw?.xml,
+  pdfUrl: raw?.pdf,
+  imageUrl: raw?.image,
 });
 
 export const BillingDocumentDetailsTableListMap = (list: any[]): BillingDocumentDetailsTable[] =>
   Array.isArray(list) ? list.map(BillingDocumentDetailsTableMap) : [];
+
+/** ---------------------- BillingDocumentSatTable ---------------------- */
 export const BillingDocumentSatTableMap = (raw: BillingDocuments): BillingDocumentsSatTable => ({
   id: toString(raw?.billingdocument_id ?? raw?.id),
   billingdocument_id: toString(raw?.billingdocument_id ?? raw?.id),
@@ -127,8 +126,7 @@ export const BillingDocumentSatTableMap = (raw: BillingDocuments): BillingDocume
   rfc_receptor: toString(raw?.rfc_receptor),
   conceptos: Array.isArray(raw?.conceptos) ? raw.conceptos.map(mapConcepto) : [],
   uuid: toString(raw?.uuid),
-  // Fallbacks por si tu API usa nombres distintos
-  fecha: toString(raw?.requisition.assignmentdate),
+  fecha: toString(raw?.requisition?.assignmentdate ?? ""),
   total: Number(raw.total),
   subtotal: Number(raw.subtotal),
   iva: Number(raw.iva),
@@ -152,23 +150,14 @@ export const BillingDocumentSatTableMap = (raw: BillingDocuments): BillingDocume
   employeename: raw?.requisition?.employeename,
 });
 
-/**
- * BillingDocumentsMap
- * Mapea una colección cruda de la API a un arreglo tipado.
- */
+export const BillingDocumentsSatTableListMap = (list: any[]): BillingDocumentsSatTable[] =>
+  Array.isArray(list) ? list.map(BillingDocumentSatTableMap) : [];
+
+/** ---------------------- Otros mappers ---------------------- */
 export const BillingDocumentsMap = (list: any[]): BillingDocuments[] =>
-  Array.isArray(list) ? list.map(BillingDocumentMap) : []
+  Array.isArray(list) ? list.map(BillingDocumentMap) : [];
 
-export const BillingDocumentsSatTableMap = (list: any[]): BillingDocumentsSatTable[] =>
-  Array.isArray(list) ? list.map(BillingDocumentSatTableMap) : []
-
-/**
- * BillingDocumentsPostMap
- * Construye el payload para crear un documento de facturación (POST).
- */
-export const BillingDocumentsPostMap = (
-  src: Partial<BillingDocumentsPost> | any
-): BillingDocumentsPost => ({
+export const BillingDocumentsPostMap = (src: Partial<BillingDocumentsPost> | any): BillingDocumentsPost => ({
   requisition_id: String(src?.requisition_id ?? ''),
   billingimages_id: src?.billingimages_id || null,
   xml: String(src?.xml ?? ''),
@@ -176,16 +165,10 @@ export const BillingDocumentsPostMap = (
   description_id: String(src?.description_id ?? ''),
   numpersons: Number(src?.numpersons ?? 0),
   numnights: Number(src?.numnights ?? 0),
-  category_id: String(src.category_id)
-})
+  category_id: String(src.category_id),
+});
 
-/**
- * BillingDocumentsPutMap
- * Construye el payload para actualizar un documento de facturación (PUT).
- */
-export const BillingDocumentsPutMap = (
-  src: Partial<BillingDocumentsPut> | any
-): BillingDocumentsPut => ({
+export const BillingDocumentsPutMap = (src: Partial<BillingDocumentsPut> | any): BillingDocumentsPut => ({
   billingdocument_id: String(src?.billingdocument_id ?? ''),
   requisition_id: String(src?.requisition_id ?? ''),
   billingimages_id: src?.billingimages_id || null,
@@ -197,42 +180,45 @@ export const BillingDocumentsPutMap = (
   numnights: Number(src?.numnights ?? 0),
   category_id: String(src?.category_id),
   user_comments: src?.user_comments,
-})
+});
 
+/** ---------------------- Full mapper ---------------------- */
 export const BillingDocumentFullMap = (raw: any): BillingDocumentFull => ({
-  billingdocument_id: toString(raw?.billingdocument_id ?? raw?.id),
-  requisition: RequisitionMap(raw?.requisition ?? {}),
-  billingimages_id: toString(raw?.billingimages_id ?? null),
-  xml: toString(raw?.xml),
-  pdf: toString(raw?.pdf),
-  image: toString(raw?.image ?? null),
-  status: toString(raw?.status),
-  comments: toString(raw?.comments ?? null),
-  rfc_emisor: toString(raw?.rfc_emisor),
-  rfc_receptor: toString(raw?.rfc_receptor),
-  conceptos: Array.isArray(raw?.conceptos)
-    ? raw.conceptos.map((c: any) => ({
-        ...mapConcepto(c),
-      }))
-    : [],
-  uuid: toString(raw?.uuid),
-  importe: Number(raw?.importe),
-  fecha: toString(raw?.requisition.assignmentdate),
-  xmlinformation: toString(raw?.xmlinformation),
-  certification_date: toString(raw?.certification_date),
-  date_created: toString(raw?.date_created),
-  sat_validation: Boolean(raw?.sat_validation),
-  SAP_Pending: Boolean(raw?.SAP_Pending),
-  billingAcuse: raw?.billingAcuse ? BillingAcuseMap(raw.billingAcuse) : null,
-  forbidden_code: Boolean(raw?.forbidden_code),
-  user_comments: toString(raw?.user_comments),
-  validatedbyoperations: Boolean(raw?.validatedbyoperations),
-  description: BillingDocumentDescriptionMap(raw?.description),
-  numpersons: Number(raw?.numpersons ?? 0),
-  numnights: Number(raw?.numnights ?? 0),
-  total: Number(raw?.total),
-  subtotal: Number(raw?.subtotal),
-  iva: Number(raw?.iva),
-  otherinvoices: Number(raw?.otherinvoices),
-  category: BillingDocumentCategoryMap(raw?.category),
+  billingdocument_id: raw.billingdocument_id,
+  requisition: raw.requisition,
+  billingimages_id: raw.billingimages_id ?? null,
+  xml: raw.xml ?? '',
+  pdf: raw.pdf ?? '',
+  image: raw.image ?? null,
+  status: raw.status ?? '',
+  comments: raw.comments ?? null,
+  rfc_emisor: raw.rfc_emisor ?? '',
+  rfc_receptor: raw.rfc_receptor ?? '',
+  conceptos: raw.conceptos ?? null,
+  uuid: raw.uuid ?? '',
+  importe: raw.importe ?? 0,
+  xmlinformation: raw.xmlinformation ?? '',
+  certification_date: raw.certification_date ?? '',
+  date_created: raw.date_created ?? '',
+  sat_validation: raw.sat_validation ?? false,
+  SAP_Pending: raw.SAP_Pending ?? false,
+  complete_SAP: raw.complete_SAP ?? false,
+  billingAcuse: raw.billingAcuse ?? null,
+  forbidden_code: raw.forbidden_code ?? false,
+  user_comments: raw.user_comments ?? '',
+  validatedbyoperations: raw.validatedbyoperations ?? false,
+  description: {
+    id: raw.description?.id ?? '',
+    name: raw.description?.name ?? '',
+  },
+  numpersons: raw.numpersons ?? 0,
+  numnights: raw.numnights ?? 0,
+  total: raw.total ?? 0,
+  subtotal: raw.subtotal ?? 0,
+  iva: raw.iva ?? 0,
+  otherinvoices: raw.otherinvoices ?? 0,
+  category: {
+    id: raw.category?.id ?? '',
+    name: raw.category?.name ?? '',
+  },
 });

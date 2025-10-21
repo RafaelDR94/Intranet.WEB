@@ -1,9 +1,7 @@
-// SAT.tsx
 "use client";
 import React from "react";
 
 import DetailsPanel from "./components/DetailsPanel";
-
 import useSapOperationsPage from "./hooks/useSapOperationsPage";
 
 import { Button } from "@/app/components/Button/Button";
@@ -11,17 +9,14 @@ import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayo
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import { BillingDocumentsSatTableMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
+import { BillingDocumentsSatTableListMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
 import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import CheckIcon from "@/assets/icons/acciones/check.svg";
 
 const SapOperationsPage = () => {
   const {
     handleOpenDetails,
-    billingDocumentsValid,
-    billingDocumentsEfos,
-    billingDocumentsBadCode,
-    billingDocumentsNotValid,
+    billingDocuments, // 🔹 Nuevo: solo una lista
     panelOpen,
     setPanelOpen,
     selected,
@@ -29,30 +24,32 @@ const SapOperationsPage = () => {
     handleSendToSap,
     handleMultiSelect,
   } = useSapOperationsPage();
-  const { currentPagePermissions } = useAuth();
 
+  const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
-  const formatGroupIva = (concept?: BillingDocumentsSatTable["conceptos"][number]) => {
+
+  const formatGroupIva = (
+    concept?: BillingDocumentsSatTable["conceptos"][number],
+  ) => {
     if (!concept) return "";
     if (concept.grupo_iva) return concept.grupo_iva;
-    if (concept.porcentajeiva != null) {
-      return `${concept.porcentajeiva}%`;
-    }
+    if (concept.porcentajeiva != null) return `${concept.porcentajeiva}%`;
     return "";
   };
 
   /** Columnas base sin ícono forzado */
   const baseColumnsDesktop: ColumnDefinition<BillingDocumentsSatTable>[] = [
     {
-      key: "sat_codigoEstatus",
-      label: "C. ESTATUS",
-      render: (row) => row.sat_codigoEstatus?.split(" -")[0] ?? "",
+      key: "employeename",
+      label: "COLABORADOR",
+      render: (row) => row.employeename ?? row.requisition?.employeename ?? "",
     },
     { key: "uuid", label: "UUID" },
     {
       key: "category",
       label: "TIPO DE GASTOS",
-      render: (row) => row.conceptos?.[0]?.tipo_gasto ?? row.category?.name ?? "",
+      render: (row) =>
+        row.conceptos?.[0]?.tipo_gasto ?? "",
     },
     {
       key: "description",
@@ -78,12 +75,8 @@ const SapOperationsPage = () => {
 
   const baseColumns = isMobile ? baseColumnsMobile : baseColumnsDesktop;
 
-  const allBillingDocuments = [
-    ...billingDocumentsValid,
-    ...billingDocumentsEfos,
-    ...billingDocumentsBadCode,
-    ...billingDocumentsNotValid,
-  ];
+  /** 🔹 Simplificado: usamos billingDocuments directamente */
+  const allBillingDocuments = billingDocuments ?? [];
 
   /** Helpers para crear columnas con ícono fijo */
   const withFixedIcon = (
@@ -95,7 +88,6 @@ const SapOperationsPage = () => {
     canComment = true,
   ): ColumnDefinition<BillingDocumentsSatTable>[] => {
     const cols: ColumnDefinition<BillingDocumentsSatTable>[] = [];
-
     cols.push(...baseColumns);
 
     if (selectable) {
@@ -132,7 +124,7 @@ const SapOperationsPage = () => {
             title: "Gastos Administración",
             enableCollaps: true,
             enableSelection: true,
-            data: BillingDocumentsSatTableMap(allBillingDocuments),
+            data: BillingDocumentsSatTableListMap(allBillingDocuments),
             columns: withFixedIcon(
               CheckIcon,
               "text-alert-green-100",
@@ -143,10 +135,10 @@ const SapOperationsPage = () => {
             ),
           },
         ]}
-        textSize={{ mobile: "c2", desktop: "text-b3" }}
+        textSize={{ mobile: "c2", desktop: "text-c2" }}
         enableInternalSearch
         actionsRender={() => (
-          <div className={isMobile ? "ml-0, w-full" : "ml-7"}>
+          <div className={isMobile ? "ml-0 w-full" : "ml-7"}>
             {!currentPagePermissions?.canSendToSap && (
               <Button
                 disabled={multiSelected?.length == 0}
@@ -171,7 +163,7 @@ const SapOperationsPage = () => {
         panelOpen={panelOpen.state}
         onlyText={panelOpen.onlyText}
         setPanelOpen={(state: boolean) =>
-          setPanelOpen((prev) => ({ ...prev, state: state }))
+          setPanelOpen((prev) => ({ ...prev, state }))
         }
         selected={selected}
         rejectType={false}

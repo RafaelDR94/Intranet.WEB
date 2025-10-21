@@ -5,6 +5,7 @@ import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingDocumentsSAPStore } from "@/app/stores/useBillingDocumentsSAPStore/useBillingDocumentsSAPStore";
+
 const useSapOperationsPage = () => {
   const [panelOpen, setPanelOpen] = useState<{
     state: boolean;
@@ -17,30 +18,24 @@ const useSapOperationsPage = () => {
     sendInvoiceToSap: false,
     rejectInvoice: false,
   });
-  const [selected, setSelected] = useState<BillingDocumentsSatTable | null>(
-    null,
-  );
-  const [multiSelected, setMultiSelected] = useState<
-    BillingDocumentsSatTable[]
-  >([]);
+
+  const [selected, setSelected] = useState<BillingDocumentsSatTable | null>(null);
+  const [multiSelected, setMultiSelected] = useState<BillingDocumentsSatTable[]>([]);
+
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert } = usePrincipalAlert;
+
+  // ✅ Nuevo: solo una lista `billingDocuments`
   const {
-    billingDocumentsBadCode,
-    billingDocumentsValid,
-    billingDocumentsNotValid,
-    billingDocumentsEfos,
+    billingDocuments,
     fetchBillingDocumentsSAP,
     loading: sapLoading,
     error: sapError,
     resetFlags: resetSapFlags,
   } = useBillingDocumentsSAPStore(
     (s) => ({
-      billingDocumentsBadCode: s.billingDocumentsBadCode,
-      billingDocumentsValid: s.billingDocumentsValid,
-      billingDocumentsNotValid: s.billingDocumentsNotValid,
-      billingDocumentsEfos: s.billingDocumentsEfos,
+      billingDocuments: s.billingDocuments,
       fetchBillingDocumentsSAP: s.fetchBillingDocumentsSAP,
       loading: s.loading,
       error: s.error,
@@ -48,17 +43,24 @@ const useSapOperationsPage = () => {
     }),
     shallow,
   );
-  const { sending, succesSend, sendToSapBillingDocument, error, resetFlags } =
-    useBillingDocumentsStore(
-      (s) => ({
-        sending: s.sending,
-        succesSend: s.succesSend,
-        resetFlags: s.resetFlags,
-        sendToSapBillingDocument: s.sendToSapBillingDocument,
-        error: s.error,
-      }),
-      shallow,
-    );
+
+  const {
+    sending,
+    succesSend,
+    sendToSapBillingDocument,
+    error,
+    resetFlags,
+  } = useBillingDocumentsStore(
+    (s) => ({
+      sending: s.sending,
+      succesSend: s.succesSend,
+      resetFlags: s.resetFlags,
+      sendToSapBillingDocument: s.sendToSapBillingDocument,
+      error: s.error,
+    }),
+    shallow,
+  );
+
   const handleOpenDetails = (
     row: BillingDocumentsSatTable,
     onlyText: boolean,
@@ -68,9 +70,11 @@ const useSapOperationsPage = () => {
     setSelected(row);
     setPanelOpen({ state: true, onlyText, rejectInvoice, sendInvoiceToSap });
   };
+
   const handleMultiSelect = (rows: BillingDocumentsSatTable[]) => {
     setMultiSelected(rows);
   };
+
   const handleSendToSap = () => {
     const ids = multiSelected.map((d) => d.billingdocument_id);
     sendToSapBillingDocument(ids);
@@ -79,18 +83,22 @@ const useSapOperationsPage = () => {
   useEffect(() => {
     fetchBillingDocumentsSAP(true);
   }, [fetchBillingDocumentsSAP]);
+
   useEffect(() => {
     if (sending) {
       showSpinner({ message: "Enviando Facturas a SAP..." });
       return;
     }
+
     if (sapLoading) {
       showSpinner({ message: "Obteniendo facturas validadas..." });
       return;
     }
+
     hideSpinner();
     resetFlags();
     resetSapFlags();
+
     if (succesSend) {
       showAlert({
         type: "success",
@@ -125,12 +133,10 @@ const useSapOperationsPage = () => {
     showSpinner,
     succesSend,
   ]);
+
   return {
     handleOpenDetails,
-    billingDocumentsValid,
-    billingDocumentsEfos,
-    billingDocumentsBadCode,
-    billingDocumentsNotValid,
+    billingDocuments, // 🔹 reemplaza las 4 listas
     panelOpen,
     setPanelOpen,
     selected,
@@ -139,4 +145,5 @@ const useSapOperationsPage = () => {
     handleSendToSap,
   };
 };
+
 export default useSapOperationsPage;

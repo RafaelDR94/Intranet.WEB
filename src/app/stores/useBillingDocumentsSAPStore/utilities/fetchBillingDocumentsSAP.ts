@@ -1,4 +1,3 @@
-// src/app/stores/useBillingDocumentsSAPStore/utilities/fetchBillingDocumentsSAP.ts
 'use client'
 
 import type { AxiosResponse } from 'axios'
@@ -12,17 +11,21 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
 
 import type { Get, Set } from '../types'
 
-const mapList = (list: unknown): BillingDocumentFull[] =>
-  Array.isArray(list) ? list.map(BillingDocumentFullMap) : []
+/**
+ * Mapea un único documento o una lista de documentos completos.
+ */
+const mapDocuments = (data: unknown): BillingDocumentFull[] => {
+  if (!data) return []
+  if (Array.isArray(data)) return data.map(BillingDocumentFullMap)
+  return [BillingDocumentFullMap(data)]
+}
 
+/**
+ * Verifica si ya hay datos cacheados en el estado.
+ */
 const hasCachedData = (get: Get) => {
   const state = get()
-  return (
-    state.billingDocumentsValid.length > 0 ||
-    state.billingDocumentsNotValid.length > 0 ||
-    state.billingDocumentsBadCode.length > 0 ||
-    state.billingDocumentsEfos.length > 0
-  )
+  return state.billingDocuments?.length > 0
 }
 
 /**
@@ -43,16 +46,13 @@ export const fetchBillingDocumentsSAP = async (
     const response: AxiosResponse = await getRequest(BillingsSAPPendingDocuments)
     const data = response?.data?.data ?? {}
 
-    const valid = mapList(data?.validas ?? data?.valid ?? data?.Valids)
-    const notValid = mapList(data?.noValidas ?? data?.notValid ?? data?.NotValid)
-    const badCode = mapList(data?.prohibidas ?? data?.badCode ?? data?.Forbidden)
-    const efos = mapList(data?.efos ?? data?.Efos)
+    console.log('data fetch', data)
+
+    // 🔹 Mapeamos directamente el objeto o lista de documentos
+    const billingDocuments = mapDocuments(data)
 
     set({
-      billingDocumentsValid: valid,
-      billingDocumentsNotValid: notValid,
-      billingDocumentsBadCode: badCode,
-      billingDocumentsEfos: efos,
+      billingDocuments,
       loading: false,
       successGet: true,
     })
