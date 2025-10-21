@@ -1,6 +1,6 @@
 {
   "name": "intranet.web",
-  "version": "1.47.16",
+  "version": "1.47.21",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -45,6 +45,7 @@
     "react": "19.1.0",
     "react-datepicker": "^8.4.0",
     "react-dom": "19.1.0",
+    "react-signature-canvas": "^1.1.0-alpha.2",
     "use-sync-external-store": "^1.5.0",
     "workbox-expiration": "^7.3.0",
     "yup": "^1.6.1",

@@ -53,7 +53,8 @@
         "react-hooks/rules-of-hooks": "off",
         "import/order": "off",
         "@next/next/no-img-element":"off",
-        "react/display-name":"off"
+        "react/display-name":"off",
+        "prefer-const":"off"
       }
     },
     {
@@ -62,7 +63,8 @@
            "@typescript-eslint/no-explicit-any": "off",
            "@typescript-eslint/no-unused-vars": "off",
             "react-hooks/rules-of-hooks": "off",
-            "import/order": "off"
+            "import/order": "off",
+            "react/display-name":"off"
       }
     }
   ],

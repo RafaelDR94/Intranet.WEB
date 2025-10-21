@@ -11,7 +11,9 @@ export type LabelType =
   | "validado-op"
   | "en-proceso"
   | "vale-azul"
-  | "vale-rosa";
+  | "vale-rosa"
+  | "sin-factura"
+  | "factura-rechazada";
 
 /** Props for Label component */
 export interface LabelProps {

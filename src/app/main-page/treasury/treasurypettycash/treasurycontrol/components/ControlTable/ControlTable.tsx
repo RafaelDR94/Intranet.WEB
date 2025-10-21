@@ -70,11 +70,14 @@ const formatMoney = (value?: number) => {
 
 const statusToLabelType = (status?: string): LabelType => {
   const normalized = (status ?? "").toLowerCase();
-  if (normalized.includes("rechaz")) return "rechazado";
+  if (normalized.includes("rechazado")) return "rechazado";
   if (normalized.includes("proceso")) return "en-proceso";
   if (normalized.includes("valid")) return "valido";
   if (normalized.includes("pend")) return "pendiente";
   if (normalized.includes("no deducible")) return "prohibido";
+  if (normalized.includes("sin factura")) return "sin-factura";
+  if (normalized.includes("factura rechazada")) return "factura-rechazada";
+  if (normalized.includes("factura enviada")) return "purple";
   return normalized ? "actualizado" : "pendiente";
 };
 
@@ -100,7 +103,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
     const canView = interpretPermission(rawPermissions.details);
     if (canView !== false) {
       items.push({
-        label: "Ver Detalle",
+        label: "Ver detalles",
         icon: EditIcon,
         onClick: () => {
           onView(row);
@@ -160,8 +163,10 @@ const ControlTable = () => {
     handleConfirmDelete,
     onView,
     onDelete,
-    refresh,
+    refreshData,
+    refreshPage,
     detailOpen,
+    editOpen,
     detailLoading,
     detailData,
     selectedRow,
@@ -169,9 +174,19 @@ const ControlTable = () => {
     formatDate,
     handleValidate,
     handleReject,
+    handleRejectInvoice,
     validating,
     rejecting,
+    isEditing,
+    handleEditModeChange,
+    handleUpdateAmount,
+    updatingAmount,
+    amountHistory,
+    isAmountHistoryLoading,
   } = useControlTable();
+
+
+  
 
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
@@ -184,14 +199,14 @@ const ControlTable = () => {
         render: (row) => <span>{row.employeeName || "—"}</span>,
       },
       {
+        key: "amount",
+        label: "MTO. SOL.",
+        render: (row) => <span>${(row.amount)}</span>,
+      },
+      {
         key: "applicationDate",
         label: "FECHA",
         render: (row) => <span>{formatDate(row.applicationDate) || "—"}</span>,
-      },
-      {
-        key: "provider",
-        label: "PROVEEDOR",
-        render: (row) => <span>{row.provider || "—"}</span>,
       },
       {
         key: "concept",
@@ -273,7 +288,7 @@ const ControlTable = () => {
         title="Eliminar vale"
         content={
           rowToDelete
-            ? `Esta acción confirmará la eliminación del vale seleccionado. Una vez confirmada no podrás revertirla.`
+            ? `Esta acción confirmará la eliminación del vale seleccionado.\nUna vez confirmado, no podrás revertir el cambio.`
             : "Esta acción confirmará la eliminación del vale seleccionado."
         }
         showSecondaryButton
@@ -285,7 +300,7 @@ const ControlTable = () => {
       />
 
       <SideMenu
-        panelOpen={detailOpen}
+        panelOpen={detailOpen || editOpen}
         setPanelOpen={(open) => {
           if (!open) {
             handleCloseDetail();
@@ -297,15 +312,24 @@ const ControlTable = () => {
         formatDate={formatDate}
         formatMoney={formatMoney}
         onValidate={handleValidate}
-        onReject={handleReject}
         isValidating={validating}
+        onReject={handleReject}
+        onRejectInvoice={handleRejectInvoice}
         isRejecting={rejecting}
+        isEditingAmount={isEditing}
+        onEditModeChange={handleEditModeChange}
+        onSaveAmount={handleUpdateAmount}
+        isSavingAmount={updatingAmount}
+        amountHistory={amountHistory}
+        isHistoryLoading={isAmountHistoryLoading}
       />
 
       {currentPagePermissions?.read && (
         <DataTable
           showCalendar={true}
           showFilter={true}
+          showRefresh
+          onRefreshPage={refreshPage}
           filterOptions={controlFilterOptions}
           filterValue={activeFilter}
           filterTitle="Filtrar vales"
@@ -315,7 +339,7 @@ const ControlTable = () => {
           onSearchChange={handleSearchChange}
           onFilterChange={(value) => {
             handleFilterChange(value);
-            refresh();
+            refreshData();
           }}
           textSize={{ mobile: 'c2', desktop: 'text-d3' }}
           tables={[
@@ -324,7 +348,7 @@ const ControlTable = () => {
               columns,
               enableSelection: true,
               title: "Reporte de gastos de caja chica",
-              enableCollaps: true,
+              enableCollaps: false,
               defaultSortKey: "applicationDate",
               defaultSortDirection: "desc",
             },

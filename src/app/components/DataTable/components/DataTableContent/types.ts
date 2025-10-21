@@ -10,6 +10,8 @@ export interface DataTableContentProps<T extends { id: string | number }> {
   columns: ColumnDefinition<T>[]
   /** Permite la selección de filas */
   enableSelection?: boolean
+  /** Identificadores de filas que deben iniciar seleccionadas */
+  initialSelectedIds?: Array<T['id']>
   /** Clave inicial para ordenar */
   defaultSortKey?: keyof T
   /** Dirección inicial de ordenamiento */
@@ -17,6 +19,7 @@ export interface DataTableContentProps<T extends { id: string | number }> {
   /** Habilita la paginación */
   enablePagination?: boolean
   /** Número máximo de filas por página */
+  disableSelection?: boolean
   rowsPerPage?: number
   /** Total de filas disponibles (para paginación externa) */
   totalRows?: number

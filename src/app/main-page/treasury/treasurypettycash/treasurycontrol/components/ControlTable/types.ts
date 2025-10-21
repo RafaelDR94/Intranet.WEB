@@ -1,5 +1,8 @@
 import type { LabelType } from "@/app/components/Label/types";
-import type { PettyCashVoucherFull } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
+import type {
+  PettyCashVoucherFull,
+  PettyCashVoucherHistoryAmountItem,
+} from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 
 /**
  * Row shape used by the petty cash control table.
@@ -28,6 +31,8 @@ export type ControlRow = {
   status?: string;
   /** RFC del emisor for quick reference. */
   rfcEmisor?: string;
+  /** Amount */
+  amount: string | number;
 };
 
 /** Props for the contextual action cell. */
@@ -59,10 +64,38 @@ export type ControlSideMenuProps = {
   formatMoney: (value?: number) => string;
   /** Callback executed when the user validates a voucher. */
   onValidate?: (row: ControlRow | null) => void;
-  /** Callback executed when the user rejects a voucher. */
-  onReject?: (row: ControlRow | null) => void;
+  /**
+   * Callback executed when the user rejects a voucher.
+   *
+   * @param row Voucher selected for rejection.
+   * @param comments Reason provided by the reviewer.
+   */
+  onReject?: (
+    row: ControlRow | null,
+    comments: string,
+    options?: { skipSuccessAlert?: boolean },
+  ) => Promise<boolean> | boolean | void;
+  /**
+   * Callback executed when the reviewer rejects the billing invoice associated with the voucher.
+   */
+  onRejectInvoice?: (
+    row: ControlRow | null,
+    comments: string,
+  ) => Promise<boolean> | boolean | void;
   /** Indicates whether a validation action is currently executing. */
   isValidating?: boolean;
   /** Indicates whether a rejection action is currently executing. */
   isRejecting?: boolean;
+  /** Indicates whether the sidebar should display the editing UI. */
+  isEditingAmount?: boolean;
+  /** Toggles the editing UI visibility. */
+  onEditModeChange?: (isEditing: boolean) => void;
+  /** Persists the updated amount for the selected voucher. */
+  onSaveAmount?: (amount: number) => Promise<void> | void;
+  /** Indicates whether an amount update is in progress. */
+  isSavingAmount?: boolean;
+  /** History of amount changes for the selected voucher. */
+  amountHistory?: PettyCashVoucherHistoryAmountItem[];
+  /** Indicates whether the history information is still loading. */
+  isHistoryLoading?: boolean;
 };

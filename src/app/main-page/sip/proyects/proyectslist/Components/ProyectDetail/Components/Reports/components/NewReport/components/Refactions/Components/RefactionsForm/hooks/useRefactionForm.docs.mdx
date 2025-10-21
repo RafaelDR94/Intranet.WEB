@@ -1,0 +1,27 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/SIP/Proyects/ProyectDetail/Reports/NewReport/Refactions/hooks/useRefactionForm" />
+
+# useRefactionForm
+
+Administra el formulario de refacciones dentro del builder. Controla valores,
+validaciones y feedback visual al guardar o actualizar.
+
+```tsx
+const {
+  values,
+  setValues,
+  isValid,
+  setIsValid,
+  submitRef,
+  handleSubmit,
+} = useRefactionForm({ refactionIndex, onSuccess });
+```
+
+## Caracteristicas
+
+- Prefill automatico cuando `refactionIndex` apunta a una refaccion existente.
+- Usa `usePrincipal` para mostrar spinner y alert segun el resultado de la
+  operacion.
+- Sincroniza el arreglo de refacciones en `useReportBuilderStore` y llama
+  `onSuccess` tras completar la accion.

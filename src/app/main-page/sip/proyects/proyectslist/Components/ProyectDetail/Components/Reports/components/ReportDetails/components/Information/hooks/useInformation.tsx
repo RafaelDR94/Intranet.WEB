@@ -1,7 +1,10 @@
 import { useMemo } from "react";
 
 import { useReportsStore } from "@/app/stores/useReportsStore/useReportsStore";
-import { formatDate } from "@/app/utilities/DatesHelper/Dateshelper";
+
+import CalendarIcon from "@/assets/icons/System/System/calendar.svg";
+import UbicationIcon from "@/assets/icons/Maps/pin-alt.svg";
+
 const useInformation = () => {
     const { currentReport } = useReportsStore();
 
@@ -19,11 +22,11 @@ const useInformation = () => {
                 { label: 'Categoría', value: categoryName },
             ],
             [
-                { label: 'Fecha Inicio', value: formatDate(r?.startdate) },
-                { label: 'Fecha Final', value: formatDate(r?.enddate) },
+                { label: 'Fecha Inicio', value: r?.startdate,icon:CalendarIcon },
+                { label: 'Fecha Final', value: r?.enddate ,icon:CalendarIcon},
             ],
             [
-                { label: 'Ubicación', value: locationName },
+                { label: 'Ubicación', value: locationName,icon:UbicationIcon },
             ],
             [
                 { label: 'Observaciones', value: r?.remarks ?? '—' },

@@ -123,7 +123,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
   return (
     <article
       className={cx(
-        "relative overflow-hidden rounded-lg bg-white shadow-sm transition-shadow",
+        "relative overflow-hidden rounded-lg bg-white-70 shadow-sm transition-shadow",
         "mb-2 ml-4 h-[120px] w-[380px]",
         className,
       )}

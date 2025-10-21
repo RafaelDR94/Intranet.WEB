@@ -14,6 +14,42 @@ import type {
   DynamicFormProps,
   ResponsiveLayoutMatrix,
 } from "./types";
+
+
+type FormStateWatcherProps = {
+  isValid: boolean;
+  onValidChange?: (v: boolean) => void;
+  values: Record<string, any>;
+  onValuesChange?: (vals: Record<string, any>) => void;
+};
+
+const FormStateWatcher: React.FC<FormStateWatcherProps> = ({
+  isValid,
+  onValidChange,
+  values,
+  onValuesChange,
+}) => {
+  const prevIsValid = useRef<boolean | undefined>(undefined);
+  const prevValuesSnapshot = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (prevIsValid.current !== isValid) {
+      prevIsValid.current = isValid;
+      onValidChange?.(prevIsValid.current);
+    }
+  }, [isValid, onValidChange, values]);
+
+  useEffect(() => {
+    if (!onValuesChange) return;
+    const serialized = JSON.stringify(values);
+    if (prevValuesSnapshot.current === serialized) return;
+    prevValuesSnapshot.current = serialized;
+    onValuesChange(values);
+  }, [values, onValuesChange]);
+
+  return null;
+};
+
 /**
  * Formulario dinámico con renderizado de campos a partir de un modelo (`FieldModel[]`),
  * validaciones (Yup via `useDynamicForm`), estados visuales y **layout responsivo**.
@@ -75,6 +111,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   showSubmitIf,
   showSecondaryButtonIf,
   onSecondaryButtonClick,
+  onValuesChange,
   secondaryButtonLabel,
   children,
   loading,
@@ -102,8 +139,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       current === "lg"
         ? ["lg", "md", "sm"]
         : current === "md"
-        ? ["md", "sm", "lg"]
-        : ["sm", "md", "lg"];
+          ? ["md", "sm", "lg"]
+          : ["sm", "md", "lg"];
 
     for (const key of order) {
       const candidate = responsiveLayoutMatrix[key];
@@ -144,17 +181,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             externalSubmitRef.current = submitForm;
           }
           // Notificar cambios de validez usando un subcomponente para respetar las reglas de hooks
-          const OnValidChange: React.FC<{ isValid: boolean; onValidChange?: (v: boolean) => void }> = ({ isValid, onValidChange }) => {
-            const prev = useRef<boolean | undefined>(undefined);
-            useEffect(() => {
-              if (prev.current !== isValid) {
-                prev.current = isValid;
-                onValidChange?.(isValid);
-              }
-            }, [isValid, onValidChange]);
-            return null;
-          };
-
           const visibleFields = fields.filter(
             (field) => !field.showIf || field.showIf(values, fields)
           );
@@ -170,79 +196,79 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
           return (
             <Form className={dynamicFormStyles.form}>
-              <OnValidChange isValid={isValid} onValidChange={onValidChange} />
+              <FormStateWatcher isValid={isValid} onValidChange={onValidChange} values={values} onValuesChange={onValuesChange} />
               {effectiveLayoutMatrix
                 ? effectiveLayoutMatrix.map((row, rowIndex) => (
-                    <div
-                      key={`row-${rowIndex}`}
-                      className="flex w-full gap-4 mb-4"
-                    >
-                      {row.map((width, colIndex) => {
-                        const fieldIndex = linearIndex(
-                          rowIndex,
-                          colIndex,
-                          effectiveLayoutMatrix
-                        );
+                  <div
+                    key={`row-${rowIndex}`}
+                    className="flex w-full gap-4 mb-4"
+                  >
+                    {row.map((width, colIndex) => {
+                      const fieldIndex = linearIndex(
+                        rowIndex,
+                        colIndex,
+                        effectiveLayoutMatrix
+                      );
 
-                        const field = visibleFields[fieldIndex];
-                        if (!field) return null;
+                      const field = visibleFields[fieldIndex];
+                      if (!field) return null;
 
-                        const value = values[field.name];
-                        const { variant, helperText } = resolveVariant(
-                          field,
-                          touched as Record<string, boolean | undefined>,
-                          errors,
-                          value
-                        );
+                      const value = values[field.name];
+                      const { variant, helperText } = resolveVariant(
+                        field,
+                        touched as Record<string, boolean | undefined>,
+                        errors,
+                        value
+                      );
 
-                        return (
-                          <div
-                            key={field.name}
-                            style={{ width: `${(width / 10) * 100}%` }}
-                          >
-                            <FieldRenderer
-                              field={disabled ? { ...field, disabled } : field}
-                              value={value}
-                              allValues={values}
-                              onChange={(val) => {
-                                // valida inmediatamente y marca como tocado
-                                setFieldValue(field.name, val, true);
-                                setFieldTouched(field.name, true, false);
-                              }}
-                              onBlur={handleBlur}
-                              variant={variant}
-                              helperText={helperText}
-                              formDataTestId={dataTestId}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))
+                      return (
+                        <div
+                          key={field.name}
+                          style={{ width: `${(width / 10) * 100}%` }}
+                        >
+                          <FieldRenderer
+                            field={disabled ? { ...field, disabled } : field}
+                            value={value}
+                            allValues={values}
+                            onChange={(val) => {
+                              // valida inmediatamente y marca como tocado
+                              setFieldValue(field.name, val, true);
+                              setFieldTouched(field.name, true, false);
+                            }}
+                            onBlur={handleBlur}
+                            variant={variant}
+                            helperText={helperText}
+                            formDataTestId={dataTestId}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))
                 : // Sin layout provisto: render lineal uno debajo del otro
-                  visibleFields.map((field) => {
-                    const value = values[field.name];
-                    const { variant, helperText } = resolveVariant(
-                      field,
-                      touched as Record<string, boolean | undefined>,
-                      errors,
-                      value
-                    );
+                visibleFields.map((field) => {
+                  const value = values[field.name];
+                  const { variant, helperText } = resolveVariant(
+                    field,
+                    touched as Record<string, boolean | undefined>,
+                    errors,
+                    value
+                  );
 
-                    return (
-                      <FieldRenderer
-                        key={field.name}
-                        field={field}
-                        value={value}
-                        allValues={values}
-                        onChange={(val) => setFieldValue(field.name, val)}
-                        onBlur={handleBlur}
-                        variant={variant}
-                        helperText={helperText}
-                        formDataTestId={dataTestId}
-                      />
-                    );
-                  })}
+                  return (
+                    <FieldRenderer
+                      key={field.name}
+                      field={field}
+                      value={value}
+                      allValues={values}
+                      onChange={(val) => setFieldValue(field.name, val)}
+                      onBlur={handleBlur}
+                      variant={variant}
+                      helperText={helperText}
+                      formDataTestId={dataTestId}
+                    />
+                  );
+                })}
 
               {children}
 

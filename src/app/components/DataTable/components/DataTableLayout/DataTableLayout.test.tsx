@@ -14,6 +14,7 @@ vi.mock('@/app/components/Filter/Filter', () => ({
   ),
 }));
 vi.mock('@/assets/icons/organization/search.svg', () => ({ default: () => <span /> }));
+vi.mock('@/assets/icons/acciones/refresh-double.svg', () => ({ default: () => <span /> }));
 vi.mock('@/app/components/Calendar/Calendar', () => ({ Calendar: () => <span /> }));
 
 describe('DataTableLayout', () => {
@@ -40,5 +41,13 @@ describe('DataTableLayout', () => {
     fireEvent.click(screen.getByText('Filter'));
     expect(onFilterChange).toHaveBeenCalledWith('selected');
     expect(onFilterClick).toHaveBeenCalled();
+  });
+
+  it('invokes refresh callback when the button is pressed', () => {
+    const onRefreshPage = vi.fn();
+    render(<DataTableLayout showRefresh onRefreshPage={onRefreshPage} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /actualizar tabla/i }));
+    expect(onRefreshPage).toHaveBeenCalledTimes(1);
   });
 });

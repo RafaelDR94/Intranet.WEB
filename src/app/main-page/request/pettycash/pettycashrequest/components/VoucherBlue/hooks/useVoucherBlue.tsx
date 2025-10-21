@@ -30,6 +30,7 @@ export const useVoucherBlue = ({
   mode,
   dataEdit,
   startDisabled,
+  readOnlyFieldNames,
 }: UseVoucherFormProps): UseVoucherFormReturn => {
   const formId = `petty-cash-voucher-blue-form-${mode}`;
   const isEdit = mode === "edit";
@@ -44,12 +45,35 @@ export const useVoucherBlue = ({
   const [formReady, setFormReady] = useState(false);
   const [disableForm, setDisableForm] = useState(startDisabled);
 
+  useEffect(() => {
+    setDisableForm(startDisabled);
+  }, [startDisabled]);
+
   // Form Fields (multi-instancia por formId)
   const emptyRef = useRef<FieldModel[]>([]);
   const fields = useFormFieldsStore(
     (s) => s.fieldsByFormId[formId] ?? emptyRef.current,
   );
   const { setFields, updateField, resetFields } = useFormFieldsStore.getState();
+
+  useEffect(() => {
+    if (!readOnlyFieldNames?.length) {
+      return;
+    }
+
+    if (!fields.length) {
+      return;
+    }
+
+    readOnlyFieldNames.forEach((fieldName) => {
+      const field = fields.find((item) => item.name === fieldName);
+      if (!field || field.disabled) {
+        return;
+      }
+
+      updateField(formId, fieldName, { disabled: true });
+    });
+  }, [fields, formId, readOnlyFieldNames, updateField]);
 
   // Proyects (prefetch)
   const { proyects, proyectsError, fetchProyects } = useProyectsStore(

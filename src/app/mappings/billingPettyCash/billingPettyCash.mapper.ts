@@ -10,9 +10,12 @@ import {
   DeletePettyCashVoucherId,
   PutPettyCashRejectId,
   PutPettyCashValidateId,
+  PutBillingsInvoiceReject,
   PettyCashVoucherFull,
   PettyCashVoucherProject,
   PettyCashVoucherConcept,
+  PettyCashVoucherHistoryAmountItem,
+  PutPettyCashVoucherHistoryAmount,
 } from './BillingPettyCash.types';
 
 /** Helpers */
@@ -57,7 +60,7 @@ export const PettyCashVoucherMap = (raw: any): PettyCashVoucherData => ({
   voucher_type: toString(raw?.voucher_type),
   application_date: toString(raw?.application_date),
   concept: toString(raw?.concept),
-  amount: toNumber(raw?.amount),
+  amount: toString(raw?.amount),
   comments: toString(raw?.comments),
 
   // Tolerante con project anidado
@@ -122,7 +125,7 @@ export const PettyCashVoucherFullMap = (raw: any): PettyCashVoucherFull => ({
   voucher_type: toString(raw?.voucher_type),
   application_date: toString(raw?.application_date),
   concept: toString(raw?.concept),
-  amount: toNumber(raw?.amount),
+  amount: toString(raw?.amount),
   comments: toString(raw?.comments),
 
   // Proyecto anidado
@@ -186,26 +189,34 @@ export const PostPettyCashVoucherMap = (src: any): PostPettyCashVoucher => ({
   voucher_type: toString(src?.voucher_type),
   application_date: toString(src?.application_date),
   concept: toString(src?.concept),
-  amount: toNumber(src?.amount),
+  amount: toString(src?.amount),
   comments: toString(src?.comments),
   project_id: toString(src?.project_id),
   xml: toString(src?.xml),
   pdf: toString(src?.pdf),
 });
 
-export const PutPettyCashVoucherMap = (src: any): PutPettyCashVoucher => ({
-  id: toString(src?.id),
-  petty_cash_funds_id: toString(src?.petty_cash_funds_id),
-  employee_id: toString(src?.employee_id),
-  voucher_type: toString(src?.voucher_type),
-  application_date: toString(src?.application_date),
-  concept: toString(src?.concept),
-  amount: toNumber(src?.amount),
-  comments: toString(src?.comments),
-  project_id: toString(src?.project_id),
-  xml: toString(src?.xml),
-  pdf: toString(src?.pdf),
-});
+export const PutPettyCashVoucherMap = (src: any): PutPettyCashVoucher => {
+  const payload: PutPettyCashVoucher = {
+    id: toString(src?.id),
+    petty_cash_funds_id: toString(src?.petty_cash_funds_id),
+    employee_id: toString(src?.employee_id),
+    voucher_type: toString(src?.voucher_type),
+    application_date: toString(src?.application_date),
+    concept: toString(src?.concept),
+    amount: toString(src?.amount),
+    comments: toString(src?.comments),
+    project_id: toString(src?.project_id),
+    xml: toString(src?.xml),
+    pdf: toString(src?.pdf),
+  };
+
+  if (src?.total !== undefined && src?.total !== null) {
+    payload.total = toNumber(src.total);
+  }
+
+  return payload;
+};
 
 /** =========================
  *  Otros payloads
@@ -225,6 +236,42 @@ export const PutPettyCashRejectIdMap = (src: any): PutPettyCashRejectId => ({
 
 export const PutPettyCashValidateIdMap = (src: any): PutPettyCashValidateId => ({
   id: toString(src?.id),
+});
+
+export const PutBillingsInvoiceRejectMap = (
+  src: any,
+): PutBillingsInvoiceReject => ({
+  id: toString(src?.id),
+  comments: toString(src?.comments),
+});
+
+export const PettyCashVoucherHistoryAmountItemMap = (
+  raw: any,
+): PettyCashVoucherHistoryAmountItem => ({
+  date: toString(raw?.date),
+  amount: toNumber(raw?.amount),
+});
+
+export const PettyCashVoucherHistoryAmountMap = (
+  list: any,
+): PettyCashVoucherHistoryAmountItem[] => {
+  const payload = Array.isArray(list?.data)
+    ? list.data
+    : Array.isArray(list?.items)
+    ? list.items
+    : Array.isArray(list)
+    ? list
+    : [];
+
+  return payload.map(PettyCashVoucherHistoryAmountItemMap);
+};
+
+export const PutPettyCashVoucherHistoryAmountMap = (
+  src: any,
+): PutPettyCashVoucherHistoryAmount => ({
+  id: toString(src?.id),
+  date: toString(src?.date),
+  amount: toNumber(src?.amount),
 });
 
 // Mapea la respuesta del endpoint de historial por empleado

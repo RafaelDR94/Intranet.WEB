@@ -1,0 +1,21 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/SIP/Proyects/ProyectDetail/Reports/NewReport/Refactions" />
+
+# Refactions
+
+Wrapper que alterna entre la tabla de refacciones y el formulario de alta o
+edicion. Controla el id seleccionado usando estado interno sencillo.
+
+---
+
+## Uso rapido
+
+```tsx
+import Refactions from "./Refactions";
+
+<Refactions />;
+```
+
+El componente evita registrar nuevas refacciones durante la etapa de firma al
+delegar la logica a los subcomponentes y sus hooks correspondientes.

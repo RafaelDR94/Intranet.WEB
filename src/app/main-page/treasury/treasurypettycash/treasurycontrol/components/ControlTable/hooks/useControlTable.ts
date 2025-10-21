@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { shallow } from 'zustand/shallow';
+import { useRouter } from 'next/navigation';
 
 import type { ControlDetail, ControlRow } from '../types';
 
@@ -17,6 +18,19 @@ import {
   endOfDay,
 } from '@/app/components/DataTable/utilities/datesTable';
 
+const toValidNumber = (value: unknown): number | undefined =>
+  typeof value === 'number' && !Number.isNaN(value) ? value : undefined;
+
+const pickFirstNumber = (
+  ...values: Array<number | undefined>
+): number | undefined => {
+  for (const value of values) {
+    if (value !== undefined) return value;
+  }
+
+  return undefined;
+};
+
 function voucherTypeToLabelType(voucher?: string): LabelType {
   const v = (voucher ?? "").toLowerCase();
   if (v.includes("rosa")) return "vale-rosa";
@@ -24,23 +38,43 @@ function voucherTypeToLabelType(voucher?: string): LabelType {
   return "restringido";
 }
 
-const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
-  const subtotal =
-    typeof voucher.subtotal === 'number' && !Number.isNaN(voucher.subtotal)
-      ? voucher.subtotal
-      : undefined;
-  const iva =
-    typeof voucher.iva === 'number' && !Number.isNaN(voucher.iva)
-      ? voucher.iva
-      : undefined;
-  const totalCandidate =
-    typeof voucher.total === 'number' && !Number.isNaN(voucher.total)
-      ? voucher.total
-      : typeof voucher.amount === 'number' && !Number.isNaN(voucher.amount)
-      ? voucher.amount
-      : undefined;
+/**
+ * Maps a descriptive voucher type (e.g. "Vale rosa") to the
+ * single-letter payload expected by the backend.
+ */
+const mapVoucherTypeToPayload = (voucherType?: string): 'R' | 'A' | '' => {
+  const normalized = (voucherType ?? '')
+    .trim()
+    .toLocaleLowerCase('es-MX')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 
+  if (!normalized) return '';
+  if (normalized.length === 1) {
+    if (normalized === 'r') return 'R';
+    if (normalized === 'a') return 'A';
+    return '';
+  }
+
+  if (normalized.includes('rosa')) return 'R';
+  if (normalized.includes('azul')) return 'A';
+  if (normalized.startsWith('r')) return 'R';
+  if (normalized.startsWith('a')) return 'A';
+
+  return '';
+};
+
+const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
+  const subtotal = toValidNumber(voucher.subtotal);
+  const iva = toValidNumber(voucher.iva);
+  const totalValue = toValidNumber(voucher.total);
+  const requestedAmount = toValidNumber(voucher.amount);
   const voucherType = voucher.voucher_type ?? '';
+  const voucherTypeCode = mapVoucherTypeToPayload(voucherType);
+  const totalCandidate =
+    voucherTypeCode === 'A'
+      ? pickFirstNumber(requestedAmount, totalValue)
+      : pickFirstNumber(totalValue, requestedAmount);
 
   return {
     id: voucher.id,
@@ -48,6 +82,7 @@ const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
     applicationDate: voucher.application_date,
     provider: voucher.provider?.trim() || voucher.rfc_emisor?.trim() || '',
     concept: voucher.concept,
+    amount: voucher.amount || '0',
     subtotal,
     iva,
     total: totalCandidate,
@@ -58,10 +93,21 @@ const mapVoucherToControlRow = (voucher: PettyCashVoucherData): ControlRow => {
   } satisfies ControlRow;
 };
 
+const isVoucherValid = (status?: string): boolean => {
+  if (!status) return false;
+  const normalized = status
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  return normalized.includes("valido");
+};
+
 /**
  * Handles data loading, filtering and row actions for the petty cash control table.
  */
 export const useControlTable = () => {
+  const router = useRouter();
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
@@ -73,10 +119,14 @@ export const useControlTable = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState<ControlRow | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailData, setDetailData] = useState<ControlDetail | null>(null);
   const [isFetchingDetail, setIsFetchingDetail] = useState(false);
   const [selectedRow, setSelectedRow] = useState<ControlRow | null>(null);
+  const [isEditingAmount, setIsEditingAmount] = useState(false);
+  const skipErrorAlertRef = useRef(false);
+  const suppressedErrorRef = useRef<string | undefined>(undefined);
 
   const isGatewayReady = useIntranetGatewayStore((state) => state.isReady);
 
@@ -85,14 +135,20 @@ export const useControlTable = () => {
     loading,
     error,
     removing,
+    updating,
     validating,
     rejecting,
+    pettyCashVoucherAmountHistory,
+    loadingAmountHistory,
     fetchPettyCashVouchers,
     fetchPettyCashVoucherById,
     fetchPettyCashFunds,
     deletePettyCashVoucher,
+    fetchPettyCashVoucherAmountHistory,
+    updatePettyCashVoucherAmount,
     validatePettyCashVoucher,
     rejectPettyCashVoucher,
+    rejectBillingInvoice,
     resetFlags,
   } = useBillingPettyCash(
     (state) => ({
@@ -100,14 +156,20 @@ export const useControlTable = () => {
       loading: state.loading,
       error: state.error,
       removing: state.removing,
+      updating: state.updating,
       validating: state.validating,
       rejecting: state.rejecting,
+      pettyCashVoucherAmountHistory: state.pettyCashVoucherAmountHistory,
+      loadingAmountHistory: state.loadingAmountHistory,
       fetchPettyCashVouchers: state.fetchPettyCashVouchers,
       fetchPettyCashVoucherById: state.fetchPettyCashVoucherById,
       fetchPettyCashFunds: state.fetchPettyCashFunds,
       deletePettyCashVoucher: state.deletePettyCashVoucher,
+      fetchPettyCashVoucherAmountHistory: state.fetchPettyCashVoucherAmountHistory,
+      updatePettyCashVoucherAmount: state.updatePettyCashVoucherAmount,
       validatePettyCashVoucher: state.validatePettyCashVoucher,
       rejectPettyCashVoucher: state.rejectPettyCashVoucher,
+      rejectBillingInvoice: state.rejectBillingInvoice,
       resetFlags: state.resetFlags,
     }),
     shallow
@@ -127,7 +189,24 @@ export const useControlTable = () => {
   }, [hideSpinner, loading, isFetchingDetail, showSpinner]);
 
   useEffect(() => {
-    if (!error || isFetchingDetail) return;
+    if (!error) {
+      suppressedErrorRef.current = undefined;
+      return;
+    }
+
+    if (isFetchingDetail) return;
+
+    if (skipErrorAlertRef.current) {
+      skipErrorAlertRef.current = false;
+      suppressedErrorRef.current = error;
+      return;
+    }
+
+    if (suppressedErrorRef.current && suppressedErrorRef.current === error) {
+      return;
+    }
+
+    suppressedErrorRef.current = undefined;
 
     showAlert({
       type: 'error',
@@ -144,12 +223,35 @@ export const useControlTable = () => {
         fetchPettyCashVouchers(true);
       },
     });
-  }, [error, fetchPettyCashVouchers, hideAlert, isFetchingDetail, showAlert]);
+  }, [
+    error,
+    fetchPettyCashVouchers,
+    hideAlert,
+    isFetchingDetail,
+    showAlert,
+  ]);
 
   useEffect(() => {
-    if (loading || removing || validating || rejecting || isFetchingDetail) return;
+    if (
+      loading ||
+      removing ||
+      updating ||
+      validating ||
+      rejecting ||
+      isFetchingDetail
+    ) {
+      return;
+    }
     resetFlags();
-  }, [isFetchingDetail, loading, removing, validating, rejecting, resetFlags]);
+  }, [
+    isFetchingDetail,
+    loading,
+    removing,
+    updating,
+    validating,
+    rejecting,
+    resetFlags,
+  ]);
 
   const rows: ControlRow[] = useMemo(() => {
     const base = pettyCashVouchers.map(mapVoucherToControlRow);
@@ -223,12 +325,26 @@ export const useControlTable = () => {
     });
   }, [pettyCashVouchers, selectedRow?.id]);
 
-  const onView = async (row: ControlRow) => {
+  useEffect(() => {
+    const detailId = detailData?.id;
+    if (!detailId) return;
+
+    const status = detailData?.status ?? selectedRow?.status;
+    if (!isVoucherValid(status)) return;
+
+    void fetchPettyCashVoucherAmountHistory(detailId);
+  }, [detailData?.id, detailData?.status, selectedRow?.status, fetchPettyCashVoucherAmountHistory]);
+
+  const openDetail = async (row: ControlRow, mode: "detail" | "edit") => {
     setIsFetchingDetail(true);
     setSelectedRow(row);
-    setDetailOpen(true);
     setDetailLoading(true);
     setDetailData(null);
+    setIsEditingAmount(false);
+
+    const openEditPanel = mode === "edit";
+    setEditOpen(openEditPanel);
+    setDetailOpen(!openEditPanel);
     const detail = await fetchPettyCashVoucherById(row.id, true);
     if (!detail) {
       showAlert({
@@ -240,6 +356,9 @@ export const useControlTable = () => {
         primaryLabel: 'Entendido',
         onPrimaryClick: hideAlert,
       });
+      setIsEditingAmount(false);
+      setEditOpen(false);
+      setDetailOpen(false);
     } else {
       setDetailData(detail);
     }
@@ -247,9 +366,18 @@ export const useControlTable = () => {
     setIsFetchingDetail(false);
   };
 
+  const onView = (row: ControlRow) => {
+    const mode = isVoucherValid(row.status) ? "edit" : "detail";
+    void openDetail(row, mode);
+  };
+
   const onDelete = (row: ControlRow) => {
     setRowToDelete(row);
     setConfirmOpen(true);
+  };
+
+  const handleEditModeChange = (editing: boolean) => {
+    setIsEditingAmount(editing);
   };
 
   const handleConfirmDelete = async () => {
@@ -273,7 +401,10 @@ export const useControlTable = () => {
         autoCloseMs: 1500,
         onClose: hideAlert,
       });
-      fetchPettyCashVouchers(true);
+      await Promise.all([
+        fetchPettyCashVouchers(true),
+        fetchPettyCashFunds(true),
+      ]);
     } else {
       showAlert({
         type: 'error',
@@ -292,6 +423,90 @@ export const useControlTable = () => {
         },
       });
     }
+  };
+
+  const handleUpdateAmount = async (amount: number) => {
+    const voucherId = detailData?.id ?? selectedRow?.id;
+
+    if (!voucherId) {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'Información incompleta',
+        description:
+          'No se encontró el identificador del vale para actualizar el monto.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      return;
+    }
+
+    skipErrorAlertRef.current = true;
+    suppressedErrorRef.current = undefined;
+
+    showSpinner({ message: 'Guardando monto solicitado…' });
+    let ok = false;
+    try {
+      ok = await updatePettyCashVoucherAmount({
+        id: voucherId,
+        date: new Date().toISOString(),
+        amount,
+      });
+    } finally {
+      hideSpinner();
+    }
+
+    if (ok) {
+      setIsEditingAmount(false);
+      setDetailData((prev) =>
+        prev && prev.id === voucherId
+          ? { ...prev, amount: amount.toFixed(2), total: amount }
+          : prev,
+      );
+      setSelectedRow((prev) =>
+        prev && prev.id === voucherId
+          ? { ...prev, total: amount, amount: amount.toFixed(2) }
+          : prev,
+      );
+
+      showAlert({
+        type: 'success',
+        variant: 'filled',
+        title: 'Monto actualizado',
+        description: 'El monto solicitado se actualizó correctamente.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2000,
+        onClose: hideAlert,
+      });
+
+      await fetchPettyCashVoucherAmountHistory(voucherId, true);
+
+      setDetailLoading(true);
+      try {
+        const refreshed = await fetchPettyCashVoucherById(voucherId, true);
+        if (refreshed) {
+          setDetailData(refreshed);
+        }
+      } finally {
+        setDetailLoading(false);
+      }
+
+      await Promise.all([fetchPettyCashVouchers(true), fetchPettyCashFunds(true)]);
+    } else {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'No se pudo actualizar el monto',
+        description: 'Intenta nuevamente en unos segundos.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+    }
+
+    skipErrorAlertRef.current = false;
   };
 
   const handleValidate = async (row: ControlRow | null) => {
@@ -342,12 +557,16 @@ export const useControlTable = () => {
     }
   };
 
-  const handleReject = async (row: ControlRow | null) => {
+  const handleReject = async (
+    row: ControlRow | null,
+    comments?: string,
+    options?: { skipSuccessAlert?: boolean },
+  ): Promise<boolean> => {
     const target = row ?? selectedRow;
-    if (!target) return;
+    if (!target) return false;
 
     showSpinner({ message: 'Rechazando vale seleccionado…' });
-    const ok = await rejectPettyCashVoucher(target.id);
+    const ok = await rejectPettyCashVoucher(target.id, comments);
     const selectedId = selectedRow?.id;
     const panelOpen = detailOpen;
 
@@ -365,16 +584,19 @@ export const useControlTable = () => {
       }
 
       hideSpinner();
-      showAlert({
-        type: 'warning',
-        variant: 'filled',
-        title: 'Vale rechazado',
-        description: 'El vale se rechazó correctamente.',
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 2000,
-        onClose: hideAlert,
-      });
+      if (!options?.skipSuccessAlert) {
+        showAlert({
+          type: 'warning',
+          variant: 'filled',
+          title: 'Vale rechazado',
+          description: 'El vale se rechazó correctamente.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 2000,
+          onClose: hideAlert,
+        });
+      }
+      return true;
     } else {
       hideSpinner();
       showAlert({
@@ -387,14 +609,113 @@ export const useControlTable = () => {
         onPrimaryClick: hideAlert,
       });
       resetFlags();
+      return false;
     }
   };
 
-  const refresh = (start?: Date, end?: Date) => {
-    void start;
-    void end;
-    fetchPettyCashVouchers(true);
+  const handleRejectInvoice = async (
+    row: ControlRow | null,
+    comments: string,
+  ): Promise<boolean> => {
+    const target = row ?? selectedRow;
+    const trimmedComment = comments.trim();
+    if (!target || !trimmedComment) return false;
+
+    const invoiceId = detailData?.id ?? target.id;
+    if (!invoiceId) {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'Información incompleta',
+        description: 'No se encontró el identificador de la factura para rechazarla.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      return false;
+    }
+
+    showSpinner({ message: 'Rechazando factura seleccionada…' });
+    const ok = await rejectBillingInvoice({ id: invoiceId, comments: trimmedComment });
+    const selectedId = selectedRow?.id;
+    const panelOpen = detailOpen || editOpen;
+
+    if (ok) {
+      const nextStatus = (() => {
+        const currentStatus = detailData?.status ?? target.status ?? '';
+        const normalized = currentStatus
+          .toLocaleLowerCase('es-MX')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+
+        if (normalized.includes('factura') && normalized.includes('rechaz')) {
+          return currentStatus;
+        }
+
+        return 'Factura rechazada';
+      })();
+
+      setDetailData((prev) => {
+        if (!prev || prev.id !== invoiceId) return prev;
+        return { ...prev, status: nextStatus };
+      });
+
+      setSelectedRow((prev) => {
+        if (!prev || prev.id !== target.id) return prev;
+        return { ...prev, status: nextStatus };
+      });
+
+      await Promise.all([fetchPettyCashVouchers(true), fetchPettyCashFunds(true)]);
+
+      if (panelOpen && selectedId === target.id) {
+        setDetailLoading(true);
+        try {
+          const detail = await fetchPettyCashVoucherById(target.id, true);
+          setDetailData(detail);
+        } finally {
+          setDetailLoading(false);
+        }
+      }
+
+      hideSpinner();
+      showAlert({
+        type: 'warning',
+        variant: 'filled',
+        title: 'Factura rechazada',
+        description: 'Se rechazó la factura y el vale correctamente.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2000,
+        onClose: hideAlert,
+      });
+      return true;
+    } else {
+      hideSpinner();
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'No se pudo rechazar la factura',
+        description: 'Intenta de nuevo en unos segundos.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      resetFlags();
+      return false;
+    }
   };
+
+  const refreshData = useCallback(() => {
+    fetchPettyCashVouchers(true);
+  }, [fetchPettyCashVouchers]);
+
+  const refreshPage = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+      return;
+    }
+    router.refresh();
+  }, [router]);
 
   const handleSearchChange = useCallback(
     (value?: string, start?: Date | null, end?: Date | null) => {
@@ -411,8 +732,10 @@ export const useControlTable = () => {
 
   const handleCloseDetail = () => {
     setDetailOpen(false);
+    setEditOpen(false);
     setDetailData(null);
     setSelectedRow(null);
+    setIsEditingAmount(false);
   };
 
   const formatDate = (date?: string) => {
@@ -437,8 +760,10 @@ export const useControlTable = () => {
     handleConfirmDelete,
     onView,
     onDelete,
-    refresh,
+    refreshData,
+    refreshPage,
     detailOpen,
+    editOpen,
     detailLoading,
     detailData,
     selectedRow,
@@ -446,7 +771,14 @@ export const useControlTable = () => {
     formatDate,
     handleValidate,
     handleReject,
+    handleRejectInvoice,
     validating,
     rejecting,
+    isEditing: isEditingAmount,
+    handleEditModeChange,
+    handleUpdateAmount,
+    updatingAmount: updating,
+    amountHistory: pettyCashVoucherAmountHistory,
+    isAmountHistoryLoading: loadingAmountHistory,
   };
 };

@@ -18,6 +18,7 @@ export interface PicturesTableProps {
 export type PettyCashHistoryRow = {
   id: string;
   status: string;
+  statusLabelType: LabelType;
   billing_image_id: string;
   billingdocument_id: string;
   project: {
@@ -46,7 +47,7 @@ export type PettyCashHistoryRow = {
   numnights: number;
 
   /** Importe mostrado en la tabla. */
-  amount: number;
+  amount: string | number;
 
   /** Tipo de vale. */
   voucherType: string;

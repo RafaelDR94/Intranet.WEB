@@ -1,3 +1,4 @@
+import type { ActionMenuCellProps } from "../ActionMenuCell/types"
 import type { TextSize } from "./components/DataTableContent/components/DataTableBody/DataTableBody"
 
 /**
@@ -54,12 +55,19 @@ export interface DataTableGroup<T> {
   columns: ColumnDefinition<T>[]
   /** Conjunto de filas que se mostrarán */
   data: T[]
+  /** Identificadores de filas que deben iniciar seleccionadas */
+  initialSelectedRowIds?: Array<any>
   /** Título visible de la tabla */
   title: string
+  /** Esconde el titulo */
+  hidetitle?: boolean
   /** Habilita selección de filas */
   enableSelection?: boolean
   /** Permite colapsar la sección que contiene la tabla */
   enableCollaps?: boolean
+
+  /**Deja visible la seleccion pero no permite el click */
+  disableSelection?: boolean
   /** Clave inicial para ordenar */
   defaultSortKey?: keyof T
   /** Dirección inicial de ordenamiento */
@@ -123,7 +131,7 @@ export interface DataTableProps<T = any> {
     endDate?: Date | null
   ) => void;
   /** Se ejecuta al hacer clic en el botón de calendario (abrir date picker externo, etc.). */
-   onCalendarClick?: (start?: Date , end?: Date ) => void
+  onCalendarClick?: (start?: Date, end?: Date) => void
   /** Se ejecuta al hacer clic en el botón de filtros (abrir un drawer o modal de filtros). */
   onFilterClick?: () => void;
   /** Se ejecuta al hacer clic en el botón de acción principal (p.ej. “Agregar”). */
@@ -134,6 +142,8 @@ export interface DataTableProps<T = any> {
   showCalendar?: boolean;
   /** Muestra el botón de filtros (por defecto: `false`). */
   showFilter?: boolean;
+  /** Muestra el botón de recarga parcial del contenido. */
+  showRefresh?: boolean;
   /** Opciones mostradas dentro del menú contextual de filtros. */
   filterOptions?: DataTableFilterOption<T>[];
   /** Valor seleccionado actualmente en el filtro. */
@@ -145,6 +155,8 @@ export interface DataTableProps<T = any> {
     value: string,
     option?: DataTableFilterOption<T>,
   ) => void;
+  /** Ejecuta la recarga del contenido visible cuando se presiona el botón de actualizar. */
+  onRefreshPage?: () => void;
   /** Muestra el botón de acción principal (por defecto: `true`). */
   showButton?: boolean;
   /**
@@ -188,7 +200,7 @@ export interface DataTableProps<T = any> {
   /** Título global de la (o las) tablas. Se usa en descargas y cabeceras. */
   dataTableTitle?: string;
   /** Inicia con la tabla colapsada. */
-  startCollpas?:boolean; 
+  startCollpas?: boolean;
   /** Si es verdadero, intenta renderizar cada tabla como grilla de tarjetas usando `cardAdapt` */
   useCardsView?: boolean;
   /** Muestra el conmutador de vista en el layout */
@@ -218,42 +230,12 @@ export interface CardAdapt<T> {
   /** Mostrar/ocultar botones */
   showPrimaryButton?: boolean
   showSecondaryButton?: boolean
+  /** Props para renderizar el menu contextual en cada tarjeta */
+  actionMenuProps?: (row: T) => ActionMenuCellProps<T>
   /** Número de tarjetas por página (opcional, por defecto `rowsPerPage`) */
   cardsPerPage?: number
 }
 
-/** Props for the contextual action cell. */
-export type ActionMenuCellProps = {
-  /** Current row information. */
-  row: RequisitionRow
-  /** Called when the edit option is selected. */
-  onEdit: (row: RequisitionRow) => void
-  /** Called when the delete option is selected. */
-  onDelete: (row: RequisitionRow) => void
-}
 
-/**
- * Row shape used by the requisitions table.
- */
-export type RequisitionRow = {
-  /** Unique identifier for the requisition. */
-  id: string
-  /** Serial number displayed in the list. */
-  snCode: string
-  /** Name of the debtor associated with the requisition. */
-  debtorName: string
-  /** Project code for the requisition. */
-  projectCode: string
-  /** Assignment date (raw ISO or yyyy-mm-dd). */
-  assignmentDate?: string
-  /** Due date/termino (raw ISO or yyyy-mm-dd). */
-  dueDate?: string
-  /** Amount deposited/requested as number for formatting. */
-  amount?: number
-  /** Status text to display as a pill. */
-  status?: string
-  /** ISO formatted creation date. */
-  date_created?: string
-  
-  state?:string,
-}
+
+

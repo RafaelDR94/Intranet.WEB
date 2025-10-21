@@ -1,11 +1,17 @@
-
-import { useRef, useState, useEffect } from "react";
-
-import { Item } from "../types";
-const useActivitiesViewer = (items: Item[], columns?: number) => {
+﻿import { useRef, useState, useEffect } from "react";
+import { useIsMobile } from "../../DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import type { ActivitiesViewerItem } from "../types";
+/**
+ * Calcula columnas, paginacion y orientacion responsiva para ActivitiesViewer.
+ *
+ * @param items - Actividades a renderizar.
+ * @param columns - Numero de columnas forzado (1..3).
+ * @returns Estado derivado para pintar la grilla y navegar por paginas.
+ */
+const useActivitiesViewer = <TRow,>(items: ActivitiesViewerItem<TRow>[], columns?: number) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [cols, setCols] = useState(3); // número de columnas efectivo (1..3)
-
+  const isMobile = useIsMobile();
   // Medir ancho del contenedor y resolver columnas (1..3) según cardWidth estimado
 
   useEffect(() => {
@@ -49,7 +55,9 @@ const useActivitiesViewer = (items: Item[], columns?: number) => {
   const windowStart = Math.floor(page / 3) * 3;
   const visibleCount = Math.min(3, totalPages - windowStart);
   const currentInWindow = page - windowStart;
-  return { start, containerRef, effectiveCols, pageItems, totalPages, visibleCount, currentInWindow, windowStart, setPage };
+  return { isMobile, start, containerRef, effectiveCols, pageItems, totalPages, visibleCount, currentInWindow, windowStart, setPage };
 };
 
 export default useActivitiesViewer;
+
+

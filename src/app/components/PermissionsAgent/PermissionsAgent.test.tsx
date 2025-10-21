@@ -28,6 +28,8 @@ vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   useAuth: () => ({
     validPermissionsbyroute: validPermissionsMock,
     user: { treeFirebase: {} },
+    hasExpired: false,
+    hydrated: true,
   }),
 }));
 

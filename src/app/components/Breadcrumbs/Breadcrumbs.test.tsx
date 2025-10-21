@@ -5,21 +5,39 @@ import { describe, it, expect, vi } from 'vitest';
 import { Breadcrumbs } from './Breadcrumbs';
 
 describe('Breadcrumbs component', () => {
-  it('renders container with default and custom data-testid', () => {
+  it('renders breadcrumbs container only when there are 2 or more items', () => {
+    // 🔹 Caso 1: solo 1 item → no se muestra el contenedor con data-testid
     const { rerender } = render(
       <Breadcrumbs>
         <Breadcrumbs.Item id="home" label="Inicio" />
       </Breadcrumbs>
     );
+
+    // No debería existir el contenedor principal
+    expect(screen.queryByTestId('breadcrumbs')).not.toBeInTheDocument();
+
+    // 🔹 Caso 2: 2 items → ya debe renderizar el contenedor principal
+    rerender(
+      <Breadcrumbs>
+        <Breadcrumbs.Item id="home" label="Inicio" />
+        <Breadcrumbs.Item id="dashboard" label="Dashboard" />
+      </Breadcrumbs>
+    );
+
+    // Ahora sí debe mostrarse el contenedor por defecto
     expect(screen.getByTestId('breadcrumbs')).toBeInTheDocument();
 
+    // 🔹 Caso 3: usando un dataTestId personalizado
     rerender(
       <Breadcrumbs dataTestId="my-bc">
         <Breadcrumbs.Item id="home" label="Inicio" />
+        <Breadcrumbs.Item id="dashboard" label="Dashboard" />
       </Breadcrumbs>
     );
+
     expect(screen.getByTestId('my-bc')).toBeInTheDocument();
   });
+
 
   it('renders items with proper labels and data-testid pattern', () => {
     render(

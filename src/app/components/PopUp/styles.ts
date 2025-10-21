@@ -1,5 +1,6 @@
 export const popUpStyles = {
-  backdrop: 'fixed inset-0 bg-black-20/40 bg-opacity-100 z-50 flex items-center justify-center',
+  backdrop:
+    'fixed inset-0 bg-black-20/40 bg-opacity-100 z-[9999] flex items-center justify-center',
   container: 'flex w-[350px] p-5 flex-col rounded-[12px] border border-gray-30 bg-gray-10',
   closeButton: 'flex flex-row-reverse',
   title: 'text-green-100 text-center font-semibold text-s2 leading-7',

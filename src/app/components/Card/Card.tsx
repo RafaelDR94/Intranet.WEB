@@ -1,9 +1,11 @@
-import Image from 'next/image';
-import React, { useMemo, useState } from 'react';
-
+﻿﻿import Image from 'next/image';
+import React, { useEffect, useMemo, useState } from 'react';
 import { cardStyles } from './styles';
-import { CardProps } from './types';
-
+import type { CardProps } from './types';
+import { Button } from '../Button/Button';
+import ActionMenuCell from '../ActionMenuCell/ActionMenuCell';
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import type { UseShowImage } from '@/app/context/PrincipalContext/hooks/useShowImage/useShowImage';
 /**
  * Concatena clases condicionales de forma segura.
  *
@@ -17,11 +19,11 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
 
 /**
- * Componente de tarjeta con imagen, etiqueta, título, descripción y acciones.
+ * Componente de tarjeta con imagen, etiqueta, t+itulo, descripciÃ³n y acciones.
  *
  * @remarks
- * - Soporta orientación `vertical` u `horizontal`.
- * - El botón **Aceptar** siempre se muestra. El botón **Cancelar** es opcional.
+ * - Soporta n `vertical` u `horizontal`.
+ * - El botÃ³n **Aceptar** siempre se muestra. El botÃ³n **Cancelar** es opcional.
  * - La imagen utiliza `next/image` con `fill` para cubrir el contenedor.
  *
  * @accessibility
@@ -35,15 +37,23 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
  *   orientation="vertical"
  *   imageSrc="/images/example.jpg"
  *   label="Novedad"
- *   title="Título de la tarjeta"
- *   description="Descripción corta del contenido presentado en la tarjeta."
+ *   title="TÃ­tulo de la tarjeta"
+ *   description="DescripciÃ³n corta del contenido presentado en la tarjeta."
  *   onAccept={() => console.log('Aceptar')}
  *   onCancel={() => console.log('Cancelar')}
  *   showCancelButton
  * />
  * ```
  */
-export const Card: React.FC<CardProps> = ({
+const useOptionalPrincipalImage = (): UseShowImage | undefined => {
+  try {
+    return usePrincipal().usePrincipalImage;
+  } catch {
+    return undefined;
+  }
+};
+
+export function Card<TRow extends Record<string, unknown> = Record<string, unknown>>({
   orientation = 'vertical',
   imageSrc,
   fallbackSrc,
@@ -56,7 +66,8 @@ export const Card: React.FC<CardProps> = ({
   showSecondaryButton = false,
   primaryLabel = 'Aceptar',
   secondaryLabel = 'Cancelar',
-}) => {
+  actionMenuProps,
+}: CardProps<TRow>) {
   const isVertical = orientation === 'vertical';
   // Compute initial image: if empty, use fallback immediately
   const initialSrc = useMemo(() => {
@@ -64,6 +75,42 @@ export const Card: React.FC<CardProps> = ({
     return main.length > 0 ? main : (fallbackSrc ?? '')
   }, [imageSrc, fallbackSrc])
   const [currentSrc, setCurrentSrc] = useState<string>(initialSrc)
+
+  const principalImage = useOptionalPrincipalImage();
+
+  const viewerSrc = useMemo(() => {
+    const normalized = (currentSrc ?? '').trim()
+    if (normalized.length > 0) return normalized
+    const fallback = (fallbackSrc ?? '').trim()
+    return fallback
+  }, [currentSrc, fallbackSrc])
+
+  const viewerAlt = title ?? 'card image'
+
+  const handleImageClick = () => {
+    if (!viewerSrc) return
+    principalImage?.showImage({
+      src: viewerSrc,
+      alt: viewerAlt,
+    })
+  }
+
+  const handleImageKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (event) => {
+    if (!viewerSrc) return
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      principalImage?.showImage({
+        src: viewerSrc,
+        alt: viewerAlt,
+      })
+    }
+  }
+
+  useEffect(() => {
+    setCurrentSrc(initialSrc)
+  }, [initialSrc])
+
+  const enlargeImageLabel = title ? `Ampliar imagen de ${title}` : 'Ampliar imagen'
 
   return (
     <div
@@ -75,8 +122,14 @@ export const Card: React.FC<CardProps> = ({
       <div
         className={cx(
           cardStyles.ImageWrapperBase,
-          isVertical ? cardStyles.ImageWrapperVertical : cardStyles.ImageWrapperHorizontal
+          isVertical ? cardStyles.ImageWrapperVertical : cardStyles.ImageWrapperHorizontal,
+          viewerSrc && 'cursor-zoom-in'
         )}
+        role={viewerSrc ? 'button' : undefined}
+        tabIndex={viewerSrc ? 0 : -1}
+        aria-label={viewerSrc ? enlargeImageLabel : undefined}
+        onClick={handleImageClick}
+        onKeyDown={handleImageKeyDown}
       >
         <Image
           src={currentSrc}
@@ -93,9 +146,18 @@ export const Card: React.FC<CardProps> = ({
       </div>
 
       <div className={cardStyles.Body}>
-        <span className={cardStyles.Label}>{label}</span>
-        <h4 className={cardStyles.Title}>{title}</h4>
-        <p className={cardStyles.Description}>{description}</p>
+        <div className='flex justify-between'>
+          <div>
+            <span className={cardStyles.Label}>{label}</span>
+            <h4 className={cardStyles.Title}>{title}</h4>
+            <p className={cardStyles.Description}>{description}</p>
+          </div>
+          {actionMenuProps ? (
+            <ActionMenuCell {...actionMenuProps} />
+          ) : null}
+
+        </div>
+
 
         <div
           className={cx(
@@ -104,29 +166,35 @@ export const Card: React.FC<CardProps> = ({
           )}
         >
           {showSecondaryButton && (
-            <button
-              type="button"
+            <Button
+              size='small'
+              variant='outline'
               onClick={onCancel}
+              hideIcon
               className={cardStyles.CancelBtn}
+
             >
               {secondaryLabel}
-            </button>
+            </Button>
           )}
 
           {showPrimaryButton && (
-            <button
-              type="button"
+            <Button
+              size='small'
+              variant='solid'
               onClick={onAccept}
+              hideIcon
               className={cx(
                 cardStyles.AcceptBtn,
                 !showSecondaryButton && cardStyles.AcceptBtnFull
               )}
             >
               {primaryLabel}
-            </button>
+            </Button>
           )}
         </div>
       </div>
     </div>
   );
-};
+}
+

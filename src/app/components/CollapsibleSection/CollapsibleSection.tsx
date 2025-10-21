@@ -79,7 +79,7 @@ export const CollapsibleSection = ({
 
       {isOpen && <div className={styles.content}>{<>
         {children}
-        {isMobile && <div className="flex items-center ml-auto mt-5 mb-5">{rightContent}</div>}
+        {isMobile && <div className="flex items-center ml-auto mt-1 mb-1">{rightContent}</div>}
       </>}</div>}
     </section>
   );

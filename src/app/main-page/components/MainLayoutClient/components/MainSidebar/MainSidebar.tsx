@@ -15,15 +15,15 @@ import LogoutIcon from '@/assets/icons/acciones/open-in-window.svg';
 import SubArrowIcon from '@/assets/icons/navegacion/long-arrow-down-right.svg';
 import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';
 import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
-// import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
+import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
 import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
 import LogoDr from '@/assets/images/LogosDR/DReDIT.png';
 
 
 
 export const MainSidebar: React.FC<MainSidebarProps> = ({
-  // offlineMode,
-  // onToggleOffline,
+  offlineMode,
+  onToggleOffline,
   theme,
   toggleTheme,
   userFullName,
@@ -87,14 +87,14 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
         <div className="flex items-start gap-20">
           <PersonalAvatar size="xs" dataTestId="avatar" />
           <div className="flex flex-col gap-1 pt-1">
-            {/* <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <WifiIcon />
               <ToggleButton
                 checked={!offlineMode}
                 onChange={checked => onToggleOffline(!checked)}
                 label=""
               />
-            </div> */}
+            </div>
             <div className="flex items-center gap-2">
               <ThemeIcon />
               <ToggleButton checked={theme === 'dark'} onChange={toggleTheme} label="" dataTestId='theme-toggle' />

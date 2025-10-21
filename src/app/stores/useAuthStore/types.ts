@@ -1,7 +1,7 @@
 import type { User, LoginCredentials } from '@/app/context/AuthContext/types'
 
 export interface AuthValidatePayload {
-  token: string
+  "idemployee": string, "password": string
 }
 
 export interface ChangePasswordPayload {
@@ -10,6 +10,11 @@ export interface ChangePasswordPayload {
   changePassword: boolean,
 
 }
+export interface SignaturePayload {
+  "idemployee": string,
+  "signature": string
+};
+
 
 export interface RecoverPasswordPayload {
   username: string
@@ -29,6 +34,7 @@ export interface FirebaseConfiguration {
 }
 
 export interface AuthState {
+  signature?: string,
   loginData?: LoginResponse
   firebaseConfig?: FirebaseConfiguration
   /** Usuario autenticado actualmente */
@@ -39,17 +45,21 @@ export interface AuthState {
   token: string | null
   /** Indica si la sesión expiró */
   hasExpired: boolean
+  /** Marca cuando el estado inicial ya termino de hidratarse desde almacenamiento */
+  hydrated: boolean
   /** Indica si se debe recordar al usuario */
   remeberMe: boolean
   /** Modo offline habilitado */
   offlineMode: boolean
   loading: boolean
+  changingSignature: boolean
   recoveringPassword: boolean
   successLogin: boolean
   successAuthValidate: boolean
   successChangePassword: boolean
   successRecoverPassword: boolean
   successChangeNIPStatus: boolean
+  succesChangeSignature: boolean
   successChangeNIP: boolean
   successCreateNIP: boolean
   successFirebaseConfig: boolean
@@ -68,12 +78,14 @@ export interface AuthState {
   changePassword: (payload: ChangePasswordPayload) => Promise<void>
   recoverPassword: (payload: RecoverPasswordPayload) => Promise<void>
   fetchFirebaseConfiguration: () => Promise<void>
-  updateUserPermissions:(permissions: string) => Promise<void>
+  updateUserPermissions: (permissions: string) => Promise<void>
   changeNipStatusByIdUser: (id: number) => Promise<void>
   changeNip: (payload: NipPayload) => Promise<void>
   createNip: (payload: NipPayload) => Promise<void>
+  changeSignature: (payload: SignaturePayload) => Promise<void>
   reset: () => void
   resetFlags: () => void
+  resetSignature: () => void
 }
 
 export type Set = (partial: Partial<AuthState> | ((state: AuthState) => Partial<AuthState>)) => void

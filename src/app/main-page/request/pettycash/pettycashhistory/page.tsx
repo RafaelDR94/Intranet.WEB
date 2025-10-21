@@ -199,7 +199,7 @@ const PettyCashHistory = () => {
       label: "ESTATUS",
       render: (row) => (
         <Label
-          type={(row?.status ?? "").toLowerCase() as any}
+          type={row.statusLabelType}
           text={(row?.status ?? "").toUpperCase()}
         />
       ),
@@ -251,7 +251,7 @@ const PettyCashHistory = () => {
       label: "ESTATUS",
       render: (row) => (
         <Label
-          type={(row?.status ?? "").toLowerCase() as any}
+          type={row.statusLabelType}
           text={(row?.status ?? "").toUpperCase()}
         />
       ),
@@ -278,11 +278,13 @@ const PettyCashHistory = () => {
         primaryButtonText={removing ? "Eliminando…" : "Eliminar"}
         onPrimaryButtonClick={handleConfirmDelete}
       />
-      <div className="space-y-8 overflow-auto">
+      <div className="space-y-8 overflow-visible">
         {currentPagePermissions?.voucherhistory &&
         <DataTable
           showCalendar={true}
           showFilter={true}
+          showRefresh
+          onRefreshPage={refresh}
           filterOptions={pettyCashFilterOptions}
           filterValue={activeFilter}
           filterTitle="Filtrar vales"

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -22,6 +22,19 @@ function voucherTypeToLabelType(voucher?: string): LabelType {
   return "restringido";
 }
 
+function statusToLabelType(status?: string): LabelType {
+  const normalized = (status ?? "").toLowerCase();
+  if (normalized.includes("rechazado")) return "rechazado";
+  if (normalized.includes("proceso")) return "en-proceso";
+  if (normalized.includes("valid")) return "valido";
+  if (normalized.includes("pend")) return "pendiente";
+  if (normalized.includes("no deducible")) return "prohibido";
+  if (normalized.includes("sin factura")) return "sin-factura";
+  if (normalized.includes("factura rechazada")) return "factura-rechazada";
+  if (normalized.includes("factura enviada")) return "purple";
+  return normalized ? "actualizado" : "pendiente";
+}
+
 const usePettyCashHistory = () => {
   const { user } = useAuth();
   const searchParams = useSearchParams();
@@ -32,16 +45,20 @@ const usePettyCashHistory = () => {
       : new URLSearchParams((searchParams as any) ?? "").has("id");
 
   const [panelOpen, setPanelOpen] = useState(false);
-  const [selected, internalSetSelected] = useState<PettyCashHistoryRow | null>(null);
-  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [selected, internalSetSelected] = useState<PettyCashHistoryRow | null>(
+    null,
+  );
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(
+    null,
+  );
+  const [activeFilter, setActiveFilter] = useState<string>("all");
 
   const setSelected = useCallback(
     (row: PettyCashHistoryRow | null) => {
       internalSetSelected(row);
       setSelectedVoucherId(row?.id ?? null);
     },
-    [internalSetSelected, setSelectedVoucherId]
+    [internalSetSelected, setSelectedVoucherId],
   );
 
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
@@ -58,21 +75,21 @@ const usePettyCashHistory = () => {
       loading: s.loading,
       forceFetchBillingHistory: s.forceFetchBillingHistory,
     }),
-    shallow
+    shallow,
   );
 
   const { successPut } = useBillingDocumentsStore(
     (s) => ({
       successPut: s.successPut,
     }),
-    shallow
+    shallow,
   );
 
   const { successPut: successPutImages } = useBillingImagesStore(
     (s) => ({
       successPut: s.successPut,
     }),
-    shallow
+    shallow,
   );
 
   function formatDate(dateString?: string): string {
@@ -100,7 +117,8 @@ const usePettyCashHistory = () => {
       vouchersFull: state.vouchersFull,
       loading: state.loading,
       error: state.error,
-      fetchPettyCashVouchersByIdEmployee: state.fetchPettyCashVouchersByIdEmployee,
+      fetchPettyCashVouchersByIdEmployee:
+        state.fetchPettyCashVouchersByIdEmployee,
       fetchPettyCashVoucherById: state.fetchPettyCashVoucherById,
       pettyCashVoucherFull: state.pettyCashVoucherFull,
       deletePettyCashVoucher: state.deletePettyCashVoucher,
@@ -108,12 +126,15 @@ const usePettyCashHistory = () => {
       successDeleteVoucher: state.successDeleteVoucher,
       resetFlags: state.resetFlags,
     }),
-    shallow
+    shallow,
   );
 
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [rowToDelete, setRowToDelete] = useState<PettyCashHistoryRow | null>(null);
-  const [rowPendingDelete, setRowPendingDelete] = useState<PettyCashHistoryRow | null>(null);
+  const [rowToDelete, setRowToDelete] = useState<PettyCashHistoryRow | null>(
+    null,
+  );
+  const [rowPendingDelete, setRowPendingDelete] =
+    useState<PettyCashHistoryRow | null>(null);
 
   useEffect(() => {
     if (!user?.idEmployee) return;
@@ -123,7 +144,11 @@ const usePettyCashHistory = () => {
       // No hacer nada
     }
     fetchPettyCashVouchersByIdEmployee(user.idEmployee);
-  }, [user?.idEmployee, forceFetchBillingHistory, fetchPettyCashVouchersByIdEmployee]);
+  }, [
+    user?.idEmployee,
+    forceFetchBillingHistory,
+    fetchPettyCashVouchersByIdEmployee,
+  ]);
 
   useEffect(() => {
     if (!selectedVoucherId) return;
@@ -170,10 +195,9 @@ const usePettyCashHistory = () => {
         type: "warning",
         variant: "filled",
         title: "Vale cancelado",
-        description:
-          rowPendingDelete.description?.name
-            ? `${rowPendingDelete.description.name} fue eliminado correctamente.`
-            : "El vale fue eliminado correctamente.",
+        description: rowPendingDelete.description?.name
+          ? `${rowPendingDelete.description.name} fue eliminado correctamente.`
+          : "El vale fue eliminado correctamente.",
         autoCloseMs: 1800,
         showPrimaryButton: false,
         showSecondaryButton: false,
@@ -226,6 +250,8 @@ const usePettyCashHistory = () => {
     return s === "valido" || s === "en-proceso" || s === "rechazado";
   });
 
+  
+
   const pettyCashAsHistoryRows = useMemo<PettyCashHistoryRow[]>(
     () =>
       (vouchersFull ?? []).map((v) => {
@@ -233,14 +259,15 @@ const usePettyCashHistory = () => {
           typeof v.total === "number" && !Number.isNaN(v.total)
             ? v.total
             : typeof v.amount === "number" && !Number.isNaN(v.amount)
-            ? v.amount
-            : 0;
+              ? v.amount
+              : 0;
 
         const voucherType = v.voucher_type ?? "";
 
         return {
           id: v.id,
           status: v.status ?? "",
+          statusLabelType: statusToLabelType(v.status),
           billing_image_id: "",
           billingdocument_id: v.uuid ?? v.id,
           project: {
@@ -271,7 +298,7 @@ const usePettyCashHistory = () => {
           voucherType,
           voucherLabelType: voucherTypeToLabelType(voucherType),
           date: formatDate(v.application_date),
-          dateValue: v.application_date ?? '',
+          dateValue: v.application_date ?? "",
           total,
           subtotal:
             typeof v.subtotal === "number" && !Number.isNaN(v.subtotal)
@@ -281,27 +308,27 @@ const usePettyCashHistory = () => {
           employeeName: v.employeename ?? "",
         } satisfies PettyCashHistoryRow;
       }),
-    [vouchersFull]
+    [vouchersFull],
   );
 
   const filteredPettyCashRows = useMemo(() => {
-    if (activeFilter === 'all') return pettyCashAsHistoryRows;
+    if (activeFilter === "all") return pettyCashAsHistoryRows;
 
     return pettyCashAsHistoryRows.filter((row) => {
-      const voucher = (row.voucherType ?? '').toLowerCase();
-      const status = (row.status ?? '').toLowerCase();
+      const voucher = (row.voucherType ?? "").toLowerCase();
+      const status = (row.status ?? "").toLowerCase();
 
       switch (activeFilter) {
-        case 'voucher:rosa':
-          return voucher.includes('rosa');
-        case 'voucher:azul':
-          return voucher.includes('azul');
-        case 'status:validado':
-          return status.includes('valid');
-        case 'status:rechazado':
-          return status.includes('rechaz');
-        case 'status:proceso':
-          return status.includes('proceso');
+        case "voucher:rosa":
+          return voucher.includes("rosa");
+        case "voucher:azul":
+          return voucher.includes("azul");
+        case "status:validado":
+          return status.includes("valid");
+        case "status:rechazado":
+          return status.includes("rechaz");
+        case "status:proceso":
+          return status.includes("proceso");
         default:
           return true;
       }
@@ -325,41 +352,46 @@ const usePettyCashHistory = () => {
   };
 
   const handleConfirmDelete = async () => {
-    const current = rowToDelete
-    if (!current) return
-    setConfirmOpen(false)
+    const current = rowToDelete;
+    if (!current) return;
+    setConfirmOpen(false);
 
-    showSpinner({ message: 'Espera un momento, el documento se está eliminando' })
-    const ok = await deletePettyCashVoucher(current.id)
-    hideSpinner()
-    setRowToDelete(null)
+    showSpinner({
+      message: "Espera un momento, el documento se está eliminando",
+    });
+    const ok = await deletePettyCashVoucher(current.id);
+    hideSpinner();
+    setRowToDelete(null);
 
     if (ok) {
       showAlert({
-        type: 'warning',
-        variant: 'filled',
-        title: 'Requisición eliminada',
+        type: "warning",
+        variant: "filled",
+        title: "Requisición eliminada",
         description: `Fue eliminada correctamente.`,
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
         onClose: hideAlert,
-      })
+      });
     } else {
       showAlert({
-        type: 'error',
-        variant: 'filled',
-        title: 'No se pudo eliminar',
-        description: 'Intenta de nuevo en unos segundos.',
+        type: "error",
+        variant: "filled",
+        title: "No se pudo eliminar",
+        description: "Intenta de nuevo en unos segundos.",
         showPrimaryButton: true,
-        primaryLabel: 'Entendido',
+        primaryLabel: "Entendido",
         onPrimaryClick: hideAlert,
         showSecondaryButton: true,
-        secondaryLabel: 'Reintentar',
-        onSecondaryClick: () => { hideAlert(); onDelete(current) },
-      })
+        secondaryLabel: "Reintentar",
+        onSecondaryClick: () => {
+          hideAlert();
+          onDelete(current);
+        },
+      });
     }
-  }
+  };
 
   const handleCancelDelete = () => {
     setConfirmOpen(false);
@@ -373,7 +405,7 @@ const usePettyCashHistory = () => {
   };
 
   const handleFilterChange = useCallback((value: string) => {
-    setActiveFilter(value || 'all');
+    setActiveFilter(value || "all");
   }, []);
 
   // ======= RETURN =======
@@ -401,7 +433,7 @@ const usePettyCashHistory = () => {
     detailLoading,
     pettyError,
     loading,
-    hasIdParam
+    hasIdParam,
   };
 };
 

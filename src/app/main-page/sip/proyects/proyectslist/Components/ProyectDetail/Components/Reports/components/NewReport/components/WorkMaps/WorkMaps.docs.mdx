@@ -1,0 +1,23 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/SIP/Proyects/ProyectDetail/Reports/NewReport/WorkMaps" />
+
+# WorkMaps
+
+Seccion que permite capturar una imagen de ubicacion del proyecto y la
+descripcion asociada. Usa `useWorkMaps` para manejar seleccion, guardar y
+cancelar.
+
+---
+
+## Uso rapido
+
+```tsx
+import WorkMaps from "./WorkMaps";
+
+<WorkMaps />;
+```
+
+El componente deshabilita la edicion cuando el reporte ya tiene firma de cliente
+y usa `ImageUploaderExpanded` para gestionar la imagen tanto en modo alta como
+en modo edicion.

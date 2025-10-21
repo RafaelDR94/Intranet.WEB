@@ -1,5 +1,7 @@
+﻿import type { ActionMenuCellProps } from '../ActionMenuCell/types'
+
 /** Props for Card component */
-export interface CardProps {
+export type CardProps<TRow extends Record<string, unknown> = Record<string, unknown>> = {
   /** Layout orientation */
   orientation?: 'vertical' | 'horizontal'
   /** Image source URL */
@@ -24,4 +26,7 @@ export interface CardProps {
   primaryLabel?: string
   /** Secondary button label (default: 'Cancelar') */
   secondaryLabel?: string
+  /** Optional props to display contextual action menu */
+  actionMenuProps?: ActionMenuCellProps<TRow>
 }
+

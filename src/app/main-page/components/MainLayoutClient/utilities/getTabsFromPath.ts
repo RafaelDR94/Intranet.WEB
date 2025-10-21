@@ -98,7 +98,8 @@ export const getTabsFromPath = (
   // SIP/Proyectos: agrega tab dinámica para edición si viene un id
   if (first === 'sip' && second === 'proyects' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-    const detailPath = `${clean}?id=${id}`;
+    const detailPath =labelparam? `${clean}?id=${id}&label=${labelparam}`:`${clean}?id=${id}`;
+    
     if (!tabs.some(t => t.label === 'Editar Proyecto')) {
       tabs = [...tabs, { label: labelparam||'Editar Proyecto', path: detailPath }];
     }

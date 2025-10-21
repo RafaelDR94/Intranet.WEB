@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { useIsMobile } from "../DataTableLayout/hooks/useMediaQuery";
 
@@ -9,7 +9,6 @@ import { useDataTableContent } from "./hooks/useTableContent";
 import { containerDataTableContent } from "./styles";
 import { DataTableContentProps } from "./types";
 
-import { Button } from "@/app/components/Button/Button";
 import Pagination from "@/app/components/Pagination/Pagination";
 
 // Opcional: pequeño contenedor para las acciones en mobile, por estilo
@@ -34,6 +33,7 @@ const DataTableContent = <T extends { id: string | number }>(
     data,
     columns,
     enableSelection = false,
+    initialSelectedIds,
     defaultSortKey,
     defaultSortDirection,
     enablePagination = true,
@@ -44,11 +44,9 @@ const DataTableContent = <T extends { id: string | number }>(
     rowHeight = 56,
     scrollMaxHeight,
     onSelectedChange,
-    showButton,
     actionsRender,
-    onTableActionClick,
-    actionLabel = "Agregar",
     textSize, // <-- NUEVO
+    disableSelection
   } = props;
 
   const {
@@ -69,6 +67,7 @@ const DataTableContent = <T extends { id: string | number }>(
     data,
     defaultSortKey,
     defaultSortDirection,
+    initialSelectedIds,
     enablePagination,
     rowsPerPage,
     totalRows,
@@ -77,9 +76,10 @@ const DataTableContent = <T extends { id: string | number }>(
     rowHeight,
     scrollMaxHeight,
   });
-
+  const init = useRef(false)
   useEffect(() => {
-    onSelectedChange?.(selected);
+    if (init.current) onSelectedChange?.(selected);
+    init.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
@@ -88,6 +88,7 @@ const DataTableContent = <T extends { id: string | number }>(
       <DataTableHeader
         columns={columns}
         enableSelection={enableSelection}
+        disableSelection={disableSelection}
         allSelected={allSelected}
         onSelectAll={selectAll}
         sortKey={sortKey}
@@ -103,6 +104,7 @@ const DataTableContent = <T extends { id: string | number }>(
           data={paginatedData}
           columns={columns}
           enableSelection={enableSelection}
+          disableSelection={disableSelection}
           selected={selected}
           onToggleSelect={toggleSelect}
           textSize={textSize}   // <-- pasa la prop
@@ -111,19 +113,8 @@ const DataTableContent = <T extends { id: string | number }>(
 
       {isMobile && (
         <MobileActionsBar>
-          {/* `actionsRender` tiene prioridad */}
-          {actionsRender
-            ? actionsRender()
-            : showButton && (
-                <Button
-                  variant="solid"
-                  size="giant"
-                  hideIcon
-                  onClick={onTableActionClick}
-                >
-                  {actionLabel}
-                </Button>
-              )}
+          {/* `actionsRender` tiene prioridad sobre el botón, igual que en Layout */}
+          {actionsRender?.()}
         </MobileActionsBar>
       )}
 

@@ -22,6 +22,7 @@ export type DataTableBodyProps<T extends { id: string | number }> = {
   data: T[]
   columns: Array<Column<T>>
   enableSelection?: boolean
+  disableSelection?:boolean
   selected: T[]
   onToggleSelect: (row: T) => void
   /** Nuevo: controla tamaños de texto por breakpoint */
@@ -45,10 +46,12 @@ export const DataTableBody = <T extends { id: string | number }>({
   columns,
   enableSelection,
   selected,
+  disableSelection,
   onToggleSelect,
   textSize,
 }: DataTableBodyProps<T>) => {
   const isMobile = useIsMobile()
+  const selectedIds = React.useMemo(() => new Set(selected.map((item) => String(item.id))), [selected])
 
   const mobileText = DataTableBodyStyles.tableTextMobile(textSize?.mobile)
   const deskText = DataTableBodyStyles.tableTextDesk(textSize?.desktop)
@@ -56,17 +59,18 @@ export const DataTableBody = <T extends { id: string | number }>({
   return (
     <>
       {data.map((row, index) => {
-        const isSelected = selected.includes(row)
+        const isSelected = selectedIds.has(String(row.id))
         return (
           <div
-            key={`${row.id}-${index}`}
+            key={`${row?.id}-${index}`}
             className={DataTableBodyStyles.bodyContainer}
           >
             {enableSelection && (
               <div className={DataTableBodyStyles.checkBoxContainer}>
                 <Checkbox
+
                   checked={isSelected}
-                  onChange={() => onToggleSelect(row)}
+                  onChange={() => { if (disableSelection) return; else onToggleSelect(row) }}
                 />
               </div>
             )}

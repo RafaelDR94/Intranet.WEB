@@ -15,6 +15,8 @@ export interface UseVoucherFormProps {
   dataEdit?: PettyCashVoucherData;
   /** Start with form disabled. */
   startDisabled?: boolean;
+  /** Campos que deben mantenerse bloqueados aunque el formulario se habilite. */
+  readOnlyFieldNames?: string[];
 }
 
 /** Values returned by voucher form hooks. */

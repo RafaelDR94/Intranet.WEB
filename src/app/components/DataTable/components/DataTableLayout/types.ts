@@ -41,6 +41,7 @@ export interface TableLayoutProps {
   showDownloadTable?: boolean
     /** Deshabilita las opciones de descarga */
   downloadDisabled?: boolean
+  
   /** Maneja la acción de descarga */
   onDownload?: (kind: 'pdf' | 'excel') => void
 
@@ -50,4 +51,8 @@ export interface TableLayoutProps {
   isCardsView?: boolean
   /** Cambia la vista */
   onToggleView?: (isCards: boolean) => void
+  /** Refrescar página con icono de Refresh */
+  showRefresh?: boolean
+  /** Función para refrescar la página */
+  onRefreshPage?: () => void
 }
