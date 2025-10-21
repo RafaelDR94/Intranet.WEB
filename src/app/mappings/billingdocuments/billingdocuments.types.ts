@@ -11,11 +11,11 @@ export type Concepto = {
 }
 
 export type BillingDocumentCategory = {
-  id_billingcategory: string,
+  id: string,
   name: string,
 }
 export type BillingDocumentDescription = {
-  id_billingdescription: string,
+  id: string,
   name: string
 }
 
@@ -191,3 +191,5 @@ export type BillingDocumentFull = {
   otherinvoices: number
   category: BillingDocumentCategory
 }
+
+export type CompleteProcessToSAPRequest = string[];

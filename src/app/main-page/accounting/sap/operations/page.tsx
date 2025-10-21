@@ -55,7 +55,7 @@ const SapOperationsPage = () => {
       key: "description",
       label: "DENOMINACIÓN DE GASTOS",
       render: (row) =>
-        row.conceptos?.[0]?.clavesat_description ?? row.description?.name ?? "",
+        row.conceptos?.[0]?.clavesat_description ?? "",
     },
     {
       key: "conceptos",

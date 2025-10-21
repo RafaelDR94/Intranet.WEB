@@ -10,7 +10,8 @@ import {
   BillingDocumentDetailsTable,
   BillingDocumentCategory,
   BillingDocumentDescription,
-  BillingDocumentFull
+  BillingDocumentFull,
+  CompleteProcessToSAPRequest
 } from './billingdocuments.types';
 import { toInputDateString, toInputDateTimeString } from '@/app/utilities/FormatHelpers/FormatHelpets';
 
@@ -24,7 +25,7 @@ const toNumberOrUndefined = (value: unknown): number | undefined => {
 /** ---------------------- Conceptos ---------------------- */
 const mapConcepto = (raw: any): Concepto => ({
   clave_sat: toString(raw?.clave_sat),
-  clavesat_description: toString(raw?.clavesat_description ?? raw?.descripcion),
+  clavesat_description: toString(raw?.clavesat_description ?? ""),
   cantidad: toNumberOrUndefined(raw?.cantidad),
   valor_unitario: toNumberOrUndefined(raw?.valor_unitario),
   importe: toNumberOrUndefined(raw?.importe),
@@ -35,12 +36,12 @@ const mapConcepto = (raw: any): Concepto => ({
 
 /** ---------------------- Submappers ---------------------- */
 export const BillingDocumentCategoryMap = (raw: any): BillingDocumentCategory => ({
-  id_billingcategory: toString(raw?.id),
+  id: toString(raw?.id),
   name: toString(raw?.name)
 });
 
 export const BillingDocumentDescriptionMap = (raw: any): BillingDocumentDescription => ({
-  id_billingdescription: toString(raw?.id),
+  id: toString(raw?.id),
   name: toString(raw?.name)
 });
 
@@ -222,3 +223,7 @@ export const BillingDocumentFullMap = (raw: any): BillingDocumentFull => ({
     name: raw.category?.name ?? '',
   },
 });
+
+export const mapToCompleteProcessToSAP = (ids: string[]): CompleteProcessToSAPRequest => {
+  return ids;
+};
