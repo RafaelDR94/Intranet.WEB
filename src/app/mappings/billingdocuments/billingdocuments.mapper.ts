@@ -22,10 +22,21 @@ import { toInputDateString,toInputDateTimeString } from '@/app/utilities/FormatH
 const toString = (v: unknown, fallback = "") => (v == null ? fallback : String(v));
 
 
+const toNumberOrUndefined = (value: unknown): number | undefined => {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
+
 const mapConcepto = (raw: any): Concepto => ({
   clave_sat: toString(raw?.clave_sat),
   // Acepta también 'descripcion' por si el backend la nombra distinto
   clavesat_description: toString(raw?.clavesat_description ?? raw?.descripcion),
+  cantidad: toNumberOrUndefined(raw?.cantidad),
+  valor_unitario: toNumberOrUndefined(raw?.valor_unitario),
+  importe: toNumberOrUndefined(raw?.importe),
+  porcentajeiva: toNumberOrUndefined(raw?.porcentajeiva),
+  tipo_gasto: raw?.tipo_gasto == null ? undefined : toString(raw?.tipo_gasto),
+  grupo_iva: raw?.grupo_iva == null ? undefined : toString(raw?.grupo_iva),
 });
 
 
@@ -201,13 +212,7 @@ export const BillingDocumentFullMap = (raw: any): BillingDocumentFull => ({
   rfc_receptor: toString(raw?.rfc_receptor),
   conceptos: Array.isArray(raw?.conceptos)
     ? raw.conceptos.map((c: any) => ({
-        clave_sat: toString(c?.clave_sat),
-        clavesat_description: toString(c?.clavesat_description ?? c?.descripcion),
-        cantidad: Number(c?.cantidad),
-        valor_unitario: Number(c?.valor_unitario),
-        importe: Number(c?.importe),
-        porcentajeiva: Number(c?.porcentajeiva),
-        tipo_gasto: toString(c?.tipo_gasto),
+        ...mapConcepto(c),
       }))
     : [],
   uuid: toString(raw?.uuid),

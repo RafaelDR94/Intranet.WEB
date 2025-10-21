@@ -32,6 +32,15 @@ const SapOperationsPage = () => {
   const { currentPagePermissions } = useAuth();
 
   const isMobile = useIsMobile();
+  const formatGroupIva = (concept?: BillingDocumentsSatTable["conceptos"][number]) => {
+    if (!concept) return "";
+    if (concept.grupo_iva) return concept.grupo_iva;
+    if (concept.porcentajeiva != null) {
+      return `${concept.porcentajeiva}%`;
+    }
+    return "";
+  };
+
   /** Columnas base sin ícono forzado */
   const baseColumnsDesktop: ColumnDefinition<BillingDocumentsSatTable>[] = [
     {
@@ -40,9 +49,22 @@ const SapOperationsPage = () => {
       render: (row) => row.sat_codigoEstatus?.split(" -")[0] ?? "",
     },
     { key: "uuid", label: "UUID" },
-    { key: "sat_estatusCancelacion", label: "TIPO DE GASTOS" },
-    { key: "sat_estatusCancelacion", label: "DENOMINACIÓN DE GASTOS" },
-    { key: "sat_estatusCancelacion", label: "GRUPO IVA" },
+    {
+      key: "category",
+      label: "TIPO DE GASTOS",
+      render: (row) => row.conceptos?.[0]?.tipo_gasto ?? row.category?.name ?? "",
+    },
+    {
+      key: "description",
+      label: "DENOMINACIÓN DE GASTOS",
+      render: (row) =>
+        row.conceptos?.[0]?.clavesat_description ?? row.description?.name ?? "",
+    },
+    {
+      key: "conceptos",
+      label: "GRUPO IVA",
+      render: (row) => formatGroupIva(row.conceptos?.[0]),
+    },
   ];
 
   const baseColumnsMobile: ColumnDefinition<BillingDocumentsSatTable>[] = [

@@ -2,6 +2,12 @@ import { Requisition } from "../requisitions/requisitions.types"
 export type Concepto = {
   "clave_sat": string,
   "clavesat_description": string
+  "cantidad"?: number
+  "valor_unitario"?: number
+  "importe"?: number
+  "porcentajeiva"?: number
+  "tipo_gasto"?: string
+  "grupo_iva"?: string
 }
 
 export type BillingDocumentCategory = {

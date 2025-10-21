@@ -4,6 +4,7 @@ import { shallow } from "zustand/shallow";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
+import { useBillingDocumentsSAPStore } from "@/app/stores/useBillingDocumentsSAPStore/useBillingDocumentsSAPStore";
 const useSAP = () => {
     const [panelOpen, setPanelOpen] = useState<{ state: boolean, onlyText: boolean, rejectInvoice: boolean, sendInvoiceToSap: boolean }>({ state: false, onlyText: false, sendInvoiceToSap: false, rejectInvoice: false });
     const [selected, setSelected] = useState<BillingDocumentsSatTable | null>(null);
@@ -11,21 +12,37 @@ const useSAP = () => {
     const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
     const { showSpinner, hideSpinner } = usePrincipalLoading;
     const { showAlert } = usePrincipalAlert
-    const { sending, succesSend, sendToSapBillingDocument, fetchSatBillingDocument, billingDocumentsBadCode, billingDocumentsValid, billingDocumentsNotValid, billingDocumentsEfos, loadigSat, error, resetFlags } = useBillingDocumentsStore(
+    const {
+        billingDocumentsBadCode,
+        billingDocumentsValid,
+        billingDocumentsNotValid,
+        billingDocumentsEfos,
+        fetchBillingDocumentsSAP,
+        loading: sapLoading,
+        error: sapError,
+        resetFlags: resetSapFlags,
+    } = useBillingDocumentsSAPStore(
         (s) => ({
             billingDocumentsBadCode: s.billingDocumentsBadCode,
             billingDocumentsValid: s.billingDocumentsValid,
             billingDocumentsNotValid: s.billingDocumentsNotValid,
             billingDocumentsEfos: s.billingDocumentsEfos,
-            loadigSat: s.loadigSat,
+            fetchBillingDocumentsSAP: s.fetchBillingDocumentsSAP,
+            loading: s.loading,
+            error: s.error,
+            resetFlags: s.resetFlags,
+        }),
+        shallow,
+    );
+    const { sending, succesSend, sendToSapBillingDocument, error, resetFlags } = useBillingDocumentsStore(
+        (s) => ({
             sending: s.sending,
             succesSend: s.succesSend,
             resetFlags: s.resetFlags,
-            fetchSatBillingDocument: s.fetchSatBillingDocument,
             sendToSapBillingDocument: s.sendToSapBillingDocument,
             error: s.error,
         }),
-        shallow
+        shallow,
     );
     const handleOpenDetails = (row: BillingDocumentsSatTable, onlyText: boolean, rejectInvoice: boolean, sendInvoiceToSap: boolean) => {
         setSelected(row)
@@ -40,19 +57,20 @@ const useSAP = () => {
     }
 
     useEffect(() => {
-        fetchSatBillingDocument(true);
-    }, [fetchSatBillingDocument])
+        fetchBillingDocumentsSAP(true);
+    }, [fetchBillingDocumentsSAP])
     useEffect(() => {
         if (sending) {
             showSpinner({ message: "Enviando Facturas a SAP..." })
             return;
         }
-        if (loadigSat) {
+        if (sapLoading) {
             showSpinner({ message: "Obteniendo facturas validadas..." })
             return;
         }
         hideSpinner();
         resetFlags();
+        resetSapFlags();
         if (succesSend) {
             showAlert({
                 type: "success",
@@ -64,18 +82,19 @@ const useSAP = () => {
             });
         }
 
-        if (error) {
+        const errorMessage = error ?? sapError;
+        if (errorMessage) {
             showAlert({
                 type: "error",
                 title: "Error",
-                description: String(error) || "Hubo un problema desconocido",
+                description: String(errorMessage) || "Hubo un problema desconocido",
                 showPrimaryButton: false,
                 showSecondaryButton: false,
                 autoCloseMs: 1500,
             });
         }
 
-    }, [loadigSat, error, sending, hideSpinner, resetFlags, showAlert, showSpinner, succesSend])
+    }, [sapLoading, sapError, error, sending, hideSpinner, resetFlags, resetSapFlags, showAlert, showSpinner, succesSend])
     return {
         handleOpenDetails,
         billingDocumentsValid,
