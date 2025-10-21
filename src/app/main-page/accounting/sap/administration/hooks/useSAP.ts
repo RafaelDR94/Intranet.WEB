@@ -3,8 +3,8 @@ import { shallow } from "zustand/shallow";
 
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
-import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingDocumentsSAPStore } from "@/app/stores/useBillingDocumentsSAPStore/useBillingDocumentsSAPStore";
+import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
 
 const useSAP = () => {
   const [panelOpen, setPanelOpen] = useState<{
@@ -40,17 +40,17 @@ const useSAP = () => {
 
   const {
     sending,
-    succesSend,
-    sendToSapBillingDocument,
+    success,
+    completeProcessToSAP,
     error,
-    resetFlags,
-  } = useBillingDocumentsStore(
+    resetFlags: resetCompleteProcessFlags,
+  } = useBillingCompleteProcessToSAPStore(
     (s) => ({
       sending: s.sending,
-      succesSend: s.succesSend,
-      resetFlags: s.resetFlags,
-      sendToSapBillingDocument: s.sendToSapBillingDocument,
+      success: s.success,
+      completeProcessToSAP: s.completeProcessToSAP,
       error: s.error,
+      resetFlags: s.resetFlags,
     }),
     shallow,
   );
@@ -71,7 +71,7 @@ const useSAP = () => {
 
   const handleSendToSap = () => {
     const ids = multiSelected.map((d) => d.billingdocument_id);
-    sendToSapBillingDocument(ids);
+    completeProcessToSAP(ids);
   };
 
   useEffect(() => {
@@ -88,10 +88,9 @@ const useSAP = () => {
       return;
     }
     hideSpinner();
-    resetFlags();
-    resetSapFlags();
 
-    if (succesSend) {
+    if (success) {
+      fetchBillingDocumentsSAP(true);
       showAlert({
         type: "success",
         title: "Facturas enviadas con éxito",
@@ -113,17 +112,20 @@ const useSAP = () => {
         autoCloseMs: 1500,
       });
     }
+    resetSapFlags();
+    resetCompleteProcessFlags();
   }, [
     sapLoading,
     sapError,
     error,
     sending,
     hideSpinner,
-    resetFlags,
+    resetCompleteProcessFlags,
     resetSapFlags,
     showAlert,
     showSpinner,
-    succesSend,
+    success,
+    fetchBillingDocumentsSAP,
   ]);
 
   return {

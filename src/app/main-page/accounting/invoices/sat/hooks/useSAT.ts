@@ -4,6 +4,7 @@ import { shallow } from "zustand/shallow";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
+import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
 const useSAT = () => {
     const [panelOpen, setPanelOpen] = useState<{ state: boolean, onlyText: boolean, rejectInvoice: boolean, sendInvoiceToSap: boolean }>({ state: false, onlyText: false, sendInvoiceToSap: false, rejectInvoice: false });
     const [selected, setSelected] = useState<BillingDocumentsSatTable | null>(null);
@@ -11,19 +12,26 @@ const useSAT = () => {
     const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
     const { showSpinner, hideSpinner } = usePrincipalLoading;
     const { showAlert } = usePrincipalAlert
-    const { sending, succesSend, sendToSapBillingDocument, fetchSatBillingDocument, billingDocumentsBadCode, billingDocumentsValid, billingDocumentsNotValid, billingDocumentsEfos, loadigSat, error, resetFlags } = useBillingDocumentsStore(
+    const { fetchSatBillingDocument, billingDocumentsBadCode, billingDocumentsValid, billingDocumentsNotValid, billingDocumentsEfos, loadigSat, error, resetFlags } = useBillingDocumentsStore(
         (s) => ({
             billingDocumentsBadCode: s.billingDocumentsBadCode,
             billingDocumentsValid: s.billingDocumentsValid,
             billingDocumentsNotValid: s.billingDocumentsNotValid,
             billingDocumentsEfos: s.billingDocumentsEfos,
             loadigSat: s.loadigSat,
-            sending: s.sending,
-            succesSend: s.succesSend,
             resetFlags: s.resetFlags,
             fetchSatBillingDocument: s.fetchSatBillingDocument,
-            sendToSapBillingDocument: s.sendToSapBillingDocument,
             error: s.error,
+        }),
+        shallow
+    );
+    const { sending, success, completeProcessToSAP, error: completeProcessError, resetFlags: resetCompleteProcessFlags } = useBillingCompleteProcessToSAPStore(
+        (s) => ({
+            sending: s.sending,
+            success: s.success,
+            completeProcessToSAP: s.completeProcessToSAP,
+            error: s.error,
+            resetFlags: s.resetFlags,
         }),
         shallow
     );
@@ -36,7 +44,7 @@ const useSAT = () => {
     }
     const handleSendToSap = () => {
         const ids = multiSelected.map(d => d.billingdocument_id);
-        sendToSapBillingDocument(ids);
+        completeProcessToSAP(ids);
     }
 
     useEffect(() => {
@@ -52,8 +60,8 @@ const useSAT = () => {
             return;
         }
         hideSpinner();
-        resetFlags();
-        if (succesSend) {
+        if (success) {
+            fetchSatBillingDocument(true);
             showAlert({
                 type: "success",
                 title: "Facturas enviadas con éxito",
@@ -64,18 +72,22 @@ const useSAT = () => {
             });
         }
 
-        if (error) {
+        const errorMessage = error ?? completeProcessError;
+        if (errorMessage) {
             showAlert({
                 type: "error",
                 title: "Error",
-                description: String(error) || "Hubo un problema desconocido",
+                description: String(errorMessage) || "Hubo un problema desconocido",
                 showPrimaryButton: false,
                 showSecondaryButton: false,
                 autoCloseMs: 1500,
             });
         }
 
-    }, [loadigSat, error, sending, hideSpinner, resetFlags, showAlert, showSpinner, succesSend])
+        resetFlags();
+        resetCompleteProcessFlags();
+
+    }, [loadigSat, error, completeProcessError, sending, hideSpinner, resetFlags, resetCompleteProcessFlags, showAlert, showSpinner, success, fetchSatBillingDocument])
     return {
         handleOpenDetails,
         billingDocumentsValid,

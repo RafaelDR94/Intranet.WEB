@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import useSAT from './useSAT';
 
 const fetchSatBillingDocument = vi.fn();
-const sendToSapBillingDocument = vi.fn();
+const completeProcessToSAP = vi.fn();
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   usePrincipal: () => ({
@@ -21,12 +21,20 @@ vi.mock('@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore', () => 
       billingDocumentsNotValid: [],
       billingDocumentsEfos: [],
       loadigSat: false,
-      sending: false,
-      succesSend: false,
       resetFlags: vi.fn(),
       fetchSatBillingDocument,
-      sendToSapBillingDocument,
       error: null,
+    }),
+}));
+
+vi.mock('@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore', () => ({
+  useBillingCompleteProcessToSAPStore: (selector: any) =>
+    selector({
+      sending: false,
+      success: false,
+      completeProcessToSAP,
+      error: null,
+      resetFlags: vi.fn(),
     }),
 }));
 
@@ -40,7 +48,7 @@ describe('useSAT', () => {
     act(() => {
       result.current.handleSendToSap();
     });
-    expect(sendToSapBillingDocument).toHaveBeenCalledWith(['1']);
+    expect(completeProcessToSAP).toHaveBeenCalledWith(['1']);
   });
 });
 
