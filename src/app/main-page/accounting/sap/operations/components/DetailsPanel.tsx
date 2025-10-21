@@ -17,7 +17,6 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-
 const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
   setPanelOpen,
@@ -28,7 +27,13 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   rejectType = true,
   reqisition,
 }) => {
-  const { labels, setOpenValidInvoice, handleSubmitValid } = useDetailsPanel({
+  const {
+    labels,
+    openValidInvoice,
+    openRejectInvoice,
+    setOpenValidInvoice,
+    handleSubmitValid,
+  } = useDetailsPanel({
     selected,
     rejectType,
     setPanelOpen,

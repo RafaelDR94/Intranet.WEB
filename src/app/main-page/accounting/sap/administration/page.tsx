@@ -13,9 +13,7 @@ import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { BillingDocumentsSatTableMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
 import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
-import CrossIcon from "@/assets/icons/acciones/cancel.svg";
 import CheckIcon from "@/assets/icons/acciones/check.svg";
-import WarningIcon from "@/assets/icons/acciones/minus.svg";
 
 const SAP = () => {
   const {
@@ -36,11 +34,7 @@ const SAP = () => {
   const isMobile = useIsMobile();
   /** Columnas base sin ícono forzado */
   const baseColumnsDesktop: ColumnDefinition<BillingDocumentsSatTable>[] = [
-    {
-      key: "sat_codigoEstatus",
-      label: "C. ESTATUS",
-      render: (row) => row.sat_codigoEstatus?.split(" -")[0] ?? "",
-    },
+    { key: "employeename", label: "COLABORADOR" },
     { key: "uuid", label: "UUID" },
     { key: "sat_estatusCancelacion", label: "TIPO DE GASTOS" },
     { key: "sat_estatusCancelacion", label: "DENOMINACIÓN DE GASTOS" },
@@ -96,19 +90,6 @@ const SAP = () => {
                 Ver Detalles
               </Button>
             )}
-
-            {currentPagePermissions?.canAddComment && canComment && (
-              <Button
-                size="medium"
-                onClick={() =>
-                  handleOpenDetails(row, false, rejectInvoice, sendInvoiceToSap)
-                }
-                variant="ghost"
-                hideIcon
-              >
-                Comentar
-              </Button>
-            )}
           </div>
         ),
       });
@@ -144,11 +125,11 @@ const SAP = () => {
               <Button
                 disabled={multiSelected?.length == 0}
                 onClick={handleSendToSap}
-                size="large"
+                size="medium"
                 hideIcon
                 className="w-full"
               >
-                Enviar a SAP
+                Subir a SAP
               </Button>
             )}
           </div>

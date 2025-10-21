@@ -35,37 +35,42 @@ const RequisitionDetailsDocument: React.FC = () => {
     downloadingDocument, // NEW: lo traemos del hook
   } = useRequisitionDetailsDocument();
   const isMobile = useIsMobile();
-  const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] = useMemo(
-    () => [
+  const sapprofile = currentPagePermissions?.sapprofile;
 
-      { key: "fecha", label: "" },
-      { key: "description", label: "DESCRIPCIÓN" },
-      {
-        key: "status",
-        label: "",
-        render: (row) => (
-          <Label type={row.status.toLocaleLowerCase() as any} text={row.status} />
-        ),
-      },
-      {
-        key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
-        label:"",
-        render: (row) => (
-          <Button
-            size="small"
-            onClick={() => handleOpenDetails(row)}
-            variant="ghost"
-            hideIcon
-          >
-            ...
-          </Button>
-        ),
-        cellClass: "w-10 text-right",
-        headerClass: "w-10 text-right",
-      },
-    ],
-    [handleOpenDetails]
-  );
+  const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] =
+    useMemo(
+      () => [
+        { key: "fecha", label: "" },
+        { key: "description", label: "DESCRIPCIÓN" },
+        {
+          key: "status",
+          label: "",
+          render: (row) => (
+            <Label
+              type={row.status.toLocaleLowerCase() as any}
+              text={row.status}
+            />
+          ),
+        },
+        {
+          key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
+          label: "",
+          render: (row) => (
+            <Button
+              size="small"
+              onClick={() => handleOpenDetails(row)}
+              variant="ghost"
+              hideIcon
+            >
+              ...
+            </Button>
+          ),
+          cellClass: "w-10 text-right",
+          headerClass: "w-10 text-right",
+        },
+      ],
+      [handleOpenDetails],
+    );
 
   const columns: ColumnDefinition<BillingDocumentDetailsTable>[] = useMemo(
     () => [
@@ -99,6 +104,10 @@ const RequisitionDetailsDocument: React.FC = () => {
       { key: "description", label: "DESCRIPCIÓN" },
       { key: "numpersons", label: "No. PERS." },
       { key: "numnights", label: "No. NOCHES" },
+      {
+        key: "invoiceNumber" as unknown as keyof BillingDocumentDetailsTable,
+        label: "No. FACTURA/TICKET",
+      },
       { key: "subtotal", label: "SUBTOTAL" },
       { key: "iva", label: "IVA" },
       { key: "otherinvoices", label: "OTROS IMP." },
@@ -130,8 +139,24 @@ const RequisitionDetailsDocument: React.FC = () => {
         headerClass: "w-28 text-right",
       },
     ],
-    [handleOpenDetails]
+    [handleOpenDetails],
   );
+
+  const filteredMobileColumns = useMemo(() => {
+    if (sapprofile) {
+      return mobileColumns.filter((col) => col.key !== "status");
+    }
+    return mobileColumns;
+  }, [mobileColumns, sapprofile]);
+
+  const filteredColumns = useMemo(() => {
+  return columns.filter((col) => {
+    if (sapprofile && col.key === "status") return false; // quitar "status" si sapprofile es true
+    if (!sapprofile && col.key === "invoiceNumber") return false; // quitar factura/ticket si sapprofile es false
+    return true;
+  });
+}, [columns, sapprofile]);
+
 
   const isBusy = Boolean(loading || downloadingDocument);
   const busyMessage = downloadingDocument
@@ -140,7 +165,7 @@ const RequisitionDetailsDocument: React.FC = () => {
 
   return (
     // NEW: relative para anclar el overlay al contenedor
-    <div className=" space-y-6">
+    <div className="space-y-6">
       {/* NEW: Overlay solo en el contenedor */}
       <div className="relative">
         <LoadingOverlay open={isBusy} scope="container" message={busyMessage} />
@@ -159,7 +184,9 @@ const RequisitionDetailsDocument: React.FC = () => {
                     if (requisitionId) downloadRequistionResume(requisitionId);
                   }}
                 >
-                  Descargar reporte
+                  {sapprofile
+                    ? "Descargar tabla completa"
+                    : "Descargar reporte"}
                 </Button>
                 <Button
                   icon={DowloadIcon}
@@ -178,9 +205,9 @@ const RequisitionDetailsDocument: React.FC = () => {
         tables={[
           {
             data: rows,
-            columns: isMobile ? mobileColumns : columns,
+            columns: isMobile ? filteredMobileColumns : filteredColumns,
             enableSelection: false,
-            title: "Comprobantes de Consumo",
+            title: sapprofile ? "Reporte de gastos" : "Comprobantes de Consumo",
             enableCollaps: true,
             defaultSortKey: "fecha",
             defaultSortDirection: "desc",

@@ -10,7 +10,8 @@ import {
   BillingAcuse,
   BillingDocumentDetailsTable,
   BillingDocumentCategory,
-  BillingDocumentDescription
+  BillingDocumentDescription,
+  BillingDocumentFull
 } from './billingdocuments.types'
 
 import { toInputDateString,toInputDateTimeString } from '@/app/utilities/FormatHelpers/FormatHelpets';
@@ -136,7 +137,8 @@ export const BillingDocumentSatTableMap = (raw: BillingDocuments): BillingDocume
   numpersons: raw.numpersons,
   category: raw.category,
   billingAcuse: raw?.billingAcuse,
-  validatedbyoperations: raw?.validatedbyoperations
+  validatedbyoperations: raw?.validatedbyoperations,
+  employeename: raw?.requisition?.employeename,
 });
 
 /**
@@ -185,3 +187,47 @@ export const BillingDocumentsPutMap = (
   category_id: String(src?.category_id),
   user_comments: src?.user_comments,
 })
+
+export const BillingDocumentFullMap = (raw: any): BillingDocumentFull => ({
+  billingdocument_id: toString(raw?.billingdocument_id ?? raw?.id),
+  requisition: RequisitionMap(raw?.requisition ?? {}),
+  billingimages_id: toString(raw?.billingimages_id ?? null),
+  xml: toString(raw?.xml),
+  pdf: toString(raw?.pdf),
+  image: toString(raw?.image ?? null),
+  status: toString(raw?.status),
+  comments: toString(raw?.comments ?? null),
+  rfc_emisor: toString(raw?.rfc_emisor),
+  rfc_receptor: toString(raw?.rfc_receptor),
+  conceptos: Array.isArray(raw?.conceptos)
+    ? raw.conceptos.map((c: any) => ({
+        clave_sat: toString(c?.clave_sat),
+        clavesat_description: toString(c?.clavesat_description ?? c?.descripcion),
+        cantidad: Number(c?.cantidad),
+        valor_unitario: Number(c?.valor_unitario),
+        importe: Number(c?.importe),
+        porcentajeiva: Number(c?.porcentajeiva),
+        tipo_gasto: toString(c?.tipo_gasto),
+      }))
+    : [],
+  uuid: toString(raw?.uuid),
+  importe: Number(raw?.importe),
+  fecha: toString(raw?.requisition.assignmentdate),
+  xmlinformation: toString(raw?.xmlinformation),
+  certification_date: toString(raw?.certification_date),
+  date_created: toString(raw?.date_created),
+  sat_validation: Boolean(raw?.sat_validation),
+  SAP_Pending: Boolean(raw?.SAP_Pending),
+  billingAcuse: raw?.billingAcuse ? BillingAcuseMap(raw.billingAcuse) : null,
+  forbidden_code: Boolean(raw?.forbidden_code),
+  user_comments: toString(raw?.user_comments),
+  validatedbyoperations: Boolean(raw?.validatedbyoperations),
+  description: BillingDocumentDescriptionMap(raw?.description),
+  numpersons: Number(raw?.numpersons ?? 0),
+  numnights: Number(raw?.numnights ?? 0),
+  total: Number(raw?.total),
+  subtotal: Number(raw?.subtotal),
+  iva: Number(raw?.iva),
+  otherinvoices: Number(raw?.otherinvoices),
+  category: BillingDocumentCategoryMap(raw?.category),
+});

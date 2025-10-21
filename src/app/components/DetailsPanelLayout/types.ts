@@ -22,6 +22,9 @@ export interface DetailsPanelProps {
     renderActions?: () => React.ReactNode;
     leftLabel?: React.ReactNode;
     rightLabel?: React.ReactNode;
+    childrenLabel?: React.ReactNode;
+    secondLeftLabel?: React.ReactNode;
+    secondRightLabel?: React.ReactNode;
     children: React.ReactNode;
     className?: string;
     side?: 'left' | 'right';

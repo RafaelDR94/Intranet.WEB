@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
@@ -7,12 +6,32 @@ import { UseDetailsPanelArgs } from "./types";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsPutMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
-export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations, reqisition }: UseDetailsPanelArgs) => {
+
+export const useDetailsPanel = ({
+  selected,
+  rejectType,
+  setPanelOpen,
+  operations,
+  reqisition,
+}: UseDetailsPanelArgs) => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
 
-  const { validateBillingDocument, validateBillingDocumentOperations, rejectBillingDocument, rejecting, validating, succesReject, succesValidate, updateBillingDocument, updating, successPut, resetFlags, error } = useBillingDocumentsStore(
+  const {
+    validateBillingDocument,
+    validateBillingDocumentOperations,
+    rejectBillingDocument,
+    rejecting,
+    validating,
+    succesReject,
+    succesValidate,
+    updateBillingDocument,
+    updating,
+    successPut,
+    resetFlags,
+    error,
+  } = useBillingDocumentsStore(
     (s) => ({
       updateBillingDocument: s.updateBillingDocument,
       validateBillingDocument: s.validateBillingDocument,
@@ -33,12 +52,32 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations
   const [openRejectInvoice, setOpenRejectInvoice] = useState(false);
   const [openValidInvoice, setOpenValidInvoice] = useState(false);
 
+  /**
+   * 🔹 Función para obtener solo el primer nombre y primer apellido
+   */
+  const getShortName = (fullName?: string): string => {
+    if (!fullName) return "";
+    const parts = fullName.trim().split(" ").filter(Boolean);
+    const [firstName, lastName] = parts;
+    return `${firstName || ""} ${lastName || ""}`.trim();
+  };
 
-
+  /**
+   * 🔹 Labels con nombre corto
+   */
   const labels = useMemo(
     () => ({
-      left: selected ? `Usuario: ${selected?.requisition?.employeename}` : undefined,
-      right: selected ? `Código: ${selected?.requisition?.projectname}` : undefined,
+      left: selected
+        ? `Usuario: ${getShortName(selected?.requisition?.employeename)}`
+        : undefined,
+      secondLeft: selected ? `Tipo de gastos: 105` : undefined,
+      childrenLabel: selected ? `Denom. Gto.: Analisis Clínico ` : undefined,
+      secondRight: selected
+        ? `Grupo IVA: A.16%`
+        : undefined,
+      right: selected
+        ? `Código de solicitud: ${selected?.requisition?.projectname}`
+        : undefined,
     }),
     [selected]
   );
@@ -68,33 +107,43 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations
     const payload = {
       id: selected?.billingdocument_id ?? "",
       comment: values.comments ?? "",
-      type: rejectType
+      type: rejectType,
     };
-    if (operations) rejectBillingDocument(payload,reqisition)
-    else rejectBillingDocument(payload)
-
+    if (operations) rejectBillingDocument(payload, reqisition);
+    else rejectBillingDocument(payload);
   };
 
   const handleSubmitValid = () => {
     setOpenValidInvoice(false);
-    if (operations) validateBillingDocumentOperations([selected?.billingdocument_id ?? ""], reqisition)
-    else validateBillingDocument([selected?.billingdocument_id ?? ""])
+    if (operations)
+      validateBillingDocumentOperations(
+        [selected?.billingdocument_id ?? ""],
+        reqisition
+      );
+    else validateBillingDocument([selected?.billingdocument_id ?? ""]);
   };
 
   useEffect(() => {
     if (updating) {
-      showSpinner({ message: "Espera un momento, se esta enviando el comentario" });
+      showSpinner({
+        message: "Espera un momento, se está enviando el comentario.",
+      });
       return;
     }
     if (rejecting) {
-      showSpinner({ message: "Espera un momento, se esta rechazando la factua." });
+      showSpinner({
+        message: "Espera un momento, se está rechazando la factura.",
+      });
       return;
     }
     if (validating) {
-      showSpinner({ message: "Espera un momento, se esta validando la factua." });
+      showSpinner({
+        message: "Espera un momento, se está validando la factura.",
+      });
       return;
     }
     hideSpinner();
+
     if (successPut) {
       setPanelOpen(false);
       showAlert({
@@ -106,6 +155,7 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations
         autoCloseMs: 1500,
       });
     }
+
     if (succesValidate) {
       setPanelOpen(false);
       showAlert({
@@ -117,6 +167,7 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations
         autoCloseMs: 1500,
       });
     }
+
     if (succesReject) {
       setPanelOpen(false);
       showAlert({
@@ -128,24 +179,37 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations
         autoCloseMs: 1500,
       });
     }
+
     if (error) {
       showAlert({
         type: "error",
         title: "Error al enviar comentario",
-        description: String(error) || "Hubo un problema al enviar tus comentarios",
+        description:
+          String(error) || "Hubo un problema al enviar tus comentarios.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
     }
+
     resetFlags();
-
-  }, [updating, error, successPut, rejecting, validating, succesReject, succesValidate, hideSpinner, resetFlags, setPanelOpen, showAlert, showSpinner]);
-
+  }, [
+    updating,
+    error,
+    successPut,
+    rejecting,
+    validating,
+    succesReject,
+    succesValidate,
+    hideSpinner,
+    resetFlags,
+    setPanelOpen,
+    showAlert,
+    showSpinner,
+  ]);
 
   return {
     labels,
-
     openRejectInvoice,
     openValidInvoice,
     setOpenRejectInvoice,
@@ -155,4 +219,3 @@ export const useDetailsPanel = ({ selected, rejectType, setPanelOpen, operations
     handleSubmitValid,
   };
 };
-

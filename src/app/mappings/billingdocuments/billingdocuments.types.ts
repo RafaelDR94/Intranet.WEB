@@ -110,6 +110,7 @@ export type BillingDocumentsSatTable = {
   "numnights": number | null;      // No. NOCHES
   "billingAcuse": BillingAcuse | null
   "validatedbyoperations":boolean
+  "employeename": string
 }
 
 
@@ -122,8 +123,8 @@ export type BillingDocumentsPost = {
   "numpersons": number,
   "numnights": number,
   "category_id": string,
-
 }
+
 export type BillingDocumentsPut = {
   "billingdocument_id": string,
   "requisition_id": string,
@@ -137,9 +138,50 @@ export type BillingDocumentsPut = {
   "numnights": number,
   "user_comments": string
 }
+
 export type BillingDocumentReject = {
   "id": string,
   "comment": string
   /** true: rechazado false: restringido  */
   "type": boolean
 }
+
+export type BillingDocumentFull = {
+  "billingdocument_id": string;
+  "requisition": Requisition;
+  "billingimages_id": string | null;
+  "xml": string;
+  "pdf": string;
+  "image": string | null;
+  "status": string;
+  "comments": string | null;
+  "rfc_emisor": string;
+  "rfc_receptor": string;
+  "conceptos": (Concepto & {
+    "cantidad": number;
+    "valor_unitario": number;
+    "importe": number;
+    "porcentajeiva": number;
+    "tipo_gasto": string;
+  })[];
+  "uuid": string;
+  "importe": number;
+  "fecha": string;
+  "xmlinformation": string;
+  "certification_date": string;
+  "date_created": string;
+  "sat_validation": boolean;
+  "SAP_Pending": boolean;
+  "billingAcuse": BillingAcuse | null;
+  "forbidden_code": boolean;
+  "user_comments": string;
+  "validatedbyoperations": boolean;
+  "description": BillingDocumentDescription;
+  "numpersons": number;
+  "numnights": number;
+  "total": number;
+  "subtotal": number;
+  "iva": number;
+  "otherinvoices": number;
+  "category": BillingDocumentCategory;
+};
