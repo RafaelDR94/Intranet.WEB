@@ -504,3 +504,9 @@ Fix:
 Fix:
 
 - Show the requested amount for blue petty cash vouchers in the edit side menu and suppress redundant loading errors after updating the amount. (Agente IA) [#]()
+
+### 1.47.22 SAP details panels testing 2025-09-30
+
+Fix:
+
+- Add unit coverage for SAP administration and operations panels, extract shared logic into a reusable hook, and validate their supporting hooks. (Agente IA) [#]()

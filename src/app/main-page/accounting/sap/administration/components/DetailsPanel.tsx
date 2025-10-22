@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
 import clsx from "clsx";
-import { shallow } from "zustand/shallow";
-import { useDetailsPanel } from "../../../invoices/validateinvoices/components/DetailsPanel/hooks/useDetailsPanel";
 import {
   classes as s,
   mobileclasses as ms,
@@ -10,13 +8,12 @@ import {
 import { DetailsPanelProps } from "../../../invoices/validateinvoices/components/DetailsPanel/types";
 
 import { Button } from "@/app/components/Button/Button";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import { PopUp } from "@/app/components/PopUp/PopUp";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
+
+import { useSAPDetailsPanel } from "../../common/hooks/useSAPDetailsPanel";
 
 const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
@@ -28,60 +25,24 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   rejectType = true,
   reqisition,
 }) => {
-  const { labels, setOpenValidInvoice, handleSubmitValid } = useDetailsPanel({
+  const {
+    labels,
+    setOpenValidInvoice,
+    currentPagePermissions,
+    isMobile,
+    isEditing,
+    showEditConfirmation,
+    setShowEditConfirmation,
+    handleSave,
+    handleSendToSap,
+  } = useSAPDetailsPanel({
     selected,
     rejectType,
     setPanelOpen,
     operations,
     reqisition,
   });
-  const {
-      completeProcessToSAP,
-    } = useBillingCompleteProcessToSAPStore(
-      (s) => ({
-        sending: s.sending,
-        success: s.success,
-        completeProcessToSAP: s.completeProcessToSAP,
-        error: s.error,
-        resetFlags: s.resetFlags,
-      }),
-      shallow,
-    );
-  const { currentPagePermissions } = useAuth();
-  const isMobile = useIsMobile();
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [formValues, setFormValues] = useState({
-    subtotal: selected?.subtotal || "",
-    iva: selected?.iva || "",
-    total: selected?.total || "",
-  });
-  const [showEditConfirmation, setShowEditConfirmation] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
-
-  const handleSave = () => {
-    console.log("Información guardada:", formValues);
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    setFormValues({
-      subtotal: selected?.subtotal || "",
-      iva: selected?.iva || "",
-      total: selected?.total || "",
-    });
-    setIsEditing(false);
-  };
-
-  const handleSendToSap = () => {
-    const ids = [String(selected?.id)];
-    completeProcessToSAP(ids);
-  };
-  
   return (
     <DetailsPanelLayout
       open={panelOpen}
