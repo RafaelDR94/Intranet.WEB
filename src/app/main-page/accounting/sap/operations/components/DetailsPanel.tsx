@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 
 import clsx from "clsx";
-
+import { shallow } from "zustand/shallow";
 import { useDetailsPanel } from "../../../invoices/validateinvoices/components/DetailsPanel/hooks/useDetailsPanel";
 import {
   classes as s,
@@ -17,6 +17,8 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
+
 const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
   setPanelOpen,
@@ -29,10 +31,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
 }) => {
   const {
     labels,
-    openValidInvoice,
-    openRejectInvoice,
     setOpenValidInvoice,
-    handleSubmitValid,
   } = useDetailsPanel({
     selected,
     rejectType,
@@ -40,9 +39,20 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     operations,
     reqisition,
   });
+  const {
+    completeProcessToSAP,
+  } = useBillingCompleteProcessToSAPStore(
+    (s) => ({
+      sending: s.sending,
+      success: s.success,
+      completeProcessToSAP: s.completeProcessToSAP,
+      error: s.error,
+      resetFlags: s.resetFlags,
+    }),
+    shallow,
+  );
   const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
-
   const [isEditing, setIsEditing] = useState(false);
   const [formValues, setFormValues] = useState({
     subtotal: selected?.subtotal || "",
@@ -51,14 +61,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   });
   const [showEditConfirmation, setShowEditConfirmation] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
   const handleSave = () => {
     console.log("Información guardada:", formValues);
     setIsEditing(false);
-    // Aquí puedes llamar a tu API o actualizar estado global
   };
 
   const handleCancel = () => {
@@ -69,6 +74,12 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     });
     setIsEditing(false);
   };
+
+  const handleSendToSap = () => {
+    const ids = [String(selected?.id)];
+    completeProcessToSAP(ids);
+  };
+
   return (
     <DetailsPanelLayout
       open={panelOpen}
@@ -102,9 +113,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               size="small"
               variant="solid"
               hideIcon
-              onClick={() => {
-                /**To Do enviar a SAP */
-              }}
+              onClick={handleSendToSap}
             >
               Subir a SAP
             </Button>
@@ -362,3 +371,15 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
 };
 
 export default DetailsPanel;
+function useBillingDocumentsStore(): {
+  fetchSatBillingDocument: any;
+  billingDocumentsBadCode: any;
+  billingDocumentsValid: any;
+  billingDocumentsNotValid: any;
+  billingDocumentsEfos: any;
+  loadigSat: any;
+  error: any;
+  resetFlags: any;
+} {
+  throw new Error("Function not implemented.");
+}
