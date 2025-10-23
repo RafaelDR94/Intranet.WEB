@@ -1,8 +1,9 @@
 // src/app/components/PerDiemBalanceCard/styles.ts
 export const perDiemBalanceCardStyles = {
-  root: 'max-w-97',
+  root: 'max-w-full',
 
-  card: 'w-full rounded-2xl bg-white-70 p-6 shadow-sm ring-1 ring-black/5 h-[477px]',
+  card: 'w-full rounded-lg bg-white-70 px-6 py-[49px] shadow-md h-auto',
+  cardSap: 'w-full rounded-lg bg-white-70 p-6 shadow-md h-auto',
 
   // Header
   title: 'text-s1 font-semibold text-green-100',
@@ -11,7 +12,7 @@ export const perDiemBalanceCardStyles = {
   amountValue: 'font-semibold',
 
   // Body
-  body: 'flex mt-5 mb-5',
+  body: 'flex mt-5 mb-5 justify-between',
 
   // Columna izquierda
   leftCol: 'row-start-2 col-start-1 flex flex-col justify-center gap-1 mr-3',

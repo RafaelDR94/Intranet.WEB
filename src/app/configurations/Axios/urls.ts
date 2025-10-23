@@ -131,3 +131,5 @@ export const BillingPettyCashVoucherReject = process.env.NEXT_PUBLIC_BILLINGS_PE
 export const BillingPettyCashVoucherValidate = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_VALIDATE ?? "/Billings/PettyCashVoucher/Validate";
 export const BillingPettyCashVoucherByIdEmployee = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_BYIDEMPLOYEE ?? "/Billings/PettyCashVoucher/ByIdEmployee"
 export const BillingPettyCashVoucherHistoryAmount = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_HISTORYAMOUNT ?? "/Billings/PettyCashVoucher/HistoryAmount"
+export const BillingsSAPPendingDocuments = process.env.NEXT_PUBLIC_BILLINGS_SAP_PENDING_DOCUMENTS ?? "/Billings/SAPPendingDocuments";
+export const BillingsCompleteProcessToSAP = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENT_COMPLETEPROCESSTOSAP ?? "/Billings/BillingDocument/CompleteProcessToSAP"

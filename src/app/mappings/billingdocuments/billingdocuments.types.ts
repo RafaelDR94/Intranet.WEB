@@ -2,6 +2,12 @@ import { Requisition } from "../requisitions/requisitions.types"
 export type Concepto = {
   "clave_sat": string,
   "clavesat_description": string
+  "cantidad"?: number
+  "valor_unitario"?: number
+  "importe"?: number
+  "porcentajeiva"?: number
+  "tipo_gasto"?: string
+  "grupo_iva"?: string
 }
 
 export type BillingDocumentCategory = {
@@ -10,6 +16,14 @@ export type BillingDocumentCategory = {
 }
 export type BillingDocumentDescription = {
   id_billingdescription: string,
+  name: string
+}
+export type BillingDocumentCategoryFull = {
+  id: string,
+  name: string,
+}
+export type BillingDocumentDescriptionFull = {
+  id: string,
   name: string
 }
 
@@ -73,6 +87,7 @@ export type BillingDocumentDetailsTable = {
   "xmlUrl"?: string;
   "pdfUrl"?: string;
   "imageUrl"?: string;
+  "invoiceNumber"?: string;
 };
 
 export type BillingDocumentsSatTable = {
@@ -110,6 +125,7 @@ export type BillingDocumentsSatTable = {
   "numnights": number | null;      // No. NOCHES
   "billingAcuse": BillingAcuse | null
   "validatedbyoperations":boolean
+  "employeename": string
 }
 
 
@@ -122,8 +138,8 @@ export type BillingDocumentsPost = {
   "numpersons": number,
   "numnights": number,
   "category_id": string,
-
 }
+
 export type BillingDocumentsPut = {
   "billingdocument_id": string,
   "requisition_id": string,
@@ -137,9 +153,52 @@ export type BillingDocumentsPut = {
   "numnights": number,
   "user_comments": string
 }
+
 export type BillingDocumentReject = {
   "id": string,
   "comment": string
   /** true: rechazado false: restringido  */
   "type": boolean
 }
+
+export type BillingDocumentFull = {
+  billingdocument_id: string
+  requisition: Requisition
+  billingimages_id: string | null
+  xml: string
+  pdf: string
+  image: string | null
+  status: string
+  comments: string | null
+  rfc_emisor: string
+  rfc_receptor: string
+  conceptos: (Concepto & {
+    cantidad: number
+    valor_unitario: number
+    importe: number
+    porcentajeiva: number
+    tipo_gasto: string
+  })[] | null
+  uuid: string
+  importe: number
+  xmlinformation: string
+  certification_date: string
+  date_created: string
+  sat_validation: boolean
+  SAP_Pending: boolean
+  complete_SAP: boolean
+  billingAcuse: BillingAcuse | null
+  forbidden_code: boolean
+  user_comments: string
+  validatedbyoperations: boolean
+  description: BillingDocumentDescriptionFull
+  numpersons: number
+  numnights: number
+  total: number
+  subtotal: number
+  iva: number
+  otherinvoices: number
+  category: BillingDocumentCategoryFull
+}
+
+export type CompleteProcessToSAPRequest = string[];

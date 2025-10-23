@@ -10,7 +10,7 @@ import { fetchSatBillingDocument } from './fetchSatBillingDocument'
 import { BillingDocumentsSendToSAP as BillingDocumentUrl } from '@/app/configurations/Axios/urls'
 import type { BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-import { pPost } from '@/app/utilities/Http/promisifyIntranet'
+import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 
 
@@ -29,8 +29,8 @@ export const sendToSapBillingDocument = async (
   set({ sending: true, error: undefined, succesSend: false })
 
   try {
-    const post = pPost(requireGateway('post'), [200, 201])
-    const res: AxiosResponse = await post(BillingDocumentUrl, ids)
+    const put = pPut(requireGateway('put'), [200, 201])
+    const res: AxiosResponse = await put(BillingDocumentUrl, ids)
     const raw = res.data?.data
     const created = raw ? (raw as BillingDocuments) : null
 

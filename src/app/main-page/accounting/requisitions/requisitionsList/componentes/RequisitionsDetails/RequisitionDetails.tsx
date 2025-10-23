@@ -22,46 +22,107 @@ const RequisitionDetails: React.FC = () => {
   if (currentRequisition)
     return (
       <>
-        <div className="flex gap-6 w-full">
-          <div className={clsx(isMobile ? "basis-3/3" : "basis-2/3")}>
-            {currentPagePermissions?.showDetails && (
-              <RequisitionsForm
-                mode="edit"
-                startDisabled
-                startCollaps={isMobile}
-                enableCollaps
-                responsiveLayoutMatrix={{
-                  sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                  md: [
-                    [5, 5],
-                    [5, 5],
-                    [5, 5],
-                    [5, 5],
-                  ],
-                  lg: [
-                    [5, 5],
-                    [5, 5],
-                    [5, 5],
-                    [5, 5],
-                  ],
-                }}
-                initialValues={currentRequisition}
-              />
-            )}
-          </div>
-          {!isMobile && (
-            <div className="basis-1/3">
-              {currentPagePermissions?.showBalance && (
-                <PerDiemBalanceCard
-                  startDate={currentRequisition.assignmentdate}
-                  endDate={currentRequisition.endDate}
-                  requestedAmount={Number(currentRequisition.amountdeposited)}
-                  verifiedAmount={Number(currentRequisition.provenamount)}
+        {currentPagePermissions?.sapprofile ? (
+          <CollapsibleSection
+            enableCollapse
+            defaultOpen={true}
+            title="Información de Viáticos"
+          >
+            <div className="flex w-full">
+              {!isMobile && (
+                <div className="mr-4 basis-2/4">
+                  {currentPagePermissions?.showBalance && (
+                    <PerDiemBalanceCard
+                      startDate={currentRequisition.assignmentdate}
+                      endDate={currentRequisition.endDate}
+                      requestedAmount={Number(
+                        currentRequisition.amountdeposited,
+                      )}
+                      verifiedAmount={Number(currentRequisition.provenamount)}
+                    />
+                  )}
+                </div>
+              )}
+              <div className={clsx(isMobile ? "basis-3/3" : "basis-2/4")}>
+                {currentPagePermissions?.showDetails && (
+                  <RequisitionsForm
+                    mode="edit"
+                    startDisabled
+                    startCollaps={isMobile}
+                    enableCollaps
+                    responsiveLayoutMatrix={{
+                      sm: [
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                      ],
+                      md: [
+                        [5, 5],
+                        [5, 5],
+                        [5, 5],
+                        [5, 5],
+                      ],
+                      lg: [
+                        [5, 5],
+                        [5, 5],
+                        [5, 5],
+                        [5, 5],
+                      ],
+                    }}
+                    initialValues={currentRequisition}
+                  />
+                )}
+              </div>
+            </div>
+          </CollapsibleSection>
+        ) : (
+          <div className="flex w-full gap-6">
+            <div className={clsx(isMobile ? "basis-3/3" : "basis-2/3")}>
+              {currentPagePermissions?.showDetails && (
+                <RequisitionsForm
+                  mode="edit"
+                  startDisabled
+                  startCollaps={isMobile}
+                  enableCollaps
+                  responsiveLayoutMatrix={{
+                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    md: [
+                      [5, 5],
+                      [5, 5],
+                      [5, 5],
+                      [5, 5],
+                    ],
+                    lg: [
+                      [5, 5],
+                      [5, 5],
+                      [5, 5],
+                      [5, 5],
+                    ],
+                  }}
+                  initialValues={currentRequisition}
                 />
               )}
             </div>
-          )}
-        </div>
+            {!isMobile && (
+              <div className="basis-1/3">
+                {currentPagePermissions?.showBalance && (
+                  <PerDiemBalanceCard
+                    startDate={currentRequisition.assignmentdate}
+                    endDate={currentRequisition.endDate}
+                    requestedAmount={Number(currentRequisition.amountdeposited)}
+                    verifiedAmount={Number(currentRequisition.provenamount)}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        )}
         {isMobile && (
           <CollapsibleSection
             enableCollapse

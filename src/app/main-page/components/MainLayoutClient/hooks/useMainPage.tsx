@@ -45,6 +45,7 @@ export const sidebarRoutes = [
       { label: 'Facturación', path: '/main-page/accounting/invoices' },
       { label: 'Facturación personal', path: '/main-page/accounting/personalInvoices' },
       { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
+      { label: 'SAP', path: '/main-page/accounting/sap' },
     ],
   },
   {

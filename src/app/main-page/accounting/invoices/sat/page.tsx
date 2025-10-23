@@ -11,7 +11,7 @@ import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayo
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import { BillingDocumentsSatTableMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
+import { BillingDocumentsSatTableListMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
 import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import CrossIcon from "@/assets/icons/acciones/cancel.svg";
 import CheckIcon from "@/assets/icons/acciones/check.svg";
@@ -118,7 +118,7 @@ const SAT = () => {
             title: "CFDIs Válidos",
             enableCollaps: true,
             enableSelection: true,
-            data: BillingDocumentsSatTableMap(billingDocumentsValid),
+            data: BillingDocumentsSatTableListMap (billingDocumentsValid),
             columns: withFixedIcon(
               CheckIcon,
               "text-alert-green-100",
@@ -159,8 +159,8 @@ const SAT = () => {
           tables={[
             {
               enableSelection: true,
-              data: BillingDocumentsSatTableMap(billingDocumentsBadCode),
-              // data: BillingDocumentsSatTableMap(billingDocumentsValid),
+              data: BillingDocumentsSatTableListMap (billingDocumentsBadCode),
+              // data: BillingDocumentsSatTableListMap (billingDocumentsValid),
               columns: withFixedIcon(
                 WarningIcon,
                 "text-alert-yellow-100",
@@ -173,8 +173,8 @@ const SAT = () => {
             },
             {
               enableSelection: true,
-              data: BillingDocumentsSatTableMap(billingDocumentsNotValid),
-              // data: BillingDocumentsSatTableMap(billingDocumentsValid),
+              data: BillingDocumentsSatTableListMap (billingDocumentsNotValid),
+              // data: BillingDocumentsSatTableListMap (billingDocumentsValid),
               columns: withFixedIcon(
                 CrossIcon,
                 "text-alert-red-100",
@@ -190,8 +190,8 @@ const SAT = () => {
               title: "EFOS",
               enableCollaps: true,
               enableSelection: true,
-              data: BillingDocumentsSatTableMap(billingDocumentsEfos),
-              // data: BillingDocumentsSatTableMap(billingDocumentsValid),
+              data: BillingDocumentsSatTableListMap (billingDocumentsEfos),
+              // data: BillingDocumentsSatTableListMap (billingDocumentsValid),
               columns: withFixedIcon(
                 CrossIcon,
                 "text-alert-red-100",
