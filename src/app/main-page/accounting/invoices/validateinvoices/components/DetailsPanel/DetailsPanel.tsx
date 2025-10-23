@@ -26,7 +26,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   sendInvoiceToSap = false,
   operations = false,
   rejectType = true,
-  reqisition }) => {
+  reqisition,
+  onSendToSap,
+}) => {
   const {
     labels,
     openValidInvoice,
@@ -54,7 +56,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           {(currentPagePermissions?.canValidInvoice && validInvoice) && <Button size="small" variant="solid" hideIcon onClick={() => setOpenValidInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
             Validar Factura
           </Button>}
-          {(currentPagePermissions?.canSendToSap && sendInvoiceToSap) && <Button size="small" variant="solid" hideIcon onClick={() => {/**To Do enviar a SAP */ }}>
+          {(currentPagePermissions?.canSendToSap && sendInvoiceToSap) && <Button size="small" variant="solid" hideIcon onClick={() => onSendToSap?.()}>
             Enviar a SAP
           </Button>}
           {currentPagePermissions?.canRejectInvoice && rejectInvoice && <Button size="small" variant="outline" hideIcon onClick={() => setOpenRejectInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
