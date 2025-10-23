@@ -46,7 +46,7 @@ export const useDetailsPanel = ({
       resetFlags: s.resetFlags,
       error: s.error,
     }),
-    shallow
+    shallow,
   );
 
   const [openRejectInvoice, setOpenRejectInvoice] = useState(false);
@@ -72,14 +72,12 @@ export const useDetailsPanel = ({
         : undefined,
       secondLeft: selected ? `Tipo de gastos: 105` : undefined,
       childrenLabel: selected ? `Denom. Gto.: Analisis Clínico ` : undefined,
-      secondRight: selected
-        ? `Grupo IVA: A.16%`
-        : undefined,
+      secondRight: selected ? `Grupo IVA: A.16%` : undefined,
       right: selected
         ? `Código de solicitud: ${selected?.requisition?.projectname}`
         : undefined,
     }),
-    [selected]
+    [selected],
   );
 
   const handleSubmitComment = (values: Record<string, any>) => {
@@ -118,7 +116,7 @@ export const useDetailsPanel = ({
     if (operations)
       validateBillingDocumentOperations(
         [selected?.billingdocument_id ?? ""],
-        reqisition
+        reqisition,
       );
     else validateBillingDocument([selected?.billingdocument_id ?? ""]);
   };

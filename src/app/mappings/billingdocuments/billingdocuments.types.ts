@@ -11,10 +11,18 @@ export type Concepto = {
 }
 
 export type BillingDocumentCategory = {
-  id: string,
+  id_billingcategory: string,
   name: string,
 }
 export type BillingDocumentDescription = {
+  id_billingdescription: string,
+  name: string
+}
+export type BillingDocumentCategoryFull = {
+  id: string,
+  name: string,
+}
+export type BillingDocumentDescriptionFull = {
   id: string,
   name: string
 }
@@ -79,6 +87,7 @@ export type BillingDocumentDetailsTable = {
   "xmlUrl"?: string;
   "pdfUrl"?: string;
   "imageUrl"?: string;
+  "invoiceNumber"?: string;
 };
 
 export type BillingDocumentsSatTable = {
@@ -182,14 +191,14 @@ export type BillingDocumentFull = {
   forbidden_code: boolean
   user_comments: string
   validatedbyoperations: boolean
-  description: BillingDocumentDescription
+  description: BillingDocumentDescriptionFull
   numpersons: number
   numnights: number
   total: number
   subtotal: number
   iva: number
   otherinvoices: number
-  category: BillingDocumentCategory
+  category: BillingDocumentCategoryFull
 }
 
 export type CompleteProcessToSAPRequest = string[];

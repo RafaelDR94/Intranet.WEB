@@ -11,7 +11,9 @@ import {
   BillingDocumentCategory,
   BillingDocumentDescription,
   BillingDocumentFull,
-  CompleteProcessToSAPRequest
+  CompleteProcessToSAPRequest,
+  BillingDocumentCategoryFull,
+  BillingDocumentDescriptionFull
 } from './billingdocuments.types';
 import { toInputDateString, toInputDateTimeString } from '@/app/utilities/FormatHelpers/FormatHelpets';
 
@@ -36,11 +38,21 @@ const mapConcepto = (raw: any): Concepto => ({
 
 /** ---------------------- Submappers ---------------------- */
 export const BillingDocumentCategoryMap = (raw: any): BillingDocumentCategory => ({
-  id: toString(raw?.id),
+  id_billingcategory: toString(raw?.id),
   name: toString(raw?.name)
 });
 
 export const BillingDocumentDescriptionMap = (raw: any): BillingDocumentDescription => ({
+  id_billingdescription: toString(raw?.id),
+  name: toString(raw?.name)
+});
+
+export const BillingDocumentCategoryFullMap = (raw: any): BillingDocumentCategoryFull => ({
+  id: toString(raw?.id),
+  name: toString(raw?.name)
+});
+
+export const BillingDocumentDescriptionFullMap = (raw: any): BillingDocumentDescriptionFull => ({
   id: toString(raw?.id),
   name: toString(raw?.name)
 });

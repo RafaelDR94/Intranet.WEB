@@ -28,7 +28,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   rejectType = true,
   reqisition,
 }) => {
-  const { labels, setOpenValidInvoice, handleSubmitValid } = useDetailsPanel({
+  const { labels, setOpenValidInvoice } = useDetailsPanel({
     selected,
     rejectType,
     setPanelOpen,
@@ -51,31 +51,31 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   const isMobile = useIsMobile();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [formValues, setFormValues] = useState({
+  const [formValues] = useState({
     subtotal: selected?.subtotal || "",
     iva: selected?.iva || "",
     total: selected?.total || "",
   });
   const [showEditConfirmation, setShowEditConfirmation] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
+  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value } = e.target;
+  //   setFormValues({ ...formValues, [name]: value });
+  // };
 
   const handleSave = () => {
     console.log("Información guardada:", formValues);
     setIsEditing(false);
   };
 
-  const handleCancel = () => {
-    setFormValues({
-      subtotal: selected?.subtotal || "",
-      iva: selected?.iva || "",
-      total: selected?.total || "",
-    });
-    setIsEditing(false);
-  };
+  // const handleCancel = () => {
+  //   setFormValues({
+  //     subtotal: selected?.subtotal || "",
+  //     iva: selected?.iva || "",
+  //     total: selected?.total || "",
+  //   });
+  //   setIsEditing(false);
+  // };
 
   const handleSendToSap = () => {
     const ids = [String(selected?.id)];

@@ -54,7 +54,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
   const [isEditing, setIsEditing] = useState(false);
-  const [formValues, setFormValues] = useState({
+  const [formValues] = useState({
     subtotal: selected?.subtotal || "",
     iva: selected?.iva || "",
     total: selected?.total || "",
@@ -66,14 +66,14 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     setIsEditing(false);
   };
 
-  const handleCancel = () => {
-    setFormValues({
-      subtotal: selected?.subtotal || "",
-      iva: selected?.iva || "",
-      total: selected?.total || "",
-    });
-    setIsEditing(false);
-  };
+  // const handleCancel = () => {
+  //   setFormValues({
+  //     subtotal: selected?.subtotal || "",
+  //     iva: selected?.iva || "",
+  //     total: selected?.total || "",
+  //   });
+  //   setIsEditing(false);
+  // };
 
   const handleSendToSap = () => {
     const ids = [String(selected?.id)];
@@ -371,15 +371,15 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
 };
 
 export default DetailsPanel;
-function useBillingDocumentsStore(): {
-  fetchSatBillingDocument: any;
-  billingDocumentsBadCode: any;
-  billingDocumentsValid: any;
-  billingDocumentsNotValid: any;
-  billingDocumentsEfos: any;
-  loadigSat: any;
-  error: any;
-  resetFlags: any;
-} {
-  throw new Error("Function not implemented.");
-}
+// function useBillingDocumentsStore(): {
+//   fetchSatBillingDocument: any;
+//   billingDocumentsBadCode: any;
+//   billingDocumentsValid: any;
+//   billingDocumentsNotValid: any;
+//   billingDocumentsEfos: any;
+//   loadigSat: any;
+//   error: any;
+//   resetFlags: any;
+// } {
+//   throw new Error("Function not implemented.");
+// }

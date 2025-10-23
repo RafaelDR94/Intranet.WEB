@@ -82,12 +82,12 @@ const SAP = () => {
 
   /** Helpers para crear columnas con ícono fijo */
   const withFixedIcon = (
-    Icon: React.ElementType,
-    colorClass: string,
+    // Icon: React.ElementType,
+    // colorClass: string,
     selectable = false,
     rejectInvoice = true,
     sendInvoiceToSap = true,
-    canComment = true,
+    // canComment = true,
   ): ColumnDefinition<BillingDocumentsSatTable>[] => {
     const cols: ColumnDefinition<BillingDocumentsSatTable>[] = [];
     cols.push(...baseColumns);
@@ -130,11 +130,8 @@ const SAP = () => {
             data: BillingDocumentsSatTableListMap(allBillingDocuments),
             columns: withFixedIcon(
               CheckIcon,
-              "text-alert-green-100",
               true,
               true,
-              true,
-              false,
             ),
           },
         ]}
