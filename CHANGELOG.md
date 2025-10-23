@@ -1,3 +1,8 @@
+### 1.47.23 SAT invoices SAP redirect 23-10-2025
+
+Feature:
+- Update SAT invoice submission to use BillingDocumentsSendToSAP and redirect to administración SAP after confirmation. (Agente IA) [#]()
+
 ### First Commit 25-07-2025
 
 - First Commit.

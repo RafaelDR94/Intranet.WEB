@@ -216,6 +216,11 @@ const SAT = () => {
         rejectInvoice={panelOpen.rejectInvoice}
         validInvoice={false}
         sendInvoiceToSap={panelOpen.sendInvoiceToSap}
+        onSendToSap={
+          selected
+            ? () => handleSendToSap()
+            : undefined
+        }
       />
     </>
   );
