@@ -218,7 +218,7 @@ const SAT = () => {
         sendInvoiceToSap={panelOpen.sendInvoiceToSap}
         onSendToSap={
           selected
-            ? () => handleSendToSap(selected)
+            ? () => handleSendToSap()
             : undefined
         }
       />
