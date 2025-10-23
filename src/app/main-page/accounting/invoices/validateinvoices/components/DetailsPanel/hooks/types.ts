@@ -7,11 +7,11 @@ export interface UseDetailsPanelArgs {
   /** Documento seleccionado en el panel. */
   selected: BillingDocumentsSatTable | BillingDocuments | null;
   /** true: rechazado, false: restringido. */
-  rejectType: boolean
+  rejectType: any
   /** Controla la apertura del panel. */
   setPanelOpen: (open: boolean) => void;
   /** Indica si se ejecuta en modo operaciones. */
-  operations:boolean
+  operations:any
   /** Id de requisición relacionada. */
   reqisition?:string
 }

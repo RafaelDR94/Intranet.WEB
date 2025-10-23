@@ -20,6 +20,7 @@ export const useSAPDetailsPanel = ({
   operations,
   reqisition,
 }: UseSAPDetailsPanelParams) => {
+  
   const detailsPanelState = useDetailsPanel({
     selected,
     rejectType,
