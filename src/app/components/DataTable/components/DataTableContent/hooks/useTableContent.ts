@@ -38,15 +38,17 @@ export const useTableContent = <T extends { id: string | number }>({
 
   useEffect(() => {
     if (initialSelectedIds != null) return;
-    setSelected((prev) => {
-      if (prev.length === 0) return prev;
-      const map = new Map(data.map((item) => [String(item.id), item]));
-      const nextSelection = prev
-        .map((row) => map.get(String(row.id)))
-        .filter((row): row is T => Boolean(row));
-      return haveSameIds(prev, nextSelection) ? prev : nextSelection;
-    });
-  }, [data, initialSelectedIds]);
+    if (selected.length === 0) return;
+
+    const map = new Map(data.map((item) => [String(item.id), item]));
+    const nextSelection = selected
+      .map((row) => map.get(String(row.id)))
+      .filter((row): row is T => Boolean(row));
+
+    if (!haveSameIds(selected, nextSelection)) {
+      setSelected(nextSelection);
+    }
+  }, [data, initialSelectedIds, selected]);
 
   const allSelected =
     data.length > 0 && data.every((row) => selected.some((item) => String(item.id) === String(row.id)));
