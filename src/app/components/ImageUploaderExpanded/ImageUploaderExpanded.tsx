@@ -71,10 +71,10 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
   });
 
   const dropzoneClasses = clsx(
-    dropzoneBaseClasses,
+    className || dropzoneBaseClasses,
     isDragging ? dropzoneDraggingClasses : dropzoneIdleClasses,
     disabled && dropzoneDisabledClasses,
-    className
+
   );
 
   const { capture: captureLabel, switchCamera, close } = cameraLabels ?? {};

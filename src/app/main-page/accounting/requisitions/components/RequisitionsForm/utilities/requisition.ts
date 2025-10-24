@@ -168,4 +168,3 @@ export const createInitialFields = (): FieldModel[] => ([
     validations: [{ type: 'required' }],
   }
 ]);
-

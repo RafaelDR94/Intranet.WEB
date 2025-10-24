@@ -5,7 +5,7 @@ import { FiletoURL, urlToFile } from "@/app/utilities/FilesHelper/FilesHelper";
 import { compressImage, getBase64FileSizeInKB } from "@/app/utilities/PicturesHelper/PictureHelper";
 export interface FirebaseStorageHelper {
     uploadImage: (file: File, filePath: string, qualitycompressed?: number | undefined) => Promise<string>
-    uploadFile: (file: File|Blob, filePath: string) => Promise<string>;
+    uploadFile: (file: File|Blob, filePath: string,disableTime?:boolean) => Promise<string>;
     updateFile: (file: File, filePath: string) => Promise<string>;
     listFilesAndUrls: (path: string) => Promise<any>;
     downloadFile: (filePath: string) => Promise<string>;
@@ -30,9 +30,10 @@ const useFirebaseStorageHelper = (storage: FirebaseStorage | null): FirebaseStor
         }
     };
 
-    const uploadFile = async (file: File|Blob, filePath: string) => {
+    const uploadFile = async (file: File|Blob, filePath: string ,disableTime:boolean = false) => {
         if (!storage) throw "Firebase no configurado correctamente";
-        const storageRef = ref(storage, filePath + getCurrentDateTime());
+        const finalPath = disableTime?filePath:filePath + getCurrentDateTime();
+        const storageRef = ref(storage, finalPath);
         const snapshot = await uploadBytes(storageRef, file);
         return await getDownloadURL(snapshot.ref);
     };

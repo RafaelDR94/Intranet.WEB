@@ -9,7 +9,7 @@ import ActivitiesViewer from '@/app/components/ActivitiesViewer/ActivitiesViewer
 import { PopUp } from '@/app/components/PopUp/PopUp'
 import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
 import useAddActivities from './hooks/useAddActivities'
-
+import { dropzoneBaseClasses } from '@/app/components/ImageUploaderExpanded/styles';
 const FORM_ID = 'add-activity-form'
 
 const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
@@ -47,7 +47,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
       <div className='flex items-center justify-between w-full'>
         {!isMobile && <h3 className='text-label font-medium text-gray-70'>Agregar Imágenes</h3>}
 
-        {hasSelection && (
+        {hasSelection && !isMobile && (
           <div
             className={clsx(
               'flex items-center gap-3',
@@ -90,7 +90,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
                   buttonLabel='Agregar Imagen'
                   onImage={handleImage}
                   dataTestId='add-activity-uploader'
-                  className={clsx(isMobile ? 'h-[230px] mb-3 w-full' : 'h-full w-full')}
+                  className={clsx(isMobile ? 'h-[230px] mb-3 w-full' : 'h-full w-full', dropzoneBaseClasses)}
                 />
               </div>
             )}
@@ -133,6 +133,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
                     lg: [[3, 3, 4]],
                   }}
                 />
+
               </div>
             ) : (
               <div className='min-h-[222px] lg:w-[300px]'>
@@ -143,7 +144,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
                   onImage={handleImage}
                   dataTestId='change-activity-uploader'
                   initialFile={{ name: 'actividad', base64: imagePreview ?? undefined }}
-                  className={clsx(isMobile ? 'h-[230px] mb-3' : 'h-full')}
+                  className={clsx(isMobile ? 'h-[230px] mb-3' : 'h-full', dropzoneBaseClasses)}
                 />
               </div>
             )}
@@ -152,15 +153,31 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
           {/* Fila inferior: Formulario */}
           <div className='w-full max-w-4xl'>
             {isMobile && !hideAdd ? (
-              <ImageUploaderExpanded
-                key={`change-activity-uploader-${uploaderVersion}`}
-                placeholder='arrastra/selecciona la imagen que deseas subir'
-                buttonLabel='Cambiar Imagen'
-                onImage={handleImage}
-                dataTestId='change-activity-uploader'
-                initialFile={{ name: 'actividad', base64: imagePreview ?? undefined }}
-                className={clsx(isMobile ? 'h-[230px] mb-3' : 'h-full')}
-              />
+              <>
+                <ImageUploaderExpanded
+                  key={`change-activity-uploader-${uploaderVersion}`}
+                  placeholder='arrastra/selecciona la imagen que deseas subir'
+                  buttonLabel='Cambiar Imagen'
+                  onImage={handleImage}
+                  dataTestId='change-activity-uploader'
+                  initialFile={{ name: 'actividad', base64: imagePreview ?? undefined }}
+                  className={clsx(isMobile ? 'h-[230px] mb-3' : 'h-full', dropzoneBaseClasses)}
+                />
+                <div
+                  className={clsx(
+                    'flex items-center gap-3',
+                 'justify-between w-full mb-5'
+                  )}
+                >
+                  <Button variant='outline' type='button' onClick={resetForm} hideIcon size='small'>
+                    Cancelar
+                  </Button>
+                  <Button type='button' onClick={handleSaveClick} disabled={!isFormValid} size='small' hideIcon>
+                    Guardar
+                  </Button>
+                </div>
+              </>
+
             ) : (
               <DynamicForm
                 key={`activity-form-${fieldsVersion}`}

@@ -24,4 +24,5 @@ export interface DetailsPanelProps {
   operations?:boolean
   /** Identificador de requisición asociado. */
   reqisition?:string
+  onSendToSap?: any
 }

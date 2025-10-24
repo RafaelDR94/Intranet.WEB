@@ -1,3 +1,8 @@
+### 1.47.23 SAT invoices SAP redirect 23-10-2025
+
+Feature:
+- Update SAT invoice submission to use BillingDocumentsSendToSAP and redirect to administración SAP after confirmation. (Agente IA) [#]()
+
 ### First Commit 25-07-2025
 
 - First Commit.
@@ -504,3 +509,9 @@ Fix:
 Fix:
 
 - Show the requested amount for blue petty cash vouchers in the edit side menu and suppress redundant loading errors after updating the amount. (Agente IA) [#]()
+
+### 1.47.22 SAP details panels testing 2025-09-30
+
+Fix:
+
+- Add unit coverage for SAP administration and operations panels, extract shared logic into a reusable hook, and validate their supporting hooks. (Agente IA) [#]()

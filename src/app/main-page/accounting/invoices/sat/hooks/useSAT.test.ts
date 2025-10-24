@@ -21,13 +21,17 @@ vi.mock('@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore', () => 
       billingDocumentsNotValid: [],
       billingDocumentsEfos: [],
       loadigSat: false,
-      sending: false,
-      succesSend: false,
       resetFlags: vi.fn(),
       fetchSatBillingDocument,
-      sendToSapBillingDocument,
       error: null,
+      sendToSapBillingDocument,
+      sending: false,
+      succesSend: false,
     }),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 describe('useSAT', () => {

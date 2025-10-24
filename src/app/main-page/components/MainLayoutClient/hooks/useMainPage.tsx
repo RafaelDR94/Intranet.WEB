@@ -45,14 +45,23 @@ export const sidebarRoutes = [
       { label: 'Facturación', path: '/main-page/accounting/invoices' },
       { label: 'Facturación personal', path: '/main-page/accounting/personalInvoices' },
       { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
+      { label: 'SAP', path: '/main-page/accounting/sap' },
     ],
   },
   {
-    label: 'SIP',
+    label: 'Reportes',
     path: '/main-page/sip',
     icon: ServerIcon,
     subroutes: [
       { label: 'Proyectos', path: '/main-page/sip/proyects' },
+    ],
+  },
+  {
+    label: 'Servicios Generales',
+    path: '/main-page/generalservices',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist' },
     ],
   },
 

@@ -79,7 +79,7 @@ const FormsLayout = ({
               hideIcon
               onClick={onPrimaryClick}
               disabled={primaryDisabled}
-              className={clsx(isMobile && "w-full")}
+              className={clsx(isMobile && "w-full mt-5")}
             >
               {primaryLabel}
             </Button>

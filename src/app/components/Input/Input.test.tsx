@@ -86,7 +86,7 @@ describe('Input component', () => {
   })
   it('propaga dataTestId al contenedor', () => {
     render(<Input label="Nombre" dataTestId="input1" />)
-    expect(screen.getByTestId('input1')).toBeInTheDocument()
+    expect(screen.getByTestId('input1-container')).toBeInTheDocument()
   })
    it('renderiza un icono personalizado y maneja onIconClick', () => {
     const handleIconClick = vi.fn()

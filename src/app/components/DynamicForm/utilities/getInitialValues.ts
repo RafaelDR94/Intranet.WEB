@@ -5,6 +5,7 @@ export const getInitialValues = (fields: FieldModel[]) => {
   return fields.reduce((acc, field) => {
     switch (field.type) {
       case 'multiSelect':
+      case 'checkboxList':
         acc[field.name] = field.value || [];
         break;
       case 'checkbox':
@@ -15,6 +16,16 @@ export const getInitialValues = (fields: FieldModel[]) => {
       case 'numberControl':
         acc[field.name] = field.value ?? null;
         break;
+      case 'controlLevel': {
+        const fallback =
+          field.controlLevelProps?.initialValue ??
+          field.controlLevelProps?.min ??
+          0;
+        const value =
+          typeof field.value === 'number' ? field.value : fallback;
+        acc[field.name] = value;
+        break;
+      }
       case 'file':
         acc[field.name] = field.value ?? null;
         break;

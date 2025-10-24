@@ -70,9 +70,23 @@ export const getTabsFromPath = (
         path: "/main-page/accounting/requisitions/requisitionsList",
       },
     ],
+    "accounting/sap": [
+      {
+        label: "Administración",
+        path: "/main-page/accounting/sap/administration",
+      },
+      {
+        label: "Operaciones",
+        path: "/main-page/accounting/sap/operations",
+      },
+    ],
     'sip/proyects': [
       { label: 'Nuevo Proyecto', path: '/main-page/sip/proyects/newproyect' },
       { label: 'Proyectos', path: '/main-page/sip/proyects/proyectslist' },
+    ],
+    'generalservices/vehicleregist': [
+      { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist/vehicleregistry'},
+      { label: 'Lista de Registros', path: '/main-page/generalservices/vehicleregist/vehicleregistrylist' },
     ],
   };
 
@@ -91,17 +105,17 @@ export const getTabsFromPath = (
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
     const detailPath = `${clean}?id=${id}`;
     if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
-      tabs = [...tabs, { label: labelparam||'Detalle de Requisición', path: detailPath }];
+      tabs = [...tabs, { label: labelparam || 'Detalle de Requisición', path: detailPath }];
     }
   }
 
   // SIP/Proyectos: agrega tab dinámica para edición si viene un id
   if (first === 'sip' && second === 'proyects' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-    const detailPath =labelparam? `${clean}?id=${id}&label=${labelparam}`:`${clean}?id=${id}`;
-    
+    const detailPath = labelparam ? `${clean}?id=${id}&label=${labelparam}` : `${clean}?id=${id}`;
+
     if (!tabs.some(t => t.label === 'Editar Proyecto')) {
-      tabs = [...tabs, { label: labelparam||'Editar Proyecto', path: detailPath }];
+      tabs = [...tabs, { label: labelparam || 'Editar Proyecto', path: detailPath }];
     }
   }
 

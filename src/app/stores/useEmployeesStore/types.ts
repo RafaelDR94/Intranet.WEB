@@ -1,28 +1,35 @@
 // src/app/stores/employees/types.ts
-import type { EmployeeType } from '@/app/mappings/employees/employee.types'
+import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 
 /**
  * Shape of the employees store state.
  */
 export type EmployeesState = {
   /** Lista de empleados disponibles */
-  employees: EmployeeType[]
-  /** Indica si se está cargando desde el API */
-  loading: boolean
-  /** Mensaje de error de la última operación */
-  error?: string
-  /** Dispara la obtención de empleados del backend */
-  fetchEmployees: (force?: boolean) => Promise<void>
+  employees: EmployeeType[];
+  /** Indica si se esta cargando la lista de empleados */
+  loading: boolean;
+  /** Indica si se esta cargando un empleado individual */
+  loadingById: boolean;
+  /** Mensaje de error de la ultima operacion */
+  error?: string;
+  /** Empleado obtenido mediante consulta puntual */
+  employee?: EmployeeType;
+  /** Dispara la obtencion de empleados del backend */
+  fetchEmployees: (force?: boolean) => Promise<void>;
+  /** Obtiene un empleado por su identificador */
+  fetchEmployeeById: (id: string, force?: boolean) => Promise<EmployeeType | null>;
   /** Forza el refetch ignorando cache */
-  forceFetchEmployees: () => Promise<void>
+  forceFetchEmployees: () => Promise<void>;
   /** Limpia el estado */
-  reset: () => void
-}
+  reset: () => void;
+};
 
 export type Set = (
   partial:
     | Partial<EmployeesState>
     | ((s: EmployeesState) => Partial<EmployeesState>)
-) => void
+) => void;
 
-export type Get = () => EmployeesState
+export type Get = () => EmployeesState;
+
