@@ -21,6 +21,7 @@ export const fetchAssignments = async (
   if (!force && get().assignments.length > 0) {
     return get().assignments;
   }
+  console.log("Si esta llegando aqui");
 
   set({
     loadingAssignments: true,
@@ -29,6 +30,8 @@ export const fetchAssignments = async (
     successGetAssignments: false,
   });
 
+
+  
   try {
     const getFn = pGet(requireGateway("get"));
     const res: AxiosResponse = await getFn(TransportAssignmentUrl);

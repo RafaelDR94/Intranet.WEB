@@ -1,4 +1,4 @@
-export const containerClass = 'rounded-2xl bg-white p-6';
+export const containerClass = 'rounded-2xl  p-6';
 export const cardsWrapperClass =
   'flex flex-wrap justify-center gap-x-8 gap-y-10';
 export const cardWidthClass = 'w-[320px] md:w-[340px] lg:w-[360px]';

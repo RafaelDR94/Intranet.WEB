@@ -222,14 +222,17 @@ const useAdvanceForm = (currentModelName: string) => {
         });
     }
 
-    useEffect(() => {
+ useEffect(() => {
         if (report?.front_identifier && !reportInitialized.current && storedFields.length > 0) {
             resetFields(FORM_ID);
-            updateForm();
-            setCanStart(true);
+            setTimeout(() => {
+                updateForm();
+                setCanStart(true);
+            }, 200)
+
             reportInitialized.current = true;
         }
-    }, [resetFields, report, storedFields]);
+    }, [resetFields, report, storedFields, updateForm]);
 
 
 

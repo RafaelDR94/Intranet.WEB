@@ -42,6 +42,7 @@ const VehicleRegistry = () => {
             externalSubmitRef={submitRef}
             onValuesChange={syncFormValues}
             valuesVersion={formVersion}
+            valuesVersionActive={true}
           />
         }
         {currentView === "pictures" &&
