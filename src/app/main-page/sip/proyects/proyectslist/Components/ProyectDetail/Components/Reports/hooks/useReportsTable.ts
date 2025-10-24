@@ -55,7 +55,8 @@ const useReportsTable = () => {
   const { updateQuery } = useQuery();
   const reportList = ReportsTableMap(reports);
   const reportLocalList = ReportsTableMap(localReports);
-
+  
+  console.log("reportList",reportList);
 
 
   const handleCloseDetails = useCallback(() => {
@@ -66,7 +67,6 @@ const useReportsTable = () => {
   }, [updateQuery, setCurrentReport])
 
   const RefreshData = () => {
-    setReportListFiltered([]);
     reset();
     fetchAllReportsByProyect(String(idproyect), true);
     loadLocalReports(true, String(idproyect));
@@ -178,7 +178,6 @@ const useReportsTable = () => {
 
 
   const [activeFilter, setActiveFilter] = useState<string>('all:mine');
-  const [reportListFiltered, setReportListFiltered] = useState<ReportsTable[]>([]);
   const controlFilterOptions = [
     { label: "Todos", value: "all" },
     { label: "Reportes completos", value: "all:complete" },
@@ -188,36 +187,53 @@ const useReportsTable = () => {
     { label: "Mis Incompletos", value: "all:mineincomplete" },
   ];
 
-  const handleFilterChange = (value: string) => {
+  const normalizeName = useCallback((value?: string) => {
+    if (!value) return '';
+    return value.replace(/\s+/g, '').toLowerCase();
+  }, []);
 
+  const computeFilteredReports = useCallback(
+    (filter: string, list: ReportsTable[]): ReportsTable[] => {
+      const userName = normalizeName(user?.fullName);
+
+      switch (filter) {
+        case 'all':
+          return list;
+        case 'all:complete':
+          return list.filter((report) => report.status.text === "Completo");
+        case 'all:incomplete':
+          return list.filter((report) => report.status.text !== "Completo");
+        case 'all:mine':
+          return list.filter(
+            (report) => normalizeName(report.employe) === userName
+          );
+        case 'all:minecomplete':
+          return list.filter(
+            (report) =>
+              normalizeName(report.employe) === userName &&
+              report.status.text === "Completo"
+          );
+        case 'all:mineincomplete':
+          return list.filter(
+            (report) =>
+              normalizeName(report.employe) === userName &&
+              report.status.text !== "Completo"
+          );
+        default:
+          return list;
+      }
+    },
+    [normalizeName, user?.fullName]
+  );
+
+  const handleFilterChange = useCallback((value: string) => {
     setActiveFilter(value);
-    switch (value) {
-      case 'all':
-        setReportListFiltered(reportList);
-        break;
-      case 'all:complete':
-        setReportListFiltered(reportList.filter(report => report.status.text == "Completo"));
-        break;
-      case 'all:incomplete':
-        setReportListFiltered(reportList.filter(report => report.status.text != "Completo"));
-        break;
-      case 'all:mine':
-        setReportListFiltered(reportList.filter(report => report.employe.replaceAll(" ", "") == user?.fullName.replaceAll(" ", "")));
-        break;
-      case 'all:minecomplete':
-        setReportListFiltered(reportList.filter(report => report.employe.replaceAll(" ", "") == user?.fullName.replaceAll(" ", "") && report.status.text == "Completo"));
-        break;
-      case 'all:mineincomplete':
-        setReportListFiltered(reportList.filter(report => report.employe.replaceAll(" ", "") == user?.fullName.replaceAll(" ", "") && report.status.text != "Completo"));
-        break;
-    }
-  }
+  }, []);
 
-  useEffect(() => {
-    if (reportList.length > 0 && activeFilter && reportListFiltered.length === 0) {
-      handleFilterChange(activeFilter);
-    }
-  }, [reportList, activeFilter])
+  const reportListFiltered = useMemo(
+    () => computeFilteredReports(activeFilter, reportList),
+    [activeFilter, reportList, computeFilteredReports]
+  );
 
 
   const handleSelectReportOnline = useCallback(
