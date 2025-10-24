@@ -86,20 +86,24 @@ export const Input: React.FC<InputProps> = ({
   const state = variant;
   const isDisabled = state === 'disabled' || disabled;
   const isTextarea = as === 'textarea';
+  const containerTestIdProps = dataTestId ? { 'data-testid': `${dataTestId}-container` } : {};
+  const controlTestIdProps = dataTestId ? { 'data-testid': dataTestId } : {};
+  const iconTestIdProps = dataTestId ? { 'data-testid': `${dataTestId}-icon` } : {};
+  const helperTestIdProps = dataTestId ? { 'data-testid': `${dataTestId}-helpertext` } : {};
 
   // Soporte de password/eye sólo para <input>
   const { isPassword, showPassword, setShowPassword } = useInput(isTextarea ? 'text' : type as string);
   const Icon = icon;
 
   return (
-    <div className={containerClasses()}  data-testid={`${dataTestId}-container`}>
+    <div className={containerClasses()} {...containerTestIdProps}>
       {label && <label className={labelClasses()}>{label}</label>}
 
       <div className="relative mb-0">
         {isTextarea ? (
           <textarea
-            data-testid={dataTestId}
             {...(props as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+            {...controlTestIdProps}
             rows={rows}
             disabled={isDisabled}
             className={clsx(textareaClasses(size, state), className)}
@@ -108,8 +112,8 @@ export const Input: React.FC<InputProps> = ({
         ) : (
           <>
             <input
-              data-testid={dataTestId}
               {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
+              {...controlTestIdProps}
               type={isPassword && showPassword ? 'text' : (type as string)}
               disabled={isDisabled}
               className={clsx(inputClasses(size, state), className)}
@@ -117,7 +121,7 @@ export const Input: React.FC<InputProps> = ({
 
             {Icon && (
               <button
-                data-testid={`${dataTestId}-icon`}
+                {...iconTestIdProps}
                 type="button"
                 onClick={onIconClick}
                 className={eyesicontyles.eyeButton}
@@ -129,7 +133,7 @@ export const Input: React.FC<InputProps> = ({
 
             {isPassword && (
               <button
-                data-testid={`${dataTestId}-icon`}
+                {...iconTestIdProps}
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
                 className={eyesicontyles.eyeButton}
@@ -146,7 +150,11 @@ export const Input: React.FC<InputProps> = ({
         )}
       </div>
 
-      {helperText && <span  data-testid={`${dataTestId}-helpertext`} className={helperClasses(state)}>{helperText}</span>}
+      {helperText && (
+        <span {...helperTestIdProps} className={helperClasses(state)}>
+          {helperText}
+        </span>
+      )}
     </div>
   );
 };

@@ -65,12 +65,16 @@ const useReportsTable = () => {
     // limpia el reporte actual en el store
   }, [updateQuery, setCurrentReport])
 
+  const RefreshData = () => {
+    setReportListFiltered([]);
+    reset();
+    fetchAllReportsByProyect(String(idproyect), true);
+    loadLocalReports(true, String(idproyect));
+  }
+
   useEffect(() => {
     if (!newReport) {
-      setReportListFiltered([]);
-      reset();
-      fetchAllReportsByProyect(String(idproyect), true);
-      loadLocalReports(true, String(idproyect));
+      RefreshData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newReport]);
@@ -295,6 +299,7 @@ const useReportsTable = () => {
           showSecondaryButton: false,
           autoCloseMs: 2000,
         })
+        RefreshData();
 
         return true
       } finally {

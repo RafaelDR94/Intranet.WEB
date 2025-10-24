@@ -1,6 +1,6 @@
 "use client";
 import clsx from "clsx";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import useSelect from "./hooks/useSelect";
 import { baseStyles } from "./styles";
@@ -9,8 +9,6 @@ import { SelectProps } from "./types";
 import Check from "@/assets/icons/acciones/check.svg";
 import ChevronDown from "@/assets/icons/navegacion/nav-arrow-down.svg";
 import ChevronUp from "@/assets/icons/navegacion/nav-arrow-up.svg";
-
-
 
 /**
  * Selector con **selección simple o múltiple**, variantes visuales y **typeahead**
@@ -63,23 +61,34 @@ export const Select: React.FC<SelectProps> = ({
   helperText,
   disabled,
   className,
+  maxPanelHeight,
 }) => {
+  const listboxId = useId();
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const { open, ref, toggleOption, setOpen } = useSelect({
     multiple,
     onChange,
     selected,
   });
 
-  // Asegura que `selected` siempre sea un array
-  const safeSelected = useMemo(() => (Array.isArray(selected) ? selected : []), [selected]);
+  const safeSelected = useMemo(
+    () => (Array.isArray(selected) ? selected : []),
+    [selected]
+  );
 
-  // --- Estado para typeahead (sin input) ---
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Limpiar búsqueda cuando el menú se cierra
   useEffect(() => {
     if (!open) setSearchTerm("");
   }, [open]);
+
+  useEffect(() => {
+    if (open && !disabled) {
+      searchInputRef.current?.focus();
+    } else {
+      searchInputRef.current?.blur();
+    }
+  }, [open, disabled]);
 
   const selectedLabels = useMemo(
     () => options.filter((opt) => safeSelected.includes(opt.value)).map((opt) => opt.label),
@@ -92,73 +101,107 @@ export const Select: React.FC<SelectProps> = ({
 
   const currentVariant = disabled ? "disabled" : variant;
 
-  // Filtrado por término
   const filteredOptions = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (term === "") return options;
     return options.filter((opt) => opt.label.toLowerCase().includes(term));
   }, [options, searchTerm]);
 
-  // --- Teclado / typeahead ---
-  const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
-    if (disabled) return;
-    if (e.repeat) return; // evita auto-repetición por tecla sostenida
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
 
-    // Abrir con Enter/Espacio/Flecha Abajo
-    if (!open && (e.key === "Enter" || e.key === " " || e.key === "ArrowDown")) {
-      e.preventDefault();
+  const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement | HTMLInputElement> = (event) => {
+    if (disabled) return;
+    if (event.repeat) return;
+
+    const isSearchField = searchInputRef.current === event.target;
+
+    if (!open && (event.key === "Enter" || event.key === " " || event.key === "ArrowDown")) {
+      event.preventDefault();
       setOpen(true);
       return;
     }
     if (!open) return;
 
-    // Búsqueda incremental (caracteres "imprimibles")
-    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      setSearchTerm((s) => s + e.key);
-      e.preventDefault();
+    if (isSearchField) {
+      if (event.key === "Escape") {
+        if (searchTerm) {
+          setSearchTerm("");
+        } else {
+          setOpen(false);
+        }
+        event.preventDefault();
+        return;
+      }
+
+      if (event.key === "Enter") {
+        if (!multiple && filteredOptions.length > 0) {
+          toggleOption(filteredOptions[0].value);
+          setSearchTerm("");
+          setOpen(false);
+        }
+        event.preventDefault();
+      }
+
       return;
     }
 
-    if (e.key === "Backspace") {
-      setSearchTerm((s) => s.slice(0, -1));
-      e.preventDefault();
+    if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      setSearchTerm((prev) => prev + event.key);
+      event.preventDefault();
       return;
     }
 
-    if (e.key === "Escape") {
-      // Si hay búsqueda, primero la limpia; si no, cierra
+    if (event.key === "Backspace") {
+      setSearchTerm((prev) => prev.slice(0, -1));
+      event.preventDefault();
+      return;
+    }
+
+    if (event.key === "Escape") {
       if (searchTerm) {
         setSearchTerm("");
       } else {
         setOpen(false);
       }
-      e.preventDefault();
+      event.preventDefault();
       return;
     }
 
-    if (e.key === "Enter") {
-      // Atajo: en simple, selecciona la primera coincidencia
+    if (event.key === "Enter") {
       if (!multiple && filteredOptions.length > 0) {
         toggleOption(filteredOptions[0].value);
         setSearchTerm("");
         setOpen(false);
       }
-      e.preventDefault();
-      return;
+      event.preventDefault();
     }
   };
 
-  // Props del trigger: un solo onKeyDown; NO limpiamos en onBlur
+  const triggerLabel =
+    open && searchTerm !== ""
+      ? searchTerm
+      : safeSelected.length === 0 || selectedLabels.length === 0
+      ? open
+        ? "Escribe para filtrar"
+        : placeholder
+      : multiple
+      ? `${safeSelected.length} Opciones Seleccionadas`
+      : selectedLabels[0];
+
   const triggerProps = {
     tabIndex: disabled ? -1 : 0,
-    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
-      handleKeyDown(e);
-      e.stopPropagation();
+    onKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => {
+      handleKeyDown(event);
+      event.stopPropagation();
     },
     onClick: () => {
       if (!disabled) setOpen(!open);
     },
   } as const;
+
+  const menuStyle = maxPanelHeight ? { maxHeight: maxPanelHeight } : undefined;
 
   return (
     <div className={clsx(baseStyles.container, className)} ref={ref}>
@@ -175,18 +218,9 @@ export const Select: React.FC<SelectProps> = ({
         )}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-controls={open ? listboxId : undefined}
       >
-        <span>
-          {open && searchTerm !== ""
-            ? searchTerm // muestra lo que escribe el usuario
-            : safeSelected.length === 0 || selectedLabels.length === 0
-            ? open
-              ? "Escribe para filtrar…"
-              : placeholder
-            : multiple
-            ? `${safeSelected.length} Opciones Seleccionadas`
-            : selectedLabels[0]}
-        </span>
+        <span>{triggerLabel}</span>
         {multiple && safeSelected.length > 0 && open ? (
           <Check className={baseStyles.check} />
         ) : open ? (
@@ -207,60 +241,82 @@ export const Select: React.FC<SelectProps> = ({
       )}
 
       {open && (
-        <div className={baseStyles.menu} role="listbox">
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map((option) => {
-              const isSelected = safeSelected.includes(option.value);
-              const disabledOpt = !!option.disabled;
-              return (
-                <div
-                  key={option.value}
-                  className={clsx(
-                    baseStyles.option,
-                    disabledOpt && baseStyles.optionDisabled
-                  )}
-                  // Usar onMouseDown garantiza que la selección ocurra ANTES del blur/cierre externo
-                  onMouseDown={(e) => {
-                    e.preventDefault(); // mantiene el foco para que no se dispare blur del trigger
-                    if (!disabledOpt) {
-                      toggleOption(option.value);
-                      if (!multiple) {
-                        setSearchTerm("");
-                        setOpen(false);
+        <div
+          className={baseStyles.menu}
+          role="presentation"
+          style={menuStyle}
+        >
+          <div className={baseStyles.searchContainer} role="presentation">
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Buscar..."
+              className={baseStyles.searchInput}
+              disabled={disabled}
+            />
+          </div>
+
+          <div
+            className={baseStyles.optionsContainer}
+            role="listbox"
+            id={listboxId}
+            aria-multiselectable={multiple || undefined}
+          >
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option) => {
+                const isSelected = safeSelected.includes(option.value);
+                const disabledOption = Boolean(option.disabled);
+
+                return (
+                  <div
+                    key={option.value}
+                    className={clsx(
+                      baseStyles.option,
+                      disabledOption && baseStyles.optionDisabled
+                    )}
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      if (!disabledOption) {
+                        toggleOption(option.value);
+                        if (!multiple) {
+                          setSearchTerm("");
+                          setOpen(false);
+                        }
                       }
-                    }
-                  }}
-                  role="option"
-                  aria-selected={isSelected}
-                >
-                  <span className={clsx(disabledOpt && baseStyles.optionlabel)}>
-                    {option.label}
-                  </span>
-                  {multiple ? (
-                    <div
-                      className={clsx(
-                        baseStyles.checkbox,
-                        isSelected && baseStyles.checkboxChecked,
-                        baseStyles.checkitem
-                      )}
-                    >
-                      {isSelected && (
-                        <Check className={baseStyles.selectedCheck} />
-                      )}
-                    </div>
-                  ) : (
-                    isSelected && open && (
-                      <Check className={baseStyles.selecteCheck2} />
-                    )
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <div>Sin resultados</div>
-          )}
+                    }}
+                    role="option"
+                    aria-selected={isSelected}
+                  >
+                    <span className={clsx(disabledOption && baseStyles.optionlabel)}>
+                      {option.label}
+                    </span>
+                    {multiple ? (
+                      <div
+                        className={clsx(
+                          baseStyles.checkbox,
+                          isSelected && baseStyles.checkboxChecked,
+                          baseStyles.checkitem
+                        )}
+                      >
+                        {isSelected && <Check className={baseStyles.selectedCheck} />}
+                      </div>
+                    ) : (
+                      isSelected && open && <Check className={baseStyles.selecteCheck2} />
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <div className={baseStyles.emptyState}>Sin resultados</div>
+            )}
+          </div>
         </div>
       )}
     </div>
   );
 };
+
+
