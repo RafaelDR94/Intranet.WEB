@@ -56,6 +56,14 @@ export const sidebarRoutes = [
       { label: 'Proyectos', path: '/main-page/sip/proyects' },
     ],
   },
+  {
+    label: 'Servicios Generales',
+    path: '/main-page/generalservices',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist' },
+    ],
+  },
 
 ];
 

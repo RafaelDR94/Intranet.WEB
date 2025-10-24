@@ -1,12 +1,17 @@
 // components/DynamicForm/types.ts
 import type { FC, SVGProps } from 'react';
 
+import type { ControlLevelProps } from '../ControlLevel/types';
+import type { CheckBoxListOption } from '../CheckBoxList/types';
+import type { LabelPosition } from '../CheckBox/types';
 import type { InitialFile } from '../FileUploader/types';
 
 /** Tipos de campo soportados por el formulario. */
 export type InputType =
 
   | 'input'
+  | 'controlLevel'
+  | 'checkboxList'
   | 'date'
   | 'email'
   | 'password'
@@ -18,6 +23,19 @@ export type InputType =
   | 'toggle'
   | 'file'
   | 'textarea';
+
+export type ControlLevelFieldProps = Partial<
+  Omit<ControlLevelProps, 'level' | 'setLevel' | 'onChange'>
+>;
+
+export type CheckBoxListFieldProps = {
+  /** Ajusta la posición de la etiqueta de cada checkbox */
+  labelPosition?: LabelPosition;
+  /** Clase adicional para el título */
+  titleClassName?: string;
+  /** Clase adicional para el contenedor de opciones */
+  listClassName?: string;
+};
 
 /** Estados visuales para campos y helper texts. */
 export type Variant = 'default' | 'success' | 'warning' | 'error' | 'info';
@@ -56,7 +74,7 @@ export interface FieldModel {
   helperText?: string;
   inputSize?: 'md' | 'lg';
   variant?: Variant;
-  options?: { label: string; value: string }[];
+  options?: ({ label: string; value: string } | CheckBoxListOption)[];
   validations?: ValidationRule[];
   warningRules?: WarningRule[];
   showIf?: (values: Record<string, any>, fields: FieldModel[]) => boolean;
@@ -76,6 +94,12 @@ export interface FieldModel {
   min?: number;
   max?: number;
   step?: number;
+
+  /** Configuración específica para campos tipo ControlLevel */
+  controlLevelProps?: ControlLevelFieldProps;
+
+  /** Configuración para campos tipo CheckBoxList */
+  checkboxListProps?: CheckBoxListFieldProps;
 }
 
 /** Layouts por breakpoint (las proporciones por fila) */
@@ -118,6 +142,8 @@ export interface DynamicFormProps {
   children?: React.ReactNode;
   /** Si es `true`, muestra un indicador de carga en el botón principal. */
   loading?: boolean;
+  /** Cambia únicamente cuando se desea reinicializar los valores del formulario. */
+  valuesVersion?: number;
 
   /**
    * Matriz de proporciones para distribuir los campos por fila.

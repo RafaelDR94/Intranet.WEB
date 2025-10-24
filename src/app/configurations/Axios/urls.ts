@@ -1,4 +1,4 @@
-export const LoginUrl = process.env.NEXT_PUBLIC_LOGIN_URL ?? "/Login";
+﻿export const LoginUrl = process.env.NEXT_PUBLIC_LOGIN_URL ?? "/Login";
 export const AuthValidate = process.env.NEXT_PUBLIC_AUTHVALIDATE ?? "/Auth/AuthValidate";
 export const AuthFirebaseConfiguration = process.env.NEXT_PUBLIC_AUTHFIREBASECONFIGURATION ?? "/Auth/FirebaseConfiguration";
 export const AuthChangeNIP = process.env.NEXT_PUBLIC_AUTHCHANGENIP ?? "/Auth/ChangeNIP";
@@ -12,20 +12,26 @@ export const Enterprises = process.env.NEXT_PUBLIC_ENTERPRISES ?? "/Enterprises"
 export const Departments = process.env.NEXT_PUBLIC_DEPARTMENTS ?? "/Enterprises/Departments";
 export const Areas = process.env.NEXT_PUBLIC_AREAS ?? "/Enterprises/Areas";
 export const Persons = process.env.NEXT_PUBLIC_PERSONS ?? "/Persons";
-export const Transport = process.env.NEXT_PUBLIC_TRANSPORT ?? "/Transport";
 export const WorkPosition = process.env.NEXT_PUBLIC_WORK_POSITION ?? "/Enterprises/WorkPosition";
 
+export const Transport = process.env.NEXT_PUBLIC_TRANSPORT ?? "/Transport";
 export const TransportGetAssigment = process.env.NEXT_PUBLIC_TRANSPORT_GET_ASSIGMENT ?? "/Transport/GetAssigment";
 export const CreateAssigment = process.env.NEXT_PUBLIC_CREATE_ASSIGMENT ?? "/Transport/CreateAssigment";
 export const CreateUpdateAssigment = process.env.NEXT_PUBLIC_CREATE_UPDATE_ASSIGMENT ?? "/Transport/UpdateAssigment";
+export const SaveVehicleTracking = process.env.NEXT_PUBLIC_SAVE_VEHICLE_TRACKING ?? "/Transport/SaveVehicleTracking";
+export const GetAssigmentInfo = process.env.NEXT_PUBLIC_GET_ASSIGMENT_INFO ?? "/Transport/GetAssigmentInfo";
+export const TransportAssigment = process.env.NEXT_PUBLIC_TRANSPORT_ASSIGMENT ?? "/Transport/Assigment";
+export const TransportAssigments = process.env.NEXT_PUBLIC_TRANSPORT_ASSIGMENTS ?? "/Transport/Assigments";
+export const TransportAssigmentInfo = process.env.NEXT_PUBLIC_TRANSPORT_ASSIGMENT_INFO ?? "/Transport/AssigmentInfo";
+export const TransportVehicleTracking = process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_TRACKING ?? "/Transport/VehicleTracking";
+export const TransportVehicleTrackingById = process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_TRACKING_BYID ?? "/Transport/VehicleTracking/ById";
 
 export const Employees = process.env.NEXT_PUBLIC_EMPLOYEES ?? "/Employees";
 export const EmployeesById = process.env.NEXT_PUBLIC_EMPLOYEESBYID ?? "/Employees/ById";
 export const EmployeesActive = process.env.NEXT_PUBLIC_EMPLOYEES_ACTIVE_ID ?? "/Employees/Activate";
 export const EmployeesIsActive = process.env.NEXT_PUBLIC_EMPLOYEES_IS_ACTIVE ?? "Employees/EmployeesActive";
 
-export const SaveVehicleTracking = process.env.NEXT_PUBLIC_SAVE_VEHICLE_TRACKING ?? "/Transport/SaveVehicleTracking";
-export const GetAssigmentInfo = process.env.NEXT_PUBLIC_GET_ASSIGMENT_INFO ?? "/Transport/GetAssigmentInfo";
+
 
 export const HMRequisitions = process.env.NEXT_PUBLIC_HM_REQUISITIONS ?? "/HumanResources/PersonalRequisitions";
 export const HMRequisitionsStatuses = process.env.NEXT_PUBLIC_HM_REQUISITIONSSTATUSES ?? "/HumanResources/PersonalRequisitions/Statuses";
@@ -82,7 +88,7 @@ export const ReleasesReaction = process.env.NEXT_PUBLIC_RELEASES_REACTION ?? "/R
 export const ReleasesReactionPerson = process.env.NEXT_PUBLIC_RELEASES_REACTIONPERSON ?? "/Releases/ReactionPerson";
 
 export const ActiveBrand = process.env.NEXT_PUBLIC_ACTIVATE_BRAND ?? "/Assets/ActivateBrand";
-export const ActivateStatus = process.env.NEXT_PUBLIC_ACTIVATE_BRAND ?? "/Assets/ActivateStatus"; // <-- Podría ser error
+export const ActivateStatus = process.env.NEXT_PUBLIC_ACTIVATE_BRAND ?? "/Assets/ActivateStatus"; // <-- PodrÃ­a ser error
 export const ActivateType = process.env.NEXT_PUBLIC_ACTIVATE_TYPE ?? "/Assets/ActivateType";
 export const ActivateDevice = process.env.NEXT_PUBLIC_ACTIVATE_DEVICE ?? "/Assets/ActivateDevice";
 
