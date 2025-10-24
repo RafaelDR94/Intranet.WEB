@@ -1,3 +1,8 @@
+### 1.47.24 Management documents listing 24-10-2025
+
+Feature:
+- Add /Documents mapping, store, and management documents page with DataTable integration. (Agente IA) [#]()
+
 ### 1.47.23 SAT invoices SAP redirect 23-10-2025
 
 Feature:
