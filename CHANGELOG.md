@@ -1,3 +1,8 @@
+### 1.47.25 Operational documents listing 24-10-2025
+
+Feature:
+- Create OperationalDocuments page leveraging management documents table data. (Agente IA) [#]()
+
 ### 1.47.24 Management documents listing 24-10-2025
 
 Feature:
