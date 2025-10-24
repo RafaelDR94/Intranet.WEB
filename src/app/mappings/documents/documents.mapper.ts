@@ -95,3 +95,10 @@ export const mapManagementDocumentsToTableRows = (
   docs
     .filter((doc) => doc.management)
     .map(mapManagementDocumentToTableRow)
+
+export const mapOperationalDocumentsToTableRows = (
+  docs: ManagementDocument[],
+): ManagementDocumentTableRow[] =>
+  docs
+    .filter((doc) => !doc.management)
+    .map(mapManagementDocumentToTableRow)
