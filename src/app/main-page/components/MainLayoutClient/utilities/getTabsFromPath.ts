@@ -88,6 +88,11 @@ export const getTabsFromPath = (
       { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist/vehicleregistry'},
       { label: 'Lista de Registros', path: '/main-page/generalservices/vehicleregist/vehicleregistrylist' },
     ],
+    'humanresources/documents': [
+      { label: 'Registro de Documentos', path: '/main-page/humanresources/documents/documentregistry' },
+      { label: 'Documentos Gerenciales', path: '/main-page/humanresources/documents/managementdocuments' },
+      { label: 'Documentos Operativos', path: '/main-page/humanresources/documents/operationaldocuments' },
+    ],
   };
 
   let tabs = tabsMap[key] || tabsMap[first] || [];
