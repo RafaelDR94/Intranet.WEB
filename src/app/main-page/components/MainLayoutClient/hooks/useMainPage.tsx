@@ -64,6 +64,15 @@ export const sidebarRoutes = [
       { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist' },
     ],
   },
+  {
+    label: 'RH',
+    path: '/main-page/humanresources',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Comunicados', path: '/main-page/humanresources/release' },
+      { label: 'Documentos', path: '/main-page/humanresources/documents' },
+    ],
+  },
 
 ];
 
