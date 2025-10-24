@@ -14,9 +14,7 @@ const useActitivities = ()=>{
     }),
     shallow
   );
-
-
-
+  
   useEffect(() => {
     reset();
     setCanStart(true);

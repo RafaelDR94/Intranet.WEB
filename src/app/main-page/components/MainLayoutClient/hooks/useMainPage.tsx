@@ -49,7 +49,7 @@ export const sidebarRoutes = [
     ],
   },
   {
-    label: 'SIP',
+    label: 'Reportes',
     path: '/main-page/sip',
     icon: ServerIcon,
     subroutes: [

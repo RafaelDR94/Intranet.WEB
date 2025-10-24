@@ -12,7 +12,7 @@ import { useIsMobile } from "../../DataTable/components/DataTableLayout/hooks/us
  * @returns Estado memorizado para renderizar tarjetas y paginar.
  */
 function useCardsGrid<T>({ rowsPerPage, adapt, data }: CardsGridProps<T>) {
-     const isMobile = useIsMobile();
+    const isMobile = useIsMobile();
     const getVal = <T,>(row: T, k?: KeyOrFn<T>, fallback = ''): string => {
         if (!k) return fallback
         return typeof k === 'function' ? String(k(row) ?? fallback) : String((row as any)[k] ?? fallback)
@@ -39,7 +39,7 @@ function useCardsGrid<T>({ rowsPerPage, adapt, data }: CardsGridProps<T>) {
         cols = 2;
     }
 
-    const CARD_HEIGHT = isMobile? 105:226; // px aprox.
+    const CARD_HEIGHT = isMobile ? 105 : 226; // px aprox.
     const RESERVED_SPACE = 450; // header/footer, margen inferior, etc.
     const usableHeight = Math.max(0, viewportHeight - RESERVED_SPACE);
     const rowsThatFit = Math.max(1, Math.floor(usableHeight / CARD_HEIGHT));
@@ -51,6 +51,10 @@ function useCardsGrid<T>({ rowsPerPage, adapt, data }: CardsGridProps<T>) {
     const pageSize = Math.max(1, Math.min(desired, requested)) // nunca excede 2 filas, nunca < 1
 
     const [page, setPage] = useState(1)
+
+    useEffect(() => {
+        setPage(1)
+    }, [data])
 
     const { totalPages, pageItems } = useMemo(() => {
         const total = Math.max(1, Math.ceil((data?.length ?? 0) / pageSize))
