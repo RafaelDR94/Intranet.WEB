@@ -7,11 +7,48 @@ import type {
 
 const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
   sm: [[10], [10], [10], [10], [10], [10]],
-  md: [[5, 5], [5, 5], [5, 5]],
-  lg: [[6, 4], [5, 5], [5, 5]],
+  md: [
+    [5, 5],
+    [5, 5],
+    [5, 5],
+  ],
+  lg: [[5, 5], [5, 5, 5], [10]],
 };
 
+const toolsChecklistOptions = [
+  { label: "Administración", value: "administracion" },
+  { label: "Almacén", value: "almacen" },
+  { label: "Asistente de dirección", value: "add" },
+  { label: "Calidad", value: "add" },
+  { label: "CAYAS", value: "cayas" },
+  { label: "Compras", value: "compras" },
+  { label: "Contabilidad y nominas", value: "" },
+  { label: "Control interno y auditoria", value: "" },
+  { label: "Coord. operativa", value: "" },
+  { label: "Coord. compras nacionales", value: "" },
+  { label: "Desarrollo tecnológico", value: "" },
+  { label: "Dirección", value: "" },
+  { label: "Finanzas", value: "" },
+  { label: "Ingeniería", value: "" },
+  { label: "ITEDESCA", value: "" },
+  { label: "Licitaciones", value: "" },
+  { label: "Niveles de servicio", value: "" },
+  { label: "PMO", value: "" },
+  { label: "Proyectos", value: "" },
+  { label: "Protectos especiales", value: "" },
+  { label: "Radiología", value: "" },
+  { label: "Reclutamiento y selec. personal", value: "" },
+  { label: "RH", value: "" },
+  { label: "Servicios generales", value: "" },
+  { label: "SIP", value: "" },
+  { label: "Tecnología de la información", value: "" },
+  { label: "Ventas", value: "" },
+  { label: "VIP Ingeniería", value: "" },
+  { label: "VISITAX", value: "" },
+];
+
 const createDocumentRegistryFields = (): FieldModel[] => [
+  
   {
     type: "file",
     name: "documentFile",
@@ -35,8 +72,22 @@ const createDocumentRegistryFields = (): FieldModel[] => [
   },
   {
     type: "select",
+    name: "specifications",
+    label: "Documento para",
+    placeholder: "Selecciona una opción",
+    value: "",
+    rows: 5,
+    inputSize: "lg",
+    className: "w-full",
+    options: [
+      { label: "Documentos Gerenciales", value: "internal" },
+      { label: "Documentos Operativos", value: "external" },
+    ],
+  },
+  {
+    type: "select",
     name: "destinationArea",
-    label: "Área de destino",
+    label: "Indique el área",
     placeholder: "Selecciona una opción",
     value: "",
     options: [
@@ -52,7 +103,7 @@ const createDocumentRegistryFields = (): FieldModel[] => [
   {
     type: "select",
     name: "documentType",
-    label: "Tipo de documento",
+    label: "Indique el tipo de documento",
     placeholder: "Selecciona una opción",
     value: "",
     options: [
@@ -68,23 +119,23 @@ const createDocumentRegistryFields = (): FieldModel[] => [
   {
     type: "textarea",
     name: "description",
-    label: "Ingresa la descripción del documento",
-    placeholder: "Describe brevemente el documento",
+    label: "Descripción del documento",
+    placeholder: "Ingresa la descripción del documento",
     value: "",
-    rows: 5,
+    rows: 2,
     inputSize: "lg",
     className: "w-full",
     validations: [{ type: "required" }],
   },
   {
-    type: "textarea",
-    name: "specifications",
-    label: "Ingresa las especificaciones del documento",
-    placeholder: "Detalla las especificaciones o comentarios adicionales",
-    value: "",
-    rows: 5,
-    inputSize: "lg",
-    className: "w-full",
+    type: "checkboxList",
+    name: "toolsChecklist",
+    label: "Check List Herramientas",
+    value:'',
+    options: toolsChecklistOptions,
+    checkboxListProps: {
+      labelPosition: "right",
+    },
   },
 ];
 
