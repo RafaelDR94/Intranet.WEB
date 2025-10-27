@@ -61,7 +61,6 @@ export const useSAPDetailsPanel = ({
   }, []);
 
   const handleSave = useCallback(() => {
-    console.log("Información guardada:", formValues);
     setIsEditing(false);
   }, [formValues]);
 

@@ -51,7 +51,7 @@ describe('sendToSapBillingDocument', () => {
     expect(mockSet).toHaveBeenCalledWith({ sending: true, error: undefined, succesSend: false })
 
     expect(mockPut).toHaveBeenCalledWith(BillingDocumentsSendToSAP, sampleIds)
-
+    await new Promise(resolve => setTimeout(resolve, 200))
     expect(fetchBillingSpy).toHaveBeenCalledWith(mockSet, mockGet, true)
     expect(fetchSatSpy).toHaveBeenCalledWith(mockSet, mockGet, true)
 
