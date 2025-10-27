@@ -111,9 +111,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           <span className={filenamestyle}>{fileName}</span>
         )}
       </div>
-      {allowedTypesLabel && (
-        <p className={typelabelstyle}>{allowedTypesLabel}</p>
-      )}
     </div>
   );
 };
