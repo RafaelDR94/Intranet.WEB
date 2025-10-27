@@ -7,6 +7,7 @@ import type {
   ResponsiveLayoutMatrix,
 } from "@/app/components/DynamicForm/types";
 import { mapDocumentTypesToOptions } from "@/app/mappings/documents/documents.mapper";
+import { useDepartmentsStore } from "@/app/stores/useDepartmentsStore/useDepartmentsStore";
 import { useDocumentTypesStore } from "@/app/stores/useDocumentTypesStore/useDocumentTypesStore";
 
 const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
@@ -54,6 +55,8 @@ const toolsChecklistOptions = [
 const createDocumentRegistryFields = (
   documentTypeOptions: { label: string; value: string }[],
   documentTypesLoading: boolean,
+  destinationAreaOptions: { label: string; value: string }[],
+  destinationAreasLoading: boolean,
 ): FieldModel[] => [
   
   {
@@ -97,15 +100,10 @@ const createDocumentRegistryFields = (
     label: "Indique el área",
     placeholder: "Selecciona una opción",
     value: "",
-    options: [
-      { label: "Recursos Humanos", value: "hr" },
-      { label: "Operaciones", value: "operations" },
-      { label: "Seguridad", value: "security" },
-      { label: "Finanzas", value: "finance" },
-      { label: "Tecnologías de la Información", value: "it" },
-    ],
+    options: destinationAreaOptions,
     className: "w-full",
     validations: [{ type: "required" }],
+    disabled: destinationAreasLoading,
   },
   {
     type: "select",
@@ -152,18 +150,60 @@ const useDocumentRegistry = () => {
       fetchDocumentTypes: state.fetchDocumentTypes,
     }));
 
+  const { departments, loading: destinationAreasLoading, fetchDepartments } =
+    useDepartmentsStore((state) => ({
+      departments: state.departments,
+      loading: state.loading,
+      fetchDepartments: state.fetchDepartments,
+    }));
+
   useEffect(() => {
     void fetchDocumentTypes();
   }, [fetchDocumentTypes]);
+
+  useEffect(() => {
+    void fetchDepartments();
+  }, [fetchDepartments]);
 
   const documentTypeOptions = useMemo(
     () => mapDocumentTypesToOptions(activeDocumentTypes),
     [activeDocumentTypes],
   );
 
+  const destinationAreaOptions = useMemo(() => {
+    const uniqueDepartments = new Map<string, { label: string; value: string }>();
+
+    departments.forEach((department) => {
+      const departmentName = department?.name ? department.name.trim() : "";
+
+      if (!departmentName) return;
+
+      const value = department?.department_id || departmentName;
+
+      if (!uniqueDepartments.has(value)) {
+        uniqueDepartments.set(value, { label: departmentName, value });
+      }
+    });
+
+    return Array.from(uniqueDepartments.values()).sort((first, second) =>
+      first.label.localeCompare(second.label, "es", { sensitivity: "base" }),
+    );
+  }, [departments]);
+
   const fields = useMemo(
-    () => createDocumentRegistryFields(documentTypeOptions, documentTypesLoading),
-    [documentTypeOptions, documentTypesLoading],
+    () =>
+      createDocumentRegistryFields(
+        documentTypeOptions,
+        documentTypesLoading,
+        destinationAreaOptions,
+        destinationAreasLoading,
+      ),
+    [
+      documentTypeOptions,
+      documentTypesLoading,
+      destinationAreaOptions,
+      destinationAreasLoading,
+    ],
   );
 
   const handleSubmit = useCallback((_values: Record<string, unknown>) => {
