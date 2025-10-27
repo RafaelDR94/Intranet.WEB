@@ -179,7 +179,7 @@ export const ReportsTableMap = (reports: ReportView[]): ReportsTable[] => {
     else return ({ text: "No definido", type: "pendiente" });
   };
   return reports.map(report => ({
-    "id": report.id,
+    "id": report.id||report.front_identifier,
     "datecreate": report.datecreate,
     "ticket": report.ticket,
     "type": report.reportcategories.typesofreports.name,
