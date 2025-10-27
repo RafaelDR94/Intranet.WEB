@@ -7,7 +7,7 @@ import type {
   ResponsiveLayoutMatrix,
 } from "@/app/components/DynamicForm/types";
 import { mapDocumentTypesToOptions } from "@/app/mappings/documents/documents.mapper";
-import { useDocumentsStore } from "@/app/stores/useDocumentsStore/useDocumentsStore";
+import { useDepartmentsStore } from "@/app/stores/useDepartmentsStore/useDepartmentsStore";
 import { useDocumentTypesStore } from "@/app/stores/useDocumentTypesStore/useDocumentTypesStore";
 
 const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
@@ -150,21 +150,20 @@ const useDocumentRegistry = () => {
       fetchDocumentTypes: state.fetchDocumentTypes,
     }));
 
-  const { documents, loading: destinationAreasLoading, fetchDocuments } = useDocumentsStore(
-    (state) => ({
-      documents: state.documents,
+  const { departments, loading: destinationAreasLoading, fetchDepartments } =
+    useDepartmentsStore((state) => ({
+      departments: state.departments,
       loading: state.loading,
-      fetchDocuments: state.fetchDocuments,
-    }),
-  );
+      fetchDepartments: state.fetchDepartments,
+    }));
 
   useEffect(() => {
     void fetchDocumentTypes();
   }, [fetchDocumentTypes]);
 
   useEffect(() => {
-    void fetchDocuments();
-  }, [fetchDocuments]);
+    void fetchDepartments();
+  }, [fetchDepartments]);
 
   const documentTypeOptions = useMemo(
     () => mapDocumentTypesToOptions(activeDocumentTypes),
@@ -174,8 +173,7 @@ const useDocumentRegistry = () => {
   const destinationAreaOptions = useMemo(() => {
     const uniqueDepartments = new Map<string, { label: string; value: string }>();
 
-    documents.forEach((document) => {
-      const department = document.department;
+    departments.forEach((department) => {
       const departmentName = department?.name ? department.name.trim() : "";
 
       if (!departmentName) return;
@@ -190,7 +188,7 @@ const useDocumentRegistry = () => {
     return Array.from(uniqueDepartments.values()).sort((first, second) =>
       first.label.localeCompare(second.label, "es", { sensitivity: "base" }),
     );
-  }, [documents]);
+  }, [departments]);
 
   const fields = useMemo(
     () =>
