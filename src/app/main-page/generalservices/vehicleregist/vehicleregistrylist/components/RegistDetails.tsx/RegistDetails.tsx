@@ -162,6 +162,7 @@ const RegistDetails = ({ onClose, open }: RegistDetailsProps) => {
     return (
 
         <DetailsPanelLayout onClose={onClose} open={open}
+            zIndex={80}
             leftLabel={"Fecha Salida " + formatDateHour(departureDate)}
             rightLabel={arrivalDate ? "Fecha Llegada " + formatDateHour(arrivalDate) : ""}
 

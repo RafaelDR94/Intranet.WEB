@@ -44,7 +44,7 @@ const ImagesComponent: React.FC<ImagesComponentProps> = ({ formId }) => {
                     orientation="vertical"
                     imageSrc={slot.imageSrc}
                     fallbackSrc={slot.imageSrc}
-                    label="CardImage"
+                    label=""
                     title={slot.title}
                     description=""
                     onAccept={() => { }}

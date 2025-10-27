@@ -5,6 +5,7 @@ import { Button } from '@/app/components/Button/Button';
 import { Input } from '@/app/components/Input/Input';
 import ImageUploaderExpanded from '@/app/components/ImageUploaderExpanded/ImageUploaderExpanded';
 import useWorkMaps from './hooks/useWorkMaps';
+import { dropzoneBaseClasses } from '@/app/components/ImageUploaderExpanded/styles';
 import {
   sectionCls,
   headerRowCls,
@@ -59,7 +60,7 @@ const WorkMaps: React.FC = () => {
                   buttonLabel="Cambiar Imagen"
                   onImage={handleImageSelection}
                   dataTestId="work-map-edit-uploader"
-                  className="h-full w-full"
+              className={"h-full w-full "+dropzoneBaseClasses}
                 />
               </div>
             </div>
@@ -75,7 +76,7 @@ const WorkMaps: React.FC = () => {
             buttonLabel="Seleccionar Imagen"
             onImage={handleImageSelection}
             dataTestId="work-map-uploader"
-            className="h-full w-full"
+            className={"h-full w-full "+dropzoneBaseClasses}
           />
         </div>
       );

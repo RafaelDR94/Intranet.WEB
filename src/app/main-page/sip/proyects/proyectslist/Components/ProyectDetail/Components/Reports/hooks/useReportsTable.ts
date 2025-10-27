@@ -56,7 +56,6 @@ const useReportsTable = () => {
   const reportList = ReportsTableMap(reports);
   const reportLocalList = ReportsTableMap(localReports);
   
-  console.log("reportList",reportList);
 
 
   const handleCloseDetails = useCallback(() => {

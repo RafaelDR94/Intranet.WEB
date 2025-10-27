@@ -11,15 +11,21 @@ import { resolveVariant } from '../utilities/resolveVariant';
  *
  * @param fields Definiciones de los campos que se renderizarán.
  * @param valuesVersion Incrementa únicamente cuando se requiere reinicializar los valores del formulario.
+ * @param valuesVersionActive Cuando es `true` usa `valuesVersion` para recalcular; si es `false`, recalcula con cada cambio en `fields`.
  * @returns Valores iniciales, esquema de validación, función para limpiar campos ocultos y resolvedor de variantes visuales.
  */
-export const useDynamicForm = (fields: FieldModel[], valuesVersion = 0) => {
+export const useDynamicForm = (
+  fields: FieldModel[],
+  valuesVersion = 0,
+  valuesVersionActive = false
+) => {
   // Valores iniciales obtenidos del modelo. Solo se recalculan cuando
   // se actualiza explícitamente la versión del formulario.
   const initialValues = useMemo(
     () => getInitialValues(fields),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [valuesVersion]
+    // si valuesVersionActive está activo, dependemos de valuesVersion;
+    // si no, dependemos de fields para recalcular siempre que cambien.
+    valuesVersionActive ? [valuesVersion] : [fields]
   );
 
   // Esquema de validación basado en Yup. Cambia ante cualquier ajuste estructural.

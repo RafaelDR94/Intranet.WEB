@@ -40,47 +40,47 @@ vi.mock("@/app/stores/useReportBuilderStore/useReportBuilderStore", () => ({
   default: (selector?: any) =>
     selector
       ? selector({
-          updateAdvance: updateAdvanceMock,
-          report: reportMock,
-          isReportHydrated: true,
-          currentReportfrontguid: reportMock.front_identifier,
-        })
+        updateAdvance: updateAdvanceMock,
+        report: reportMock,
+        isReportHydrated: true,
+        currentReportfrontguid: reportMock.front_identifier,
+      })
       : {
-          updateAdvance: updateAdvanceMock,
-          report: reportMock,
-          isReportHydrated: true,
-          currentReportfrontguid: reportMock.front_identifier,
-        },
+        updateAdvance: updateAdvanceMock,
+        report: reportMock,
+        isReportHydrated: true,
+        currentReportfrontguid: reportMock.front_identifier,
+      },
 }));
 
 vi.mock("@/app/stores/useReportsStore/useReportsStore", () => ({
   useReportsStore: (selector?: any) =>
     selector
       ? selector({
-          reportCategories: reportCategoriesMock,
-          loadingCategories: false,
-        })
+        reportCategories: reportCategoriesMock,
+        loadingCategories: false,
+      })
       : {
-          reportCategories: reportCategoriesMock,
-          loadingCategories: false,
-        },
+        reportCategories: reportCategoriesMock,
+        loadingCategories: false,
+      },
 }));
 
 vi.mock("@/app/stores/useFormFieldsStore/useFormFieldsStore", () => ({
   useFormFieldsStore: (selector?: any) =>
     selector
       ? selector({
-          fieldsByFormId: { [FORM_ID]: storedFields },
-          setFields: setFieldsMock,
-          updateField: updateFieldMock,
-          resetFields: resetFieldsMock,
-        })
+        fieldsByFormId: { [FORM_ID]: storedFields },
+        setFields: setFieldsMock,
+        updateField: updateFieldMock,
+        resetFields: resetFieldsMock,
+      })
       : {
-          fieldsByFormId: { [FORM_ID]: storedFields },
-          setFields: setFieldsMock,
-          updateField: updateFieldMock,
-          resetFields: resetFieldsMock,
-        },
+        fieldsByFormId: { [FORM_ID]: storedFields },
+        setFields: setFieldsMock,
+        updateField: updateFieldMock,
+        resetFields: resetFieldsMock,
+      },
 }));
 
 vi.mock("@/app/stores/useProyectLocationStore/useProyectLocationStore", () => ({
@@ -88,19 +88,19 @@ vi.mock("@/app/stores/useProyectLocationStore/useProyectLocationStore", () => ({
   default: (selector?: any) =>
     selector
       ? selector({
-          locations: locationsMock,
-          loadingLocations: false,
-          fetchLocations: fetchLocationsMock,
-          error: null,
-          resetFlags: resetLocationFlagsMock,
-        })
+        locations: locationsMock,
+        loadingLocations: false,
+        fetchLocations: fetchLocationsMock,
+        error: null,
+        resetFlags: resetLocationFlagsMock,
+      })
       : {
-          locations: locationsMock,
-          loadingLocations: false,
-          fetchLocations: fetchLocationsMock,
-          error: null,
-          resetFlags: resetLocationFlagsMock,
-        },
+        locations: locationsMock,
+        loadingLocations: false,
+        fetchLocations: fetchLocationsMock,
+        error: null,
+        resetFlags: resetLocationFlagsMock,
+      },
 }));
 
 vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
@@ -166,6 +166,10 @@ describe("useAdvanceForm", () => {
     });
 
     expect(result.current.formFields).toEqual(storedFields);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    });
+
     expect(result.current.canStart).toBe(true);
     expect(resetFieldsMock).toHaveBeenCalledWith(FORM_ID);
     expect(updateFieldMock).toHaveBeenCalledWith(

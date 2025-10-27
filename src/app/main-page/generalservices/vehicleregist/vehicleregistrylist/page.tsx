@@ -13,7 +13,6 @@ const VehicleRegistryList = () => {
   const {
     inTransitRows,
     otherRows,
-    loading,
     handleRefresh,
     handleCreate,
     handleArrive,
@@ -179,10 +178,10 @@ const VehicleRegistryList = () => {
         dataTableTitle="Registro Vehicular"
       />
       <RegistDetails onClose={() => { handleCloseDetails() }} open={openDetailsPanel} />
-
+{/* 
       {loading && inTransitRows.length === 0 && otherRows.length === 0 ? (
         <span className="text-sm text-gray-500">Cargando registros...</span>
-      ) : null}
+      ) : null} */}
     </div>
   );
 };
