@@ -1,9 +1,13 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   FieldModel,
   ResponsiveLayoutMatrix,
 } from "@/app/components/DynamicForm/types";
+import { mapDocumentTypesToOptions } from "@/app/mappings/documents/documents.mapper";
+import { useDocumentTypesStore } from "@/app/stores/useDocumentTypesStore/useDocumentTypesStore";
 
 const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
   sm: [[10], [10], [10], [10], [10], [10]],
@@ -47,7 +51,10 @@ const toolsChecklistOptions = [
   { label: "VISITAX", value: "" },
 ];
 
-const createDocumentRegistryFields = (): FieldModel[] => [
+const createDocumentRegistryFields = (
+  documentTypeOptions: { label: string; value: string }[],
+  documentTypesLoading: boolean,
+): FieldModel[] => [
   
   {
     type: "file",
@@ -106,15 +113,10 @@ const createDocumentRegistryFields = (): FieldModel[] => [
     label: "Indique el tipo de documento",
     placeholder: "Selecciona una opción",
     value: "",
-    options: [
-      { label: "Política", value: "policy" },
-      { label: "Procedimiento", value: "procedure" },
-      { label: "Manual", value: "manual" },
-      { label: "Formato", value: "format" },
-      { label: "Aviso", value: "notice" },
-    ],
+    options: documentTypeOptions,
     className: "w-full",
     validations: [{ type: "required" }],
+    disabled: documentTypesLoading,
   },
   {
     type: "textarea",
@@ -143,7 +145,26 @@ const useDocumentRegistry = () => {
   const submitRef = useRef<(() => void | Promise<void>) | null>(null);
   const [formReady, setFormReady] = useState(false);
 
-  const fields = useMemo(() => createDocumentRegistryFields(), []);
+  const { activeDocumentTypes, loading: documentTypesLoading, fetchDocumentTypes } =
+    useDocumentTypesStore((state) => ({
+      activeDocumentTypes: state.activeDocumentTypes,
+      loading: state.loading,
+      fetchDocumentTypes: state.fetchDocumentTypes,
+    }));
+
+  useEffect(() => {
+    void fetchDocumentTypes();
+  }, [fetchDocumentTypes]);
+
+  const documentTypeOptions = useMemo(
+    () => mapDocumentTypesToOptions(activeDocumentTypes),
+    [activeDocumentTypes],
+  );
+
+  const fields = useMemo(
+    () => createDocumentRegistryFields(documentTypeOptions, documentTypesLoading),
+    [documentTypeOptions, documentTypesLoading],
+  );
 
   const handleSubmit = useCallback((_values: Record<string, unknown>) => {
     // TODO: Integrar con el servicio de registro de documentos.
