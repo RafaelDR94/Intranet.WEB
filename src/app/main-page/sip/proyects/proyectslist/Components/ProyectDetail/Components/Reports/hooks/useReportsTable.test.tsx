@@ -69,8 +69,9 @@ vi.mock("@/app/stores/useReportBuilderStore/useReportBuilderStore", () => ({
   }),
 }));
 
-vi.mock("@/app/stores/useReportsStore/useReportsStore", () => ({
-  useReportsStore: (selector?: any) => {
+vi.mock("@/app/stores/useReportsStore/useReportsStore", () => {
+  // function-style selector (imitamos el hook) pero también exponemos getState
+  const useReportsStore = (selector?: any) => {
     const state = {
       currentReport: currentReportRef,
       reports: sampleReports,
@@ -84,8 +85,24 @@ vi.mock("@/app/stores/useReportsStore/useReportsStore", () => ({
       reset: resetReportsStoreMock,
     };
     return typeof selector === "function" ? selector(state) : state;
-  },
-}));
+  };
+
+  // getState must return current values (closure vars updated in beforeEach)
+  (useReportsStore as any).getState = () => ({
+    currentReport: currentReportRef,
+    reports: sampleReports,
+    localReports: localReportsRef,
+    fetchLocalReports: fetchLocalReportsMock,
+    deleteLocal: deleteLocalMock,
+    deleteReport: deleteRemoteReportMock,
+    loading: loadingRef,
+    fetchAllReportsByProyect: fetchAllReportsByProyectMock,
+    setCurrentReport: setCurrentReportMock,
+    reset: resetReportsStoreMock,
+  });
+
+  return { useReportsStore };
+});
 
 vi.mock("./useDocument/useDocument", () => ({
   __esModule: true,
