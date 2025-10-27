@@ -29,6 +29,19 @@ export const mapDocumentTypeSummary = (raw: any): DocumentTypeSummary => ({
   is_active: normalizeBoolean(raw?.is_active ?? raw?.isActive),
 })
 
+export const mapDocumentTypes = (rawList: any): DocumentTypeSummary[] => {
+  if (!Array.isArray(rawList)) return []
+  return rawList.map(mapDocumentTypeSummary)
+}
+
+export const mapDocumentTypesToOptions = (
+  documentTypes: DocumentTypeSummary[],
+): { label: string; value: string }[] =>
+  documentTypes.map((documentType) => ({
+    label: documentType.name,
+    value: documentType.document_type_id,
+  }))
+
 export const mapDepartmentSummary = (raw: any): DepartmentSummary => ({
   department_id: normalizeString(raw?.department_id ?? raw?.idDepartment ?? raw?.id),
   name: normalizeString(raw?.name),
