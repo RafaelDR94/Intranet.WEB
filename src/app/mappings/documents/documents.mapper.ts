@@ -58,6 +58,9 @@ export const mapManagementDocument = (raw: any): ManagementDocument => {
   return {
     document_id: normalizeString(raw?.document_id ?? raw?.id),
     name: normalizeString(raw?.name),
+    datecreated: normalizeString(
+      raw?.datecreated ?? raw?.created_at ?? raw?.createdAt ?? raw?.date ?? raw?.fecha ?? '',
+    ),
     code: normalizeString(raw?.code),
     description: normalizeString(raw?.description),
     document_type: documentType,
@@ -91,6 +94,7 @@ export const mapManagementDocumentToTableRow = (
   return {
     id: doc.document_id,
     name: doc.name,
+    datecreated: doc.datecreated,
     code: doc.code,
     description: doc.description,
     documentType: doc.document_type?.name ?? '',
