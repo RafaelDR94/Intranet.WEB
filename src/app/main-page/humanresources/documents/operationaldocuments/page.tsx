@@ -28,9 +28,9 @@ const OperationalDocuments = () => {
       ),
     },
     {
-      key: 'date',
+      key: 'datecreated',
       label: 'FECHA',
-      render: (row) => row.date || '',
+      render: (row) => row.datecreated || '',
     },
     { key: 'code', label: 'CLAVE' },
     {
