@@ -7,12 +7,24 @@ import type { ManagementDocumentTableRow } from '@/app/mappings/documents/docume
 import { useDocumentsStore } from '@/app/stores/useDocumentsStore/useDocumentsStore'
 
 export const useOperationalDocuments = () => {
-  const { documents, loading, error, successGet, fetchDocuments } = useDocumentsStore((state) => ({
+  const {
+    documents,
+    loading,
+    error,
+    successGet,
+    fetchDocuments,
+    deleteDocument,
+    deletingDocument,
+    successDeleteDocument,
+  } = useDocumentsStore((state) => ({
     documents: state.documents,
     loading: state.loading,
     error: state.error,
     successGet: state.successGet,
     fetchDocuments: state.fetchDocuments,
+    deleteDocument: state.deleteDocument,
+    deletingDocument: state.deletingDocument,
+    successDeleteDocument: state.successDeleteDocument,
   }))
 
   useEffect(() => {
@@ -29,6 +41,9 @@ export const useOperationalDocuments = () => {
     loading,
     error,
     successGet,
+    deletingDocument,
+    successDeleteDocument,
+    deleteDocument,
     refresh: () => fetchDocuments(true),
   }
 }

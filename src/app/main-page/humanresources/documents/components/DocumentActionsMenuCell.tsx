@@ -109,7 +109,7 @@ const DocumentActionsMenuCell: React.FC<DocumentActionsMenuCellProps> = ({
 
       if (cancelPermission ?? true) {
         items.push({
-          label: "Cancelar",
+          label: "Eliminar",
           icon: CancelIcon,
           danger: true,
           onClick: handleDelete,
