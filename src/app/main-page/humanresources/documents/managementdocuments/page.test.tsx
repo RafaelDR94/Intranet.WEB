@@ -2,9 +2,14 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
-vi.mock('@/assets/icons/Docs/doc-star.svg', () => ({
+vi.mock('@/assets/icons/Docs/page.svg', () => ({
   __esModule: true,
   default: () => <svg data-testid="doc-star" />,
+}))
+
+vi.mock('@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell', () => ({
+  __esModule: true,
+  default: () => <div data-testid="actions-menu" />,
 }))
 
 const refreshMock = vi.fn()
