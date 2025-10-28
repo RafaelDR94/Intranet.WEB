@@ -23,34 +23,36 @@ const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
 const toolsChecklistOptions = [
   { label: "Administración", value: "administracion" },
   { label: "Almacén", value: "almacen" },
-  { label: "Asistente de dirección", value: "add" },
-  { label: "Calidad", value: "add" },
+  { label: "Asistente de dirección", value: "asistente_direccion" },
+  { label: "Calidad", value: "calidad" },
   { label: "CAYAS", value: "cayas" },
   { label: "Compras", value: "compras" },
-  { label: "Contabilidad y nominas", value: "" },
-  { label: "Control interno y auditoria", value: "" },
-  { label: "Coord. operativa", value: "" },
-  { label: "Coord. compras nacionales", value: "" },
-  { label: "Desarrollo tecnológico", value: "" },
-  { label: "Dirección", value: "" },
-  { label: "Finanzas", value: "" },
-  { label: "Ingeniería", value: "" },
-  { label: "ITEDESCA", value: "" },
-  { label: "Licitaciones", value: "" },
-  { label: "Niveles de servicio", value: "" },
-  { label: "PMO", value: "" },
-  { label: "Proyectos", value: "" },
-  { label: "Protectos especiales", value: "" },
-  { label: "Radiología", value: "" },
-  { label: "Reclutamiento y selec. personal", value: "" },
-  { label: "RH", value: "" },
-  { label: "Servicios generales", value: "" },
-  { label: "SIP", value: "" },
-  { label: "Tecnología de la información", value: "" },
-  { label: "Ventas", value: "" },
-  { label: "VIP Ingeniería", value: "" },
-  { label: "VISITAX", value: "" },
+  { label: "Contabilidad y nominas", value: "contabilidad_nominas" },
+  { label: "Control interno y auditoria", value: "control_auditoria" },
+  { label: "Coord. operativa", value: "coord_operativa" },
+  { label: "Coord. compras nacionales", value: "coord_compras_nacionales" },
+  { label: "Desarrollo tecnológico", value: "desarrollo_tecnologico" },
+  { label: "Dirección", value: "direccion" },
+  { label: "Finanzas", value: "finanzas" },
+  { label: "Ingeniería", value: "ingenieria" },
+  { label: "ITEDESCA", value: "itedesca" },
+  { label: "Licitaciones", value: "licitaciones" },
+  { label: "Niveles de servicio", value: "niveles_servicio" },
+  { label: "PMO", value: "pmo" },
+  { label: "Proyectos", value: "proyectos" },
+  { label: "Protectos especiales", value: "proyectos_especiales" },
+  { label: "Radiología", value: "radiologia" },
+  { label: "Reclutamiento y selec. personal", value: "reclutamiento" },
+  { label: "RH", value: "rh" },
+  { label: "Servicios generales", value: "servicios_generales" },
+  { label: "SIP", value: "sip" },
+  { label: "Tecnología de la información", value: "ti" },
+  { label: "Ventas", value: "ventas" },
+  { label: "VIP Ingeniería", value: "vip_ingenieria" },
+  { label: "VISITAX", value: "visitax" },
 ];
+
+const DEFAULT_TOOLS_CHECKED = toolsChecklistOptions.map((option) => option.value);
 
 const createDocumentRegistryFields = (
   documentTypeOptions: { label: string; value: string }[],
@@ -58,7 +60,6 @@ const createDocumentRegistryFields = (
   destinationAreaOptions: { label: string; value: string }[],
   destinationAreasLoading: boolean,
 ): FieldModel[] => [
-  
   {
     type: "file",
     name: "documentFile",
@@ -131,7 +132,7 @@ const createDocumentRegistryFields = (
     type: "checkboxList",
     name: "toolsChecklist",
     label: "Check List Herramientas",
-    value:'',
+    value: DEFAULT_TOOLS_CHECKED,
     options: toolsChecklistOptions,
     checkboxListProps: {
       labelPosition: "right",
@@ -143,19 +144,25 @@ const useDocumentRegistry = () => {
   const submitRef = useRef<(() => void | Promise<void>) | null>(null);
   const [formReady, setFormReady] = useState(false);
 
-  const { activeDocumentTypes, loading: documentTypesLoading, fetchDocumentTypes } =
-    useDocumentTypesStore((state) => ({
-      activeDocumentTypes: state.activeDocumentTypes,
-      loading: state.loading,
-      fetchDocumentTypes: state.fetchDocumentTypes,
-    }));
+  const {
+    activeDocumentTypes,
+    loading: documentTypesLoading,
+    fetchDocumentTypes,
+  } = useDocumentTypesStore((state) => ({
+    activeDocumentTypes: state.activeDocumentTypes,
+    loading: state.loading,
+    fetchDocumentTypes: state.fetchDocumentTypes,
+  }));
 
-  const { departments, loading: destinationAreasLoading, fetchDepartments } =
-    useDepartmentsStore((state) => ({
-      departments: state.departments,
-      loading: state.loading,
-      fetchDepartments: state.fetchDepartments,
-    }));
+  const {
+    departments,
+    loading: destinationAreasLoading,
+    fetchDepartments,
+  } = useDepartmentsStore((state) => ({
+    departments: state.departments,
+    loading: state.loading,
+    fetchDepartments: state.fetchDepartments,
+  }));
 
   useEffect(() => {
     void fetchDocumentTypes();
@@ -172,21 +179,17 @@ const useDocumentRegistry = () => {
 
   const destinationAreaOptions = useMemo(() => {
     const uniqueDepartments = new Map<string, { label: string; value: string }>();
-
     departments.forEach((department) => {
-      const departmentName = department?.name ? department.name.trim() : "";
-
+      const departmentName = department?.name?.trim();
       if (!departmentName) return;
-
       const value = department?.department_id || departmentName;
-
       if (!uniqueDepartments.has(value)) {
         uniqueDepartments.set(value, { label: departmentName, value });
       }
     });
 
-    return Array.from(uniqueDepartments.values()).sort((first, second) =>
-      first.label.localeCompare(second.label, "es", { sensitivity: "base" }),
+    return Array.from(uniqueDepartments.values()).sort((a, b) =>
+      a.label.localeCompare(b.label, "es", { sensitivity: "base" }),
     );
   }, [departments]);
 
@@ -207,6 +210,7 @@ const useDocumentRegistry = () => {
   );
 
   const handleSubmit = useCallback((_values: Record<string, unknown>) => {
+    console.log("submited");
     // TODO: Integrar con el servicio de registro de documentos.
   }, []);
 
