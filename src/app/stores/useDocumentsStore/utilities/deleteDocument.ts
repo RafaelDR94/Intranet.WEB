@@ -20,7 +20,8 @@ export const deleteDocument = async (
 
   try {
     const del = pDelete(requireGateway('del'), [200, 204])
-    const _response: AxiosResponse = await del(`${DocumentsUrl}/${id}`)
+    const url = `${DocumentsUrl}?id=${encodeURIComponent(id)}`
+    const _response: AxiosResponse = await del(url)
 
     set((state) => ({
       documents: state.documents.filter((doc) => doc.document_id !== id),
