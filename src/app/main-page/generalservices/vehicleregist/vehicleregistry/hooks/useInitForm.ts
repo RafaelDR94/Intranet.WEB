@@ -7,7 +7,7 @@ import { EmployeeType } from "@/app/mappings/employees/employee.types";
 import { useTransportStore } from "@/app/stores/useTransportStore/useTransportStore";
 import { Transport, TransportAssignament, VehicleTraking } from "@/app/mappings/transport/transport.types";
 import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
-
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 const formId1 = "departure-form";
 const formId2 = "arrive-form";
 const FORM_IDS = {
@@ -304,7 +304,7 @@ const createVehicleRegistryFieldsArrive = (assignment: TransportAssignament): Fi
 const useInitForm = (formType: keyof typeof FORM_IDS = "departure") => {
   const submitRef = useRef<() => void | Promise<void>>(null);
   const [formReady, setFormReady] = useState(false);
-  const { employees,fetchEmployees } =
+  const { employees, fetchEmployees } =
     useEmployeesStore(
       (s) => ({
         employees: s.employees,
@@ -315,14 +315,14 @@ const useInitForm = (formType: keyof typeof FORM_IDS = "departure") => {
       shallow,
     );
   const { setFields, resetFields, updateField } = useFormFieldsStore.getState();
-  const { transports, fetchTransports, currentAssignment, fetchAssignmentById, resetCurrentAssignment } = useTransportStore(
+  const { transports, fetchTransports, currentAssignment, fetchAssignmentById, loadingAssignments } = useTransportStore(
     (s) => ({
       transports: s.transports,
       fetchTransports: s.fetchTransports,
       fetchAssignmentById: s.fetchAssignmentById,
       currentAssignment: s.currentAssignment,
-      error: s.error,
-      resetCurrentAssignment: s.resetCurrentAssignment,
+      loadingAssignments: s.loadingAssignments,
+      error: s.error
     }),
     shallow
   );
@@ -332,7 +332,7 @@ const useInitForm = (formType: keyof typeof FORM_IDS = "departure") => {
   const formVersion = formVersionsById?.[activeFormId] ?? 0;
   const employeesCount = employees?.length ?? 0;
   const transportsCount = transports?.length ?? 0;
-
+  const { usePrincipalLoading } = usePrincipal();
   const resetDepartureForm = () => {
     setFields(formId1, EMPTY_ARRAY);
   };
@@ -405,7 +405,10 @@ const useInitForm = (formType: keyof typeof FORM_IDS = "departure") => {
     );
   }, [transports, applyToAllForms, updateField]);
 
-
+  useEffect(() => {
+    if (loadingAssignments) { usePrincipalLoading.showSpinner({ message: "Obteniendo detalles del reporte" }); return; }
+    usePrincipalLoading.hideSpinner();
+  }, [loadingAssignments])
 
   useEffect(() => {
     if (employeesCount > 0) return;
@@ -431,10 +434,7 @@ const useInitForm = (formType: keyof typeof FORM_IDS = "departure") => {
     }
     const arriveFields = createVehicleRegistryFieldsArrive(currentAssignment);
     setFields(formId2, arriveFields);
-    return () => {
-      resetCurrentAssignment();
-    };
-  }, [currentAssignment, resetCurrentAssignment, fetchAssignmentById]);
+  }, [currentAssignment, fetchAssignmentById]);
 
   useEffect(() => {
     const departureFields = createVehicleRegistryFields();

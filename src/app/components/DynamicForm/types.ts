@@ -144,6 +144,8 @@ export interface DynamicFormProps {
   loading?: boolean;
   /** Cambia únicamente cuando se desea reinicializar los valores del formulario. */
   valuesVersion?: number;
+  /** Cuando es true (default) solo recalcula initialValues si cambia valuesVersion; si es false, lo hará cada vez que cambien los campos. */
+  valuesVersionActive?: boolean;
 
   /**
    * Matriz de proporciones para distribuir los campos por fila.

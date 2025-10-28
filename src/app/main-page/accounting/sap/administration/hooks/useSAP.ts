@@ -88,7 +88,6 @@ const useSAP = () => {
       return;
     }
     hideSpinner();
-
     if (success) {
       fetchBillingDocumentsSAP(true);
       showAlert({

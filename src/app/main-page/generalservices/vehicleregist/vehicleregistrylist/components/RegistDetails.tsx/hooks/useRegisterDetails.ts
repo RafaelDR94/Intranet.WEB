@@ -8,13 +8,12 @@ const useRegisterDetails = () => {
     const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
     const { showAlert } = usePrincipalAlert;
     const { showSpinner, hideSpinner } = usePrincipalLoading;
-    const { currentAssignment, fetchAssignmentById, error, resetCurrentAssignment,loadingdetails } = useTransportStore(
+    const { currentAssignment, fetchAssignmentById, error,loadingdetails } = useTransportStore(
         (s) => ({
             loadingdetails: s.loadingVehicleTracking,
             fetchAssignmentById: s.fetchAssignmentById,
             currentAssignment: s.currentAssignment,
             error: s.error,
-            resetCurrentAssignment: s.resetCurrentAssignment,
         }),
         shallow
     );
@@ -24,12 +23,9 @@ const useRegisterDetails = () => {
         if (!currentAssignment) return;
         if (!currentAssignment.vehicletrackinglist || currentAssignment.vehicletrackinglist.length === 0) {
             fetchAssignmentById(currentAssignment.vehicleassignments_id, true);
-            return;
         }
-        return () => {
-            resetCurrentAssignment();
-        };
-    }, [currentAssignment, resetCurrentAssignment, fetchAssignmentById]);
+
+    }, [currentAssignment, fetchAssignmentById]);
 
     useEffect(() => {
         if(loadingdetails){showSpinner({message:"Cargando detalles"});return;}

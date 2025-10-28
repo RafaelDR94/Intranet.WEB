@@ -83,14 +83,19 @@ const useSAT = () => {
 
     // Si no hay IDs válidos, mostramos alerta y no enviamos nada
     if (!ids.length) {
-      showAlert({
-        type: "warning",
-        title: "Sin CFDIs válidos",
-        description: "Solo los CFDIs válidos pueden enviarse a SAP.",
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 2000,
-      });
+      if (selected) {
+        sendToSapBillingDocument([selected?.billingdocument_id]);
+      } else {
+        showAlert({
+          type: "warning",
+          title: "Sin CFDIs válidos",
+          description: "Solo los CFDIs válidos pueden enviarse a SAP.",
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 2000,
+        });
+      }
+
       return;
     }
 
@@ -113,11 +118,10 @@ const useSAT = () => {
       showSpinner({ message: "Obteniendo facturas validadas..." });
       return;
     }
-
     hideSpinner();
 
     if (succesSend) {
-      fetchSatBillingDocument(true);
+      // fetchSatBillingDocument(true);
       showAlert({
         type: "success",
         title: "Facturas enviadas con éxito",
@@ -127,7 +131,7 @@ const useSAT = () => {
         autoCloseMs: 1500,
       });
       setPanelOpen((prev) => ({ ...prev, state: false }));
-      router.push("/main-page/accounting/sap/administration/");
+      // router.push("/main-page/accounting/sap/administration/");
     }
 
     if (error) {

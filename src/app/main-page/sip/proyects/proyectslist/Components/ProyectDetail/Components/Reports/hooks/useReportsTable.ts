@@ -37,7 +37,9 @@ const useReportsTable = () => {
     loading,
     fetchAllReportsByProyect,
     setCurrentReport,
-    reset
+    reset,
+    resetflags,
+    error
   } = useReportsStore((s) => ({
     currentReport: s.currentReport,
     reports: s.reports,
@@ -48,15 +50,16 @@ const useReportsTable = () => {
     loading: s.loading,
     fetchAllReportsByProyect: s.fetchAllReportsByProyect,
     setCurrentReport: s.setCurrentReport,
-    reset: s.reset
+    reset: s.reset,
+    resetflags: s.resetFlags,
+    error: s.error
   }), shallow)
 
 
   const { updateQuery } = useQuery();
   const reportList = ReportsTableMap(reports);
   const reportLocalList = ReportsTableMap(localReports);
-  
-  console.log("reportList",reportList);
+
 
 
   const handleCloseDetails = useCallback(() => {
@@ -79,6 +82,19 @@ const useReportsTable = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newReport]);
 
+  useEffect(() => {
+    if (error) {
+      showAlert({
+        type: "warning",
+        title: "No se encontraron reportes",
+        description: error,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+      resetflags();
+    }
+  }, [error])
 
 
 
@@ -238,8 +254,8 @@ const useReportsTable = () => {
 
   const handleSelectReportOnline = useCallback(
     (row: ReportsTable, options?: { forceButton?: boolean }) => {
-
-      const report = reports.find((report) => (row.id == report.id))
+      const latestreports = useReportsStore.getState().reports;
+      const report = latestreports.find((report) => (row.id == report.id))
       if (report) {
         setForceActionButton(Boolean(options?.forceButton));
         setCurrentReport(report);
@@ -247,20 +263,21 @@ const useReportsTable = () => {
       }
 
     },
-    [setCurrentReport, updateQuery, setForceActionButton, reports]
+    [setCurrentReport, updateQuery, setForceActionButton]
   );
 
   const handleSelectReportOffline = useCallback(
     (row: ReportsTable, options?: { forceButton?: boolean }) => {
-      const report = localReports.find((report) => (row.id == report.id))
+      // leer siempre el array más reciente del store
+      const latestLocal = useReportsStore.getState().localReports;
+      const report = latestLocal.find((report) => row.id == report.front_identifier||row.id == report.id);
       if (report) {
         setForceActionButton(Boolean(options?.forceButton));
         setCurrentReport(report);
-        updateQuery({ reportId: null, frontId: report.front_identifier })
+        updateQuery({ reportId: null, frontId: report.front_identifier });
       }
-
     },
-    [setCurrentReport, updateQuery, setForceActionButton, localReports]
+    [setCurrentReport, updateQuery, setForceActionButton]
   );
 
 

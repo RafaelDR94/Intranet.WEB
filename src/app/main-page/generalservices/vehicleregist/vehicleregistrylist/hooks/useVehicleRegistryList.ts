@@ -11,6 +11,8 @@ import type {
 } from '../types';
 
 import type { TransportAssignament } from '@/app/mappings/transport/transport.types';
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import { shallow } from 'zustand/shallow';
 
 const DATE_FORMATTER = new Intl.DateTimeFormat('es-MX', {
   day: '2-digit',
@@ -97,20 +99,25 @@ const sortByDepartureDesc = (
 };
 
 const useVehicleRegistryList = () => {
+  const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const router = useRouter();
   const [openDetailsPanel, setOpenDetailsPanel] = useState<boolean>(false);
-  const { assignments, fetchAssignments, loadingAssignments, setCurrentAssignment, resetCurrentAssignment, reset } =
+  const { assignments, fetchAssignments, successGetAssignments, loadingAssignments, setCurrentAssignment, resetCurrentAssignment, reset, error, resetFlags } =
     useTransportStore((state) => ({
       assignments: state.assignments,
       fetchAssignments: state.fetchAssignments,
       loadingAssignments: state.loadingAssignments,
+      successGetAssignments: state.successGetAssignments,
       setCurrentAssignment: state.setCurrentAssignment,
       resetCurrentAssignment: state.resetCurrentAssignment,
       reset: state.reset,
-    }));
+      error: state.error,
+      resetFlags: state.resetFlags
+    }), shallow);
 
   useEffect(() => {
-    void fetchAssignments();
+
+    void fetchAssignments(true);
   }, [fetchAssignments]);
 
   const rows = useMemo<VehicleRegistryRow[]>(() => {
@@ -148,6 +155,7 @@ const useVehicleRegistryList = () => {
   }, [router]);
 
   const handleArrive = useCallback((assignment: TransportAssignament) => {
+    resetCurrentAssignment();
     setCurrentAssignment(assignment);
     router.push('/main-page/generalservices/vehicleregist/vehicleregistry');
   }, [router]);
@@ -162,6 +170,28 @@ const useVehicleRegistryList = () => {
     resetCurrentAssignment();
     setOpenDetailsPanel(false);
   }, [setOpenDetailsPanel]);
+
+  useEffect(() => {
+    if (loadingAssignments) {
+      usePrincipalLoading.showSpinner({ message: "Cargando registros..." })
+      return;
+    }
+    if (successGetAssignments) {
+      resetFlags();
+    }
+    if (error) {
+      usePrincipalAlert.showAlert({
+        type: "error",
+        title: "Error al obtener listas",
+        description: error,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+      resetFlags();
+    }
+    usePrincipalLoading.hideSpinner();
+  }, [loadingAssignments, error, usePrincipalLoading, usePrincipalAlert, resetFlags, successGetAssignments])
 
 
   const searchableKeys = useMemo(

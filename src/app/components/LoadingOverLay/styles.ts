@@ -2,7 +2,7 @@ export type OverlayOpts = { blur: boolean; backdropOpacity: number };
 
 const overlayBase =
   // NOTA: absolute + inset-0 = cubre SOLO el contenedor relativo donde se renderice
-  'absolute inset-0 z-[105] flex items-center justify-center transition-all';
+  'absolute inset-0 z-[100] flex items-center justify-center transition-all';
 
 const box =
   'flex flex-col items-center gap-4 ' ;

@@ -161,7 +161,7 @@ export const useReportBuilderStore = createWithEqualityFn<ReportBuilderState>()(
       copyReport.enddate = currentDate();
       copyReport.progress="0";
       copyReport.ticket="S/T";
-      copyReport.remarks="Sin observacionnes";
+      copyReport.remarks="Sin observaciones";
       set({ report: copyReport })
     },
     resetflags: () => {

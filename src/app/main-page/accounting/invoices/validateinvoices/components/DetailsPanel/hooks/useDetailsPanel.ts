@@ -6,7 +6,7 @@ import { UseDetailsPanelArgs } from "./types";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsPutMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
-
+import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
 export const useDetailsPanel = ({
   selected,
   rejectType,
@@ -17,7 +17,14 @@ export const useDetailsPanel = ({
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
-
+  const {
+    sending,
+  } = useBillingCompleteProcessToSAPStore(
+    (s) => ({
+      sending: s.sending,
+    }),
+    shallow,
+  );
   const {
     validateBillingDocument,
     validateBillingDocumentOperations,
@@ -140,6 +147,7 @@ export const useDetailsPanel = ({
       });
       return;
     }
+    if (sending) return;
     hideSpinner();
 
     if (successPut) {
