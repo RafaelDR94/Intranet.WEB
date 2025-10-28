@@ -1,3 +1,8 @@
+### 1.47.26 Document registry submission 25-10-2025
+
+Feature:
+- Trigger Documents endpoint POST from document registry form submission with payload mapping and alerts. (Agente IA) [#]()
+
 ### 1.47.25 Operational documents listing 24-10-2025
 
 Feature:
