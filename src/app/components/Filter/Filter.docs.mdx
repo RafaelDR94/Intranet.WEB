@@ -1,0 +1,37 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="Components/Filter" />
+
+# Filter
+
+Botón contextual para seleccionar un criterio de filtrado desde un menú radial.
+Encapsula `ContextMenu` con opciones estilo radio y administra modo controlado
+o no controlado según las props recibidas.
+
+---
+
+## Uso rápido
+
+```tsx
+import Filter from '@/app/components/Filter/Filter'
+
+const options = [
+  { label: 'Todos', value: 'all' },
+  { label: 'Activos', value: 'active' },
+  { label: 'Inactivos', value: 'inactive' },
+]
+
+<Filter title="Filtrar por estado" options={options} onChange={setStatus} />
+```
+
+---
+
+## Props relevantes
+
+- `options`: lista de etiquetas y valores mostrados en el menú.
+- `selectedValue` / `defaultValue`: habilitan modo controlado o no controlado.
+- `trigger`: permite reemplazar el icono por un disparador personalizado.
+- `onChange(value)`: se dispara cuando el usuario elige una opción.
+
+Cuando `options` está vacío se muestra un elemento deshabilitado indicando que
+no hay filtros disponibles.

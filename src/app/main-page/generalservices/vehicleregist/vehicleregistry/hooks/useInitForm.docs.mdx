@@ -1,0 +1,55 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistry/hooks/useInitForm" />
+
+# useInitForm
+
+Prepara los campos del formulario vehicular para los flujos de salida o llegada.
+Sincroniza opciones dinamicas, rehidrata asignaciones y mantiene los valores en
+`useFormFieldsStore`.
+
+```tsx
+const {
+  submitRef,
+  formReady,
+  setFormReady,
+  ResetForms,
+  fields,
+  formVersion,
+  formId,
+  syncFormValues,
+} = useInitForm(formType)
+```
+
+---
+
+## Caracteristicas principales
+
+- Define el esquema base (`createVehicleRegistryFields`) y la variante de
+  llegada (`createVehicleRegistryFieldsArrive`) reutilizando las validaciones de
+  `DynamicForm`.
+- Sincroniza opciones de conductores y vehiculos al recibir datos desde
+  `useEmployeesStore` y `useTransportStore`.
+- Mantiene dos formularios (`departure-form` y `arrive-form`) y alterna el
+  activo segun exista una asignacion previa.
+- Exponen `syncFormValues` para que `DynamicForm` propague cambios sin perder la
+  version de campos dentro del store.
+
+---
+
+## Dependencias
+
+- `useEmployeesStore` y `useTransportStore` (Zustand) para poblar selects y
+  rehidratar seguimiento.
+- `useVehicleRegistryImagesStore` no es necesario aqui; solo se comparte el
+  `formId` con otros hooks.
+- `usePrincipal` muestra un spinner mientras se consulta la asignacion activa.
+
+---
+
+## Tips
+
+- `ResetForms` se ejecuta en el cleanup del efecto inicial. Si el hook se usa en
+  otro contexto asegurese de invocarlo manualmente al desmontar.
+- Las opciones de checklists de herramientas y documentos se generan con listas
+  helper (`getToolsChecklistValues`, `getDocumentsChecklistValues`).

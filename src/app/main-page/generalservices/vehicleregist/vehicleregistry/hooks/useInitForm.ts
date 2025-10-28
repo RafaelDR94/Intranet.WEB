@@ -1,3 +1,7 @@
+/**
+ * Hook principal que inicializa y sincroniza los formularios de registro vehicular.
+ * Configura campos dinamicos, sincroniza valores externos y rehidrata asignaciones existentes.
+ */
 import { useEffect, useRef, useState, useCallback } from "react";
 import { FieldModel } from "@/app/components/DynamicForm/types";
 import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
@@ -124,7 +128,7 @@ const createVehicleRegistryFields = (): FieldModel[] => [
     ],
   },
   {
-    type: "date",
+    type: "datetime-local",
     name: "date",
     label: "Fecha",
     placeholder: "Selecciona la fecha",
@@ -241,7 +245,7 @@ const createVehicleRegistryFieldsArrive = (assignment: TransportAssignament): Fi
       ],
     },
     {
-      type: "date",
+      type: "datetime-local",
       name: "date",
       label: "Fecha",
       placeholder: "Selecciona la fecha",

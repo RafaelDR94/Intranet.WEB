@@ -51,6 +51,7 @@ const useSignatures = (): UseSignaturesResult => {
   const { currentAssignment } = useTransportStore();
 
   const assignmentId = currentAssignment?.vehicleassignments_id ?? "";
+  const assignmentSignature = currentAssignment?.signature_employee ?? null;
   const hasAssignment = assignmentId.length > 0;
 
   const driverName = currentAssignment?.name ?? undefined;
@@ -91,7 +92,7 @@ const useSignatures = (): UseSignaturesResult => {
 
   const loadSignature = useCallback(
     async (force = false): Promise<void> => {
-      if (!hasAssignment || !firebasestorage?.storage) {
+      if (!hasAssignment) {
         if (force) {
           setSignature(assignmentId, null);
           setError(assignmentId, "signature", undefined);
@@ -100,6 +101,22 @@ const useSignatures = (): UseSignaturesResult => {
       }
 
       if (!force && (signatureValue !== undefined || errorSet)) {
+        return;
+      }
+
+      if (assignmentSignature) {
+        setLoading(assignmentId, "signature", true);
+        setError(assignmentId, "signature", undefined);
+        setSignature(assignmentId, assignmentSignature);
+        setLoading(assignmentId, "signature", false);
+        return;
+      }
+
+      if (!firebasestorage?.storage) {
+        if (force) {
+          setSignature(assignmentId, null);
+          setError(assignmentId, "signature", undefined);
+        }
         return;
       }
 
@@ -126,6 +143,7 @@ const useSignatures = (): UseSignaturesResult => {
     },
     [
       assignmentId,
+      assignmentSignature,
       errorSet,
       firebasestorage,
       hasAssignment,

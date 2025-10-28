@@ -246,22 +246,28 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
         />
       );
 
-    default:
+    default: {
+      const inputType =
+        field.type === "input"
+          ? "text"
+          : field.type === "email"
+          ? "email"
+          : field.type;
+      const inputValue = value ?? field.value ?? "";
+
       return (
         <Input
           {...baseProps}
-          className={`${baseProps.className ?? ""} ${
-            fieldRendererStyles.noSpinner
-          }`}
-          value={value ?? field.value}
-          onChange={(e) => handleChange(e.target.value)}
+          className={`${baseProps.className ?? ""} ${fieldRendererStyles.noSpinner}`}
+          value={inputValue}
+          onChange={(e) => handleChange((e.target as HTMLInputElement).value)}
           onBlur={onBlur}
-          type={field.type === "email" ? "email" : field.type}
+          type={inputType}
           variant={field.disabled ? "disabled" : variant}
           inputMode={field.type === "number" ? "decimal" : undefined} // opcional
           dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
         />
       );
+    }
   }
 };
-

@@ -1,0 +1,42 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="Components/ShowImage" />
+
+# ShowImage
+
+Overlay a pantalla completa para visualizar una imagen con soporte de blur,
+backdrop configurable y acción secundaria opcional.
+
+---
+
+## Requisitos
+
+- Debe ejecutarse en cliente (`'use client'`), idealmente dentro de
+  `PrincipalProvider` si las acciones disparan alertas externas.
+
+---
+
+## Uso rápido
+
+```tsx
+import ShowImage from '@/app/components/ShowImage/ShowImage'
+
+<ShowImage
+  open={isOpen}
+  src={previewUrl}
+  onClose={() => setOpen(false)}
+  showAction
+  actionLabel="Descargar"
+  onAction={handleDownload}
+/>
+```
+
+---
+
+## Props clave
+
+- `open`: controla la visibilidad del visor.
+- `disableOutsideClose`: bloquea cierre con clic en backdrop o tecla `Esc`.
+- `showAction`, `actionLabel`, `onAction`: habilitan botón adicional bajo la
+  imagen.
+- `blur`, `backdropOpacity`: ajustan estilo del overlay.
