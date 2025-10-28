@@ -6,7 +6,14 @@ import type {
   FieldModel,
   ResponsiveLayoutMatrix,
 } from "@/app/components/DynamicForm/types";
+import { Documents as DocumentsUrl } from "@/app/configurations/Axios/urls";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { mapDocumentTypesToOptions } from "@/app/mappings/documents/documents.mapper";
+import type { DocumentPostPayload } from "@/app/mappings/documents/documents.types";
+import { fileToDataUrl } from "@/app/utilities/FilesHelper/FilesHelper";
+import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
+import { pPost } from "@/app/utilities/Http/promisifyIntranet";
+import { requireGateway } from "@/app/utilities/Http/requireGateway";
 import { useDepartmentsStore } from "@/app/stores/useDepartmentsStore/useDepartmentsStore";
 import { useDocumentTypesStore } from "@/app/stores/useDocumentTypesStore/useDocumentTypesStore";
 
@@ -139,9 +146,72 @@ const createDocumentRegistryFields = (
   },
 ];
 
+const safeString = (value: unknown): string => {
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  return "";
+};
+
+const toManagement = (value: unknown): boolean => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "internal" || normalized === "true") return true;
+    if (normalized === "external" || normalized === "false") return false;
+  }
+  return true;
+};
+
+const extractFile = (value: unknown): File | null => (value instanceof File ? value : null);
+
+const getFileBaseName = (fileName: string): string => {
+  const lastDot = fileName.lastIndexOf(".");
+  if (lastDot <= 0) return fileName;
+  return fileName.slice(0, lastDot);
+};
+
+const getFileExtension = (fileName: string): string => {
+  const lastDot = fileName.lastIndexOf(".");
+  if (lastDot === -1 || lastDot === fileName.length - 1) return "";
+  return fileName.slice(lastDot + 1);
+};
+
+const buildDocumentPayload = async (
+  values: Record<string, unknown>,
+): Promise<DocumentPostPayload> => {
+  const file = extractFile(values.documentFile);
+  const fileName = file?.name ?? "";
+  const extension = getFileExtension(fileName);
+  const route = file ? await fileToDataUrl(file) : "";
+  const code = safeString(values.documentKey).trim();
+  const description = safeString(values.description).trim();
+  const documentTypeId = safeString(values.documentType);
+  const departmentId = safeString(values.destinationArea);
+  const management = toManagement(values.specifications);
+  const providedName = safeString(values.name).trim();
+  const baseName = fileName ? getFileBaseName(fileName) : "";
+
+  const name = providedName || baseName || code || fileName;
+
+  return {
+    name,
+    code,
+    description,
+    document_type_id: documentTypeId,
+    department_id: departmentId,
+    management,
+    route,
+    extension,
+  };
+};
+
 const useDocumentRegistry = () => {
   const submitRef = useRef<(() => void | Promise<void>) | null>(null);
   const [formReady, setFormReady] = useState(false);
+
+  const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
+  const { withLoading } = usePrincipalLoading;
+  const { showAlert, hideAlert } = usePrincipalAlert;
 
   const { activeDocumentTypes, loading: documentTypesLoading, fetchDocumentTypes } =
     useDocumentTypesStore((state) => ({
@@ -206,9 +276,49 @@ const useDocumentRegistry = () => {
     ],
   );
 
-  const handleSubmit = useCallback((_values: Record<string, unknown>) => {
-    // TODO: Integrar con el servicio de registro de documentos.
-  }, []);
+  const handleSubmit = useCallback(
+    async (values: Record<string, unknown>) => {
+      const post = pPost(requireGateway("post"), [200, 201]);
+
+      try {
+        await withLoading(async () => {
+          const payload = await buildDocumentPayload(values);
+          await post(DocumentsUrl, payload);
+        }, { message: "Registrando documento…" });
+
+        showAlert({
+          type: "success",
+          variant: "filled",
+          title: "Documento registrado",
+          description: "El documento se registró correctamente.",
+          autoCloseMs: 2000,
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+        });
+      } catch (error) {
+        const normalized = normalizeApiError(error);
+
+        showAlert({
+          type: "error",
+          variant: "filled",
+          title: "No se pudo registrar el documento",
+          description: normalized.message || "Ocurrió un error. Intenta de nuevo.",
+          showPrimaryButton: true,
+          primaryLabel: "Entendido",
+          onPrimaryClick: () => {
+            hideAlert();
+          },
+          showSecondaryButton: true,
+          secondaryLabel: "Reintentar",
+          onSecondaryClick: () => {
+            hideAlert();
+            submitRef.current?.();
+          },
+        });
+      }
+    },
+    [withLoading, showAlert, hideAlert],
+  );
 
   return {
     title: "Registro de Documentos",
