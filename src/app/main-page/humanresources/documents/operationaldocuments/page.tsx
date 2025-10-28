@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/Button/Button";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
+import { PopUp } from "@/app/components/PopUp/PopUp";
 import DocumentActionsMenuCell from "@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell";
 import type { ManagementDocumentTableRow } from "@/app/mappings/documents/documents.types";
 import DocIcon from "@/assets/icons/Docs/page.svg";
@@ -14,7 +15,11 @@ import { useOperationalDocuments } from "./hooks/useOperationalDocuments";
 
 const OperationalDocuments = () => {
   const router = useRouter();
-  const { rows, loading, error, refresh } = useOperationalDocuments();
+  const { rows, loading, error, refresh, deleteDocument, deletingDocument } =
+    useOperationalDocuments();
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [selectedDocument, setSelectedDocument] =
+    React.useState<ManagementDocumentTableRow | null>(null);
 
   const handleViewDocument = React.useCallback(
     (row: ManagementDocumentTableRow) => {
@@ -32,6 +37,28 @@ const OperationalDocuments = () => {
   const handleRefresh = React.useCallback(() => {
     refresh();
   }, [refresh]);
+
+  const handleRequestDelete = React.useCallback(
+    (row: ManagementDocumentTableRow) => {
+      setSelectedDocument(row);
+      setDeleteDialogOpen(true);
+    },
+    [],
+  );
+
+  const handleCloseDelete = React.useCallback(() => {
+    setDeleteDialogOpen(false);
+    setSelectedDocument(null);
+  }, []);
+
+  const handleConfirmDelete = React.useCallback(async () => {
+    if (!selectedDocument?.id || deletingDocument) return;
+
+    const success = await deleteDocument(selectedDocument.id);
+    if (success) {
+      handleCloseDelete();
+    }
+  }, [deleteDocument, deletingDocument, handleCloseDelete, selectedDocument]);
 
   const columns: ColumnDefinition<ManagementDocumentTableRow>[] = [
     {
@@ -57,7 +84,11 @@ const OperationalDocuments = () => {
       label: "",
       render: (row) => (
         <div className="flex justify-end pr-2">
-          <DocumentActionsMenuCell row={row} onView={handleViewDocument} />
+          <DocumentActionsMenuCell
+            row={row}
+            onView={handleViewDocument}
+            onDelete={handleRequestDelete}
+          />
         </div>
       ),
       invisible: false,
@@ -129,6 +160,25 @@ const OperationalDocuments = () => {
           Ocurrió un error al cargar los documentos: {error}
         </p>
       )}
+
+      <PopUp
+        open={deleteDialogOpen}
+        onClose={handleCloseDelete}
+        title="Eliminar documento"
+        content={
+          deletingDocument
+            ? "Eliminando documento…"
+            : selectedDocument?.name
+            ? `¿Deseas eliminar el documento "${selectedDocument.name}"?`
+            : "¿Deseas eliminar el documento?"
+        }
+        showPrimaryButton
+        primaryButtonText="Eliminar"
+        onPrimaryButtonClick={handleConfirmDelete}
+        showSecondaryButton
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={handleCloseDelete}
+      />
     </section>
   );
 };

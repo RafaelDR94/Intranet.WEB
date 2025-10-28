@@ -57,8 +57,11 @@ const fetchDocumentsMock = vi.fn(async (set: Set) => {
   })
 })
 
+const deleteDocumentMock = vi.fn()
+
 vi.mock('./utilities', () => ({
   fetchDocuments: (...args: any[]) => fetchDocumentsMock(...args),
+  deleteDocument: (...args: any[]) => deleteDocumentMock(...args),
 }))
 
 import { useDocumentsStore } from './useDocumentsStore'
@@ -71,8 +74,11 @@ describe('useDocumentsStore', () => {
       managementDocuments: [],
       loading: false,
       successGet: false,
+      deletingDocument: false,
+      successDeleteDocument: false,
       error: undefined,
       fetchDocuments: useDocumentsStore.getState().fetchDocuments,
+      deleteDocument: useDocumentsStore.getState().deleteDocument,
       reset: useDocumentsStore.getState().reset,
       resetFlags: useDocumentsStore.getState().resetFlags,
     } as DocumentsState)
@@ -119,8 +125,11 @@ describe('useDocumentsStore', () => {
       managementDocuments: [] as any,
       loading: false,
       successGet: true,
+      deletingDocument: true,
+      successDeleteDocument: true,
       error: undefined,
       fetchDocuments: useDocumentsStore.getState().fetchDocuments,
+      deleteDocument: useDocumentsStore.getState().deleteDocument,
       reset: useDocumentsStore.getState().reset,
       resetFlags: useDocumentsStore.getState().resetFlags,
     } as DocumentsState)
@@ -130,5 +139,7 @@ describe('useDocumentsStore', () => {
     expect(state.documents).toEqual([])
     expect(state.managementDocuments).toEqual([])
     expect(state.successGet).toBe(false)
+    expect(state.deletingDocument).toBe(false)
+    expect(state.successDeleteDocument).toBe(false)
   })
 })
