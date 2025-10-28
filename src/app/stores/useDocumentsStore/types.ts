@@ -5,8 +5,11 @@ export type DocumentsState = {
   managementDocuments: ManagementDocument[]
   loading: boolean
   successGet: boolean
+  deletingDocument: boolean
+  successDeleteDocument: boolean
   error?: string
   fetchDocuments: (force?: boolean) => Promise<void>
+  deleteDocument: (id: string) => Promise<boolean>
   reset: () => void
   resetFlags: () => void
 }

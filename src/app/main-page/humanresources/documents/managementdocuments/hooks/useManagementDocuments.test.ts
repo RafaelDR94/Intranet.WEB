@@ -4,6 +4,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import type { ManagementDocument } from '@/app/mappings/documents/documents.types'
 
 const fetchMock = vi.fn()
+const deleteMock = vi.fn()
 
 const managementDocuments: ManagementDocument[] = [
   {
@@ -39,6 +40,9 @@ vi.mock('@/app/stores/useDocumentsStore/useDocumentsStore', () => ({
       successGet: true,
       error: undefined,
       fetchDocuments: fetchMock,
+      deleteDocument: deleteMock,
+      deletingDocument: false,
+      successDeleteDocument: false,
       reset: vi.fn(),
       resetFlags: vi.fn(),
     }),
@@ -49,6 +53,7 @@ import { useManagementDocuments } from './useManagementDocuments'
 describe('useManagementDocuments hook', () => {
   beforeEach(() => {
     fetchMock.mockClear()
+    deleteMock.mockClear()
   })
 
   it('maps store documents into table rows and triggers fetch', async () => {
@@ -61,5 +66,7 @@ describe('useManagementDocuments hook', () => {
     expect(result.current.rows).toHaveLength(1)
     expect(result.current.rows[0].name).toBe('Manual de procesos')
     expect(result.current.rows[0].documentType).toBe('FORMATO')
+    expect(result.current.deleteDocument).toBe(deleteMock)
+    expect(result.current.deletingDocument).toBe(false)
   })
 })
