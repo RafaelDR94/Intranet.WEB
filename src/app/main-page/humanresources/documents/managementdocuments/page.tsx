@@ -6,141 +6,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/Button/Button";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
+import DocumentActionsMenuCell from "@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell";
 import type { ManagementDocumentTableRow } from "@/app/mappings/documents/documents.types";
 import DocIcon from "@/assets/icons/Docs/page.svg";
-import type { ContextMenuItem } from "@/app/components/ContextMenu/types";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { useManagementDocuments } from "./hooks/useManagementDocuments";
-import ContextMenu from "@/app/components/ContextMenu/ContextMenu";
-import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
-import CancelIcon from "@/assets/icons/acciones/cancel.svg";
-import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
-import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
-
-type ActionMenuCellProps = {
-  row: ManagementDocumentTableRow;
-  onEdit?: (row: ManagementDocumentTableRow) => void;
-  onDelete?: (row: ManagementDocumentTableRow) => void;
-};
-
-const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onEdit, onDelete }) => {
-  const isMobile = useIsMobile();
-  const { currentPagePermissions } = useAuth();
-  const [menuOpen, setMenuOpen] = React.useState(false);
-  const handleEdit = React.useCallback(() => {
-    if (!onEdit) return;
-
-    onEdit(row);
-    setMenuOpen(false);
-  }, [onEdit, row]);
-
-  const handleDelete = React.useCallback(() => {
-    if (!onDelete) return;
-
-    onDelete(row);
-    setMenuOpen(false);
-  }, [onDelete, row]);
-  const truthyPermissionStrings = new Set([
-    "true",
-    "1",
-    "yes",
-    "y",
-    "si",
-    "sí",
-    "allow",
-  ]);
-  const falsyPermissionStrings = new Set(["false", "0", "no", "deny"]);
-  const cancelPermissionKeys = [
-    "delete",
-    "cancel",
-    "cancelvoucher",
-    "cancelVoucher",
-    "cancelvale",
-    "cancelVale",
-    "cancelpettycash",
-    "cancelPettycash",
-    "cancel_petty_cash",
-    "cancelPettyCash",
-    "deleteVoucher",
-    "deleteVale",
-    "deletevoucher",
-    "deletevale",
-    "remove",
-  ];
-  const interpretPermission = (value: unknown): boolean | undefined => {
-    if (typeof value === "boolean") return value;
-    if (typeof value === "number") return value !== 0;
-    if (typeof value === "string") {
-      const normalized = value.trim().toLowerCase();
-      if (!normalized) return undefined;
-      if (truthyPermissionStrings.has(normalized)) return true;
-      if (falsyPermissionStrings.has(normalized)) return false;
-    }
-    return undefined;
-  };
-  const menuItems = React.useMemo<ContextMenuItem[]>(() => {
-    const items: ContextMenuItem[] = [];
-    const rawPermissions = (currentPagePermissions ?? {}) as Record<
-      string,
-      unknown
-    >;
-
-    const detailPermission = interpretPermission(rawPermissions.details);
-    if (detailPermission !== false && onEdit) {
-      items.push({
-        label: "Ver Detalle",
-        icon: EditIcon,
-        onClick: handleEdit,
-      });
-    }
-
-    if (onDelete) {
-      let cancelPermission = interpretPermission(rawPermissions.delete);
-      if (cancelPermission === undefined) {
-        for (const key of cancelPermissionKeys) {
-          if (!(key in rawPermissions)) continue;
-          cancelPermission = interpretPermission(rawPermissions[key]);
-          if (cancelPermission !== undefined) break;
-        }
-      }
-
-      if (cancelPermission ?? true) {
-        items.push({
-          label: "Cancelar",
-          icon: CancelIcon,
-          danger: true,
-          onClick: handleDelete,
-        });
-      }
-    }
-
-    if (!items.length) {
-      items.push({
-        label: "Sin acciones disponibles",
-        disabled: true,
-      });
-    }
-
-    return items;
-  }, [currentPagePermissions, handleDelete, handleEdit, onDelete]);
-  return (
-    <ContextMenu
-      alignRight
-      autoFlip
-      trigger={
-        <Button
-          size="xsmall"
-          variant="ghost"
-          icon={isMobile ? RightArrowIcon : DotsIcon}
-        />
-      }
-      items={menuItems}
-      isOpen={menuOpen}
-      setIsOpen={setMenuOpen}
-    />
-  );
-};
 
 const ManagementDocuments = () => {
   const router = useRouter();
@@ -148,14 +17,11 @@ const ManagementDocuments = () => {
 
   const handleViewDocument = React.useCallback(
     (row: ManagementDocumentTableRow) => {
-      if (!row.route) return;
+      if (!row.id) return;
 
-      const targetUrl = row.route;
-
-      if (targetUrl.startsWith("http")) {
-        window.open(targetUrl, "_blank", "noopener,noreferrer");
-        return;
-      }
+      const targetUrl = `/main-page/humanresources/documents/documentregistry?documentId=${encodeURIComponent(
+        row.id,
+      )}`;
 
       router.push(targetUrl);
     },
@@ -190,7 +56,7 @@ const ManagementDocuments = () => {
       label: "",
       render: (row) => (
         <div className="flex justify-end pr-2">
-          <ActionMenuCell row={row} onEdit={handleViewDocument} />
+          <DocumentActionsMenuCell row={row} onView={handleViewDocument} />
         </div>
       ),
 

@@ -9,13 +9,17 @@ import type {
 import { Documents as DocumentsUrl } from "@/app/configurations/Axios/urls";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { mapDocumentTypesToOptions } from "@/app/mappings/documents/documents.mapper";
-import type { DocumentPostPayload } from "@/app/mappings/documents/documents.types";
+import type {
+  DocumentPostPayload,
+  ManagementDocument,
+} from "@/app/mappings/documents/documents.types";
 import { fileToDataUrl } from "@/app/utilities/FilesHelper/FilesHelper";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pPost } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
 import { useDepartmentsStore } from "@/app/stores/useDepartmentsStore/useDepartmentsStore";
 import { useDocumentTypesStore } from "@/app/stores/useDocumentTypesStore/useDocumentTypesStore";
+import { useDocumentsStore } from "@/app/stores/useDocumentsStore/useDocumentsStore";
 
 const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
   sm: [[10], [10], [10], [10], [10], [10]],
@@ -177,6 +181,36 @@ const getFileExtension = (fileName: string): string => {
   return fileName.slice(lastDot + 1);
 };
 
+const mapDocumentToFieldValues = (
+  fields: FieldModel[],
+  document?: ManagementDocument,
+): FieldModel[] => {
+  if (!document) return fields;
+
+  return fields.map((field) => {
+    switch (field.name) {
+      case "documentKey":
+        return { ...field, value: document.code };
+      case "specifications":
+        return { ...field, value: document.management ? "internal" : "external" };
+      case "destinationArea":
+        return {
+          ...field,
+          value: document.department?.department_id ?? "",
+        };
+      case "documentType":
+        return {
+          ...field,
+          value: document.document_type?.document_type_id ?? "",
+        };
+      case "description":
+        return { ...field, value: document.description };
+      default:
+        return field;
+    }
+  });
+};
+
 const buildDocumentPayload = async (
   values: Record<string, unknown>,
 ): Promise<DocumentPostPayload> => {
@@ -206,7 +240,7 @@ const buildDocumentPayload = async (
   };
 };
 
-const useDocumentRegistry = () => {
+const useDocumentRegistry = (documentId?: string) => {
   const submitRef = useRef<(() => void | Promise<void>) | null>(null);
   const [formReady, setFormReady] = useState(false);
 
@@ -231,6 +265,11 @@ const useDocumentRegistry = () => {
     fetchDepartments: state.fetchDepartments,
   }));
 
+  const { documents, fetchDocuments } = useDocumentsStore((state) => ({
+    documents: state.documents,
+    fetchDocuments: state.fetchDocuments,
+  }));
+
   useEffect(() => {
     void fetchDocumentTypes();
   }, [fetchDocumentTypes]);
@@ -238,6 +277,18 @@ const useDocumentRegistry = () => {
   useEffect(() => {
     void fetchDepartments();
   }, [fetchDepartments]);
+
+  useEffect(() => {
+    if (!documentId) return;
+
+    const documentExists = documents.some(
+      (document) => document.document_id === documentId,
+    );
+
+    if (documentExists) return;
+
+    void fetchDocuments(true);
+  }, [documentId, documents, fetchDocuments]);
 
   const documentTypeOptions = useMemo(
     () => mapDocumentTypesToOptions(activeDocumentTypes),
@@ -260,21 +311,28 @@ const useDocumentRegistry = () => {
     );
   }, [departments]);
 
-  const fields = useMemo(
-    () =>
-      createDocumentRegistryFields(
-        documentTypeOptions,
-        documentTypesLoading,
-        destinationAreaOptions,
-        destinationAreasLoading,
-      ),
-    [
+  const existingDocument = useMemo(() => {
+    if (!documentId) return undefined;
+
+    return documents.find((document) => document.document_id === documentId);
+  }, [documentId, documents]);
+
+  const fields = useMemo(() => {
+    const baseFields = createDocumentRegistryFields(
       documentTypeOptions,
       documentTypesLoading,
       destinationAreaOptions,
       destinationAreasLoading,
-    ],
-  );
+    );
+
+    return mapDocumentToFieldValues(baseFields, existingDocument);
+  }, [
+    destinationAreaOptions,
+    destinationAreasLoading,
+    documentTypeOptions,
+    documentTypesLoading,
+    existingDocument,
+  ]);
 
   const handleSubmit = useCallback(
     async (values: Record<string, unknown>) => {
@@ -321,8 +379,8 @@ const useDocumentRegistry = () => {
   );
 
   return {
-    title: "Registro de Documentos",
-    submitLabel: "Registrar Documento",
+    title: documentId ? "Edición de Documento" : "Registro de Documentos",
+    submitLabel: documentId ? "Guardar Cambios" : "Registrar Documento",
     submitRef,
     formReady,
     setFormReady,
