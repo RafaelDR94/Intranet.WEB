@@ -18,16 +18,26 @@ import CancelIcon from "@/assets/icons/acciones/cancel.svg";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
 import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
 
-const ActionMenuCell = ({ row, onEdit, onDelete }) => {
+type ActionMenuCellProps = {
+  row: ManagementDocumentTableRow;
+  onEdit?: (row: ManagementDocumentTableRow) => void;
+  onDelete?: (row: ManagementDocumentTableRow) => void;
+};
+
+const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ row, onEdit, onDelete }) => {
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
   const handleEdit = React.useCallback(() => {
+    if (!onEdit) return;
+
     onEdit(row);
     setMenuOpen(false);
   }, [onEdit, row]);
 
   const handleDelete = React.useCallback(() => {
+    if (!onDelete) return;
+
     onDelete(row);
     setMenuOpen(false);
   }, [onDelete, row]);
@@ -77,7 +87,7 @@ const ActionMenuCell = ({ row, onEdit, onDelete }) => {
     >;
 
     const detailPermission = interpretPermission(rawPermissions.details);
-    if (detailPermission !== false) {
+    if (detailPermission !== false && onEdit) {
       items.push({
         label: "Ver Detalle",
         icon: EditIcon,
@@ -85,22 +95,24 @@ const ActionMenuCell = ({ row, onEdit, onDelete }) => {
       });
     }
 
-    let cancelPermission = interpretPermission(rawPermissions.delete);
-    if (cancelPermission === undefined) {
-      for (const key of cancelPermissionKeys) {
-        if (!(key in rawPermissions)) continue;
-        cancelPermission = interpretPermission(rawPermissions[key]);
-        if (cancelPermission !== undefined) break;
+    if (onDelete) {
+      let cancelPermission = interpretPermission(rawPermissions.delete);
+      if (cancelPermission === undefined) {
+        for (const key of cancelPermissionKeys) {
+          if (!(key in rawPermissions)) continue;
+          cancelPermission = interpretPermission(rawPermissions[key]);
+          if (cancelPermission !== undefined) break;
+        }
       }
-    }
 
-    if (cancelPermission ?? true) {
-      items.push({
-        label: "Cancelar",
-        icon: CancelIcon,
-        danger: true,
-        onClick: handleDelete,
-      });
+      if (cancelPermission ?? true) {
+        items.push({
+          label: "Cancelar",
+          icon: CancelIcon,
+          danger: true,
+          onClick: handleDelete,
+        });
+      }
     }
 
     if (!items.length) {
@@ -111,7 +123,7 @@ const ActionMenuCell = ({ row, onEdit, onDelete }) => {
     }
 
     return items;
-  }, [currentPagePermissions, handleDelete, handleEdit]);
+  }, [currentPagePermissions, handleDelete, handleEdit, onDelete]);
   return (
     <ContextMenu
       alignRight
@@ -134,7 +146,25 @@ const ManagementDocuments = () => {
   const router = useRouter();
   const { rows, loading, error, refresh } = useManagementDocuments();
 
-  console.log("rows ", rows);
+  const handleViewDocument = React.useCallback(
+    (row: ManagementDocumentTableRow) => {
+      if (!row.route) return;
+
+      const targetUrl = row.route;
+
+      if (targetUrl.startsWith("http")) {
+        window.open(targetUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      router.push(targetUrl);
+    },
+    [router],
+  );
+
+  const handleRefresh = React.useCallback(() => {
+    refresh();
+  }, [refresh]);
 
   const columns: ColumnDefinition<ManagementDocumentTableRow>[] = [
     {
@@ -160,7 +190,7 @@ const ManagementDocuments = () => {
       label: "",
       render: (row) => (
         <div className="flex justify-end pr-2">
-          <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+          <ActionMenuCell row={row} onEdit={handleViewDocument} />
         </div>
       ),
 
@@ -170,6 +200,34 @@ const ManagementDocuments = () => {
 
   return (
     <section className="space-y-8">
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-h5 font-semibold text-neutral-500">
+          Documentos Gerenciales
+        </h1>
+        <div className="flex items-center gap-3">
+          <Button
+            size="medium"
+            variant="outline"
+            hideIcon
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            Actualizar
+          </Button>
+          <Button
+            size="medium"
+            variant="solid"
+            hideIcon
+            onClick={() =>
+              router.push(
+                "/main-page/humanresources/documents/documentregistry",
+              )
+            }
+          >
+            Nuevo Documento
+          </Button>
+        </div>
+      </div>
       <DataTable<ManagementDocumentTableRow>
         tables={[
           {
@@ -194,22 +252,7 @@ const ManagementDocuments = () => {
         showButton={false}
         showDownloadTable
         dateKey={(row) => row.rawDate ?? row.date}
-        actionsRender={() => (
-          <div className="flex w-full items-center justify-end gap-3">
-            <Button
-              size="medium"
-              variant="solid"
-              hideIcon
-              onClick={() =>
-                router.push(
-                  "/main-page/humanresources/documents/documentregistry",
-                )
-              }
-            >
-              Nuevo Documentos
-            </Button>
-          </div>
-        )}
+        actionsRender={() => null}
       />
 
       {loading && (
