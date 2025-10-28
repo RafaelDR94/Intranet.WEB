@@ -45,9 +45,6 @@ export const fetchBillingDocumentsSAP = async (
     const getRequest = pGet(getFn)
     const response: AxiosResponse = await getRequest(BillingsSAPPendingDocuments)
     const data = response?.data?.data ?? {}
-
-    console.log('data fetch', data)
-
     // 🔹 Mapeamos directamente el objeto o lista de documentos
     const billingDocuments = mapDocuments(data)
 

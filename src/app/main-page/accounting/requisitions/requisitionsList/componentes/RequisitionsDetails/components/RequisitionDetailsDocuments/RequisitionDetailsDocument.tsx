@@ -77,6 +77,7 @@ const RequisitionDetailsDocument: React.FC = () => {
       {
         key: "xmlUrl" as unknown as keyof BillingDocumentDetailsTable,
         label: "ARCHIVOS",
+        cellClass: "w-1/15 text-left", headerClass: "w-1/15 text-left",
         render: (row) => (
           <div className="flex items-center gap-1">
             {row.xmlUrl && (
@@ -100,21 +101,23 @@ const RequisitionDetailsDocument: React.FC = () => {
           </div>
         ),
       },
-      { key: "fecha", label: "FECHA CONSUMO" },
-      { key: "description", label: "DESCRIPCIÓN" },
-      { key: "numpersons", label: "No. PERS." },
-      { key: "numnights", label: "No. NOCHES" },
+      { key: "fecha", label: "FECHA CONSUMO", cellClass: "w-2/15 text-center", headerClass: "w-2/15 text-center" },
+      { key: "description", label: "DESCRIPCIÓN", cellClass: "w-2/15 text-center", headerClass: "w-2/15", },
+      { key: "numpersons", label: "No. PERS.", cellClass: "w-1/15 text-center", headerClass: "w-1/15 text-center" },
+      { key: "numnights", label: "No. NOCHES", cellClass: "w-1/15 text-center", headerClass: "w-1/15 text-center" },
       {
-        key: "invoiceNumber" as unknown as keyof BillingDocumentDetailsTable,
+        key: "uuid",
         label: "No. FACTURA/TICKET",
+        cellClass: "w-3/15", headerClass: "w-3/15"
       },
-      { key: "subtotal", label: "SUBTOTAL" },
-      { key: "iva", label: "IVA" },
-      { key: "otherinvoices", label: "OTROS IMP." },
-      { key: "total", label: "TOTAL" },
+      { key: "subtotal", label: "SUBTOTAL", cellClass: "w-1/15", headerClass: "w-1/15" },
+      { key: "iva", label: "IVA", cellClass: "w-1/15", headerClass: "w-1/15" },
+      { key: "otherinvoices", label: "OTROS IMP.", cellClass: "w-1/15", headerClass: "w-1/15" },
+      { key: "total", label: "TOTAL", cellClass: "w-1/15", headerClass: "w-1/15" },
       {
         key: "status",
         label: "STATUS",
+        cellClass: "w-1/15", headerClass: "w-1/15",
         render: (row) => (
           <Label
             type={row.status.toLocaleLowerCase() as any}
@@ -135,8 +138,7 @@ const RequisitionDetailsDocument: React.FC = () => {
             Ver Detalles
           </Button>
         ),
-        cellClass: "w-28 text-right",
-        headerClass: "w-28 text-right",
+        cellClass: "w-1/15 text-right", headerClass: "w-1/15 text-right",
       },
     ],
     [handleOpenDetails],
@@ -150,12 +152,12 @@ const RequisitionDetailsDocument: React.FC = () => {
   }, [mobileColumns, sapprofile]);
 
   const filteredColumns = useMemo(() => {
-  return columns.filter((col) => {
-    if (sapprofile && col.key === "status") return false; // quitar "status" si sapprofile es true
-    if (!sapprofile && col.key === "invoiceNumber") return false; // quitar factura/ticket si sapprofile es false
-    return true;
-  });
-}, [columns, sapprofile]);
+    return columns.filter((col) => {
+      if (sapprofile && col.key === "status") return false; // quitar "status" si sapprofile es true
+      if (!sapprofile && col.key === "invoiceNumber") return false; // quitar factura/ticket si sapprofile es false
+      return true;
+    });
+  }, [columns, sapprofile]);
 
 
   const isBusy = Boolean(loading || downloadingDocument);

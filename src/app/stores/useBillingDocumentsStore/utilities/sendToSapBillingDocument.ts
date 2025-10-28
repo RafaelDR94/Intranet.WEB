@@ -33,12 +33,12 @@ export const sendToSapBillingDocument = async (
     const res: AxiosResponse = await put(BillingDocumentUrl, ids)
     const raw = res.data?.data
     const created = raw ? (raw as BillingDocuments) : null
+    set({ sending: false, succesSend: true, error: undefined });
+    setTimeout(() => {
+      fetchBillingDocuments(set, get, true);
+      fetchSatBillingDocument(set, get, true);
+    }, 200)
 
-    fetchBillingDocuments(set, get, true);
-    fetchSatBillingDocument(set, get, true);
-
-
-    set({ sending: false, succesSend: true, error: undefined })
     return created
   } catch (e) {
     set({ sending: false, succesSend: false, error: normalizeApiError(e).message })

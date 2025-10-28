@@ -41,12 +41,14 @@ const useLoadingOverlay = (): UseLoadingOverlay => {
   }, []);
 
   const hideSpinner = useCallback(
-    () =>
+    () => {
+      // console.debug('[spinner] hide', new Error().stack);
       setState((s) => {
         // No-op si ya está oculto
         if (!s.open) return s;
         return { ...s, open: false };
-      }),
+      })
+    },
     []
   );
 
