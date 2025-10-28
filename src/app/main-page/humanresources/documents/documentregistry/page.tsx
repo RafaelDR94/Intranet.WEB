@@ -1,11 +1,15 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 
 import useDocumentRegistry from "./hooks/useDocumentRegistry";
 
 const DocumentRegistry = () => {
+  const searchParams = useSearchParams();
+  const documentId = searchParams.get("documentId") ?? undefined;
   const {
     title,
     submitLabel,
@@ -15,7 +19,7 @@ const DocumentRegistry = () => {
     fields,
     responsiveLayoutMatrix,
     handleSubmit,
-  } = useDocumentRegistry();
+  } = useDocumentRegistry(documentId);
 
   return (
     <FormsLayout

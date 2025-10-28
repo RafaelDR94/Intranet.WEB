@@ -6,135 +6,31 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/Button/Button";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
+import DocumentActionsMenuCell from "@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell";
 import type { ManagementDocumentTableRow } from "@/app/mappings/documents/documents.types";
 import DocIcon from "@/assets/icons/Docs/page.svg";
-import type { ContextMenuItem } from "@/app/components/ContextMenu/types";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { useManagementDocuments } from "./hooks/useManagementDocuments";
-import ContextMenu from "@/app/components/ContextMenu/ContextMenu";
-import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
-import CancelIcon from "@/assets/icons/acciones/cancel.svg";
-import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
-import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
-
-const ActionMenuCell = ({ row, onEdit, onDelete }) => {
-  const isMobile = useIsMobile();
-  const { currentPagePermissions } = useAuth();
-  const [menuOpen, setMenuOpen] = React.useState(false);
-  const handleEdit = React.useCallback(() => {
-    onEdit(row);
-    setMenuOpen(false);
-  }, [onEdit, row]);
-
-  const handleDelete = React.useCallback(() => {
-    onDelete(row);
-    setMenuOpen(false);
-  }, [onDelete, row]);
-  const truthyPermissionStrings = new Set([
-    "true",
-    "1",
-    "yes",
-    "y",
-    "si",
-    "sí",
-    "allow",
-  ]);
-  const falsyPermissionStrings = new Set(["false", "0", "no", "deny"]);
-  const cancelPermissionKeys = [
-    "delete",
-    "cancel",
-    "cancelvoucher",
-    "cancelVoucher",
-    "cancelvale",
-    "cancelVale",
-    "cancelpettycash",
-    "cancelPettycash",
-    "cancel_petty_cash",
-    "cancelPettyCash",
-    "deleteVoucher",
-    "deleteVale",
-    "deletevoucher",
-    "deletevale",
-    "remove",
-  ];
-  const interpretPermission = (value: unknown): boolean | undefined => {
-    if (typeof value === "boolean") return value;
-    if (typeof value === "number") return value !== 0;
-    if (typeof value === "string") {
-      const normalized = value.trim().toLowerCase();
-      if (!normalized) return undefined;
-      if (truthyPermissionStrings.has(normalized)) return true;
-      if (falsyPermissionStrings.has(normalized)) return false;
-    }
-    return undefined;
-  };
-  const menuItems = React.useMemo<ContextMenuItem[]>(() => {
-    const items: ContextMenuItem[] = [];
-    const rawPermissions = (currentPagePermissions ?? {}) as Record<
-      string,
-      unknown
-    >;
-
-    const detailPermission = interpretPermission(rawPermissions.details);
-    if (detailPermission !== false) {
-      items.push({
-        label: "Ver Detalle",
-        icon: EditIcon,
-        onClick: handleEdit,
-      });
-    }
-
-    let cancelPermission = interpretPermission(rawPermissions.delete);
-    if (cancelPermission === undefined) {
-      for (const key of cancelPermissionKeys) {
-        if (!(key in rawPermissions)) continue;
-        cancelPermission = interpretPermission(rawPermissions[key]);
-        if (cancelPermission !== undefined) break;
-      }
-    }
-
-    if (cancelPermission ?? true) {
-      items.push({
-        label: "Cancelar",
-        icon: CancelIcon,
-        danger: true,
-        onClick: handleDelete,
-      });
-    }
-
-    if (!items.length) {
-      items.push({
-        label: "Sin acciones disponibles",
-        disabled: true,
-      });
-    }
-
-    return items;
-  }, [currentPagePermissions, handleDelete, handleEdit]);
-  return (
-    <ContextMenu
-      alignRight
-      autoFlip
-      trigger={
-        <Button
-          size="xsmall"
-          variant="ghost"
-          icon={isMobile ? RightArrowIcon : DotsIcon}
-        />
-      }
-      items={menuItems}
-      isOpen={menuOpen}
-      setIsOpen={setMenuOpen}
-    />
-  );
-};
 
 const ManagementDocuments = () => {
   const router = useRouter();
   const { rows, loading, error, refresh } = useManagementDocuments();
 
-  console.log("rows ", rows);
+  const handleViewDocument = React.useCallback(
+    (row: ManagementDocumentTableRow) => {
+      if (!row.id) return;
+
+      const targetUrl = `/main-page/humanresources/documents/documentregistry?documentId=${encodeURIComponent(
+        row.id,
+      )}`;
+
+      router.push(targetUrl);
+    },
+    [router],
+  );
+
+  const handleRefresh = React.useCallback(() => {
+    refresh();
+  }, [refresh]);
 
   const columns: ColumnDefinition<ManagementDocumentTableRow>[] = [
     {
@@ -160,7 +56,7 @@ const ManagementDocuments = () => {
       label: "",
       render: (row) => (
         <div className="flex justify-end pr-2">
-          <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+          <DocumentActionsMenuCell row={row} onView={handleViewDocument} />
         </div>
       ),
 
@@ -170,6 +66,34 @@ const ManagementDocuments = () => {
 
   return (
     <section className="space-y-8">
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-h5 font-semibold text-neutral-500">
+          Documentos Gerenciales
+        </h1>
+        <div className="flex items-center gap-3">
+          <Button
+            size="medium"
+            variant="outline"
+            hideIcon
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            Actualizar
+          </Button>
+          <Button
+            size="medium"
+            variant="solid"
+            hideIcon
+            onClick={() =>
+              router.push(
+                "/main-page/humanresources/documents/documentregistry",
+              )
+            }
+          >
+            Nuevo Documento
+          </Button>
+        </div>
+      </div>
       <DataTable<ManagementDocumentTableRow>
         tables={[
           {
@@ -194,22 +118,7 @@ const ManagementDocuments = () => {
         showButton={false}
         showDownloadTable
         dateKey={(row) => row.rawDate ?? row.date}
-        actionsRender={() => (
-          <div className="flex w-full items-center justify-end gap-3">
-            <Button
-              size="medium"
-              variant="solid"
-              hideIcon
-              onClick={() =>
-                router.push(
-                  "/main-page/humanresources/documents/documentregistry",
-                )
-              }
-            >
-              Nuevo Documentos
-            </Button>
-          </div>
-        )}
+        actionsRender={() => null}
       />
 
       {loading && (
