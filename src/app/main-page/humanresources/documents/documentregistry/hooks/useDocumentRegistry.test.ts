@@ -280,6 +280,9 @@ describe('useDocumentRegistry hook', () => {
     const descriptionField = result.current.fields.find(
       (field) => field.name === 'description',
     )
+    const fileField = result.current.fields.find(
+      (field) => field.name === 'documentFile',
+    )
     const routeField = result.current.fields.find(
       (field) => field.name === 'documentRoute',
     )
@@ -289,7 +292,10 @@ describe('useDocumentRegistry hook', () => {
     expect(destinationAreaField?.value).toBe('dept-1')
     expect(documentTypeField?.value).toBe('2dcf1875-35b6-4d9c-b6a2-6df144f1580c')
     expect(descriptionField?.value).toBe('Guía de procesos')
-    expect(routeField?.value).toBe('https://example.com/doc.pdf')
+    expect(fileField?.helperText).toBe(
+      'Archivo subido: https://example.com/doc.pdf',
+    )
+    expect(routeField).toBeUndefined()
     expect(result.current.title).toBe('Edición de Documento')
     expect(result.current.submitLabel).toBe('Guardar Cambios')
     expect(fetchDocumentsMock).not.toHaveBeenCalled()
@@ -335,9 +341,15 @@ describe('useDocumentRegistry hook', () => {
     const specificationsField = result.current.fields.find(
       (field) => field.name === 'specifications',
     )
+    const fileField = result.current.fields.find(
+      (field) => field.name === 'documentFile',
+    )
 
     expect(documentKeyField?.value).toBe('DOC-002')
     expect(specificationsField?.value).toBe('external')
+    expect(fileField?.helperText).toBe(
+      'Archivo subido: https://example.com/doc.pdf',
+    )
     expect(fetchDocumentsMock).toHaveBeenCalledTimes(1)
   })
 })

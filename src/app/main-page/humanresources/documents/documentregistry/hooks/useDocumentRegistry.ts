@@ -83,20 +83,11 @@ const createDocumentRegistryFields = (
     placeholder: "Seleccionar archivo",
     value: null,
     accept: ".pdf,.doc,.docx,.xlsx",
-    helperText: "Ningún archivo seleccionado",
+    helperText: documentRoute
+      ? `Archivo subido: ${documentRoute}`
+      : "Ningún archivo seleccionado",
     className: "w-full md:w-auto",
     validations: [{ type: "required" }],
-  },
-  {
-    type: "input",
-    name: "documentRoute",
-    label: "Ruta del archivo",
-    placeholder: "La ruta se generará al subir el archivo",
-    value: documentRoute,
-    disabled: true,
-    helperText: documentRoute
-      ? undefined
-      : "Sube un archivo para obtener la ruta en Firebase",
   },
   {
     type: "input",
@@ -215,7 +206,6 @@ const normalizeExtension = (extension: string): string =>
 const mapDocumentToFieldValues = (
   fields: FieldModel[],
   document?: ManagementDocument,
-  documentRoute?: string,
 ): FieldModel[] => {
   if (!document) return fields;
 
@@ -240,8 +230,6 @@ const mapDocumentToFieldValues = (
         };
       case "description":
         return { ...field, value: document.description };
-      case "documentRoute":
-        return { ...field, value: documentRoute ?? document.route };
       default:
         return field;
     }
@@ -451,7 +439,7 @@ const useDocumentRegistry = (documentId?: string) => {
       uploadedRoute,
     );
 
-    return mapDocumentToFieldValues(baseFields, existingDocument, uploadedRoute);
+    return mapDocumentToFieldValues(baseFields, existingDocument);
   }, [
     destinationAreaOptions,
     destinationAreasLoading,
@@ -469,7 +457,7 @@ const useDocumentRegistry = (documentId?: string) => {
         await withLoading(
           async () => {
             const file = extractFile(values.documentFile);
-            let route = uploadedRoute || safeString(values.documentRoute).trim();
+            let route = uploadedRoute || existingDocument?.route || "";
             let extension = uploadedExtension;
 
             if (!route && file) {
