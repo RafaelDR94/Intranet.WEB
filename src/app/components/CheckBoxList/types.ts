@@ -30,6 +30,8 @@ export type CheckBoxListProps = {
   dataTestId?: string;
   /** Posición de la etiqueta para todos los checkbox (default derecha) */
   labelPosition?: "left" | "right";
+  showSelectAll?: boolean;
+  columns?: number;
 };
 
 

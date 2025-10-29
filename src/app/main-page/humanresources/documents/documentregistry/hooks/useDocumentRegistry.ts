@@ -31,39 +31,41 @@ const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
   lg: [[5, 5], [5, 5, 5], [10]],
 };
 
-const toolsChecklistOptions = [
+const areasChecklistOptions = [
   { label: "Administración", value: "administracion" },
-  { label: "Almacén", value: "almacen" },
-  { label: "Asistente de dirección", value: "asistente_direccion" },
-  { label: "Calidad", value: "calidad" },
-  { label: "CAYAS", value: "cayas" },
-  { label: "Compras", value: "compras" },
-  { label: "Contabilidad y nominas", value: "contabilidad_nominas" },
-  { label: "Control interno y auditoria", value: "control_auditoria" },
-  { label: "Coord. operativa", value: "coord_operativa" },
-  { label: "Coord. compras nacionales", value: "coord_compras_nacionales" },
   { label: "Desarrollo tecnológico", value: "desarrollo_tecnologico" },
-  { label: "Dirección", value: "direccion" },
-  { label: "Finanzas", value: "finanzas" },
-  { label: "Ingeniería", value: "ingenieria" },
-  { label: "ITEDESCA", value: "itedesca" },
-  { label: "Licitaciones", value: "licitaciones" },
-  { label: "Niveles de servicio", value: "niveles_servicio" },
-  { label: "PMO", value: "pmo" },
-  { label: "Proyectos", value: "proyectos" },
-  { label: "Protectos especiales", value: "proyectos_especiales" },
   { label: "Radiología", value: "radiologia" },
+  { label: "Almacén", value: "almacen" },
+  { label: "Dirección", value: "direccion" },
   { label: "Reclutamiento y selec. personal", value: "reclutamiento" },
+  { label: "Asistente de dirección", value: "asistente_direccion" },
+  { label: "Finanzas", value: "finanzas" },
   { label: "RH", value: "rh" },
+  { label: "Calidad", value: "calidad" },
+  { label: "Ingeniería", value: "ingenieria" },
   { label: "Servicios generales", value: "servicios_generales" },
+  { label: "CAYAS", value: "cayas" },
+  { label: "ITEDESCA", value: "itedesca" },
   { label: "SIP", value: "sip" },
+  { label: "Compras", value: "compras" },
+  { label: "Licitaciones", value: "licitaciones" },
   { label: "Tecnología de la información", value: "ti" },
+  { label: "Contabilidad y nominas", value: "contabilidad_nominas" },
+  { label: "Niveles de servicio", value: "niveles_servicio" },
   { label: "Ventas", value: "ventas" },
+  { label: "Control interno y auditoria", value: "control_auditoria" },
+  { label: "PMO", value: "pmo" },
   { label: "VIP Ingeniería", value: "vip_ingenieria" },
+  { label: "Coord. operativa", value: "coord_operativa" },
+  { label: "Proyectos", value: "proyectos" },
   { label: "VISITAX", value: "visitax" },
+  { label: "Coord. compras nacionales", value: "coord_compras_nacionales" },
+  { label: "Protectos especiales", value: "proyectos_especiales" },
 ];
 
-const DEFAULT_TOOLS_CHECKED = toolsChecklistOptions.map((option) => option.value);
+const DEFAULT_TOOLS_CHECKED = areasChecklistOptions.map(
+  (option) => option.value,
+);
 
 const createDocumentRegistryFields = (
   documentTypeOptions: { label: string; value: string }[],
@@ -142,9 +144,9 @@ const createDocumentRegistryFields = (
   {
     type: "checkboxList",
     name: "toolsChecklist",
-    label: "Check List Herramientas",
+    label: "Seleccione las áreas a las que aplica",
     value: DEFAULT_TOOLS_CHECKED,
-    options: toolsChecklistOptions,
+    options: areasChecklistOptions,
     checkboxListProps: {
       labelPosition: "right",
     },
@@ -153,7 +155,8 @@ const createDocumentRegistryFields = (
 
 const safeString = (value: unknown): string => {
   if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value);
   return "";
 };
 
@@ -167,7 +170,8 @@ const toManagement = (value: unknown): boolean => {
   return true;
 };
 
-const extractFile = (value: unknown): File | null => (value instanceof File ? value : null);
+const extractFile = (value: unknown): File | null =>
+  value instanceof File ? value : null;
 
 const getFileBaseName = (fileName: string): string => {
   const lastDot = fileName.lastIndexOf(".");
@@ -192,7 +196,10 @@ const mapDocumentToFieldValues = (
       case "documentKey":
         return { ...field, value: document.code };
       case "specifications":
-        return { ...field, value: document.management ? "internal" : "external" };
+        return {
+          ...field,
+          value: document.management ? "internal" : "external",
+        };
       case "destinationArea":
         return {
           ...field,
@@ -248,12 +255,15 @@ const useDocumentRegistry = (documentId?: string) => {
   const { withLoading } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
 
-  const { activeDocumentTypes, loading: documentTypesLoading, fetchDocumentTypes } =
-    useDocumentTypesStore((state) => ({
-      activeDocumentTypes: state.activeDocumentTypes,
-      loading: state.loading,
-      fetchDocumentTypes: state.fetchDocumentTypes,
-    }));
+  const {
+    activeDocumentTypes,
+    loading: documentTypesLoading,
+    fetchDocumentTypes,
+  } = useDocumentTypesStore((state) => ({
+    activeDocumentTypes: state.activeDocumentTypes,
+    loading: state.loading,
+    fetchDocumentTypes: state.fetchDocumentTypes,
+  }));
 
   const {
     departments,
@@ -296,7 +306,10 @@ const useDocumentRegistry = (documentId?: string) => {
   );
 
   const destinationAreaOptions = useMemo(() => {
-    const uniqueDepartments = new Map<string, { label: string; value: string }>();
+    const uniqueDepartments = new Map<
+      string,
+      { label: string; value: string }
+    >();
     departments.forEach((department) => {
       const departmentName = department?.name?.trim();
       if (!departmentName) return;
@@ -339,10 +352,13 @@ const useDocumentRegistry = (documentId?: string) => {
       const post = pPost(requireGateway("post"), [200, 201]);
 
       try {
-        await withLoading(async () => {
-          const payload = await buildDocumentPayload(values);
-          await post(DocumentsUrl, payload);
-        }, { message: "Registrando documento…" });
+        await withLoading(
+          async () => {
+            const payload = await buildDocumentPayload(values);
+            await post(DocumentsUrl, payload);
+          },
+          { message: "Registrando documento…" },
+        );
 
         showAlert({
           type: "success",
@@ -360,7 +376,8 @@ const useDocumentRegistry = (documentId?: string) => {
           type: "error",
           variant: "filled",
           title: "No se pudo registrar el documento",
-          description: normalized.message || "Ocurrió un error. Intenta de nuevo.",
+          description:
+            normalized.message || "Ocurrió un error. Intenta de nuevo.",
           showPrimaryButton: true,
           primaryLabel: "Entendido",
           onPrimaryClick: () => {
@@ -387,6 +404,17 @@ const useDocumentRegistry = (documentId?: string) => {
     fields,
     responsiveLayoutMatrix,
     handleSubmit,
+    checklistDefinitions: {
+      areas: {
+        title: "Seleccione las áreas a las que aplica",
+        options: DEFAULT_TOOLS_CHECKED.map((value) => {
+          const option = areasChecklistOptions.find(
+            (option) => option.value === value,
+          );
+          return { label: option?.label || value, value };
+        }),
+      },
+    },
   };
 };
 

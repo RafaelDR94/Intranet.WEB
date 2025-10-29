@@ -1,15 +1,17 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
-
+import CheckBoxList from "@/app/components/CheckBoxList/CheckBoxList";
 import useDocumentRegistry from "./hooks/useDocumentRegistry";
 
 const DocumentRegistry = () => {
   const searchParams = useSearchParams();
   const documentId = searchParams.get("documentId") ?? undefined;
+
   const {
     title,
     submitLabel,
@@ -19,7 +21,11 @@ const DocumentRegistry = () => {
     fields,
     responsiveLayoutMatrix,
     handleSubmit,
+    checklistDefinitions,
   } = useDocumentRegistry(documentId);
+
+  // Estado local para controlar si se seleccionó "Documentos Operativos"
+  const [isOperationalDoc, setIsOperationalDoc] = useState(false);
 
   return (
     <FormsLayout
@@ -37,7 +43,22 @@ const DocumentRegistry = () => {
         onValidChange={setFormReady}
         responsiveLayoutMatrix={responsiveLayoutMatrix}
         dataTestId="document-registry-form"
-      />
+        // 🔹 Escucha los cambios del campo 'specifications'
+        onValuesChange={(values) => {
+          const specs = values?.specifications;
+          setIsOperationalDoc(specs === "external"); // "external" = Documentos Operativos
+        }}
+      >
+        {/* 🔹 Solo mostrar CheckBoxList si se selecciona Documentos Operativos */}
+        {isOperationalDoc && (
+          <CheckBoxList
+            title={checklistDefinitions.areas.title}
+            options={checklistDefinitions.areas.options}
+            showSelectAll={true}
+            columns={3}
+          />
+        )}
+      </DynamicForm>
     </FormsLayout>
   );
 };

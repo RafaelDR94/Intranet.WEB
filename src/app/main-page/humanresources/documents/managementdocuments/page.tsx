@@ -145,15 +145,6 @@ const ManagementDocuments = () => {
         )}
       />
 
-      {loading && (
-        <p className="text-sm text-neutral-300">Cargando documentos…</p>
-      )}
-      {error && !loading && (
-        <p className="text-sm text-red-400">
-          Ocurrió un error al cargar los documentos: {error}
-        </p>
-      )}
-
       <PopUp
         open={deleteDialogOpen}
         onClose={handleCloseDelete}
