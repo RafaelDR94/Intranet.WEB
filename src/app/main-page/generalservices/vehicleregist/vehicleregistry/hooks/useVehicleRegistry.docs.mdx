@@ -1,0 +1,49 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistry/hooks/useVehicleRegistry" />
+
+# useVehicleRegistry
+
+Hook coordinador del flujo Vehicular. Deriva textos, controla la vista activa
+(formulario o evidencias) y expone el submit que invoca `useSubmitForm`.
+
+```tsx
+const {
+  title,
+  submitLabel,
+  submitRef,
+  formReady,
+  formIsCompleted,
+  setFormReady,
+  fields,
+  formVersion,
+  syncFormValues,
+  formId,
+  responsiveLayoutMatrix,
+  handleSubmit,
+  currentView,
+  handleNext,
+  handleBack,
+} = useVehicleRegistry()
+```
+
+---
+
+## Que resuelve
+
+- Interpreta los query params `place` (arrive/departure) e `id` para decidir
+  copy, flujo y si se debe rehidratar una asignacion.
+- Coordina la redireccion al listado al terminar un envio exitoso.
+- Evalua `formReady`, firma capturada y evidencia completa para habilitar el
+  boton principal.
+- Orquesta `useInitForm`, `useSubmitForm` y `useVehicleRegistryImagesStore`
+  compartiendo el `formId` activo para ambas etapas.
+
+---
+
+## Consideraciones
+
+- Debe ejecutarse dentro de `PrincipalProvider` para usar `showAlert`.
+- Si `id` es `"undefined"` resetea el estado global de asignacion e imagenes.
+- Maneja timers con `setTimeout`; recuerde limpiar cuando se use fuera de la
+  pagina original.

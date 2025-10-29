@@ -1,0 +1,51 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistryList/Page" />
+
+# VehicleRegistryList
+
+Pantalla que muestra los registros vehiculares activos y finalizados. Organiza
+las asignaciones en tablas (en tránsito y finalizados) y habilita la navegación
+para crear nuevas salidas, registrar llegadas o revisar detalles completos.
+
+---
+
+## Contexto requerido
+
+- Debe renderizarse dentro de `AuthProvider` y `PrincipalProvider` para el uso
+  de spinners/alertas globales.
+- Consume `useTransportStore` para recuperar asignaciones y actualizar el
+  estado compartido con el formulario de registro.
+- Utiliza `DataTable` para listar información observando permisos de búsqueda,
+  refresh y acción primaria.
+
+---
+
+## Interacciones clave
+
+1. `useVehicleRegistryList` recupera asignaciones, separa en tránsito vs otros
+   y define manejadores (`handleArrive`, `handleOpenDetails`, `handleCreate`).
+2. Los botones de cada fila permiten registrar la llegada reusando la página de
+   registro (`/vehicleregistry`) o abrir el panel lateral `RegistDetails`.
+3. Al cerrar el panel se limpia el `currentAssignment` del store.
+
+---
+
+## Uso rápido
+
+```tsx
+import VehicleRegistryList from './page'
+
+export default function VehicleRegistryListRoute() {
+  return (
+    <AuthProvider>
+      <PrincipalProvider>
+        <VehicleRegistryList />
+      </PrincipalProvider>
+    </AuthProvider>
+  )
+}
+```
+
+Los DataTables incluyen búsqueda interna por destino, operador, vehículo y
+estado, además de paginación y recarga manual.

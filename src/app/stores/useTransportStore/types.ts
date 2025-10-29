@@ -69,7 +69,7 @@ export type TransportStoreState = {
 
   fetchVehicleTrackings: (force?: boolean) => Promise<VehicleTraking[] | null>;
   fetchVehicleTrackingById: (id: string, force?: boolean) => Promise<VehicleTraking | null>;
-  createVehicleTracking: (payload: VehicleTrakingPost) => Promise<VehicleTraking | null>;
+  createVehicleTracking: (payload: VehicleTrakingPost) => Promise<VehicleTraking | VehicleTrakingPost |null>;
   updateVehicleTracking: (payload: VehicleTrakingPut) => Promise<VehicleTraking | null>;
   deleteVehicleTracking: (id: string) => Promise<boolean>;
 

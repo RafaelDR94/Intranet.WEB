@@ -1,0 +1,51 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistryList/Components/RegistDetails/hooks/useRegisterDetails" />
+
+# useRegisterDetails
+
+Gestiona los datos y acciones de `RegistDetails`: carga detalles, habilita la
+generación de documentos y determina qué secciones mostrar.
+
+```tsx
+const {
+  currentAssignment,
+  departureDate,
+  arrivalDate,
+  hasArrival,
+  hasDeparture,
+  canGenerate,
+  generatingType,
+  generatingResponsive,
+  handleDownloadDocument,
+  handleDownloadResponsive,
+} = useRegisterDetails()
+```
+
+---
+
+## Funcionalidad
+
+- Recupera detalles del seguimiento usando `useTransportStore`. Si faltan
+  trackings vuelve a invocar `fetchAssignmentById`.
+- Evalúa banderas `hasArrival`/`hasDeparture` para habilitar tabs y descarga.
+- Usa `useVehicleDocuments` para construir PDFs (salida, llegada, responsiva) y
+  `CreatePDF` para generar el blob descargable.
+- Coordina spinners y alertas mediante `usePrincipal`.
+
+---
+
+## Manejo de estados
+
+- `generatingType` evita descargas simultáneas de salida/llegada.
+- `generatingResponsive` bloquea la responsiva hasta terminar.
+- Muestra alertas de advertencia cuando faltan datos para construir documentos.
+
+---
+
+## Consideraciones
+
+- Los documentos se descargan creando un `<a>` temporal en el DOM; recuerde
+  stubear `document.createElement` en pruebas (como en `useRegisterDetails.test.ts`).
+- Si el hook se usa fuera de la vista principal debe garantizar que existe un
+  `currentAssignment` válido en el store.

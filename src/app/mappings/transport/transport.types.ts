@@ -106,6 +106,8 @@ export type TransportAssignament = {
     "departure_date": string,
     "arrival_date": string,
     "destination": string,
+    "signature_leader": string |null,
+    "signature_employee": string |null
     vehicletrackinglist?: VehicleTraking[]
 }
 

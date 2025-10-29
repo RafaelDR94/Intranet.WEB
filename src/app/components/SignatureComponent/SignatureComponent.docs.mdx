@@ -1,0 +1,39 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="Components/SignatureComponent" />
+
+# SignatureComponent
+
+Contenedor compuesto que combina `SignaturePopUp` y `SignaturePad`. Administra
+la lógica de firmas internas/externas, alterna entre modal y canvas, y expone
+callbacks compatibles con los flujos de responsivas.
+
+---
+
+## Uso rápido
+
+```tsx
+import SignatureComponent from '@/app/components/SignatureComponent/SignatureComponent'
+
+<SignatureComponent
+  open={open}
+  responsibleGuid={employeeId}
+  onClose={() => setOpen(false)}
+  onAuthorization={handleSignature}
+  allowExternalToggle
+  responsiveRequired
+  onResponsiveDownload={buildResponsive}
+/>
+```
+
+---
+
+## Características
+
+- Soporta firma externa (captura de nombre/puesto) e interna (sube firma a
+  Firebase y actualiza store de autenticación).
+- Alterna entre el popup y el pad según el estado devuelto por
+  `useSignatureComponent`.
+- Permite habilitar el flujo de responsiva (`responsiveRequired`) delegando la
+  descarga al caller.
+- En modo toggle muestra botones para cambiar entre solicitud interna/externa.

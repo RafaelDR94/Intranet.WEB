@@ -1,0 +1,54 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistry/Page" />
+
+# VehicleRegistry
+
+Vista principal para capturar la salida o entrada de un vehiculo de flotilla.
+Combina el formulario dinamico de datos operativos con la etapa de evidencias
+fotograficas y firma del responsable.
+
+---
+
+## Contexto requerido
+
+- Debe vivir dentro de `AuthProvider` y `PrincipalProvider` para disparar
+  alertas y spinners globales.
+- Consume `useTransportStore`, `useEmployeesStore`, `useFormFieldsStore` y
+  `useVehicleRegistryImagesStore` (stores Zustand incluidos como singletons).
+- Lee parametros `place` e `id` a traves de `useQuery` para decidir el flujo
+  (salida o llegada) y rehidratar asignaciones previas.
+
+---
+
+## Flujo general
+
+1. `useVehicleRegistry` define el titulo, el boton de envio y el paso activo
+   (`form` o `pictures`).
+2. `useInitForm` configura los campos del formulario segun el tipo de flujo y
+   sincroniza las opciones de conductores y vehiculos.
+3. `useSubmitForm` publica el handler que crea/actualiza la asignacion y
+   registra el seguimiento vehicular.
+4. `ImagesComponent` gestiona la carga de fotografias y firma, reutilizando el
+   mismo `formId` para leer valores de conductor y vehiculo.
+
+---
+
+## Uso rapido
+
+```tsx
+import VehicleRegistry from './page'
+
+export default function VehicleRegistryRoute() {
+  return (
+    <AuthProvider>
+      <PrincipalProvider>
+        <VehicleRegistry />
+      </PrincipalProvider>
+    </AuthProvider>
+  )
+}
+```
+
+Al completar todos los pasos y confirmar el envio, la pagina redirige a la lista
+de reportes vehiculares.

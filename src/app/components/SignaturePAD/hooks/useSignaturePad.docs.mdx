@@ -1,0 +1,36 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="Components/SignaturePad/hooks/useSignaturePad" />
+
+# useSignaturePad
+
+Hook auxiliar para `SignaturePad`. Controla referencias al canvas, ajusta el
+tamaño con `ResizeObserver` y expone handlers para limpiar o guardar firmas.
+
+```tsx
+const {
+  sigCanvasRef,
+  wrapperRef,
+  size,
+  handleSave,
+  handleClear,
+} = useSignaturePad(props)
+```
+
+---
+
+## Funcionalidad
+
+- Observa el contenedor (`wrapperRef`) para recalcular `size`.
+- `handleClear` resetea la firma actual.
+- `handleSave` valida si el canvas está vacío y entrega un DataURL PNG al
+  callback recibido.
+
+---
+
+## Consideraciones
+
+- Requiere que el componente envuelva el canvas en un elemento asociado a
+  `wrapperRef`.
+- Si el canvas está vacío al invocar `handleSave`, lanza un `alert` para notificar
+  al usuario.

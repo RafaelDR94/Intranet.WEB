@@ -1,0 +1,47 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistryList/Components/RegistDetails/hooks/useVehiclePictures" />
+
+# useVehiclePictures
+
+Factory de hooks para cargar fotografías de salida o llegada desde Firebase
+Storage y cachearlas en `useVehicleMediaStore`.
+
+```tsx
+const useDeparturePictures = createVehiclePicturesHook('departure')
+const useArrivePictures = createVehiclePicturesHook('arrive')
+
+const { items, loading, error, hasAssignment, refresh } = useDeparturePictures()
+```
+
+---
+
+## Flujo
+
+1. Identifica el `assignmentId` a partir de `useTransportStore.currentAssignment`.
+2. Consulta `useVehicleMediaStore` para leer cache, estado de carga y errores.
+3. Si no hay cache se descarga cada slot (`PicturesModel`) usando
+   `firebasestorage.downloadFile`.
+4. Guarda resultados en el store (`setPictures`) o errores (`setError`), y
+   actualiza las flags de carga (`setLoading`).
+
+---
+
+## Resultados
+
+| Campo          | Descripción                                                 |
+| -------------- | ----------------------------------------------------------- |
+| `items`        | Lista normalizada para `ActivitiesViewer`.                  |
+| `loading`      | Bandera de carga por carpeta (`arrive`/`departure`).        |
+| `error`        | Mensaje amigable proveniente de `buildVehiclePicturesErrorMessage`. |
+| `hasAssignment`| Indica si existe una asignación seleccionada.               |
+| `refresh`      | Fuerza la recarga ignorando cache.                          |
+
+---
+
+## Consideraciones
+
+- En pruebas se recomienda mockear `useFirebase().firebasestorage` y el store de
+  media para evitar peticiones reales.
+- El helper `fetchVehiclePictures` se puede testear de forma aislada con un mock
+  de `FirebaseStorageHelper`.

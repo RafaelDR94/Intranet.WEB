@@ -1,0 +1,46 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistry/hooks/useSubmitForm" />
+
+# useSubmitForm
+
+Gestiona el envio del registro vehicular: crea asignaciones, registra el
+tracking y sube evidencias a Firebase Storage. Emite feedback mediante el
+contexto principal.
+
+```tsx
+const { sumbitPost } = useSubmitForm()
+
+await sumbitPost(values)
+```
+
+---
+
+## Pipeline de envio
+
+1. Muestra spinner global con `usePrincipalLoading`.
+2. Si ya existe `currentAssignment`, actualiza directamente el tracking.
+3. Si es salida nueva, crea la asignacion (`createAssignment`) y sube la firma
+   a Storage si aun es base64.
+4. Llama a `createVehicleTracking` con checklists y nivel de combustible.
+5. Carga las imagenes en cada slot (filtrando licencia en llegadas).
+6. Oculta el spinner sin importar si la operacion falla.
+
+---
+
+## Dependencias
+
+- `useTransportStore` (funciones `createAssignment`, `createVehicleTracking`,
+  `currentAssignment`, `error`).
+- `useVehicleRegistryImagesStore` para leer firma y slots.
+- `useFirebase().firebasestorage` para subir archivos.
+- Utilidades `base64ToBlob` para firmar base64.
+
+---
+
+## Manejo de errores
+
+- Si `useTransportStore.error` se llena, se muestra una alerta de error con
+  cierre automatico.
+- Los errores durante la promesa principal se propagan al caller (`useVehicleRegistry`)
+  que muestra una alerta de advertencia.

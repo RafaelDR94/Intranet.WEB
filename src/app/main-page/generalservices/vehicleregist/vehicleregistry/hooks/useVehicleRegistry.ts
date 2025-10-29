@@ -1,3 +1,7 @@
+/**
+ * Orquesta el flujo del registro vehicular y expone handlers para el formulario y la carga de evidencias.
+ * Determina el tipo de registro, sincroniza la vista activa y gestiona los mensajes al usuario.
+ */
 import useQuery from "@/app/hooks/useQuery/useQuery";
 import useInitForm from "./useInitForm";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -35,9 +39,10 @@ const useVehicleRegistry = () => {
     signature: state.signature,
   }), shallow);
 
-  const { currentAssignment } = useTransportStore(
+  const { currentAssignment, resetCurrentAssignment } = useTransportStore(
     (s) => ({
       currentAssignment: s.currentAssignment,
+      resetCurrentAssignment: s.resetCurrentAssignment
     }),
     shallow
   );
@@ -45,6 +50,7 @@ const useVehicleRegistry = () => {
   const { all } = useQuery();
   const [currentView, setCurrentView] = useState<"form" | "pictures">("form");
   const place = String(all.place);
+  const id = String(all.id);
   const formType = place === "arrive" ? "arrive" : "departure";
   const { usePrincipalAlert } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
@@ -67,10 +73,17 @@ const useVehicleRegistry = () => {
     place === "arrive" ? "Registrar Entrada" : "Registrar Salida";
 
   const hasSignature = Boolean(signature);
+
+  const slotstoreview = currentAssignment?slots.filter(slot=>slot.title!="Licencia de conducir"):slots
   const allImagesCaptured = useMemo(
-    () => slots.length > 0 && slots.every((slot) => Boolean(slot.file) || Boolean(slot.imageSrc)),
-    [slots]
+    () => slotstoreview.length > 0 && slotstoreview.every((slot) => Boolean(slot.file) || Boolean(slot.imageSrc)),
+    [slotstoreview]
   );
+  const {
+    resetAll
+  } = useVehicleRegistryImagesStore((state) => ({
+    resetAll: state.resetAll
+  }), shallow);
 
   const formIsCompleted = formReady && (hasSignature || currentAssignment?.vehicleassignments_id) && allImagesCaptured;
 
@@ -92,7 +105,14 @@ const useVehicleRegistry = () => {
         router.push("/main-page/generalservices/vehicleregist/vehicleregistrylist/");
       }, 1500);
     } catch (error) {
-      console.error("Error al registrar el vehiculo:", error);
+       showAlert({
+        type: "warning",
+        title: "Su registro tuvo el siguiente problema",
+        description: String(error),
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
     }
   };
   const handleNext = () => {
@@ -110,6 +130,12 @@ const useVehicleRegistry = () => {
       }
     };
   }, []);
+  useEffect(() => {
+    if (id == "undefined") {
+      resetCurrentAssignment();
+    }
+    resetAll();
+  }, [id,resetAll,resetCurrentAssignment])
 
 
   return {

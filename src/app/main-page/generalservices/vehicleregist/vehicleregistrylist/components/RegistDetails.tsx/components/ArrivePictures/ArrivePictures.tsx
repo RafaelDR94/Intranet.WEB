@@ -41,7 +41,7 @@ const ArrivePictures: React.FC = () => {
 
   return (
     <ActivitiesViewer
-      items={items}
+      items={items.filter(item=>item.title!="Licencia de conducir")}
       dataTestId="arrival-pictures-viewer"
       maxWidthClassName="max-w-4xl"
     />

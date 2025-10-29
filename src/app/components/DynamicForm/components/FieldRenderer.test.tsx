@@ -64,6 +64,33 @@ describe('FieldRenderer', () => {
     expect(screen.getByTestId('form-nombre')).toBeInTheDocument();
   });
 
+  it('renderiza un input datetime-local y propaga cambios de valor', () => {
+    const onChange = vi.fn();
+    const field: FieldModel = {
+      type: 'datetime-local',
+      name: 'startAt',
+      label: 'Fecha y hora',
+      value: '2024-10-10T10:30',
+    };
+
+    render(
+      <FieldRenderer
+        field={field}
+        value="2024-10-10T10:30"
+        allValues={{}}
+        onChange={onChange}
+        variant="default"
+        formDataTestId="form"
+      />
+    );
+
+    const input = screen.getByTestId('form-startAt') as HTMLInputElement;
+    expect(input.type).toBe('datetime-local');
+
+    fireEvent.change(input, { target: { value: '2024-11-11T12:45' } });
+    expect(onChange).toHaveBeenCalledWith('2024-11-11T12:45');
+  });
+
   it('renderiza un select con opciones', () => {
     const field: FieldModel = {
       type: 'select',

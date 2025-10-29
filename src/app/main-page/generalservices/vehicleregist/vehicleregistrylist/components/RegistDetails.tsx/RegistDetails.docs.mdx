@@ -1,0 +1,46 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistryList/Components/RegistDetails" />
+
+# RegistDetails
+
+Panel lateral que presenta la información completa de una asignación vehicular.
+Incluye tabs para datos generales, fotografías de salida/llegada y firmas, con
+botones para descargar documentos PDF.
+
+---
+
+## Props
+
+| Prop    | Tipo     | Descripción                                |
+| ------- | -------- | ------------------------------------------- |
+| onClose | `() => void` | Callback cuando se cierra el panel.        |
+| open    | `boolean`    | Controla la visibilidad del layout lateral. |
+
+---
+
+## Secciones internas
+
+- `Information`: checklist, kilometrajes y observaciones.
+- `DeparturePictures` / `ArrivePictures`: galería de evidencias.
+- `Signatures`: firma digital del responsable.
+
+Cada sección usa su propio hook y se renderiza vía `ButtonsNavigation`.
+
+---
+
+## Acciones
+
+- Descarga PDF de salida o llegada (`handleDownloadDocument`).
+- Descarga responsiva (`handleDownloadResponsive`).
+- Deshabilita botones mientras se generan documentos.
+
+---
+
+## Uso rápido
+
+```tsx
+const { openDetailsPanel, handleCloseDetails } = useVehicleRegistryList()
+
+<RegistDetails open={openDetailsPanel} onClose={handleCloseDetails} />
+```

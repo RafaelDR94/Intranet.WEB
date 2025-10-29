@@ -1,0 +1,46 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistry/Components/ImagesComponent/hooks/useImagesComponent" />
+
+# useImagesComponent
+
+Encapsula la logica de la etapa de evidencias: slots de imagenes, firma,
+generacion de responsiva y validaciones previas.
+
+```tsx
+const {
+  isSignatureOpen,
+  openSignature,
+  closeSignature,
+  slots,
+  signatureBox,
+  shouldShowSignatureButton,
+  selectedDriverId,
+  handleSignatureAuthorization,
+  handleImageSelect,
+  handleRemoveImage,
+  handleResponsiveDownload,
+  currentAssignment,
+} = useImagesComponent({ formId })
+```
+
+---
+
+## Responsabilidades clave
+
+- Lee los campos `driver` y `vehicle` del `useFormFieldsStore` para validar la
+  firma y habilitar la descarga de responsiva.
+- Sincroniza imagenes y firma en `useVehicleRegistryImagesStore`, compartido con
+  otros componentes del flujo.
+- En flujos de llegada (`currentAssignment` distinto de `null`) oculta el slot
+  de licencia y evita solicitar una nueva firma.
+- Genera la responsiva PDF mediante `useVehicleDocuments.makeResponsive` y
+  `CreatePDF`, mostrando feedback a traves de `usePrincipal`.
+
+---
+
+## Errores y UX
+
+- Resetea la firma si cambia el conductor seleccionado.
+- Limpia la imagen del slot cuando se produce un error al leer el archivo.
+- Muestra alertas informativas para estados de advertencia o error.

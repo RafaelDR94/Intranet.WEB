@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * Pagina principal para registrar entradas o salidas vehiculares con formulario y evidencias fotograficas.
+ */
+
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import useVehicleRegistry from "./hooks/useVehicleRegistry";

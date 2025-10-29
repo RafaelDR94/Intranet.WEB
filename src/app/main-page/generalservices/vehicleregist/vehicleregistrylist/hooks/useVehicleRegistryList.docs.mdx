@@ -1,0 +1,48 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistryList/hooks/useVehicleRegistryList" />
+
+# useVehicleRegistryList
+
+Hook maestro del listado vehicular. Gestiona la carga de asignaciones, las
+acciones sobre cada fila y el estado del panel de detalles.
+
+```tsx
+const {
+  inTransitRows,
+  otherRows,
+  loading,
+  handleRefresh,
+  handleCreate,
+  handleArrive,
+  searchableKeys,
+  handleOpenDetails,
+  handleCloseDetails,
+  openDetailsPanel,
+} = useVehicleRegistryList()
+```
+
+---
+
+## Responsabilidades
+
+- Ejecuta `fetchAssignments(true)` al montar y mantiene el spinner/alerta global
+  utilizando `usePrincipal`.
+- Mapea `TransportAssignament` a `VehicleRegistryRow`, separando estados "en
+  tránsito" mediante `isInTransitStatus`.
+- Exponer handlers:
+  - `handleArrive`: recalcula `currentAssignment`, navega al formulario con el
+    parámetro `id` para registrar llegada.
+  - `handleOpenDetails`: habilita el panel lateral `RegistDetails`.
+  - `handleCreate`: redirige a la pantalla de nuevo registro.
+- Administra `searchableKeys` para habilitar filtros en `DataTable`.
+
+---
+
+## Consideraciones
+
+- Al refrescar (`handleRefresh`) limpia el store (`reset`) antes de volver a
+  solicitar datos.
+- Maneja `successGetAssignments` y `error` para limpiar flags y mostrar alertas.
+- Mantener la dependencia vacía en los `useMemo`/`useCallback` es intencional
+  para evitar recalculados con funciones estables del store.

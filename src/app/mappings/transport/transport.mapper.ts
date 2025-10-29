@@ -100,9 +100,7 @@ export const mapVehicleTrakingList = (
 export const mapTransportAssignament = (
   raw: any
 ): TransportAssignament => ({
-  vehicleassignments_id: toString(
-    raw?.vehicleassignments_id ?? raw?.id ?? raw?.assignment_id
-  ),
+  vehicleassignments_id: toString(raw?.vehicleassignments_id ?? raw?.id ?? raw?.assignment_id),
   employee_id: toString(raw?.employee_id),
   name: toString(raw?.name ?? raw?.employee_name),
   transport: mapTransport(raw?.transport ?? {}),
@@ -110,6 +108,8 @@ export const mapTransportAssignament = (
   departure_date: normalizeDate(raw?.departure_date),
   arrival_date: normalizeDate(raw?.arrival_date),
   destination: toString(raw?.destination),
+  signature_leader: toString(raw?.signature_leader),
+  signature_employee: toString(raw?.signature_employee),
   vehicletrackinglist: mapVehicleTrakingList(raw?.vehicletrackinglist),
 });
 

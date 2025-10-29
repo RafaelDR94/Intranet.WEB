@@ -72,6 +72,7 @@ const useVehicleDocuments = () => {
   const { fetchEmployeeById } = useEmployeesStore();
 
   const assignmentId = currentAssignment?.vehicleassignments_id ?? "";
+  const assignmentSignature = currentAssignment?.signature_employee ?? null;
 
   const mediaEntry = useVehicleMediaStore(
     (state) => (assignmentId ? state.mediaByAssignment[assignmentId] : undefined),
@@ -138,6 +139,15 @@ const useVehicleDocuments = () => {
     if (!assignmentId) return null;
 
     const cached = mediaEntry?.signature;
+
+    if (assignmentSignature) {
+      if (cached !== assignmentSignature) {
+        setSignature(assignmentId, assignmentSignature);
+        setError(assignmentId, "signature", undefined);
+      }
+      return assignmentSignature;
+    }
+
     if (cached !== undefined) {
       return cached;
     }
@@ -171,6 +181,7 @@ const useVehicleDocuments = () => {
     }
   }, [
     assignmentId,
+    assignmentSignature,
     firebasestorage,
     mediaEntry?.signature,
     setError,
@@ -326,10 +337,10 @@ const useVehicleDocuments = () => {
       ensureSignature,
     ]
   );
-  const makeResponsive = useCallback(async (): Promise<FullDocument | null> => {
-    if (!currentAssignment) return null;
-    const employeeId = currentAssignment.employee_id;
-    const vehicleId = currentAssignment.transport?.transport_id;
+  const makeResponsive = useCallback(async (idEmplooye:string="",idVehicle:string="",date:string=""): Promise<FullDocument | null> => {
+    if (!currentAssignment&&(!idEmplooye && !idVehicle)) return null;
+    const employeeId = currentAssignment?currentAssignment.employee_id:idEmplooye;
+    const vehicleId = currentAssignment?currentAssignment.transport?.transport_id:idVehicle;
     if (!employeeId || !vehicleId) return null;
 
     const [employee, vehicle, signatureUrl] = await Promise.all([
@@ -342,7 +353,7 @@ const useVehicleDocuments = () => {
       return null;
     }
 
-    const folioDate =   formatDateHour(currentAssignment?.vehicletrackinglist?currentAssignment?.vehicletrackinglist[0].date : "")
+    const folioDate =   formatDateHour(currentAssignment?.vehicletrackinglist?currentAssignment?.vehicletrackinglist[0].date : date)
 
     return makeResponsivedocument(
       employee,

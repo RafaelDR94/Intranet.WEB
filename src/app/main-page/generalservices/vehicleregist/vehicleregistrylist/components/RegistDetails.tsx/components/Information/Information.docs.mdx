@@ -1,0 +1,33 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistryList/Components/RegistDetails/Information" />
+
+# Information
+
+Sección que presenta resumen general, kilometrajes, combustible y checklists de
+herramientas/documentos para la asignación seleccionada.
+
+---
+
+## Dependencias
+
+- `useInformation` provee la estructura formateada.
+- `CheckBoxList` se reutiliza en modo lectura (sin toggles).
+
+---
+
+## Estados manejados
+
+- Sin asignación: muestra mensaje instruccional.
+- Con datos: renderiza filas de destino/conductor/vehículo, métricas y remarks.
+
+---
+
+## Uso rápido
+
+```tsx
+<Information />
+```
+
+Debe existir un `currentAssignment` en `useTransportStore` para desplegar la
+información.
