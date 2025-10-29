@@ -10,13 +10,12 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import DocumentActionsMenuCell from "@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell";
 import type { ManagementDocumentTableRow } from "@/app/mappings/documents/documents.types";
 import DocIcon from "@/assets/icons/Docs/page.svg";
+import { useManagementDocuments } from "@/app/main-page/humanresources/documents/managementdocuments/hooks/useManagementDocuments";
 
-import { useOperationalDocuments } from "./hooks/useOperationalDocuments";
-
-const OperationalDocuments = () => {
+const ManagementDocuments = () => {
   const router = useRouter();
   const { rows, loading, error, refresh, deleteDocument, deletingDocument } =
-    useOperationalDocuments();
+    useManagementDocuments();
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [selectedDocument, setSelectedDocument] =
     React.useState<ManagementDocumentTableRow | null>(null);
@@ -25,11 +24,11 @@ const OperationalDocuments = () => {
     (row: ManagementDocumentTableRow) => {
       if (!row.id) return;
 
-      router.push(
-        `/main-page/humanresources/documents/documentregistry?documentId=${encodeURIComponent(
-          row.id,
-        )}`,
-      );
+      const targetUrl = `/main-page/humanresources/documents/documentregistry?documentId=${encodeURIComponent(
+        row.id,
+      )}`;
+
+      router.push(targetUrl);
     },
     [router],
   );
@@ -100,6 +99,7 @@ const OperationalDocuments = () => {
           />
         </div>
       ),
+
       invisible: false,
     },
   ];
@@ -111,13 +111,11 @@ const OperationalDocuments = () => {
           {
             title: "",
             enableCollaps: false,
-              enableSelection: true,
             data: rows,
             columns,
             defaultSortKey: "name",
           },
         ]}
-        showRefresh={true}
         textSize={{ mobile: "c2", desktop: "text-c2" }}
         enableInternalSearch
         searchableKeys={[
@@ -128,24 +126,13 @@ const OperationalDocuments = () => {
           "department",
         ]}
         showCalendar={false}
+        showRefresh={true}
         showFilter={false}
         showButton={false}
-        showDownloadTable
         dateKey={(row) => row.rawDate ?? row.date}
-        actionsRender={() => (
-          <div className="flex w-full items-center justify-end gap-3">
-            <Button
-              size="medium"
-              variant="solid"
-              hideIcon
-              onClick={() => router.push('/main-page/humanresources/documents/documentregistry')}
-            >
-              Nuevo Documento
-            </Button>
-          </div>
-        )}
+        actionsRender={() => ''}
       />
-      
+
       <PopUp
         open={deleteDialogOpen}
         onClose={handleCloseDelete}
@@ -168,4 +155,4 @@ const OperationalDocuments = () => {
   );
 };
 
-export default OperationalDocuments;
+export default ManagementDocuments;

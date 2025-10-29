@@ -5,6 +5,7 @@ export default function RequestPage() {
     <PermissionRedirect
       routes={[
         '/main-page/request/pettycash',
+        '/main-page/request/documents',
       ]}
     />
   );

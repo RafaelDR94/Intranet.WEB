@@ -117,6 +117,7 @@ const ManagementDocuments = () => {
             defaultSortKey: "name",
           },
         ]}
+        showRefresh={true}
         textSize={{ mobile: "c2", desktop: "text-c2" }}
         enableInternalSearch
         searchableKeys={[
