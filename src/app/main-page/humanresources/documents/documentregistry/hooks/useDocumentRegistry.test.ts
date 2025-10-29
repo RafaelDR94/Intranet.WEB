@@ -292,9 +292,8 @@ describe('useDocumentRegistry hook', () => {
     expect(destinationAreaField?.value).toBe('dept-1')
     expect(documentTypeField?.value).toBe('2dcf1875-35b6-4d9c-b6a2-6df144f1580c')
     expect(descriptionField?.value).toBe('Guía de procesos')
-    expect(fileField?.helperText).toBe(
-      'Archivo subido: https://example.com/doc.pdf',
-    )
+    expect(fileField?.helperText).toBe('Archivo listo: Manual de procesos')
+    expect(fileField?.helperText).not.toContain('https://example.com/doc.pdf')
     expect(routeField).toBeUndefined()
     expect(result.current.title).toBe('Edición de Documento')
     expect(result.current.submitLabel).toBe('Guardar Cambios')
@@ -347,9 +346,8 @@ describe('useDocumentRegistry hook', () => {
 
     expect(documentKeyField?.value).toBe('DOC-002')
     expect(specificationsField?.value).toBe('external')
-    expect(fileField?.helperText).toBe(
-      'Archivo subido: https://example.com/doc.pdf',
-    )
+    expect(fileField?.helperText).toBe('Archivo listo: Formato')
+    expect(fileField?.helperText).not.toContain('https://example.com/doc.pdf')
     expect(fetchDocumentsMock).toHaveBeenCalledTimes(1)
   })
 })
