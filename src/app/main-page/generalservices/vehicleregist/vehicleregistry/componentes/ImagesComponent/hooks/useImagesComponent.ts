@@ -249,6 +249,8 @@ const useImagesComponent = ({
       setDownloadingResponsive(false);
     }
   }, [
+    selectedDriverId ,
+    selectedVehicleId,
     currentAssignment,
     downloadingResponsive,
     hideSpinner,
