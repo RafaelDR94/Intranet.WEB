@@ -7,13 +7,13 @@ import type {
   ResponsiveLayoutMatrix,
 } from "@/app/components/DynamicForm/types";
 import { Documents as DocumentsUrl } from "@/app/configurations/Axios/urls";
+import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { mapDocumentTypesToOptions } from "@/app/mappings/documents/documents.mapper";
 import type {
   DocumentPostPayload,
   ManagementDocument,
 } from "@/app/mappings/documents/documents.types";
-import { fileToDataUrl } from "@/app/utilities/FilesHelper/FilesHelper";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pPost } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
@@ -67,11 +67,14 @@ const DEFAULT_TOOLS_CHECKED = areasChecklistOptions.map(
   (option) => option.value,
 );
 
+const DOCUMENTS_STORAGE_PREFIX = "HumanResources/DocumentRegistry/";
+
 const createDocumentRegistryFields = (
   documentTypeOptions: { label: string; value: string }[],
   documentTypesLoading: boolean,
   destinationAreaOptions: { label: string; value: string }[],
   destinationAreasLoading: boolean,
+  documentRoute: string,
 ): FieldModel[] => [
   {
     type: "file",
@@ -83,6 +86,17 @@ const createDocumentRegistryFields = (
     helperText: "Ningún archivo seleccionado",
     className: "w-full md:w-auto",
     validations: [{ type: "required" }],
+  },
+  {
+    type: "input",
+    name: "documentRoute",
+    label: "Ruta del archivo",
+    placeholder: "La ruta se generará al subir el archivo",
+    value: documentRoute,
+    disabled: true,
+    helperText: documentRoute
+      ? undefined
+      : "Sube un archivo para obtener la ruta en Firebase",
   },
   {
     type: "input",
@@ -185,9 +199,23 @@ const getFileExtension = (fileName: string): string => {
   return fileName.slice(lastDot + 1);
 };
 
+const sanitizeStorageKey = (value: string): string => {
+  if (!value) return "";
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9_-]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+};
+
+const normalizeExtension = (extension: string): string =>
+  extension.trim().toLowerCase();
+
 const mapDocumentToFieldValues = (
   fields: FieldModel[],
   document?: ManagementDocument,
+  documentRoute?: string,
 ): FieldModel[] => {
   if (!document) return fields;
 
@@ -212,19 +240,22 @@ const mapDocumentToFieldValues = (
         };
       case "description":
         return { ...field, value: document.description };
+      case "documentRoute":
+        return { ...field, value: documentRoute ?? document.route };
       default:
         return field;
     }
   });
 };
 
-const buildDocumentPayload = async (
+const buildDocumentPayload = (
   values: Record<string, unknown>,
-): Promise<DocumentPostPayload> => {
+  route: string,
+  extension: string,
+): DocumentPostPayload => {
   const file = extractFile(values.documentFile);
   const fileName = file?.name ?? "";
-  const extension = getFileExtension(fileName);
-  const route = file ? await fileToDataUrl(file) : "";
+  const fileExtension = getFileExtension(fileName);
   const code = safeString(values.documentKey).trim();
   const description = safeString(values.description).trim();
   const documentTypeId = safeString(values.documentType);
@@ -234,6 +265,9 @@ const buildDocumentPayload = async (
   const baseName = fileName ? getFileBaseName(fileName) : "";
 
   const name = providedName || baseName || code || fileName;
+  const normalizedExtension = normalizeExtension(
+    extension || fileExtension || "",
+  );
 
   return {
     name,
@@ -243,17 +277,24 @@ const buildDocumentPayload = async (
     department_id: departmentId,
     management,
     route,
-    extension,
+    extension: normalizedExtension,
   };
 };
 
 const useDocumentRegistry = (documentId?: string) => {
   const submitRef = useRef<(() => void | Promise<void>) | null>(null);
-  const [formReady, setFormReady] = useState(false);
+  const { firebasestorage } = useFirebase();
+  const [formValid, setFormValid] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadedRoute, setUploadedRoute] = useState("");
+  const [uploadedExtension, setUploadedExtension] = useState("");
+  const lastUploadedFileRef = useRef<File | null>(null);
 
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { withLoading } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
+
+  const formReady = formValid && !uploadingFile;
 
   const {
     activeDocumentTypes,
@@ -330,21 +371,94 @@ const useDocumentRegistry = (documentId?: string) => {
     return documents.find((document) => document.document_id === documentId);
   }, [documentId, documents]);
 
+  useEffect(() => {
+    if (!existingDocument) {
+      setUploadedRoute("");
+      setUploadedExtension("");
+      return;
+    }
+
+    setUploadedRoute(existingDocument.route ?? "");
+    setUploadedExtension(existingDocument.extension ?? "");
+  }, [existingDocument]);
+
+  const uploadDocumentFile = useCallback(
+    async (file: File, values: Record<string, unknown>) => {
+      if (!firebasestorage?.uploadFile) {
+        throw new Error("Firebase Storage no disponible");
+      }
+
+      const rawExtension = getFileExtension(file.name) || "dat";
+      const resolvedExtension = normalizeExtension(rawExtension) || "dat";
+      const code = safeString(values.documentKey).trim();
+      const baseNameFromFile = getFileBaseName(file.name);
+      const storageBase =
+        sanitizeStorageKey(code) || sanitizeStorageKey(baseNameFromFile) || "documento";
+      const storageKey = `${DOCUMENTS_STORAGE_PREFIX}${storageBase}.${resolvedExtension}`;
+
+      const url = await firebasestorage.uploadFile(file, storageKey);
+      return {
+        url,
+        extension: resolvedExtension,
+      };
+    },
+    [firebasestorage],
+  );
+
+  const handleValuesChange = useCallback(
+    async (values: Record<string, unknown>) => {
+      const file = extractFile(values.documentFile);
+
+      if (!file) {
+        lastUploadedFileRef.current = null;
+        if (!existingDocument) {
+          setUploadedRoute("");
+          setUploadedExtension("");
+        }
+        return;
+      }
+
+      if (lastUploadedFileRef.current === file && uploadedRoute) {
+        return;
+      }
+
+      setUploadingFile(true);
+      try {
+        const { url, extension } = await uploadDocumentFile(file, values);
+        lastUploadedFileRef.current = file;
+        setUploadedRoute(url);
+        setUploadedExtension(extension);
+      } catch (error) {
+        console.error("[document-registry] Error uploading file", error);
+        lastUploadedFileRef.current = null;
+        if (!existingDocument) {
+          setUploadedRoute("");
+          setUploadedExtension("");
+        }
+      } finally {
+        setUploadingFile(false);
+      }
+    },
+    [existingDocument, uploadDocumentFile, uploadedRoute],
+  );
+
   const fields = useMemo(() => {
     const baseFields = createDocumentRegistryFields(
       documentTypeOptions,
       documentTypesLoading,
       destinationAreaOptions,
       destinationAreasLoading,
+      uploadedRoute,
     );
 
-    return mapDocumentToFieldValues(baseFields, existingDocument);
+    return mapDocumentToFieldValues(baseFields, existingDocument, uploadedRoute);
   }, [
     destinationAreaOptions,
     destinationAreasLoading,
     documentTypeOptions,
     documentTypesLoading,
     existingDocument,
+    uploadedRoute,
   ]);
 
   const handleSubmit = useCallback(
@@ -354,7 +468,30 @@ const useDocumentRegistry = (documentId?: string) => {
       try {
         await withLoading(
           async () => {
-            const payload = await buildDocumentPayload(values);
+            const file = extractFile(values.documentFile);
+            let route = uploadedRoute || safeString(values.documentRoute).trim();
+            let extension = uploadedExtension;
+
+            if (!route && file) {
+              const uploadResult = await uploadDocumentFile(file, values);
+              route = uploadResult.url;
+              extension = uploadResult.extension;
+            }
+
+            if (!route) {
+              throw new Error(
+                "No se pudo obtener la ruta del archivo a registrar. Verifica la carga en Firebase.",
+              );
+            }
+
+            if (!extension) {
+              const fallbackExtension = file
+                ? getFileExtension(file.name)
+                : existingDocument?.extension ?? "";
+              extension = normalizeExtension(fallbackExtension || "");
+            }
+
+            const payload = buildDocumentPayload(values, route, extension);
             await post(DocumentsUrl, payload);
           },
           { message: "Registrando documento…" },
@@ -392,7 +529,15 @@ const useDocumentRegistry = (documentId?: string) => {
         });
       }
     },
-    [withLoading, showAlert, hideAlert],
+    [
+      withLoading,
+      showAlert,
+      hideAlert,
+      uploadedRoute,
+      uploadedExtension,
+      uploadDocumentFile,
+      existingDocument,
+    ],
   );
 
   return {
@@ -400,10 +545,12 @@ const useDocumentRegistry = (documentId?: string) => {
     submitLabel: documentId ? "Guardar Cambios" : "Registrar Documento",
     submitRef,
     formReady,
-    setFormReady,
+    setFormReady: setFormValid,
     fields,
     responsiveLayoutMatrix,
     handleSubmit,
+    handleValuesChange,
+    uploadingFile,
     checklistDefinitions: {
       areas: {
         title: "Seleccione las áreas a las que aplica",

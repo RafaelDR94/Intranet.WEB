@@ -12,7 +12,7 @@ const withLoadingMock = vi.fn(async (task: () => Promise<unknown>, _opts?: { mes
 const showAlertMock = vi.fn()
 const hideAlertMock = vi.fn()
 const postMock = vi.fn(async () => ({}))
-const fileToDataUrlMock = vi.fn(async () => 'data:application/pdf;base64,dummy')
+const uploadFileMock = vi.fn(async () => 'https://firebase.test/documents/DOC-001.pdf')
 const fetchDocumentsMock = vi.fn()
 
 const documentsState = {
@@ -42,8 +42,12 @@ vi.mock('@/app/utilities/Http/requireGateway', () => ({
   requireGateway: vi.fn(() => vi.fn()),
 }))
 
-vi.mock('@/app/utilities/FilesHelper/FilesHelper', () => ({
-  fileToDataUrl: (...args: unknown[]) => fileToDataUrlMock(...args),
+vi.mock('@/app/context/FirebaseContext/FirebaseContext', () => ({
+  useFirebase: () => ({
+    firebasestorage: {
+      uploadFile: uploadFileMock,
+    },
+  }),
 }))
 
 vi.mock('@/app/utilities/Http/normalizeApiError', () => ({
@@ -125,7 +129,7 @@ describe('useDocumentRegistry hook', () => {
     showAlertMock.mockClear()
     hideAlertMock.mockClear()
     postMock.mockClear()
-    fileToDataUrlMock.mockClear()
+    uploadFileMock.mockClear()
     fetchDocumentsMock.mockClear()
     documentsState.documents = []
   })
@@ -178,7 +182,10 @@ describe('useDocumentRegistry hook', () => {
     const [, loadingOpts] = withLoadingMock.mock.calls[0] ?? []
     expect(loadingOpts?.message).toBe('Registrando documento…')
 
-    expect(fileToDataUrlMock).toHaveBeenCalledWith(file)
+    expect(uploadFileMock).toHaveBeenCalledWith(
+      file,
+      'HumanResources/DocumentRegistry/DOC-001.pdf',
+    )
 
     expect(postMock).toHaveBeenCalledWith(DocumentsUrl, {
       name: 'Manual',
@@ -187,7 +194,7 @@ describe('useDocumentRegistry hook', () => {
       document_type_id: 'type-1',
       department_id: 'dept-1',
       management: true,
-      route: 'data:application/pdf;base64,dummy',
+      route: 'https://firebase.test/documents/DOC-001.pdf',
       extension: 'pdf',
     })
 
@@ -218,6 +225,7 @@ describe('useDocumentRegistry hook', () => {
     await result.current.handleSubmit(values)
 
     expect(withLoadingMock).toHaveBeenCalledTimes(1)
+    expect(uploadFileMock).toHaveBeenCalled()
     expect(showAlertMock).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
@@ -272,12 +280,16 @@ describe('useDocumentRegistry hook', () => {
     const descriptionField = result.current.fields.find(
       (field) => field.name === 'description',
     )
+    const routeField = result.current.fields.find(
+      (field) => field.name === 'documentRoute',
+    )
 
     expect(documentKeyField?.value).toBe('DOC-001')
     expect(specificationsField?.value).toBe('internal')
     expect(destinationAreaField?.value).toBe('dept-1')
     expect(documentTypeField?.value).toBe('2dcf1875-35b6-4d9c-b6a2-6df144f1580c')
     expect(descriptionField?.value).toBe('Guía de procesos')
+    expect(routeField?.value).toBe('https://example.com/doc.pdf')
     expect(result.current.title).toBe('Edición de Documento')
     expect(result.current.submitLabel).toBe('Guardar Cambios')
     expect(fetchDocumentsMock).not.toHaveBeenCalled()
