@@ -75,6 +75,7 @@ const createDocumentRegistryFields = (
   destinationAreaOptions: { label: string; value: string }[],
   destinationAreasLoading: boolean,
   documentRoute: string,
+  documentFileLabel: string,
 ): FieldModel[] => [
   {
     type: "file",
@@ -84,7 +85,7 @@ const createDocumentRegistryFields = (
     value: null,
     accept: ".pdf,.doc,.docx,.xlsx",
     helperText: documentRoute
-      ? `Archivo subido: ${documentRoute}`
+      ? `Archivo listo: ${documentFileLabel || "Documento cargado"}`
       : "Ningún archivo seleccionado",
     className: "w-full md:w-auto",
     validations: [{ type: "required" }],
@@ -276,6 +277,7 @@ const useDocumentRegistry = (documentId?: string) => {
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadedRoute, setUploadedRoute] = useState("");
   const [uploadedExtension, setUploadedExtension] = useState("");
+  const [uploadedFileLabel, setUploadedFileLabel] = useState("");
   const lastUploadedFileRef = useRef<File | null>(null);
 
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
@@ -363,11 +365,13 @@ const useDocumentRegistry = (documentId?: string) => {
     if (!existingDocument) {
       setUploadedRoute("");
       setUploadedExtension("");
+      setUploadedFileLabel("");
       return;
     }
 
     setUploadedRoute(existingDocument.route ?? "");
     setUploadedExtension(existingDocument.extension ?? "");
+    setUploadedFileLabel(existingDocument.name ?? existingDocument.code ?? "");
   }, [existingDocument]);
 
   const uploadDocumentFile = useCallback(
@@ -402,6 +406,7 @@ const useDocumentRegistry = (documentId?: string) => {
         if (!existingDocument) {
           setUploadedRoute("");
           setUploadedExtension("");
+          setUploadedFileLabel("");
         }
         return;
       }
@@ -416,12 +421,14 @@ const useDocumentRegistry = (documentId?: string) => {
         lastUploadedFileRef.current = file;
         setUploadedRoute(url);
         setUploadedExtension(extension);
+        setUploadedFileLabel(file.name);
       } catch (error) {
         console.error("[document-registry] Error uploading file", error);
         lastUploadedFileRef.current = null;
         if (!existingDocument) {
           setUploadedRoute("");
           setUploadedExtension("");
+          setUploadedFileLabel("");
         }
       } finally {
         setUploadingFile(false);
@@ -437,6 +444,7 @@ const useDocumentRegistry = (documentId?: string) => {
       destinationAreaOptions,
       destinationAreasLoading,
       uploadedRoute,
+      uploadedFileLabel,
     );
 
     return mapDocumentToFieldValues(baseFields, existingDocument);
@@ -447,6 +455,7 @@ const useDocumentRegistry = (documentId?: string) => {
     documentTypesLoading,
     existingDocument,
     uploadedRoute,
+    uploadedFileLabel,
   ]);
 
   const handleSubmit = useCallback(
@@ -464,6 +473,10 @@ const useDocumentRegistry = (documentId?: string) => {
               const uploadResult = await uploadDocumentFile(file, values);
               route = uploadResult.url;
               extension = uploadResult.extension;
+              setUploadedRoute(route);
+              setUploadedExtension(extension);
+              setUploadedFileLabel(file.name);
+              lastUploadedFileRef.current = file;
             }
 
             if (!route) {
