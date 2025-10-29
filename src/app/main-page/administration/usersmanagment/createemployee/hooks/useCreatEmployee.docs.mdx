@@ -1,0 +1,49 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/CreateEmployee/useCreatEmployee" />
+
+# useCreatEmployee
+
+Hook que orquesta el formulario de alta/edición de empleados: prepara campos dinámicos, resuelve catálogos, carga información existente y maneja la subida opcional de la fotografía de perfil.
+
+## API
+
+- `loadingForm: boolean` – indica si se están obteniendo catálogos o campos base.
+- `fields: FieldModel[] | undefined` – definición dinámica del formulario.
+- `submitRef: MutableRefObject<() => void | Promise<void>>` – referencia para disparar el submit desde el contenedor.
+- `handleSubmit(values): Promise<void>` – normaliza los datos y llama a `createEmployee` o `updateEmployee`.
+- `handleValidChange(valid: boolean): void` – sincroniza el estado de `formCompleted`.
+- `canStart: boolean` – evita renderizar el formulario hasta que los datos necesarios están listos.
+- `formCompleted: boolean` – indica si el formulario actual es válido.
+
+## Ejemplo básico
+
+```tsx
+import useCreatEmployee from './hooks/useCreatEmployee';
+import DynamicForm from '@/app/components/DynamicForm/DynamicForm';
+
+const Form = () => {
+  const {
+    loadingForm,
+    fields,
+    submitRef,
+    handleSubmit,
+    handleValidChange,
+    canStart,
+    formCompleted,
+  } = useCreatEmployee();
+
+  if (!canStart) return null;
+
+  return (
+    <DynamicForm
+      fields={fields}
+      onSubmit={handleSubmit}
+      externalSubmitRef={submitRef}
+      loadingFormInfo={loadingForm}
+      onValidChange={handleValidChange}
+      showSubmitIf={() => formCompleted}
+    />
+  );
+};
+```

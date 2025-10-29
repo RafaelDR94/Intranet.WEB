@@ -10,7 +10,7 @@ export const VerifyOTP = process.env.NEXT_PUBLIC_VERIFY_OTP ?? "/VerifyOTP";
 
 export const Enterprises = process.env.NEXT_PUBLIC_ENTERPRISES ?? "/Enterprises";
 export const Departments = process.env.NEXT_PUBLIC_DEPARTMENTS ?? "/Enterprises/Departments";
-export const Areas = process.env.NEXT_PUBLIC_AREAS ?? "/Enterprises/Areas";
+
 export const Persons = process.env.NEXT_PUBLIC_PERSONS ?? "/Persons";
 export const WorkPosition = process.env.NEXT_PUBLIC_WORK_POSITION ?? "/Enterprises/WorkPosition";
 

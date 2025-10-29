@@ -74,7 +74,14 @@ export const sidebarRoutes = [
       { label: 'Documentos', path: '/main-page/humanresources/documents' },
     ],
   },
-
+  {
+    label: 'Administracion de usuarios',
+    path: '/main-page/usersmanagment',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Administracion de usuarios', path: '/main-page/administration/usersmanagment' },
+    ],
+  },
 ];
 
 /**

@@ -1,0 +1,33 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/Employees/CreateUser/useCreateUser" />
+
+# useCreateUser
+
+Hook que inicializa el formulario de creación de usuarios: solicita catálogos de roles, precarga campos con la información del empleado y administra la retroalimentación visual mediante `PrincipalContext`.
+
+## API
+
+- `fields: FieldModel[]` – campos a renderizar en `DynamicForm`.
+- `formVersion: number` – versión para forzar rehidrataciones controladas.
+- `loadingForm: boolean` – muestra skeleton o spinners mientras se arman los campos.
+- `loadingSubmit: boolean` – indica envío en curso.
+- `handleSubmit(values): Promise<void>` – construye el payload y llama a `createUser`.
+- `handleValidChange(valid: boolean): void` – sincroniza la validez del formulario.
+- `formValid: boolean` – estado de validez actual.
+- `canSubmit: boolean` – requiere empleado seleccionado y opciones de rol cargadas.
+- `hasEmployee: boolean` – permite mostrar el mensaje vacío cuando no hay selección.
+
+## Ejemplo
+
+```tsx
+const {
+  fields,
+  handleSubmit,
+  handleValidChange,
+  formValid,
+  canSubmit,
+} = useCreateUser();
+```
+
+El hook limpia el formulario al desmontarse y restablece valores luego de crear un usuario exitosamente para disparar un nuevo flujo si es necesario.

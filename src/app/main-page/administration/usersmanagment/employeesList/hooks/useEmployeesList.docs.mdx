@@ -1,0 +1,33 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/EmployeesList/useEmployeesList" />
+
+# useEmployeesList
+
+Hook responsable de enlazar la tabla de empleados con el store global: carga o refresca la información, administra modales, orquesta eliminaciones y resuelve los permisos de la vista.
+
+## API
+
+- `employeesList: EmployeeType[]` – registros a mostrar en el `DataTable`.
+- `currentEmployee?: EmployeeType` – elemento seleccionado para detalle/acciones.
+- `openDetails: boolean` – controla el panel lateral de detalles.
+- `openDeletePopUp: boolean` – controla el diálogo de confirmación.
+- `currentPagePermissions` – permisos provenientes de `useAuth`.
+- `handleOpenDetails(employee)` / `handleCloseDetails()` – abre/cierra el panel y selecciona el empleado.
+- `handleOpenDeletePopUp(employee)` / `handleCloseDeletePopUp()` – controla el popup de eliminación.
+- `handleDeleteEmployee(): Promise<void>` – ejecuta `deleteEmployee` y resetea estado.
+- `handleEditEmployee(employee)` – redirige al formulario de edición.
+- `handleOpenNew()` – navega al flujo de alta.
+
+## Ejemplo
+
+```tsx
+const {
+  employeesList,
+  handleOpenDetails,
+  handleOpenDeletePopUp,
+  handleOpenNew,
+} = useEmployeesList();
+```
+
+Los efectos internos muestran spinners y alertas a través del `PrincipalContext` mientras se realizan llamadas asincrónicas o se producen errores.
