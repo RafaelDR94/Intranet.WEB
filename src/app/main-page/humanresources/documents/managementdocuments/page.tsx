@@ -61,10 +61,19 @@ const ManagementDocuments = () => {
 
   const columns: ColumnDefinition<ManagementDocumentTableRow>[] = [
     {
-      key: "name",
+      key: "files" as unknown as keyof ManagementDocumentTableRow,
       label: "FORMATO",
       render: (row) => (
-        <DocIcon className="text-primary-400 h-8 w-8" aria-hidden />
+        <div>
+          {row.route && (
+            <Button
+              size="xsmall"
+              variant="ghost"
+              icon={DocIcon}
+              onClick={() => window.open(row.route, "_blank")}
+            />
+          )}
+        </div>
       ),
     },
     {
@@ -97,39 +106,12 @@ const ManagementDocuments = () => {
 
   return (
     <section className="space-y-8">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-h5 font-semibold text-neutral-500">
-          Documentos Gerenciales
-        </h1>
-        <div className="flex items-center gap-3">
-          <Button
-            size="medium"
-            variant="outline"
-            hideIcon
-            onClick={handleRefresh}
-            disabled={loading}
-          >
-            Actualizar
-          </Button>
-          <Button
-            size="medium"
-            variant="solid"
-            hideIcon
-            onClick={() =>
-              router.push(
-                "/main-page/humanresources/documents/documentregistry",
-              )
-            }
-          >
-            Nuevo Documento
-          </Button>
-        </div>
-      </div>
       <DataTable<ManagementDocumentTableRow>
         tables={[
           {
             title: "",
             enableCollaps: false,
+            enableSelection: true,
             data: rows,
             columns,
             defaultSortKey: "name",
@@ -149,7 +131,18 @@ const ManagementDocuments = () => {
         showButton={false}
         showDownloadTable
         dateKey={(row) => row.rawDate ?? row.date}
-        actionsRender={() => null}
+        actionsRender={() => (
+          <div className="flex w-full items-center justify-end gap-3">
+            <Button
+              size="medium"
+              variant="solid"
+              hideIcon
+              onClick={() => router.push('/main-page/humanresources/documents/documentregistry')}
+            >
+              Nuevo Documento
+            </Button>
+          </div>
+        )}
       />
 
       {loading && (
@@ -164,12 +157,12 @@ const ManagementDocuments = () => {
       <PopUp
         open={deleteDialogOpen}
         onClose={handleCloseDelete}
-        title="Eliminar documento"
+        title="Eliminar Documento"
         content={
           deletingDocument
             ? "Eliminando documento…"
             : selectedDocument?.name
-            ? `¿Deseas eliminar el documento "${selectedDocument.name}"?`
+            ? `Esta acción confirmará la eliminación del documento seleccionado`
             : "¿Deseas eliminar el documento?"
         }
         showPrimaryButton
