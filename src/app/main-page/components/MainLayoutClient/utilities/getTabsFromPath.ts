@@ -39,6 +39,12 @@ export const getTabsFromPath = (
         path: "/main-page/request/pettycash/pettycashhistory",
       }
     ],
+    "request/documents": [
+      {
+        label: "Documentos Gerenciales",
+        path: "/main-page/request/documents/managementdocuments",
+      }
+    ],
     "accounting/invoices": [
       {
         label: "Subir Archivos",
