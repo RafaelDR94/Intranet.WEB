@@ -22,6 +22,8 @@ const DocumentRegistry = () => {
     responsiveLayoutMatrix,
     handleSubmit,
     checklistDefinitions,
+    handleValuesChange,
+    uploadingFile,
   } = useDocumentRegistry(documentId);
 
   // Estado local para controlar si se seleccionó "Documentos Operativos"
@@ -43,8 +45,10 @@ const DocumentRegistry = () => {
         onValidChange={setFormReady}
         responsiveLayoutMatrix={responsiveLayoutMatrix}
         dataTestId="document-registry-form"
+        loading={uploadingFile}
         // 🔹 Escucha los cambios del campo 'specifications'
         onValuesChange={(values) => {
+          void handleValuesChange(values);
           const specs = values?.specifications;
           setIsOperationalDoc(specs === "external"); // "external" = Documentos Operativos
         }}
