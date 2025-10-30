@@ -1,3 +1,8 @@
+### 1.47.28 Document registry edit flow 25-10-2025
+
+Fix:
+- Use PUT when editing existing documents, preserve the stored file, and keep the form valid with preloaded attachments. (Agente IA) [#]()
+
 ### 1.47.27 Document registry department arrays 25-10-2025
 
 Feature:
