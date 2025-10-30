@@ -1,63 +1,56 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/app/components/Button/Button";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
-import { PopUp } from "@/app/components/PopUp/PopUp";
-import DocumentActionsMenuCell from "@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell";
 import type { ManagementDocumentTableRow } from "@/app/mappings/documents/documents.types";
 import DocIcon from "@/assets/icons/Docs/page.svg";
+import DowloadIcon from "@/assets/icons/acciones/download.svg";
 import { useManagementDocuments } from "@/app/main-page/humanresources/documents/managementdocuments/hooks/useManagementDocuments";
+import DocumentViewer from "@/app/components/DocumentViewer/DocumentViewer";
 
 const ManagementDocuments = () => {
-  const router = useRouter();
-  const { rows, loading, error, refresh, deleteDocument, deletingDocument } =
-    useManagementDocuments();
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
-  const [selectedDocument, setSelectedDocument] =
-    React.useState<ManagementDocumentTableRow | null>(null);
+  const { rows } = useManagementDocuments();
+  const [open, setOpen] = React.useState(false);
+  const [selectedFileUrl, setSelectedFileUrl] = React.useState<string | null>(null);
 
-  const handleViewDocument = React.useCallback(
-    (row: ManagementDocumentTableRow) => {
-      if (!row.id) return;
+  const handleOpen = (fileUrl: string) => {
+    setSelectedFileUrl(fileUrl);
+    setOpen(true);
+  };
 
-      const targetUrl = `/main-page/humanresources/documents/documentregistry?documentId=${encodeURIComponent(
-        row.id,
-      )}`;
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedFileUrl(null);
+  };
 
-      router.push(targetUrl);
-    },
-    [router],
-  );
+  // 🔹 Función mejorada: descarga directa del archivo sin abrir nueva pestaña
+  const handleDownload = async (fileUrl: string, fileName?: string) => {
+    try {
+      if (!fileUrl) return;
 
-  const handleRefresh = React.useCallback(() => {
-    refresh();
-  }, [refresh]);
+      const response = await fetch(fileUrl, { mode: "cors" });
+      if (!response.ok) throw new Error("Error al obtener el archivo");
 
-  const handleRequestDelete = React.useCallback(
-    (row: ManagementDocumentTableRow) => {
-      setSelectedDocument(row);
-      setDeleteDialogOpen(true);
-    },
-    [],
-  );
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
 
-  const handleCloseDelete = React.useCallback(() => {
-    setDeleteDialogOpen(false);
-    setSelectedDocument(null);
-  }, []);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName || "documento.pdf"; // Nombre del archivo
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-  const handleConfirmDelete = React.useCallback(async () => {
-    if (!selectedDocument?.id || deletingDocument) return;
-
-    const success = await deleteDocument(selectedDocument.id);
-    if (success) {
-      handleCloseDelete();
+      // Limpieza de memoria
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error al descargar el archivo:", error);
+      alert("No se pudo descargar el documento. Verifica la ruta o conexión.");
     }
-  }, [deleteDocument, deletingDocument, handleCloseDelete, selectedDocument]);
+  };
 
   const columns: ColumnDefinition<ManagementDocumentTableRow>[] = [
     {
@@ -70,7 +63,7 @@ const ManagementDocuments = () => {
               size="xsmall"
               variant="ghost"
               icon={DocIcon}
-              onClick={() => window.open(row.route, "_blank")}
+              onClick={() => handleOpen(row.route!)} // Abre el visor dinámico
             />
           )}
         </div>
@@ -92,14 +85,15 @@ const ManagementDocuments = () => {
       label: "",
       render: (row) => (
         <div className="flex justify-end pr-2">
-          <DocumentActionsMenuCell
-            row={row}
-            onView={handleViewDocument}
-            onDelete={handleRequestDelete}
+          {/* 🔹 Botón para descargar el documento correspondiente */}
+          <Button
+            size="xsmall"
+            variant="ghost"
+            icon={DowloadIcon}
+            onClick={() => handleDownload(row.route!, row.description)}
           />
         </div>
       ),
-
       invisible: false,
     },
   ];
@@ -118,39 +112,23 @@ const ManagementDocuments = () => {
         ]}
         textSize={{ mobile: "c2", desktop: "text-c2" }}
         enableInternalSearch
-        searchableKeys={[
-          "name",
-          "code",
-          "description",
-          "documentType",
-          "department",
-        ]}
+        searchableKeys={["name", "code", "description", "documentType", "department"]}
         showCalendar={false}
         showRefresh={true}
         showFilter={false}
         showButton={false}
         dateKey={(row) => row.rawDate ?? row.date}
-        actionsRender={() => ''}
+        actionsRender={() => ""}
       />
 
-      <PopUp
-        open={deleteDialogOpen}
-        onClose={handleCloseDelete}
-        title="Eliminar Documento"
-        content={
-          deletingDocument
-            ? "Eliminando documento…"
-            : selectedDocument?.name
-            ? `Esta acción confirmará la eliminación del documento seleccionado`
-            : "¿Deseas eliminar el documento?"
-        }
-        showPrimaryButton
-        primaryButtonText="Eliminar"
-        onPrimaryButtonClick={handleConfirmDelete}
-        showSecondaryButton
-        secondaryButtonText="Cancelar"
-        onSecondaryButtonClick={handleCloseDelete}
-      />
+      {/* 🔹 DocumentViewer dinámico */}
+      {open && selectedFileUrl && (
+        <DocumentViewer
+          fileUrl={selectedFileUrl}
+          title="Formato Universal de Incidencias"
+          onClose={handleClose}
+        />
+      )}
     </section>
   );
 };

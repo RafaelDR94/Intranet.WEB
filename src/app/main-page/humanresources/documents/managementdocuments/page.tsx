@@ -118,6 +118,7 @@ const ManagementDocuments = () => {
           },
         ]}
         showRefresh={true}
+        onRefreshPage={handleRefresh}
         textSize={{ mobile: "c2", desktop: "text-c2" }}
         enableInternalSearch
         searchableKeys={[
