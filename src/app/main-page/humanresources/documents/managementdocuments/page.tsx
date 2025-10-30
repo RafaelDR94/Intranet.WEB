@@ -14,7 +14,7 @@ import { useManagementDocuments } from "./hooks/useManagementDocuments";
 
 const ManagementDocuments = () => {
   const router = useRouter();
-  const { rows, loading, error, refresh, deleteDocument, deletingDocument } =
+  const { rows, refresh, deleteDocument, deletingDocument } =
     useManagementDocuments();
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [selectedDocument, setSelectedDocument] =

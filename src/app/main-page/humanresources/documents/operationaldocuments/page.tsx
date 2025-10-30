@@ -15,7 +15,7 @@ import { useOperationalDocuments } from "./hooks/useOperationalDocuments";
 
 const OperationalDocuments = () => {
   const router = useRouter();
-  const { rows, loading, error, refresh, deleteDocument, deletingDocument } =
+  const { rows, refresh, deleteDocument, deletingDocument } =
     useOperationalDocuments();
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [selectedDocument, setSelectedDocument] =
