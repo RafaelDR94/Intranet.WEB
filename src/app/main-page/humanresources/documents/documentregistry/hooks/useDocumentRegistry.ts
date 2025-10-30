@@ -312,6 +312,8 @@ const useDocumentRegistry = (documentId?: string) => {
   const [uploadedExtension, setUploadedExtension] = useState("");
   const [uploadedFileLabel, setUploadedFileLabel] = useState("");
   const lastUploadedFileRef = useRef<File | null>(null);
+  const ignoredFileRef = useRef<File | null>(null);
+  const ignoreNextFileRef = useRef(false);
   const [formVersion, setFormVersion] = useState(0);
   const [shouldPrefillFromDocument, setShouldPrefillFromDocument] = useState(
     () => Boolean(documentId),
@@ -427,6 +429,13 @@ const useDocumentRegistry = (documentId?: string) => {
 
   const resetFormState = useCallback(
     (nextState?: { route?: string; extension?: string; label?: string }) => {
+      if (lastUploadedFileRef.current) {
+        ignoredFileRef.current = lastUploadedFileRef.current;
+        ignoreNextFileRef.current = true;
+      } else {
+        ignoredFileRef.current = null;
+        ignoreNextFileRef.current = false;
+      }
       lastUploadedFileRef.current = null;
 
       const resolvedRoute =
@@ -485,6 +494,15 @@ const useDocumentRegistry = (documentId?: string) => {
         }
         return;
       }
+
+      if (ignoreNextFileRef.current && ignoredFileRef.current === file) {
+        ignoreNextFileRef.current = false;
+        ignoredFileRef.current = null;
+        return;
+      }
+
+      ignoreNextFileRef.current = false;
+      ignoredFileRef.current = null;
 
       if (lastUploadedFileRef.current === file && uploadedRoute) {
         return;

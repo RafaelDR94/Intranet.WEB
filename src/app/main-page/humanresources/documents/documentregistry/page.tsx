@@ -43,6 +43,7 @@ const DocumentRegistry = () => {
       enableCollapse={false}
     >
       <DynamicForm
+        key={`document-registry-form-${formVersion}`}
         fields={fields}
         onSubmit={handleSubmit}
         externalSubmitRef={submitRef}
