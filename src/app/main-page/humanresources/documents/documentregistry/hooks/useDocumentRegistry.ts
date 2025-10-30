@@ -217,6 +217,27 @@ const mapDocumentToFieldValues = (
   });
 };
 
+type ChecklistValue = { value?: unknown } | string | number | boolean | null | undefined;
+
+const extractChecklistValue = (value: ChecklistValue): string => {
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return safeString(value).trim();
+  }
+
+  if (value && typeof value === "object" && "value" in value) {
+    const optionValue = (value as { value?: unknown }).value;
+    if (
+      typeof optionValue === "string" ||
+      typeof optionValue === "number" ||
+      typeof optionValue === "boolean"
+    ) {
+      return safeString(optionValue).trim();
+    }
+  }
+
+  return "";
+};
+
 const buildDocumentPayload = (
   values: Record<string, unknown>,
   route: string,
@@ -228,12 +249,14 @@ const buildDocumentPayload = (
   const code = safeString(values.documentKey).trim();
   const description = safeString(values.description).trim();
   const documentTypeId = safeString(values.documentType);
-  const departmentId = safeString(values.destinationArea);
+  const departmentId = safeString(values.destinationArea).trim();
   const management = toManagement(values.specifications);
   const providedName = safeString(values.name).trim();
   const baseName = fileName ? getFileBaseName(fileName) : "";
   const toolsChecklist = Array.isArray(values.toolsChecklist)
-    ? values.toolsChecklist.map((item) => safeString(item)).filter(Boolean)
+    ? values.toolsChecklist
+        .map((item) => extractChecklistValue(item as ChecklistValue))
+        .filter((item) => Boolean(item))
     : [];
 
   const departmentIdsSet = new Set<string>();
@@ -335,17 +358,27 @@ const useDocumentRegistry = (documentId?: string) => {
   );
 
   const destinationAreaOptions = useMemo(() => {
-    const uniqueDepartments = new Map<
-      string,
-      { label: string; value: string }
-    >();
+    const uniqueDepartments = new Map<string, { label: string; value: string }>();
+
     departments.forEach((department) => {
-      const departmentName = department?.name?.trim();
-      if (!departmentName) return;
-      const value = department?.department_id || departmentName;
-      if (!uniqueDepartments.has(value)) {
-        uniqueDepartments.set(value, { label: departmentName, value });
+      const rawId = department?.department_id;
+      const rawName = department?.name;
+
+      if (typeof rawId !== "string" || typeof rawName !== "string") {
+        return;
       }
+
+      const departmentId = rawId.trim();
+      const departmentName = rawName.trim();
+
+      if (!departmentId || !departmentName || uniqueDepartments.has(departmentId)) {
+        return;
+      }
+
+      uniqueDepartments.set(departmentId, {
+        label: departmentName,
+        value: departmentId,
+      });
     });
 
     return Array.from(uniqueDepartments.values()).sort((a, b) =>
