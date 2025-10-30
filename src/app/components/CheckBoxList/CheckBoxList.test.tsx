@@ -58,5 +58,41 @@ describe("CheckBoxList", () => {
     expect(handleChange).not.toHaveBeenCalled();
     expect(fuelCheckbox.checked).toBe(true);
   });
+
+  it("selecciona y deselecciona todas las opciones con el maestro", () => {
+    const handleChange = vi.fn();
+    render(
+      <CheckBoxList
+        title="Documentos"
+        options={sampleOptions}
+        defaultValue={["card"]}
+        onChange={handleChange}
+        showSelectAll
+      />,
+    );
+
+    const selectAllCheckbox = screen.getByLabelText("Seleccionar todo");
+    fireEvent.click(selectAllCheckbox);
+
+    expect(handleChange).toHaveBeenLastCalledWith([
+      "card",
+      "fuel",
+      "tag",
+    ]);
+    sampleOptions.forEach(({ label }) => {
+      expect((screen.getByLabelText(label) as HTMLInputElement).checked).toBe(
+        true,
+      );
+    });
+
+    fireEvent.click(selectAllCheckbox);
+
+    expect(handleChange).toHaveBeenLastCalledWith([]);
+    sampleOptions.forEach(({ label }) => {
+      expect((screen.getByLabelText(label) as HTMLInputElement).checked).toBe(
+        false,
+      );
+    });
+  });
 });
 
