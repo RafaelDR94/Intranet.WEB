@@ -22,6 +22,14 @@ const fetchDocumentsMock = vi.fn(async (set: Set) => {
           enterprise_id: 'ent-1',
           enterprice_name: 'DR',
         },
+        departments: [
+          {
+            department_id: 'dep-1',
+            name: 'VISITAX',
+            enterprise_id: 'ent-1',
+            enterprice_name: 'DR',
+          },
+        ],
         management: true,
         route: 'https://example.com',
         extension: 'pdf',
@@ -46,6 +54,14 @@ const fetchDocumentsMock = vi.fn(async (set: Set) => {
           enterprise_id: 'ent-1',
           enterprice_name: 'DR',
         },
+        departments: [
+          {
+            department_id: 'dep-1',
+            name: 'VISITAX',
+            enterprise_id: 'ent-1',
+            enterprice_name: 'DR',
+          },
+        ],
         management: true,
         route: 'https://example.com',
         extension: 'pdf',
@@ -118,6 +134,14 @@ describe('useDocumentsStore', () => {
           enterprise_id: 'ent-1',
           enterprice_name: 'DR',
         },
+        departments: [
+          {
+            department_id: 'dep-1',
+            name: 'VISITAX',
+            enterprise_id: 'ent-1',
+            enterprice_name: 'DR',
+          },
+        ],
         management: true,
         route: 'https://example.com',
         extension: 'pdf',

@@ -24,6 +24,14 @@ const managementDocuments: ManagementDocument[] = [
       enterprise_id: 'ent-1',
       enterprice_name: 'DR',
     },
+    departments: [
+      {
+        department_id: 'dep-1',
+        name: 'VISITAX',
+        enterprise_id: 'ent-1',
+        enterprice_name: 'DR',
+      },
+    ],
     management: true,
     route: 'https://example.com/document.pdf',
     extension: 'pdf',

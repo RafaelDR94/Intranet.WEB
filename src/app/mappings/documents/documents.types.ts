@@ -18,7 +18,13 @@ export type ManagementDocument = {
   code: string
   description: string
   document_type: DocumentTypeSummary
-  department: DepartmentSummary
+  /**
+   * Primary department associated with the document. Deprecated in favor of `departments` but
+   * kept for backward compatibility while the API evolves.
+   */
+  department?: DepartmentSummary
+  /** List of departments associated with the document. */
+  departments: DepartmentSummary[]
   management: boolean
   route: string
   extension: string
@@ -36,7 +42,7 @@ export type DocumentPostPayload = {
   code: string
   description: string
   document_type_id: string
-  department_id: string
+  department_id: string[]
   management: boolean
   route: string
   extension: string

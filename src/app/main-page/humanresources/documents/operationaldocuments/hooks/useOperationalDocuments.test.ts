@@ -24,6 +24,20 @@ const documents: ManagementDocument[] = [
       enterprise_id: 'ent-1',
       enterprice_name: 'DR',
     },
+    departments: [
+      {
+        department_id: 'dep-1',
+        name: 'Contabilidad / Nómina',
+        enterprise_id: 'ent-1',
+        enterprice_name: 'DR',
+      },
+      {
+        department_id: 'dep-2',
+        name: 'VISITAX',
+        enterprise_id: 'ent-2',
+        enterprice_name: 'DR',
+      },
+    ],
     management: false,
     route: 'https://example.com/document.pdf',
     extension: 'pdf',
@@ -46,6 +60,14 @@ const documents: ManagementDocument[] = [
       enterprise_id: 'ent-2',
       enterprice_name: 'DR',
     },
+    departments: [
+      {
+        department_id: 'dep-2',
+        name: 'VISITAX',
+        enterprise_id: 'ent-2',
+        enterprice_name: 'DR',
+      },
+    ],
     management: true,
     route: 'https://example.com/gerencial.pdf',
     extension: 'pdf',
