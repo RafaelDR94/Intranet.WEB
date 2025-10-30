@@ -119,8 +119,13 @@ const createDocumentRegistryFields = (
     value: [],
     options: areasChecklistOptions,
     disabled: destinationAreasLoading,
+    showIf: (values) =>
+      typeof values.specifications === "string" &&
+      values.specifications.trim() === "external",
     checkboxListProps: {
       labelPosition: "right",
+      showSelectAll: true,
+      columns: 3,
     },
   },
 ];
