@@ -36,6 +36,14 @@ const sampleDocument = {
     enterprise_id: '3e1d08c8-c38b-42c1-8d4b-a31a6c099671',
     enterprice_name: null,
   },
+  departments: [
+    {
+      department_id: '79b3ec13-1dc1-4ef6-a595-0b05d47b0d83',
+      name: 'VISITAX',
+      enterprise_id: '3e1d08c8-c38b-42c1-8d4b-a31a6c099671',
+      enterprice_name: null,
+    },
+  ],
   management: true,
   route: 'https://example.com/document',
   extension: 'pdf',

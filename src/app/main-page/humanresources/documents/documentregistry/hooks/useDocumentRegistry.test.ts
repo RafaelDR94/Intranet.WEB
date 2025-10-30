@@ -104,6 +104,12 @@ const departments = [
     enterprise_id: 'ent-1',
     enterprice_name: 'Empresa 1',
   },
+  {
+    department_id: undefined,
+    name: 'Sin Identificador',
+    enterprise_id: 'ent-1',
+    enterprice_name: 'Empresa 1',
+  },
 ]
 
 vi.mock('@/app/stores/useDepartmentsStore/useDepartmentsStore', () => ({
@@ -155,11 +161,19 @@ describe('useDocumentRegistry hook', () => {
     const destinationAreaField = result.current.fields.find(
       (field) => field.name === 'destinationArea',
     )
+    const toolsChecklistField = result.current.fields.find(
+      (field) => field.name === 'toolsChecklist',
+    )
 
     expect(destinationAreaField?.options).toEqual([
       { label: 'Administración', value: 'dept-1' },
       { label: 'Operaciones', value: 'dept-2' },
     ])
+    expect(toolsChecklistField?.options).toEqual([
+      { label: 'Administración', value: 'dept-1' },
+      { label: 'Operaciones', value: 'dept-2' },
+    ])
+    expect(toolsChecklistField?.value).toEqual([])
   })
 
   it('submits form values to Documents endpoint', async () => {
@@ -174,6 +188,7 @@ describe('useDocumentRegistry hook', () => {
       destinationArea: 'dept-1',
       documentType: 'type-1',
       description: 'Document description',
+      toolsChecklist: [],
     }
 
     await result.current.handleSubmit(values)
@@ -192,7 +207,7 @@ describe('useDocumentRegistry hook', () => {
       code: 'DOC-001',
       description: 'Document description',
       document_type_id: 'type-1',
-      department_id: 'dept-1',
+      department_id: ['dept-1'],
       management: true,
       route: 'https://firebase.test/documents/DOC-001.pdf',
       extension: 'pdf',
@@ -220,6 +235,7 @@ describe('useDocumentRegistry hook', () => {
       destinationArea: 'dept-1',
       documentType: 'type-1',
       description: 'Document description',
+      toolsChecklist: ['dept-2'],
     }
 
     await result.current.handleSubmit(values)
@@ -235,6 +251,32 @@ describe('useDocumentRegistry hook', () => {
 
     const [, payload] = postMock.mock.calls[0] ?? []
     expect(payload?.management).toBe(false)
+    expect(payload?.department_id).toEqual(['dept-1', 'dept-2'])
+  })
+
+  it('includes checklist selections even when values are provided as option objects', async () => {
+    const { result } = renderHook(() => useDocumentRegistry())
+
+    const file = new File(['hello'], 'Manual.pdf', { type: 'application/pdf' })
+
+    const values = {
+      documentFile: file,
+      documentKey: 'DOC-002',
+      specifications: 'external',
+      destinationArea: 'dept-2',
+      documentType: 'type-1',
+      description: 'Otro documento',
+      toolsChecklist: [
+        { label: 'Administración', value: 'dept-1' },
+        { label: 'Operaciones', value: 'dept-2' },
+      ],
+    }
+
+    await result.current.handleSubmit(values)
+
+    const [, payload] = postMock.mock.calls.at(-1) ?? []
+    expect(payload?.management).toBe(false)
+    expect(payload?.department_id).toEqual(['dept-2', 'dept-1'])
   })
 
   it('prefills form values when editing an existing document', () => {
@@ -256,6 +298,14 @@ describe('useDocumentRegistry hook', () => {
           enterprise_id: 'ent-1',
           enterprice_name: 'Empresa 1',
         },
+        departments: [
+          {
+            department_id: 'dept-1',
+            name: 'Administración',
+            enterprise_id: 'ent-1',
+            enterprice_name: 'Empresa 1',
+          },
+        ],
         management: true,
         route: 'https://example.com/doc.pdf',
         extension: 'pdf',
@@ -283,6 +333,9 @@ describe('useDocumentRegistry hook', () => {
     const fileField = result.current.fields.find(
       (field) => field.name === 'documentFile',
     )
+    const toolsChecklistField = result.current.fields.find(
+      (field) => field.name === 'toolsChecklist',
+    )
     const routeField = result.current.fields.find(
       (field) => field.name === 'documentRoute',
     )
@@ -294,6 +347,7 @@ describe('useDocumentRegistry hook', () => {
     expect(descriptionField?.value).toBe('Guía de procesos')
     expect(fileField?.helperText).toBe('Archivo listo: Manual de procesos')
     expect(fileField?.helperText).not.toContain('https://example.com/doc.pdf')
+    expect(toolsChecklistField?.value).toEqual(['dept-1'])
     expect(routeField).toBeUndefined()
     expect(result.current.title).toBe('Edición de Documento')
     expect(result.current.submitLabel).toBe('Guardar Cambios')
@@ -325,6 +379,20 @@ describe('useDocumentRegistry hook', () => {
           enterprise_id: 'ent-1',
           enterprice_name: 'Empresa 1',
         },
+        departments: [
+          {
+            department_id: 'dept-2',
+            name: 'Operaciones',
+            enterprise_id: 'ent-1',
+            enterprice_name: 'Empresa 1',
+          },
+          {
+            department_id: 'dept-1',
+            name: 'Administración',
+            enterprise_id: 'ent-1',
+            enterprice_name: 'Empresa 1',
+          },
+        ],
         management: false,
         route: 'https://example.com/doc.pdf',
         extension: 'pdf',

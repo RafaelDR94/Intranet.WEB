@@ -31,42 +31,6 @@ const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
   lg: [[5, 5], [5, 5, 5], [10]],
 };
 
-const areasChecklistOptions = [
-  { label: "Administración", value: "administracion" },
-  { label: "Desarrollo tecnológico", value: "desarrollo_tecnologico" },
-  { label: "Radiología", value: "radiologia" },
-  { label: "Almacén", value: "almacen" },
-  { label: "Dirección", value: "direccion" },
-  { label: "Reclutamiento y selec. personal", value: "reclutamiento" },
-  { label: "Asistente de dirección", value: "asistente_direccion" },
-  { label: "Finanzas", value: "finanzas" },
-  { label: "RH", value: "rh" },
-  { label: "Calidad", value: "calidad" },
-  { label: "Ingeniería", value: "ingenieria" },
-  { label: "Servicios generales", value: "servicios_generales" },
-  { label: "CAYAS", value: "cayas" },
-  { label: "ITEDESCA", value: "itedesca" },
-  { label: "SIP", value: "sip" },
-  { label: "Compras", value: "compras" },
-  { label: "Licitaciones", value: "licitaciones" },
-  { label: "Tecnología de la información", value: "ti" },
-  { label: "Contabilidad y nominas", value: "contabilidad_nominas" },
-  { label: "Niveles de servicio", value: "niveles_servicio" },
-  { label: "Ventas", value: "ventas" },
-  { label: "Control interno y auditoria", value: "control_auditoria" },
-  { label: "PMO", value: "pmo" },
-  { label: "VIP Ingeniería", value: "vip_ingenieria" },
-  { label: "Coord. operativa", value: "coord_operativa" },
-  { label: "Proyectos", value: "proyectos" },
-  { label: "VISITAX", value: "visitax" },
-  { label: "Coord. compras nacionales", value: "coord_compras_nacionales" },
-  { label: "Protectos especiales", value: "proyectos_especiales" },
-];
-
-const DEFAULT_TOOLS_CHECKED = areasChecklistOptions.map(
-  (option) => option.value,
-);
-
 const DOCUMENTS_STORAGE_PREFIX = "HumanResources/DocumentRegistry/";
 
 const createDocumentRegistryFields = (
@@ -74,6 +38,7 @@ const createDocumentRegistryFields = (
   documentTypesLoading: boolean,
   destinationAreaOptions: { label: string; value: string }[],
   destinationAreasLoading: boolean,
+  areasChecklistOptions: { label: string; value: string }[],
   documentRoute: string,
   documentFileLabel: string,
 ): FieldModel[] => [
@@ -151,8 +116,9 @@ const createDocumentRegistryFields = (
     type: "checkboxList",
     name: "toolsChecklist",
     label: "Seleccione las áreas a las que aplica",
-    value: DEFAULT_TOOLS_CHECKED,
+    value: [],
     options: areasChecklistOptions,
+    disabled: destinationAreasLoading,
     checkboxListProps: {
       labelPosition: "right",
     },
@@ -222,7 +188,10 @@ const mapDocumentToFieldValues = (
       case "destinationArea":
         return {
           ...field,
-          value: document.department?.department_id ?? "",
+          value:
+            document.departments?.[0]?.department_id ??
+            document.department?.department_id ??
+            "",
         };
       case "documentType":
         return {
@@ -231,10 +200,42 @@ const mapDocumentToFieldValues = (
         };
       case "description":
         return { ...field, value: document.description };
+      case "toolsChecklist": {
+        const departmentIds = (document.departments || [])
+          .map((department) => department.department_id)
+          .filter((departmentId): departmentId is string => Boolean(departmentId));
+
+        if (!departmentIds.length && document.department?.department_id) {
+          departmentIds.push(document.department.department_id);
+        }
+
+        return { ...field, value: departmentIds };
+      }
       default:
         return field;
     }
   });
+};
+
+type ChecklistValue = { value?: unknown } | string | number | boolean | null | undefined;
+
+const extractChecklistValue = (value: ChecklistValue): string => {
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return safeString(value).trim();
+  }
+
+  if (value && typeof value === "object" && "value" in value) {
+    const optionValue = (value as { value?: unknown }).value;
+    if (
+      typeof optionValue === "string" ||
+      typeof optionValue === "number" ||
+      typeof optionValue === "boolean"
+    ) {
+      return safeString(optionValue).trim();
+    }
+  }
+
+  return "";
 };
 
 const buildDocumentPayload = (
@@ -248,10 +249,30 @@ const buildDocumentPayload = (
   const code = safeString(values.documentKey).trim();
   const description = safeString(values.description).trim();
   const documentTypeId = safeString(values.documentType);
-  const departmentId = safeString(values.destinationArea);
+  const departmentId = safeString(values.destinationArea).trim();
   const management = toManagement(values.specifications);
   const providedName = safeString(values.name).trim();
   const baseName = fileName ? getFileBaseName(fileName) : "";
+  const toolsChecklist = Array.isArray(values.toolsChecklist)
+    ? values.toolsChecklist
+        .map((item) => extractChecklistValue(item as ChecklistValue))
+        .filter((item) => Boolean(item))
+    : [];
+
+  const departmentIdsSet = new Set<string>();
+  if (departmentId) {
+    departmentIdsSet.add(departmentId);
+  }
+
+  if (!management) {
+    toolsChecklist.forEach((id) => {
+      if (id) {
+        departmentIdsSet.add(id);
+      }
+    });
+  }
+
+  const departmentIds = Array.from(departmentIdsSet);
 
   const name = providedName || baseName || code || fileName;
   const normalizedExtension = normalizeExtension(
@@ -263,7 +284,7 @@ const buildDocumentPayload = (
     code,
     description,
     document_type_id: documentTypeId,
-    department_id: departmentId,
+    department_id: departmentIds,
     management,
     route,
     extension: normalizedExtension,
@@ -337,17 +358,27 @@ const useDocumentRegistry = (documentId?: string) => {
   );
 
   const destinationAreaOptions = useMemo(() => {
-    const uniqueDepartments = new Map<
-      string,
-      { label: string; value: string }
-    >();
+    const uniqueDepartments = new Map<string, { label: string; value: string }>();
+
     departments.forEach((department) => {
-      const departmentName = department?.name?.trim();
-      if (!departmentName) return;
-      const value = department?.department_id || departmentName;
-      if (!uniqueDepartments.has(value)) {
-        uniqueDepartments.set(value, { label: departmentName, value });
+      const rawId = department?.department_id;
+      const rawName = department?.name;
+
+      if (typeof rawId !== "string" || typeof rawName !== "string") {
+        return;
       }
+
+      const departmentId = rawId.trim();
+      const departmentName = rawName.trim();
+
+      if (!departmentId || !departmentName || uniqueDepartments.has(departmentId)) {
+        return;
+      }
+
+      uniqueDepartments.set(departmentId, {
+        label: departmentName,
+        value: departmentId,
+      });
     });
 
     return Array.from(uniqueDepartments.values()).sort((a, b) =>
@@ -443,6 +474,7 @@ const useDocumentRegistry = (documentId?: string) => {
       documentTypesLoading,
       destinationAreaOptions,
       destinationAreasLoading,
+      destinationAreaOptions,
       uploadedRoute,
       uploadedFileLabel,
     );
@@ -555,12 +587,7 @@ const useDocumentRegistry = (documentId?: string) => {
     checklistDefinitions: {
       areas: {
         title: "Seleccione las áreas a las que aplica",
-        options: DEFAULT_TOOLS_CHECKED.map((value) => {
-          const option = areasChecklistOptions.find(
-            (option) => option.value === value,
-          );
-          return { label: option?.label || value, value };
-        }),
+        options: destinationAreaOptions.map((option) => ({ ...option })),
       },
     },
   };

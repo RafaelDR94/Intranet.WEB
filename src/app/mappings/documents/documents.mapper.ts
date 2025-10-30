@@ -51,9 +51,23 @@ export const mapDepartmentSummary = (raw: any): DepartmentSummary => ({
   ),
 })
 
+const mapDepartmentsList = (raw: any): DepartmentSummary[] => {
+  if (!raw) return []
+
+  const items = Array.isArray(raw) ? raw : [raw]
+
+  return items
+    .map((item) => mapDepartmentSummary(item ?? {}))
+    .filter((department) => Boolean(department.department_id))
+}
+
 export const mapManagementDocument = (raw: any): ManagementDocument => {
   const documentType = mapDocumentTypeSummary(raw?.document_type ?? raw?.documentType ?? {})
-  const department = mapDepartmentSummary(raw?.department ?? raw?.Department ?? {})
+  const rawDepartments =
+    raw?.departments ?? raw?.Departments ?? raw?.department ?? raw?.Department ?? []
+  const departments = mapDepartmentsList(rawDepartments)
+  const department =
+    departments[0] ?? mapDepartmentSummary(raw?.department ?? raw?.Department ?? {})
 
   return {
     document_id: normalizeString(raw?.document_id ?? raw?.id),
@@ -64,7 +78,8 @@ export const mapManagementDocument = (raw: any): ManagementDocument => {
     code: normalizeString(raw?.code),
     description: normalizeString(raw?.description),
     document_type: documentType,
-    department,
+    department: department.department_id ? department : undefined,
+    departments,
     management: normalizeBoolean(raw?.management ?? raw?.is_management ?? false),
     route: normalizeString(raw?.route ?? raw?.url ?? raw?.download_url),
     extension: normalizeString(raw?.extension ?? raw?.file_extension ?? ''),
@@ -90,6 +105,7 @@ export const mapManagementDocumentToTableRow = (
 ): ManagementDocumentTableRow => {
   const rawDate =
     doc.published_at || doc.updated_at || doc.created_at || ''
+  const primaryDepartment = doc.departments?.[0]?.name || doc.department?.name || ''
 
   return {
     id: doc.document_id,
@@ -98,7 +114,7 @@ export const mapManagementDocumentToTableRow = (
     code: doc.code,
     description: doc.description,
     documentType: doc.document_type?.name ?? '',
-    department: doc.department?.name ?? '',
+    department: primaryDepartment,
     extension: doc.extension,
     route: doc.route,
     rawDate: rawDate || undefined,

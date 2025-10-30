@@ -1,3 +1,8 @@
+### 1.47.27 Document registry department arrays 25-10-2025
+
+Feature:
+- Allow document registry to submit department identifiers as arrays and populate the checklist from Enterprises/Departments. (Agente IA) [#]()
+
 ### 1.47.26 Document registry submission 25-10-2025
 
 Feature:
