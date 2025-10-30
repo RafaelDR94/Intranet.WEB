@@ -244,6 +244,51 @@ describe('useDocumentRegistry hook', () => {
     })
   })
 
+  it('ignores the previously submitted file when the form resets', async () => {
+    const { result } = renderHook(() => useDocumentRegistry())
+
+    const file = new File(['hello'], 'Manual.pdf', { type: 'application/pdf' })
+
+    const baseValues = {
+      documentFile: file,
+      documentKey: 'DOC-001',
+      specifications: 'internal',
+      destinationArea: 'dept-1',
+      documentType: 'type-1',
+      description: 'Document description',
+      toolsChecklist: [],
+    }
+
+    await act(async () => {
+      await result.current.handleSubmit(baseValues)
+    })
+
+    expect(uploadFileMock).toHaveBeenCalledTimes(1)
+
+    await waitFor(() => {
+      expect(result.current.formVersion).toBe(1)
+    })
+
+    uploadFileMock.mockClear()
+
+    await act(async () => {
+      await result.current.handleValuesChange(baseValues)
+    })
+
+    expect(uploadFileMock).not.toHaveBeenCalled()
+
+    const newFile = new File(['bye'], 'Manual-v2.pdf', { type: 'application/pdf' })
+
+    await act(async () => {
+      await result.current.handleValuesChange({
+        ...baseValues,
+        documentFile: newFile,
+      })
+    })
+
+    expect(uploadFileMock).toHaveBeenCalledTimes(1)
+  })
+
   it('shows error alert when submission fails', async () => {
     postMock.mockRejectedValueOnce(new Error('fail'))
 
