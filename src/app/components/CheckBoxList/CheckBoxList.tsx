@@ -20,7 +20,7 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
   showSelectAll = false,
   columns = 1, // prop para definir columnas
 }) => {
-  const { handleToggle, selection } = useCheckBoxList({
+  const { handleToggle, selection, setSelection } = useCheckBoxList({
     options,
     value,
     defaultValue,
@@ -28,25 +28,27 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
     disabled,
   });
 
-  const allSelected = options.every(
-    (option) => selection.includes(option.value) || option.disabled,
-  );
+  const selectableValues = options
+    .filter((option) => !option.disabled)
+    .map((option) => option.value);
 
-  const handleToggleAll = () => {
-    const selectableOptions = options.filter((opt) => !opt.disabled);
-    if (allSelected) {
-      selectableOptions.forEach((option) => {
-        if (selection.includes(option.value)) {
-          handleToggle(option);
-        }
-      });
-    } else {
-      selectableOptions.forEach((option) => {
-        if (!selection.includes(option.value)) {
-          handleToggle(option);
-        }
-      });
+  const selectableValuesSet = new Set(selectableValues);
+
+  const allSelected = selectableValues.every((value) => selection.includes(value));
+
+  const handleToggleAll = (checked: boolean) => {
+    if (checked) {
+      const nextSelection = Array.from(
+        new Set([...selection, ...selectableValues]),
+      );
+      setSelection(nextSelection);
+      return;
     }
+
+    const nextSelection = selection.filter(
+      (value) => !selectableValuesSet.has(value),
+    );
+    setSelection(nextSelection);
   };
 
   return (
@@ -63,6 +65,10 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
         {showSelectAll && (
           <Checkbox
             checked={allSelected}
+            indeterminate={
+              selection.some((value) => selectableValuesSet.has(value)) &&
+              !allSelected
+            }
             onChange={handleToggleAll}
             label="Seleccionar todo"
             disabled={disabled}
