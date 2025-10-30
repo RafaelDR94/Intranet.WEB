@@ -554,8 +554,8 @@ const useDocumentRegistry = (documentId?: string) => {
             const payload = buildDocumentPayload(values, route, extension);
 
             if (isEditing && targetId) {
-              const url = `${DocumentsUrl}?id=${encodeURIComponent(targetId)}`;
-              await put(url, payload);
+              const url = `${DocumentsUrl}`;
+              await put(url, {...payload, document_id: targetId});
             } else {
               await post(DocumentsUrl, payload);
             }
@@ -612,6 +612,7 @@ const useDocumentRegistry = (documentId?: string) => {
     submitLabel: documentId ? "Guardar Cambios" : "Registrar Documento",
     submitRef,
     formReady,
+    uploadedRoute,
     setFormReady: setFormValid,
     fields,
     responsiveLayoutMatrix,

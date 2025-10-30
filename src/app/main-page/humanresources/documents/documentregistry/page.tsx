@@ -16,6 +16,7 @@ const DocumentRegistry = () => {
 
   const {
     title,
+    uploadedRoute,
     submitLabel,
     submitRef,
     formReady,
@@ -54,22 +55,31 @@ const DocumentRegistry = () => {
           void handleValuesChange(values);
         }}
       >
-        <div>
-          <Button
-            onClick={handleOpen}
-            variant="ghost"
-            icon={DocIcon}
-          > 
-          </Button>
+        {documentId && (
+          <div>
+            <div className="flex items-center">
+              <Button
+                onClick={handleOpen}
+                variant="ghost"
+                hideIcon={true}
+                className="text-green-80 text-c2 ml-[-10px]"
+              >
+              <span className="flex items-center">
+              <DocIcon className="w-6 h-6 text-blue-60 mr-2" />
+                Visualizar Archivo
+              </span>
+              </Button>
+            </div>
 
-          {open && (
-            <DocumentViewer
-              fileUrl="/ruta/al/archivo.pdf"
-              title="Formato Universal de Incidencias"
-              onClose={handleClose}
-            />
-          )}
-        </div>
+            {open && (
+              <DocumentViewer
+                fileUrl={uploadedRoute}
+                title="Formato Universal de Incidencias"
+                onClose={handleClose}
+              />
+            )}
+          </div>
+        )}
       </DynamicForm>
     </FormsLayout>
   );

@@ -8,10 +8,9 @@ interface DocumentViewerProps {
 }
 
 const DocumentViewer: React.FC<DocumentViewerProps> = ({ fileUrl, title, onClose }) => {
-        console.log('fileUrl', fileUrl);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-[2px] bg-[rgba(0,42,65,0.70)]">
+    <div className="fixed inset-0 z-80 flex items-center justify-center backdrop-blur-[2px] bg-[rgba(0,42,65,0.70)]">
       <div className="">
         {/* Header */}
         <div className="flex justify-between items-center pl-4">
