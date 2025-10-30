@@ -447,6 +447,11 @@ describe('useDocumentRegistry hook', () => {
     await waitFor(() => {
       expect(result.current.uploadedRoute).toBe('https://example.com/doc.pdf')
       expect(result.current.formVersion).toBe(1)
+      const documentKeyField = result.current.fields.find((f) => f.name === 'documentKey')
+      const descriptionField = result.current.fields.find((f) => f.name === 'description')
+
+      expect(documentKeyField?.value).toBe('')
+      expect(descriptionField?.value).toBe('')
     })
   })
 
