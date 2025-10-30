@@ -200,12 +200,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             <Form className={dynamicFormStyles.form}>
               <FormStateWatcher isValid={isValid} onValidChange={onValidChange} values={values} onValuesChange={onValuesChange} />
               {effectiveLayoutMatrix
-                ? effectiveLayoutMatrix.map((row, rowIndex) => (
-                  <div
-                    key={`row-${rowIndex}`}
-                    className="flex w-full gap-4 mb-4"
-                  >
-                    {row.map((width, colIndex) => {
+                ? effectiveLayoutMatrix.map((row, rowIndex) => {
+                    const columns = row.map((width, colIndex) => {
                       const fieldIndex = linearIndex(
                         rowIndex,
                         colIndex,
@@ -244,9 +240,22 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                           />
                         </div>
                       );
-                    })}
-                  </div>
-                ))
+                    });
+
+                    const hasContent = columns.some(Boolean);
+                    if (!hasContent) {
+                      return null;
+                    }
+
+                    return (
+                      <div
+                        key={`row-${rowIndex}`}
+                        className="flex w-full gap-4 mb-4"
+                      >
+                        {columns}
+                      </div>
+                    );
+                  })
                 : // Sin layout provisto: render lineal uno debajo del otro
                 visibleFields.map((field) => {
                   const value = values[field.name];
