@@ -7,6 +7,9 @@ import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import CheckBoxList from "@/app/components/CheckBoxList/CheckBoxList";
 import useDocumentRegistry from "./hooks/useDocumentRegistry";
+import DocumentViewer from "@/app/components/DocumentViewer/DocumentViewer";
+import { Button } from "@/app/components/Button/Button";
+import DocIcon from "@/assets/icons/Docs/page.svg";
 
 const DocumentRegistry = () => {
   const searchParams = useSearchParams();
@@ -28,6 +31,10 @@ const DocumentRegistry = () => {
 
   // Estado local para controlar si se seleccionó "Documentos Operativos"
   const [isOperationalDoc, setIsOperationalDoc] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
     <FormsLayout
@@ -53,6 +60,22 @@ const DocumentRegistry = () => {
           setIsOperationalDoc(specs === "external"); // "external" = Documentos Operativos
         }}
       >
+        <div>
+          <Button
+            onClick={handleOpen}
+            variant="ghost"
+            icon={DocIcon}
+          > 
+          </Button>
+
+          {open && (
+            <DocumentViewer
+              fileUrl="/ruta/al/archivo.pdf"
+              title="Formato Universal de Incidencias"
+              onClose={handleClose}
+            />
+          )}
+        </div>
         {/* 🔹 Solo mostrar CheckBoxList si se selecciona Documentos Operativos */}
         {isOperationalDoc && (
           <CheckBoxList
