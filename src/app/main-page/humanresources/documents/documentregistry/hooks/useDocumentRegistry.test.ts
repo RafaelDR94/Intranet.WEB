@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 import { Documents as DocumentsUrl } from '@/app/configurations/Axios/urls'
@@ -205,7 +205,9 @@ describe('useDocumentRegistry hook', () => {
       toolsChecklist: [],
     }
 
-    await result.current.handleSubmit(values)
+    await act(async () => {
+      await result.current.handleSubmit(values)
+    })
 
     expect(withLoadingMock).toHaveBeenCalledTimes(1)
     const [, loadingOpts] = withLoadingMock.mock.calls[0] ?? []
@@ -227,6 +229,7 @@ describe('useDocumentRegistry hook', () => {
       extension: 'pdf',
     })
     expect(putMock).not.toHaveBeenCalled()
+    expect(fetchDocumentsMock).toHaveBeenCalledWith(true)
 
     expect(showAlertMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -234,6 +237,11 @@ describe('useDocumentRegistry hook', () => {
         title: 'Documento registrado',
       }),
     )
+
+    await waitFor(() => {
+      expect(result.current.uploadedRoute).toBe('')
+      expect(result.current.formVersion).toBe(1)
+    })
   })
 
   it('shows error alert when submission fails', async () => {
@@ -253,7 +261,9 @@ describe('useDocumentRegistry hook', () => {
       toolsChecklist: ['dept-2'],
     }
 
-    await result.current.handleSubmit(values)
+    await act(async () => {
+      await result.current.handleSubmit(values)
+    })
 
     expect(withLoadingMock).toHaveBeenCalledTimes(1)
     expect(uploadFileMock).toHaveBeenCalled()
@@ -288,11 +298,14 @@ describe('useDocumentRegistry hook', () => {
       ],
     }
 
-    await result.current.handleSubmit(values)
+    await act(async () => {
+      await result.current.handleSubmit(values)
+    })
 
     const [, payload] = postMock.mock.calls.at(-1) ?? []
     expect(payload?.management).toBe(false)
     expect(new Set(payload?.department_id)).toEqual(new Set(['dept-1', 'dept-2']))
+    expect(fetchDocumentsMock).toHaveBeenCalledWith(true)
   })
 
   it('prefills form values when editing an existing document', () => {
@@ -400,7 +413,9 @@ describe('useDocumentRegistry hook', () => {
       toolsChecklist: [],
     }
 
-    await result.current.handleSubmit(values)
+    await act(async () => {
+      await result.current.handleSubmit(values)
+    })
 
     expect(withLoadingMock).toHaveBeenCalled()
     const [, loadingOpts] = withLoadingMock.mock.calls.at(-1) ?? []
@@ -420,6 +435,7 @@ describe('useDocumentRegistry hook', () => {
         extension: 'pdf',
       }),
     )
+    expect(fetchDocumentsMock).toHaveBeenCalledWith(true)
 
     expect(showAlertMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -427,6 +443,11 @@ describe('useDocumentRegistry hook', () => {
         title: 'Documento actualizado',
       }),
     )
+
+    await waitFor(() => {
+      expect(result.current.uploadedRoute).toBe('https://example.com/doc.pdf')
+      expect(result.current.formVersion).toBe(1)
+    })
   })
 
   it('requests documents when editing and the record is missing locally', () => {
