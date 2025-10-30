@@ -5,7 +5,6 @@ import { useState } from "react";
 
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
-import CheckBoxList from "@/app/components/CheckBoxList/CheckBoxList";
 import useDocumentRegistry from "./hooks/useDocumentRegistry";
 import DocumentViewer from "@/app/components/DocumentViewer/DocumentViewer";
 import { Button } from "@/app/components/Button/Button";
@@ -24,13 +23,10 @@ const DocumentRegistry = () => {
     fields,
     responsiveLayoutMatrix,
     handleSubmit,
-    checklistDefinitions,
     handleValuesChange,
     uploadingFile,
   } = useDocumentRegistry(documentId);
 
-  // Estado local para controlar si se seleccionó "Documentos Operativos"
-  const [isOperationalDoc, setIsOperationalDoc] = useState(false);
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => setOpen(true);
@@ -53,11 +49,9 @@ const DocumentRegistry = () => {
         responsiveLayoutMatrix={responsiveLayoutMatrix}
         dataTestId="document-registry-form"
         loading={uploadingFile}
-        // 🔹 Escucha los cambios del campo 'specifications'
+        // 🔹 Escucha los cambios del formulario para cargar archivos
         onValuesChange={(values) => {
           void handleValuesChange(values);
-          const specs = values?.specifications;
-          setIsOperationalDoc(specs === "external"); // "external" = Documentos Operativos
         }}
       >
         <div>
@@ -76,15 +70,6 @@ const DocumentRegistry = () => {
             />
           )}
         </div>
-        {/* 🔹 Solo mostrar CheckBoxList si se selecciona Documentos Operativos */}
-        {isOperationalDoc && (
-          <CheckBoxList
-            title={checklistDefinitions.areas.title}
-            options={checklistDefinitions.areas.options}
-            showSelectAll={true}
-            columns={3}
-          />
-        )}
       </DynamicForm>
     </FormsLayout>
   );

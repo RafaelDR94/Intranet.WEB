@@ -35,6 +35,10 @@ export type CheckBoxListFieldProps = {
   titleClassName?: string;
   /** Clase adicional para el contenedor de opciones */
   listClassName?: string;
+  /** Muestra un checkbox para seleccionar todas las opciones */
+  showSelectAll?: boolean;
+  /** Define el número de columnas en las que se distribuyen las opciones */
+  columns?: number;
 };
 
 /** Estados visuales para campos y helper texts. */

@@ -22,13 +22,14 @@ import { useDocumentTypesStore } from "@/app/stores/useDocumentTypesStore/useDoc
 import { useDocumentsStore } from "@/app/stores/useDocumentsStore/useDocumentsStore";
 
 const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
-  sm: [[10], [10], [10], [10], [10], [10]],
+  sm: [[10], [10], [10], [10], [10], [10], [10]],
   md: [
     [5, 5],
     [5, 5],
     [5, 5],
+    [10],
   ],
-  lg: [[5, 5], [5, 5, 5], [10]],
+  lg: [[5, 5], [5, 5, 5], [10], [10]],
 };
 
 const DOCUMENTS_STORAGE_PREFIX = "HumanResources/DocumentRegistry/";
@@ -119,8 +120,13 @@ const createDocumentRegistryFields = (
     value: [],
     options: areasChecklistOptions,
     disabled: destinationAreasLoading,
+    showIf: (values) =>
+      typeof values.specifications === "string" &&
+      values.specifications.trim() === "external",
     checkboxListProps: {
       labelPosition: "right",
+      showSelectAll: true,
+      columns: 3,
     },
   },
 ];
