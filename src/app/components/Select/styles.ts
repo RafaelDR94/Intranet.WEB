@@ -31,7 +31,7 @@ export const baseStyles = {
     "w-full border border-gray-30 rounded-md px-2 py-1 text-sm outline-none focus:border-green-100 focus:ring-0 placeholder:text-gray-50 disabled:bg-gray-20 disabled:text-gray-50 disabled:cursor-not-allowed",
   optionsContainer: "flex-1 overflow-y-auto overscroll-contain",
   option:
-    "flex items-center justify-between px-3 h-10 text-sm cursor-pointer hover:bg-green-10",
+    "flex items-center justify-between px-3 h-10 text-sm  cursor-pointer hover:bg-green-10  hover:text-black-100",
   optionDisabled: "text-gray-40 cursor-not-allowed",
   checkbox: "w-6 h-6 rounded-md border border-green-100",
   checkboxChecked: "bg-green-100 border-green-100",

@@ -1,0 +1,36 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="Components/SignaturePad" />
+
+# SignaturePad
+
+Canvas de firma basado en `react-signature-canvas`. Ajusta tamaños con
+`ResizeObserver`, ofrece botones contextuales y adapta el layout entre desktop y
+móvil.
+
+---
+
+## Uso rápido
+
+```tsx
+import SignaturePad from '@/app/components/SignaturePAD/SignaturePAD'
+
+<SignaturePad
+  width={480}
+  height={260}
+  onSignatureSave={handleSave}
+  onCancel={handleCancel}
+/>
+```
+
+---
+
+## Props
+
+- `width`, `height`: valores iniciales para el canvas (luego se ajustan al
+  contenedor).
+- `onSignatureSave(dataUrl)`: callback con la firma codificada en base64.
+- `onCancel()`: notifica que se abandonó la captura.
+
+`SignaturePad` internamente usa `useSignaturePad` para exponer handlers y
+tamano reactivo.

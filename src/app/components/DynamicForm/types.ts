@@ -13,6 +13,7 @@ export type InputType =
   | 'controlLevel'
   | 'checkboxList'
   | 'date'
+  | 'datetime-local'
   | 'email'
   | 'password'
   | 'number'

@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * Presenta la etapa de evidencias del registro vehicular y administra la captura de imagenes y firma.
+ */
+
 import { Card } from '@/app/components/Card/Card';
 import { Button } from '@/app/components/Button/Button';
 import ImageUploaderExpanded from '@/app/components/ImageUploaderExpanded/ImageUploaderExpanded';
@@ -29,6 +33,7 @@ const ImagesComponent: React.FC<ImagesComponentProps> = ({ formId }) => {
     handleSignatureAuthorization,
     handleImageSelect,
     handleRemoveImage,
+    handleResponsiveDownload,
     currentAssignment
   } = useImagesComponent({ formId });
 
@@ -92,9 +97,7 @@ const ImagesComponent: React.FC<ImagesComponentProps> = ({ formId }) => {
       <SignatureComponent
         allowExternalToggle={true}
         responsiveRequired={true}
-        onResponsiveDownload={() => {
-          console.log('Descarga de responsiva');
-        }}
+        onResponsiveDownload={handleResponsiveDownload}
         open={isSignatureOpen}
         onClose={closeSignature}
         onAuthorization={handleSignatureAuthorization}

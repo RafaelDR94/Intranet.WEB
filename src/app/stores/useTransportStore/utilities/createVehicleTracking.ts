@@ -9,7 +9,7 @@ import { fetchVehicleTrackings } from "./fetchVehicleTrackings";
 import {
   TransportVehicleTracking as VehicleTrackingUrl,
 } from "@/app/configurations/Axios/urls";
-import { transportTransformer } from "@/app/mappings/transport/transformers";
+// import { transportTransformer } from "@/app/mappings/transport/transformers";
 import type {
   VehicleTraking,
   VehicleTrakingPost,
@@ -22,7 +22,7 @@ export const createVehicleTracking = async (
   set: SetState,
   get: GetState,
   payload: VehicleTrakingPost
-): Promise<VehicleTraking | null> => {
+): Promise<VehicleTraking | VehicleTrakingPost |null> => {
   set({
     creatingVehicleTracking: true,
     error: undefined,
@@ -37,7 +37,7 @@ export const createVehicleTracking = async (
       payload
     );
     const raw = res.data?.data ?? res.data ?? null;
-    const created = raw ? transportTransformer.mapVehicleTraking(raw) : null;
+    const created = raw || payload;
 
     await fetchVehicleTrackings(set, get, true);
 

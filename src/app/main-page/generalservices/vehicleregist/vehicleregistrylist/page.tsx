@@ -145,7 +145,8 @@ const VehicleRegistryList = () => {
         ]}
         enableInternalSearch
         searchableKeys={searchableKeys}
-        showCalendar={false}
+        showCalendar={true}
+        dateKey={"departureDate"}
         showFilter={false}
         showButton={false}
         showRefresh
@@ -168,7 +169,8 @@ const VehicleRegistryList = () => {
         ]}
         enableInternalSearch
         searchableKeys={searchableKeys}
-        showCalendar={false}
+        showCalendar={true}
+        dateKey={"departureDate"}
         showFilter={false}
         showRefresh
         onRefreshPage={handleRefresh}
@@ -178,7 +180,7 @@ const VehicleRegistryList = () => {
         dataTableTitle="Registro Vehicular"
       />
       <RegistDetails onClose={() => { handleCloseDetails() }} open={openDetailsPanel} />
-{/* 
+      {/* 
       {loading && inTransitRows.length === 0 && otherRows.length === 0 ? (
         <span className="text-sm text-gray-500">Cargando registros...</span>
       ) : null} */}

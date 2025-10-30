@@ -1,4 +1,8 @@
-﻿import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext"
+/**
+ * Gestiona el envio del formulario de registro vehicular tanto para salidas como llegadas.
+ * Orquesta la creacion de asignaciones, el seguimiento vehicular y la carga de evidencias.
+ */
+import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext"
 import { useVehicleRegistryImagesStore } from "@/app/stores/useVehicleRegistryImagesStore/useVehicleRegistryImagesStore";
 import { base64ToBlob } from "@/app/utilities/PicturesHelper/PictureHelper";
 import { useTransportStore } from "@/app/stores/useTransportStore/useTransportStore";
@@ -28,37 +32,41 @@ const useSubmitForm = () => {
     try {
       if (currentAssignment) {
         await submitUpdate(values, currentAssignment.vehicleassignments_id);
-        return;
+
+      }
+      else {
+        const { signature } = useVehicleRegistryImagesStore.getState();
+        const urlsignature = signature.startsWith("data:image") ? "" : signature; // prefer-const
+
+        const AsignamentPostModel = {
+          employee_id: String(values.driver),
+          transport_id: String(values.vehicle),
+          destination: String(values.destination),
+          signature_leader: "",
+          signature_employee: urlsignature
+        };
+
+        const assignament = await createAssignment(AsignamentPostModel);
+
+        if (!assignament) {
+          throw new Error("No se pudo registrar");
+        }
+
+        if (!urlsignature) {
+          await firebasestorage?.uploadFile(
+            base64ToBlob(signature),
+            `VehicleRequest/${assignament.vehicleassignments_id}/departure/signature`,
+            true
+          );
+        }
+
+        await submitUpdate(values, assignament.vehicleassignments_id || "");
       }
 
-      const { signature } = useVehicleRegistryImagesStore.getState();
-      const urlsignature = signature.startsWith("data:image") ? "" : signature; // prefer-const
 
-      const AsignamentPostModel = {
-        employee_id: String(values.driver),
-        transport_id: String(values.vehicle),
-        destination: String(values.destination),
-        signature_leader: "",
-        signature_employee: urlsignature
-      };
-
-      const assignament = await createAssignment(AsignamentPostModel);
-
-      if (!assignament) {
-        throw new Error("No se pudo registrar");
-      }
-
-      if (!urlsignature) {
-        await firebasestorage?.uploadFile(
-          base64ToBlob(signature),
-          `VehicleRequest/${assignament.vehicleassignments_id}/departure/signature`,
-          true
-        );
-      }
-
-      await submitUpdate(values, assignament.vehicleassignments_id || "");
     } finally {
       // Garantiza que se cierre el spinner pase lo que pase (éxito o error).
+      console.log("Se queda aqui");
       hideSpinner();
     }
   };
@@ -107,10 +115,11 @@ const useSubmitForm = () => {
       if (!vehicletraking) {
         throw new Error("No se pudo registrar");
       }
+      const slotsFiltered = currentAssignment?slots.filter(slot=>slot.title!="Licencia de conducir"):slots
 
       // Sube imágenes correctamente esperando a que terminen todas.
       await Promise.all(
-        slots.map(picture =>
+        slotsFiltered.map(picture =>
           firebasestorage?.uploadFile(
             base64ToBlob(picture.imageSrc),
             `VehicleRequest/${idVehicleAssigment}/${place}/${picture.title}`,
@@ -141,3 +150,5 @@ const useSubmitForm = () => {
 };
 
 export default useSubmitForm;
+
+
