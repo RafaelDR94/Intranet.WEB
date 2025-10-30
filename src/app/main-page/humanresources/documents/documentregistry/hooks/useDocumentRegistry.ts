@@ -313,6 +313,9 @@ const useDocumentRegistry = (documentId?: string) => {
   const [uploadedFileLabel, setUploadedFileLabel] = useState("");
   const lastUploadedFileRef = useRef<File | null>(null);
   const [formVersion, setFormVersion] = useState(0);
+  const [shouldPrefillFromDocument, setShouldPrefillFromDocument] = useState(
+    () => Boolean(documentId),
+  );
 
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { withLoading } = usePrincipalLoading;
@@ -418,6 +421,10 @@ const useDocumentRegistry = (documentId?: string) => {
     setUploadedFileLabel(existingDocument.name ?? existingDocument.code ?? "");
   }, [existingDocument]);
 
+  useEffect(() => {
+    setShouldPrefillFromDocument(Boolean(documentId));
+  }, [documentId]);
+
   const resetFormState = useCallback(
     (nextState?: { route?: string; extension?: string; label?: string }) => {
       lastUploadedFileRef.current = null;
@@ -437,8 +444,9 @@ const useDocumentRegistry = (documentId?: string) => {
       setUploadedFileLabel(resolvedLabel);
       setFormValid(false);
       setFormVersion((prev) => prev + 1);
+      setShouldPrefillFromDocument(false);
     },
-    [existingDocument],
+    [existingDocument, setShouldPrefillFromDocument],
   );
 
   const uploadDocumentFile = useCallback(
@@ -505,25 +513,36 @@ const useDocumentRegistry = (documentId?: string) => {
   );
 
   const fields = useMemo(() => {
+    const documentRouteForField = shouldPrefillFromDocument
+      ? uploadedRoute
+      : "";
+    const documentLabelForField = shouldPrefillFromDocument
+      ? uploadedFileLabel
+      : "";
+
     const baseFields = createDocumentRegistryFields(
       documentTypeOptions,
       documentTypesLoading,
       destinationAreaOptions,
       destinationAreasLoading,
       destinationAreaOptions,
-      uploadedRoute,
-      uploadedFileLabel,
+      documentRouteForField,
+      documentLabelForField,
     );
 
-    return mapDocumentToFieldValues(baseFields, existingDocument);
+    return mapDocumentToFieldValues(
+      baseFields,
+      shouldPrefillFromDocument ? existingDocument : undefined,
+    );
   }, [
     destinationAreaOptions,
     destinationAreasLoading,
     documentTypeOptions,
     documentTypesLoading,
     existingDocument,
-    uploadedRoute,
+    shouldPrefillFromDocument,
     uploadedFileLabel,
+    uploadedRoute,
   ]);
 
   const handleSubmit = useCallback(
