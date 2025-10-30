@@ -20,6 +20,7 @@ const DocumentRegistry = () => {
     submitLabel,
     submitRef,
     formReady,
+    formVersion,
     setFormReady,
     fields,
     responsiveLayoutMatrix,
@@ -42,6 +43,7 @@ const DocumentRegistry = () => {
       enableCollapse={false}
     >
       <DynamicForm
+        key={`document-registry-form-${formVersion}`}
         fields={fields}
         onSubmit={handleSubmit}
         externalSubmitRef={submitRef}
@@ -50,6 +52,8 @@ const DocumentRegistry = () => {
         responsiveLayoutMatrix={responsiveLayoutMatrix}
         dataTestId="document-registry-form"
         loading={uploadingFile}
+        valuesVersion={formVersion}
+        valuesVersionActive={true}
         // 🔹 Escucha los cambios del formulario para cargar archivos
         onValuesChange={(values) => {
           void handleValuesChange(values);

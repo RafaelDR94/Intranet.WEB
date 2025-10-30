@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 import { Documents as DocumentsUrl } from '@/app/configurations/Axios/urls'
@@ -205,7 +205,9 @@ describe('useDocumentRegistry hook', () => {
       toolsChecklist: [],
     }
 
-    await result.current.handleSubmit(values)
+    await act(async () => {
+      await result.current.handleSubmit(values)
+    })
 
     expect(withLoadingMock).toHaveBeenCalledTimes(1)
     const [, loadingOpts] = withLoadingMock.mock.calls[0] ?? []
@@ -227,6 +229,7 @@ describe('useDocumentRegistry hook', () => {
       extension: 'pdf',
     })
     expect(putMock).not.toHaveBeenCalled()
+    expect(fetchDocumentsMock).toHaveBeenCalledWith(true)
 
     expect(showAlertMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -234,6 +237,56 @@ describe('useDocumentRegistry hook', () => {
         title: 'Documento registrado',
       }),
     )
+
+    await waitFor(() => {
+      expect(result.current.uploadedRoute).toBe('')
+      expect(result.current.formVersion).toBe(1)
+    })
+  })
+
+  it('ignores the previously submitted file when the form resets', async () => {
+    const { result } = renderHook(() => useDocumentRegistry())
+
+    const file = new File(['hello'], 'Manual.pdf', { type: 'application/pdf' })
+
+    const baseValues = {
+      documentFile: file,
+      documentKey: 'DOC-001',
+      specifications: 'internal',
+      destinationArea: 'dept-1',
+      documentType: 'type-1',
+      description: 'Document description',
+      toolsChecklist: [],
+    }
+
+    await act(async () => {
+      await result.current.handleSubmit(baseValues)
+    })
+
+    expect(uploadFileMock).toHaveBeenCalledTimes(1)
+
+    await waitFor(() => {
+      expect(result.current.formVersion).toBe(1)
+    })
+
+    uploadFileMock.mockClear()
+
+    await act(async () => {
+      await result.current.handleValuesChange(baseValues)
+    })
+
+    expect(uploadFileMock).not.toHaveBeenCalled()
+
+    const newFile = new File(['bye'], 'Manual-v2.pdf', { type: 'application/pdf' })
+
+    await act(async () => {
+      await result.current.handleValuesChange({
+        ...baseValues,
+        documentFile: newFile,
+      })
+    })
+
+    expect(uploadFileMock).toHaveBeenCalledTimes(1)
   })
 
   it('shows error alert when submission fails', async () => {
@@ -253,7 +306,9 @@ describe('useDocumentRegistry hook', () => {
       toolsChecklist: ['dept-2'],
     }
 
-    await result.current.handleSubmit(values)
+    await act(async () => {
+      await result.current.handleSubmit(values)
+    })
 
     expect(withLoadingMock).toHaveBeenCalledTimes(1)
     expect(uploadFileMock).toHaveBeenCalled()
@@ -288,11 +343,14 @@ describe('useDocumentRegistry hook', () => {
       ],
     }
 
-    await result.current.handleSubmit(values)
+    await act(async () => {
+      await result.current.handleSubmit(values)
+    })
 
     const [, payload] = postMock.mock.calls.at(-1) ?? []
     expect(payload?.management).toBe(false)
     expect(new Set(payload?.department_id)).toEqual(new Set(['dept-1', 'dept-2']))
+    expect(fetchDocumentsMock).toHaveBeenCalledWith(true)
   })
 
   it('prefills form values when editing an existing document', () => {
@@ -400,7 +458,9 @@ describe('useDocumentRegistry hook', () => {
       toolsChecklist: [],
     }
 
-    await result.current.handleSubmit(values)
+    await act(async () => {
+      await result.current.handleSubmit(values)
+    })
 
     expect(withLoadingMock).toHaveBeenCalled()
     const [, loadingOpts] = withLoadingMock.mock.calls.at(-1) ?? []
@@ -420,6 +480,7 @@ describe('useDocumentRegistry hook', () => {
         extension: 'pdf',
       }),
     )
+    expect(fetchDocumentsMock).toHaveBeenCalledWith(true)
 
     expect(showAlertMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -427,6 +488,16 @@ describe('useDocumentRegistry hook', () => {
         title: 'Documento actualizado',
       }),
     )
+
+    await waitFor(() => {
+      expect(result.current.uploadedRoute).toBe('https://example.com/doc.pdf')
+      expect(result.current.formVersion).toBe(1)
+      const documentKeyField = result.current.fields.find((f) => f.name === 'documentKey')
+      const descriptionField = result.current.fields.find((f) => f.name === 'description')
+
+      expect(documentKeyField?.value).toBe('')
+      expect(descriptionField?.value).toBe('')
+    })
   })
 
   it('requests documents when editing and the record is missing locally', () => {

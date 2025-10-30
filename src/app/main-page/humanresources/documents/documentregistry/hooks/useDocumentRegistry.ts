@@ -312,6 +312,12 @@ const useDocumentRegistry = (documentId?: string) => {
   const [uploadedExtension, setUploadedExtension] = useState("");
   const [uploadedFileLabel, setUploadedFileLabel] = useState("");
   const lastUploadedFileRef = useRef<File | null>(null);
+  const ignoredFileRef = useRef<File | null>(null);
+  const ignoreNextFileRef = useRef(false);
+  const [formVersion, setFormVersion] = useState(0);
+  const [shouldPrefillFromDocument, setShouldPrefillFromDocument] = useState(
+    () => Boolean(documentId),
+  );
 
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { withLoading } = usePrincipalLoading;
@@ -417,6 +423,41 @@ const useDocumentRegistry = (documentId?: string) => {
     setUploadedFileLabel(existingDocument.name ?? existingDocument.code ?? "");
   }, [existingDocument]);
 
+  useEffect(() => {
+    setShouldPrefillFromDocument(Boolean(documentId));
+  }, [documentId]);
+
+  const resetFormState = useCallback(
+    (nextState?: { route?: string; extension?: string; label?: string }) => {
+      if (lastUploadedFileRef.current) {
+        ignoredFileRef.current = lastUploadedFileRef.current;
+        ignoreNextFileRef.current = true;
+      } else {
+        ignoredFileRef.current = null;
+        ignoreNextFileRef.current = false;
+      }
+      lastUploadedFileRef.current = null;
+
+      const resolvedRoute =
+        nextState?.route ?? existingDocument?.route ?? "";
+      const resolvedExtension =
+        nextState?.extension ?? existingDocument?.extension ?? "";
+      const resolvedLabel =
+        nextState?.label ??
+        existingDocument?.name ??
+        existingDocument?.code ??
+        "";
+
+      setUploadedRoute(resolvedRoute);
+      setUploadedExtension(resolvedExtension);
+      setUploadedFileLabel(resolvedLabel);
+      setFormValid(false);
+      setFormVersion((prev) => prev + 1);
+      setShouldPrefillFromDocument(false);
+    },
+    [existingDocument, setShouldPrefillFromDocument],
+  );
+
   const uploadDocumentFile = useCallback(
     async (file: File, values: Record<string, unknown>) => {
       if (!firebasestorage?.uploadFile) {
@@ -454,6 +495,15 @@ const useDocumentRegistry = (documentId?: string) => {
         return;
       }
 
+      if (ignoreNextFileRef.current && ignoredFileRef.current === file) {
+        ignoreNextFileRef.current = false;
+        ignoredFileRef.current = null;
+        return;
+      }
+
+      ignoreNextFileRef.current = false;
+      ignoredFileRef.current = null;
+
       if (lastUploadedFileRef.current === file && uploadedRoute) {
         return;
       }
@@ -481,25 +531,36 @@ const useDocumentRegistry = (documentId?: string) => {
   );
 
   const fields = useMemo(() => {
+    const documentRouteForField = shouldPrefillFromDocument
+      ? uploadedRoute
+      : "";
+    const documentLabelForField = shouldPrefillFromDocument
+      ? uploadedFileLabel
+      : "";
+
     const baseFields = createDocumentRegistryFields(
       documentTypeOptions,
       documentTypesLoading,
       destinationAreaOptions,
       destinationAreasLoading,
       destinationAreaOptions,
-      uploadedRoute,
-      uploadedFileLabel,
+      documentRouteForField,
+      documentLabelForField,
     );
 
-    return mapDocumentToFieldValues(baseFields, existingDocument);
+    return mapDocumentToFieldValues(
+      baseFields,
+      shouldPrefillFromDocument ? existingDocument : undefined,
+    );
   }, [
     destinationAreaOptions,
     destinationAreasLoading,
     documentTypeOptions,
     documentTypesLoading,
     existingDocument,
-    uploadedRoute,
+    shouldPrefillFromDocument,
     uploadedFileLabel,
+    uploadedRoute,
   ]);
 
   const handleSubmit = useCallback(
@@ -520,6 +581,10 @@ const useDocumentRegistry = (documentId?: string) => {
       const errorTitle = isEditing
         ? "No se pudo actualizar el documento"
         : "No se pudo registrar el documento";
+
+      let resolvedRoute = "";
+      let resolvedExtension = "";
+      let resolvedFileLabel = "";
 
       try {
         await withLoading(
@@ -553,6 +618,15 @@ const useDocumentRegistry = (documentId?: string) => {
 
             const payload = buildDocumentPayload(values, route, extension);
 
+            resolvedRoute = route;
+            resolvedExtension = extension;
+            resolvedFileLabel =
+              file?.name ||
+              payload.name ||
+              existingDocument?.name ||
+              existingDocument?.code ||
+              "";
+
             if (isEditing && targetId) {
               const url = `${DocumentsUrl}`;
               await put(url, {...payload, document_id: targetId});
@@ -562,6 +636,17 @@ const useDocumentRegistry = (documentId?: string) => {
           },
           { message: loadingMessage },
         );
+
+        resetFormState(
+          isEditing
+            ? {
+                route: resolvedRoute,
+                extension: resolvedExtension,
+                label: resolvedFileLabel,
+              }
+            : undefined,
+        );
+        void fetchDocuments(true);
 
         showAlert({
           type: "success",
@@ -604,6 +689,8 @@ const useDocumentRegistry = (documentId?: string) => {
       uploadDocumentFile,
       existingDocument,
       documentId,
+      resetFormState,
+      fetchDocuments,
     ],
   );
 
@@ -613,6 +700,7 @@ const useDocumentRegistry = (documentId?: string) => {
     submitRef,
     formReady,
     uploadedRoute,
+    formVersion,
     setFormReady: setFormValid,
     fields,
     responsiveLayoutMatrix,
