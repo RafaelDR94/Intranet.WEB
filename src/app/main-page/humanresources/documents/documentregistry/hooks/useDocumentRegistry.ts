@@ -15,7 +15,7 @@ import type {
   ManagementDocument,
 } from "@/app/mappings/documents/documents.types";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
-import { pPost } from "@/app/utilities/Http/promisifyIntranet";
+import { pPost, pPut } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
 import { useDepartmentsStore } from "@/app/stores/useDepartmentsStore/useDepartmentsStore";
 import { useDocumentTypesStore } from "@/app/stores/useDocumentTypesStore/useDocumentTypesStore";
@@ -54,7 +54,13 @@ const createDocumentRegistryFields = (
       ? `Archivo listo: ${documentFileLabel || "Documento cargado"}`
       : "Ningún archivo seleccionado",
     className: "w-full md:w-auto",
-    validations: [{ type: "required" }],
+    validations: documentRoute ? undefined : [{ type: "required" }],
+    initialFile: documentRoute
+      ? {
+          name: documentFileLabel || "Documento cargado",
+          url: documentRoute,
+        }
+      : undefined,
   },
   {
     type: "input",
@@ -499,6 +505,21 @@ const useDocumentRegistry = (documentId?: string) => {
   const handleSubmit = useCallback(
     async (values: Record<string, unknown>) => {
       const post = pPost(requireGateway("post"), [200, 201]);
+      const put = pPut(requireGateway("put"), [200, 204]);
+      const isEditing = Boolean(documentId ?? existingDocument?.document_id);
+      const targetId = existingDocument?.document_id ?? documentId ?? "";
+      const loadingMessage = isEditing
+        ? "Actualizando documento…"
+        : "Registrando documento…";
+      const successTitle = isEditing
+        ? "Documento actualizado"
+        : "Documento registrado";
+      const successDescription = isEditing
+        ? "Los cambios se guardaron correctamente."
+        : "El documento se registró correctamente.";
+      const errorTitle = isEditing
+        ? "No se pudo actualizar el documento"
+        : "No se pudo registrar el documento";
 
       try {
         await withLoading(
@@ -531,16 +552,22 @@ const useDocumentRegistry = (documentId?: string) => {
             }
 
             const payload = buildDocumentPayload(values, route, extension);
-            await post(DocumentsUrl, payload);
+
+            if (isEditing && targetId) {
+              const url = `${DocumentsUrl}?id=${encodeURIComponent(targetId)}`;
+              await put(url, payload);
+            } else {
+              await post(DocumentsUrl, payload);
+            }
           },
-          { message: "Registrando documento…" },
+          { message: loadingMessage },
         );
 
         showAlert({
           type: "success",
           variant: "filled",
-          title: "Documento registrado",
-          description: "El documento se registró correctamente.",
+          title: successTitle,
+          description: successDescription,
           autoCloseMs: 2000,
           showPrimaryButton: false,
           showSecondaryButton: false,
@@ -551,7 +578,7 @@ const useDocumentRegistry = (documentId?: string) => {
         showAlert({
           type: "error",
           variant: "filled",
-          title: "No se pudo registrar el documento",
+          title: errorTitle,
           description:
             normalized.message || "Ocurrió un error. Intenta de nuevo.",
           showPrimaryButton: true,
@@ -576,6 +603,7 @@ const useDocumentRegistry = (documentId?: string) => {
       uploadedExtension,
       uploadDocumentFile,
       existingDocument,
+      documentId,
     ],
   );
 

@@ -12,6 +12,7 @@ const withLoadingMock = vi.fn(async (task: () => Promise<unknown>, _opts?: { mes
 const showAlertMock = vi.fn()
 const hideAlertMock = vi.fn()
 const postMock = vi.fn(async () => ({}))
+const putMock = vi.fn(async () => ({}))
 const uploadFileMock = vi.fn(async () => 'https://firebase.test/documents/DOC-001.pdf')
 const fetchDocumentsMock = vi.fn()
 
@@ -36,6 +37,7 @@ vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
 
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({
   pPost: vi.fn(() => postMock),
+  pPut: vi.fn(() => putMock),
 }))
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({
@@ -135,6 +137,7 @@ describe('useDocumentRegistry hook', () => {
     showAlertMock.mockClear()
     hideAlertMock.mockClear()
     postMock.mockClear()
+    putMock.mockClear()
     uploadFileMock.mockClear()
     fetchDocumentsMock.mockClear()
     documentsState.documents = []
@@ -212,6 +215,7 @@ describe('useDocumentRegistry hook', () => {
       route: 'https://firebase.test/documents/DOC-001.pdf',
       extension: 'pdf',
     })
+    expect(putMock).not.toHaveBeenCalled()
 
     expect(showAlertMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -242,6 +246,7 @@ describe('useDocumentRegistry hook', () => {
 
     expect(withLoadingMock).toHaveBeenCalledTimes(1)
     expect(uploadFileMock).toHaveBeenCalled()
+    expect(putMock).not.toHaveBeenCalled()
     expect(showAlertMock).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
@@ -347,11 +352,90 @@ describe('useDocumentRegistry hook', () => {
     expect(descriptionField?.value).toBe('Guía de procesos')
     expect(fileField?.helperText).toBe('Archivo listo: Manual de procesos')
     expect(fileField?.helperText).not.toContain('https://example.com/doc.pdf')
+    expect(fileField?.validations).toBeUndefined()
+    expect(fileField?.initialFile).toEqual({
+      name: 'Manual de procesos',
+      url: 'https://example.com/doc.pdf',
+    })
     expect(toolsChecklistField?.value).toEqual(['dept-1'])
     expect(routeField).toBeUndefined()
     expect(result.current.title).toBe('Edición de Documento')
     expect(result.current.submitLabel).toBe('Guardar Cambios')
     expect(fetchDocumentsMock).not.toHaveBeenCalled()
+  })
+
+  it('updates an existing document using PUT without reuploading the file', async () => {
+    documentsState.documents = [
+      {
+        document_id: 'doc-1',
+        name: 'Manual de procesos',
+        code: 'DOC-001',
+        description: 'Guía de procesos',
+        document_type: {
+          document_type_id: '2dcf1875-35b6-4d9c-b6a2-6df144f1580c',
+          name: 'MANUAL',
+          description: 'MANUAL',
+          is_active: true,
+        },
+        department: {
+          department_id: 'dept-1',
+          name: 'Administración',
+          enterprise_id: 'ent-1',
+          enterprice_name: 'Empresa 1',
+        },
+        departments: [
+          {
+            department_id: 'dept-1',
+            name: 'Administración',
+            enterprise_id: 'ent-1',
+            enterprice_name: 'Empresa 1',
+          },
+        ],
+        management: true,
+        route: 'https://example.com/doc.pdf',
+        extension: 'pdf',
+        datecreated: '2024-01-01',
+      },
+    ]
+
+    const { result } = renderHook(() => useDocumentRegistry('doc-1'))
+
+    const values = {
+      documentFile: null,
+      documentKey: 'DOC-001',
+      specifications: 'internal',
+      destinationArea: 'dept-1',
+      documentType: '2dcf1875-35b6-4d9c-b6a2-6df144f1580c',
+      description: 'Guía de procesos',
+      toolsChecklist: [],
+    }
+
+    await result.current.handleSubmit(values)
+
+    expect(withLoadingMock).toHaveBeenCalled()
+    const [, loadingOpts] = withLoadingMock.mock.calls.at(-1) ?? []
+    expect(loadingOpts?.message).toBe('Actualizando documento…')
+
+    expect(uploadFileMock).not.toHaveBeenCalled()
+    expect(postMock).not.toHaveBeenCalled()
+    expect(putMock).toHaveBeenCalledWith(
+      `${DocumentsUrl}?id=doc-1`,
+      expect.objectContaining({
+        code: 'DOC-001',
+        document_type_id: '2dcf1875-35b6-4d9c-b6a2-6df144f1580c',
+        department_id: ['dept-1'],
+        management: true,
+        route: 'https://example.com/doc.pdf',
+        extension: 'pdf',
+      }),
+    )
+
+    expect(showAlertMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'success',
+        title: 'Documento actualizado',
+      }),
+    )
   })
 
   it('requests documents when editing and the record is missing locally', () => {
