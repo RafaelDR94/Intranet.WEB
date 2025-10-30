@@ -1,0 +1,42 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistry/Components/ImagesComponent" />
+
+# ImagesComponent
+
+Galeria interactiva para capturar evidencias fotograficas y la firma del
+responsable del vehiculo. Muestra tarjetas por slot, uploader expandido y el
+modal de firma basado en `SignatureComponent`.
+
+---
+
+## Interaccion base
+
+- Lee los slots y la firma actual desde `useVehicleRegistryImagesStore`.
+- Muestra `Card` cuando el slot ya tiene imagen o despliega
+  `ImageUploaderExpanded` para permitir carga.
+- Expone boton de firma solo si existe conductor seleccionado y el flujo es de
+  salida (no hay `currentAssignment`).
+- Rellena `SignatureBox` al contar con firma aprobada.
+
+---
+
+## Props
+
+| Prop   | Tipo   | Descripcion                                      |
+| ------ | ------ | ------------------------------------------------ |
+| formId | string | Identificador del formulario dinamico en curso. |
+
+El `formId` se utiliza para leer los campos `driver` y `vehicle` que determinan
+la firma y la responsiva.
+
+---
+
+## Ejemplo rapido
+
+```tsx
+<ImagesComponent formId="departure-form" />
+```
+
+En Storybook suele montarse junto al hook `useImagesComponent` para simular los
+slots con datos mock y validar la navegacion al modal de firma.

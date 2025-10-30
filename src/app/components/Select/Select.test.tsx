@@ -1,6 +1,6 @@
-import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 
 // Mocks de SVG
@@ -40,7 +40,7 @@ describe('Select component', () => {
     expect(screen.getByText('Opción Dos')).toBeInTheDocument()
 
     // Cerrar
-    await user.click(screen.getByText('Escribe para filtrar…')) // el trigger muestra este texto cuando está abierto
+    await user.click(screen.getByText('Escribe para filtrar')) // el trigger muestra este texto cuando está abierto
     expect(screen.queryByText('Opción Uno')).toBeNull()
   })
 
@@ -118,7 +118,7 @@ describe('Select component', () => {
     await user.tab()
     // Abrir con Enter
     await user.keyboard('{Enter}')
-    expect(screen.getByText('Escribe para filtrar…')).toBeInTheDocument()
+    expect(screen.getByText('Escribe para filtrar')).toBeInTheDocument()
 
     // Escribir "tres"
     await user.keyboard('tres')
@@ -141,9 +141,16 @@ describe('Select component', () => {
     await user.keyboard('uno')
     // Escape 1: limpia búsqueda
     await user.keyboard('{Escape}')
-    expect(screen.getByText('Escribe para filtrar…')).toBeInTheDocument()
+    expect(screen.getByText('Escribe para filtrar')).toBeInTheDocument()
     // Escape 2: cierra
     await user.keyboard('{Escape}')
     expect(screen.queryByText('Opción Uno')).toBeNull()
   })
 })
+
+
+
+
+
+
+

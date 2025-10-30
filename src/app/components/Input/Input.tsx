@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react';
 import clsx from 'clsx';
-import { InputProps } from './types';
+import React from 'react';
+
+import useInput from './hooks/useInput'
 import {
   containerClasses,
   labelClasses,
@@ -11,9 +12,11 @@ import {
   textareaClasses,
   eyesicontyles
 } from './styles'
+import { InputProps } from './types';
+
 import EyeIcon from '@/assets/icons/acciones/eye-alt.svg'
 import EyeOffIcon from '@/assets/icons/acciones/eye-close.svg'
-import useInput from './hooks/useInput'
+
 
 /**
  * Campo de texto **controlado** con soporte de variantes visuales, tamaños y modo multilinea.
@@ -74,27 +77,33 @@ export const Input: React.FC<InputProps> = ({
   type = 'text',
   icon,
   onIconClick,
-  as = 'input',          
-  rows = 4,             
+  as = 'input',
+  rows = 4,
+  dataTestId,
   ...props
 }) => {
   const size = inputSize;
   const state = variant;
   const isDisabled = state === 'disabled' || disabled;
   const isTextarea = as === 'textarea';
+  const containerTestIdProps = dataTestId ? { 'data-testid': `${dataTestId}-container` } : {};
+  const controlTestIdProps = dataTestId ? { 'data-testid': dataTestId } : {};
+  const iconTestIdProps = dataTestId ? { 'data-testid': `${dataTestId}-icon` } : {};
+  const helperTestIdProps = dataTestId ? { 'data-testid': `${dataTestId}-helpertext` } : {};
 
   // Soporte de password/eye sólo para <input>
   const { isPassword, showPassword, setShowPassword } = useInput(isTextarea ? 'text' : type as string);
   const Icon = icon;
 
   return (
-    <div className={containerClasses()}>
+    <div className={containerClasses()} {...containerTestIdProps}>
       {label && <label className={labelClasses()}>{label}</label>}
 
-      <div className="relative mb-2">
+      <div className="relative mb-0">
         {isTextarea ? (
           <textarea
             {...(props as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+            {...controlTestIdProps}
             rows={rows}
             disabled={isDisabled}
             className={clsx(textareaClasses(size, state), className)}
@@ -104,6 +113,7 @@ export const Input: React.FC<InputProps> = ({
           <>
             <input
               {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
+              {...controlTestIdProps}
               type={isPassword && showPassword ? 'text' : (type as string)}
               disabled={isDisabled}
               className={clsx(inputClasses(size, state), className)}
@@ -111,6 +121,7 @@ export const Input: React.FC<InputProps> = ({
 
             {Icon && (
               <button
+                {...iconTestIdProps}
                 type="button"
                 onClick={onIconClick}
                 className={eyesicontyles.eyeButton}
@@ -122,6 +133,7 @@ export const Input: React.FC<InputProps> = ({
 
             {isPassword && (
               <button
+                {...iconTestIdProps}
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
                 className={eyesicontyles.eyeButton}
@@ -138,7 +150,11 @@ export const Input: React.FC<InputProps> = ({
         )}
       </div>
 
-      {helperText && <span className={helperClasses(state)}>{helperText}</span>}
+      {helperText && (
+        <span {...helperTestIdProps} className={helperClasses(state)}>
+          {helperText}
+        </span>
+      )}
     </div>
   );
 };

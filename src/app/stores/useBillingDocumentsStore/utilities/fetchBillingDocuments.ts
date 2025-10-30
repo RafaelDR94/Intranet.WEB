@@ -1,13 +1,15 @@
 // src/app/stores/useBillingDocumentsStore/utilities/fetchBillingDocuments.ts
 'use client'
 import type { AxiosResponse } from 'axios'
-import { BillingBillingDocumentByFilter as BillingDocumentUrl } from '@/app/configurations/Axios/urls'
-import type { BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
+
 import { Get, Set } from '../types'
+
+import { BillingBillingDocumentByFilter as BillingDocumentUrl } from '@/app/configurations/Axios/urls'
+import { BillingDocumentsMap } from '@/app/mappings/billingdocuments/billingdocuments.mapper'
+import type { BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-import { BillingDocumentsMap } from '@/app/mappings/billingdocuments/billingdocuments.mapper'
 /**
  * Obtiene los documentos de facturas del backend y actualiza el estado.
  *

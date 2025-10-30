@@ -1,5 +1,6 @@
-import React from "react";
 import clsx from "clsx";
+import React from "react";
+
 import { tooltipStyles } from "./styles";
 import { TooltipProps } from "./types";
 

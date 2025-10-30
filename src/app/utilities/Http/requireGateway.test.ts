@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+
 import { requireGateway, isGatewayReady, requireFullGateway } from './requireGateway'
+
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
 
 describe('requireGateway utilities', () => {

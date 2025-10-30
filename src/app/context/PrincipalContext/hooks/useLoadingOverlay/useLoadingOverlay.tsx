@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useMemo, useState } from 'react';
+
 import type { SpinnerSize } from '@/app/components/Spinner/types';
 
 export type LoadingState = {
@@ -21,14 +22,35 @@ const useLoadingOverlay = (): UseLoadingOverlay => {
   const [state, setState] = useState<LoadingState>({ open: false, spinnerSize: 'medium' });
 
   const showSpinner: UseLoadingOverlay['showSpinner'] = useCallback((opts) => {
-    setState({
-      open: true,
-      message: opts?.message ?? 'Procesando…',
-      spinnerSize: opts?.spinnerSize ?? 'medium',
+    setState((prev) => {
+      const next = {
+        open: true,
+        message: opts?.message ?? 'Procesando…',
+        spinnerSize: opts?.spinnerSize ?? 'medium',
+      } as LoadingState;
+      // Evitar updates innecesarios para no disparar efectos en cascada
+      if (
+        prev.open === next.open &&
+        prev.message === next.message &&
+        prev.spinnerSize === next.spinnerSize
+      ) {
+        return prev;
+      }
+      return next;
     });
   }, []);
 
-  const hideSpinner = useCallback(() => setState(s => ({ ...s, open: false })), []);
+  const hideSpinner = useCallback(
+    () => {
+      // console.debug('[spinner] hide', new Error().stack);
+      setState((s) => {
+        // No-op si ya está oculto
+        if (!s.open) return s;
+        return { ...s, open: false };
+      })
+    },
+    []
+  );
 
   const withLoading = useCallback<UseLoadingOverlay['withLoading']>(
     async (task, opts) => {
@@ -51,7 +73,7 @@ const useLoadingOverlay = (): UseLoadingOverlay => {
       hideSpinner,
       withLoading,
     }),
-    [state]
+    [state, showSpinner, hideSpinner, withLoading]
   );
 };
 

@@ -43,6 +43,12 @@ vi.mock('@/assets/icons/acciones/eye-alt.svg', () => ({
 vi.mock('@/assets/icons/acciones/eye-close.svg', () => ({
   default: () => <svg data-testid="eye-close" />,
 }));
+vi.mock('react-datepicker/dist/react-datepicker.css', () => ({}));
+vi.mock('@/app/components/Calendar/datepicker.css', () => ({}));
+// Mock para el ícono usado como separador en Breadcrumbs
+vi.mock('@/assets/icons/navegacion/nav-arrow-right.svg', () => ({
+  default: (props: any) => <svg data-testid={props['data-testid'] ?? 'breadcrumb-separator'} {...props} />,
+}));
 vi.mock('next/navigation', () => {
   const params = new URLSearchParams();
   return {

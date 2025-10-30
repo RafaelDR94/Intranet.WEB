@@ -1,6 +1,7 @@
 // src/stores/system/useIntranetGatewayStore.ts
 'use client'
 import { create } from 'zustand'
+
 import { IntranetGetType, IntranetPostType, IntranetPutType, IntranetDeleteType } from '@/app/hooks/useIntranetCRUD/types'
 
 /**

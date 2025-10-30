@@ -1,25 +1,26 @@
-import { ReactNode } from "react"
+import React, { Children, ReactNode } from "react";
+import clsx from "clsx";
+
 import { Button } from "../Button/Button"
 import CollapsibleSection from "../CollapsibleSection/CollapsibleSection"
-import clsx from "clsx";
 import { useIsMobile } from "../DataTable/components/DataTableLayout/hooks/useMediaQuery";
 type FormsLayoutProps = {
   title: string
-  /** Texto del botón primario (derecha) */
+  /** Texto del boton primario (derecha) */
   primaryLabel: string
-  /** Acción del botón primario */
+  /** Accion del boton primario */
   onPrimaryClick?: () => void
-  /** Deshabilita el botón primario */
+  /** Deshabilita el boton primario */
   primaryDisabled?: boolean
   
   startCollaps?:boolean
-  /** Muestra el botón secundario (izquierda) */
+  /** Muestra el boton secundario (izquierda) */
   showSecondaryButton?: boolean
-  /** Texto del botón secundario */
+  /** Texto del boton secundario */
   secondaryLabel?: string
-  /** Acción del botón secundario (p.ej. Cancelar) */
+  /** Accion del boton secundario (p.ej. Cancelar) */
   onSecondaryClick?: () => void
-  /** Deshabilita el botón secundario */
+  /** Deshabilita el boton secundario */
   secondaryDisabled?: boolean
 
   children: ReactNode
@@ -27,6 +28,11 @@ type FormsLayoutProps = {
   showDivider?: boolean
 }
 
+/**
+ * Contenedor de formularios que muestra cabecera con acciones y envuelve cada children
+ * en tarjetas independientes. Ideal para composiciones donde se apilan secciones (steps,
+ * formularios parciales, botones externos, etc.) conservando la misma estructura visual.
+ */
 const FormsLayout = ({
   title,
   primaryLabel,
@@ -42,6 +48,8 @@ const FormsLayout = ({
   children
 }: FormsLayoutProps) => {
   const isMobile = useIsMobile();
+  const childArray = Children.toArray(children).filter(Boolean);
+
   return (
     <div className="flex flex-col gap-4">
       <CollapsibleSection
@@ -71,15 +79,22 @@ const FormsLayout = ({
               hideIcon
               onClick={onPrimaryClick}
               disabled={primaryDisabled}
-              className={clsx(isMobile && "w-full")}
+              className={clsx(isMobile && "w-full mt-5")}
             >
               {primaryLabel}
             </Button>
           </div>
         }
       >
-        <div className="flex bg-white-100 p-6 rounded-lg shadow-md gap-6">
-          {children}
+        <div className="flex flex-col gap-6">
+          {childArray.map((child, index) => {
+            const key = (child as any)?.key ?? index;
+            return (
+              <div key={key} className="flex bg-white-100 p-6 rounded-lg shadow-md gap-6">
+                {child}
+              </div>
+            );
+          })}
         </div>
       </CollapsibleSection>
     </div>

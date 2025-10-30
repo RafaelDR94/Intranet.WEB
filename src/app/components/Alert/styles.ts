@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+
 import { AlertType, AlertVariant } from './types'
 
 const baseContainer = 'rounded-lg p-4 flex flex-col gap-3 shadow-sm w-[300px] md:w-[400px]'

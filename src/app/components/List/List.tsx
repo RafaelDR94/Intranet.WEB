@@ -1,10 +1,12 @@
 import React from "react";
-import CustomRadio from "../CustomRadio/CustomRadio";
-import { Checkbox } from "../CheckBox/CheckBox";
-import { ToggleButton } from "../ToogleButton/ToogleButton";
+
 import { Button } from "../Button/Button";
+import { Checkbox } from "../CheckBox/CheckBox";
 import { Control } from "../Control/Control";
+import CustomRadio from "../CustomRadio/CustomRadio";
 import PersonalAvatar from "../PersonalAvatar/PersonalAvatar";
+import { ToggleButton } from "../ToogleButton/ToogleButton";
+
 import { listStyles } from "./styles";
 import type { ListProps } from "./types";
 

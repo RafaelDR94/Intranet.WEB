@@ -1,5 +1,6 @@
-import { Breakpoints } from "../types";
 import { useState,useEffect } from "react";
+
+import { Breakpoints } from "../types";
 /**
  * Hook responsivo para resolver el breakpoint actual en función de `window.innerWidth`.
  *

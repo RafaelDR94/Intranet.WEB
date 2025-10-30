@@ -1,10 +1,14 @@
 import React from 'react'
-import { TableHeaderProps } from './types'
-import { Checkbox } from '@/app/components/CheckBox/CheckBox'
-import { DataTableHeaderStyles } from './styles'
-import UpNavigation from '@/assets/icons/navegacion/nav-arrow-up.svg'
-import DownNavigation from '@/assets/icons/navegacion/nav-arrow-down.svg'
+
 import { useIsMobile } from '../../../DataTableLayout/hooks/useMediaQuery'
+
+import { DataTableHeaderStyles } from './styles'
+import { TableHeaderProps } from './types'
+
+import { Checkbox } from '@/app/components/CheckBox/CheckBox'
+import DownNavigation from '@/assets/icons/navegacion/nav-arrow-down.svg'
+import UpNavigation from '@/assets/icons/navegacion/nav-arrow-up.svg'
+
 
 export const DataTableHeader = <T,>({
   columns,
@@ -14,6 +18,7 @@ export const DataTableHeader = <T,>({
   sortKey,
   sortDirection,
   onSort,
+  disableSelection
 }: TableHeaderProps<T>) => {
 
   const isMobile = useIsMobile()
@@ -22,7 +27,7 @@ export const DataTableHeader = <T,>({
     <div className={DataTableHeaderStyles.containerHeader}>
       {enableSelection && (
         <div className={DataTableHeaderStyles.checkboxContainer}>
-          <Checkbox checked={allSelected} onChange={onSelectAll} />
+          <Checkbox checked={allSelected} onChange={(val) => { if (disableSelection) return; else onSelectAll(val) }} />
         </div>
       )}
 

@@ -1,7 +1,9 @@
 'use client'
 import React, { ReactNode } from 'react'
-import { useAuthStore } from '@/app/stores/useAuthStore/useAuthStore'
+
 import usePermissions from './hooks/usePermissions'
+
+import { useAuthStore } from '@/app/stores/useAuthStore/useAuthStore'
 
 /**
  * Proveedor de autenticación basado en store.

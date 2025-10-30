@@ -2,6 +2,7 @@
 'use client'
 
 import { create } from 'zustand'
+
 import type { FormFieldsState } from './types'
 
 /**
@@ -26,6 +27,7 @@ export const useFormFieldsStore = create<FormFieldsState>((set) => ({
    * La clave es un `formId` único por instancia de formulario.
    */
   fieldsByFormId: {},
+  formVersionsByFormId: {},
 
   /**
    * Reemplaza completamente el arreglo de campos de un formulario.
@@ -37,6 +39,10 @@ export const useFormFieldsStore = create<FormFieldsState>((set) => ({
       fieldsByFormId: {
         ...s.fieldsByFormId,
         [formId]: newFields,
+      },
+      formVersionsByFormId: {
+        ...s.formVersionsByFormId,
+        [formId]: (s.formVersionsByFormId?.[formId] ?? 0) + 1,
       },
     })),
 
@@ -65,12 +71,13 @@ export const useFormFieldsStore = create<FormFieldsState>((set) => ({
   resetFields: (formId) =>
     set((s) => {
       const { [formId]: _omit, ...rest } = s.fieldsByFormId
-      return { fieldsByFormId: rest }
+      const { [formId]: _versionOmit, ...restVersions } = s.formVersionsByFormId ?? {}
+      return { fieldsByFormId: rest, formVersionsByFormId: restVersions }
     }),
 
   /**
    * Limpia TODOS los formularios guardados en memoria.
    * Útil para acciones globales (logout, navegación mayor, etc.).
    */
-  resetAll: () => set({ fieldsByFormId: {} }),
+  resetAll: () => set({ fieldsByFormId: {}, formVersionsByFormId: {} }),
 }))

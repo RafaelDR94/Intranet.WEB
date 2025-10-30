@@ -1,17 +1,18 @@
-import React, { useEffect } from "react";
-import { DataTableContentProps } from "./types";
-import { DataTableHeader } from "./components/DataTableHeader/DataTableHeader";
-import { DataTableBody } from "./components/DataTableBody/DataTableBody";
-import { containerDataTableContent } from "./styles";
-import Pagination from "@/app/components/Pagination/Pagination";
-import { useDataTableContent } from "./hooks/useTableContent";
+import React, { useEffect, useRef } from "react";
+
 import { useIsMobile } from "../DataTableLayout/hooks/useMediaQuery";
-import { Button } from "@/app/components/Button/Button";
+
+import { DataTableBody } from "./components/DataTableBody/DataTableBody";
+import type { TextSize } from "./components/DataTableBody/DataTableBody";
+import { DataTableHeader } from "./components/DataTableHeader/DataTableHeader";
+import { useDataTableContent } from "./hooks/useTableContent";
+import { containerDataTableContent } from "./styles";
+import { DataTableContentProps } from "./types";
+
+import Pagination from "@/app/components/Pagination/Pagination";
 
 // Opcional: pequeño contenedor para las acciones en mobile, por estilo
-const MobileActionsBar: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => (
+const MobileActionsBar: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="mt-4 flex w-full items-center justify-between gap-3">
     {children}
   </div>
@@ -20,6 +21,8 @@ const MobileActionsBar: React.FC<{ children: React.ReactNode }> = ({
 type ExtraProps = {
   rowHeight?: number;
   scrollMaxHeight?: number | string;
+  /** Nuevo: tamaños de texto para el body */
+  textSize?: TextSize;
 };
 
 const DataTableContent = <T extends { id: string | number }>(
@@ -30,6 +33,7 @@ const DataTableContent = <T extends { id: string | number }>(
     data,
     columns,
     enableSelection = false,
+    initialSelectedIds,
     defaultSortKey,
     defaultSortDirection,
     enablePagination = true,
@@ -40,10 +44,9 @@ const DataTableContent = <T extends { id: string | number }>(
     rowHeight = 56,
     scrollMaxHeight,
     onSelectedChange,
-    showButton,
     actionsRender,
-    onTableActionClick,
-    actionLabel = "Agregar",
+    textSize, // <-- NUEVO
+    disableSelection
   } = props;
 
   const {
@@ -64,6 +67,7 @@ const DataTableContent = <T extends { id: string | number }>(
     data,
     defaultSortKey,
     defaultSortDirection,
+    initialSelectedIds,
     enablePagination,
     rowsPerPage,
     totalRows,
@@ -72,9 +76,11 @@ const DataTableContent = <T extends { id: string | number }>(
     rowHeight,
     scrollMaxHeight,
   });
-
+  const init = useRef(false)
   useEffect(() => {
-    onSelectedChange?.(selected);
+    if (init.current) onSelectedChange?.(selected);
+    init.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
   return (
@@ -82,6 +88,7 @@ const DataTableContent = <T extends { id: string | number }>(
       <DataTableHeader
         columns={columns}
         enableSelection={enableSelection}
+        disableSelection={disableSelection}
         allSelected={allSelected}
         onSelectAll={selectAll}
         sortKey={sortKey}
@@ -97,26 +104,17 @@ const DataTableContent = <T extends { id: string | number }>(
           data={paginatedData}
           columns={columns}
           enableSelection={enableSelection}
+          disableSelection={disableSelection}
           selected={selected}
           onToggleSelect={toggleSelect}
+          textSize={textSize}   // <-- pasa la prop
         />
       </div>
 
       {isMobile && (
         <MobileActionsBar>
           {/* `actionsRender` tiene prioridad sobre el botón, igual que en Layout */}
-          {actionsRender
-            ? actionsRender()
-            : showButton && (
-                <Button
-                  variant="solid"
-                  size="giant"
-                  hideIcon
-                  onClick={onTableActionClick}
-                >
-                  {actionLabel}
-                </Button>
-              )}
+          {actionsRender?.()}
         </MobileActionsBar>
       )}
 

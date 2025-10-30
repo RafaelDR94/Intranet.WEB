@@ -1,4 +1,5 @@
 import React from 'react';
+
 import MainTabs from './MainTabs';
 import { MainTabsProps } from './types';
 

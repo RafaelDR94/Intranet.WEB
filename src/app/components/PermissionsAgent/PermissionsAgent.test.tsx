@@ -1,17 +1,19 @@
-import React from 'react';
 import { render, screen, act } from '@testing-library/react';
+import { usePathname, useRouter } from 'next/navigation';
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
+
 import { PermissionAgent } from './PermissionsAgent';
 
-import { usePathname, redirect } from 'next/navigation';
 
 const validPermissionsMock = vi.fn();
 const pathnameMock = vi.mocked(usePathname);
-const redirectMock = vi.mocked(redirect);
+const routerHook = vi.mocked(useRouter);
+const routerReplace = vi.fn();
 
 vi.mock('next/navigation', () => ({
   usePathname: vi.fn(),
-  redirect: vi.fn(),
+  useRouter: vi.fn(() => ({ replace: vi.fn() })),
 }));
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
@@ -26,6 +28,8 @@ vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   useAuth: () => ({
     validPermissionsbyroute: validPermissionsMock,
     user: { treeFirebase: {} },
+    hasExpired: false,
+    hydrated: true,
   }),
 }));
 
@@ -69,6 +73,8 @@ describe('PermissionAgent', () => {
     vi.useFakeTimers();
     validPermissionsMock.mockReturnValue(false);
     pathnameMock.mockReturnValue('/other');
+    // Mockea el router.replace
+    routerHook.mockReturnValue({ replace: routerReplace } as any);
     render(
       <PermissionAgent fallbackPath="/home">
         <div>Contenido</div>
@@ -77,7 +83,7 @@ describe('PermissionAgent', () => {
     act(() => {
       vi.runAllTimers();
     });
-    expect(redirectMock).toHaveBeenCalledWith('/home');
+    expect(routerReplace).toHaveBeenCalledWith('/home');
     vi.useRealTimers();
   });
 });

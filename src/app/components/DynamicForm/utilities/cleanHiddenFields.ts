@@ -8,6 +8,7 @@ export const cleanHiddenFields = (fields: FieldModel[], values: Record<string, a
     if (!isVisible) {
       switch (field.type) {
         case 'multiSelect':
+        case 'checkboxList':
           cleanedValues[field.name] = [];
           break;
         case 'checkbox':
@@ -16,6 +17,7 @@ export const cleanHiddenFields = (fields: FieldModel[], values: Record<string, a
           break;
         case 'number':
         case 'numberControl':
+        case 'controlLevel':
           cleanedValues[field.name] = null;
           break;
         case 'file':

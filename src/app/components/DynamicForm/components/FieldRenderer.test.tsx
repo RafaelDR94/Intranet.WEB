@@ -1,12 +1,24 @@
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { FieldRenderer } from './FieldRenderer';
+
 import { FieldModel } from '../types';
+
+import { FieldRenderer } from './FieldRenderer';
+
 
 // Opcional: mock del Select para evitar errores con SVGs
 vi.mock('../../Select/Select', () => ({
   Select: ({ label }: any) => <div>{label}</div>,
+}));
+
+vi.mock('../../ControlLevel/ControlLevel', () => ({
+  ControlLevel: ({ title, level, setLevel, className }: any) => (
+    <div data-testid="control-level" data-title={title} data-level={level} className={className}>
+      {title}
+      <button onClick={() => setLevel?.(0.8)}>set</button>
+    </div>
+  ),
 }));
 
 describe('FieldRenderer', () => {
@@ -30,6 +42,53 @@ describe('FieldRenderer', () => {
     );
 
     expect(screen.getByText('Acepto')).toBeInTheDocument();
+  });
+
+  it('propaga dataTestId combinando formulario y nombre', () => {
+    const field: FieldModel = {
+      type: 'input',
+      name: 'nombre',
+      label: 'Nombre',
+      value: '',
+    };
+    render(
+      <FieldRenderer
+        field={field}
+        value=""
+        allValues={{}}
+        onChange={vi.fn()}
+        variant="default"
+        formDataTestId="form"
+      />
+    );
+    expect(screen.getByTestId('form-nombre')).toBeInTheDocument();
+  });
+
+  it('renderiza un input datetime-local y propaga cambios de valor', () => {
+    const onChange = vi.fn();
+    const field: FieldModel = {
+      type: 'datetime-local',
+      name: 'startAt',
+      label: 'Fecha y hora',
+      value: '2024-10-10T10:30',
+    };
+
+    render(
+      <FieldRenderer
+        field={field}
+        value="2024-10-10T10:30"
+        allValues={{}}
+        onChange={onChange}
+        variant="default"
+        formDataTestId="form"
+      />
+    );
+
+    const input = screen.getByTestId('form-startAt') as HTMLInputElement;
+    expect(input.type).toBe('datetime-local');
+
+    fireEvent.change(input, { target: { value: '2024-11-11T12:45' } });
+    expect(onChange).toHaveBeenCalledWith('2024-11-11T12:45');
   });
 
   it('renderiza un select con opciones', () => {
@@ -79,5 +138,66 @@ describe('FieldRenderer', () => {
 
     expect(screen.getByText('Cantidad')).toBeInTheDocument();
     expect(screen.getByTestId('plus-icon')).toBeInTheDocument();
+  });
+
+  it('renderiza ControlLevel y propaga cambios', () => {
+    const onChange = vi.fn();
+    const field: FieldModel = {
+      type: 'controlLevel',
+      name: 'nivel',
+      label: 'Nivel de servicio',
+      value: 0.5,
+      controlLevelProps: {
+        min: 0,
+        max: 1,
+        divisions: 4,
+        showSemicircle: false,
+      },
+    };
+
+    render(
+      <FieldRenderer
+        field={field}
+        value={0.5}
+        allValues={{}}
+        onChange={onChange}
+        variant="default"
+      />
+    );
+
+    const controlLevel = screen.getByTestId('control-level');
+    expect(controlLevel).toHaveAttribute('data-title', 'Nivel de servicio');
+    expect(controlLevel).toHaveAttribute('data-level', '0.5');
+
+    screen.getByText('set').click();
+    expect(onChange).toHaveBeenCalledWith(0.8);
+  });
+
+  it('renderiza CheckBoxList y propaga selección', () => {
+    const onChange = vi.fn();
+    const field: FieldModel = {
+      type: 'checkboxList',
+      name: 'docs',
+      label: 'Documentos',
+      value: ['card'],
+      options: [
+        { label: 'Tarjeta', value: 'card' },
+        { label: 'Póliza', value: 'policy' },
+      ],
+    };
+
+    render(
+      <FieldRenderer
+        field={field}
+        value={['card']}
+        allValues={{}}
+        onChange={onChange}
+        variant="default"
+      />
+    );
+
+    const policyCheckbox = screen.getByLabelText('Póliza');
+    fireEvent.click(policyCheckbox);
+    expect(onChange).toHaveBeenCalledWith(['card', 'policy']);
   });
 });

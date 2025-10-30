@@ -1,6 +1,7 @@
-import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
+import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
+
 import { Checkbox } from './CheckBox'
 
 describe('Checkbox component', () => {
@@ -85,7 +86,7 @@ describe('Checkbox component', () => {
         expect(labelEl).toHaveClass('flex-row-reverse', 'space-x-reverse')
     })
 
-    it('asigna correctamente el atributo name al input', () => {
+  it('asigna correctamente el atributo name al input', () => {
         render(
             <Checkbox
                 checked={false}
@@ -94,6 +95,18 @@ describe('Checkbox component', () => {
             />
         )
         const checkbox = screen.getByRole('checkbox')
-        expect(checkbox).toHaveAttribute('name', 'nombreCheckbox')
+    expect(checkbox).toHaveAttribute('name', 'nombreCheckbox')
+  })
+
+    it('propaga dataTestId al contenedor', () => {
+        render(
+            <Checkbox
+                checked={false}
+                onChange={vi.fn()}
+                name="chk7"
+                dataTestId="chk7"
+            />
+        )
+        expect(screen.getByTestId('chk7')).toBeInTheDocument()
     })
 })

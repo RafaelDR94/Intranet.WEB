@@ -1,8 +1,8 @@
 
 // src/app/components/FileUploader/FileUploader.test.tsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 // ─── Mocks para TODOS los SVGs que usa FileUploader ────────────────────────────
 vi.mock('@/assets/icons/navegacion/nav-arrow-right.svg', () => ({
@@ -86,6 +86,19 @@ describe('FileUploader component', () => {
       />
     );
     expect(screen.getByTestId('custom-icon')).toBeInTheDocument();
+  });
+
+  it('propaga dataTestId al contenedor', () => {
+    const onFile = vi.fn();
+    render(
+      <FileUploader
+        accept=".txt"
+        label="Archivo"
+        onFile={onFile}
+        dataTestId="uploader1"
+      />
+    );
+    expect(screen.getByTestId('uploader1')).toBeInTheDocument();
   });
 
   it('muestra un archivo inicial y llama a onFile', async () => {

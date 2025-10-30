@@ -1,8 +1,10 @@
-import React, { useRef } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+import { fn } from '@storybook/test'
+import React, { useRef } from 'react';
+
 import { DynamicForm } from './DynamicForm';
 import { FieldModel } from './types';
-import { fn } from '@storybook/test'
+
 
 const meta: Meta<typeof DynamicForm> = {
   title: 'Components/DynamicForm/Full Showcase',
@@ -103,6 +105,35 @@ const allFields: FieldModel[] = [
   },
   { type: 'toggle', name: 'activo', label: '¿Está activo?', value: true },
   { type: 'numberControl', name: 'edad', label: 'Edad', value: 30, min: 0, max: 120, step: 1 },
+  {
+    type: 'controlLevel',
+    name: 'nivelServicio',
+    label: 'Nivel de servicio',
+    value: 0.5,
+    helperText: 'Selecciona el nivel objetivo',
+    controlLevelProps: {
+      min: 0,
+      max: 1,
+      divisions: 4,
+      labelMode: 'fraction',
+      showSemicircle: true,
+      showLinear: true,
+    },
+  },
+  {
+    type: 'checkboxList',
+    name: 'documentosEntregados',
+    label: 'Check List Documentos',
+    value: ['card'],
+    options: [
+      { label: 'Tarjeta de Circulación', value: 'card' },
+      { label: 'Póliza de seguro', value: 'policy' },
+      { label: 'Tag o pase', value: 'tag' },
+    ],
+    checkboxListProps: {
+      labelPosition: 'right',
+    },
+  },
   { type: 'checkbox', name: 'terminos', label: 'Acepto términos', value: false, validations: [{ type: 'required' }] },
   {
     type: 'file',

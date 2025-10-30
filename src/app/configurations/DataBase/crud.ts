@@ -1,8 +1,7 @@
 import { db, Document } from './/bases';
 
 function handleError(error: any, operation: string): never {
-  //console.error(`Error ${operation}:`, error);
-  operation;
+  console.error(`Error ${operation}:`, error);
   throw error;
 }
 
@@ -13,6 +12,16 @@ export async function createDocument(doc: Document, customDb?: any): Promise<num
     return id;
   } catch (err) {
     handleError(err, 'creando documento');
+  }
+}
+
+export async function readAllDocuments(customDb?: any): Promise<Document[]> {
+  try {
+    const dbInstance = customDb || db;
+    const docs = await dbInstance.documents.toArray();
+    return docs ?? [];
+  } catch (err) {
+    handleError(err, 'leyendo todos los documentos');
   }
 }
 

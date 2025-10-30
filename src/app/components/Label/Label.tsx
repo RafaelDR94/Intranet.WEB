@@ -1,4 +1,5 @@
 import React from 'react'
+
 import { getLabelClasses } from './styles'
 import type { LabelProps } from './types'
 /**
@@ -26,10 +27,13 @@ import type { LabelProps } from './types'
  * <span title="Documento inválido">
  *   <Label type="invalido" text="Inválido" />
  * </span>
+ * <Label type="valido" text="Validado" />
+ * <Label type="vale-azul" text="Vale Azul" />
+ * <Label type="vale-rosa" text="Vale Rosa" />
  * ```
  */
 export const Label: React.FC<LabelProps> = ({ type, text }) => (
-  <span className={getLabelClasses(type)}>{text}</span>
-)
+    <span className={getLabelClasses(type)}>{text}</span>
+);
 
 export default Label

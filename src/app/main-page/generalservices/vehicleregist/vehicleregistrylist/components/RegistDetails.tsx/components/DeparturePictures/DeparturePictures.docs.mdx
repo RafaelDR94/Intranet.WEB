@@ -1,0 +1,26 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistryList/Components/RegistDetails/DeparturePictures" />
+
+# DeparturePictures
+
+Galería de fotografías de salida. Muestra loaders, errores y estados vacíos antes
+de renderizar `ActivitiesViewer`.
+
+---
+
+## Hook asociado
+
+- `useDeparturePictures` (creado con `createVehiclePicturesHook('departure')`)
+  expone `items`, `loading`, `error` y `hasAssignment`.
+
+---
+
+## Uso rápido
+
+```tsx
+<DeparturePictures />
+```
+
+Se apoya en `useVehicleMediaStore` para cachear resultados y evitar descargas
+repetidas.

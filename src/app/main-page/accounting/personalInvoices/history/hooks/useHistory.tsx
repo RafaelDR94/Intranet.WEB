@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
-import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
-import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
-import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 import { shallow } from "zustand/shallow";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
+import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
+import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 const useHistory = () => {
     const { user } = useAuth();
     const [panelOpen, setPanelOpen] = useState(false)
@@ -39,7 +40,7 @@ const useHistory = () => {
     const rejected = history.filter((r) => r.status.toLowerCase() === 'prohibido' || r.status.toLowerCase() === 'invalido' || r.status.toLowerCase() === 'rechazado' || r.status.toLowerCase() === 'rechazado'|| r.status.toLowerCase() === 'restringido')
     useEffect(() => {
         if (user) forceFetchBillingHistory(user?.idEmployee ?? "");
-    }, [user])
+    }, [user, forceFetchBillingHistory])
     useEffect(() => {
         if (loading) {
             showSpinner({ message: "Obteniendo historial..." })
@@ -48,7 +49,7 @@ const useHistory = () => {
         if (successPut) setPanelOpen(false);
         if (successPutImages) setPanelOpen(false);
         hideSpinner();
-    }, [loading, successPut,successPutImages])
+    }, [loading, successPut, successPutImages, hideSpinner, showSpinner])
     return { panelOpen, setPanelOpen, selected, setSelected, rejected, history, loading }
 
 

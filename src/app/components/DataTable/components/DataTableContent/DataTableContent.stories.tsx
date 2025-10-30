@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import DataTableContent from './DataTableContent';
+
 import type { ColumnDefinition } from '../../types';
+
+import DataTableContent from './DataTableContent';
 
 interface Person {
   id: number;

@@ -1,6 +1,7 @@
-import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
+import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
+
 import { Input } from './Input'
 
 describe('Input component', () => {
@@ -82,6 +83,10 @@ describe('Input component', () => {
     fireEvent.change(input, { target: { value: 'hola' } })
     expect(handleChange).toHaveBeenCalled()
     expect(input.value).toBe('hola')
+  })
+  it('propaga dataTestId al contenedor', () => {
+    render(<Input label="Nombre" dataTestId="input1" />)
+    expect(screen.getByTestId('input1-container')).toBeInTheDocument()
   })
    it('renderiza un icono personalizado y maneja onIconClick', () => {
     const handleIconClick = vi.fn()

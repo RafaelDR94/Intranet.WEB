@@ -59,6 +59,38 @@ Cada nueva funcionalidad debe incluir los siguientes elementos para ser revisada
   ```bash
   npm run test
   ```
+## Pruebas End-to-End (Playwright) y reglas de contribución
+
+### Antes de abrir un PR
+- [ ] Ejecuta `npm run build` y `npm run test:e2e`.
+- [ ] Agrega/actualiza pruebas E2E cuando cambies flujos de usuario.
+- [ ] Usa `data-testid` en elementos interactivos nuevos o modificados.
+- [ ] Evita `waitForTimeout` — prefiere `toHaveURL`, `toBeVisible`, `waitForResponse`, `locator.waitFor()`.
+
+### Escribir pruebas
+- Ubica specs en `e2e/specs/*.spec.ts`.
+- Crea helpers reutilizables en `e2e/helpers/` (selectores, login, mocks).
+- Mantén cada spec **independiente** y con datos propios.
+- Estructura:
+  - `describe('Módulo', ...)`
+  - `beforeEach` para navegación base
+  - Render, interacciones, estados vacíos/errores, éxito.
+
+### Selectores
+- Prefiere `page.getByTestId('...')` o `locator('[data-testid="..."]')`.
+- Usa `getByRole` con `name` accesible cuando aplique.
+
+### Flaky tests
+- No subas `retry` sin causa.
+- Activa trazas (`trace/video/screenshot`) y corrige sincronización/estabilidad de selectores/datos.
+
+### Datos y ambientes
+- Cuentas de prueba y datos aislados por test (IDs únicos).
+- Para OTP/MFA: usuario test sin MFA, endpoint de prueba para token, o mock controlado en E2E.
+
+### Reportes en CI
+- El job sube `playwright-report/` como artifact ante fallos.
+- Útiles: `npm run test:e2e:ui`, `npm run test:e2e:report`.
 
 ### ✅ Documentación con Storybook
 - Agrega o actualiza el archivo `ComponentName.stories.tsx` en formato **CSF3**.
@@ -334,3 +366,33 @@ useEffect(() => {
   - `src/app/stores/<dominio>/utilities/utilities.docs.mdx`
   - Incluir overview, tabla de acciones, contratos, ejemplos de UI.
 - **Obligatorio**: todas las utilities deben incluir **JSDoc** detallado (descripción, params, returns y, si aplica, ejemplos).
+
+## Pruebas y validaciones locales (ampliar)**
+```md
+Antes del PR:
+```bash
+npm install
+npm run lint        # obligatorio (fallará el PR si hay errores)
+npm run build
+npm run test
+```
+## ⚙️ CI/CD Pipeline
+
+El repositorio cuenta con pipelines de **GitHub Actions** configurados en `.github/workflows/`:
+
+- `ci.yml` → Integración continua (ejecuta build, lint y pruebas en cada push o PR hacia `dev`).
+- `cd-dev.yml` → Despliegue automático al entorno **dev** cuando se actualiza la rama `dev`.
+- `cd-staggin.yml` → Despliegue automático al entorno **staging** cuando se actualiza la rama `staging`.
+- `cd-main.yml` → Despliegue automático al entorno **producción** cuando se actualiza la rama `main`.
+
+### Flujo esperado
+
+1. Trabaja siempre desde una rama basada en `dev`.  
+2. Abre un PR hacia `dev`.  
+3. El pipeline de CI (`ci.yml`) validará tu código (lint, build, tests).  
+4. Al aprobarse y mergearse:
+   - `dev` → se despliega automáticamente en **entorno de desarrollo**.  
+   - `staging` → se despliega automáticamente en **preproducción**.  
+   - `main` → se despliega automáticamente en **producción**.
+
+⚠️ Importante: No fuerces despliegues manuales a producción. Todos los cambios deben fluir por el pipeline.

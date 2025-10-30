@@ -2,12 +2,13 @@
 
 'use client'
 
-import React from 'react'
 import clsx from 'clsx'
+import React from 'react'
+
+import * as styles from './styles'
 import {
   ToggleButtonProps,
 } from './types'
-import * as styles from './styles'
 
 /**
  * Botón tipo **interruptor** para alternar un valor booleano.
@@ -53,6 +54,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   labelPosition = 'right',
   labelColor,
   className,
+  dataTestId,
 }) => {
   // Extraemos la lógica anidada en un bloque if/else
   let trackStyle: string
@@ -64,15 +66,16 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
     trackStyle = styles.trackUnchecked
   }
 
-  return (
-    <label
-      className={clsx(
-        styles.containerBase,
-        labelPosition === 'left' && styles.containerReverse,
-        disabled ? styles.containerDisabled : styles.containerPointer,
-        className
-      )}
-    >
+    return (
+      <label
+        data-testid={dataTestId}
+        className={clsx(
+          styles.containerBase,
+          labelPosition === 'left' && styles.containerReverse,
+          disabled ? styles.containerDisabled : styles.containerPointer,
+          className
+        )}
+      >
       <div
         className={clsx(
           styles.trackBase,

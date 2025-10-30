@@ -1,13 +1,15 @@
 // src/app/stores/useBillingImagesStore/utilities/fetchBillingImages.ts
 'use client'
 import type { AxiosResponse } from 'axios'
-import { BillingImages as BillingImagesUrl } from '@/app/configurations/Axios/urls'
-import type { BillingImages } from '@/app/mappings/billingimages/billingimages.types'
+
 import { Get, Set } from '../types'
+
+import { BillingImages as BillingImagesUrl } from '@/app/configurations/Axios/urls'
+import { BillingImagesMap } from '@/app/mappings/billingimages/billingimages.mapper'
+import type { BillingImages } from '@/app/mappings/billingimages/billingimages.types'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-import { BillingImagesMap } from '@/app/mappings/billingimages/billingimages.mapper'
 /**
  * Obtiene las imágenes de facturas del backend y actualiza el estado.
  *

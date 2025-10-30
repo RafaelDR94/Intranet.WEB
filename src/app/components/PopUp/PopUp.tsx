@@ -1,9 +1,12 @@
 // src/app/components/PopUp/PopUp.tsx
+import clsx from 'clsx';
 import React from 'react';
+import { createPortal } from 'react-dom';
+
 import { Button } from "../Button/Button";
+
 import { popUpStyles } from "./styles";
 import { InputProps } from "./types";
-import clsx from 'clsx';
 /**
  * Ventana emergente reutilizable (popup/modal ligero).
  *
@@ -14,8 +17,10 @@ import clsx from 'clsx';
  * - Es **controlado** por `open`: si `open` es `false`, no renderiza nada.
  * - Por defecto cierra al pulsar el botón **Cerrar** (esquina superior) o
  *   cuando se ejecuta la acción secundaria (si está visible).
- * - Este componente NO atrapa el foco ni usa portal. Si necesitas un
- *   **modal accesible completo**, considera integrar un focus-trap y `createPortal`.
+ * - El contenido se renderiza en un portal (`document.body`) para asegurar que
+ *   el popup siempre se muestre sobre otros contenedores.
+ * - No incluye focus-trap incorporado; si necesitas un modal accesible
+ *   completo, considera envolverlo con utilidades adicionales.
  *
  * @accessibility
  * - Se añaden `role="dialog"` y `aria-modal="true"`.
@@ -53,6 +58,9 @@ export const PopUp: React.FC<InputProps> = ({
 }) => {
   if (!open) return null;
 
+  const portalTarget = typeof document !== 'undefined' ? document.body : null;
+  if (!portalTarget) return null;
+
   const handleSecondary = () => {
     onSecondaryButtonClick?.();
     onClose?.(); // cerrar automáticamente
@@ -62,7 +70,7 @@ export const PopUp: React.FC<InputProps> = ({
     onPrimaryButtonClick?.();
   };
 
-  return (
+  return createPortal(
     <div className={popUpStyles.backdrop}>
       <div className={clsx(popUpStyles.container)}>
         <div className={popUpStyles.closeButton}>
@@ -96,6 +104,7 @@ export const PopUp: React.FC<InputProps> = ({
 
         </div>
       </div>
-    </div>
+    </div>,
+    portalTarget,
   );
 };

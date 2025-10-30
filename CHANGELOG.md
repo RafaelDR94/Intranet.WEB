@@ -1,3 +1,8 @@
+### 1.47.23 SAT invoices SAP redirect 23-10-2025
+
+Feature:
+- Update SAT invoice submission to use BillingDocumentsSendToSAP and redirect to administración SAP after confirmation. (Agente IA) [#]()
+
 ### First Commit 25-07-2025
 
 - First Commit.
@@ -385,3 +390,128 @@ Fix:
 Fix:
 
 - Centralized permission checks with reusable component and home navigation. (Agente IA) [#]()
+
+### 1.46.3 Show Excel download button on mobile and desktop 2025-09-08
+
+Fix:
+
+- To show the Excel download button. (Katherine Negrete) [#109](https://github.com/DR-Mexico/dr.intranet.web/pull/109)
+### 1.46.4 Style Fixes 2025-09-09
+
+Fix:
+
+- To display designs according to Figma (Katherine Negrete) [#113](https://github.com/DR-Mexico/dr.intranet.web/pull/113)
+### 1.47.4 Add data-testid support to DynamicForm and components 2025-09-10
+
+Fix:
+
+- Enabled data-testid prop across DynamicForm, FieldRenderer, and related controls to improve Playwright testing. (Agente IA) [#]()
+
+
+### 1.47.5 Billing petty cash store implementation 2025-09-10
+
+Feature:
+
+- Implemented `useBillingPettyCash` store with utilities, mappings, and tests. (Agente IA) [#]()
+
+### 1.47.6 Petty cash voucher form 2025-09-11
+
+Feature:
+
+- Switched VoucherPink form logic to use petty cash voucher store. (Agente IA) [#]()
+
+### 1.47.7 Voucher forms refactor 2025-09-12
+
+Feature:
+
+- Refactored VoucherPink and VoucherBlue forms to align with TicketForm and InvoicesForm architecture, adding stories and hook tests. (Agente IA) [#]()
+
+### 1.47.8 Voucher forms data edit support 2025-09-13
+
+Feature:
+
+- Enabled dataEdit prefill for VoucherPink and VoucherBlue forms. (Agente IA) [#]()
+
+### 1.47.9 Petty cash context provider 2025-09-12
+
+Feature:
+
+- Added shared petty cash context for voucher forms. (Agente IA) [#]()
+
+### 1.47.10 Independent petty cash voucher submissions 2025-09-14
+
+Bug Fix:
+
+- Prevent VoucherPink and VoucherBlue from triggering each other's requests and loading states. (Agente IA) [#]()
+
+### 1.47.11 Voucher forms employee and file support 2025-09-15
+
+Fix:
+
+- Send authenticated employee IDs and preserve XML/PDF files when editing petty cash vouchers. (Agente IA) [#]()
+
+### 1.47.12 Petty cash voucher file upload 2025-09-16
+
+Fix:
+
+- Upload XML/PDF files for petty cash vouchers and auto-fill employee data. (Agente IA) [#]()
+
+### 1.47.13 Voucher form project reload fix 2025-09-17
+
+Fix:
+
+- Repopulate project options after sending petty cash vouchers to prevent endless loading. (Agente IA) [#]()
+
+### 1.47.14 Petty cash SideMenu edit fix 2025-09-17
+
+Fix:
+
+- Ensure petty cash SideMenu resubmissions use PUT and preload concept and project fields. (Agente IA) [#]()
+
+### 1.47.15 Petty cash edit date refresh 2025-09-18
+
+Fix:
+
+- Normalize petty cash edit dates and refresh vouchers after resubmission. (Agente IA) [#]()
+
+### 1.47.16 Petty cash edit success loop fix 2025-09-18
+
+Fix:
+
+- Stop repeated petty cash voucher resets after editing and keep success refreshes scoped to the updated record. (Agente IA) [#]()
+
+### 1.47.17 Petty cash rejection comment popup 2025-09-30
+
+Fix:
+
+- Request a rejection comment before rejecting petty cash vouchers from the treasury control side menu. (Agente IA) [#]()
+
+### 1.47.18 Petty cash rejection focus improvement 2025-09-30
+
+Fix:
+
+- Close the side menu when the rejection comment popup opens so the confirmation dialog is the only visible focus. (Agente IA) [#]()
+
+### 1.47.19 Petty cash rejection popup layering 2025-09-30
+
+Fix:
+
+- Render the rejection popup through a portal with a higher z-index so it always overlays the treasury control panel. (Agente IA) [#]()
+
+### 1.47.20 Petty cash history form disabling 2025-09-30
+
+Fix:
+
+- Disable petty cash history voucher forms when the record status is not editable and resync the toggle whenever the status changes. (Agente IA) [#]()
+
+### 1.47.21 Petty cash blue voucher amount display 2025-09-30
+
+Fix:
+
+- Show the requested amount for blue petty cash vouchers in the edit side menu and suppress redundant loading errors after updating the amount. (Agente IA) [#]()
+
+### 1.47.22 SAP details panels testing 2025-09-30
+
+Fix:
+
+- Add unit coverage for SAP administration and operations panels, extract shared logic into a reusable hook, and validate their supporting hooks. (Agente IA) [#]()

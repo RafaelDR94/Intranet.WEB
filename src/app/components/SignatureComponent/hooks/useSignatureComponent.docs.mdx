@@ -1,0 +1,41 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="Components/SignatureComponent/hooks/useSignatureComponent" />
+
+# useSignatureComponent
+
+Hook que coordina el ciclo de vida de `SignatureComponent`. Maneja apertura del
+popup, estado del canvas, subida de firmas a Firebase y feedback visual mediante
+`usePrincipal`.
+
+```tsx
+const {
+  externalInformation,
+  openSignaturePopUp,
+  showSignaturePad,
+  handleAuthorization,
+  handleSignatureSave,
+  handleCancel,
+  onPopUpClose,
+} = useSignatureComponent(props)
+```
+
+---
+
+## Qué resuelve
+
+- Cachea datos de la firma externa para reenviarlos al autorizar.
+- Gestiona la carga de firmas internas (`firebasestorage.uploadFile`) y actualiza
+  al store de autenticación (`changeSignature`).
+- Dispara alertas informativas y spinners globales según el estado del proceso.
+- Sincroniza el flujo al cerrar limpiando estados temporales.
+
+---
+
+## Consideraciones
+
+- Requiere que `useAuthStore`, `useFirebase` y `usePrincipal` estén inicializados
+  en el árbol superior.
+- Usa `base64ToBlob` y `currentDate` para generar el payload de actualización.
+- Retorna helpers (`handleAuthorization`, `handleSignatureSave`, `handleCancel`)
+  listos para ser consumidos por `SignaturePopUp` y `SignaturePad`.

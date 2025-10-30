@@ -152,7 +152,7 @@ export const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: 'bold',
     marginRight: "40px",
-    marginTop: "40px",
+    marginTop: "55px",
     textAlign: 'right',
   },
   progressText: {

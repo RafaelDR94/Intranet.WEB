@@ -14,4 +14,6 @@ export type DonutProps = {
   thickness?: number;
   innerRadius?: number;
   showLabel?: boolean; // <— NUEVO
+  sizeLabel?: string; // <— Controla el tamaño del showLabel
+  colorLabel?: string;  // <— Controla el color del showLabel
 };

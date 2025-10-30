@@ -1,9 +1,12 @@
-import React from 'react';
 import { pdf, Document, Page, Text, View, Image, Font } from '@react-pdf/renderer';
-import HojaMembretada from '@/assets/images/Walpapers/HojaMembretada.png';
 import { StaticImageData } from 'next/dist/shared/lib/image-external';
+import React from 'react';
+
 import { styles } from './styles';
 import type { Table, FullDocument } from './types';
+
+import HojaMembretada from '@/assets/images/Walpapers/HojaMembretada.png';
+import HojaMembretadaDistrik from '@/assets/images/Walpapers/HOJA MEMBRETADA DISITREK.jpg'
 Font.register({ family: 'Izayoi', src: '/fonts/IzayoiMonospaced-nwoY.ttf' });
 Font.register({ family: 'Mechanical', src: '/fonts/Mechanical-g5Y5.otf' });
 
@@ -70,14 +73,27 @@ const RenderTable: React.FC<Table> = ({ title, headers, datatable, relation }) =
  * Documento interno usado para generar el PDF.
  * @param data Estructura completa del documento o `null`.
  */
-const MyDocument: React.FC<{ data: FullDocument | null }> = ({ data }) => (
+const MyDocument: React.FC<{ data: FullDocument | null, membret?: 'DR' | 'DISITREK' }> = ({ data, membret = "DR" }) => (
   <Document>
     {data?.pages.map((pageData, pageIndex) => {
+      let hojaSrc = null;
+      switch (membret) {
+        case 'DR':
+          hojaSrc = (HojaMembretada as StaticImageData).src;
+          break;
+        case 'DISITREK':
+          hojaSrc = (HojaMembretadaDistrik as StaticImageData).src;
+          break;
+        default:
+          hojaSrc = (HojaMembretada as StaticImageData).src;
+          break;
+      }
       const pageSize = pageData.orientation === 'horizontal' ? [792, 612] : [612, 792];
-      const hojaSrc = (HojaMembretada as StaticImageData).src;
+
       return (
         <Page key={pageIndex} style={styles.page} size={pageData.orientation === 'horizontal' ? [792, 612] : [612, 792]} wrap>
           <View style={styles.watermark}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
             <Image src={hojaSrc} style={{
               position: 'absolute',
               top: 0,
@@ -102,7 +118,7 @@ const MyDocument: React.FC<{ data: FullDocument | null }> = ({ data }) => (
                 {/* Fila 3: Fechas */}
                 <View style={styles.headerBoxRow}>
                   <Text style={styles.headerBoxText}>Fecha: {pageData.headerBox.creationDate}</Text>
-                  {pageData.headerBox.lastVersionDate&&<Text style={styles.headerBoxText}>Última versión: {pageData.headerBox.lastVersionDate}</Text>}
+                  {pageData.headerBox.lastVersionDate && <Text style={styles.headerBoxText}>Última versión: {pageData.headerBox.lastVersionDate}</Text>}
                 </View>
               </View>
               {/* Mostrar el folio debajo del headerBox */}
@@ -112,12 +128,13 @@ const MyDocument: React.FC<{ data: FullDocument | null }> = ({ data }) => (
           ) : (
             <Text style={styles.folioText}>{pageData.folio ? pageData.folio : ""}</Text>
           )}
-          <Text style={styles.footer}>
+          {membret != "DISITREK" && <Text style={styles.footer}>
             Calle Becerra 70-B Col. Tacubaya{'\n'}
             Alcaldía Miguel Hidalgo C.P. 11870{'\n'}
             Tel. (55) 5511 6508 • contacto@drsecurity.net{'\n'}
             www.drsecurity.net
-          </Text>
+          </Text>}
+
           <Text style={styles.titleText}>{pageData.title}</Text>
           {pageData.progress && (
             <>
@@ -172,6 +189,7 @@ const MyDocument: React.FC<{ data: FullDocument | null }> = ({ data }) => (
                           {element.pictures.map((picture, idx) => (
                             <View key={idx} style={{ ...styles.imageCard, width: picture.width || styles.imageCard.width }}>
                               <Text style={styles.imageTitle}>{picture.title}</Text>
+                              {/* eslint-disable-next-line jsx-a11y/alt-text */}
                               <Image style={{ ...styles.imageStyle, width: picture.width || styles.imageStyle.width, height: picture.height || styles.imageStyle.height }} src={picture.urlimage} />
                               {picture.description && (
                                 <Text style={styles.imageDescription}>{picture.description}</Text>
@@ -209,6 +227,7 @@ const MyDocument: React.FC<{ data: FullDocument | null }> = ({ data }) => (
                       {element.signatures.map((signature, idx) => (
                         <View key={idx} style={{ ...styles.signatureBox, width: signatureBoxWidth, alignItems: 'center', justifyContent: 'center' }}>
                           {signature.signature && (
+                            // eslint-disable-next-line jsx-a11y/alt-text
                             <Image style={styles.signatureImage} src={signature.signature} />
                           )}
                           <View style={styles.signatureLine} />
@@ -248,7 +267,7 @@ const MyDocument: React.FC<{ data: FullDocument | null }> = ({ data }) => (
  * @param data Estructura completa del documento.
  * @param setPDF Callback que recibe la URL del blob generado.
  */
-export const CreatePDF = async (data: FullDocument | null, setPDF: (url: string) => void) => {
-  const blob = await pdf(<MyDocument data={data} />).toBlob();
+export const CreatePDF = async (data: FullDocument | null, setPDF: (url: string) => void, membret?: 'DR' | 'DISITREK') => {
+  const blob = await pdf(<MyDocument data={data} membret={membret} />).toBlob();
   setPDF(URL.createObjectURL(blob));
 };

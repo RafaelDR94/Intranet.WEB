@@ -1,0 +1,44 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistryList/Components/RegistDetails/Signatures/hooks/useSignatures" />
+
+# useSignatures
+
+Hook responsable de obtener la firma del responsable del vehículo, ya sea desde
+la asignación o descargándola de Firebase Storage.
+
+```tsx
+const {
+  loading,
+  error,
+  hasAssignment,
+  signatureUrl,
+  driverName,
+  arrivalDateLabel,
+  refresh,
+} = useSignatures()
+```
+
+---
+
+## Flujo
+
+1. Lee `currentAssignment` de `useTransportStore`.
+2. Verifica si la firma ya viene embebida (`signature_employee`).
+3. Si no, descarga `VehicleRequest/${assignmentId}/departure/signature` usando
+   `firebasestorage.downloadFile`.
+4. Cachea resultado en `useVehicleMediaStore` para evitar llamadas repetidas.
+
+---
+
+## Manejo de errores
+
+- Usa `buildSignatureErrorMessage` para homogenizar textos.
+- Guarda el error en el store para no reintentar hasta que se invoque `refresh`.
+
+---
+
+## Consideraciones
+
+- En pruebas es necesario mockear `document.createElement` si se extiende el
+  comportamiento de `refresh` (descarga) fuera del hook.

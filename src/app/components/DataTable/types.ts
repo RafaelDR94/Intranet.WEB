@@ -1,3 +1,6 @@
+import type { ActionMenuCellProps } from "../ActionMenuCell/types"
+import type { TextSize } from "./components/DataTableContent/components/DataTableBody/DataTableBody"
+
 /**
  * Define la estructura de cada columna de la tabla.
  *
@@ -52,12 +55,19 @@ export interface DataTableGroup<T> {
   columns: ColumnDefinition<T>[]
   /** Conjunto de filas que se mostrarán */
   data: T[]
+  /** Identificadores de filas que deben iniciar seleccionadas */
+  initialSelectedRowIds?: Array<any>
   /** Título visible de la tabla */
   title: string
+  /** Esconde el titulo */
+  hidetitle?: boolean
   /** Habilita selección de filas */
   enableSelection?: boolean
   /** Permite colapsar la sección que contiene la tabla */
   enableCollaps?: boolean
+
+  /**Deja visible la seleccion pero no permite el click */
+  disableSelection?: boolean
   /** Clave inicial para ordenar */
   defaultSortKey?: keyof T
   /** Dirección inicial de ordenamiento */
@@ -70,6 +80,22 @@ export interface DataTableGroup<T> {
    * Acepta valores en px o cualquier unidad CSS válida.
    */
   scrollMaxHeight?: number | string
+  /** Adaptador para vista como tarjetas (opcional por tabla) */
+  cardAdapt?: CardAdapt<T>
+  /** Nuevo: tamaño de texto específico para esta tabla (fallback global en DataTable) */
+  textSize?: TextSize
+}
+
+/** Opción disponible dentro del menú de filtros del DataTable. */
+export interface DataTableFilterOption<T, Value extends string = string> {
+  /** Texto mostrado en la opción. */
+  label: string
+  /** Valor que identifica la opción. */
+  value: Value
+  /** Permite deshabilitar la opción. */
+  disabled?: boolean
+  /** Predicado opcional utilizado por consumidores para filtrar datos. */
+  predicate?: (row: T) => boolean
 }
 
 /**
@@ -105,7 +131,7 @@ export interface DataTableProps<T = any> {
     endDate?: Date | null
   ) => void;
   /** Se ejecuta al hacer clic en el botón de calendario (abrir date picker externo, etc.). */
-   onCalendarClick?: (start?: Date , end?: Date ) => void
+  onCalendarClick?: (start?: Date, end?: Date) => void
   /** Se ejecuta al hacer clic en el botón de filtros (abrir un drawer o modal de filtros). */
   onFilterClick?: () => void;
   /** Se ejecuta al hacer clic en el botón de acción principal (p.ej. “Agregar”). */
@@ -116,6 +142,21 @@ export interface DataTableProps<T = any> {
   showCalendar?: boolean;
   /** Muestra el botón de filtros (por defecto: `false`). */
   showFilter?: boolean;
+  /** Muestra el botón de recarga parcial del contenido. */
+  showRefresh?: boolean;
+  /** Opciones mostradas dentro del menú contextual de filtros. */
+  filterOptions?: DataTableFilterOption<T>[];
+  /** Valor seleccionado actualmente en el filtro. */
+  filterValue?: string | null;
+  /** Título visible dentro del menú contextual de filtros. */
+  filterTitle?: string;
+  /** Callback ejecutado cuando se selecciona una opción del filtro. */
+  onFilterChange?: (
+    value: string,
+    option?: DataTableFilterOption<T>,
+  ) => void;
+  /** Ejecuta la recarga del contenido visible cuando se presiona el botón de actualizar. */
+  onRefreshPage?: () => void;
   /** Muestra el botón de acción principal (por defecto: `true`). */
   showButton?: boolean;
   /**
@@ -159,5 +200,42 @@ export interface DataTableProps<T = any> {
   /** Título global de la (o las) tablas. Se usa en descargas y cabeceras. */
   dataTableTitle?: string;
   /** Inicia con la tabla colapsada. */
-  startCollpas?:boolean; 
+  startCollpas?: boolean;
+  /** Si es verdadero, intenta renderizar cada tabla como grilla de tarjetas usando `cardAdapt` */
+  useCardsView?: boolean;
+  /** Muestra el conmutador de vista en el layout */
+  showViewSwitcher?: boolean;
+   /** Nuevo: tamaño de texto global (fallback si la tabla no define textSize) */
+  textSize?: TextSize
 }
+
+/** Mapeo de campos para adaptar filas (T) a tarjetas renderizables */
+export interface CardAdapt<T> {
+  /** key o función para el título */
+  titleKey: keyof T | ((row: T) => string)
+  /** key o función para el label pequeño */
+  labelKey?: keyof T | ((row: T) => string)
+  /** key o función para la descripción */
+  descriptionKey?: keyof T | ((row: T) => string)
+  /** key o función para la URL de imagen */
+  imageKey?: keyof T | ((row: T) => string)
+  /** Acción primaria (click en botón principal) */
+  onPrimaryAction: (row: T) => void
+  /** Etiqueta de botón primario */
+  primaryLabel?: string
+  /** Acción secundaria opcional */
+  onSecondaryAction?: (row: T) => void
+  /** Etiqueta de botón secundario */
+  secondaryLabel?: string
+  /** Mostrar/ocultar botones */
+  showPrimaryButton?: boolean
+  showSecondaryButton?: boolean
+  /** Props para renderizar el menu contextual en cada tarjeta */
+  actionMenuProps?: (row: T) => ActionMenuCellProps<T>
+  /** Número de tarjetas por página (opcional, por defecto `rowsPerPage`) */
+  cardsPerPage?: number
+}
+
+
+
+

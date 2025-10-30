@@ -1,60 +1,19 @@
 "use client";
 import React from "react";
-import { DataTable } from "@/app/components/DataTable/DataTable";
-import { PopUp } from "@/app/components/PopUp/PopUp";
-import type { ColumnDefinition } from "@/app/components/DataTable/types";
-import { Button } from "@/app/components/Button/Button";
-import { ContextMenu } from "@/app/components/ContextMenu/ContextMenu";
-import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
-import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg"
-import { useRequisitionTable } from "./hooks/useRequisitionsTable";
-import {
-  ActionMenuCellProps,
-  RequisitionRow,
-} from "./types";
-import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
-import DeleteIcon from "@/assets/icons/acciones/trash.svg";
-import { container, actionCell } from "./styles";
-import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
+import { useRequisitionTable } from "./hooks/useRequisitionsTable";
+import { container, actionCell } from "./styles";
+import { RequisitionRow } from "./types";
+
+import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { DataTable } from "@/app/components/DataTable/DataTable";
+import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
+import { PopUp } from "@/app/components/PopUp/PopUp";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
-const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
-  row,
-  onEdit,
-  onDelete,
-}) => {
-  const isMobile = useIsMobile();
-  const { currentPagePermissions } = useAuth();
-  const menuItems: any[] = [];
-  if (currentPagePermissions?.details)
-    menuItems.push({
-      label: "Ver Detalle",
-      icon: EditIcon,
-      onClick: () => {
-        onEdit(row);
-      },
-    });
-  if (currentPagePermissions?.delete)
-    menuItems.push({
-      label: "Cancelar",
-      icon: DeleteIcon,
-      danger: true,
-      onClick: () => {
-        onDelete(row);
-      },
-    });
-  return (
-    <ContextMenu
-      alignRight
-      autoFlip
-      trigger={<Button size="xsmall" variant="ghost" icon={isMobile ? RightArrowIcon : DotsIcon} />}
-      items={menuItems}
-    />
-  );
-};
 
 const RequisitionsTable = () => {
   const {
@@ -68,23 +27,21 @@ const RequisitionsTable = () => {
     onEdit,
     onDelete,
     refresh,
-    hasIdParam
+    hasIdParam,
   } = useRequisitionTable();
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
 
-
   const StatusBadge = ({ status }: { status?: string }) => {
     const s = (status || "").toLowerCase();
-    let type: LabelType = "pendiente"
+    let type: LabelType = "pendiente";
     if (s.includes("cierre de periodo")) type = "invalido";
     if (s.includes("viaticando")) type = "purple";
     if (s.includes("folio adicional")) type = "prohibido";
     if (s.includes("cancelada")) type = "restringido";
     if (s.includes("validaci")) type = "valido";
 
-
-    return (<Label type={type} text={status || "En espera"} />);
+    return <Label type={type} text={status || "En espera"} />;
   };
 
   // Desktop columns (leave mobileColumns intact as requested)
@@ -95,7 +52,6 @@ const RequisitionsTable = () => {
         key: "assignmentDate",
         label: "ASIGNACIÓN",
         render: (row) => row.assignmentDate,
-
       },
       { key: "debtorName", label: "NOMBRE" },
       { key: "projectCode", label: "PROYECTO" },
@@ -104,14 +60,12 @@ const RequisitionsTable = () => {
         key: "amount",
         label: "CANTIDAD",
         render: (row) => <span>{formatCurrency(Number(row?.amount))}</span>,
-
       },
       { key: "dueDate", label: "TERMINO", render: (row) => row.dueDate },
       {
         key: "status",
         label: "",
         render: (row) => <StatusBadge status={row.status} />,
-
       },
       {
         key: "actions" as unknown as keyof RequisitionRow,
@@ -125,7 +79,7 @@ const RequisitionsTable = () => {
         invisible: false,
       },
     ],
-    [onEdit, onDelete]
+    [onEdit, onDelete],
   );
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
@@ -135,7 +89,6 @@ const RequisitionsTable = () => {
         key: "status",
         label: "",
         render: (row) => <StatusBadge status={row.status} />,
-
       },
       {
         key: "actions" as unknown as keyof RequisitionRow,
@@ -150,11 +103,27 @@ const RequisitionsTable = () => {
         invisible: false,
       },
     ],
-    [onEdit, onDelete]
+    [onEdit, onDelete],
   );
 
-  const columns = isMobile ? mobileColumns : computedColumns;
-  if (hasIdParam) return (<></>);
+  // Filtra columnas si currentPagePermissions.sapprofile es true
+  const filteredComputedColumns = React.useMemo(() => {
+    if (currentPagePermissions?.sapprofile) {
+      return computedColumns.filter((col) => col.key !== "status");
+    }
+    return computedColumns;
+  }, [computedColumns, currentPagePermissions?.sapprofile]);
+
+  const filteredMobileColumns = React.useMemo(() => {
+    if (currentPagePermissions?.sapprofile) {
+      return mobileColumns.filter((col) => col.key !== "status");
+    }
+    return mobileColumns;
+  }, [mobileColumns, currentPagePermissions?.sapprofile]);
+
+  const columns = isMobile ? filteredMobileColumns : filteredComputedColumns;
+
+  if (hasIdParam) return <></>;
   return (
     <div className={container}>
       <PopUp
@@ -177,6 +146,7 @@ const RequisitionsTable = () => {
       {currentPagePermissions?.read && (
         <DataTable
           showCalendar={true}
+          textSize={{ mobile: "c2", desktop: "text-c2" }}
           dataTableTitle="Listado de Requisiciones"
           onSearchChange={setQuery}
           onCalendarClick={(start, end) => refresh(start, end)}
@@ -202,4 +172,3 @@ const RequisitionsTable = () => {
 };
 
 export default RequisitionsTable;
-

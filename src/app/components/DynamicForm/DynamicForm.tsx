@@ -1,17 +1,55 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef } from "react";
 import { Formik, Form } from "formik";
+import React, { useEffect, useMemo, useRef } from "react";
+
+import { Button } from "../Button/Button";
+import { Spinner } from "../Spinner/Spinner";
+
+import { FieldRenderer } from "./components/FieldRenderer";
+import { useDynamicForm } from "./hooks/useDynamicForm";
+import { useMediaBreakpoints } from "./hooks/useMediaBreakpoints";
+import { dynamicFormStyles } from "./styles";
 import type {
   DynamicFormProps,
   ResponsiveLayoutMatrix,
 } from "./types";
-import { useDynamicForm } from "./hooks/useDynamicForm";
-import { FieldRenderer } from "./components/FieldRenderer";
-import { Button } from "../Button/Button";
-import { dynamicFormStyles } from "./styles";
-import { Spinner } from "../Spinner/Spinner";
-import { useMediaBreakpoints } from "./hooks/useMediaBreakpoints";
+
+
+type FormStateWatcherProps = {
+  isValid: boolean;
+  onValidChange?: (v: boolean) => void;
+  values: Record<string, any>;
+  onValuesChange?: (vals: Record<string, any>) => void;
+};
+
+const FormStateWatcher: React.FC<FormStateWatcherProps> = ({
+  isValid,
+  onValidChange,
+  values,
+  onValuesChange,
+}) => {
+  const prevIsValid = useRef<boolean | undefined>(undefined);
+  const prevValuesSnapshot = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (prevIsValid.current !== isValid) {
+      prevIsValid.current = isValid;
+      onValidChange?.(prevIsValid.current);
+    }
+  }, [isValid, onValidChange, values]);
+
+  useEffect(() => {
+    if (!onValuesChange) return;
+    const serialized = JSON.stringify(values);
+    if (prevValuesSnapshot.current === serialized) return;
+    prevValuesSnapshot.current = serialized;
+    onValuesChange(values);
+  }, [values, onValuesChange]);
+
+  return null;
+};
+
 /**
  * Formulario dinámico con renderizado de campos a partir de un modelo (`FieldModel[]`),
  * validaciones (Yup via `useDynamicForm`), estados visuales y **layout responsivo**.
@@ -73,6 +111,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   showSubmitIf,
   showSecondaryButtonIf,
   onSecondaryButtonClick,
+  onValuesChange,
   secondaryButtonLabel,
   children,
   loading,
@@ -82,15 +121,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   externalSubmitRef,
   onValidChange,
   loadingFormInfo,
-  disabled
+  disabled,
+  dataTestId,
+  valuesVersion = 0,
+  valuesVersionActive = false,
 }) => {
   const { initialValues, validationSchema, cleanValues, resolveVariant } =
-    useDynamicForm(fields);
+    useDynamicForm(fields, valuesVersion, valuesVersionActive);
 
   // 1) Resolver layout efectivo (fijo vs responsive)
-  const { current } = useMediaBreakpoints(
-    breakpoints ?? { sm: 640, md: 1024 }
-  );
+  const { current } = useMediaBreakpoints(breakpoints ?? { sm: 640, md: 1024 });
 
   const effectiveLayoutMatrix = useMemo(() => {
     if (layoutMatrix?.length) return layoutMatrix; // prioridad
@@ -98,7 +138,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     // preferencia: layout del breakpoint actual, si no existe, fallback hacia abajo y luego hacia arriba
     const order: Array<keyof ResponsiveLayoutMatrix> =
-      current === "lg" ? ["lg", "md", "sm"] : current === "md" ? ["md", "sm", "lg"] : ["sm", "md", "lg"];
+      current === "lg"
+        ? ["lg", "md", "sm"]
+        : current === "md"
+          ? ["md", "sm", "lg"]
+          : ["sm", "md", "lg"];
 
     for (const key of order) {
       const candidate = responsiveLayoutMatrix[key];
@@ -108,11 +152,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   }, [layoutMatrix, responsiveLayoutMatrix, current]);
 
   return (
-    <div className={dynamicFormStyles.container}>
+    <div className={dynamicFormStyles.container} data-testid={dataTestId}>
       {title && <h2 className={dynamicFormStyles.heading}>{title}</h2>}
       {loadingFormInfo && (
         <div className={dynamicFormStyles.loadingInfo}>
-          <Spinner size="large" />
+          <Spinner size="large" dataTestId={dataTestId ? `${dataTestId}-spinner` : undefined} />
         </div>
       )}
       <Formik
@@ -131,30 +175,30 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           touched,
           handleBlur,
           setFieldValue,
+          setFieldTouched,
           submitForm,
           isValid,
         }) => {
           if (externalSubmitRef) {
             externalSubmitRef.current = submitForm;
           }
-          const previousIsValid = useRef<boolean | undefined>(undefined);
-          useEffect(() => {
-            if (previousIsValid.current !== isValid) {
-              previousIsValid.current = isValid;
-              onValidChange?.(isValid);
-            }
-          }, [isValid, onValidChange]);
-
+          // Notificar cambios de validez usando un subcomponente para respetar las reglas de hooks
           const visibleFields = fields.filter(
             (field) => !field.showIf || field.showIf(values, fields)
           );
 
           // helper para index lineal dado row/col
-          const linearIndex = (rowIndex: number, colIndex: number, matrix: number[][]) =>
-            matrix.slice(0, rowIndex).reduce((acc, r) => acc + r.length, 0) + colIndex;
+          const linearIndex = (
+            rowIndex: number,
+            colIndex: number,
+            matrix: number[][]
+          ) =>
+            matrix.slice(0, rowIndex).reduce((acc, r) => acc + r.length, 0) +
+            colIndex;
 
           return (
             <Form className={dynamicFormStyles.form}>
+              <FormStateWatcher isValid={isValid} onValidChange={onValidChange} values={values} onValuesChange={onValuesChange} />
               {effectiveLayoutMatrix
                 ? effectiveLayoutMatrix.map((row, rowIndex) => (
                   <div
@@ -188,10 +232,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                             field={disabled ? { ...field, disabled } : field}
                             value={value}
                             allValues={values}
-                            onChange={(val) => setFieldValue(field.name, val)}
+                            onChange={(val) => {
+                              // valida inmediatamente y marca como tocado
+                              setFieldValue(field.name, val, true);
+                              setFieldTouched(field.name, true, false);
+                            }}
                             onBlur={handleBlur}
                             variant={variant}
                             helperText={helperText}
+                            formDataTestId={dataTestId}
                           />
                         </div>
                       );
@@ -218,6 +267,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                       onBlur={handleBlur}
                       variant={variant}
                       helperText={helperText}
+                      formDataTestId={dataTestId}
                     />
                   );
                 })}
@@ -230,6 +280,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     variant="outline"
                     type="button"
                     onClick={() => onSecondaryButtonClick(values)}
+                    dataTestId={dataTestId ? `${dataTestId}-secondary` : undefined}
                   >
                     {secondaryButtonLabel}
                   </Button>
@@ -239,14 +290,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                   !externalSubmitRef &&
                   (loading ? (
                     <div className="w-full flex justify-center items-center">
-                      <Spinner size="medium" />
+                      <Spinner size="medium" dataTestId={dataTestId ? `${dataTestId}-spinner` : undefined} />
                     </div>
                   ) : (
                     <Button
                       type="submit"
+                      hideIcon={true}
                       className={
                         !showSecondaryButtonIf?.(values) ? "w-full" : ""
                       }
+                      dataTestId={dataTestId ? `${dataTestId}-primary` : undefined}
                     >
                       {submitLabel}
                     </Button>

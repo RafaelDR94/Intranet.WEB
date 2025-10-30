@@ -1,12 +1,19 @@
 // components/DynamicForm/types.ts
 import type { FC, SVGProps } from 'react';
+
+import type { ControlLevelProps } from '../ControlLevel/types';
+import type { CheckBoxListOption } from '../CheckBoxList/types';
+import type { LabelPosition } from '../CheckBox/types';
 import type { InitialFile } from '../FileUploader/types';
 
 /** Tipos de campo soportados por el formulario. */
 export type InputType =
 
   | 'input'
+  | 'controlLevel'
+  | 'checkboxList'
   | 'date'
+  | 'datetime-local'
   | 'email'
   | 'password'
   | 'number'
@@ -17,6 +24,19 @@ export type InputType =
   | 'toggle'
   | 'file'
   | 'textarea';
+
+export type ControlLevelFieldProps = Partial<
+  Omit<ControlLevelProps, 'level' | 'setLevel' | 'onChange'>
+>;
+
+export type CheckBoxListFieldProps = {
+  /** Ajusta la posición de la etiqueta de cada checkbox */
+  labelPosition?: LabelPosition;
+  /** Clase adicional para el título */
+  titleClassName?: string;
+  /** Clase adicional para el contenedor de opciones */
+  listClassName?: string;
+};
 
 /** Estados visuales para campos y helper texts. */
 export type Variant = 'default' | 'success' | 'warning' | 'error' | 'info';
@@ -35,13 +55,13 @@ export type ValidationRule =
 /** Reglas de advertencia no bloqueantes. */
 export interface WarningRule {
   type:
-    | 'minLengthWarning'
-    | 'maxLengthWarning'
-    | 'weakPassword'
-    | 'deprecatedEmailDomain'
-    | 'ageIsLowButValid'
-    | 'ageIsHighButValid'
-    | 'unverifiedLanguage';
+  | 'minLengthWarning'
+  | 'maxLengthWarning'
+  | 'weakPassword'
+  | 'deprecatedEmailDomain'
+  | 'ageIsLowButValid'
+  | 'ageIsHighButValid'
+  | 'unverifiedLanguage';
   value?: number;
 }
 
@@ -55,7 +75,7 @@ export interface FieldModel {
   helperText?: string;
   inputSize?: 'md' | 'lg';
   variant?: Variant;
-  options?: { label: string; value: string }[];
+  options?: ({ label: string; value: string } | CheckBoxListOption)[];
   validations?: ValidationRule[];
   warningRules?: WarningRule[];
   showIf?: (values: Record<string, any>, fields: FieldModel[]) => boolean;
@@ -70,11 +90,17 @@ export interface FieldModel {
 
   onChange?: (value: any, values: Record<string, any>) => void;
   /**Numero de filas en multilinea*/
-  rows?:number
+  rows?: number
   /** Propiedades para campos numéricos */
   min?: number;
   max?: number;
   step?: number;
+
+  /** Configuración específica para campos tipo ControlLevel */
+  controlLevelProps?: ControlLevelFieldProps;
+
+  /** Configuración para campos tipo CheckBoxList */
+  checkboxListProps?: CheckBoxListFieldProps;
 }
 
 /** Layouts por breakpoint (las proporciones por fila) */
@@ -108,12 +134,19 @@ export interface DynamicFormProps {
   onSecondaryButtonClick?: (values: Record<string, any>) => void;
   /** Callback ejecutado cuando cambia la validez del formulario. */
   onValidChange?: (isvalid: boolean) => void;
+
+  /** Callback ejecutado cuando cambia la validez del formulario. */
+  onValuesChange?: (values: Record<string, any>) => void;
   /** Texto del botón secundario. */
   secondaryButtonLabel?: string;
   /** Contenido adicional que se renderiza dentro del formulario. */
   children?: React.ReactNode;
   /** Si es `true`, muestra un indicador de carga en el botón principal. */
   loading?: boolean;
+  /** Cambia únicamente cuando se desea reinicializar los valores del formulario. */
+  valuesVersion?: number;
+  /** Cuando es true (default) solo recalcula initialValues si cambia valuesVersion; si es false, lo hará cada vez que cambien los campos. */
+  valuesVersionActive?: boolean;
 
   /**
    * Matriz de proporciones para distribuir los campos por fila.
@@ -139,5 +172,7 @@ export interface DynamicFormProps {
   /** Muestra un spinner de carga en lugar del formulario. */
   loadingFormInfo?: boolean;
   /** Deshabilita todos los campos del formulario */
-  disabled?:boolean
+  disabled?: boolean
+  /** Identificador base para data-testid del formulario */
+  dataTestId?: string
 }

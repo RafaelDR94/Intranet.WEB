@@ -1,9 +1,12 @@
 // src/app/main-page/components/MainLayoutClient/MainLayoutClient.test.tsx
-import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
+import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { PrincipalProvider } from '@/app/context/PrincipalContext/PrincipalContext'
+
+import MainLayoutClient from './MainLayoutClient'
+
 import { AuthProvider } from '@/app/context/AuthContext/AuthContext'
+import { PrincipalProvider } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useAuthStore } from '@/app/stores/useAuthStore/useAuthStore'
 
 // ---- Mocks (DEBEN ir antes de importar el componente bajo prueba) ----
@@ -90,7 +93,6 @@ vi.mock('./hooks/useMainPage', () => ({
 }))
 
 // ---- Importar el SUT DESPUÉS de los mocks ----
-import MainLayoutClient from './MainLayoutClient'
 
 // ---- Auth store fake state ----
 const mockAuthState = {

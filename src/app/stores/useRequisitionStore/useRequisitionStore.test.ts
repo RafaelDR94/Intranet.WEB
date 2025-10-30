@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import type { Requisition } from '@/app/mappings/requisitions/requisitions.types'
+
 import type { Set } from './types'
 
 vi.mock('./utilities', () => ({

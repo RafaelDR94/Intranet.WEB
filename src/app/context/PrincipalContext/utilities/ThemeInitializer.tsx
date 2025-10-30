@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
+
 import { usePrincipal } from '../PrincipalContext';
 
 /**

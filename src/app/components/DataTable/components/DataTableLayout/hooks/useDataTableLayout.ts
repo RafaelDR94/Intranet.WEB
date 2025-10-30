@@ -1,5 +1,6 @@
 import { useCallback,useState } from "react";
 import type { KeyboardEvent } from "react";
+
 import type { TableLayoutProps } from "../types";
 
 /** Extrae y memoiza toda la lógica/handlers del layout de tabla */
@@ -10,6 +11,7 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     onDateRangeChange, // “oficial”
     onSearch,
     onFilterClick,
+    onFilterChange,
     actionsRender,
     onTableActionClick,
     actionLabel = "Agregar",
@@ -17,6 +19,8 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     showFilter = false,
     showButton = true,
     onDownload,
+    showRefresh = false,
+    onRefreshPage,
   } = props;
  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const closeDownloadMenu = () => setIsDownloadOpen(false);
@@ -67,9 +71,19 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     showCalendar,
     showFilter,
     showButton,
+    showRefresh,
     isDownloadOpen,
     setIsDownloadOpen,
-    handleDownload
+    handleDownload,
+    onRefreshPage,
+    // Passthrough view toggle
+    showViewToggle: props.showViewToggle,
+    isCardsView: props.isCardsView,
+    onToggleView: props.onToggleView,
+    onFilterChange,
+    filterOptions: props.filterOptions,
+    filterValue: props.filterValue,
+    filterTitle: props.filterTitle
   };
 };
 

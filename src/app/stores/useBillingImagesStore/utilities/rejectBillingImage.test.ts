@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { rejectBillingImage } from './rejectBillingImage'
+
 import type { BillingImagesState, Set, Get } from '../types'
+
+import { rejectBillingImage } from './rejectBillingImage'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pPut: () => async () => ({ data: { data: { billing_image_id: '1' } } }) }))

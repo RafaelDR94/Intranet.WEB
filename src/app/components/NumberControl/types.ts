@@ -35,6 +35,8 @@ export interface NumberControlProps {
   helperText?: string;
   className?: string;
   inputAriaLabel?: string;
+  /** Identificador de pruebas */
+  dataTestId?: string;
 
   /**
    * Si es true, al perder foco se clampa el texto al rango [min,max].

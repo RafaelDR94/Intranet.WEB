@@ -30,4 +30,6 @@ export interface FileUploaderProps {
   icon?: React.FC<SVGProps<SVGSVGElement>>;
   /** Archivo inicial a precargar (por URL o base64) */
   initialFile?: InitialFile;
+  /** Identificador de pruebas */
+  dataTestId?: string;
 }

@@ -17,7 +17,7 @@ export type BillingDocumentsState = {
   billingDocumentDescription: BillingDocumentDescription[]
   
   /** Documento obtenido por ID */
-  billingDocument?: BillingDocuments
+  billingDocument: BillingDocuments | undefined
   /** Flags de proceso */
   loading: boolean
   loadigSat: boolean

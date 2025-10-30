@@ -1,0 +1,36 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistryList/Components/RegistDetails/Information/hooks/useInformation" />
+
+# useInformation
+
+Extrae y normaliza la información del seguimiento vehicular para `Information`.
+
+```tsx
+const {
+  assignment,
+  generalRows,
+  departure,
+  arrival,
+  checklistDefinitions,
+} = useInformation()
+```
+
+---
+
+## Tareas
+
+- Determinar salida y llegada con `findDepartureAndArrival`.
+- Formatear kilometrajes (`formatMileage`), combustible (`formatFuelLevel`) y
+  observaciones (`formatRemarks`).
+- Construir arrays para checklists de herramientas/documentos usando los
+  helpers `TOOL_CHECKLIST` / `DOCUMENT_CHECKLIST`.
+
+---
+
+## Utilidades exportadas
+
+- `formatFuelLevel`, `formatMileage`, `formatRemarks`.
+- `buildVehicleName` y `findDepartureAndArrival`.
+
+Estos helpers se testean individualmente para asegurar consistencia de formato.

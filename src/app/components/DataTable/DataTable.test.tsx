@@ -1,9 +1,10 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import React from 'react';
+import { describe, it, expect , vi } from 'vitest';
+
 import { DataTable } from './DataTable';
 import type { ColumnDefinition, DataTableProps } from './types';
-import { vi } from 'vitest';
+
 
 vi.mock('@/assets/icons/System/System/calendar.svg', () => ({ default: () => <span /> }));
 vi.mock('@/assets/icons/organization/filter-alt.svg', () => ({ default: () => <span /> }));

@@ -1,27 +1,70 @@
 // hooks/useTableContent.ts
 import { useEffect, useMemo, useState } from "react";
+
 import { SortDirection,UseDataTableContentProps,UseTableContentProps } from "./types";
+
+const haveSameIds = <T extends { id: string | number }>(a: T[], b: T[]) => {
+  if (a.length !== b.length) return false;
+  const ids = new Set(a.map((item) => String(item.id)));
+  if (ids.size !== b.length) return false;
+  return b.every((item) => ids.has(String(item.id)));
+};
 /** 🔹 Hook base: selección y ordenamiento */
 export const useTableContent = <T extends { id: string | number }>({
   data,
   defaultSortKey,
   defaultSortDirection,
+  initialSelectedIds,
 }: UseTableContentProps<T>) => {
   const [selected, setSelected] = useState<T[]>([]);
   const [sortKey, setSortKey] = useState<keyof T | null>(defaultSortKey ?? null);
   const [sortDirection, setSortDirection] =
     useState<SortDirection>(defaultSortDirection ?? null);
 
-  const allSelected = data.length > 0 && selected.length === data.length;
+  useEffect(() => {
+    if (initialSelectedIds == null) return;
+    const map = new Map(data.map((item) => [String(item.id), item]));
+    const nextSelection = initialSelectedIds
+      .map((id) => map.get(String(id)))
+      .filter((row): row is T => Boolean(row));
+
+    setSelected((prev) => {
+      if (haveSameIds(prev, nextSelection)) {
+        return prev;
+      }
+      return nextSelection;
+    });
+  }, [initialSelectedIds, data]);
+
+  useEffect(() => {
+    if (initialSelectedIds != null) return;
+    if (selected.length === 0) return;
+
+    const map = new Map(data.map((item) => [String(item.id), item]));
+    const nextSelection = selected
+      .map((row) => map.get(String(row.id)))
+      .filter((row): row is T => Boolean(row));
+
+    if (!haveSameIds(selected, nextSelection)) {
+      setSelected(nextSelection);
+    }
+  }, [data, initialSelectedIds, selected]);
+
+  const allSelected =
+    data.length > 0 && data.every((row) => selected.some((item) => String(item.id) === String(row.id)));
 
   const toggleSelect = (selectedItem: T) => {
-    setSelected((prev) =>
-      prev.includes(selectedItem) ? prev.filter((v) => v !== selectedItem) : [...prev, selectedItem]
-    );
+    setSelected((prev) => {
+      const exists = prev.some((item) => String(item.id) === String(selectedItem.id));
+      if (exists) {
+        return prev.filter((item) => String(item.id) !== String(selectedItem.id));
+      }
+      return [...prev, selectedItem];
+    });
   };
 
   const selectAll = (value: boolean) => {
- 
+
     setSelected(value ? data : []);
   };
 
@@ -65,6 +108,15 @@ export const useTableContent = <T extends { id: string | number }>({
     });
   }, [data, sortKey, sortDirection]);
 
+  const orderedData = useMemo(() => {
+    if (!selected.length) return sortedData;
+    const selectedIds = new Set(selected.map((item) => String(item.id)));
+    if (selectedIds.size === 0) return sortedData;
+    const selectedRows = sortedData.filter((row) => selectedIds.has(String(row.id)));
+    const remainingRows = sortedData.filter((row) => !selectedIds.has(String(row.id)));
+    return [...selectedRows, ...remainingRows];
+  }, [sortedData, selected]);
+
   return {
     selected,
     allSelected,
@@ -73,7 +125,7 @@ export const useTableContent = <T extends { id: string | number }>({
     sortKey,
     sortDirection,
     handleSort,
-    sortedData,
+    sortedData: orderedData,
   };
 };
 
@@ -90,6 +142,7 @@ export const useDataTableContent = <T extends { id: string | number }>(
     onPageChange,
     rowHeight = 56,
     scrollMaxHeight,
+    initialSelectedIds,
   }: UseDataTableContentProps<T>
 ) => {
   const {
@@ -101,7 +154,7 @@ export const useDataTableContent = <T extends { id: string | number }>(
     sortDirection,
     handleSort,
     sortedData,
-  } = useTableContent<T>({ data, defaultSortKey, defaultSortDirection });
+  } = useTableContent<T>({ data, defaultSortKey, defaultSortDirection, initialSelectedIds });
   
   // paginación
   const [currentPage, setCurrentPage] = useState(1);

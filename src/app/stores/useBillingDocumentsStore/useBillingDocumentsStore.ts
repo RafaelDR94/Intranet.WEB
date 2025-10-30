@@ -1,6 +1,7 @@
 'use client'
-import { createWithEqualityFn } from 'zustand/traditional'
 import { devtools } from 'zustand/middleware'
+import { createWithEqualityFn } from 'zustand/traditional'
+
 import type { BillingDocumentsState } from './types'
 import {
   fetchBillingDocuments,
@@ -108,6 +109,8 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
       succesReject: false,
       validating: false,
       rejecting: false,
+      sending: false,
+      succesSend: false,
       loading: false,
       creating: false,
       updating: false,
@@ -125,6 +128,8 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
       succesReject: false,
       validating: false,
       rejecting: false,
+      sending: false,
+      succesSend: false,
       gettingDescriptions: false,
       gettingCategories: false,
       successGet: false, successGetById: false, successPost: false, successPut: false, successDelete: false,

@@ -1,6 +1,7 @@
 // src/app/components/FileUploaderExpanded/FileUploaderExpanded.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react';
 import React, { useState } from 'react';
+
 import { FileUploaderExpanded } from './FileUploaderExpanded';
 
 const meta: Meta<typeof FileUploaderExpanded> = {

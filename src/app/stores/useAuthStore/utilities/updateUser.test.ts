@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
-import { updateUser } from './updateUser'
+
 import type { AuthState, Set, Get } from '../types'
+
+import { updateUser } from './updateUser'
+
 import type { User } from '@/app/context/AuthContext/types'
 import { saveUser, saveLastUserRemebered } from '@/app/context/AuthContext/utilities/AuthService'
 

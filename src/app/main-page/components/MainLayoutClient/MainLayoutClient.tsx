@@ -3,16 +3,19 @@
 
 import React, { ReactNode } from "react";
 
-import { Alert } from "@/app/components/Alert/Alert";
-import { PopUp } from "@/app/components/PopUp/PopUp";
-import { PermissionAgent } from "@/app/components/PermissionsAgent/PermissionsAgent";
 import MainSidebar from "./components/MainSidebar/MainSidebar";
 import MainTabs from "./components/MainTabs/MainTabs";
-import { mainLayoutStyles } from "./styles";
+import MobileSidebar from "./components/MobileSidebar/MobileSidebar";
 import useMainPage from "./hooks/useMainPage";
-import LoadingOverlay from "@/app/components/LoadingOverLay/LoadingOverlay";
-import ShowImage from "@/app/components/ShowImage/ShowImage";
+import { mainLayoutStyles } from "./styles";
+
+import { Alert } from "@/app/components/Alert/Alert";
 import ErrorBoundary from "@/app/components/ErrorBundary/ErrorBundary";
+import LoadingOverlay from "@/app/components/LoadingOverLay/LoadingOverlay";
+import { PermissionAgent } from "@/app/components/PermissionsAgent/PermissionsAgent";
+import { PopUp } from "@/app/components/PopUp/PopUp";
+import ShowImage from "@/app/components/ShowImage/ShowImage";
+import { getOfflineModeSuport } from "./utilities/getOfflineModeSuport";
 /**
  * Layout principal del sistema DR Intranet.
  *
@@ -29,7 +32,6 @@ import ErrorBoundary from "@/app/components/ErrorBundary/ErrorBundary";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 
 // NEW: Drawer mobile
-import MobileSidebar from "./components/MobileSidebar/MobileSidebar";
 
 export default function MainLayoutClient({
   children,
@@ -144,7 +146,7 @@ export default function MainLayoutClient({
               validPermissionsbyroute={validPermissionsbyroute}
               onOpenMobileMenu={() => setMobileOpen(true)} // << abre el drawer
             />
-            <main className={mainLayoutStyles.main}>{children}</main>
+            <main className={mainLayoutStyles.main}>{offlineLoggin&&!getOfflineModeSuport(pathname)?"El modo offline no tiene soporte en este módulo":children}</main>
             <LoadingOverlay
               open={open}
               message={message}

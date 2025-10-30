@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { handleOfflineMode } from './handleOfflineMode'
+
 import type { AuthState, Set } from '../types'
+
+import { handleOfflineMode } from './handleOfflineMode'
 
 describe('handleOfflineMode util', () => {
   it('notifica al service worker y actualiza estado', () => {

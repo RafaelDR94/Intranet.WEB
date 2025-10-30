@@ -1,11 +1,10 @@
 // src/app/components/FileUploaderExpanded/FileUploaderExpanded.tsx
 'use client';
 
-import React from 'react';
 import clsx from 'clsx';
-import { Button } from '@/app/components/Button/Button';
-import { FileUploaderProps } from '@/app/components/FileUploader/types';
-import { labelClasses } from '@/app/components/Input/styles';
+import React from 'react';
+
+import { useFileUploaderExpanded } from './hooks/useFileUploaderExpanded';
 import {
   dropzoneBase,
   dropzoneIdle,
@@ -15,7 +14,11 @@ import {
   textIdle,
   buttonWrapper,
 } from './styles';
-import { useFileUploaderExpanded } from './hooks/useFileUploaderExpanded';
+
+import { Button } from '@/app/components/Button/Button';
+import { FileUploaderProps } from '@/app/components/FileUploader/types';
+import { labelClasses } from '@/app/components/Input/styles';
+
 
 /**
  * Uploader con **zona de arrastre y suelta** (drag & drop) y botón de selección.

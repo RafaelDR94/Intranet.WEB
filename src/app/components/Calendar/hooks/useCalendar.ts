@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+
 import {
   WEEK_STARTS_ON,
   startOfDay,
@@ -156,7 +157,7 @@ export const useCalendar = ({
         },
       },
     ],
-    [applyRange, today, weekStartsOn]
+    [applyRange, today, weekStartsOn, isMobile]
   );
 
   return {

@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
+
 import useRequisitionsDetails from './useRequisitionsDetails'
 
 const fetchCurrentRequisition = vi.fn()

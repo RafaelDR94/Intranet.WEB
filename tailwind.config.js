@@ -68,6 +68,7 @@ module.exports = {
         c2: ["12px", { lineHeight: "16px" }],
         c3: ["10px", { lineHeight: "14px" }],
         d3: ["10px", { lineHeight: "14px" }],
+        d4: ["8px", { lineHeight: "14px" }],
         label: ["12px", { lineHeight: "16px" }],
         labelm: ["10px", { lineHeight: "14px" }],
         "cta-giant": ["18px", { lineHeight: "24px" }],
@@ -155,6 +156,11 @@ module.exports = {
           50: "var(--color-alert-purple-50)",
           10: "var(--color-alert-purple-10)",
         },
+        "alert-pink": {
+          100: "var(--color-alert-pink-100)",
+          50: "var(--color-alert-pink-50)",
+          10: "var(--color-alert-pink-10)",
+        },
         "alert-green": {
           100: "var(--color-alert-green-100)",
           50: "var(--color-alert-green-50)",
@@ -170,10 +176,16 @@ module.exports = {
           50: "var(--color-alert-red-50)",
           10: "var(--color-alert-red-10)",
         },
+        "alert-orange": {
+          100: "var(--color-alert-orange-100)",
+          50: "var(--color-alert-orange-50)",
+          10: "var(--color-alert-orange-10)",
+        },
         "alert-blue": {
           900: "var(--color-alert-blue-900)",
           100: "var(--color-alert-blue-100)",
           50: "var(--color-alert-blue-50)",
+          10: "var(--color-alert-blue-10)",
         },
       },
     },

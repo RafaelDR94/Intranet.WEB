@@ -1,13 +1,13 @@
-
 export type SortDirection = "asc" | "desc" | null;
 
-export interface UseTableContentProps<T> {
+export interface UseTableContentProps<T extends { id: string | number }> {
   data: T[];
   defaultSortKey?: keyof T;
   defaultSortDirection?: SortDirection;
+  initialSelectedIds?: Array<T['id']>;
 }
-/** Props adicionales para paginaci√≥n/scroll */
-export interface UseDataTableContentProps<T> extends UseTableContentProps<T> {
+/** Props adicionales para paginaciÛn/scroll */
+export interface UseDataTableContentProps<T extends { id: string | number }> extends UseTableContentProps<T> {
   enablePagination?: boolean;
   rowsPerPage?: number;
   totalRows?: number;
@@ -15,8 +15,6 @@ export interface UseDataTableContentProps<T> extends UseTableContentProps<T> {
   onPageChange?: (page: number) => void;
   /** alto estimado de cada fila, en px */
   rowHeight?: number;
-  /** si lo defines, este valor manda (px o cualquier CSS v√°lido) */
+  /** si lo defines, este valor manda (px o cualquier CSS v·lido) */
   scrollMaxHeight?: number | string;
 }
-
-

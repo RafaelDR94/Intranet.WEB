@@ -1,8 +1,10 @@
 import React, { Component, ErrorInfo } from "react";
+
+import ErrorScreen from "../ErrorScreen/ErroScreen";
+
+import { isProduction } from "@/app/configurations/Axios/Clients";
 import { FirebaseContext } from "@/app/context/FirebaseContext/FirebaseContext";
 import { currentDateDataBase, getTime } from "@/app/utilities/DatesHelper/Dateshelper";
-import { isProduction } from "@/app/configurations/Axios/Clients";
-import ErrorScreen from "../ErrorScreen/ErroScreen";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;

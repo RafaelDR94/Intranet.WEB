@@ -1,18 +1,21 @@
 // SAT.tsx
 "use client";
 import React from "react";
-import { ColumnDefinition } from "@/app/components/DataTable/types";
-import { DataTable } from "@/app/components/DataTable/DataTable";
-import CheckIcon from "@/assets/icons/acciones/check.svg";
-import CrossIcon from "@/assets/icons/acciones/cancel.svg";
-import WarningIcon from "@/assets/icons/acciones/minus.svg";
-import { Button } from "@/app/components/Button/Button";
-import useSAT from "./hooks/useSAT";
+
 import DetailsPanel from "../validateinvoices/components/DetailsPanel/DetailsPanel";
-import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
-import { BillingDocumentsSatTableMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
+
+import useSAT from "./hooks/useSAT";
+
+import { Button } from "@/app/components/Button/Button";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { DataTable } from "@/app/components/DataTable/DataTable";
+import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { BillingDocumentsSatTableListMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
+import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
+import CrossIcon from "@/assets/icons/acciones/cancel.svg";
+import CheckIcon from "@/assets/icons/acciones/check.svg";
+import WarningIcon from "@/assets/icons/acciones/minus.svg";
 
 const SAT = () => {
   const {
@@ -115,7 +118,7 @@ const SAT = () => {
             title: "CFDIs Válidos",
             enableCollaps: true,
             enableSelection: true,
-            data: BillingDocumentsSatTableMap(billingDocumentsValid),
+            data: BillingDocumentsSatTableListMap (billingDocumentsValid),
             columns: withFixedIcon(
               CheckIcon,
               "text-alert-green-100",
@@ -156,8 +159,8 @@ const SAT = () => {
           tables={[
             {
               enableSelection: true,
-              data: BillingDocumentsSatTableMap(billingDocumentsBadCode),
-              // data: BillingDocumentsSatTableMap(billingDocumentsValid),
+              data: BillingDocumentsSatTableListMap (billingDocumentsBadCode),
+              // data: BillingDocumentsSatTableListMap (billingDocumentsValid),
               columns: withFixedIcon(
                 WarningIcon,
                 "text-alert-yellow-100",
@@ -170,8 +173,8 @@ const SAT = () => {
             },
             {
               enableSelection: true,
-              data: BillingDocumentsSatTableMap(billingDocumentsNotValid),
-              // data: BillingDocumentsSatTableMap(billingDocumentsValid),
+              data: BillingDocumentsSatTableListMap (billingDocumentsNotValid),
+              // data: BillingDocumentsSatTableListMap (billingDocumentsValid),
               columns: withFixedIcon(
                 CrossIcon,
                 "text-alert-red-100",
@@ -187,8 +190,8 @@ const SAT = () => {
               title: "EFOS",
               enableCollaps: true,
               enableSelection: true,
-              data: BillingDocumentsSatTableMap(billingDocumentsEfos),
-              // data: BillingDocumentsSatTableMap(billingDocumentsValid),
+              data: BillingDocumentsSatTableListMap (billingDocumentsEfos),
+              // data: BillingDocumentsSatTableListMap (billingDocumentsValid),
               columns: withFixedIcon(
                 CrossIcon,
                 "text-alert-red-100",
@@ -213,6 +216,11 @@ const SAT = () => {
         rejectInvoice={panelOpen.rejectInvoice}
         validInvoice={false}
         sendInvoiceToSap={panelOpen.sendInvoiceToSap}
+        onSendToSap={
+          selected
+            ? () => handleSendToSap()
+            : undefined
+        }
       />
     </>
   );

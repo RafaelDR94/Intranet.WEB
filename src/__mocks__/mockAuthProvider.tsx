@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
+
 import { AuthProvider } from '@/app/context/AuthContext/AuthContext';
-import { useAuthStore } from '@/app/stores/useAuthStore/useAuthStore';
 import type { User } from '@/app/context/AuthContext/types';
+import { useAuthStore } from '@/app/stores/useAuthStore/useAuthStore';
 
 export const MockAuthProvider = ({ children }: { children: ReactNode }) => {
   const mockUser: User = {

@@ -2,9 +2,9 @@
 import { useEffect, useState } from 'react'
 import { shallow } from 'zustand/shallow'
 
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
 import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore'
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 
 export const useValidateInvoices = () => {
   // ---- state para details panel + comentario
@@ -64,7 +64,7 @@ export const useValidateInvoices = () => {
 
   useEffect(() => {
     fetchBillingDocuments(true);
-  }, [])
+  }, [fetchBillingDocuments])
   useEffect(() => {
     if (loading) {
       showSpinner({ message: "Obteniendo historial..." })
@@ -90,14 +90,14 @@ export const useValidateInvoices = () => {
       showAlert({
         type: "error",
         title: "Error al obtener las facturas",
-        description: String(error) ?? "Hubo un problema al obtener las facturas",
+        description: String(error) || "Hubo un problema al obtener las facturas",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
     }
 
-  }, [loading, error])
+  }, [loading, error, hideSpinner, resetFlags, showAlert, showSpinner, succesValidate, validating])
 
 
 

@@ -1,14 +1,18 @@
 // src/app/stores/useBillingDocumentsStore/utilities/createBillingDocument.ts
 'use client'
 import type { AxiosResponse } from 'axios'
-import { BillingDocumentsSendToSAP as BillingDocumentUrl } from '@/app/configurations/Axios/urls'
-import type { BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
+
 import type { Set, Get } from '../types'
-import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import { pPost } from '@/app/utilities/Http/promisifyIntranet'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+
 import { fetchBillingDocuments } from './fetchBillingDocuments'
 import { fetchSatBillingDocument } from './fetchSatBillingDocument'
+
+import { BillingDocumentsSendToSAP as BillingDocumentUrl } from '@/app/configurations/Axios/urls'
+import type { BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+import { pPut } from '@/app/utilities/Http/promisifyIntranet'
+import { requireGateway } from '@/app/utilities/Http/requireGateway'
+
 
 /**
  * Crea un nuevo documento de factura en el backend.
@@ -25,16 +29,16 @@ export const sendToSapBillingDocument = async (
   set({ sending: true, error: undefined, succesSend: false })
 
   try {
-    const post = pPost(requireGateway('post'), [200, 201])
-    const res: AxiosResponse = await post(BillingDocumentUrl, ids)
+    const put = pPut(requireGateway('put'), [200, 201])
+    const res: AxiosResponse = await put(BillingDocumentUrl, ids)
     const raw = res.data?.data
     const created = raw ? (raw as BillingDocuments) : null
+    set({ sending: false, succesSend: true, error: undefined });
+    setTimeout(() => {
+      fetchBillingDocuments(set, get, true);
+      fetchSatBillingDocument(set, get, true);
+    }, 200)
 
-    fetchBillingDocuments(set, get, true);
-    fetchSatBillingDocument(set, get, true);
-
-
-    set({ sending: false, succesSend: true, error: undefined })
     return created
   } catch (e) {
     set({ sending: false, succesSend: false, error: normalizeApiError(e).message })

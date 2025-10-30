@@ -1,7 +1,8 @@
 'use client';
 
-import Pagination from './Pagination';
 import { useState } from 'react';
+
+import Pagination from './Pagination';
 
 export const PaginationCatalog = () => {
   const [page, setPage] = useState(1);

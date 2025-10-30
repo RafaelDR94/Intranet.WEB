@@ -1,4 +1,5 @@
 import { useEffect,useRef} from "react"
+
 import { useAlertProps } from "./types"
 export const useAlertComponent = ({title, description, type, variant,autoCloseMs, onClose}: useAlertProps) => {
 

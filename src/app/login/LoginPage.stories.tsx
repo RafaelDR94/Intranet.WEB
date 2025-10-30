@@ -1,22 +1,23 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import React from 'react';
 import Link from 'next/link';
+import React from 'react';
 
 // ✅ Providers (ajusta las rutas si tu estructura difiere)
-import { AuthProvider } from '../context/AuthContext/AuthContext';
-import { PrincipalProvider } from '@/app/context/PrincipalContext/PrincipalContext';
 
 // ✅ Hook y utilidades
-import useLogin from './hooks/useLogin';
-import { createMockRouter } from '@/__mocks__/mockRouter';
 
 // ✅ Componentes UI usados en la página
-import { DynamicForm } from '../components/DynamicForm/DynamicForm';
 import { Alert } from '../components/Alert/Alert';
+import { DynamicForm } from '../components/DynamicForm/DynamicForm';
 import { ToggleButton } from '../components/ToogleButton/ToogleButton';
+import { AuthProvider } from '../context/AuthContext/AuthContext';
+import useLogin from './hooks/useLogin';
 
 // ✅ Estilos y assets
 import { loginStyles } from './styles';
+
+import { createMockRouter } from '@/__mocks__/mockRouter';
+import { PrincipalProvider } from '@/app/context/PrincipalContext/PrincipalContext';
 import logo from '@/assets/images/Walpapers/Wallpaper-1.png';
 
 // 🧪 Mock router para Storybook
@@ -71,6 +72,7 @@ function LoginPageWithMockRouter() {
 
       {/* Columna derecha - Logo */}
       <div className={loginStyles.logoContainer}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={logo.src}
           alt="Fondo DR Security"
@@ -120,3 +122,4 @@ export const LightMode: Story = {
 export const DarkMode: Story = {
   render: () => withProviders(LoginPageWithMockRouter, 'dark'),
 };
+/* eslint-disable @next/next/no-img-element */

@@ -2,33 +2,26 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { shallow } from 'zustand/shallow';
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
-import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore';
-import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore';
-import { useProyectsStore } from '@/app/stores/useProyectsStore/useProyectsStore';
-import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore';
-import type { FieldModel } from '@/app/components/DynamicForm/types';
-import type { EmployeeType } from '@/app/mappings/employees/employee.types';
-import type { Proyect } from '@/app/mappings/proyects/proyects.types';
-import type { RequitionPost } from '@/app/mappings/requisitions/requisitions.types';
+
+import { SubmitFn } from '../../../requisitions/components/ExcelLoader/hooks/types';
 import {
   computeLoadingFormInfo,
   getOptionLabel,
   buildRequisitionPayload,
   createInitialFields
 } from '../utilities/requisition';
-import { SubmitFn } from '../../../requisitions/components/ExcelLoader/hooks/types';
+
+import type { FieldModel } from '@/app/components/DynamicForm/types';
 import { useAuth } from '@/app/context/AuthContext/AuthContext';
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import type { EmployeeType } from '@/app/mappings/employees/employee.types';
+import type { Proyect } from '@/app/mappings/proyects/proyects.types';
+import type { RequitionPost } from '@/app/mappings/requisitions/requisitions.types';
 import { Requisition } from '@/app/mappings/requisitions/requisitions.types';
-// /** Valores iniciales permitidos para el formulario de requisiciones. */
-// export type RequisitionInitialValues = {
-//   /** id de la requisición (obligatorio en edit) */
-//   id?: string;
-//   /** ids crudos para setear en selects/inputs */
-//   employeeId?: string | number;
-//   projectId?: string | number;
-//   requisitionKey?: string;
-// };
+import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore';
+import { useFormFieldsStore } from '@/app/stores/useFormFieldsStore/useFormFieldsStore';
+import { useProyectsStore } from '@/app/stores/useProyectsStore/useProyectsStore';
+import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore';
 
 type Mode = 'create' | 'edit';
 /**
@@ -81,9 +74,9 @@ export const useRequisitionForm = (
     }),
     shallow
   );
-  useEffect(() => { fetchProyects(); }, []);
+  useEffect(() => { fetchProyects(); }, [fetchProyects]);
 
-  const ResetForm = () => {
+  const ResetForm = useCallback(() => {
     resetFields(formId);
     setTimeout(() => {
       const initialFields: FieldModel[] = createInitialFields();
@@ -94,12 +87,10 @@ export const useRequisitionForm = (
       }
         , 250)
     }, 500)
-  }
-  // useEffect(() => {
-  //   if (disableForm) ResetForm();
-  // }, [disableForm])
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [formId, resetFields, setFields]);
 
-  // Requisitions (create / update)
+
   const {
     createRequisition,
     updateRequisition,
@@ -128,7 +119,7 @@ export const useRequisitionForm = (
     [opRunning, opSuccess, error]
   );
 
-  const UpdateEmployees = () => {
+  const UpdateEmployees = useCallback(() => {
     if (employees?.length) {
       updateField(formId, 'employees', {
         options: employees.map((e: EmployeeType) => ({
@@ -138,9 +129,9 @@ export const useRequisitionForm = (
         value: ""
       });
     }
-  }
+  }, [employees, formId, updateField]);
 
-  const UpdateProyects = () => {
+  const UpdateProyects = useCallback(() => {
     if (proyects?.length) {
       updateField(formId, 'project', {
         options: proyects.map((p: Proyect) => ({
@@ -150,7 +141,7 @@ export const useRequisitionForm = (
         value: ""
       });
     }
-  }
+  }, [proyects, formId, updateField]);
 
   // Monta iniciales y limpia
   useEffect(() => {
@@ -160,23 +151,22 @@ export const useRequisitionForm = (
       resetFields(formId);
       resetFlags();
     };
-  }, [formId]);
+  }, [formId, resetFields, resetFlags, setFields]);
 
 
   // Popular opciones: empleados
   useEffect(() => {
     UpdateEmployees();
-  }, [employees, formId]);
+  }, [employees, formId, UpdateEmployees]);
 
   // Popular opciones: proyectos
   useEffect(() => {
     UpdateProyects();
-  }, [proyects, formId]);
+  }, [proyects, formId, UpdateProyects]);
 
   // Setear valores iniciales cuando existan (modo edit)
   const loadingFormInfo = useMemo(() => computeLoadingFormInfo(fields), [fields]);
   useEffect(() => {
-    console.log("initialValues", initialValues);
     if (!initialValues || loadingFormInfo) return;
     // Ajusta aquí los names exactos de tus fields (employees, project, requisitionKey)
     if (initialValues.id_Employee !== undefined) {
@@ -203,7 +193,7 @@ export const useRequisitionForm = (
     if (initialValues.motive !== undefined) {
       updateField(formId, 'motive', { value: initialValues.motive });
     }
-  }, [initialValues, formId, loadingFormInfo]);
+  }, [initialValues, formId, loadingFormInfo, updateField]);
 
   // Loading de catálogos
 
@@ -215,7 +205,7 @@ export const useRequisitionForm = (
       type: 'error',
       variant: 'filled',
       title: 'No se pudo cargar la lista de empleados',
-      description: String(employeesError) ?? 'Intenta refrescar.',
+      description: String(employeesError) || 'Intenta refrescar.',
       showPrimaryButton: true,
       primaryLabel: 'Entendido',
       onPrimaryClick: hideAlert,
@@ -231,7 +221,7 @@ export const useRequisitionForm = (
       type: 'error',
       variant: 'filled',
       title: 'No se pudo cargar la lista de proyectos',
-      description: String(proyectsError) ?? 'Intenta refrescar.',
+      description: String(proyectsError) || 'Intenta refrescar.',
       showPrimaryButton: true,
       primaryLabel: 'Entendido',
       onPrimaryClick: hideAlert,
@@ -272,7 +262,7 @@ export const useRequisitionForm = (
         title: mode === 'create'
           ? 'No se pudo crear la requisición'
           : 'No se pudo actualizar la requisición',
-        description: String(opError) ?? 'Ocurrió un error. Intenta de nuevo.',
+        description: String(opError) || 'Ocurrió un error. Intenta de nuevo.',
         showPrimaryButton: true,
         primaryLabel: 'Entendido',
         onPrimaryClick: () => { hideAlert(); resetFlags(); },
@@ -281,7 +271,7 @@ export const useRequisitionForm = (
         onSecondaryClick: () => { hideAlert(); submitRef.current?.(); },
       });
     }
-  }, [opRunning, opSuccess, opError, mode, showSpinner, hideSpinner, showAlert, hideAlert, resetFlags]);
+  }, [opRunning, opSuccess, opError, mode, showSpinner, hideSpinner, showAlert, hideAlert, resetFlags, ResetForm]);
 
   // Submit (para DynamicForm) -> decide create o update
   const handleSubmit = useCallback(async (values: Record<string, any>) => {

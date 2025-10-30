@@ -1,7 +1,9 @@
 'use client'
-import { useAuth } from "@/app/context/AuthContext/AuthContext"
 import { useEffect, useState } from "react"
+
 import { getInitials } from "../../Avatar/utilities/getInitials"
+
+import { useAuth } from "@/app/context/AuthContext/AuthContext"
 /**
  * Custom hook para obtener la información visual del avatar personal del usuario autenticado.
  *

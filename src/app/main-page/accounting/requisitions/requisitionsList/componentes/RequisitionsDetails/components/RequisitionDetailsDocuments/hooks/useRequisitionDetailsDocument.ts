@@ -1,13 +1,16 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { shallow } from 'zustand/shallow'
+
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
+import { BillingDocumentDetailsTableListMap } from '@/app/mappings/billingdocuments/billingdocuments.mapper'
+import type { BillingDocumentDetailsTable, BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
 import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore'
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
-import { shallow } from 'zustand/shallow'
-import type { BillingDocumentDetailsTable, BillingDocuments } from '@/app/mappings/billingdocuments/billingdocuments.types'
-import { BillingDocumentDetailsTableListMap } from '@/app/mappings/billingdocuments/billingdocuments.mapper'
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
+
+
 /**
  * Hook para cargar y exponer los documentos de facturas asociados a una requisición.
  * Toma el `id` de la requisición desde los query params y realiza el fetch en el store.
@@ -61,7 +64,7 @@ const useRequisitionDetailsDocument = () => {
       showAlert({
         type: "error",
         title: "Error",
-        description: String(error) ?? "Hubo un problema desconocido",
+        description: String(error) || "Hubo un problema desconocido",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
@@ -71,7 +74,7 @@ const useRequisitionDetailsDocument = () => {
       showAlert({
         type: "error",
         title: "Error",
-        description: String(downloaderror) ?? "Hubo un problema desconocido",
+        description: String(downloaderror) || "Hubo un problema desconocido",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
@@ -88,7 +91,7 @@ const useRequisitionDetailsDocument = () => {
       });
     }
 
-  }, [loading, error, succesDownloadDocument, downloadingDocument])
+  }, [loading, error, succesDownloadDocument, downloadingDocument, downloaderror, showAlert])
 
   useEffect(() => {
     if (!requisitionId) return

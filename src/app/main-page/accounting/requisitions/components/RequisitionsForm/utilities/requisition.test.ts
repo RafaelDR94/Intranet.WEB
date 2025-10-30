@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
+
 import {
   computeLoadingFormInfo,
   getOptionLabel,
   buildRequisitionPayload,
   createInitialFields,
 } from './requisition';
+
 import type { FieldModel } from '@/app/components/DynamicForm/types';
 
 describe('requisition utilities', () => {

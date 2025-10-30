@@ -1,18 +1,21 @@
 "use client";
 import React from "react";
-import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import PDFIcon from "@/assets/icons/Docs/page.svg";
-import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
-import { ColumnDefinition } from "@/app/components/DataTable/types";
-import { Button } from "@/app/components/Button/Button";
-import { DataTable } from "@/app/components/DataTable/DataTable";
-import { Label } from "@/app/components/Label/Label";
-import SideMenu from "./components/SideMenu";
+
 import { InvoicesProvider } from "../invoices/context/InvoicesContext";
-import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
+
+import SideMenu from "./components/SideMenu";
 import useHistory from "./hooks/useHistory";
+
+import { Button } from "@/app/components/Button/Button";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { DataTable } from "@/app/components/DataTable/DataTable";
+import { ColumnDefinition } from "@/app/components/DataTable/types";
+import { Label } from "@/app/components/Label/Label";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
+import PDFIcon from "@/assets/icons/Docs/page.svg";
+import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 
 const PersonalInvoicesHistory = () => {
   const { panelOpen, setPanelOpen, selected, setSelected, rejected, history } =
@@ -149,7 +152,7 @@ const PersonalInvoicesHistory = () => {
               title: "Rechazadas",
               enableCollaps: true,
               defaultSortKey: "dateCreate",
-              defaultSortDirection: "asc",
+              defaultSortDirection: "desc",
             },
           ]}
         />
@@ -165,7 +168,7 @@ const PersonalInvoicesHistory = () => {
               title: "Historial",
               enableCollaps: true,
               defaultSortKey: "dateCreate",
-              defaultSortDirection: "asc",
+              defaultSortDirection: "desc",
             },
           ]}
         />

@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/app/context/AuthContext/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
 import type { PermissionRedirectProps } from '../types';
+
+import { useAuth } from '@/app/context/AuthContext/AuthContext';
 
 /**
  * Evaluates permissions and redirects to the first allowed route.

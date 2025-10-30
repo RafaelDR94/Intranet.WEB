@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+
 import useSAT from './useSAT';
 
 const fetchSatBillingDocument = vi.fn();
@@ -20,13 +21,17 @@ vi.mock('@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore', () => 
       billingDocumentsNotValid: [],
       billingDocumentsEfos: [],
       loadigSat: false,
-      sending: false,
-      succesSend: false,
       resetFlags: vi.fn(),
       fetchSatBillingDocument,
-      sendToSapBillingDocument,
       error: null,
+      sendToSapBillingDocument,
+      sending: false,
+      succesSend: false,
     }),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 describe('useSAT', () => {

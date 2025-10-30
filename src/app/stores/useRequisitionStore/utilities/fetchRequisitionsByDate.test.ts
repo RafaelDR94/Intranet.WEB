@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { fetchRequisitionsByDate } from './fetchRequisitionsByDate'
+
 import type { RequisitionsState, Set, Get } from '../types'
+
+import { fetchRequisitionsByDate } from './fetchRequisitionsByDate'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
 vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pGet: () => async () => ({ data: { data: [{ billingrequisition_id: '1' }] } }) }))

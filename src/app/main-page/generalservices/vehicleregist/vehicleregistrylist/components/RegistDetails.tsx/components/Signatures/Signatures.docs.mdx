@@ -1,0 +1,25 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/GeneralServices/VehicleRegistryList/Components/RegistDetails/Signatures" />
+
+# Signatures
+
+Muestra la firma digital asociada a la asignación, con mensajes claros para cada
+estado y `SignatureBox` como visualización principal.
+
+---
+
+## Hook asociado
+
+- `useSignatures` obtiene la firma desde el store o desde Firebase, además de
+  exponer `driverName` y `arrivalDateLabel`.
+
+---
+
+## Estados cubiertos
+
+- Sin asignación seleccionada.
+- Cargando firma.
+- Error en la descarga.
+- Firma inexistente.
+- Firma disponible (usa `SignatureBox`).

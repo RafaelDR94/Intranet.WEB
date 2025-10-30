@@ -1,8 +1,9 @@
 // src/app/components/DynamicForm/DynamicForm.test.tsx
-import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
+
 import { DynamicForm } from './DynamicForm'
 import { FieldModel } from './types'
 // --- MOCK de TODOS los SVGs que se importan a lo largo del formulario ---
@@ -195,6 +196,38 @@ describe('DynamicForm', () => {
     await waitFor(() => expect(handleValid).toHaveBeenCalledWith(true))
   })
 
+  it('propaga dataTestId a campos y acciones', () => {
+    const fields: FieldModel[] = [
+      { type: 'input', name: 'name', label: 'Nombre', value: '' },
+    ]
+    const { rerender } = render(
+      <DynamicForm
+        fields={fields}
+        onSubmit={() => {}}
+        dataTestId="form"
+        showSecondaryButtonIf={() => true}
+        onSecondaryButtonClick={() => {}}
+        secondaryButtonLabel="Sec"
+      />
+    )
+    expect(screen.getByTestId('form')).toBeInTheDocument()
+    expect(screen.getByTestId('form-name')).toBeInTheDocument()
+    expect(screen.getByTestId('form-primary')).toBeInTheDocument()
+    expect(screen.getByTestId('form-secondary')).toBeInTheDocument()
+    rerender(
+      <DynamicForm
+        fields={fields}
+        onSubmit={() => {}}
+        dataTestId="form"
+        showSecondaryButtonIf={() => true}
+        onSecondaryButtonClick={() => {}}
+        secondaryButtonLabel="Sec"
+        loading
+      />
+    )
+    expect(screen.getByTestId('form-spinner')).toBeInTheDocument()
+  })
+
   it('maneja NumberControl y envía el valor actualizado', async () => {
     const fields: FieldModel[] = [
       { type: 'numberControl', name: 'cantidad', label: 'Cantidad', value: 1, min: 0, max: 10 }
@@ -207,6 +240,51 @@ describe('DynamicForm', () => {
     fireEvent.click(screen.getByText('Submit'))
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({ cantidad: 2 })
+    })
+  })
+
+  it('maneja ControlLevel y envía el valor actualizado', async () => {
+    const fields: FieldModel[] = [
+      {
+        type: 'controlLevel',
+        name: 'nivel',
+        label: 'Nivel de servicio',
+        value: 0.5,
+        controlLevelProps: { min: 0, max: 1, divisions: 4, showSemicircle: false },
+      },
+    ]
+    const { onSubmit } = renderForm(fields)
+
+    const slider = screen.getByRole('slider')
+    fireEvent.keyDown(slider, { key: 'ArrowRight' })
+
+    fireEvent.click(screen.getByText('Submit'))
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({ nivel: 0.75 })
+    })
+  })
+
+  it('maneja CheckBoxList y envía el valor actualizado', async () => {
+    const fields: FieldModel[] = [
+      {
+        type: 'checkboxList',
+        name: 'docs',
+        label: 'Documentos',
+        value: [],
+        options: [
+          { label: 'Tarjeta de Circulación', value: 'card' },
+          { label: 'Póliza de seguro', value: 'policy' },
+        ],
+      },
+    ]
+    const { onSubmit } = renderForm(fields)
+
+    const cardCheckbox = screen.getByLabelText('Tarjeta de Circulación')
+    fireEvent.click(cardCheckbox)
+
+    fireEvent.click(screen.getByText('Submit'))
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({ docs: ['card'] })
     })
   })
 })

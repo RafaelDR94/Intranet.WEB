@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { vi } from 'vitest'
 import React from 'react'
+import { vi } from 'vitest'
+
 import RequisitionDetails from './RequisitionDetails'
 
 vi.mock('./hooks/useRequisitionsDetails', () => ({
@@ -36,7 +37,7 @@ vi.mock('@/app/context/AuthContext/AuthContext', () => ({
 }))
 
 const meta: Meta<typeof RequisitionDetails> = {
-  title: 'MainPage/Accounting/Requisitions/RequisitionDetails',
+  title: 'MainPage/Accounting/Requisitions/RequisitionsList/RequisitionDetails/RequisitionDetails',
   component: RequisitionDetails,
   tags: ['autodocs'],
 }

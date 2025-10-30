@@ -1,10 +1,14 @@
 "use client";
+import Image from "next/image";
+
+import useChangePassword,{changePasswordFields} from "../../../hooks/useChangePassword/useChangePassword";
+
+import { nesPasswordStyles } from "./styles";
+
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
 import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile-rp.png"
-import Image from "next/image";
-import { nesPasswordStyles } from "./styles";
-import useChangePassword,{changePasswordFields} from "../../../hooks/useChangePassword/useChangePassword";
+
 
 const RecoverPassword = () => {
   const { handleChange, isLoading } = useChangePassword();

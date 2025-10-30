@@ -42,7 +42,7 @@ export const FiletoBase64 = (file: File) => {
 export const urlToFile = (url: string, fileName: string, type: string) => {
     return fetch(url)
         .then(res => res.arrayBuffer())
-        .then(buffer => new File([buffer], fileName, { type  }));
+        .then(buffer => new File([buffer], fileName, { type }));
 };
 
 export const DownloadFile = (url: string, fileName: string) => {
@@ -55,3 +55,10 @@ export const DownloadFile = (url: string, fileName: string) => {
             link.click();
         });
 };
+export const fileToDataUrl = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result ?? ''));
+        reader.onerror = () => reject(reader.error ?? new Error('No se pudo leer el archivo.'));
+        reader.readAsDataURL(file);
+    });

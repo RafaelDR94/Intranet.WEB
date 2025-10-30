@@ -1,6 +1,7 @@
 // src/components/CustomRadio.tsx
-import React from 'react';
 import clsx from 'clsx';
+import React from 'react';
+
 import { customRadioStyles } from './styles';
 import { CustomRadioProps } from './types';
 

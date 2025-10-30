@@ -1,9 +1,10 @@
-import { useRequisitionsStore } from "@/app/stores/useRequisitionStore/useRequisitionStore";
-import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
-import { shallow } from "zustand/shallow";
-import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { shallow } from "zustand/shallow";
+
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
+import { useRequisitionsStore } from "@/app/stores/useRequisitionStore/useRequisitionStore";
 
 /**
  * Hook that fetches and exposes the current requisition details based on the
@@ -65,16 +66,16 @@ const useRequisitionsDetails = () => {
     if (successPut && id) {
       fetchCurrentRequisition(id, true);
     }
-  }, [gettincurrentReq, error, successPut, succesReject]);
+  }, [gettincurrentReq, error, successPut, succesReject, hideSpinner, resetFlags, showAlert, showSpinner, fetchCurrentRequisition, id, hideAlert]);
 
   useEffect(() => {
     if (succesReject && id) fetchCurrentRequisition(id, true);
-  }, [succesReject]);
+  }, [succesReject, id, fetchCurrentRequisition]);
 
   useEffect(() => {
     if (id) fetchCurrentRequisition(id);
     else resetCurrentReq();
-  }, [id]);
+  }, [id, fetchCurrentRequisition, resetCurrentReq]);
 
   return { currentRequisition };
 };

@@ -1,0 +1,24 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/SIP/Proyects/ProyectDetail/Reports/NewReport/Activities" />
+
+# Activities
+
+Capa ligera que conecta el paso de actividades con `useActivities` y el widget
+`AddActivities`. Solo renderiza el administrador cuando el hook indica que el
+reporte esta listo (`canStart`).
+
+---
+
+## Uso rapido
+
+```tsx
+import Activities from "./Activities";
+
+export function ActivitiesStep() {
+  return <Activities />;
+}
+```
+
+El componente calcula la prop `hideAdd` segun la presencia de firmas de cliente
+en el reporte para evitar nuevas cargas durante la etapa de firma.

@@ -1,8 +1,10 @@
 'use client';
 import React from 'react';
+
 import { classes } from './styles';
-import { Spinner } from '@/app/components/Spinner/Spinner';
 import { LoadingOverlayProps } from './types';
+
+import { Spinner } from '@/app/components/Spinner/Spinner';
 
 
 /**
@@ -86,7 +88,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   // Si quieres solo el contenedor: devuelve el overlay directo (absolute + inset-0).
   // Si quieres pantalla completa: lo envolvemos en un wrapper fixed + inset-0.
   return scope === 'container' ? node : (
-    <div className="fixed inset-0 z-[60]">
+    <div className="fixed inset-0 z-[100]">
       {node}
     </div>
   );

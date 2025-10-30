@@ -1,9 +1,13 @@
 import React from "react";
-import { PerDiemBalanceCardProps } from "./types";
-import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
-import Donut from "@/app/components/Donut/Donut";
+
 import { perDiemBalanceCardStyles as s } from "./styles";
+import { PerDiemBalanceCardProps } from "./types";
+
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import Donut from "@/app/components/Donut/Donut";
+import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
+
 // 🔹 Helpers internos
 function diffInDays(start: string, end: string) {
   const d1 = new Date(start);
@@ -36,9 +40,13 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
   // 🔹 calcular saldos
   const { enterpriseAmount, employeeAmount } = computeBalances(requestedAmount, verifiedAmount);
   const isMobile = useIsMobile();
+  const { currentPagePermissions } = useAuth();
+
+  const isSapProfile = currentPagePermissions?.sapprofile;
+
   return (
     <div className={s.root}>
-      <div className={s.card}>
+      <div className={isSapProfile ? s.cardSap : s.card }>
         <div className="col-span-2">
           <h3 className={s.title}>Balance de viáticos</h3>
           <p className={s.period}>

@@ -1,4 +1,5 @@
 import { IPublicClientApplication, AccountInfo } from "@azure/msal-browser";
+
 import { loginRequest } from "./authconfig";
 
 export async function addEventToOutlookCalendar(

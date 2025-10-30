@@ -1,6 +1,6 @@
 
-import { Requisition } from "../requisitions/requisitions.types"
 import { BillingDocumentCategory, BillingDocumentDescription } from "../billingdocuments/billingdocuments.types"
+import { Requisition } from "../requisitions/requisitions.types"
 export type BillingImages = {
     "billing_image_id": string,
     "requisition": Requisition,
@@ -47,8 +47,8 @@ export type BillingPut = {
     "Image": string,
     "comments": string
     "user_comments": string
-    "numnights": number
-    "numpersons": number,
+    "numnights": string
+    "numpersons": string,
 }
 export type BillinReject = {
     "billing_image_id": string,

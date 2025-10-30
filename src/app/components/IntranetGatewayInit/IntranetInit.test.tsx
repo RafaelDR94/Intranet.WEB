@@ -1,7 +1,8 @@
 
+import { render } from '@testing-library/react'
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render } from '@testing-library/react'
+
 import IntranetGatewayInit from './IntranetGatewatInit'
 
 // Mock del hook que provee las funciones CRUD
