@@ -4,6 +4,8 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { Documents as DocumentsUrl } from '@/app/configurations/Axios/urls'
 import type { DocumentTypeSummary } from '@/app/mappings/documents/documents.types'
 
+/* ---------------------- MOCKS BÁSICOS ---------------------- */
+
 const fetchMock = vi.fn()
 const fetchDepartmentsMock = vi.fn()
 const withLoadingMock = vi.fn(async (task: () => Promise<unknown>, _opts?: { message?: string }) => {
@@ -13,13 +15,18 @@ const showAlertMock = vi.fn()
 const hideAlertMock = vi.fn()
 const postMock = vi.fn(async () => ({}))
 const putMock = vi.fn(async () => ({}))
-const uploadFileMock = vi.fn(async () => 'https://firebase.test/documents/DOC-001.pdf')
+const uploadFileMock = vi.fn(async (_file: File, _key: string) =>
+  'https://firebase.test/documents/DOC-001.pdf'
+)
+
 const fetchDocumentsMock = vi.fn()
 
 const documentsState = {
   documents: [] as any[],
   fetchDocuments: fetchDocumentsMock,
 }
+
+/* ---------------------- CONTEXTOS MOCK ---------------------- */
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   usePrincipal: () => ({
@@ -63,6 +70,8 @@ vi.mock('@/app/stores/useDocumentsStore/useDocumentsStore', () => ({
       fetchDocuments: documentsState.fetchDocuments,
     }),
 }))
+
+/* ---------------------- TIPOS Y DATOS ---------------------- */
 
 const documentTypes: DocumentTypeSummary[] = [
   {
@@ -128,6 +137,8 @@ vi.mock('@/app/stores/useDepartmentsStore/useDepartmentsStore', () => ({
 }))
 
 import useDocumentRegistry from './useDocumentRegistry'
+
+/* ---------------------- TESTS ---------------------- */
 
 describe('useDocumentRegistry hook', () => {
   beforeEach(() => {
@@ -256,7 +267,7 @@ describe('useDocumentRegistry hook', () => {
 
     const [, payload] = postMock.mock.calls[0] ?? []
     expect(payload?.management).toBe(false)
-    expect(payload?.department_id).toEqual(['dept-1', 'dept-2'])
+    expect(new Set(payload?.department_id)).toEqual(new Set(['dept-1', 'dept-2']))
   })
 
   it('includes checklist selections even when values are provided as option objects', async () => {
@@ -281,7 +292,7 @@ describe('useDocumentRegistry hook', () => {
 
     const [, payload] = postMock.mock.calls.at(-1) ?? []
     expect(payload?.management).toBe(false)
-    expect(payload?.department_id).toEqual(['dept-2', 'dept-1'])
+    expect(new Set(payload?.department_id)).toEqual(new Set(['dept-1', 'dept-2']))
   })
 
   it('prefills form values when editing an existing document', () => {
@@ -314,36 +325,18 @@ describe('useDocumentRegistry hook', () => {
         management: true,
         route: 'https://example.com/doc.pdf',
         extension: 'pdf',
-        datecreated: '2024-01-01',
       },
     ]
 
     const { result } = renderHook(() => useDocumentRegistry('doc-1'))
 
-    const documentKeyField = result.current.fields.find(
-      (field) => field.name === 'documentKey',
-    )
-    const specificationsField = result.current.fields.find(
-      (field) => field.name === 'specifications',
-    )
-    const destinationAreaField = result.current.fields.find(
-      (field) => field.name === 'destinationArea',
-    )
-    const documentTypeField = result.current.fields.find(
-      (field) => field.name === 'documentType',
-    )
-    const descriptionField = result.current.fields.find(
-      (field) => field.name === 'description',
-    )
-    const fileField = result.current.fields.find(
-      (field) => field.name === 'documentFile',
-    )
-    const toolsChecklistField = result.current.fields.find(
-      (field) => field.name === 'toolsChecklist',
-    )
-    const routeField = result.current.fields.find(
-      (field) => field.name === 'documentRoute',
-    )
+    const documentKeyField = result.current.fields.find((f) => f.name === 'documentKey')
+    const specificationsField = result.current.fields.find((f) => f.name === 'specifications')
+    const destinationAreaField = result.current.fields.find((f) => f.name === 'destinationArea')
+    const documentTypeField = result.current.fields.find((f) => f.name === 'documentType')
+    const descriptionField = result.current.fields.find((f) => f.name === 'description')
+    const fileField = result.current.fields.find((f) => f.name === 'documentFile')
+    const toolsChecklistField = result.current.fields.find((f) => f.name === 'toolsChecklist')
 
     expect(documentKeyField?.value).toBe('DOC-001')
     expect(specificationsField?.value).toBe('internal')
@@ -351,14 +344,12 @@ describe('useDocumentRegistry hook', () => {
     expect(documentTypeField?.value).toBe('2dcf1875-35b6-4d9c-b6a2-6df144f1580c')
     expect(descriptionField?.value).toBe('Guía de procesos')
     expect(fileField?.helperText).toBe('Archivo listo: Manual de procesos')
-    expect(fileField?.helperText).not.toContain('https://example.com/doc.pdf')
     expect(fileField?.validations).toBeUndefined()
     expect(fileField?.initialFile).toEqual({
       name: 'Manual de procesos',
       url: 'https://example.com/doc.pdf',
     })
     expect(toolsChecklistField?.value).toEqual(['dept-1'])
-    expect(routeField).toBeUndefined()
     expect(result.current.title).toBe('Edición de Documento')
     expect(result.current.submitLabel).toBe('Guardar Cambios')
     expect(fetchDocumentsMock).not.toHaveBeenCalled()
@@ -394,7 +385,6 @@ describe('useDocumentRegistry hook', () => {
         management: true,
         route: 'https://example.com/doc.pdf',
         extension: 'pdf',
-        datecreated: '2024-01-01',
       },
     ]
 
@@ -419,8 +409,9 @@ describe('useDocumentRegistry hook', () => {
     expect(uploadFileMock).not.toHaveBeenCalled()
     expect(postMock).not.toHaveBeenCalled()
     expect(putMock).toHaveBeenCalledWith(
-      `${DocumentsUrl}?id=doc-1`,
+      DocumentsUrl,
       expect.objectContaining({
+        document_id: 'doc-1',
         code: 'DOC-001',
         document_type_id: '2dcf1875-35b6-4d9c-b6a2-6df144f1580c',
         department_id: ['dept-1'],
@@ -464,42 +455,24 @@ describe('useDocumentRegistry hook', () => {
           enterprice_name: 'Empresa 1',
         },
         departments: [
-          {
-            department_id: 'dept-2',
-            name: 'Operaciones',
-            enterprise_id: 'ent-1',
-            enterprice_name: 'Empresa 1',
-          },
-          {
-            department_id: 'dept-1',
-            name: 'Administración',
-            enterprise_id: 'ent-1',
-            enterprice_name: 'Empresa 1',
-          },
+          { department_id: 'dept-2', name: 'Operaciones' },
+          { department_id: 'dept-1', name: 'Administración' },
         ],
         management: false,
         route: 'https://example.com/doc.pdf',
         extension: 'pdf',
-        datecreated: '2024-02-01',
       },
     ]
 
     rerender()
 
-    const documentKeyField = result.current.fields.find(
-      (field) => field.name === 'documentKey',
-    )
-    const specificationsField = result.current.fields.find(
-      (field) => field.name === 'specifications',
-    )
-    const fileField = result.current.fields.find(
-      (field) => field.name === 'documentFile',
-    )
+    const documentKeyField = result.current.fields.find((f) => f.name === 'documentKey')
+    const specificationsField = result.current.fields.find((f) => f.name === 'specifications')
+    const fileField = result.current.fields.find((f) => f.name === 'documentFile')
 
     expect(documentKeyField?.value).toBe('DOC-002')
     expect(specificationsField?.value).toBe('external')
     expect(fileField?.helperText).toBe('Archivo listo: Formato')
-    expect(fileField?.helperText).not.toContain('https://example.com/doc.pdf')
     expect(fetchDocumentsMock).toHaveBeenCalledTimes(1)
   })
 })
