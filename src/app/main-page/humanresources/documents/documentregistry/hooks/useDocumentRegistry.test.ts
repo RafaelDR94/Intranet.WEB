@@ -104,6 +104,12 @@ const departments = [
     enterprise_id: 'ent-1',
     enterprice_name: 'Empresa 1',
   },
+  {
+    department_id: undefined,
+    name: 'Sin Identificador',
+    enterprise_id: 'ent-1',
+    enterprice_name: 'Empresa 1',
+  },
 ]
 
 vi.mock('@/app/stores/useDepartmentsStore/useDepartmentsStore', () => ({
@@ -246,6 +252,31 @@ describe('useDocumentRegistry hook', () => {
     const [, payload] = postMock.mock.calls[0] ?? []
     expect(payload?.management).toBe(false)
     expect(payload?.department_id).toEqual(['dept-1', 'dept-2'])
+  })
+
+  it('includes checklist selections even when values are provided as option objects', async () => {
+    const { result } = renderHook(() => useDocumentRegistry())
+
+    const file = new File(['hello'], 'Manual.pdf', { type: 'application/pdf' })
+
+    const values = {
+      documentFile: file,
+      documentKey: 'DOC-002',
+      specifications: 'external',
+      destinationArea: 'dept-2',
+      documentType: 'type-1',
+      description: 'Otro documento',
+      toolsChecklist: [
+        { label: 'Administración', value: 'dept-1' },
+        { label: 'Operaciones', value: 'dept-2' },
+      ],
+    }
+
+    await result.current.handleSubmit(values)
+
+    const [, payload] = postMock.mock.calls.at(-1) ?? []
+    expect(payload?.management).toBe(false)
+    expect(payload?.department_id).toEqual(['dept-2', 'dept-1'])
   })
 
   it('prefills form values when editing an existing document', () => {
