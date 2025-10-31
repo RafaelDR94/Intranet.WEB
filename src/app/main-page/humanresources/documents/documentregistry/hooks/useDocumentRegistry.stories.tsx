@@ -378,7 +378,6 @@ const registryDocuments: ManagementDocument[] = [
 const meta: Meta<typeof DocumentRegistryHookPreview> = {
   title: 'HumanResources/Documents/Hooks/useDocumentRegistry',
   component: DocumentRegistryHookPreview,
-  tags: ['autodocs'],
   argTypes: {
     theme: {
       control: { type: 'inline-radio' },

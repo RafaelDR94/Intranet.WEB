@@ -336,7 +336,6 @@ const ManagementDocumentsHookPreview: React.FC<ManagementDocumentsHookArgs> = ({
 const meta: Meta<typeof ManagementDocumentsHookPreview> = {
   title: 'HumanResources/Documents/Hooks/useManagementDocuments',
   component: ManagementDocumentsHookPreview,
-  tags: ['autodocs'],
   argTypes: {
     theme: {
       control: { type: 'inline-radio' },

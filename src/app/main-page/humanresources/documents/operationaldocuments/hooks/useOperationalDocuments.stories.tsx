@@ -304,7 +304,6 @@ const OperationalDocumentsHookPreview: React.FC<OperationalDocumentsHookArgs> = 
 const meta: Meta<typeof OperationalDocumentsHookPreview> = {
   title: 'HumanResources/Documents/Hooks/useOperationalDocuments',
   component: OperationalDocumentsHookPreview,
-  tags: ['autodocs'],
   argTypes: {
     theme: {
       control: { type: 'inline-radio' },
