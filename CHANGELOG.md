@@ -1,3 +1,8 @@
+### 1.47.32 Human resources hook stories canvas 25-10-2025
+
+Fix:
+- Ajusta las historias de hooks de documentos de Recursos Humanos para usar solo vistas Canvas de Storybook sin autodocs. (Agente IA) [#]()
+
 ### 1.47.31 Human resources document hooks 25-10-2025
 
 Feature:
