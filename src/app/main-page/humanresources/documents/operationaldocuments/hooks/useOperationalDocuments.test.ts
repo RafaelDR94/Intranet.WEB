@@ -1,9 +1,9 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ManagementDocument } from '@/app/mappings/documents/documents.types'
 
-const fetchMock = vi.fn()
+const fetchMock = vi.fn<Promise<void>, [boolean?]>(() => Promise.resolve())
 const deleteMock = vi.fn()
 
 const documents: ManagementDocument[] = [
@@ -110,7 +110,29 @@ describe('useOperationalDocuments hook', () => {
     expect(result.current.rows).toHaveLength(1)
     expect(result.current.rows[0].name).toBe('Código de proyectos DR')
     expect(result.current.rows[0].documentType).toBe('FORMATO')
+    expect(result.current.loading).toBe(false)
+    expect(result.current.error).toBeUndefined()
+    expect(result.current.successGet).toBe(true)
+    expect(result.current.successDeleteDocument).toBe(false)
     expect(result.current.deleteDocument).toBe(deleteMock)
     expect(result.current.deletingDocument).toBe(false)
+  })
+
+  it('invokes fetchDocuments with force flag when refreshing the table', async () => {
+    const { result } = renderHook(() => useOperationalDocuments())
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(fetchMock).toHaveBeenLastCalledWith()
+    })
+
+    fetchMock.mockClear()
+
+    await act(async () => {
+      await result.current.refresh()
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(true)
   })
 })

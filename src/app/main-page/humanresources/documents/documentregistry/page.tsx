@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
 
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";

@@ -1,3 +1,13 @@
+### 1.47.30 Human resources documents coverage 25-10-2025
+
+Feature:
+- Refuerza los hooks de documentos operativos, gerenciales y registro con pruebas que validan refresco y estados, y agrega historias de Storybook junto con tests de página para los flujos de Recursos Humanos. (Agente IA) [#]()
+
+### 1.47.29 Human resources document actions 25-10-2025
+
+Feature:
+- DocumentActionsMenuCell cuenta con historias de Storybook, pruebas unitarias para el componente, hook y utilidades de permisos. (Agente IA) [#]()
+
 ### 1.47.28 Document registry edit flow 25-10-2025
 
 Fix:
