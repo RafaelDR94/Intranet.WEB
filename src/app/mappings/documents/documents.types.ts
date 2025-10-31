@@ -31,7 +31,7 @@ export type ManagementDocument = {
   created_at?: string
   updated_at?: string
   published_at?: string
-  datecreated: string
+  datecreated?: string
 }
 
 /**
@@ -53,7 +53,7 @@ export type ManagementDocumentTableRow = {
   name: string
   code: string
   description: string
-  datecreated: string
+  datecreated: any
   documentType: string
   department: string
   extension: string

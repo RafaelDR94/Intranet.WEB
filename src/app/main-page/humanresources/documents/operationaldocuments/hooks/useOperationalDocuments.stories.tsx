@@ -138,7 +138,7 @@ const OperationalDocumentsHookPreview: React.FC<OperationalDocumentsHookArgs> = 
   }, [])
 
   useEffect(() => {
-    useDocumentsStore.setState((state) => ({
+    useDocumentsStore.setState((state: any) => ({
       ...state,
       documents,
       managementDocuments: documents.filter((document) => document.management),
