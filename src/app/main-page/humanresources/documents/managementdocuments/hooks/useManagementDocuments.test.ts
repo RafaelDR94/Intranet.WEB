@@ -1,9 +1,9 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 import type { ManagementDocument } from '@/app/mappings/documents/documents.types'
 
-const fetchMock = vi.fn()
+const fetchMock = vi.fn<Promise<void>, [boolean?]>(() => Promise.resolve())
 const deleteMock = vi.fn()
 
 const managementDocuments: ManagementDocument[] = [
@@ -74,7 +74,29 @@ describe('useManagementDocuments hook', () => {
     expect(result.current.rows).toHaveLength(1)
     expect(result.current.rows[0].name).toBe('Manual de procesos')
     expect(result.current.rows[0].documentType).toBe('FORMATO')
+    expect(result.current.loading).toBe(false)
+    expect(result.current.error).toBeUndefined()
+    expect(result.current.successGet).toBe(true)
+    expect(result.current.successDeleteDocument).toBe(false)
     expect(result.current.deleteDocument).toBe(deleteMock)
     expect(result.current.deletingDocument).toBe(false)
+  })
+
+  it('refreshes management documents forcing the fetch', async () => {
+    const { result } = renderHook(() => useManagementDocuments())
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(fetchMock).toHaveBeenLastCalledWith()
+    })
+
+    fetchMock.mockClear()
+
+    await act(async () => {
+      await result.current.refresh()
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(true)
   })
 })

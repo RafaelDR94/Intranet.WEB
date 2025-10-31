@@ -10,16 +10,19 @@ vi.mock('@/assets/icons/Docs/page.svg', () => ({
 const deleteMock = vi.fn()
 const refreshMock = vi.fn()
 
-vi.mock('@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell', () => ({
-  __esModule: true,
-  default: ({ row, onDelete }: any) => (
-    <div data-testid={`actions-menu-${row.id}`}>
-      <button type="button" onClick={() => onDelete?.(row)}>
-        Eliminar
-      </button>
-    </div>
-  ),
-}))
+vi.mock(
+  '@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell',
+  () => ({
+    __esModule: true,
+    default: ({ row, onDelete }: any) => (
+      <div data-testid={`actions-menu-${row.id}`}>
+        <button type="button" onClick={() => onDelete?.(row)}>
+          Eliminar
+        </button>
+      </div>
+    ),
+  }),
+)
 
 vi.mock('@/app/components/PopUp/PopUp', () => ({
   __esModule: true,
@@ -101,6 +104,7 @@ const pushMock = vi.fn()
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock }),
+  usePathname: () => '/main-page/humanresources/documents/operationaldocuments',
 }))
 
 import OperationalDocuments from './page'
