@@ -1,3 +1,8 @@
+### 1.47.31 Human resources document hooks 25-10-2025
+
+Feature:
+- Documenta los hooks de documentos operativos, gerenciales y registro en Storybook con estados controlables y proveedores simulados. (Agente IA) [#]()
+
 ### 1.47.30 Human resources documents coverage 25-10-2025
 
 Feature:

@@ -19,8 +19,6 @@ vi.mock('next/navigation', () => ({
 }))
 
 vi.mock('@/app/components/FormsLayout/FormsLayout', () => {
-  const React = require('react')
-
   const MockFormsLayout = ({
     title,
     primaryLabel,
@@ -44,8 +42,6 @@ vi.mock('@/app/components/FormsLayout/FormsLayout', () => {
 })
 
 vi.mock('@/app/components/DynamicForm/DynamicForm', () => {
-  const React = require('react')
-
   const MockDynamicForm = ({ children, onSubmit, onValuesChange }: any) => (
     <form
       onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
@@ -72,8 +68,6 @@ vi.mock('@/app/components/DynamicForm/DynamicForm', () => {
 })
 
 vi.mock('@/app/components/Button/Button', () => {
-  const React = require('react')
-
   const MockButton = ({ children, hideIcon: _hideIcon, ...props }: any) => (
     <button type="button" {...props}>
       {children}
@@ -86,8 +80,6 @@ vi.mock('@/app/components/Button/Button', () => {
 })
 
 vi.mock('@/app/components/DocumentViewer/DocumentViewer', () => {
-  const React = require('react')
-
   const MockDocumentViewer = ({ fileUrl, onClose }: any) => (
     <div data-testid="document-viewer">
       <p>{fileUrl}</p>

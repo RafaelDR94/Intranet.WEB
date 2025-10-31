@@ -7,8 +7,10 @@ import { PathnameContext, SearchParamsContext } from 'next/dist/shared/lib/hooks
 
 import DocumentRegistry from './page'
 
-import type { ManagementDocument } from '@/app/mappings/documents/documents.types'
-import type { DocumentTypeSummary } from '@/app/mappings/documents/documents.types'
+import type {
+  DocumentTypeSummary,
+  ManagementDocument,
+} from '@/app/mappings/documents/documents.types'
 import { FirebaseContext } from '@/app/context/FirebaseContext/FirebaseContext'
 import { PrincipalProvider } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useDocumentsStore } from '@/app/stores/useDocumentsStore/useDocumentsStore'
