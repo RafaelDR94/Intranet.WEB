@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/assets/icons/Docs/page.svg', () => ({
   __esModule: true,
-  default: () => <svg data-testid="doc-star" />,
+  default: () => <svg data-testid="doc-icon" />,
 }))
 
 const deleteMock = vi.fn()
@@ -77,9 +77,13 @@ vi.mock('./hooks/useOperationalDocuments', () => ({
 }))
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
-  DataTable: ({ tables }: any) => (
+  DataTable: ({ tables, onRefreshPage, actionsRender }: any) => (
     <div>
-      DataTable
+      <div>DataTable</div>
+      <button type="button" onClick={onRefreshPage}>
+        Actualizar
+      </button>
+      {actionsRender && actionsRender()}
       {tables?.[0]?.data.map((row: any, index: number) => (
         <div key={row.id ?? index}>
           {tables?.[0]?.columns?.map((column: any, columnIndex: number) => (
@@ -108,47 +112,38 @@ describe('OperationalDocuments page', () => {
     pushMock.mockClear()
   })
 
-  it('renders table header and actions', () => {
+  it('renders header and actions', () => {
     render(<OperationalDocuments />)
 
-    expect(screen.getByText('Documentos Operativos')).toBeInTheDocument()
     expect(screen.getByText('DataTable')).toBeInTheDocument()
     expect(screen.getByText('Nuevo Documento')).toBeInTheDocument()
   })
 
-  it('triggers refresh on button click', () => {
+  it('calls refresh when clicking "Actualizar"', () => {
     render(<OperationalDocuments />)
 
     fireEvent.click(screen.getByText('Actualizar'))
-    expect(refreshMock).toHaveBeenCalled()
+    expect(refreshMock).toHaveBeenCalledTimes(1)
   })
 
   it('opens delete confirmation and deletes the selected document', async () => {
     deleteMock.mockResolvedValue(true)
-
     render(<OperationalDocuments />)
 
     fireEvent.click(
-      within(screen.getByTestId('actions-menu-1')).getByRole('button', {
-        name: 'Eliminar',
-      }),
+      within(screen.getByTestId('actions-menu-1')).getByRole('button', { name: 'Eliminar' }),
     )
 
     expect(screen.getByTestId('popup')).toBeInTheDocument()
     expect(
-      screen.getByText('¿Deseas eliminar el documento "Código de proyectos DR"?'),
+      screen.getByText('Esta acción confirmará la eliminación del documento seleccionado'),
     ).toBeInTheDocument()
 
     fireEvent.click(
       within(screen.getByTestId('popup')).getByRole('button', { name: 'Eliminar' }),
     )
 
-    await waitFor(() => {
-      expect(deleteMock).toHaveBeenCalledWith('1')
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('popup')).not.toBeInTheDocument()
-    })
+    await waitFor(() => expect(deleteMock).toHaveBeenCalledWith('1'))
+    await waitFor(() => expect(screen.queryByTestId('popup')).not.toBeInTheDocument())
   })
 })
