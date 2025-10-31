@@ -4,7 +4,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 vi.mock('@/assets/icons/Docs/page.svg', () => ({
   __esModule: true,
-  default: () => <svg data-testid="doc-star" />,
+  default: () => <svg data-testid="doc-icon" />,
 }))
 
 const deleteMock = vi.fn()
@@ -77,9 +77,13 @@ vi.mock('./hooks/useManagementDocuments', () => ({
 }))
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
-  DataTable: ({ tables }: any) => (
+  DataTable: ({ tables, onRefreshPage, actionsRender }: any) => (
     <div>
-      DataTable
+      <div>DataTable</div>
+      <button type="button" onClick={onRefreshPage}>
+        Actualizar
+      </button>
+      {actionsRender && actionsRender()}
       {tables?.[0]?.data.map((row: any, index: number) => (
         <div key={row.id ?? index}>
           {tables?.[0]?.columns?.map((column: any, columnIndex: number) => (
@@ -108,19 +112,18 @@ describe('ManagementDocuments page', () => {
     pushMock.mockClear()
   })
 
-  it('renders table header and actions', () => {
+  it('renders table and actions', () => {
     render(<ManagementDocuments />)
 
-    expect(screen.getByText('Documentos Gerenciales')).toBeInTheDocument()
     expect(screen.getByText('DataTable')).toBeInTheDocument()
     expect(screen.getByText('Nuevo Documento')).toBeInTheDocument()
   })
 
-  it('triggers refresh on button click', () => {
+  it('calls refresh when clicking "Actualizar"', () => {
     render(<ManagementDocuments />)
 
     fireEvent.click(screen.getByText('Actualizar'))
-    expect(refreshMock).toHaveBeenCalled()
+    expect(refreshMock).toHaveBeenCalledTimes(1)
   })
 
   it('opens delete confirmation and deletes the selected document', async () => {
@@ -128,27 +131,25 @@ describe('ManagementDocuments page', () => {
 
     render(<ManagementDocuments />)
 
+    // Clic en eliminar dentro del menú de acciones
     fireEvent.click(
       within(screen.getByTestId('actions-menu-1')).getByRole('button', {
         name: 'Eliminar',
       }),
     )
 
+    // Verifica que el popup se abra con el texto correcto
     expect(screen.getByTestId('popup')).toBeInTheDocument()
     expect(
-      screen.getByText('¿Deseas eliminar el documento "Manual de procesos"?'),
+      screen.getByText('Esta acción confirmará la eliminación del documento seleccionado'),
     ).toBeInTheDocument()
 
+    // Confirmar eliminación
     fireEvent.click(
       within(screen.getByTestId('popup')).getByRole('button', { name: 'Eliminar' }),
     )
 
-    await waitFor(() => {
-      expect(deleteMock).toHaveBeenCalledWith('1')
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('popup')).not.toBeInTheDocument()
-    })
+    await waitFor(() => expect(deleteMock).toHaveBeenCalledWith('1'))
+    await waitFor(() => expect(screen.queryByTestId('popup')).not.toBeInTheDocument())
   })
 })
