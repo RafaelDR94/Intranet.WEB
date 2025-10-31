@@ -96,10 +96,6 @@ const DocumentRegistryHookProviders: React.FC<DocumentRegistryHookProvidersProps
         action('fetchDocuments')(Boolean(force))
         return Promise.resolve()
       },
-      deleteDocument: async (id: string) => {
-        action('deleteDocument')(id)
-        return Promise.resolve()
-      },
     })
 
     useDocumentTypesStore.setState({

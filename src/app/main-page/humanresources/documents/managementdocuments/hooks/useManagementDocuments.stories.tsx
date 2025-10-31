@@ -170,7 +170,7 @@ const ManagementDocumentsHookPreview: React.FC<ManagementDocumentsHookArgs> = ({
 
   useEffect(() => {
     const managementOnly = documents.filter((document) => document.management)
-    useDocumentsStore.setState((state) => ({
+    useDocumentsStore.setState((state: any) => ({
       ...state,
       documents,
       managementDocuments: managementOnly,
