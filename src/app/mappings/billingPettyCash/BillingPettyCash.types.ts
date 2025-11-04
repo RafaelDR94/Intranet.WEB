@@ -67,6 +67,7 @@ export type PettyCashVoucherData = {
   project_id: string;
   xml: string;
   pdf: string;
+  authorization_evidence?: string;
   date_created?: string;
   fund_date_created?: string;
   /** Nombre del colaborador asociado al vale (si está disponible). */
@@ -115,6 +116,7 @@ export type PostPettyCashVoucher = {
   project_id: string;
   xml: string;
   pdf: string;
+  authorization_evidence: string;
 };
 
 export type PutPettyCashVoucher = PostPettyCashVoucher & {
@@ -174,6 +176,7 @@ export type PettyCashVoucherFull = {
   project: PettyCashVoucherProject;
   xml: string;
   pdf: string;
+  authorization_evidence: string;
   uuid: string;
   rfc_emisor: string;
   rfc_receptor: string;
