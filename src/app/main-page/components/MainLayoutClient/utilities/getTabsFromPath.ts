@@ -39,6 +39,12 @@ export const getTabsFromPath = (
         path: "/main-page/request/pettycash/pettycashhistory",
       }
     ],
+    "request/documents": [
+      {
+        label: "Documentos Gerenciales",
+        path: "/main-page/request/documents/managementdocuments",
+      }
+    ],
     "accounting/invoices": [
       {
         label: "Subir Archivos",
@@ -87,6 +93,11 @@ export const getTabsFromPath = (
     'generalservices/vehicleregist': [
       { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist/vehicleregistry'},
       { label: 'Lista de Registros', path: '/main-page/generalservices/vehicleregist/vehicleregistrylist' },
+    ],
+    'humanresources/documents': [
+      { label: 'Registro de Documentos', path: '/main-page/humanresources/documents/documentregistry' },
+      { label: 'Documentos Gerenciales', path: '/main-page/humanresources/documents/managementdocuments' },
+      { label: 'Documentos Operativos', path: '/main-page/humanresources/documents/operationaldocuments' },
     ],
   };
 

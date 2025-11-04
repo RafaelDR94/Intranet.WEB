@@ -1,3 +1,48 @@
+### 1.47.32 Human resources hook stories canvas 25-10-2025
+
+Fix:
+- Ajusta las historias de hooks de documentos de Recursos Humanos para usar solo vistas Canvas de Storybook sin autodocs. (Agente IA) [#]()
+
+### 1.47.31 Human resources document hooks 25-10-2025
+
+Feature:
+- Documenta los hooks de documentos operativos, gerenciales y registro en Storybook con estados controlables y proveedores simulados. (Agente IA) [#]()
+
+### 1.47.30 Human resources documents coverage 25-10-2025
+
+Feature:
+- Refuerza los hooks de documentos operativos, gerenciales y registro con pruebas que validan refresco y estados, y agrega historias de Storybook junto con tests de página para los flujos de Recursos Humanos. (Agente IA) [#]()
+
+### 1.47.29 Human resources document actions 25-10-2025
+
+Feature:
+- DocumentActionsMenuCell cuenta con historias de Storybook, pruebas unitarias para el componente, hook y utilidades de permisos. (Agente IA) [#]()
+
+### 1.47.28 Document registry edit flow 25-10-2025
+
+Fix:
+- Use PUT when editing existing documents, preserve the stored file, and keep the form valid with preloaded attachments. (Agente IA) [#]()
+
+### 1.47.27 Document registry department arrays 25-10-2025
+
+Feature:
+- Allow document registry to submit department identifiers as arrays and populate the checklist from Enterprises/Departments. (Agente IA) [#]()
+
+### 1.47.26 Document registry submission 25-10-2025
+
+Feature:
+- Trigger Documents endpoint POST from document registry form submission with payload mapping and alerts. (Agente IA) [#]()
+
+### 1.47.25 Operational documents listing 24-10-2025
+
+Feature:
+- Create OperationalDocuments page leveraging management documents table data. (Agente IA) [#]()
+
+### 1.47.24 Management documents listing 24-10-2025
+
+Feature:
+- Add /Documents mapping, store, and management documents page with DataTable integration. (Agente IA) [#]()
+
 ### 1.47.23 SAT invoices SAP redirect 23-10-2025
 
 Feature:

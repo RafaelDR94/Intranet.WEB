@@ -8,7 +8,7 @@ import { Button } from '../Button/Button';
 import { labelClasses} from '../Input/styles';
 
 import { useFileUploader } from './hooks/useFileUploader';
-import { filenamestyle,typelabelstyle,buttoncontainerstyle } from './styles';
+import { filenamestyle,buttoncontainerstyle } from './styles';
 import { FileUploaderProps } from './types';
 
 import UploadIcon from '@/assets/icons/acciones/upload.svg';
@@ -81,7 +81,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     fileName,
     handleButtonClick,
     handleChange,
-    allowedTypesLabel,
   } = useFileUploader(onFile, accept, disabled, initialFile);
 
   const IconToUse: React.FC<SVGProps<SVGSVGElement>> = icon ?? UploadIcon;
@@ -111,9 +110,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           <span className={filenamestyle}>{fileName}</span>
         )}
       </div>
-      {allowedTypesLabel && (
-        <p className={typelabelstyle}>{allowedTypesLabel}</p>
-      )}
     </div>
   );
 };

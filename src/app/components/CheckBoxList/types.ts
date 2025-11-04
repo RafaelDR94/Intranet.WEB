@@ -30,11 +30,13 @@ export type CheckBoxListProps = {
   dataTestId?: string;
   /** Posición de la etiqueta para todos los checkbox (default derecha) */
   labelPosition?: "left" | "right";
+  /** Muestra el checkbox maestro para seleccionar/desmarcar todos */
+  showSelectAll?: boolean;
+  /** Define cuántas columnas usa la grilla de opciones */
+  columns?: number;
 };
 
-
-export type useCheckBoxListProps = {
-
+export type UseCheckBoxListParams = {
   /** Opciones a renderizar */
   options: CheckBoxListOption[];
   /** Valores seleccionados en modo controlado */
@@ -45,5 +47,13 @@ export type useCheckBoxListProps = {
   onChange?: (values: string[]) => void;
   /** Deshabilita todas las casillas */
   disabled?: boolean;
+};
 
+export type UseCheckBoxListReturn = {
+  /** Alterna una opción individual */
+  handleToggle: (option: CheckBoxListOption) => void;
+  /** Selección normalizada considerando las opciones disponibles */
+  selection: string[];
+  /** Reemplaza la selección completa, útil para seleccionar/deseleccionar todos */
+  setSelection: (values: string[]) => void;
 };

@@ -34,6 +34,7 @@ export const sidebarRoutes = [
     icon: FileIcon,
     subroutes: [
       { label: 'Caja Chica', path: '/main-page/request/pettycash' },
+      { label: 'Documentos', path: '/main-page/request/documents' },
       { label: 'Facturación', path: '/main-page/request/invoices' }
     ],
   },
@@ -62,6 +63,15 @@ export const sidebarRoutes = [
     icon: ServerIcon,
     subroutes: [
       { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist' },
+    ],
+  },
+  {
+    label: 'RH',
+    path: '/main-page/humanresources',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Comunicados', path: '/main-page/humanresources/release' },
+      { label: 'Documentos', path: '/main-page/humanresources/documents' },
     ],
   },
 
