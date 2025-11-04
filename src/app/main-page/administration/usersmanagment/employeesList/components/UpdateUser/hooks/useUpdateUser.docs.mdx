@@ -1,0 +1,33 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/Employees/UpdateUser/useUpdateUser" />
+
+# useUpdateUser
+
+Hook encargado de preparar el formulario de actualización de usuarios: arma los campos dinámicos, sincroniza catálogos de roles, ofrece el flujo opcional de cambio de contraseña y coordina feedback visual mediante `PrincipalContext`.
+
+## API
+
+- `fields: FieldModel[]` – definición dinámica del formulario.
+- `formVersion: number` – versión del form state.
+- `loadingForm: boolean` – indica si se esperan roles o campos base.
+- `loadingSubmit: boolean` – refleja la llamada a `updateUser`.
+- `handleSubmit(values): Promise<void>` – valida entradas adicionales y envía la actualización.
+- `handleValidChange(valid: boolean): void` – actualiza la bandera de validez.
+- `formValid: boolean` – estado actual de validación.
+- `canSubmit: boolean` – verdadero cuando existe usuario seleccionado.
+- `hasUser: boolean` – permite mostrar mensajes vacíos cuando no hay datos.
+
+## Ejemplo
+
+```tsx
+const {
+  fields,
+  handleSubmit,
+  loadingForm,
+  loadingSubmit,
+  hasUser,
+} = useUpdateUser();
+```
+
+El hook muestra spinners durante operaciones, lanza alertas en caso de errores e invoca `changePassword` del `AuthStore` cuando se solicita regenerar la contraseña desde el formulario.

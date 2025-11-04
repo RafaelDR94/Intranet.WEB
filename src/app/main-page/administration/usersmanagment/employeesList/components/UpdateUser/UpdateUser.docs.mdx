@@ -1,0 +1,19 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/Employees/UpdateUser" />
+
+# UpdateUser
+
+Formulario para modificar credenciales y configuración de seguridad del usuario asociado al empleado seleccionado. Se alimenta del hook `useUpdateUser`.
+
+---
+
+## Uso rápido
+
+```tsx
+import UpdateUser from './UpdateUser';
+
+export const Panel = () => <UpdateUser />;
+```
+
+Si el empleado no tiene cuenta asignada, se muestra un recordatorio en lugar del formulario. Con un usuario presente, `DynamicForm` renderiza campos controlados y el submit queda habilitado únicamente cuando `formValid` y `canSubmit` son verdaderos.

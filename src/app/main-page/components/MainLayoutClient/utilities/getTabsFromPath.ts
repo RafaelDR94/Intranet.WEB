@@ -91,7 +91,7 @@ export const getTabsFromPath = (
       { label: 'Proyectos', path: '/main-page/sip/proyects/proyectslist' },
     ],
     'generalservices/vehicleregist': [
-      { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist/vehicleregistry'},
+      { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist/vehicleregistry' },
       { label: 'Lista de Registros', path: '/main-page/generalservices/vehicleregist/vehicleregistrylist' },
     ],
     'humanresources/documents': [
@@ -99,15 +99,21 @@ export const getTabsFromPath = (
       { label: 'Documentos Gerenciales', path: '/main-page/humanresources/documents/managementdocuments' },
       { label: 'Documentos Operativos', path: '/main-page/humanresources/documents/operationaldocuments' },
     ],
+    'administration/usersmanagment': [
+      { label: 'Crear Empleado', path: '/main-page/administration/usersmanagment/createemployee' },
+      { label: 'Lista de Empleados', path: '/main-page/administration/usersmanagment/employeesList' },
+    ],
   };
 
   let tabs = tabsMap[key] || tabsMap[first] || [];
 
   let id: string | null = null;
+  let idEmployee: string | null = null;
   let labelparam: string | null = null;
   if (search) {
     const sp = typeof search === 'string' ? new URLSearchParams(search) : search;
     id = sp.get('id');
+    idEmployee = sp.get('idEmployee');
     labelparam = sp.get('label');
   }
 
@@ -128,6 +134,18 @@ export const getTabsFromPath = (
     if (!tabs.some(t => t.label === 'Editar Proyecto')) {
       tabs = [...tabs, { label: labelparam || 'Editar Proyecto', path: detailPath }];
     }
+  }
+
+  if (first === 'administration' && second === 'usersmanagment' && third == 'createemployee' && idEmployee) {
+    tabs = tabs.map(tab => {
+      if (
+        tab.path === '/main-page/administration/usersmanagment/createemployee' &&
+        (tab.label === 'Crear Usuario' || tab.label === 'Crear Empleado')
+      ) {
+        return { ...tab, label: labelparam || 'Editar Usuario' };
+      }
+      return tab;
+    });
   }
 
   return tabs;

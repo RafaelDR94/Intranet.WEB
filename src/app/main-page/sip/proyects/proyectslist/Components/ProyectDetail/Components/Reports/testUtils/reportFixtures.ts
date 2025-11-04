@@ -1,4 +1,4 @@
-﻿import type { Proyect } from "@/app/mappings/proyects/proyects.types";
+﻿
 import type { ReportView } from "@/app/mappings/reports/reports.types";
 
 const baseDepartment = {
@@ -33,7 +33,7 @@ const buildEmployee = (id: string, fullname: string) => ({
   fullname,
 });
 
-export const sampleProyect: Proyect = {
+export const sampleProyect: any = {
   id: "PROY-1",
   name: "Instalacion de CCTV",
   proyectKey: "CCTV-001",
@@ -73,7 +73,7 @@ const baseReport: ReportView = {
     address: "Av. Principal 123, Ciudad",
     proyect: [],
   },
-  employe: buildEmployee("emp-3", "Rosa Medina"),
+  employe: buildEmployee("emp-3", "Rosa Medina") as any,
   workposition: baseWorkPosition,
   remarks: "Se realizaron ajustes y limpieza.",
   progress: "75",

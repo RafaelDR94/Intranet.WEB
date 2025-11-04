@@ -1,29 +1,62 @@
-import { Meta } from '@storybook/blocks';
+import { Meta } from "@storybook/blocks";
 
 <Meta title="STORES/useEmployeesStore/useEmployeesStore" />
 
 # useEmployeesStore
 
-Store global basado en **Zustand** para gestionar el catálogo de empleados.
+Store global basado en Zustand para gestionar el catalogo de empleados (listado, detalle y mutaciones).
 
-## API
+## API destacada
 
-- `employees: EmployeeType[]`
-- `loading: boolean`
-- `error?: string`
-- `fetchEmployees(force?: boolean): Promise<void>`
-- `forceFetchEmployees(): Promise<void>`
-- `reset(): void`
+- `employees: EmployeeType[]` / `activeEmployees: EmployeeType[]`
+- `employee?: EmployeeType`
+- Flags: `loading`, `loadingById`, `loadingActive`, `creating`, `updating`, `deleting`, `activating`
+- Exito: `successGet`, `successGetById`, `successGetActive`, `successPost`, `successPut`, `successDelete`, `successActivate`
+- `fetchEmployees(force?: boolean)`
+- `fetchActiveEmployees(force?: boolean)`
+- `fetchEmployeeById(id: string, force?: boolean)`
+- `createEmployee(payload: PostEmployees)`
+- `updateEmployee(payload: UpdateEmployeePayload)`
+- `deleteEmployee(id: string)`
+- `activateEmployee(id: string)`
+- `forceFetchEmployees()`
+- `reset()` / `resetFlags()`
 
-## Uso
+## Ejemplo
 
 ```tsx
-import { useEmployeesStore } from './useEmployeesStore';
+import { useEmployeesStore } from "./useEmployeesStore";
 
 export const Example = () => {
-  const { employees, fetchEmployees } = useEmployeesStore();
+  const {
+    employees,
+    fetchEmployees,
+    createEmployee,
+    creating,
+    successPost,
+  } = useEmployeesStore();
+
+  const onCreate = async () => {
+    await createEmployee({
+      firstname: "John",
+      secondname: "A",
+      lastname: "Doe",
+      motherlast_name: "Smith",
+      gender: "M",
+      department_id: "dep-1",
+      workposition_id: "pos-1",
+    });
+  };
+
   return (
-    <button onClick={() => fetchEmployees()}>cargar</button>
+    <>
+      <button onClick={() => fetchEmployees()}>Cargar</button>
+      <button onClick={onCreate} disabled={creating}>
+        Crear
+      </button>
+      {successPost && <p>Empleado creado</p>}
+      <pre>{JSON.stringify(employees, null, 2)}</pre>
+    </>
   );
 };
 ```
