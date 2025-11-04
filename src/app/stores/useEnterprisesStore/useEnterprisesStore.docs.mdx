@@ -1,0 +1,52 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="STORES/useEnterprisesStore/useEnterprisesStore" />
+
+# useEnterprisesStore
+
+Store global para gestionar el catalogo de empresas y sus puestos disponibles.
+
+## API
+
+- `enterprises: Enterprise[]`
+- `workpositions: WorkPositionType[]`
+- `workpositionsByEnterprise: Record<string, WorkPositionType[]>`
+- Flags de carga: `loadingEnterprises`, `loadingWorkpositions`
+- Flags de éxito: `successGetEnterprises`, `successGetWorkpositions`
+- Acciones:
+  - `fetchEnterprises(force?: boolean)`
+  - `fetchWorkpositions(enterpriseId?: string, force?: boolean)`
+  - `reset()`
+  - `resetFlags()`
+
+## Ejemplo
+
+```tsx
+import { useEnterprisesStore } from "./useEnterprisesStore";
+
+export const Example = () => {
+  const {
+    enterprises,
+    workpositions,
+    fetchEnterprises,
+    fetchWorkpositions,
+    loadingEnterprises,
+    loadingWorkpositions,
+  } = useEnterprisesStore();
+
+  return (
+    <section>
+      <button disabled={loadingEnterprises} onClick={() => fetchEnterprises()}>
+        Cargar empresas
+      </button>
+      <button
+        disabled={loadingWorkpositions}
+        onClick={() => fetchWorkpositions()}
+      >
+        Cargar puestos
+      </button>
+      <pre>{JSON.stringify({ enterprises, workpositions }, null, 2)}</pre>
+    </section>
+  );
+};
+```

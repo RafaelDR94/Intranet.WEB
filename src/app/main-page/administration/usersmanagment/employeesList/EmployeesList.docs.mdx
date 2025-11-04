@@ -1,0 +1,21 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/EmployeesList/Page" />
+
+# EmployeesList
+
+Listado maestro de colaboradores con acciones de detalle, edición y eliminación. Consume `useEmployeesList` para manejar permisos, navegación y sincronización con el store de empleados.
+
+---
+
+## Uso rápido
+
+```tsx
+import EmployeesList from './page';
+
+export default function Page() {
+  return <EmployeesList />;
+}
+```
+
+El componente renderiza un `DataTable` con columnas adaptativas (desktop/mobile), un `EmployeeDetails` para la vista lateral y un `PopUp` de confirmación de borrado controlado por el hook.

@@ -1,28 +1,79 @@
 // src/app/stores/employees/types.ts
-import type { EmployeeType } from "@/app/mappings/employees/employee.types";
+import type {
+  EmployeeType,
+  PostEmployees,
+  PutEmployees,
+} from "@/app/mappings/employees/employee.types";
 
 /**
- * Shape of the employees store state.
+ * Payload expected by the update employee endpoint.
+ */
+export type UpdateEmployeePayload = PutEmployees & {
+  employee_id: string;
+};
+
+/**
+ * Zustand store shape for the employees catalog.
  */
 export type EmployeesState = {
-  /** Lista de empleados disponibles */
+  /** Employees list as returned by the API */
   employees: EmployeeType[];
-  /** Indica si se esta cargando la lista de empleados */
-  loading: boolean;
-  /** Indica si se esta cargando un empleado individual */
-  loadingById: boolean;
-  /** Mensaje de error de la ultima operacion */
-  error?: string;
-  /** Empleado obtenido mediante consulta puntual */
+  /** Only active employees cached from the API */
+  activeEmployees: EmployeeType[];
+  /** Currently selected employee (detail) */
   employee?: EmployeeType;
-  /** Dispara la obtencion de empleados del backend */
+
+  /** Loading list flag */
+  loading: boolean;
+  /** Loading detail flag */
+  loadingById: boolean;
+  /** Loading active employees flag */
+  loadingActive: boolean;
+  /** Create request in progress */
+  creating: boolean;
+  /** Update request in progress */
+  updating: boolean;
+  /** Delete request in progress */
+  deleting: boolean;
+  /** Activate/deactivate request in progress */
+  activating: boolean;
+
+  /** Success flags */
+  successGet: boolean;
+  successGetById: boolean;
+  successGetActive: boolean;
+  successPost: boolean;
+  successPut: boolean;
+  successDelete: boolean;
+  successActivate: boolean;
+
+  /** Last error message */
+  error?: string;
+  /** Warning message returned by the API */
+  warning?: string;
+
+  /** Fetch full employees list */
   fetchEmployees: (force?: boolean) => Promise<void>;
-  /** Obtiene un empleado por su identificador */
+  /** Fetch only active employees */
+  fetchActiveEmployees: (force?: boolean) => Promise<void>;
+  /** Fetch an employee by identifier */
   fetchEmployeeById: (id: string, force?: boolean) => Promise<EmployeeType | null>;
-  /** Forza el refetch ignorando cache */
+  /** Create a new employee */
+  createEmployee: (payload: PostEmployees) => Promise<EmployeeType | null>;
+  /** Update an existing employee */
+  updateEmployee: (payload: UpdateEmployeePayload) => Promise<EmployeeType | null>;
+  /** Delete an employee */
+  deleteEmployee: (id: string) => Promise<boolean>;
+  /** Activate or reactive an employee */
+  activateEmployee: (id: string) => Promise<EmployeeType | null>;
+  /** Force revalidation ignoring cache */
   forceFetchEmployees: () => Promise<void>;
-  /** Limpia el estado */
+  /** Reset store to initial state */
   reset: () => void;
+  /** Reset only process flags and messages */
+  resetFlags: () => void;
+  resetEmployee: () => void;
+  setCurrentEmployee: (employee: EmployeeType) => void
 };
 
 export type Set = (

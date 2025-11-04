@@ -1,4 +1,4 @@
-// src/app/stores/employees/utilities/fetchEmployeeById.ts
+// src/app/stores/useEmployeesStore/utilities/fetchEmployeeById.ts
 import type { Get, Set } from "../types";
 
 import { EmployeesById } from "@/app/configurations/Axios/urls";
@@ -16,10 +16,11 @@ export const fetchEmployeeById = async (
 ): Promise<EmployeeType | null> => {
   const cached = get().employee;
   if (!force && cached && cached.employee_id === id) {
+    set({ successGetById: true, error: undefined });
     return cached;
   }
 
-  set({ loadingById: true, error: undefined });
+  set({ loadingById: true, error: undefined, successGetById: false });
 
   try {
     const getFn = requireGateway("get");
@@ -30,6 +31,7 @@ export const fetchEmployeeById = async (
     set({
       employee: mapped ?? undefined,
       loadingById: false,
+      successGetById: Boolean(mapped),
     });
 
     return mapped;
@@ -38,8 +40,8 @@ export const fetchEmployeeById = async (
     set({
       loadingById: false,
       error: e.message,
+      successGetById: false,
     });
     return null;
   }
 };
-

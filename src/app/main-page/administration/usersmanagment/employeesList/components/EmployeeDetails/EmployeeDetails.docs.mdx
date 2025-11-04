@@ -1,0 +1,19 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/Employees/EmployeeDetails" />
+
+# EmployeeDetails
+
+Contenedor lateral que agrupa las vistas de detalle y administración de usuarios para el empleado seleccionado. Se apoya en `ButtonsNavigation` para alternar entre secciones.
+
+---
+
+## Uso rápido
+
+```tsx
+import EmployeeDetails from './EmployeeDetails';
+
+<EmployeeDetails open onClose={() => undefined} />;
+```
+
+Cuando el empleado activo tiene un usuario, se muestra la pestaña `Actualizar Usuario`; de lo contrario, se ofrece la pantalla de `Crear Usuario`. El componente obtiene el empleado actual del store de `useEmployeesStore`.
