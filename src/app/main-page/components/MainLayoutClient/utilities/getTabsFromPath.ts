@@ -103,6 +103,9 @@ export const getTabsFromPath = (
       { label: 'Crear Empleado', path: '/main-page/administration/usersmanagment/createemployee' },
       { label: 'Lista de Empleados', path: '/main-page/administration/usersmanagment/employeesList' },
     ],
+    'configuration': [
+      { label: 'Configuración', path: '/main-page/configuration/userconfiguration' },
+    ],
   };
 
   let tabs = tabsMap[key] || tabsMap[first] || [];

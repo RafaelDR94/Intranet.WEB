@@ -97,6 +97,7 @@ const useCreateEemployee = () => {
             department_id: values.departments,
             workposition_id: values.workposition,
             manager_id: values.manager,
+            gtstype: values.gtstype
         }
 
         // 4️⃣ Crear o actualizar
@@ -117,7 +118,7 @@ const useCreateEemployee = () => {
             disabled: false,
         });
         if (enterprisesList) {
-            const enterpriseSelected = enterprisesList.filter(enterprise => (enterprise.enterprise_id == idEnterprise));
+            const enterpriseSelected = enterprisesList?.filter(enterprise => (enterprise.enterprise_id == idEnterprise))||[];
             const departments = enterpriseSelected[0].departments;
             updateField(formId, 'departments', {
                 options: departments.map((deparments) => ({ label: deparments.name, value: deparments.department_id })),
@@ -152,12 +153,7 @@ const useCreateEemployee = () => {
                     value: currentEmployee?.secondname || "",
                     label: "Segundo nombre"
                 },
-                {
-                    type: "input",
-                    name: "employee_number",
-                    value: currentEmployee?.employee_number || "",
-                    label: "Numero de empleado"
-                },
+
 
 
                 {
@@ -175,12 +171,28 @@ const useCreateEemployee = () => {
                     validations: [{ type: 'required' }]
                 },
                 {
+                    type: "input",
+                    name: "employee_number",
+                    value: currentEmployee?.employee_number || "",
+                    label: "Numero de empleado",
+                    validations: [{ type: 'required' }]
+                },
+                {
                     type: "select",
                     name: "gender",
                     options: [{ value: "M", label: "Masculino" }, { value: "F", label: "Femenino" }],
                     value: currentEmployee?.gender || "",
                     label: "Género",
                     placeholder: 'Seleccione el género',
+                    validations: [{ type: 'required' }]
+                },
+                {
+                    type: "select",
+                    name: "gtstype",
+                    options: [{ value: "A", label: "Administrativo" }, { value: "O", label: "Operativo" }],
+                    value: currentEmployee?.gtstype || "",
+                    label: "Tipo de empleado",
+                    placeholder: 'Seleccione el tipo de empleadoo',
                     validations: [{ type: 'required' }]
                 },
                 {
@@ -191,9 +203,7 @@ const useCreateEemployee = () => {
                     value: currentEmployee?.department?.enterprise_id || "",
                     options: [],
                     validations: [{ type: 'required' }],
-                    onChange: async (value: string) => {
-                        completeSelect(value)
-                    }
+
                 },
 
                 {
@@ -249,8 +259,8 @@ const useCreateEemployee = () => {
                     type: "file",
                     name: "image_url",
                     label: "Imagen de perfil JPG/PNG",
-                    initialFile:{ name: "Imagen de perfil", url:  currentEmployee?.image_url },
-                    value:{ name: "Imagen de perfil", url:  currentEmployee?.image_url } ,
+                    initialFile: { name: "Imagen de perfil", url: currentEmployee?.image_url },
+                    value: { name: "Imagen de perfil", url: currentEmployee?.image_url },
                     accept: ".jpg,.png",
                     validations: [{ type: "required" }],
                 },
@@ -345,6 +355,9 @@ const useCreateEemployee = () => {
                     options: enterprisesList.map((enterprise) => ({ label: enterprise.name, value: enterprise.enterprise_id })),
                     value: currentEmployee?.department?.enterprise_id, // reset value
                     disabled: false,
+                    onChange: async (value: string) => {
+                        completeSelect(value)
+                    }
                 });
 
             }

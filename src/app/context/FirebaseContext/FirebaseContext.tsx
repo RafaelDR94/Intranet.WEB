@@ -10,7 +10,7 @@ import {
 import { getDatabase, Database } from "firebase/database";
 import { Messaging, getMessaging } from "firebase/messaging";
 import { getStorage, FirebaseStorage } from "firebase/storage";
-import React, { createContext, useState, ReactNode, useEffect, useCallback } from "react";
+import React, { createContext, useState, ReactNode, useEffect, useCallback, useRef } from "react";
 
 
 import useAxios from "../../hooks/useIntranetCRUD/useIntranetCRUD";
@@ -21,7 +21,7 @@ import {
   readFirebaseToken,
 } from "../AuthContext/utilities/AuthService";
 
-import useFirebaseMessagingHelper  from "./hooks/useFirebaseMessaginHelper";
+import useFirebaseMessagingHelper from "./hooks/useFirebaseMessaginHelper";
 import useFirebaseRealtimeHelper from "./hooks/useFirebaseRealTimeHelpet";
 import useFirebaseStorageHelper from "./hooks/useFirebaseStorageHelper";
 import Uselogs from "./hooks/uselogs";
@@ -36,6 +36,7 @@ export const FirebaseContext = createContext<UseFirebasereturn | undefined>(
 );
 
 export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
+  const hasFirebaseauth = useRef(false);
   const [app, setApp] = useState<FirebaseApp | null>(null);
   const [auth, setAuth] = useState<Auth | null>(null);
   const [storage, setStorage] = useState<FirebaseStorage | null>(null);
@@ -53,7 +54,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     database,
     user?.idUser || ""
   );
-   const state = useAuthStore()
+  const state = useAuthStore()
   useEffect(() => {
     if (permissionsChanged.state) {
       state.updateUserPermissions(permissionsChanged.newPermissions);
@@ -181,9 +182,10 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   }, [app]);
 
   useEffect(() => {
-    if (auth && user?.userName) {
+    if (auth && user?.userName && !hasFirebaseauth.current) {
       // authenticateWithEmailAndPassword(user?.userName, atob(firebaseConfiguration.paswordFirebase));
       authenticateWithEmailAndPasswordCb(user?.userName, "Dr123qwe");
+      hasFirebaseauth.current = true;
     }
   }, [auth, user, authenticateWithEmailAndPasswordCb]);
 

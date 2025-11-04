@@ -3,12 +3,13 @@ import type { UserType } from "../users/user.types";
 import type { WorkPositionType } from "../workposition/workposition.types";
 
 export type EmployeeType = {
-  id:string;
+  id: string;
   employee_id: string;
   employee_number: string;
   firstname: string;
   secondname: string;
   lastname: string;
+  gtstype?: string;
   motherlast_name: string | null;
   gender: string;
   email: string;
@@ -30,6 +31,7 @@ type BaseEmployeePayload = {
   lastname: string;
   motherlast_name: string;
   gender: string;
+  gtstype?: string;
   email?: string;
   phone_number?: string;
   extension?: string;
@@ -40,13 +42,14 @@ type BaseEmployeePayload = {
 };
 
 type BaseEmployeePayloadPut = {
-  employee_id:string;
+  employee_id: string;
   employee_number?: string;
   firstname: string;
   secondname: string;
   lastname: string;
   motherlast_name: string;
   gender: string;
+  gtstype?: string;
   email?: string;
   phone_number?: string;
   extension?: string;
