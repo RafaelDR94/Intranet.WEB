@@ -1,0 +1,19 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/Employees/CreateUser" />
+
+# CreateUser
+
+Formulario encapsulado para generar credenciales a un empleado sin usuario activo. Depende de `useCreateUser` para poblar campos y enviar la solicitud al backend.
+
+---
+
+## Uso rápido
+
+```tsx
+import CreateUser from './CreateUser';
+
+export const Panel = () => <CreateUser />;
+```
+
+Si no existe un empleado seleccionado, el componente muestra un mensaje guía. Una vez hay selección, renderiza un `DynamicForm` con submit condicionado a `formValid` y `canSubmit`.

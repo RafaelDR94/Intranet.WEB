@@ -1,0 +1,19 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/Employees/ShowDetails" />
+
+# ShowDetails
+
+Panel de lectura que muestra la ficha del colaborador seleccionado: foto, datos de contacto, departamento y controles para activar/desactivar el usuario asociado.
+
+---
+
+## Uso rápido
+
+```tsx
+import ShowDetails from './ShowDetails';
+
+export const Preview = () => <ShowDetails />;
+```
+
+El componente obtiene la información mediante `useShowDetails`, renderiza tarjetas informativas y delega la confirmación de cambio de estatus a un `PopUp`.

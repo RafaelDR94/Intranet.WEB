@@ -1,0 +1,32 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/Employees/ShowDetails/useShowDetails" />
+
+# useShowDetails
+
+Hook que construye el view-model para `ShowDetails`: agrupa datos formateados del empleado actual, controla el popup de confirmación y sincroniza cambios de estado con los stores.
+
+## API
+
+- `employee?: EmployeeType` – registro activo del store.
+- `hasEmployee: boolean` – permite ocultar la UI cuando no hay selección.
+- `initials`, `primaryNameLine`, `secondaryNameLine`, `companyName`, `position`, `employeeNumber`, `phoneNumber`, `email`, `departmentName` – datos listos para mostrar.
+- `confirmToggleOpen: boolean` – estado del `PopUp`.
+- `currentStatus`, `statusType`, `statusText`, `actionLabel` – derivados para etiquetas y botones.
+- `displayName`, `userId` – utilidades para acciones.
+- `openConfirmToggle()`, `closeConfirmToggle()` – manejadores para el diálogo.
+- `handleConfirmToggle()` – dispara `toggleActive` en el store de usuarios.
+
+## Ejemplo básico
+
+```tsx
+const {
+  hasEmployee,
+  companyName,
+  confirmToggleOpen,
+  openConfirmToggle,
+  handleConfirmToggle,
+} = useShowDetails();
+```
+
+El hook muestra spinners y alertas a través del `PrincipalContext` durante los cambios de estatus, actualizando el `employee` en el store local cuando la operación concluye con éxito.

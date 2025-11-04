@@ -1,0 +1,21 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="MAINPAGE/Administration/UsersManagement/CreateEmployee/Page" />
+
+# CreateEmployee
+
+Pantalla que envuelve el formulario dinámico para registrar o actualizar colaboradores. Se apoya en `useCreatEmployee` para cargar catálogos, poblar valores iniciales y manejar el envío.
+
+---
+
+## Uso rápido
+
+```tsx
+import CreateEmployee from './page';
+
+export default function Page() {
+  return <CreateEmployee />;
+}
+```
+
+El componente muestra un `FormsLayout` con el botón principal conectado al submit externo del `DynamicForm`. Mientras `canStart` es falso no se renderiza el formulario para evitar parpadeos durante la inicialización.

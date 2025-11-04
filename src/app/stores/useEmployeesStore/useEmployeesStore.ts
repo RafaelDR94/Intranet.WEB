@@ -5,54 +5,100 @@ import { devtools } from "zustand/middleware";
 import { createWithEqualityFn } from "zustand/traditional";
 
 import type { EmployeesState } from "./types";
-import { fetchEmployeeById } from "./utilities/fetchEmployeeById";
-import { fetchEmployees } from "./utilities/fetchEmployees";
+import {
+  activateEmployee as activateEmployeeRequest,
+  createEmployee as createEmployeeRequest,
+  deleteEmployee as deleteEmployeeRequest,
+  fetchActiveEmployees as fetchActiveEmployeesRequest,
+  fetchEmployeeById as fetchEmployeeByIdRequest,
+  fetchEmployees as fetchEmployeesRequest,
+  updateEmployee as updateEmployeeRequest,
+} from "./utilities";
+import { EmployeeType } from "@/app/mappings/employees/employee.types";
+
+const initialCollections: Pick<
+  EmployeesState,
+  "employees" | "activeEmployees" | "employee"
+> = {
+  employees: [],
+  activeEmployees: [],
+  employee: undefined,
+};
+
+const initialFlags: Pick<
+  EmployeesState,
+  | "loading"
+  | "loadingById"
+  | "loadingActive"
+  | "creating"
+  | "updating"
+  | "deleting"
+  | "activating"
+  | "successGet"
+  | "successGetById"
+  | "successGetActive"
+  | "successPost"
+  | "successPut"
+  | "successDelete"
+  | "successActivate"
+  | "error"
+  | "warning"
+> = {
+  loading: false,
+  loadingById: false,
+  loadingActive: false,
+  creating: false,
+  updating: false,
+  deleting: false,
+  activating: false,
+  successGet: false,
+  successGetById: false,
+  successGetActive: false,
+  successPost: false,
+  successPut: false,
+  successDelete: false,
+  successActivate: false,
+  error: undefined,
+  warning: undefined,
+};
 
 /**
  * Global Zustand store for employee catalog.
  *
- * Mantiene una lista de empleados obtenidos del API y expone utilidades
- * para refetch y limpieza de estado.
+ * Maintains employees listings, detail, and exposes mutations.
  */
 export const useEmployeesStore = createWithEqualityFn<EmployeesState>()(
   devtools((set, get) => ({
-    /** Lista de empleados mapeados */
-    employees: [],
-    /** Empleado obtenido puntualmente por id */
-    employee: undefined,
-    /** Indica peticion en curso (listado) */
-    loading: false,
-    /** Indica peticion en curso para detalle */
-    loadingById: false,
-    /** Mensaje de error si la peticion falla */
-    error: undefined,
+    ...initialCollections,
+    ...initialFlags,
 
-    /**
-     * Obtiene empleados del backend.
-     * @param force si `true` ignora el cache local
-     */
-    fetchEmployees: (force = false) => fetchEmployees(set, get, force),
-    /**
-     * Obtiene un empleado especifico por identificador.
-     * @param id identificador del empleado
-     * @param force si `true` ignora el cache local del empleado actual
-     */
+    fetchEmployees: (force = false) => fetchEmployeesRequest(set, get, force),
+    fetchActiveEmployees: (force = false) =>
+      fetchActiveEmployeesRequest(set, get, force),
     fetchEmployeeById: (id: string, force = false) =>
-      fetchEmployeeById(id, set, get, force),
-    /** Forza un refetch sin considerar cache */
+      fetchEmployeeByIdRequest(id, set, get, force),
+    createEmployee: (payload) => createEmployeeRequest(set, get, payload),
+    updateEmployee: (payload) => updateEmployeeRequest(set, get, payload),
+    deleteEmployee: (id: string) => deleteEmployeeRequest(set, get, id),
+    activateEmployee: (id: string) => activateEmployeeRequest(set, get, id),
     forceFetchEmployees: async () => {
-      await fetchEmployees(set, get, true);
+      await fetchEmployeesRequest(set, get, true);
     },
 
-    /** Restablece el estado a su valor inicial */
     reset: () =>
       set({
-        employees: [],
-        employee: undefined,
-        loading: false,
-        loadingById: false,
-        error: undefined,
+        ...initialCollections,
+        ...initialFlags,
       }),
+    resetFlags: () =>
+      set({
+        ...initialFlags,
+      }),
+    resetEmployee: () =>
+      set({ employee: undefined }),
+    setCurrentEmployee: (employee: EmployeeType) => {
+      set({ employee: employee })
+    },
   }))
 );
 
