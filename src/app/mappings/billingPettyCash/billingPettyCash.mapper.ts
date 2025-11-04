@@ -68,6 +68,7 @@ export const PettyCashVoucherMap = (raw: any): PettyCashVoucherData => ({
 
   xml: toString(raw?.xml),
   pdf: toString(raw?.pdf),
+  authorization_evidence: toString(raw?.authorization_evidence),
   date_created: toString(raw?.date_created),
   fund_date_created: toString(
     raw?.fund_date_created ??
@@ -133,6 +134,7 @@ export const PettyCashVoucherFullMap = (raw: any): PettyCashVoucherFull => ({
 
   xml: toString(raw?.xml),
   pdf: toString(raw?.pdf),
+  authorization_evidence: toString(raw?.authorization_evidence),
 
   // Campos extra del comprobante
   uuid: toString(raw?.uuid),
@@ -194,6 +196,7 @@ export const PostPettyCashVoucherMap = (src: any): PostPettyCashVoucher => ({
   project_id: toString(src?.project_id),
   xml: toString(src?.xml),
   pdf: toString(src?.pdf),
+  authorization_evidence: toString(src?.authorization_evidence),
 });
 
 export const PutPettyCashVoucherMap = (src: any): PutPettyCashVoucher => {
@@ -209,6 +212,7 @@ export const PutPettyCashVoucherMap = (src: any): PutPettyCashVoucher => {
     project_id: toString(src?.project_id),
     xml: toString(src?.xml),
     pdf: toString(src?.pdf),
+    authorization_evidence: toString(src?.authorization_evidence),
   };
 
   if (src?.total !== undefined && src?.total !== null) {

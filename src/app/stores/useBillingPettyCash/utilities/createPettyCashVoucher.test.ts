@@ -15,7 +15,7 @@ describe('createPettyCashVoucher', () => {
     const set: Set = (partial) => Object.assign(state, typeof partial === 'function' ? partial(state as BillingPettyCashState) : partial)
     const get: Get = () => state as BillingPettyCashState
 
-    const res = await createPettyCashVoucher(set, get, { petty_cash_funds_id: '1', employee_id: '1', voucher_type: 't', application_date: 'd', concept: 'c', amount: '0', comments: '', project_id: 'p', xml: '', pdf: '' })
+    const res = await createPettyCashVoucher(set, get, { petty_cash_funds_id: '1', employee_id: '1', voucher_type: 't', application_date: 'd', concept: 'c', amount: '0', comments: '', project_id: 'p', xml: '', pdf: '', authorization_evidence: '' })
     expect(res).toEqual({ id: '1' })
     expect(state.creating).toBe(false)
     expect(state.successPostVoucher).toBe(true)
