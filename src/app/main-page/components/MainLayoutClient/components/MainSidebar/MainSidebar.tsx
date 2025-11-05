@@ -18,7 +18,8 @@ import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
 import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
 import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
 import LogoDr from '@/assets/images/LogosDR/DReDIT.png';
-
+import ConfigurationLogo from '@/assets/icons/System/System/settings.svg'
+import { useRouter } from 'next/navigation';
 
 
 export const MainSidebar: React.FC<MainSidebarProps> = ({
@@ -32,6 +33,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
   routes,
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const router = useRouter();
 
   return (
     <aside className={sidebar} data-testid="sidebar">
@@ -76,7 +78,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
                 )}
               </div>
             ) : (
-              <Link   data-testid={`side:${route.path}`}  key={route.path} href={route.path} className={link}>
+              <Link data-testid={`side:${route.path}`} key={route.path} href={route.path} className={link}>
                 <Icon />
                 <span>{route.label}</span>
               </Link>
@@ -105,14 +107,27 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
           <p className="font-semibold text-s2 py-2">{getShortenedName(userFullName ?? '')}</p>
         </div>
         <div className="flex flex-col space-y-1 ">
-          <Link
 
+
+
+          <button
+            className="flex items-center gap-2 text-b3  font-regular hover:bg-blue-90  py-1 rounded"
+            onClick={() => { router.push('/main-page/configuration') }}
+            data-testid="sidebar-logout"
+          >
+            <ConfigurationLogo />
+            Configuración
+          </button>
+          <Link
             href="https://drsecurity.atlassian.net/servicedesk/customer/portals"
             className="flex items-center gap-2 text-b3  font-regular hover:bg-blue-90  py-1 rounded"
           >
             <HelpIcon />
             Ayuda
           </Link>
+
+
+
           <button
             className="flex items-center gap-2 text-b3  font-regular hover:bg-blue-90  py-1 rounded"
             onClick={async () => {
