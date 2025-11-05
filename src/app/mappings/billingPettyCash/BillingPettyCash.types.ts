@@ -184,6 +184,7 @@ export type PettyCashVoucherFull = {
   iva: number;
   total: number;
   conceptos: PettyCashVoucherConcept[];
+  isauthorization_evidence_rejected: boolean;
 };
 
 export type GetPettyCashVoucherFullById = {

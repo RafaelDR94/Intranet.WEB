@@ -7,6 +7,7 @@ type Props = {
   defaultOpen?: boolean;
   storageKey?: string; // guarda estado en localStorage si lo pasas
   className?: string;
+  titleWidth?: string | number; // ← nueva prop opcional
 };
 
 export default function CollapsibleSection({
@@ -15,6 +16,7 @@ export default function CollapsibleSection({
   defaultOpen = true,
   storageKey,
   className = "",
+  titleWidth = "200px",
 }: Props) {
   const [open, setOpen] = React.useState<boolean>(defaultOpen);
 
@@ -59,7 +61,7 @@ export default function CollapsibleSection({
             />
           </svg>
 
-        <span className="text-b4 text-blue-60 font-medium w-[200px]"> {title} </span>
+        <span className="text-b4 text-blue-60 font-medium" style={{ width: titleWidth }}> {title} </span>
         <span className="w-full h-[1px] bg-blue-60"></span>
       </button>
 

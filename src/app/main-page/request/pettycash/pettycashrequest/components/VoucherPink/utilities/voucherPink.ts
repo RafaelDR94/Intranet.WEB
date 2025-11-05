@@ -148,20 +148,6 @@ export const createInitialFields = (
   },
   {
     type: "file",
-    name: "authorization_evidence",
-    label: "Evidencia de autorización",
-    value: dataEdit?.authorization_evidence
-      ? { name: "Evidencia de autorización", url: dataEdit.authorization_evidence }
-      : null,
-    initialFile: dataEdit?.authorization_evidence
-      ? { name: dataEdit.authorization_evidence, url: dataEdit.authorization_evidence }
-      : undefined,
-    accept: ".png,.jpg,.jpeg",
-    className: "max-w-[300px]",
-    validations: [],
-  },
-  {
-    type: "file",
     name: "xml",
     label: "Documento XML",
     value: dataEdit?.xml
@@ -185,6 +171,20 @@ export const createInitialFields = (
       ? { name: dataEdit.pdf, url: dataEdit.pdf }
       : undefined,
     accept: ".pdf",
+    className: "max-w-[300px]",
+    validations: [],
+  },
+  {
+    type: "file",
+    name: "authorization_evidence",
+    label: "Evidencia de autorización",
+    value: dataEdit?.authorization_evidence
+      ? { name: "Evidencia de autorización", url: dataEdit.authorization_evidence }
+      : null,
+    initialFile: dataEdit?.authorization_evidence
+      ? { name: dataEdit.authorization_evidence, url: dataEdit.authorization_evidence }
+      : undefined,
+    accept: ".png,.jpg,.jpeg",
     className: "max-w-[300px]",
     validations: [],
   },

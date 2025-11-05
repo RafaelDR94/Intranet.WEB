@@ -12,6 +12,7 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type { PettyCashVoucherData } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 
 const READ_ONLY_FIELDS: string[] = [
   "monto",
@@ -57,6 +58,9 @@ const SideMenu = ({
 }: SideMenuProps) => {
   const submitRef = useRef<() => void | Promise<void>>(null);
   const { user } = useAuth();
+
+  console.log('selected uno', selected);
+  
 
   const { amountRaw, amountNumeric } = useMemo<{
     amountRaw: string | number | undefined;
@@ -181,7 +185,8 @@ const SideMenu = ({
     normalizedStatus === "factura rechazada";
 
   const shouldDisableFormInteractions = !isEditableStatus;
-
+  console.log('selected ', selected);
+  
   return (
     <DetailsPanelLayout
       open={panelOpen}
@@ -193,6 +198,15 @@ const SideMenu = ({
             <Label
               type={selected.statusLabelType}
               text={(selected?.status ?? "").toUpperCase()}
+            />
+          )}
+          {selected?.authorization_evidence && (
+            <Button
+              size="xsmall"
+              variant="ghost"
+              icon={ImageIcon}
+              disabled={!selected.authorization_evidence}
+              onClick={() => window.open(selected.authorization_evidence!, "_blank")}
             />
           )}
           {selected?.xml && (
@@ -322,8 +336,8 @@ const SideMenu = ({
                   mode="edit"
                   responsiveLayoutMatrix={{
                     sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                    md: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                    lg: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    md: [[10], [10], [10], [10], [5, 5], [10]],
+                    lg: [[10], [10], [10], [10], [5, 5], [10]],
                   }}
                   dataEdit={voucherDataEdit}
                   startDisabled={shouldDisableFormInteractions}
