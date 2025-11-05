@@ -9,6 +9,7 @@ import {
   DeletePettyCashFund,
   DeletePettyCashVoucherId,
   PutPettyCashRejectId,
+  PutPettyCashRejectAuthorizationEvidence,
   PutPettyCashValidateId,
   PutBillingsInvoiceReject,
   PettyCashVoucherFull,
@@ -236,6 +237,13 @@ export const DeletePettyCashVoucherIdMap = (src: any): DeletePettyCashVoucherId 
 export const PutPettyCashRejectIdMap = (src: any): PutPettyCashRejectId => ({
   id: toString(src?.id),
   comments: toString(src?.comments),
+});
+
+export const PutPettyCashRejectAuthorizationEvidenceMap = (
+  src: any,
+): PutPettyCashRejectAuthorizationEvidence => ({
+  id: toString(src?.id),
+  comment: toString(src?.comment),
 });
 
 export const PutPettyCashValidateIdMap = (src: any): PutPettyCashValidateId => ({

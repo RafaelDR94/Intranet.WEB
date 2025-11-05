@@ -174,6 +174,7 @@ const ControlTable = () => {
     formatDate,
     handleValidate,
     handleReject,
+    handleRejectAuthorizationEvidence,
     handleRejectInvoice,
     validating,
     rejecting,
@@ -314,6 +315,7 @@ const ControlTable = () => {
         onValidate={handleValidate}
         isValidating={validating}
         onReject={handleReject}
+        onRejectAuthorizationEvidence={handleRejectAuthorizationEvidence}
         onRejectInvoice={handleRejectInvoice}
         isRejecting={rejecting}
         isEditingAmount={isEditing}
