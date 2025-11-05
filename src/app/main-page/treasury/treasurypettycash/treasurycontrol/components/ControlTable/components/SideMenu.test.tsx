@@ -103,6 +103,7 @@ describe('Treasury Control SideMenu', () => {
     formatMoney,
     onValidate: vi.fn(),
     onReject: vi.fn(),
+    onRejectAuthorizationEvidence: vi.fn(),
     onEditModeChange: vi.fn(),
     onSaveAmount: vi.fn(),
     isValidating: false,
@@ -125,7 +126,7 @@ describe('Treasury Control SideMenu', () => {
 
     expect(screen.queryByText('Rechazar Vale')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByText('Rechazar'));
+    fireEvent.click(screen.getByTestId('reject-voucher-button'));
 
     expect(screen.getByText('Rechazar Vale')).toBeInTheDocument();
 
@@ -143,6 +144,52 @@ describe('Treasury Control SideMenu', () => {
 
     expect(onReject).toHaveBeenCalledWith(baseProps.selected, 'Falta información');
     expect(screen.queryByText('Rechazar Vale')).not.toBeInTheDocument();
+  });
+
+  it('opens the evidence rejection modal and trims the submitted comment', () => {
+    const onRejectAuthorizationEvidence = vi.fn();
+    render(
+      <SideMenu
+        {...baseProps}
+        onRejectAuthorizationEvidence={onRejectAuthorizationEvidence}
+        detail={{
+          id: '1',
+          employeename: 'Colaborador',
+          status: 'Pendiente',
+          voucher_type: 'Vale rosa',
+          application_date: '2025-09-30',
+          concept: 'Concepto',
+          amount: 150,
+          total: 150,
+          authorization_evidence: 'https://example.com/evidence.jpg',
+          petty_cash_funds: {
+            id: 'fund-1',
+            year_month: '2025-09',
+            assigned_amount: 0,
+            verified_amount: 0,
+            cash_on_hand: 0,
+            unverified_amount: 0,
+            pending_verification: 0,
+            available_amount: 0,
+          },
+          project: { id: 'project-1', name: 'Proyecto', proyectkey: 'PRJ' },
+        } as any}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('reject-evidence-button'));
+
+    expect(screen.getByText('Rechazar evidencia')).toBeInTheDocument();
+
+    const textarea = screen.getByPlaceholderText('Escribir comentario');
+    fireEvent.change(textarea, { target: { value: '   Comentario de evidencia   ' } });
+
+    fireEvent.click(screen.getByText('Enviar Comentario'));
+
+    expect(onRejectAuthorizationEvidence).toHaveBeenCalledWith(
+      expect.objectContaining({ id: '1' }),
+      'Comentario de evidencia',
+    );
   });
 
   it('toggles the editing flow and saves a new amount for valid vouchers', async () => {

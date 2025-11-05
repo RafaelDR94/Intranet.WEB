@@ -138,6 +138,11 @@ export type PutPettyCashValidateId = {
   id: string;
 };
 
+export type PutPettyCashRejectAuthorizationEvidence = {
+  id: string;
+  comment: string;
+};
+
 export type PutBillingsInvoiceReject = {
   id: string;
   comments: string;
