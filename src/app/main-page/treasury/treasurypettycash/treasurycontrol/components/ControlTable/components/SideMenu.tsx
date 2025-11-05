@@ -99,6 +99,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   formatMoney,
   onValidate,
   onReject,
+  onRejectAuthorizationEvidence,
   isValidating = false,
   isRejecting = false,
   isEditingAmount = false,
@@ -110,6 +111,9 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
 }) => {
   const [voucherRejectModalOpen, setVoucherRejectModalOpen] =
     React.useState(false);
+  const [rejectTarget, setRejectTarget] = React.useState<'voucher' | 'evidence'>(
+    'voucher',
+  );
   const [voucherRejectComment, setVoucherRejectComment] = React.useState("");
   const [voucherRejectError, setVoucherRejectError] = React.useState<
     string | null
@@ -150,6 +154,13 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const pdfUrl = detail?.pdf || "";
   const amount = detail?.amount ?? selected?.amount;
   const authorizationEvidenceUrl = detail?.authorization_evidence || "";
+
+  const isEvidenceRejection = rejectTarget === 'evidence';
+  const rejectionModalTitle = isEvidenceRejection ? 'Rechazar evidencia' : 'Rechazar Vale';
+  const rejectionModalContent = isEvidenceRejection
+    ? 'Deja aquí un comentario para notificar el motivo del rechazo de la evidencia de autorización.'
+    : 'Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su vale.';
+  const rejectionPrimaryLabel = isRejecting ? 'Rechazando…' : 'Enviar Comentario';
 
   const isAlreadyValid = isVoucherValid(status);
   const invoiceRejected = isInvoiceRejected(status);
@@ -210,6 +221,15 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     if (!selected || isDetailLoading || !onReject) return;
     setVoucherRejectComment("");
     setVoucherRejectError(null);
+    setRejectTarget('voucher');
+    setVoucherRejectModalOpen(true);
+  };
+
+  const handleOpenEvidenceRejectModal = () => {
+    if (!selected || isDetailLoading || !onRejectAuthorizationEvidence) return;
+    setVoucherRejectComment("");
+    setVoucherRejectError(null);
+    setRejectTarget('evidence');
     setVoucherRejectModalOpen(true);
   };
 
@@ -217,10 +237,11 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     setVoucherRejectModalOpen(false);
     setVoucherRejectComment("");
     setVoucherRejectError(null);
+    setRejectTarget('voucher');
   };
 
   const handleVoucherRejectSubmit = () => {
-    if (!selected || !onReject || isRejecting) return;
+    if (!selected || isRejecting) return;
 
     const trimmed = voucherRejectComment.trim();
     if (!trimmed) {
@@ -228,10 +249,17 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       return;
     }
 
-    onReject(selected, trimmed);
+    if (rejectTarget === 'evidence') {
+      if (onRejectAuthorizationEvidence) {
+        onRejectAuthorizationEvidence(selected, trimmed);
+      }
+    } else if (onReject) {
+      onReject(selected, trimmed);
+    }
     setVoucherRejectModalOpen(false);
     setVoucherRejectComment("");
     setVoucherRejectError(null);
+    setRejectTarget('voucher');
   };
 
   const handleVoucherCommentChange: React.ChangeEventHandler<
@@ -332,13 +360,13 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       <PopUp
         open={voucherRejectModalOpen}
         onClose={handleCloseVoucherRejectModal}
-        title="Rechazar Vale"
-        content="Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su vale."
+        title={rejectionModalTitle}
+        content={rejectionModalContent}
         showSecondaryButton
         secondaryButtonText="Cancelar"
         onSecondaryButtonClick={handleCloseVoucherRejectModal}
         showPrimaryButton
-        primaryButtonText={isRejecting ? "Rechazando…" : "Enviar Comentario"}
+        primaryButtonText={rejectionPrimaryLabel}
         onPrimaryButtonClick={handleVoucherRejectSubmit}
       >
         <Input
@@ -434,6 +462,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                 variant="outline"
                 hideIcon
                 disabled={disableActions}
+                data-testid="reject-voucher-button"
                 onClick={() => {
                   if (!disableActions) handleOpenVoucherRejectModal();
                 }}
@@ -490,6 +519,11 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                         size="medium"
                         variant="outline"
                         hideIcon
+                        data-testid="reject-evidence-button"
+                        disabled={disableActions || !onRejectAuthorizationEvidence}
+                        onClick={() => {
+                          if (!disableActions) handleOpenEvidenceRejectModal();
+                        }}
                       >
                         Rechazar
                       </Button>

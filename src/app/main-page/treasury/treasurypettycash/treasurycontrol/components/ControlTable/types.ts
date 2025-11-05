@@ -76,6 +76,13 @@ export type ControlSideMenuProps = {
     options?: { skipSuccessAlert?: boolean },
   ) => Promise<boolean> | boolean | void;
   /**
+   * Callback executed when the authorization evidence is rejected.
+   */
+  onRejectAuthorizationEvidence?: (
+    row: ControlRow | null,
+    comments: string,
+  ) => Promise<boolean> | boolean | void;
+  /**
    * Callback executed when the reviewer rejects the billing invoice associated with the voucher.
    */
   onRejectInvoice?: (
