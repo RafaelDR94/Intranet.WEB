@@ -96,17 +96,18 @@ const VoucherPink: React.FC<VoucherFormProps> = ({
         disabled={disableForm}
         responsiveLayoutMatrix={
           responsiveLayoutMatrix ?? {
-            sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+            sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10], [10]],
             md: [
               [10],
               [5, 5],
               [5.5, 5.5],
-              [5, 5],
+              [5, 5], [5, 5],
             ],
             lg: [
               [10],
               [3.3, 3.3, 3.3],
               [3.3, 3.3, 3.3],
+              [10]
             ],
           }
         }

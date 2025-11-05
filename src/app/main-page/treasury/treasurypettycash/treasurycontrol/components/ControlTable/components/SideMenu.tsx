@@ -11,6 +11,9 @@ import Label from "@/app/components/Label/Label";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
+import CollapsibleSection from "../../ControlCards/components/CollapsibleSection/CollapsibleSection";
+import Image from "next/image";
 
 const toValidNumber = (value: unknown): number | undefined =>
   typeof value === "number" && !Number.isNaN(value) ? value : undefined;
@@ -129,9 +132,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       return bTime - aTime;
     });
   }, [amountHistory]);
-  
-
-  
 
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
@@ -149,6 +149,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const xmlUrl = detail?.xml || "";
   const pdfUrl = detail?.pdf || "";
   const amount = detail?.amount ?? selected?.amount;
+  const authorizationEvidenceUrl = detail?.authorization_evidence || "";
 
   const isAlreadyValid = isVoucherValid(status);
   const invoiceRejected = isInvoiceRejected(status);
@@ -382,6 +383,15 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
             {showMinimalSinFactura && status ? (
               <Label type="sin-factura" text={status} />
             ) : null}
+            {authorizationEvidenceUrl ? (
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={ImageIcon}
+                disabled={!authorizationEvidenceUrl}
+                onClick={() => window.open(authorizationEvidenceUrl, "_blank")}
+              />
+            ) : null}
             {xmlUrl ? (
               <Button
                 size="xsmall"
@@ -465,6 +475,28 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
             ) : (
               // VISTA COMPLETA (estatus distinto de "sin factura")
               <>
+                <CollapsibleSection title="Evidencia de autorización de vale" titleWidth="600px">
+                  <>
+                    <Image
+                      src={authorizationEvidenceUrl}
+                      width={200}
+                      height={200}
+                      alt="Imagen de autorización"
+                      className="h-[auto] w-[auto]"
+                    ></Image>
+                    <div className="flex justify-end">
+                      <Button
+                        className="mt-3 mb-3"
+                        size="medium"
+                        variant="outline"
+                        hideIcon
+                      >
+                        Rechazar
+                      </Button>
+                    </div>
+                  </>
+                </CollapsibleSection>
+
                 {uuid ? (
                   <div className="text-gray-90 text-s1 font-semibold">
                     {uuid}
@@ -596,10 +628,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <p className="text-gray-90 text-b4 font-medium">
-                        MONTO SOLICITADO:{" "}
-                        <span>
-                          {amount}
-                        </span>
+                        MONTO SOLICITADO: <span>{amount}</span>
                       </p>
                       {isHistoryLoading ? (
                         <span className="text-gray-70 text-b5">Cargando…</span>
