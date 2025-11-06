@@ -20,6 +20,7 @@ import TicketBlue from "@/assets/svgs/ticket-blue.svg";
 import TicketGreen from "@/assets/svgs/ticket-green.svg";
 import TicketPink from "@/assets/svgs/ticket-pink.svg";
 import TicketYellow from "@/assets/svgs/ticket-yellow.svg";
+import { useBreakpoint } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 // utilidades
 const parseDateString = (value?: string | null): Date | null => {
@@ -55,7 +56,7 @@ const getMostRecentFund = (funds: PettyCashFundData[]): PettyCashFundData | null
 
 const ControlCards = () => {
   const isGatewayReady = useIntranetGatewayStore((state) => state.isReady);
-
+  const { isMobile, isTablet } = useBreakpoint();
   const {
     pettyCashFunds,
     fetchPettyCashFunds,
@@ -131,8 +132,8 @@ const ControlCards = () => {
       defaultOpen={true}
       className="mb-4"
     >
-      <div className="flex justify-between">
-        <div className="w-[36%] h-[250px]">
+      <div className={`flex justify-between ${isMobile || isTablet ? "flex-col" : ""}`}>
+        <div className={`w-[36%] h-[250px] ${isMobile || isTablet ? "w-full mb-2" : ""}`}>
           <Summary
             date={summaryDate ?? null}
             assigned={assignedAmount}

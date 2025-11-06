@@ -44,8 +44,8 @@ export default function CollapsibleSection({
       >
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="8"
+            width="20"
+            height="14"
             viewBox="0 0 14 8"
             fill="none"
             className={`transition-transform duration-200 ${

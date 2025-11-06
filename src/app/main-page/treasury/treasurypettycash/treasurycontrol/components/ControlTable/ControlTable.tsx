@@ -186,9 +186,6 @@ const ControlTable = () => {
     isAmountHistoryLoading,
   } = useControlTable();
 
-
-  
-
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
 
@@ -202,7 +199,7 @@ const ControlTable = () => {
       {
         key: "amount",
         label: "MTO. SOL.",
-        render: (row) => <span>${(row.amount)}</span>,
+        render: (row) => <span>${row.amount}</span>,
       },
       {
         key: "applicationDate",
@@ -343,7 +340,7 @@ const ControlTable = () => {
             handleFilterChange(value);
             refreshData();
           }}
-          textSize={{ mobile: 'c2', desktop: 'text-d3' }}
+          textSize={{ mobile: "text-d3", tablet: "text-d3", desktop: "text-d3" }}
           tables={[
             {
               data: rows,

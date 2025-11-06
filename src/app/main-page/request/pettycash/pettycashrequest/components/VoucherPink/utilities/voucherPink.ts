@@ -186,6 +186,6 @@ export const createInitialFields = (
       : undefined,
     accept: ".png,.jpg,.jpeg",
     className: "max-w-[300px]",
-    validations: [],
+    validations: [{ type: "required" }],
   },
 ];

@@ -109,11 +109,13 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   amountHistory = [],
   isHistoryLoading = false,
 }) => {
+  console.log("Rendering SideMenu with detail ", detail);
+
   const [voucherRejectModalOpen, setVoucherRejectModalOpen] =
     React.useState(false);
-  const [rejectTarget, setRejectTarget] = React.useState<'voucher' | 'evidence'>(
-    'voucher',
-  );
+  const [rejectTarget, setRejectTarget] = React.useState<
+    "voucher" | "evidence"
+  >("voucher");
   const [voucherRejectComment, setVoucherRejectComment] = React.useState("");
   const [voucherRejectError, setVoucherRejectError] = React.useState<
     string | null
@@ -154,13 +156,18 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const pdfUrl = detail?.pdf || "";
   const amount = detail?.amount ?? selected?.amount;
   const authorizationEvidenceUrl = detail?.authorization_evidence || "";
+  // const isAuthorizationRejected = detail?.isauthorization_evidence_rejected;
 
-  const isEvidenceRejection = rejectTarget === 'evidence';
-  const rejectionModalTitle = isEvidenceRejection ? 'Rechazar evidencia' : 'Rechazar Vale';
+  const isEvidenceRejection = rejectTarget === "evidence";
+  const rejectionModalTitle = isEvidenceRejection
+    ? "Rechazar Evidencia"
+    : "Rechazar Vale";
   const rejectionModalContent = isEvidenceRejection
-    ? 'Deja aquí un comentario para notificar el motivo del rechazo de la evidencia de autorización.'
-    : 'Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su vale.';
-  const rejectionPrimaryLabel = isRejecting ? 'Rechazando…' : 'Enviar Comentario';
+    ? "Deja aquí un comentario para que tu compañero sepa la razón del rechazo de la evidencia"
+    : "Deja aquí un comentario para que tu compañero sepa la razón del rechazo de la evidencia";
+  const rejectionPrimaryLabel = isRejecting
+    ? "Rechazando…"
+    : "Enviar Comentario";
 
   const isAlreadyValid = isVoucherValid(status);
   const invoiceRejected = isInvoiceRejected(status);
@@ -221,23 +228,23 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     if (!selected || isDetailLoading || !onReject) return;
     setVoucherRejectComment("");
     setVoucherRejectError(null);
-    setRejectTarget('voucher');
+    setRejectTarget("voucher");
     setVoucherRejectModalOpen(true);
   };
 
-  const handleOpenEvidenceRejectModal = () => {
-    if (!selected || isDetailLoading || !onRejectAuthorizationEvidence) return;
-    setVoucherRejectComment("");
-    setVoucherRejectError(null);
-    setRejectTarget('evidence');
-    setVoucherRejectModalOpen(true);
-  };
+  // const handleOpenEvidenceRejectModal = () => {
+  //   if (!selected || isDetailLoading || !onRejectAuthorizationEvidence) return;
+  //   setVoucherRejectComment("");
+  //   setVoucherRejectError(null);
+  //   setRejectTarget("evidence");
+  //   setVoucherRejectModalOpen(true);
+  // };
 
   const handleCloseVoucherRejectModal = () => {
     setVoucherRejectModalOpen(false);
     setVoucherRejectComment("");
     setVoucherRejectError(null);
-    setRejectTarget('voucher');
+    setRejectTarget("voucher");
   };
 
   const handleVoucherRejectSubmit = () => {
@@ -249,7 +256,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       return;
     }
 
-    if (rejectTarget === 'evidence') {
+    if (rejectTarget === "evidence") {
       if (onRejectAuthorizationEvidence) {
         onRejectAuthorizationEvidence(selected, trimmed);
       }
@@ -259,7 +266,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     setVoucherRejectModalOpen(false);
     setVoucherRejectComment("");
     setVoucherRejectError(null);
-    setRejectTarget('voucher');
+    setRejectTarget("voucher");
   };
 
   const handleVoucherCommentChange: React.ChangeEventHandler<
@@ -482,6 +489,36 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
             {/* VISTA MÍNIMA CUANDO EL ESTATUS ES "SIN FACTURA" */}
             {showMinimalSinFactura ? (
               <div className="space-y-3" data-testid="minimal-sin-factura">
+                <CollapsibleSection
+                  title="Evidencia de autorización de vale"
+                  titleWidth="600px"
+                  defaultOpen={false}
+                >
+                  <>
+                    <Image
+                      src={authorizationEvidenceUrl}
+                      width={200}
+                      height={300}
+                      alt="Imagen de autorización"
+                      className="h-full w-full object-contain"
+                    ></Image>
+                    <div className="flex justify-end">
+                      <Button
+                        className="mt-3 mb-3"
+                        size="medium"
+                        variant="outline"
+                        hideIcon
+                        data-testid="reject-evidence-button"
+                        disabled={disableActions}
+                        onClick={() => {
+                          if (!disableActions) handleOpenVoucherRejectModal();
+                        }}
+                      >
+                        Rechazar
+                      </Button>
+                    </div>
+                  </>
+                </CollapsibleSection>
                 <div className="text-gray-90 text-b4 font-medium">
                   Fecha:&nbsp;
                   <span className="text-gray-90 text-b3 font-regular">
@@ -504,14 +541,18 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
             ) : (
               // VISTA COMPLETA (estatus distinto de "sin factura")
               <>
-                <CollapsibleSection title="Evidencia de autorización de vale" titleWidth="600px">
+                <CollapsibleSection
+                  title="Evidencia de autorización de vale"
+                  titleWidth="600px"
+                  defaultOpen={false}
+                >
                   <>
                     <Image
                       src={authorizationEvidenceUrl}
                       width={200}
-                      height={200}
+                      height={300}
                       alt="Imagen de autorización"
-                      className="h-[auto] w-[auto]"
+                      className="h-full w-full object-contain"
                     ></Image>
                     <div className="flex justify-end">
                       <Button
@@ -520,9 +561,9 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                         variant="outline"
                         hideIcon
                         data-testid="reject-evidence-button"
-                        disabled={disableActions || !onRejectAuthorizationEvidence}
+                        disabled={disableActions}
                         onClick={() => {
-                          if (!disableActions) handleOpenEvidenceRejectModal();
+                          if (!disableActions) handleOpenVoucherRejectModal();
                         }}
                       >
                         Rechazar
@@ -530,7 +571,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                     </div>
                   </>
                 </CollapsibleSection>
-
                 {uuid ? (
                   <div className="text-gray-90 text-s1 font-semibold">
                     {uuid}
