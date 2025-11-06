@@ -10,9 +10,11 @@ export type ActionMenuCellBaseProps<T> = {
   /** Fila actual (se reenvia como argumento de los callbacks). */
   row: T;
   /** Callback cuando se elige la opcion de ver/editar. */
-  onEdit: (row: T) => void;
+  onEdit?: (row: T) => void;
   /** Callback cuando se elige la opcion de cancelar/eliminar. */
-  onDelete: (row: T) => void;
+  onDelete?: (row: T) => void;
+
+  onDetails?: (row: T) => void;
 };
 
 /** Props internas con permisos resueltos e indicador de vista mobile. */

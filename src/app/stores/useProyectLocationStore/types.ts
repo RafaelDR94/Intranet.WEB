@@ -9,10 +9,10 @@ export type ProyectLocationState = {
   lastLocationId: string | null;
   loadingLocations: boolean;
   loadingDevices: boolean;
-  loadingAllDevices: boolean;
+  loadingAllDevices: boolean; 
   error?: string;
-  fetchLocations: (proyectId: string, force?: boolean) => Promise<void>;
-  fetchDevicesByLocation: (locationId: string, force?: boolean) => Promise<void>;
+  fetchLocations: (proyectId: string, force?: boolean)   => Promise<ProyectLocationType[] | null | undefined>
+  fetchDevicesByLocation: (locationId: string, force?: boolean)  => Promise<void>
   fetchAllDevices: (force?: boolean) => Promise<void>;
   reset: () => void;
   resetFlags: () => void;

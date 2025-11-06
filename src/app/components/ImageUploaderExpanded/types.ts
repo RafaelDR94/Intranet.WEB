@@ -32,4 +32,6 @@ export interface ImageUploaderExpandedProps {
   initialFile?: InitialFile;
   /** Testing id. */
   dataTestId?: string;
+  /** Modo de vista previa: muestra la imagen seleccionada con opción para cambiar. */
+  preview?: boolean;
 }

@@ -29,3 +29,18 @@ export const separatorClasses = 'text-sm text-gray-60';
 export const helperTextClasses = 'text-sm text-gray-70';
 
 export const buttonWrapperClasses = 'mt-4';
+
+// Preview mode styles
+export const previewWrapperClasses = clsx(
+  dropzoneBaseClasses,
+  dropzoneIdleClasses,
+  'relative overflow-hidden'
+);
+export const previewImageClasses = clsx(
+  'max-h-[360px] w-full object-contain rounded-md',
+  'bg-white'
+);
+export const previewActionsClasses = 'mt-4 flex justify-center';
+export const previewCancelButtonClasses = clsx(
+  'absolute top-3 right-3'
+);

@@ -7,6 +7,7 @@ import CameraIcon from '@/assets/icons/Fotos y Videos/camera.svg';
 import { Button } from '@/app/components/Button/Button';
 import { labelClasses } from '@/app/components/Input/styles';
 import { CameraViewer } from '@/app/components/CameraViewer/CameraViewer';
+import CloseIcon from '@/assets/icons/acciones/cancel.svg';
 
 import { useImageUploaderExpanded } from './hooks/useImageUploaderExpanded';
 import {
@@ -20,6 +21,10 @@ import {
   dropzoneIdleClasses,
   helperTextClasses,
   separatorClasses,
+  previewWrapperClasses,
+  previewImageClasses,
+  previewActionsClasses,
+  previewCancelButtonClasses,
 } from './styles';
 import { ImageUploaderExpandedProps } from './types';
 
@@ -47,7 +52,9 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
   cameraButtonAriaLabel = 'Abrir camara',
   initialFile,
   dataTestId,
+  preview = false,
 }) => {
+  const [isChanging, setIsChanging] = React.useState(false);
   const {
     inputRef,
     handleButtonClick,
@@ -62,6 +69,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     openCamera,
     closeCamera,
     handleCaptureFromCamera,
+    previewUrl,
   } = useImageUploaderExpanded({
     onImage,
     accept,
@@ -69,6 +77,9 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     placeholder,
     initialFile,
   });
+
+  // Mantener modo "cambiar" hasta que el usuario seleccione/capture otra imagen.
+  // Se cerrará explícitamente en los handlers (input, drop, camera).
 
   const dropzoneClasses = clsx(
     className || dropzoneBaseClasses,
@@ -79,56 +90,101 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
 
   const { capture: captureLabel, switchCamera, close } = cameraLabels ?? {};
 
+  const isPreviewVisible = preview && !!previewUrl && !isChanging;
+
   return (
     <div className={containerClasses} ref={containerRef} data-testid={dataTestId}>
       {label && <label className={labelClasses()}>{label}</label>}
 
-      <div
-        className={dropzoneClasses}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <button
-          type="button"
-          className={cameraButtonClasses}
-          onClick={openCamera}
-          disabled={disabled}
-          aria-label={cameraButtonAriaLabel}
-        >
-          <CameraIcon className={cameraIconClasses} />
-        </button>
+      {isPreviewVisible ? (
+        <div className={previewWrapperClasses}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={previewUrl ?? ''} alt="Vista previa" className={previewImageClasses} />
 
-        <span className={separatorClasses}>o</span>
-        <p className={helperTextClasses}>{displayText}</p>
-
-        <input
-          type="file"
-          accept={accept}
-          ref={inputRef}
-          onChange={handleChange}
-          className="hidden"
-          disabled={disabled}
-        />
-
-        <div className={buttonWrapperClasses}>
-          <Button
-            type="button"
-            variant="outline"
-            hideIcon
-            onClick={handleButtonClick}
-            disabled={disabled}
-            className="px-8"
-          >
-            {buttonLabel}
-          </Button>
+          <div className={previewActionsClasses}>
+            <Button
+              type="button"
+              variant="outline"
+              hideIcon
+              onClick={() => setIsChanging(true)}
+              disabled={disabled}
+              className="px-8"
+            >
+              Cambiar imagen
+            </Button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div
+          className={dropzoneClasses}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => {
+            handleDrop(e);
+            if (preview) setIsChanging(false);
+          }}
+        >
+          {/* Botón cancelar cuando estamos en modo cambio dentro de preview */}
+          {preview && isChanging && (
+            <div className={previewCancelButtonClasses}>
+              <Button
+                variant="ghost"
+                size="small"
+                iconOnly
+                aria-label="Cancelar cambio de imagen"
+                icon={() => <CloseIcon className="h-6 w-6" />}
+                onClick={() => setIsChanging(false)}
+              />
+            </div>
+          )}
+
+          <button
+            type="button"
+            className={cameraButtonClasses}
+            onClick={openCamera}
+            disabled={disabled}
+            aria-label={cameraButtonAriaLabel}
+          >
+            <CameraIcon className={cameraIconClasses} />
+          </button>
+
+          <span className={separatorClasses}>o</span>
+          <p className={helperTextClasses}>{displayText}</p>
+
+          <input
+            type="file"
+            accept={accept}
+            ref={inputRef}
+            onChange={(e) => {
+              handleChange(e);
+              if (preview) setIsChanging(false);
+            }}
+            className="hidden"
+            disabled={disabled}
+          />
+
+          <div className={buttonWrapperClasses}>
+            <Button
+              type="button"
+              variant="outline"
+              hideIcon
+              onClick={handleButtonClick}
+              disabled={disabled}
+              className="px-8"
+            >
+              {buttonLabel}
+            </Button>
+          </div>
+        </div>
+      )}
 
       <CameraViewer
         isOpen={isCameraOpen}
         onClose={closeCamera}
-        onCapture={handleCaptureFromCamera}
+        onCapture={(file) => {
+          handleCaptureFromCamera(file);
+          if (preview) setIsChanging(false);
+        }}
         defaultFacingMode={defaultFacingMode}
         captureButtonLabel={captureLabel ?? 'Capturar'}
         switchButtonLabel={switchCamera ?? 'Cambiar camara'}

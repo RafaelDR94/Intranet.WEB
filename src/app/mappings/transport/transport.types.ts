@@ -4,9 +4,54 @@
     "model": string,
     "UnitType": string,
     "plates": string
-
-
 }
+
+
+export type PostExternalTransport = {
+    "plates": string,
+    "brand": string,
+    "model": string,
+    "year": string,
+    "insurance_policy": string,
+    "insurance_policy_vigency": string,
+    "circulation_card": string,
+    "circulation_card_vigency": string,
+    "serial_number": string,
+    "engine_number": string,
+    "plates_image": string,
+    "circulation_card_image": string,
+    "frontal_image": string,
+    "right_lateral_image": string,
+    "left_lateral_image": string,
+    "rear_image": string
+    "insurance_policy_doc": string,
+}
+
+
+
+export type PutExternalTransport = {
+    "transport_id": string,
+    "plates": string,
+    "brand": string,
+    "model": string,
+    "year": string,
+    "insurance_policy": string,
+    "insurance_policy_vigency": string,
+    "circulation_card": string,
+    "circulation_card_vigency": string,
+    "serial_number": string,
+    "engine_number": string,
+    "plates_image": string,
+    "circulation_card_image": string,
+    "frontal_image": string,
+    "right_lateral_image": string,
+    "left_lateral_image": string,
+    "rear_image": string
+    "insurance_policy_doc": string,
+}
+
+
+
 export type CompleteTransport = {
     "transport_id": string,
     "brand": string,
@@ -21,7 +66,17 @@ export type CompleteTransport = {
     "circulation_card": string,
     "tag_pass": string,
     "year": string,
-    "economic_number": string
+    "economic_number": string,
+    
+    "insurance_policy_vigency"?: string,
+    "circulation_card_vigency"?: string,
+    "plates_image"?: string,
+    "circulation_card_image"?: string,
+    "frontal_image"?: string,
+    "right_lateral_image"?: string,
+    "left_lateral_image"?: string,
+    "rear_image"?: string,
+    "insurance_policy_doc"?: string,
 }
 
 export type TransportStatus = {
@@ -34,7 +89,27 @@ export type TransportPost = {
     "brand": string,
     "model": string,
     "UnitType": string,
-    "plates": string
+    "plates": string,
+    // Campos complementarios desde CompleteTransport (opcionales)
+    "unit_yype"?: string,
+    "engine_number"?: string,
+    "serial_number"?: string,
+    "insurance_policy"?: string,
+    "fuel_card"?: string,
+    "key_copy"?: number,
+    "circulation_card"?: string,
+    "tag_pass"?: string,
+    "year"?: string,
+    "economic_number"?: string,
+    "insurance_policy_vigency"?: string,
+    "circulation_card_vigency"?: string,
+    "plates_image"?: string,
+    "circulation_card_image"?: string,
+    "frontal_image"?: string,
+    "right_lateral_image"?: string,
+    "left_lateral_image"?: string,
+    "rear_image"?: string,
+    "insurance_policy_doc"?: string,
 }
 
 export type TransportPut = {
@@ -42,7 +117,27 @@ export type TransportPut = {
     "brand": string,
     "model": string,
     "UnitType": string,
-    "plates": string
+    "plates": string,
+    // Campos complementarios desde CompleteTransport (opcionales)
+    "unit_yype"?: string,
+    "engine_number"?: string,
+    "serial_number"?: string,
+    "insurance_policy"?: string,
+    "fuel_card"?: string,
+    "key_copy"?: number,
+    "circulation_card"?: string,
+    "tag_pass"?: string,
+    "year"?: string,
+    "economic_number"?: string,
+    "insurance_policy_vigency"?: string,
+    "circulation_card_vigency"?: string,
+    "plates_image"?: string,
+    "circulation_card_image"?: string,
+    "frontal_image"?: string,
+    "right_lateral_image"?: string,
+    "left_lateral_image"?: string,
+    "rear_image"?: string,
+    "insurance_policy_doc"?: string,
 }
 
 export type VehicleTraking = {
@@ -106,8 +201,8 @@ export type TransportAssignament = {
     "departure_date": string,
     "arrival_date": string,
     "destination": string,
-    "signature_leader": string |null,
-    "signature_employee": string |null
+    "signature_leader": string | null,
+    "signature_employee": string | null
     vehicletrackinglist?: VehicleTraking[]
 }
 

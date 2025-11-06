@@ -44,6 +44,8 @@ class ReportsDatabase extends Dexie {
   }
 }
 
-export const db = new MyAppDatabase();
-export const reportsdb = new  ReportsDatabase();
-export const lastuserremebered= new  LastUserRemebered();
+const isClient = typeof window !== 'undefined' && !!(window as any).indexedDB;
+
+export const db = isClient ? new MyAppDatabase() : (null as unknown as MyAppDatabase);
+export const reportsdb = isClient ? new ReportsDatabase() : (null as unknown as ReportsDatabase);
+export const lastuserremebered = isClient ? new LastUserRemebered() : (null as unknown as LastUserRemebered);

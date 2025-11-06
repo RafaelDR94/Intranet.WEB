@@ -6,6 +6,7 @@ import CheckBoxList from "../../CheckBoxList/CheckBoxList";
 import type { CheckBoxListOption } from "../../CheckBoxList/types";
 import { ControlLevel } from "../../ControlLevel/ControlLevel";
 import { FileUploader } from "../../FileUploader/FileUploader";
+import ImageUploaderExpanded from "../../ImageUploaderExpanded/ImageUploaderExpanded";
 import { Input } from "../../Input/Input";
 import { helperClasses } from "../../Input/styles";
 import type { InputVariant } from "../../Input/types.tsx";
@@ -138,6 +139,31 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             icon={field.icon}
             initialFile={field.initialFile}
             dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
+          />
+          {helperText && (
+            <span className={helperClasses(variant as InputVariant)}>
+              {helperText}
+            </span>
+          )}
+        </div>
+      );
+    case "imageUploaderExpanded":
+      return (
+        <div className={fieldRendererStyles.fileWrapper}>
+          <ImageUploaderExpanded
+            label={field.label}
+            placeholder={field.placeholder}
+            onImage={handleChange}
+            disabled={field.disabled}
+            className={field.className}
+            defaultFacingMode={field.defaultFacingMode}
+            accept={field.accept || "image/*"}
+            buttonLabel={field.buttonLabel}
+            cameraLabels={field.cameraLabels}
+            cameraButtonAriaLabel={field.cameraButtonAriaLabel}
+            initialFile={field.initialFile}
+            dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
+            preview={field.preview}
           />
           {helperText && (
             <span className={helperClasses(variant as InputVariant)}>

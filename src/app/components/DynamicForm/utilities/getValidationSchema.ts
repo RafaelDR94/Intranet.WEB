@@ -31,7 +31,7 @@ export const getValidationSchema = (fields: FieldModel[]) => {
           }
         });
         acc[field.name] = schema;
-      } else if (field.type === 'file') {
+      } else if (field.type === 'file' || field.type === 'imageUploaderExpanded') {
         let schema = Yup.mixed().nullable();
         field.validations?.forEach((rule) => {
           if (rule.type === 'required') {

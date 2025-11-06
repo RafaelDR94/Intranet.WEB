@@ -38,10 +38,12 @@ export const fetchLocationsByProyect = async (
       lastProyectId: trimmed,
       loadingLocations: false,
     });
+    return mapped
   } catch (error) {
     set({
       loadingLocations: false,
       error: normalizeApiError(error).message,
     });
+    return null
   }
 };
