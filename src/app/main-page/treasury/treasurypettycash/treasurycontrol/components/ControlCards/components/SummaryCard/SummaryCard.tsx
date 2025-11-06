@@ -5,6 +5,7 @@ import { Input } from "@/app/components/Input/Input";
 import Ellipse from "@/assets/icons/acciones/Ellipse.svg";
 import VectorDown from "@/assets/icons/acciones/VectorDown.svg";
 import VectorUp from "@/assets/icons/acciones/VectorUp.svg";
+import { useBreakpoint } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 /** Pequeño ícono de lápiz inline para evitar dependencias */
 const PencilIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -77,7 +78,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
   onEditSubmit,
 }) => {
   const palette = PALETTE[accent] ?? PALETTE.green;
-
+  const { isMobile, isTablet } = useBreakpoint();
   const amountNum =
     typeof amount === "number"
       ? amount
@@ -123,8 +124,8 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
   return (
     <article
       className={cx(
-        "relative overflow-hidden rounded-lg bg-white-70 shadow-sm transition-shadow",
-        "mb-2 ml-4 h-[120px] w-[380px]",
+        `relative overflow-hidden rounded-lg bg-white-70 shadow-sm transition-shadow`,
+        `mb-${isMobile || isTablet ? '1' : '2'} ml-${isMobile || isTablet ? '1' : '4'} h-[120px] w-[380px]`,
         className,
       )}
       role="region"

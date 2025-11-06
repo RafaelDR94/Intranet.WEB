@@ -138,6 +138,7 @@ export const createInitialFields = (
     type: "file",
     name: "authorization_evidence",
     label: "Evidencia de autorización",
+    placeholder: "Sube la evidencia de autorización",
     value: dataEdit?.authorization_evidence
       ? { name: "Evidencia de autorización", url: dataEdit.authorization_evidence }
       : null,
@@ -146,6 +147,6 @@ export const createInitialFields = (
       : undefined,
     accept: ".png,.jpg,.jpeg",
     className: "max-w-[300px]",
-    validations: [],
+    validations: [{ type: "required" }],
   },
 ];

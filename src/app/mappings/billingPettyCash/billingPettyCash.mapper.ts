@@ -70,6 +70,7 @@ export const PettyCashVoucherMap = (raw: any): PettyCashVoucherData => ({
   xml: toString(raw?.xml),
   pdf: toString(raw?.pdf),
   authorization_evidence: toString(raw?.authorization_evidence),
+  isauthorization_evidence_rejected: (raw?.isauthorization_evidence_rejected) ?? false,
   date_created: toString(raw?.date_created),
   fund_date_created: toString(
     raw?.fund_date_created ??
@@ -136,7 +137,7 @@ export const PettyCashVoucherFullMap = (raw: any): PettyCashVoucherFull => ({
   xml: toString(raw?.xml),
   pdf: toString(raw?.pdf),
   authorization_evidence: toString(raw?.authorization_evidence),
-
+  isauthorization_evidence_rejected: (raw?.isauthorization_evidence_rejected) ?? false,
   // Campos extra del comprobante
   uuid: toString(raw?.uuid),
   rfc_emisor: toString(raw?.rfc_emisor),

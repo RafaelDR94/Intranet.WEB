@@ -105,6 +105,9 @@ const SideMenu = ({
 
     const detailMatchesSelection =
       detail && detail.id === selected.id ? detail : null;
+
+      console.log('detailMatchesSelection ', detailMatchesSelection);
+      
     
     return {
       id: detailMatchesSelection?.id ?? selected.id,
@@ -134,6 +137,7 @@ const SideMenu = ({
         amountRaw ??
         "",
       total: amountNumeric,
+      authorization_evidence: detailMatchesSelection?.authorization_evidence ?? selected.authorization_evidence ?? "",
     } satisfies PettyCashVoucherData;
   }, [amountNumeric, amountRaw, detail, selected]);
 
@@ -185,7 +189,6 @@ const SideMenu = ({
     normalizedStatus === "factura rechazada";
 
   const shouldDisableFormInteractions = !isEditableStatus;
-  console.log('selected ', selected);
   
   return (
     <DetailsPanelLayout

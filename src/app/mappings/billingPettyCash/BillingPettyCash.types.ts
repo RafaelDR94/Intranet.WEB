@@ -68,6 +68,7 @@ export type PettyCashVoucherData = {
   xml: string;
   pdf: string;
   authorization_evidence?: string;
+  isauthorization_evidence_rejected?: boolean;
   date_created?: string;
   fund_date_created?: string;
   /** Nombre del colaborador asociado al vale (si está disponible). */

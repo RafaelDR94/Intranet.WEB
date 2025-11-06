@@ -307,7 +307,7 @@ const usePettyCashHistory = () => {
           iva: typeof v.iva === "number" && !Number.isNaN(v.iva) ? v.iva : 0,
           employeeName: v.employeename ?? "",
           authorization_evidence: v.authorization_evidence,
-          isauthorization_evidence_rejected: v.isauthorization_evidence_rejected,
+          isauthorization_evidence_rejected: v.isauthorization_evidence_rejected, 
         } satisfies PettyCashHistoryRow;
       }),
     [vouchersFull],
