@@ -19,7 +19,7 @@ const dynamicFormMock = vi.hoisted(() => {
 });
 
 type MockAuthState = {
-  user: { email?: string } | null;
+  user: { email?: string; password?: string } | null;
   changePassword: typeof mockChangePassword;
   successChangePassword: boolean;
   error?: string;
@@ -53,7 +53,7 @@ vi.mock("@/app/components/DynamicForm/DynamicForm", () => ({
 describe("User configuration password card", () => {
   beforeEach(() => {
     mockState = {
-      user: { email: "user@test.com" },
+      user: { email: "user@test.com", password: "ClaveSecreta1" },
       changePassword: mockChangePassword,
       successChangePassword: false,
       error: undefined,
@@ -76,7 +76,17 @@ describe("User configuration password card", () => {
   it("envía el payload correcto cuando las contraseñas coinciden", async () => {
     render(<Password />);
 
+    expect(screen.getByText(/contraseña actual/i)).toBeInTheDocument();
+    expect(dynamicFormMock).not.toHaveBeenCalled();
+
     fireEvent.click(screen.getByRole("button", { name: /cambiar contraseña/i }));
+
+    expect(dynamicFormMock).toHaveBeenCalledTimes(1);
+
+    const submitButton = await screen.findByRole("button", {
+      name: /guardar contraseña/i,
+    });
+    fireEvent.click(submitButton);
 
     expect(mockWithLoading).toHaveBeenCalledTimes(1);
     expect(mockChangePassword).toHaveBeenCalledWith({
@@ -87,7 +97,7 @@ describe("User configuration password card", () => {
     expect(mockShowAlert).not.toHaveBeenCalled();
   });
 
-  it("muestra una alerta cuando las contraseñas no coinciden", () => {
+  it("muestra una alerta cuando las contraseñas no coinciden", async () => {
     formValues = {
       newPassword: "Seguro123",
       confirmPassword: "OtraClave",
@@ -96,18 +106,26 @@ describe("User configuration password card", () => {
     render(<Password />);
 
     fireEvent.click(screen.getByRole("button", { name: /cambiar contraseña/i }));
+    const submitButton = await screen.findByRole("button", {
+      name: /guardar contraseña/i,
+    });
+    fireEvent.click(submitButton);
 
     expect(mockShowAlert).toHaveBeenCalled();
     expect(mockChangePassword).not.toHaveBeenCalled();
     expect(mockWithLoading).not.toHaveBeenCalled();
   });
 
-  it("muestra una alerta si no existe email disponible", () => {
+  it("muestra una alerta si no existe email disponible", async () => {
     mockState.user = null;
 
     render(<Password />);
 
     fireEvent.click(screen.getByRole("button", { name: /cambiar contraseña/i }));
+    const submitButton = await screen.findByRole("button", {
+      name: /guardar contraseña/i,
+    });
+    fireEvent.click(submitButton);
 
     expect(mockShowAlert).toHaveBeenCalled();
     expect(mockChangePassword).not.toHaveBeenCalled();
@@ -116,7 +134,9 @@ describe("User configuration password card", () => {
   it("reinicia el formulario cuando la operación es exitosa", () => {
     const { rerender } = render(<Password />);
 
-    expect(dynamicFormMock).toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: /cambiar contraseña/i }));
+
+    expect(dynamicFormMock).toHaveBeenCalledTimes(1);
     const initialProps = dynamicFormMock.mock.calls[0][0];
     expect(initialProps.valuesVersion).toBe(0);
 
@@ -128,6 +148,10 @@ describe("User configuration password card", () => {
 
     expect(mockShowAlert).toHaveBeenCalled();
     expect(mockResetFlags).toHaveBeenCalled();
+
+    expect(screen.getByRole("button", { name: /cambiar contraseña/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /cambiar contraseña/i }));
 
     const lastProps = dynamicFormMock.mock.calls.at(-1)?.[0];
     expect(lastProps?.valuesVersion).toBeGreaterThan(0);
