@@ -60,6 +60,8 @@ describe("User configuration signature card", () => {
     const lastCall = signatureComponentMock.mock.calls.at(-1)?.[0];
     expect(lastCall?.open).toBe(true);
     expect(lastCall?.responsibleGuid).toBe("99");
+    expect(lastCall?.skipAuthorization).toBe(true);
+    expect(lastCall?.fullScreenPad).toBe(true);
   });
 
   it("actualiza la vista previa cuando se recibe una nueva firma", () => {
