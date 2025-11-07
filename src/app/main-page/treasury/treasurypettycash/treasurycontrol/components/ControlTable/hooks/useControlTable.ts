@@ -147,6 +147,7 @@ export const useControlTable = () => {
     fetchPettyCashVoucherAmountHistory,
     updatePettyCashVoucherAmount,
     validatePettyCashVoucher,
+    rejectAuthorizationEvidence,
     rejectPettyCashVoucher,
     rejectBillingInvoice,
     resetFlags,
@@ -168,6 +169,7 @@ export const useControlTable = () => {
       fetchPettyCashVoucherAmountHistory: state.fetchPettyCashVoucherAmountHistory,
       updatePettyCashVoucherAmount: state.updatePettyCashVoucherAmount,
       validatePettyCashVoucher: state.validatePettyCashVoucher,
+      rejectAuthorizationEvidence: state.rejectAuthorizationEvidence,
       rejectPettyCashVoucher: state.rejectPettyCashVoucher,
       rejectBillingInvoice: state.rejectBillingInvoice,
       resetFlags: state.resetFlags,
@@ -346,6 +348,8 @@ export const useControlTable = () => {
     setEditOpen(openEditPanel);
     setDetailOpen(!openEditPanel);
     const detail = await fetchPettyCashVoucherById(row.id, true);
+    console.log('detail aquiiiii', detail);
+    
     if (!detail) {
       showAlert({
         type: 'error',
@@ -613,6 +617,74 @@ export const useControlTable = () => {
     }
   };
 
+  const handleRejectAuthorizationEvidence = async (
+    row: ControlRow | null,
+    comments: string,
+  ): Promise<boolean> => {
+    const target = row ?? selectedRow;
+    if (!target) return false;
+
+    const trimmedComment = comments.trim();
+    if (!trimmedComment) {
+      showAlert({
+        type: 'warning',
+        variant: 'filled',
+        title: 'Comentario requerido',
+        description: 'Agrega un comentario para rechazar la evidencia de autorización.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      resetFlags();
+      return false;
+    }
+
+    showSpinner({ message: 'Rechazando evidencia de autorización…' });
+    const ok = await rejectAuthorizationEvidence({ id: target.id, comment: trimmedComment });
+    const selectedId = selectedRow?.id;
+    const panelOpen = detailOpen;
+
+    if (ok) {
+      await Promise.all([fetchPettyCashVouchers(true), fetchPettyCashFunds(true)]);
+
+      if (panelOpen && selectedId === target.id) {
+        setDetailLoading(true);
+        try {
+          const detail = await fetchPettyCashVoucherById(target.id, true);
+          setDetailData(detail);
+        } finally {
+          setDetailLoading(false);
+        }
+      }
+
+      hideSpinner();
+      showAlert({
+        type: 'warning',
+        variant: 'filled',
+        title: 'Evidencia rechazada',
+        description: 'La evidencia de autorización se rechazó correctamente.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2000,
+        onClose: hideAlert,
+      });
+      return true;
+    }
+
+    hideSpinner();
+    showAlert({
+      type: 'error',
+      variant: 'filled',
+      title: 'No se pudo rechazar la evidencia',
+      description: 'Intenta de nuevo en unos segundos.',
+      showPrimaryButton: true,
+      primaryLabel: 'Entendido',
+      onPrimaryClick: hideAlert,
+    });
+    resetFlags();
+    return false;
+  };
+
   const handleRejectInvoice = async (
     row: ControlRow | null,
     comments: string,
@@ -671,6 +743,8 @@ export const useControlTable = () => {
         setDetailLoading(true);
         try {
           const detail = await fetchPettyCashVoucherById(target.id, true);
+          console.log('detail ', detail);
+          
           setDetailData(detail);
         } finally {
           setDetailLoading(false);
@@ -748,6 +822,9 @@ export const useControlTable = () => {
     }
   };
 
+  console.log('detailData ', detailData);
+  
+
   return {
     rows,
     handleSearchChange,
@@ -772,6 +849,7 @@ export const useControlTable = () => {
     handleValidate,
     handleReject,
     handleRejectInvoice,
+    handleRejectAuthorizationEvidence,
     validating,
     rejecting,
     isEditing: isEditingAmount,

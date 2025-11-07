@@ -1,14 +1,19 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
-import { DataTable } from '@/app/components/DataTable/DataTable';
-import type { ColumnDefinition } from '@/app/components/DataTable/types';
-import useVehicleRegistryList from './hooks/useVehicleRegistryList';
-import type { VehicleRegistryRow } from './types';
-import Label from '@/app/components/Label/Label';
-import { Button } from '@/app/components/Button/Button';
-import RegistDetails from './components/RegistDetails.tsx/RegistDetails';
+import { DataTable } from "@/app/components/DataTable/DataTable";
+import type { ColumnDefinition } from "@/app/components/DataTable/types";
+import useVehicleRegistryList from "./hooks/useVehicleRegistryList";
+import type { VehicleRegistryRow } from "./types";
+import Label from "@/app/components/Label/Label";
+import { Button } from "@/app/components/Button/Button";
+import RegistDetails from "./components/RegistDetails.tsx/RegistDetails";
+import { useBreakpoint } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import logInIcon from "@/assets/icons/System/System/log-in.svg";
+import moreIcons from "@/assets/icons/navegacion/more-vert.svg";
+import moreMenu from "@/assets/icons/navegacion/more-horiz.svg";
+
 const VehicleRegistryList = () => {
   const {
     inTransitRows,
@@ -19,134 +24,263 @@ const VehicleRegistryList = () => {
     searchableKeys,
     handleCloseDetails,
     openDetailsPanel,
-    handleOpenDetails
+    handleOpenDetails,
   } = useVehicleRegistryList();
 
-  const transitcolumns = useMemo<ColumnDefinition<VehicleRegistryRow>[]>(
+  const { isMobile, isTablet } = useBreakpoint();
+
+  /**
+   * 🔹 Columnas base para tránsito
+   */
+  const allTransitColumns = useMemo<ColumnDefinition<VehicleRegistryRow>[]>(
     () => [
-      { key: 'departureDate', label: 'SALIDA', headerClass: "w-1/12", cellClass: "w-1/12" },
-      { key: 'departureTime', label: 'HORA SALIDA', headerClass: "w-1/12", cellClass: "w-1/12" },
-      { key: 'vehicle', label: 'VEHICULO', headerClass: "w-3/12", cellClass: "w-3/12" },
-      { key: 'plates', label: 'PLACA', headerClass: "w-1/10", cellClass: "w-1/10" },
-      { key: 'driver', label: 'CONDUCTOR', headerClass: "w-4/12", cellClass: "w-4/12" },
+      {
+        key: "departureDate",
+        label: "SALIDA",
+      },
+      {
+        key: "departureTime",
+        label: "HORA SALIDA",
+      },
+      {
+        key: "vehicle",
+        label: "VEHICULO",
+      },
+      {
+        key: "plates",
+        label: "PLACA",
+      },
+      {
+        key: "driver",
+        label: "CONDUCTOR",
+      },
       {
         key: "status",
         label: "ESTATUS",
-        headerClass: "w-1/13", cellClass: "w-1/12",
-        render: (row) => (
-          <Label
-            type={"invalido"}
-            text={row.status}
-          />
-        ),
-      },
-      { key: 'departureSort', label: 'ORDER', invisible: true },
 
+        render: (row) => <Label type={"invalido"} text={row.status} />,
+      },
+      { key: "departureSort", label: "ORDER", invisible: true },
       {
-        key: 'regist' as unknown as keyof VehicleRegistryRow,
-        headerClass: "w-1/14", cellClass: "w-1/14",
-        label: 'REGISTRAR',
+        key: "regist" as unknown as keyof VehicleRegistryRow,
+
+        label: "REGISTRAR",
         render: (row) => (
           <Button
             size="small"
             variant="solid"
             hideIcon
-            onClick={() => {
-              handleArrive(row.assignment);
-            }}
+            onClick={() => handleArrive(row.assignment)}
           >
             Llegada
           </Button>
         ),
       },
-
       {
-        key: 'more' as unknown as keyof VehicleRegistryRow,
-        label: '',
-        headerClass: "w-1/14", cellClass: "w-1/14",
-        render: (row) => (
+        key: "more" as unknown as keyof VehicleRegistryRow,
+        label: "",
 
+        render: (row) => (
           <Button
             size="small"
             variant="ghost"
             hideIcon
-            onClick={() => {
-              handleOpenDetails(row.assignment);
-            }}
+            onClick={() => handleOpenDetails(row.assignment)}
           >
             Ver Más
           </Button>
-
-
         ),
       },
     ],
-    []
+    [handleArrive, handleOpenDetails],
   );
 
-  const columns = useMemo<ColumnDefinition<VehicleRegistryRow>[]>(
+  /**
+   * 🔹 Columnas base para registros (otros)
+   */
+  const allColumns = useMemo<ColumnDefinition<VehicleRegistryRow>[]>(
     () => [
-      { key: 'departureDate', label: 'SALIDA', headerClass: "w-1/12", cellClass: "w-1/12" },
-      { key: 'departureTime', label: 'HORA SALIDA', headerClass: "w-1/12", cellClass: "w-1/12" },
-      { key: 'arrivalDate', label: 'LLEGADA', headerClass: "w-1/12", cellClass: "w-1/12" },
-      { key: 'arrivalTime', label: 'HORA LLEGADA', headerClass: "w-1/12", cellClass: "w-1/12" },
-      { key: 'vehicle', label: 'VEHICULO', headerClass: "w-4/12", cellClass: "w-4/12" },
-      { key: 'plates', label: 'PLACA', headerClass: "w-1/10", cellClass: "w-1/10" },
-      { key: 'driver', label: 'CONDUCTOR', headerClass: "w-3/12", cellClass: "w-3/12" },
+      {
+        key: "departureDate",
+        label: "SALIDA",
+      },
+      {
+        key: "departureTime",
+        label: "HORA SALIDA",
+      },
+      {
+        key: "arrivalDate",
+        label: "LLEGADA",
+      },
+      {
+        key: "arrivalTime",
+        label: "HORA LLEGADA",
+      },
+      {
+        key: "vehicle",
+        label: "VEHICULO",
+      },
+      {
+        key: "plates",
+        label: "PLACA",
+      },
+      {
+        key: "driver",
+        label: "CONDUCTOR",
+      },
       {
         key: "status",
         label: "ESTATUS",
-        headerClass: "w-1/13", cellClass: "w-1/13",
-        render: (row) => (
-          <Label
-            type={"valido"}
-            text={row.status}
-          />
-        ),
-      },
-      { key: 'departureSort', label: 'ORDER', invisible: true },
-      {
-        key: 'more' as unknown as keyof VehicleRegistryRow,
-        label: '',
-        headerClass: "w-1/14", cellClass: "w-1/14",
-        render: (row) => (
 
+        render: (row) => <Label type={"valido"} text={row.status} />,
+      },
+      { key: "departureSort", label: "ORDER", invisible: true },
+      {
+        key: "more" as unknown as keyof VehicleRegistryRow,
+        label: "",
+
+        render: (row) => (
           <Button
             size="small"
             variant="ghost"
             hideIcon
-            onClick={() => {
-              handleOpenDetails(row.assignment);
-            }}
+            onClick={() => handleOpenDetails(row.assignment)}
           >
             Ver Más
           </Button>
-
-
         ),
       },
     ],
-    []
+    [handleOpenDetails],
   );
+
+  /**
+   * 🔸 Filtrado dinámico de columnas según dispositivo
+   */
+  const transitcolumns = useMemo(() => {
+    if (isMobile) {
+      return allTransitColumns
+        .filter((c) =>
+          [
+            "departureDate",
+            "departureTime",
+            "plates",
+            "status",
+            "regist",
+            "more",
+          ].includes(c.key as string),
+        )
+        .map((c) => ({
+          ...c,
+
+          render:
+            c.key as string === "regist"
+              ? (row: any) => (
+                  <Button
+                    size="small"
+                    variant="ghost"
+                    icon={logInIcon}
+                    onClick={() => handleArrive(row.assignment)}
+                  ></Button>
+                )
+              : c.key as string === "more"
+                ? (row : any) => (
+                    <Button
+                      size="small"
+                      variant="ghost"
+                      icon={moreIcons}
+                      onClick={() => handleOpenDetails(row.assignment)}
+                    ></Button>
+                  )
+                : c.render,
+        }));
+    }
+
+    if (isTablet) {
+      return allTransitColumns.filter((c) =>
+        [
+          "departureDate",
+          "departureTime",
+          "plates",
+          "vehicle",
+          "driver",
+          "status",
+          "more",
+          "regist",
+        ].includes(c.key as string),
+      );
+    }
+
+    // Default desktop
+    return allTransitColumns;
+  }, [isMobile, isTablet, allTransitColumns, handleArrive, handleOpenDetails]);
+
+  const columns = useMemo(() => {
+    if (isMobile) {
+      return allColumns
+        .filter((c) =>
+          [
+            "departureDate",
+            "departureTime",
+            "plates",
+            "status",
+            "more",
+          ].includes(c.key as string),
+        )
+        .map((c) => ({
+          ...c,
+
+          render:
+            c.key as string === "more"
+              ? (row: any) => (
+                  <Button
+                    size="small"
+                    variant="ghost"
+                    icon={moreMenu}
+                    className="ml-5"
+                    onClick={() => handleOpenDetails(row.assignment)}
+                  ></Button>
+                )
+              : c.render,
+        }));
+    }
+
+    if (isTablet) {
+      return allColumns.filter((c) =>
+        [
+          "departureDate",
+          "departureTime",
+          "arrivalDate",
+          "vehicle",
+          "status",
+          "more",
+        ].includes(c.key as string),
+      );
+    }
+
+    // Default desktop
+    return allColumns;
+  }, [isMobile, isTablet, allColumns, handleOpenDetails]);
 
   return (
     <div className="flex flex-col gap-10">
       <DataTable<VehicleRegistryRow>
         tables={[
           {
-            title: 'Registro Vehicular en Transito',
+            title: "Registro Vehicular en Transito",
             columns: transitcolumns,
             data: inTransitRows,
             enableCollaps: true,
             enableSelection: false,
-            defaultSortKey: 'departureSort',
-            defaultSortDirection: 'desc',
+            defaultSortKey: "departureSort",
+            defaultSortDirection: "desc",
           },
         ]}
+        textSize={{ mobile: "text-d3", tablet: "text-d3", desktop: "text-c2" }}
         enableInternalSearch
         searchableKeys={searchableKeys}
-        showCalendar={true}
-        dateKey={"departureDate"}
+        showCalendar
+        dateKey="departureDate"
         showFilter={false}
         showButton={false}
         showRefresh
@@ -158,19 +292,20 @@ const VehicleRegistryList = () => {
       <DataTable<VehicleRegistryRow>
         tables={[
           {
-            title: 'Registro Vehicular',
+            title: "Registro Vehicular",
             columns,
             data: otherRows,
             enableCollaps: true,
             enableSelection: false,
-            defaultSortKey: 'departureSort',
-            defaultSortDirection: 'desc',
+            defaultSortKey: "departureSort",
+            defaultSortDirection: "desc",
           },
         ]}
         enableInternalSearch
+        textSize={{ mobile: "text-d3", tablet: "text-d3", desktop: "text-c2" }}
         searchableKeys={searchableKeys}
-        showCalendar={true}
-        dateKey={"departureDate"}
+        showCalendar
+        dateKey="departureDate"
         showFilter={false}
         showRefresh
         onRefreshPage={handleRefresh}
@@ -179,11 +314,8 @@ const VehicleRegistryList = () => {
         rowsPerPage={5}
         dataTableTitle="Registro Vehicular"
       />
-      <RegistDetails onClose={() => { handleCloseDetails() }} open={openDetailsPanel} />
-      {/* 
-      {loading && inTransitRows.length === 0 && otherRows.length === 0 ? (
-        <span className="text-sm text-gray-500">Cargando registros...</span>
-      ) : null} */}
+
+      <RegistDetails onClose={handleCloseDetails} open={openDetailsPanel} />
     </div>
   );
 };
