@@ -3,8 +3,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
+import { Button } from "@/app/components/Button/Button";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import type { FieldModel } from "@/app/components/DynamicForm/types";
+import { Input } from "@/app/components/Input/Input";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
@@ -32,6 +34,7 @@ const BASE_FIELDS: FieldModel[] = [
 
 const Password = () => {
   const [valuesVersion, setValuesVersion] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
 
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { withLoading } = usePrincipalLoading;
@@ -39,6 +42,7 @@ const Password = () => {
 
   const {
     email,
+    currentPassword,
     changePassword,
     successChangePassword,
     error,
@@ -46,6 +50,7 @@ const Password = () => {
   } = useAuthStore(
     (state) => ({
       email: state.user?.email ?? "",
+      currentPassword: state.user?.password ?? "",
       changePassword: state.changePassword,
       successChangePassword: state.successChangePassword,
       error: state.error,
@@ -115,6 +120,14 @@ const Password = () => {
     [changePassword, email, showAlert, withLoading]
   );
 
+  const displayPassword = useMemo(() => {
+    if (currentPassword && currentPassword.trim().length > 0) {
+      return currentPassword;
+    }
+
+    return "********";
+  }, [currentPassword]);
+
   useEffect(() => {
     if (!successChangePassword) {
       return;
@@ -131,6 +144,7 @@ const Password = () => {
     });
 
     setValuesVersion((version) => version + 1);
+    setIsEditing(false);
     resetFlags();
   }, [successChangePassword, resetFlags, showAlert]);
 
@@ -164,13 +178,35 @@ const Password = () => {
           </p>
         </header>
 
-        <DynamicForm
-          fields={fields}
-          onSubmit={handleSubmit}
-          submitLabel="Guardar Contraseña"
-          responsiveLayoutMatrix={{ sm: [[10], [10]], md: [[10], [10]] }}
-          valuesVersion={valuesVersion}
-        />
+        {isEditing ? (
+          <DynamicForm
+            fields={fields}
+            onSubmit={handleSubmit}
+            submitLabel="Guardar Contraseña"
+            responsiveLayoutMatrix={{ sm: [[10], [10]], md: [[10], [10]] }}
+            valuesVersion={valuesVersion}
+          />
+        ) : (
+          <div className="flex flex-1 flex-col gap-6">
+            <Input
+              label="Contraseña actual"
+              type="password"
+              value={displayPassword}
+              readOnly
+              disabled
+            />
+
+            <div className="mt-auto flex justify-end">
+              <Button
+                hideIcon
+                className="w-full sm:w-auto"
+                onClick={() => setIsEditing(true)}
+              >
+                Cambiar Contraseña
+              </Button>
+            </div>
+          </div>
+        )}
       </section>
     </React.Fragment>
   );
