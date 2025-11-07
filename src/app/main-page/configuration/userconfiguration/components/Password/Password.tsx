@@ -23,8 +23,8 @@ const BASE_FIELDS: FieldModel[] = [
   {
     name: "confirmPassword",
     type: "password",
-    label: "Confirmar contraseña",
-    placeholder: "Confirma tu nueva contraseña",
+    label: "Confirmar nueva contraseña",
+    placeholder: "Confirmar nueva contraseña",
     value: "",
     validations: [{ type: "required" }],
   },
@@ -158,17 +158,17 @@ const Password = () => {
     <React.Fragment>
       <section className="flex h-full flex-col gap-6 rounded-2xl border border-gray-30 bg-white-100 p-6 shadow-sm">
         <header className="flex flex-col gap-1">
-          <h3 className="text-h6 font-semibold text-gray-90">Contraseña</h3>
-          <p className="text-b3 text-gray-60">
-            Actualiza tu contraseña para mantener segura tu cuenta.
+          <h3 className="text-b4 font-medium text-blue-60">Contraseña</h3>
+          <p className="text-b4 text-gray-70">
+            Ajuste y/o cambio de contraseña
           </p>
         </header>
 
         <DynamicForm
           fields={fields}
           onSubmit={handleSubmit}
-          submitLabel="Cambiar contraseña"
-          responsiveLayoutMatrix={{ sm: [[10], [10]], md: [[5, 5]] }}
+          submitLabel="Guardar Contraseña"
+          responsiveLayoutMatrix={{ sm: [[10], [10]], md: [[10], [10]] }}
           valuesVersion={valuesVersion}
         />
       </section>
