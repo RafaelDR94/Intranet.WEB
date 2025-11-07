@@ -90,6 +90,8 @@ const Signature = () => {
           onClose={handleClose}
           onAuthorization={handleAuthorization}
           responsibleGuid={user?.idEmployee ?? ""}
+          skipAuthorization
+          fullScreenPad
         />
       </section>
     </React.Fragment>
