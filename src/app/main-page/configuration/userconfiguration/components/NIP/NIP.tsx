@@ -138,13 +138,16 @@ const Nip = () => {
           </p>
         </header>
 
-        <DynamicForm
+        <div>
+          <DynamicForm
           fields={fields}
           onSubmit={handleSubmit}
+          marginButton='90px'
           submitLabel="Guardar NIP"
           responsiveLayoutMatrix={{ sm: [[10]], md: [[10]] }}
           valuesVersion={valuesVersion}
         />
+        </div>
       </section>
     </React.Fragment>
   );

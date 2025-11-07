@@ -183,6 +183,7 @@ const Password = () => {
             fields={fields}
             onSubmit={handleSubmit}
             submitLabel="Guardar Contraseña"
+            marginButton='15px'
             responsiveLayoutMatrix={{ sm: [[10], [10]], md: [[10], [10]] }}
             valuesVersion={valuesVersion}
           />
@@ -196,10 +197,10 @@ const Password = () => {
               disabled
             />
 
-            <div className="mt-auto flex justify-end">
+            <div className="mt-auto">
               <Button
                 hideIcon
-                className="w-full sm:w-auto"
+                className="w-full"
                 onClick={() => setIsEditing(true)}
               >
                 Cambiar Contraseña

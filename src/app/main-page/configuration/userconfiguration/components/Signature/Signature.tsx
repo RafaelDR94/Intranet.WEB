@@ -56,7 +56,7 @@ const Signature = () => {
     <React.Fragment>
       <section className="flex h-full flex-col gap-6 rounded-2xl border border-gray-30 bg-white-100 p-6 shadow-sm">
         <header className="flex flex-col gap-1">
-          <h3 className="text-b4 font-medium text-blue-60">Firma digital</h3>
+          <h3 className="text-b4 font-medium text-blue-60">Firma Digital</h3>
           <p className="text-b4 text-gray-70">
             La firma se insertará en los documentos después de haber autorizado una acción
           </p>
@@ -81,7 +81,7 @@ const Signature = () => {
             hideIcon
             disabled={!user?.idEmployee}
           >
-            Actualizar firma
+            Actualizar Firma
           </Button>
         </div>
 
