@@ -1,3 +1,8 @@
+### 1.47.34 User signature pad popup bypass 25-10-2025
+
+Fix:
+- Evita que el flujo de actualización de firma en configuración de usuario vuelva a mostrar el popup de autorización y asegura que el SignaturePad se muestre inmediatamente en modo de pantalla completa. (Agente IA) [#]()
+
 ### 1.47.33 User configuration signature pad 25-10-2025
 
 Fix:

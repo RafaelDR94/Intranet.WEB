@@ -79,9 +79,12 @@ const SignatureComponent: React.FC<SignatureComponentProps> = ({
     />
   );
 
+  const shouldShowSignaturePad = open && (skipAuthorization || showSignaturePad);
+  const shouldRenderPopUp = !skipAuthorization && openSignaturePopUp;
+
   return (
     <>
-      {showSignaturePad && open &&
+      {shouldShowSignaturePad &&
         (fullScreenPad ? (
           <div
             className={clsx(
@@ -97,7 +100,7 @@ const SignatureComponent: React.FC<SignatureComponentProps> = ({
           signaturePad
         ))}
 
-      {!skipAuthorization && (
+      {shouldRenderPopUp && (
         <SignaturePopUp
           open={openSignaturePopUp}
           onClose={onPopUpClose}
