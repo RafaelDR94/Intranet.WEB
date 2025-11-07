@@ -51,11 +51,15 @@ describe('rejectAuthorizationEvidence', () => {
       comment: 'Comentario válido',
     })
 
-    expect(set).toHaveBeenCalledWith({
-      rejecting: true,
-      error: undefined,
-      successRejectAuthorizationEvidence: false,
-    })
+    expect(set).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        rejecting: true,
+        error: undefined,
+        successRejectAuthorizationEvidence: false,
+        successRejectVoucher: false,
+      }),
+    )
     expect(ok).toBe(true)
     expect(state.rejecting).toBe(false)
     expect(state.successRejectAuthorizationEvidence).toBe(true)

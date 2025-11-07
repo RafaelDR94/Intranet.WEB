@@ -146,11 +146,13 @@ describe('Treasury Control SideMenu', () => {
     expect(screen.queryByText('Rechazar Vale')).not.toBeInTheDocument();
   });
 
-  it('opens the evidence rejection modal and trims the submitted comment', () => {
+  it('opens the rejection modal from the evidence section and trims the submitted comment', async () => {
+    const onReject = vi.fn();
     const onRejectAuthorizationEvidence = vi.fn();
     render(
       <SideMenu
         {...baseProps}
+        onReject={onReject}
         onRejectAuthorizationEvidence={onRejectAuthorizationEvidence}
         detail={{
           id: '1',
@@ -179,17 +181,21 @@ describe('Treasury Control SideMenu', () => {
 
     fireEvent.click(screen.getByTestId('reject-evidence-button'));
 
-    expect(screen.getByText('Rechazar evidencia')).toBeInTheDocument();
+    await screen.findByText('Rechazar Vale');
 
     const textarea = screen.getByPlaceholderText('Escribir comentario');
     fireEvent.change(textarea, { target: { value: '   Comentario de evidencia   ' } });
 
     fireEvent.click(screen.getByText('Enviar Comentario'));
 
-    expect(onRejectAuthorizationEvidence).toHaveBeenCalledWith(
-      expect.objectContaining({ id: '1' }),
-      'Comentario de evidencia',
-    );
+    await waitFor(() => {
+      expect(onReject).toHaveBeenCalledWith(
+        expect.objectContaining({ id: '1' }),
+        'Comentario de evidencia',
+      );
+    });
+
+    expect(onRejectAuthorizationEvidence).not.toHaveBeenCalled();
   });
 
   it('toggles the editing flow and saves a new amount for valid vouchers', async () => {
