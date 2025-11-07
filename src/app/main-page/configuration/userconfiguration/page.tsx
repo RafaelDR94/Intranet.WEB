@@ -1,6 +1,11 @@
+import CreateEmployee from "../../administration/usersmanagment/createemployee/page";
+
 const UserConfiguration = () => {
-    return (<>
-        Configuración
-    </>)
-}
-export default UserConfiguration
+  return (
+    <>
+      <CreateEmployee />
+      
+    </>
+  );
+};
+export default UserConfiguration;
