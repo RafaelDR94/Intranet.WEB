@@ -30,28 +30,38 @@ const Nip = () => {
   const { withLoading } = usePrincipalLoading;
   const { showAlert } = usePrincipalAlert;
 
-  const { idUser, changeNip, successChangeNIP, error, resetFlags } = useAuthStore(
-    (state) => ({
-      idUser: state.user?.idUser,
-      changeNip: state.changeNip,
-      successChangeNIP: state.successChangeNIP,
-      error: state.error,
-      resetFlags: state.resetFlags,
-    }),
-    shallow
-  );
+  const { userId, currentNip, changeNip, successChangeNIP, error, resetFlags } =
+    useAuthStore(
+      (state) => ({
+        userId: state.user?.idUser ?? "",
+        currentNip: state.user?.nip ?? "",
+        changeNip: state.changeNip,
+        successChangeNIP: state.successChangeNIP,
+        error: state.error,
+        resetFlags: state.resetFlags,
+      }),
+      shallow
+    );
 
   const fields = useMemo(
-    () => BASE_FIELDS.map((field) => ({ ...field })),
-    []
+    () =>
+      BASE_FIELDS.map((field) =>
+        field.name === "nip"
+          ? {
+              ...field,
+              value: currentNip,
+            }
+          : { ...field }
+      ),
+    [currentNip]
   );
 
   const handleSubmit = useCallback(
-    async (values: Record<string, any>) => {
-      const nipValue: string = values.nip ?? "";
-      const parsedId = Number(idUser ?? 0);
+    async (values: Record<string, string>) => {
+      const nipValue: string = (values.nip ?? "").trim();
+      const normalizedUserId = userId.trim();
 
-      if (!parsedId) {
+      if (!normalizedUserId) {
         showAlert({
           type: "error",
           variant: "subtle",
@@ -80,13 +90,13 @@ const Nip = () => {
       await withLoading(
         () =>
           changeNip({
-            idUser: parsedId,
+            user_id: normalizedUserId,
             nip: nipValue,
           }),
         { message: "Actualizando NIP" }
       );
     },
-    [changeNip, idUser, showAlert, withLoading]
+    [changeNip, showAlert, userId, withLoading]
   );
 
   useEffect(() => {
@@ -140,13 +150,13 @@ const Nip = () => {
 
         <div>
           <DynamicForm
-          fields={fields}
-          onSubmit={handleSubmit}
-          marginButton='90px'
-          submitLabel="Guardar NIP"
-          responsiveLayoutMatrix={{ sm: [[10]], md: [[10]] }}
-          valuesVersion={valuesVersion}
-        />
+            fields={fields}
+            onSubmit={handleSubmit}
+            marginButton="90px"
+            submitLabel="Guardar NIP"
+            responsiveLayoutMatrix={{ sm: [[10]], md: [[10]] }}
+            valuesVersion={valuesVersion}
+          />
         </div>
       </section>
     </React.Fragment>

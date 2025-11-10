@@ -13,7 +13,7 @@ describe('changeNip util', () => {
     const state: Partial<AuthState> = { loading: false, successChangeNIP: false }
     const set: Set = (partial) => Object.assign(state, typeof partial === 'function' ? partial(state as AuthState) : partial)
     const get: Get = () => state as AuthState
-    await changeNip(set, get, { idUser: 1, nip: '1234' })
+    await changeNip(set, get, { user_id: '1', nip: '1234' })
     expect(state.successChangeNIP).toBe(true)
   })
 })
