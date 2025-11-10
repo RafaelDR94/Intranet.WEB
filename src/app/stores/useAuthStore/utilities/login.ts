@@ -2,9 +2,16 @@
 import type { Set, Get } from '../types'
 
 import { setInterceptor } from './interceptor'
+import { fetchUserSignature } from './fetchUserSignature'
 
 import type { LoginCredentials } from '@/app/context/AuthContext/types'
-import { authenticateUser, readUser, saveLastUserRemebered, forgetUser } from '@/app/context/AuthContext/utilities/AuthService'
+import {
+  authenticateUser,
+  readUser,
+  saveLastUserRemebered,
+  forgetUser,
+  saveUser,
+} from '@/app/context/AuthContext/utilities/AuthService'
 
 export const login = async (
   set: Set,
@@ -15,19 +22,48 @@ export const login = async (
   try {
     await authenticateUser(credentials, get().remeberMe, get().offlineMode)
     const userDoc = await readUser()
-    if (userDoc) {
-      set({ user: userDoc.user, token: userDoc.user.token, successLogin: true })
-      setInterceptor(userDoc.user.token)
-    }
-    try {
-      const remember = get().remeberMe
-      if (remember && userDoc?.user?.email) {
-        await saveLastUserRemebered(userDoc.user)
-        set({ userRemebered: userDoc.user })
-      } else {
-        await forgetUser()
-        set({ userRemebered: null })
+    if (userDoc?.user) {
+      let currentUser = userDoc.user
+      let signature = currentUser.signature ?? ''
+
+      set({
+        user: currentUser,
+        token: currentUser.token,
+        successLogin: true,
+        signature,
+      })
+
+      setInterceptor(currentUser.token)
+
+      const remoteSignature = await fetchUserSignature({
+        idEmployee: currentUser.idEmployee,
+        idUser: currentUser.idUser,
+      })
+
+      if (remoteSignature !== null && remoteSignature !== signature) {
+        signature = remoteSignature
+        currentUser = { ...currentUser, signature }
+        set({ signature, user: currentUser })
+        await saveUser(currentUser)
       }
+
+      try {
+        const remember = get().remeberMe
+        if (remember && currentUser.email) {
+          await saveLastUserRemebered(currentUser)
+          set({ userRemebered: currentUser })
+        } else {
+          await forgetUser()
+          set({ userRemebered: null })
+        }
+      } catch { /* noop */ }
+
+      return
+    }
+
+    try {
+      await forgetUser()
+      set({ userRemebered: null })
     } catch { /* noop */ }
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : 'login error'
