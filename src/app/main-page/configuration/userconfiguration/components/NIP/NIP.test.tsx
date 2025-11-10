@@ -2,6 +2,8 @@ import React from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { FieldModel } from "@/app/components/DynamicForm/types";
+
 import Nip from "./NIP";
 
 const mockShowAlert = vi.fn();
@@ -19,7 +21,7 @@ const dynamicFormMock = vi.hoisted(() => {
 });
 
 type MockAuthState = {
-  user: { idUser?: string } | null;
+  user: { idUser?: string; nip?: string } | null;
   changeNip: typeof mockChangeNip;
   successChangeNIP: boolean;
   error?: string;
@@ -36,10 +38,10 @@ vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
 let mockState: MockAuthState;
 
 vi.mock("@/app/stores/useAuthStore/useAuthStore", () => ({
-  useAuthStore: (selector: (state: MockAuthState) => any) => selector(mockState),
+  useAuthStore: <T,>(selector: (state: MockAuthState) => T) => selector(mockState),
 }));
 
-let formValues: Record<string, any> = { nip: "1234" };
+let formValues: Record<string, string> = { nip: "1234" };
 
 vi.mock("@/app/components/DynamicForm/DynamicForm", () => ({
   __esModule: true,
@@ -50,7 +52,7 @@ vi.mock("@/app/components/DynamicForm/DynamicForm", () => ({
 describe("User configuration NIP card", () => {
   beforeEach(() => {
     mockState = {
-      user: { idUser: "15" },
+      user: { idUser: "15", nip: "9876" },
       changeNip: mockChangeNip,
       successChangeNIP: false,
       error: undefined,
@@ -59,11 +61,18 @@ describe("User configuration NIP card", () => {
     formValues = { nip: "1234" };
     vi.clearAllMocks();
     mockChangeNip.mockResolvedValue(undefined);
-    mockWithLoading.mockImplementation(async (task: () => any) => task());
-    dynamicFormMock.mockImplementation((props: any) => (
+    mockWithLoading.mockImplementation(
+      async (task: () => Promise<unknown> | unknown) => task()
+    );
+    dynamicFormMock.mockImplementation((props: Record<string, unknown>) => (
       <div>
-        <button type="button" onClick={() => props.onSubmit(formValues)}>
-          {props.submitLabel}
+        <button
+          type="button"
+          onClick={() =>
+            (props.onSubmit as (values: Record<string, string>) => void)(formValues)
+          }
+        >
+          {props.submitLabel as string}
         </button>
       </div>
     ));
@@ -72,14 +81,18 @@ describe("User configuration NIP card", () => {
   it("envía el payload correcto cuando el NIP es válido", async () => {
     render(<Nip />);
 
-    const props = dynamicFormMock.mock.calls.at(-1)?.[0];
+    const props = dynamicFormMock.mock.calls.at(-1)?.[0] as
+      | {
+          onSubmit: (values: Record<string, string>) => Promise<void> | void;
+        }
+      | undefined;
     expect(props?.onSubmit).toBeDefined();
 
     await act(async () => {
-      await props?.onSubmit(formValues);
+      await props?.onSubmit?.(formValues);
     });
 
-    expect(mockChangeNip).toHaveBeenCalledWith({ idUser: 15, nip: "1234" });
+    expect(mockChangeNip).toHaveBeenCalledWith({ user_id: "15", nip: "1234" });
   });
 
   it("muestra una alerta si el id del usuario no está disponible", () => {
@@ -120,6 +133,17 @@ describe("User configuration NIP card", () => {
     expect(mockResetFlags).toHaveBeenCalled();
     const lastProps = dynamicFormMock.mock.calls.at(-1)?.[0];
     expect(lastProps?.valuesVersion).toBeGreaterThan(0);
+  });
+
+  it("prefija el valor del formulario con el NIP actual del usuario", () => {
+    render(<Nip />);
+
+    const initialProps = dynamicFormMock.mock.calls[0][0] as {
+      fields: FieldModel[];
+    };
+    const nipField = initialProps.fields.find((field) => field.name === "nip");
+
+    expect(nipField?.value).toBe("9876");
   });
 
   it("muestra la alerta de error cuando la actualización falla", () => {
