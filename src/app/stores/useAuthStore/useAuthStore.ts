@@ -145,7 +145,14 @@ const isSameAuthUser = (first: User | null | undefined, second: User | null | un
 
 const initAuthStore = async () => {
   try {
-    const [userDoc, rememberedDoc] = await Promise.all([readUser(), readUserRemebered()])
+    const [userDocResult, rememberedDocResult] = await Promise.allSettled([
+      readUser(),
+      readUserRemebered(),
+    ])
+
+    const userDoc = userDocResult.status === 'fulfilled' ? userDocResult.value : null
+    const rememberedDoc =
+      rememberedDocResult.status === 'fulfilled' ? rememberedDocResult.value : null
 
     let rememberedUser = rememberedDoc?.user ?? null
 
