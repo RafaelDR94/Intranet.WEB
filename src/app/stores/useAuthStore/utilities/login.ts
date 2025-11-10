@@ -16,7 +16,13 @@ export const login = async (
     await authenticateUser(credentials, get().remeberMe, get().offlineMode)
     const userDoc = await readUser()
     if (userDoc) {
-      set({ user: userDoc.user, token: userDoc.user.token, successLogin: true })
+      const signature = userDoc.user?.signature ?? ''
+      set({
+        user: userDoc.user,
+        token: userDoc.user.token,
+        successLogin: true,
+        signature,
+      })
       setInterceptor(userDoc.user.token)
     }
     try {

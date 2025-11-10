@@ -129,7 +129,8 @@ const initAuthStore = async () => {
   try {
     const userDoc = await readUser()
     if (userDoc) {
-      useAuthStore.setState({ user: userDoc.user, token: userDoc.user.token })
+      const signature = userDoc.user?.signature ?? ''
+      useAuthStore.setState({ user: userDoc.user, token: userDoc.user.token, signature })
       setInterceptor(userDoc.user.token)
     }
     const rememberedDoc = await readUserRemebered()
