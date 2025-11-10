@@ -1,10 +1,19 @@
 "use client";
 import React from "react";
+import type { User } from "@/app/context/AuthContext/types";
 import useCreateEemployee from "./hooks/useCreatEmployee";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 
-const CreateEmployee = () => {
+type CreateEmployeeProps = {
+  /**
+   * Usuario autenticado que se utilizará para autocompletar el formulario.
+   * Cuando se proporciona, los campos quedarán deshabilitados.
+   */
+  loggedUser?: User | null;
+};
+
+const CreateEmployee: React.FC<CreateEmployeeProps> = ({ loggedUser }) => {
   const {
     loadingForm,
     fields,
@@ -13,14 +22,15 @@ const CreateEmployee = () => {
     handleSubmit,
     handleValidChange,
     formCompleted,
-  } = useCreateEemployee();
+    isReadOnly,
+  } = useCreateEemployee({ loggedUser: loggedUser ?? undefined });
   if (!canStart) return <></>;
   return (
     <FormsLayout
       title="Registro de empleado"
       primaryLabel="Registrar empleado"
       onPrimaryClick={() => submitRef.current?.()}
-      primaryDisabled={!formCompleted}
+      primaryDisabled={isReadOnly || !formCompleted}
     >
       {fields && (
         <DynamicForm

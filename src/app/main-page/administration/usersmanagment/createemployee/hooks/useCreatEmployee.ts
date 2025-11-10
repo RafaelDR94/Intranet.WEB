@@ -8,8 +8,12 @@ import { FieldModel } from "@/app/components/DynamicForm/types";
 import useQuery from "@/app/hooks/useQuery/useQuery";
 import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
 import { useRouter } from "next/navigation";
+import type { User } from "@/app/context/AuthContext/types";
 const formId = "CreateEmployee";
-const useCreateEemployee = () => {
+type UseCreateEmployeeOptions = {
+  loggedUser?: User;
+};
+const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
   const router = useRouter();
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const [loadingForm, setLoadingForm] = useState(false);
@@ -26,7 +30,12 @@ const useCreateEemployee = () => {
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert } = usePrincipalAlert;
   const { all } = useQuery();
-  const idEmployee = all.idEmployee;
+  const idEmployeeFromQuery = Array.isArray(all.idEmployee)
+    ? all.idEmployee[0]
+    : all.idEmployee;
+  const targetEmployeeId =
+    loggedUser?.idEmployee ?? (idEmployeeFromQuery ? String(idEmployeeFromQuery) : undefined);
+  const isReadOnly = Boolean(loggedUser);
   const {
     fetchWorkPosition,
     fetchEnterprises,
@@ -81,9 +90,12 @@ const useCreateEemployee = () => {
   const { fieldsByFormId, setFields, updateField, resetFields } =
     useFormFieldsStore();
   const handleValidChange = (valid: boolean) => {
-    setFormCompleted(valid);
+    setFormCompleted(isReadOnly ? false : valid);
   };
   const handleSubmit = async (values: Record<string, any>) => {
+    if (isReadOnly) {
+      return;
+    }
     let image_url = "";
 
     const rawImage = values.image_url;
@@ -143,7 +155,7 @@ const useCreateEemployee = () => {
         value: workposition.workposition_id,
       })),
       value: currentEmployee?.workposition?.workposition_id || "", // reset value
-      disabled: false,
+      disabled: isReadOnly,
     });
     if (enterprisesList) {
       const enterpriseSelected =
@@ -157,7 +169,7 @@ const useCreateEemployee = () => {
           value: deparments.department_id,
         })),
         value: currentEmployee?.department?.department_id || "", // reset value
-        disabled: false,
+        disabled: isReadOnly,
       });
     }
 
@@ -184,6 +196,7 @@ const useCreateEemployee = () => {
           value: { name: "Imagen de perfil", url: currentEmployee?.image_url },
           accept: ".jpg,.png",
           validations: [{ type: "required" }],
+          disabled: isReadOnly,
         },
         {
           type: "input",
@@ -191,6 +204,7 @@ const useCreateEemployee = () => {
           value: currentEmployee?.employee_number || "",
           label: "No. de Empleado",
           validations: [{ type: "required" }],
+          disabled: isReadOnly,
         },
         {
           type: "input",
@@ -198,12 +212,14 @@ const useCreateEemployee = () => {
           value: currentEmployee?.firstname || "",
           label: "Primer Nombre",
           validations: [{ type: "required" }],
+          disabled: isReadOnly,
         },
         {
           type: "input",
           name: "secondname",
           value: currentEmployee?.secondname || "",
           label: "Segundo Nombre",
+          disabled: isReadOnly,
         },
         {
           type: "input",
@@ -211,6 +227,7 @@ const useCreateEemployee = () => {
           value: currentEmployee?.lastname || "",
           label: "Primer Apellido",
           validations: [{ type: "required" }],
+          disabled: isReadOnly,
         },
         {
           type: "input",
@@ -218,6 +235,7 @@ const useCreateEemployee = () => {
           value: currentEmployee?.motherlast_name || "",
           label: "Segundo Apellido",
           validations: [{ type: "required" }],
+          disabled: isReadOnly,
         },
         {
           type: "select",
@@ -227,6 +245,7 @@ const useCreateEemployee = () => {
           value: currentEmployee?.department?.department_id || "",
           options: [],
           validations: [{ type: "required" }],
+          disabled: isReadOnly,
         },
         {
           type: "select",
@@ -235,6 +254,7 @@ const useCreateEemployee = () => {
           placeholder: "Seleccione el Gerente",
           value: currentEmployee?.manager_id || "",
           options: [],
+          disabled: isReadOnly,
         },
         {
           type: "select",
@@ -244,6 +264,7 @@ const useCreateEemployee = () => {
           value: currentEmployee?.workposition?.workposition_id || "",
           options: [],
           validations: [{ type: "required" }],
+          disabled: isReadOnly,
         },
         {
           type: "select",
@@ -253,18 +274,21 @@ const useCreateEemployee = () => {
           value: currentEmployee?.department?.enterprise_id || "",
           options: [],
           validations: [{ type: "required" }],
+          disabled: isReadOnly,
         },
         {
           type: "email",
           name: "email",
           value: currentEmployee?.email || "",
           label: "Correo Electrónico",
+          disabled: isReadOnly,
         },
         {
           type: "number",
           name: "phone_number",
           value: currentEmployee?.phone_number.replaceAll(" ", "") || "",
           label: "Número De Teléfono",
+          disabled: isReadOnly,
         },
         {
           type: "select",
@@ -278,6 +302,7 @@ const useCreateEemployee = () => {
           placeholder: "Seleccione el género",
           validations: [{ type: "required" }],
           showIf: showRestFor,
+          disabled: isReadOnly,
         },
         {
           type: "select",
@@ -291,6 +316,7 @@ const useCreateEemployee = () => {
           placeholder: "Seleccione el tipo de empleadoo",
           validations: [{ type: "required" }],
           showIf: showRestFor,
+          disabled: isReadOnly,
         },
         {
           type: "number",
@@ -298,6 +324,7 @@ const useCreateEemployee = () => {
           value: currentEmployee?.extension || "",
           label: "Extensión",
           showIf: showRestFor,
+          disabled: isReadOnly,
         },
       ];
       return model;
@@ -405,7 +432,7 @@ const useCreateEemployee = () => {
             value: employee.employee_id,
           })),
           value: currentEmployee?.manager_id || "", // reset value
-          disabled: false,
+          disabled: isReadOnly,
         });
         updateField(formId, "enteprise", {
           options: enterprisesList.map((enterprise) => ({
@@ -413,10 +440,12 @@ const useCreateEemployee = () => {
             value: enterprise.enterprise_id,
           })),
           value: currentEmployee?.department?.enterprise_id, // reset value
-          disabled: false,
-          onChange: async (value: string) => {
-            completeSelect(value);
-          },
+          disabled: isReadOnly,
+          onChange: isReadOnly
+            ? undefined
+            : async (value: string) => {
+                completeSelect(value);
+              },
         });
       }
     }
@@ -426,10 +455,13 @@ const useCreateEemployee = () => {
     fetchEnterprises,
     setLoadingForm,
     canStart,
+    isReadOnly,
   ]);
 
-  const getEmployeeInfo = async () => {
-    if (!currentEmployee) await fetchEmployeeById(String(idEmployee));
+  const getEmployeeInfo = async (employeeId: string) => {
+    if (!currentEmployee || currentEmployee.employee_id !== employeeId) {
+      await fetchEmployeeById(String(employeeId));
+    }
     setCanStart(true);
   };
 
@@ -438,14 +470,14 @@ const useCreateEemployee = () => {
       resetFields(formId);
       hasresetedfields.current = true;
     }
-    if (idEmployee) {
-      getEmployeeInfo();
+    if (targetEmployeeId) {
+      getEmployeeInfo(targetEmployeeId);
     } else {
       resetFields(formId);
       resetCurrentEmployee();
       setCanStart(true);
     }
-  }, [idEmployee, resetCurrentEmployee, setCanStart, resetFields]);
+  }, [targetEmployeeId, resetCurrentEmployee, resetFields]);
 
   useEffect(() => {
     if (
@@ -467,6 +499,7 @@ const useCreateEemployee = () => {
     canStart,
     handleValidChange,
     formCompleted,
+    isReadOnly,
   };
 };
 export default useCreateEemployee;
