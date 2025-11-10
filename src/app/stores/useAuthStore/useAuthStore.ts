@@ -25,7 +25,9 @@ import {
   changeSignature
 } from './utilities'
 
-import { readUser, readUserRemebered } from '@/app/context/AuthContext/utilities/AuthService'
+import type { User } from '@/app/context/AuthContext/types'
+import { readUser, readUserRemebered, saveLastUserRemebered, saveUser } from '@/app/context/AuthContext/utilities/AuthService'
+import { fetchUserSignature } from './utilities/fetchUserSignature'
 
 /**
  * Store para operaciones de autenticación.
@@ -125,17 +127,67 @@ export const useAuthStore = createWithEqualityFn<AuthState>()(
   }))
 )
 
+const isSameAuthUser = (first: User | null | undefined, second: User | null | undefined) => {
+  if (!first || !second) {
+    return false
+  }
+
+  if (first.idEmployee && second.idEmployee && first.idEmployee === second.idEmployee) {
+    return true
+  }
+
+  if (first.idUser && second.idUser && first.idUser === second.idUser) {
+    return true
+  }
+
+  return false
+}
+
 const initAuthStore = async () => {
   try {
-    const userDoc = await readUser()
-    if (userDoc) {
-      const signature = userDoc.user?.signature ?? ''
-      useAuthStore.setState({ user: userDoc.user, token: userDoc.user.token, signature })
-      setInterceptor(userDoc.user.token)
+    const [userDoc, rememberedDoc] = await Promise.all([readUser(), readUserRemebered()])
+
+    let rememberedUser = rememberedDoc?.user ?? null
+
+    if (userDoc?.user) {
+      let currentUser = userDoc.user
+      let signature = currentUser.signature ?? ''
+
+      useAuthStore.setState({ user: currentUser, token: currentUser.token, signature })
+      setInterceptor(currentUser.token)
+
+      const remoteSignature = await fetchUserSignature({
+        idEmployee: currentUser.idEmployee,
+        idUser: currentUser.idUser,
+      })
+
+      if (remoteSignature !== null && remoteSignature !== signature) {
+        signature = remoteSignature
+        currentUser = { ...currentUser, signature }
+
+        useAuthStore.setState((state) => {
+          const shouldUpdateRemembered = isSameAuthUser(state.userRemebered, currentUser)
+          return {
+            signature,
+            user: currentUser,
+            userRemebered:
+              shouldUpdateRemembered && state.userRemebered
+                ? { ...state.userRemebered, signature }
+                : state.userRemebered,
+          }
+        })
+
+        await saveUser(currentUser)
+
+        if (rememberedUser && isSameAuthUser(rememberedUser, currentUser)) {
+          rememberedUser = { ...rememberedUser, signature }
+          await saveLastUserRemebered(rememberedUser)
+        }
+      }
     }
-    const rememberedDoc = await readUserRemebered()
-    if (rememberedDoc?.user?.email) {
-      useAuthStore.setState({ remeberMe: true, userRemebered: rememberedDoc.user })
+
+    if (rememberedUser?.email) {
+      useAuthStore.setState({ remeberMe: true, userRemebered: rememberedUser })
     }
   } catch {
     // ignore initialization errors
