@@ -19,7 +19,7 @@ const dynamicFormMock = vi.hoisted(() => {
 });
 
 type MockAuthState = {
-  user: { email?: string; password?: string } | null;
+  user: { email?: string; password?: string; userName?: string } | null;
   changePassword: typeof mockChangePassword;
   successChangePassword: boolean;
   error?: string;
@@ -53,7 +53,11 @@ vi.mock("@/app/components/DynamicForm/DynamicForm", () => ({
 describe("User configuration password card", () => {
   beforeEach(() => {
     mockState = {
-      user: { email: "user@test.com", password: "ClaveSecreta1" },
+      user: {
+        email: "user@test.com",
+        userName: "user@test.com",
+        password: "ClaveSecreta1",
+      },
       changePassword: mockChangePassword,
       successChangePassword: false,
       error: undefined,
@@ -95,6 +99,27 @@ describe("User configuration password card", () => {
       changePassword: true,
     });
     expect(mockShowAlert).not.toHaveBeenCalled();
+  });
+
+  it("usa userName como respaldo cuando el email no está disponible", async () => {
+    mockState.user = {
+      userName: "fallback-user@test.com",
+      password: "ClaveSecreta1",
+    };
+
+    render(<Password />);
+
+    fireEvent.click(screen.getByRole("button", { name: /cambiar contraseña/i }));
+    const submitButton = await screen.findByRole("button", {
+      name: /guardar contraseña/i,
+    });
+    fireEvent.click(submitButton);
+
+    expect(mockChangePassword).toHaveBeenCalledWith({
+      email: "fallback-user@test.com",
+      newPassword: "Seguro123",
+      changePassword: true,
+    });
   });
 
   it("muestra una alerta cuando las contraseñas no coinciden", async () => {

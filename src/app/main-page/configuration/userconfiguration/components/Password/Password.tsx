@@ -48,14 +48,18 @@ const Password = () => {
     error,
     resetFlags,
   } = useAuthStore(
-    (state) => ({
-      email: state.user?.email ?? "",
-      currentPassword: state.user?.password ?? "",
-      changePassword: state.changePassword,
-      successChangePassword: state.successChangePassword,
-      error: state.error,
-      resetFlags: state.resetFlags,
-    }),
+    (state) => {
+      const fallbackEmail = state.user?.email ?? state.user?.userName ?? "";
+
+      return {
+        email: fallbackEmail,
+        currentPassword: state.user?.password ?? "",
+        changePassword: state.changePassword,
+        successChangePassword: state.successChangePassword,
+        error: state.error,
+        resetFlags: state.resetFlags,
+      };
+    },
     shallow
   );
 
