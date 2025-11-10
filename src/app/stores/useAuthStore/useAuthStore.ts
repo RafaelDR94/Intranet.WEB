@@ -73,7 +73,7 @@ export const useAuthStore = createWithEqualityFn<AuthState>()(
     changeNipStatusByIdUser: (id) => changeNipStatusByIdUser(id, set),
     changeNip: (payload) => changeNip(set, get, payload),
     createNip: (payload) => createNip(set, get, payload),
-    changeSignature: (payload) => changeSignature(set, payload),
+    changeSignature: (payload) => changeSignature(set, get, payload),
     updateUserPermissions: (permissions: string) => updateUserPermissions(set, get, permissions),
     reset: () =>
       set({
