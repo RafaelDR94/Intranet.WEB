@@ -166,6 +166,10 @@ describe("User configuration password card", () => {
     expect(initialProps.valuesVersion).toBe(0);
 
     mockState.successChangePassword = true;
+    mockState.user = {
+      ...mockState.user!,
+      password: formValues.newPassword,
+    };
 
     act(() => {
       rerender(<Password />);
@@ -175,6 +179,10 @@ describe("User configuration password card", () => {
     expect(mockResetFlags).toHaveBeenCalled();
 
     expect(screen.getByRole("button", { name: /cambiar contraseña/i })).toBeInTheDocument();
+
+    expect(
+      screen.getByDisplayValue(formValues.newPassword)
+    ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /cambiar contraseña/i }));
 

@@ -1,3 +1,8 @@
+### 1.47.35 User password display sync 25-10-2025
+
+Fix:
+- Sincroniza el campo de contraseña mostrada con el valor actualizado en el store inmediatamente después de guardar la nueva contraseña. (Agente IA) [#]()
+
 ### 1.47.34 User signature pad popup bypass 25-10-2025
 
 Fix:
