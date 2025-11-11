@@ -9,11 +9,20 @@ vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pPut: () => async () 
 vi.mock('@/app/utilities/Http/normalizeApiError', () => ({ normalizeApiError: (e: unknown) => ({ message: String(e) }) }))
 
 describe('changePassword util', () => {
-  it('actualiza successChangePassword', async () => {
-    const state: Partial<AuthState> = { loading: false, successChangePassword: false }
+  it('actualiza successChangePassword y la contraseña del usuario', async () => {
+    const state: Partial<AuthState> = {
+      loading: false,
+      successChangePassword: false,
+      user: { password: 'ClaveAnterior1' } as AuthState['user'],
+    }
     const set: Set = (partial) => Object.assign(state, typeof partial === 'function' ? partial(state as AuthState) : partial)
     const get: Get = () => state as AuthState
-    await changePassword(set, get, { idUser: 1, password: 'a', newPassword: 'b' })
+    await changePassword(set, get, {
+      email: 'user@test.com',
+      newPassword: 'NuevaClave123',
+      changePassword: true,
+    })
     expect(state.successChangePassword).toBe(true)
+    expect(state.user?.password).toBe('NuevaClave123')
   })
 })

@@ -15,7 +15,14 @@ export const changePassword = async (
   try {
     const put = pPut(requireGateway('put'))
     await put(AuthChangePassword, payload)
-    set({ loading: false, successChangePassword: true })
+    const currentUser = get().user
+    const updatedUser = currentUser ? { ...currentUser, password: payload.newPassword } : currentUser
+
+    set({
+      loading: false,
+      successChangePassword: true,
+      user: updatedUser ?? null,
+    })
   } catch (e) {
     set({ error: normalizeApiError(e).message, loading: false, successChangePassword: false })
   }

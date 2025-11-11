@@ -220,5 +220,23 @@ describe('useCreatEmployee', () => {
     expect(showSpinner).toHaveBeenCalled();
     expect(hideSpinner).toHaveBeenCalled();
   });
+
+  it('no ejecuta envíos cuando el formulario está en modo solo lectura', async () => {
+    const loggedUser = { idEmployee: 'emp-readonly' } as any;
+    queryParams = {};
+
+    const { result } = renderHook(() => useCreateEemployee({ loggedUser }));
+
+    expect(result.current.isReadOnly).toBe(true);
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        employee_number: '001',
+      });
+    });
+
+    expect(employeesStoreState.createEmployee).not.toHaveBeenCalled();
+    expect(employeesStoreState.updateEmployee).not.toHaveBeenCalled();
+  });
 });
 

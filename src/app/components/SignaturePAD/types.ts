@@ -11,4 +11,10 @@ export interface SignaturePadProps {
   name?: string
 
   workposition?: string
+
+  /**
+   * When enabled the pad expands to cover most of the viewport and adapts
+   * spacing to be used inside a modal-like overlay.
+   */
+  fullScreen?: boolean;
 }

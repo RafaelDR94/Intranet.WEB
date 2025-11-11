@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import clsx from 'clsx';
 import SignatureCanvas from 'react-signature-canvas';
 import { SignaturePadProps } from './types';
 import { containerCls, canvasWrapperCls } from './styles';
@@ -12,12 +13,25 @@ import { useIsMobile } from '../DataTable/components/DataTableLayout/hooks/useMe
 const SignaturePad: React.FC<SignaturePadProps> = (props) => {
   const { sigCanvasRef, wrapperRef, size, handleSave, handleClear } = useSignaturePad(props);
   const isMobile = useIsMobile(); // ✅ Detectamos si es mobile
+  const { fullScreen } = props;
 
   return (
-    <div className={containerCls}>
+    <div
+      className={clsx(
+        containerCls,
+        fullScreen &&
+          'max-h-[90vh] overflow-hidden rounded-2xl shadow-lg sm:p-8 md:p-10'
+      )}
+    >
       <h3 className="text-gray-600 text-label font-medium mb-1">Firma Digital</h3>
 
-      <div ref={wrapperRef} className={`${canvasWrapperCls} h-[300px]`}>
+      <div
+        ref={wrapperRef}
+        className={clsx(
+          canvasWrapperCls,
+          fullScreen ? 'h-[360px] md:h-[420px]' : 'h-[300px]'
+        )}
+      >
         <SignatureCanvas
           ref={sigCanvasRef}
           canvasProps={{
@@ -31,13 +45,11 @@ const SignaturePad: React.FC<SignaturePadProps> = (props) => {
       {/* Botones */}
       {!isMobile ? (
         // 💻 Desktop layout (horizontal)
-        <div className="flex justify-between items-center w-full mt-4">
-          <div>
+        <div className={clsx('flex w-full items-center justify-between gap-3', fullScreen ? 'mt-6' : 'mt-4')}>
+          <div className="flex gap-3">
             <Button variant="outline" onClick={props?.onCancel} hideIcon>
               Cancelar
             </Button>
-          </div>
-          <div className="flex gap-3">
             <Button variant="outline" onClick={handleClear} hideIcon>
               Borrar Firma
             </Button>

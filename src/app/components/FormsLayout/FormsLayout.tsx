@@ -1,32 +1,32 @@
 import React, { Children, ReactNode } from "react";
 import clsx from "clsx";
 
-import { Button } from "../Button/Button"
-import CollapsibleSection from "../CollapsibleSection/CollapsibleSection"
+import { Button } from "../Button/Button";
+import CollapsibleSection from "../CollapsibleSection/CollapsibleSection";
 import { useIsMobile } from "../DataTable/components/DataTableLayout/hooks/useMediaQuery";
 type FormsLayoutProps = {
-  title: string
+  title: string;
   /** Texto del boton primario (derecha) */
-  primaryLabel: string
+  primaryLabel: string;
   /** Accion del boton primario */
-  onPrimaryClick?: () => void
+  onPrimaryClick?: () => void;
   /** Deshabilita el boton primario */
-  primaryDisabled?: boolean
-  
-  startCollaps?:boolean
-  /** Muestra el boton secundario (izquierda) */
-  showSecondaryButton?: boolean
-  /** Texto del boton secundario */
-  secondaryLabel?: string
-  /** Accion del boton secundario (p.ej. Cancelar) */
-  onSecondaryClick?: () => void
-  /** Deshabilita el boton secundario */
-  secondaryDisabled?: boolean
+  primaryDisabled?: boolean;
 
-  children: ReactNode
-  enableCollapse?: boolean
-  showDivider?: boolean
-}
+  startCollaps?: boolean;
+  /** Muestra el boton secundario (izquierda) */
+  showSecondaryButton?: boolean;
+  /** Texto del boton secundario */
+  secondaryLabel?: string;
+  /** Accion del boton secundario (p.ej. Cancelar) */
+  onSecondaryClick?: () => void;
+  /** Deshabilita el boton secundario */
+  secondaryDisabled?: boolean;
+  showPrimaryButton?: boolean;
+  children: ReactNode;
+  enableCollapse?: boolean;
+  showDivider?: boolean;
+};
 
 /**
  * Contenedor de formularios que muestra cabecera con acciones y envuelve cada children
@@ -35,6 +35,7 @@ type FormsLayoutProps = {
  */
 const FormsLayout = ({
   title,
+  showPrimaryButton = true,
   primaryLabel,
   onPrimaryClick,
   primaryDisabled = false,
@@ -42,10 +43,10 @@ const FormsLayout = ({
   secondaryLabel = "Cancelar",
   onSecondaryClick,
   secondaryDisabled = false,
-  startCollaps=false,
+  startCollaps = false,
   enableCollapse = true,
   showDivider = true,
-  children
+  children,
 }: FormsLayoutProps) => {
   const isMobile = useIsMobile();
   const childArray = Children.toArray(children).filter(Boolean);
@@ -61,7 +62,9 @@ const FormsLayout = ({
           <div
             className={clsx(
               "flex",
-              isMobile ? "flex-col w-full gap-2" : "flex-row items-center gap-3"
+              isMobile
+                ? "w-full flex-col gap-2"
+                : "flex-row items-center gap-3",
             )}
           >
             {showSecondaryButton && (
@@ -75,14 +78,16 @@ const FormsLayout = ({
                 {secondaryLabel}
               </Button>
             )}
-            <Button
-              hideIcon
-              onClick={onPrimaryClick}
-              disabled={primaryDisabled}
-              className={clsx(isMobile && "w-full mt-5")}
-            >
-              {primaryLabel}
-            </Button>
+            {showPrimaryButton && (
+              <Button
+                hideIcon
+                onClick={onPrimaryClick}
+                disabled={primaryDisabled}
+                className={clsx(isMobile && "mt-5 w-full")}
+              >
+                {primaryLabel}
+              </Button>
+            )}
           </div>
         }
       >
@@ -90,7 +95,10 @@ const FormsLayout = ({
           {childArray.map((child, index) => {
             const key = (child as any)?.key ?? index;
             return (
-              <div key={key} className="flex bg-white-100 p-6 rounded-lg shadow-md gap-6">
+              <div
+                key={key}
+                className="bg-white-100 flex gap-6 rounded-lg p-6 shadow-md"
+              >
                 {child}
               </div>
             );
@@ -98,7 +106,7 @@ const FormsLayout = ({
         </div>
       </CollapsibleSection>
     </div>
-  )
-}
+  );
+};
 
-export default FormsLayout
+export default FormsLayout;

@@ -3,7 +3,10 @@ import { PermissionRedirect } from '@/app/components/PermissionRedirect/Permissi
 const DocumentsPage = () => {
   return (
     <PermissionRedirect
-      routes={["/main-page/request/documents/managementdocuments"]}
+      routes={[
+        "/main-page/request/documents/managementdocuments",
+        "/main-page/request/documents/operationaldocuments",
+      ]}
     />
   );
 };

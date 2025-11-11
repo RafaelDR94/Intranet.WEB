@@ -213,10 +213,15 @@ describe('useDocumentRegistry hook', () => {
     const [, loadingOpts] = withLoadingMock.mock.calls[0] ?? []
     expect(loadingOpts?.message).toBe('Registrando documento…')
 
-    expect(uploadFileMock).toHaveBeenCalledWith(
-      file,
-      'HumanResources/DocumentRegistry/DOC-001.pdf',
+    const [uploadedFile, storageKey, disableTime] =
+      uploadFileMock.mock.calls[0] ?? []
+
+    expect(uploadedFile).toBe(file)
+    expect(typeof storageKey).toBe('string')
+    expect(storageKey).toMatch(
+      /^HumanResources\/DocumentRegistry\/DOC-001_[A-Za-z0-9]+\.pdf$/,
     )
+    expect(disableTime).toBe(true)
 
     expect(postMock).toHaveBeenCalledWith(DocumentsUrl, {
       name: 'Manual',
