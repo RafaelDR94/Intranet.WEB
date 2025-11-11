@@ -1,3 +1,8 @@
+### 1.47.36 Document registry storage naming 25-10-2025
+
+Fix:
+- Genera nombres de archivo con sello de tiempo antes de la extensión y desactiva el sufijo automático de Firebase para conservar rutas válidas al previsualizar documentos de Office en las tablas gerenciales y operativas. (Agente IA) [#]()
+
 ### 1.47.35 User password display sync 25-10-2025
 
 Fix:
