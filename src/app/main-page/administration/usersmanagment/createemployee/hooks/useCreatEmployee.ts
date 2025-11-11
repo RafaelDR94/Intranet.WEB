@@ -178,11 +178,6 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
 
   const loadInitialFields = () => {
     if (hasInitFields.current) return;
-    const showRestFor:
-      | ((values: Record<string, any>, fields: FieldModel[]) => boolean)
-      | undefined = (_values) => {
-      return !!_values?.enteprise;
-    };
     const initialFields: () => FieldModel[] = () => {
       const model: FieldModel[] = [
         {

@@ -1,6 +1,6 @@
 "use client";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
-import CreateEmployee from "../../administration/usersmanagment/createemployee/page";
+import CreateEmployee from "../../administration/usersmanagment/createemployee/CreateEmployee";
 import Password from "./components/Password/Password";
 import Nip from "./components/NIP/NIP";
 import Signature from "./components/Signature/Signature";
