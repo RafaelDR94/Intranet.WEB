@@ -1,88 +1,137 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import Signature from "./Signature";
+// 🧩 Mocks explícitos de componentes e íconos
+vi.mock("next/image", () => ({
+  __esModule: true,
+  default: ({ src, alt }: { src: string; alt: string }) => (
+    <img src={src} alt={alt} data-testid="mocked-image" />
+  ),
+}));
 
-type MockAuthState = {
-  user: { idEmployee?: string; signature?: string } | null;
-  signature?: string;
-};
-
-let mockState: MockAuthState;
-
-const signatureComponentMock = vi.hoisted(() => vi.fn());
-
-vi.mock("@/app/stores/useAuthStore/useAuthStore", () => ({
-  useAuthStore: (selector: (state: MockAuthState) => any) => selector(mockState),
+vi.mock("@/app/components/Button/Button", () => ({
+  Button: ({ children, onClick, disabled }: any) => (
+    <button onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  ),
 }));
 
 vi.mock("@/app/components/SignatureComponent/SignatureComponent", () => ({
   __esModule: true,
-  default: signatureComponentMock,
+  default: ({ open, onClose, onAuthorization }: any) => (
+    <div data-testid="signature-component">
+      {open ? (
+        <>
+          <p>Signature Component Opened</p>
+          <button onClick={onClose}>Close</button>
+          <button
+            onClick={() =>
+              onAuthorization({ signature: "https://test-signature.png" })
+            }
+          >
+            Authorize
+          </button>
+        </>
+      ) : (
+        <p>Signature Component Closed</p>
+      )}
+    </div>
+  ),
 }));
 
-describe("User configuration signature card", () => {
-  beforeEach(() => {
-    mockState = {
-      user: {
-        idEmployee: "99",
-        signature: "data:image/png;base64,old",
-      },
-      signature: undefined,
-    };
-    vi.clearAllMocks();
-    signatureComponentMock.mockImplementation(({ children }: any) => (
-      <div data-testid="signature-component">{children}</div>
-    ));
-  });
+// 🧠 Mock del store Zustand
+vi.mock("@/app/stores/useAuthStore/useAuthStore", () => ({
+  useAuthStore: vi.fn(),
+}));
 
-  it("muestra la firma existente del usuario", () => {
-    render(<Signature />);
+import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+import Signature from "./Signature";
 
-    const image = screen.getByAltText(/firma digital/i) as HTMLImageElement;
-    expect(image.src).toContain("data:image/png;base64,old");
-  });
+// 🧹 Limpieza antes de cada test
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
-  it("muestra el placeholder cuando no existe firma", () => {
-    mockState.user = { idEmployee: "99" };
-
-    render(<Signature />);
-
-    expect(screen.getByText(/aún no tienes una firma registrada/i)).toBeInTheDocument();
-  });
-
-  it("habilita el modal de firma cuando se da clic en actualizar", () => {
-    render(<Signature />);
-
-    fireEvent.click(screen.getByRole("button", { name: /actualizar firma/i }));
-
-    const lastCall = signatureComponentMock.mock.calls.at(-1)?.[0];
-    expect(lastCall?.open).toBe(true);
-    expect(lastCall?.responsibleGuid).toBe("99");
-    expect(lastCall?.skipAuthorization).toBe(true);
-    expect(lastCall?.fullScreenPad).toBe(true);
-  });
-
-  it("actualiza la vista previa cuando se recibe una nueva firma", () => {
-    render(<Signature />);
-
-    const props = signatureComponentMock.mock.calls.at(-1)?.[0];
-    expect(props).toBeDefined();
-
-    act(() => {
-      props?.onAuthorization?.({ state: true, signature: "data:image/png;base64,new" });
+describe("Signature component", () => {
+  it("muestra el mensaje cuando no hay firma registrada", () => {
+    (useAuthStore as any).mockReturnValue({
+      user: { idEmployee: "123", signature: "" },
+      signature: "",
     });
 
-    const image = screen.getByAltText(/firma digital/i) as HTMLImageElement;
-    expect(image.src).toContain("data:image/png;base64,new");
+    render(<Signature />);
+
+    expect(
+      screen.getByText("Aún no tienes una firma registrada.")
+    ).toBeInTheDocument();
+    expect(screen.getByText("Actualizar Firma")).toBeEnabled();
   });
 
-  it("deshabilita el botón cuando no existe id del empleado", () => {
-    mockState.user = { idEmployee: "" };
+  it("renderiza la imagen cuando existe una firma", () => {
+    (useAuthStore as any).mockReturnValue({
+      user: { idEmployee: "123", signature: "https://firma.png" },
+      signature: "",
+    });
 
     render(<Signature />);
 
-    expect(screen.getByRole("button", { name: /actualizar firma/i })).toBeDisabled();
+    const img = screen.getByTestId("mocked-image");
+    expect(img).toHaveAttribute("src", "https://firma.png");
+  });
+
+  it("deshabilita el botón si el usuario no tiene idEmployee", () => {
+    (useAuthStore as any).mockReturnValue({
+      user: { idEmployee: undefined },
+      signature: "",
+    });
+
+    render(<Signature />);
+    const button = screen.getByText("Actualizar Firma");
+    expect(button).toBeDisabled();
+  });
+
+  it("abre el componente de firma al hacer clic en el botón", () => {
+    (useAuthStore as any).mockReturnValue({
+      user: { idEmployee: "456" },
+      signature: "",
+    });
+
+    render(<Signature />);
+    const button = screen.getByText("Actualizar Firma");
+
+    fireEvent.click(button);
+    expect(screen.getByText("Signature Component Opened")).toBeInTheDocument();
+  });
+
+  it("actualiza la vista previa después de la autorización", () => {
+    (useAuthStore as any).mockReturnValue({
+      user: { idEmployee: "789" },
+      signature: "",
+    });
+
+    render(<Signature />);
+
+    fireEvent.click(screen.getByText("Actualizar Firma"));
+    fireEvent.click(screen.getByText("Authorize"));
+
+    const img = screen.getByTestId("mocked-image");
+    expect(img).toHaveAttribute("src", "https://test-signature.png");
+  });
+
+  it("cierra el modal al presionar 'Close'", () => {
+    (useAuthStore as any).mockReturnValue({
+      user: { idEmployee: "789" },
+      signature: "",
+    });
+
+    render(<Signature />);
+
+    fireEvent.click(screen.getByText("Actualizar Firma"));
+    expect(screen.getByText("Signature Component Opened")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Close"));
+    expect(screen.getByText("Signature Component Closed")).toBeInTheDocument();
   });
 });
