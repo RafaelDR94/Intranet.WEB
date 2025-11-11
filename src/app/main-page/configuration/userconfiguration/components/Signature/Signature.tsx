@@ -7,6 +7,7 @@ import { Button } from "@/app/components/Button/Button";
 import SignatureComponent from "@/app/components/SignatureComponent/SignatureComponent";
 import type { Authorized } from "@/app/components/SignaturePopUp/types";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+import Image from "next/image";
 
 const Signature = () => {
   const [open, setOpen] = useState(false);
@@ -65,7 +66,7 @@ const Signature = () => {
         <div className="flex flex-col gap-4">
           <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-gray-30 bg-gray-10 px-4">
             {hasSignature ? (
-              <img
+              <Image
                 src={preview}
                 alt="Firma digital"
                 className="max-h-24 w-auto max-w-full object-contain"
