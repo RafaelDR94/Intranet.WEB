@@ -460,28 +460,41 @@ const useDocumentRegistry = (documentId?: string) => {
     [existingDocument, setShouldPrefillFromDocument],
   );
 
-  const uploadDocumentFile = useCallback(
-    async (file: File, values: Record<string, unknown>) => {
-      if (!firebasestorage?.uploadFile) {
-        throw new Error("Firebase Storage no disponible");
-      }
+const createTimestampedStorageKey = (
+  base: string,
+  extension: string,
+): string => {
+  const isoTimestamp = new Date().toISOString();
+  const normalizedTimestamp = isoTimestamp
+    .replace(/[-:.TZ]/g, "")
+    .trim();
+  const suffix = normalizedTimestamp ? `_${normalizedTimestamp}` : "";
 
-      const rawExtension = getFileExtension(file.name) || "dat";
-      const resolvedExtension = normalizeExtension(rawExtension) || "dat";
-      const code = safeString(values.documentKey).trim();
-      const baseNameFromFile = getFileBaseName(file.name);
-      const storageBase =
-        sanitizeStorageKey(code) || sanitizeStorageKey(baseNameFromFile) || "documento";
-      const storageKey = `${DOCUMENTS_STORAGE_PREFIX}${storageBase}.${resolvedExtension}`;
+  return `${DOCUMENTS_STORAGE_PREFIX}${base}${suffix}.${extension}`;
+};
 
-      const url = await firebasestorage.uploadFile(file, storageKey);
-      return {
-        url,
-        extension: resolvedExtension,
-      };
-    },
-    [firebasestorage],
-  );
+const uploadDocumentFile = useCallback(
+  async (file: File, values: Record<string, unknown>) => {
+    if (!firebasestorage?.uploadFile) {
+      throw new Error("Firebase Storage no disponible");
+    }
+
+    const rawExtension = getFileExtension(file.name) || "dat";
+    const resolvedExtension = normalizeExtension(rawExtension) || "dat";
+    const code = safeString(values.documentKey).trim();
+    const baseNameFromFile = getFileBaseName(file.name);
+    const storageBase =
+      sanitizeStorageKey(code) || sanitizeStorageKey(baseNameFromFile) || "documento";
+    const storageKey = createTimestampedStorageKey(storageBase, resolvedExtension);
+
+    const url = await firebasestorage.uploadFile(file, storageKey, true);
+    return {
+      url,
+      extension: resolvedExtension,
+    };
+  },
+  [firebasestorage],
+);
 
   const handleValuesChange = useCallback(
     async (values: Record<string, unknown>) => {
