@@ -43,6 +43,10 @@ export const getTabsFromPath = (
       {
         label: "Documentos Gerenciales",
         path: "/main-page/request/documents/managementdocuments",
+      },
+      {
+        label: "Documentos Operativos",
+        path: "/main-page/request/documents/operationaldocuments",
       }
     ],
     "accounting/invoices": [
