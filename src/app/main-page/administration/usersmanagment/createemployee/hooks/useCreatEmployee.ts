@@ -301,7 +301,6 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
           label: "Género",
           placeholder: "Seleccione el género",
           validations: [{ type: "required" }],
-          showIf: showRestFor,
           disabled: isReadOnly,
         },
         {
@@ -315,7 +314,6 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
           label: "Tipo de empleado",
           placeholder: "Seleccione el tipo de empleadoo",
           validations: [{ type: "required" }],
-          showIf: showRestFor,
           disabled: isReadOnly,
         },
         {
@@ -323,7 +321,6 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
           name: "extension",
           value: currentEmployee?.extension || "",
           label: "Extensión",
-          showIf: showRestFor,
           disabled: isReadOnly,
         },
       ];

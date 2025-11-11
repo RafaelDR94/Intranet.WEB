@@ -153,7 +153,7 @@ const Nip = () => {
             fields={fields}
             onSubmit={handleSubmit}
             marginButton="90px"
-            submitLabel="Guardar NIP"
+            submitLabel="Cambiar NIP"
             responsiveLayoutMatrix={{ sm: [[10]], md: [[10]] }}
             valuesVersion={valuesVersion}
           />

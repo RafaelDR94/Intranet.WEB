@@ -11,9 +11,10 @@ type CreateEmployeeProps = {
    * Cuando se proporciona, los campos quedarán deshabilitados.
    */
   loggedUser?: User | null;
+  onConfigurations?: boolean;
 };
 
-const CreateEmployee: React.FC<CreateEmployeeProps> = ({ loggedUser }) => {
+const CreateEmployee: React.FC<CreateEmployeeProps> = ({ loggedUser, onConfigurations }) => {
   const {
     loadingForm,
     fields,
@@ -27,8 +28,10 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({ loggedUser }) => {
   if (!canStart) return <></>;
   return (
     <FormsLayout
-      title="Registro de empleado"
+      title={onConfigurations ? "Ajustes de Usuario" : "Registro de empleado"}
       primaryLabel="Registrar empleado"
+      enableCollapse={onConfigurations ? false : true}
+      showPrimaryButton={onConfigurations ? false : true}
       onPrimaryClick={() => submitRef.current?.()}
       primaryDisabled={isReadOnly || !formCompleted}
     >
@@ -56,6 +59,7 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({ loggedUser }) => {
               [3.33, 3.3, 3.3],
             ],
             lg: [
+              [10],
               [2.5, 2.5, 2.5, 2.5],
               [2.5, 2.5, 2.5, 2.5],
               [2.5, 2.5, 2.5, 2.5],

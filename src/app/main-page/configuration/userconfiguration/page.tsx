@@ -10,7 +10,7 @@ const UserConfiguration = () => {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <CreateEmployee loggedUser={loggedUser} />
+        <CreateEmployee loggedUser={loggedUser} onConfigurations={true} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-3 md:grid-cols-2">
