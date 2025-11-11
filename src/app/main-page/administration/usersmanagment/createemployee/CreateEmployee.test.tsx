@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
-import CreateEmployee from './page';
+import CreateEmployee from './CreateEmployee';
 import useCreateEemployee from './hooks/useCreatEmployee';
 
 vi.mock('./hooks/useCreatEmployee', () => ({

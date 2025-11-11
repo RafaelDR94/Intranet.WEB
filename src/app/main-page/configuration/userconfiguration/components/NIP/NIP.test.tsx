@@ -100,7 +100,7 @@ describe("User configuration NIP card", () => {
 
     render(<Nip />);
 
-    fireEvent.click(screen.getByRole("button", { name: /guardar nip/i }));
+    fireEvent.click(screen.getByRole("button", { name: /cambiar nip/i }));
 
     expect(mockShowAlert).toHaveBeenCalled();
     expect(mockChangeNip).not.toHaveBeenCalled();
@@ -111,7 +111,7 @@ describe("User configuration NIP card", () => {
 
     render(<Nip />);
 
-    fireEvent.click(screen.getByRole("button", { name: /guardar nip/i }));
+    fireEvent.click(screen.getByRole("button", { name: /cambiar nip/i }));
 
     expect(mockShowAlert).toHaveBeenCalled();
     expect(mockChangeNip).not.toHaveBeenCalled();
