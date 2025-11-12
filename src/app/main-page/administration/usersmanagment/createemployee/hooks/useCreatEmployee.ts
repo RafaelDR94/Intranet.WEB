@@ -163,6 +163,8 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
           (enterprise) => enterprise.enterprise_id == idEnterprise,
         ) || [];
       const departments = enterpriseSelected[0].departments;
+      console.log('departments', departments);
+      
       updateField(formId, "departments", {
         options: departments.map((deparments) => ({
           label: deparments.name,
@@ -234,21 +236,22 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
         },
         {
           type: "select",
-          name: "departments",
-          label: "Departamento",
-          placeholder: "Seleccione el departamento",
-          value: currentEmployee?.department?.department_id || "",
+          name: "enteprise",
+          label: "Empresa",
+          placeholder: "Seleccione la empresa",
+          value: currentEmployee?.department?.enterprise_id || "",
           options: [],
           validations: [{ type: "required" }],
           disabled: isReadOnly,
         },
         {
           type: "select",
-          name: "manager",
-          label: "Gerente",
-          placeholder: "Seleccione el Gerente",
-          value: currentEmployee?.manager_id || "",
+          name: "departments",
+          label: "Departamento",
+          placeholder: "Seleccione el departamento",
+          value: currentEmployee?.department?.department_id || "",
           options: [],
+          validations: [{ type: "required" }],
           disabled: isReadOnly,
         },
         {
@@ -263,12 +266,11 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
         },
         {
           type: "select",
-          name: "enteprise",
-          label: "Empresa",
-          placeholder: "Seleccione la empresa",
-          value: currentEmployee?.department?.enterprise_id || "",
+          name: "manager",
+          label: "Gerente",
+          placeholder: "Seleccione el Gerente",
+          value: currentEmployee?.manager_id || "",
           options: [],
-          validations: [{ type: "required" }],
           disabled: isReadOnly,
         },
         {

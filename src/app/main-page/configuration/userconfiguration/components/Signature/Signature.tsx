@@ -68,6 +68,8 @@ const Signature = () => {
             {hasSignature ? (
               <Image
                 src={preview}
+                width={100}
+                height={100}
                 alt="Firma digital"
                 className="max-h-24 w-auto max-w-full object-contain"
               />
