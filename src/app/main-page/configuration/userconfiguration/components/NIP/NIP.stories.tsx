@@ -6,7 +6,6 @@ import { PrincipalProvider } from "@/app/context/PrincipalContext/PrincipalConte
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
 import Nip from "./NIP";
-
 import type { NipProps } from "./types";
 
 type StoryArgs = NipProps & {
@@ -20,23 +19,29 @@ const StoryContainer: React.FC<StoryArgs> = ({ theme, currentNip, userId }) => {
     const previousState = useAuthStore.getState();
 
     useAuthStore.setState(
-      (state) => ({
+      (state): Partial<typeof state> => ({
         ...state,
         user: userId
-          ? {
+          ? ({
               ...(state.user ?? {}),
               idUser: userId,
               nip: currentNip,
-            }
+              fullName: (state.user as any)?.fullName ?? "Usuario Storybook",
+              employeeNumber: (state.user as any)?.employeeNumber ?? "",
+              userName: (state.user as any)?.userName ?? "",
+              changePassword: (state.user as any)?.changePassword ?? false,
+              idEmployee: (state.user as any)?.idEmployee ?? "",
+              email: (state.user as any)?.email ?? "",
+            } as any)
           : null,
         successChangeNIP: false,
         error: undefined,
-        changeNip: async (payload) => {
+        changeNip: async (payload: any) => {
           action("changeNip")(payload);
-          useAuthStore.setState((current) => ({
+          useAuthStore.setState((current): Partial<typeof current> => ({
             ...current,
             user: current.user
-              ? { ...current.user, nip: payload.nip }
+              ? ({ ...current.user, nip: payload.nip } as any)
               : current.user,
             successChangeNIP: true,
             error: undefined,
@@ -44,7 +49,7 @@ const StoryContainer: React.FC<StoryArgs> = ({ theme, currentNip, userId }) => {
         },
         resetFlags: () => {
           action("resetFlags")();
-          useAuthStore.setState((current) => ({
+          useAuthStore.setState((current): Partial<typeof current> => ({
             ...current,
             successChangeNIP: false,
             error: undefined,

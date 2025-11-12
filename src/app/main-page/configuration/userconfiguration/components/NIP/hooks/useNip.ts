@@ -5,7 +5,7 @@ import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
-import type { NipFormValues, UseNipReturn } from "../types";
+import type { UseNipReturn } from "../types";
 
 const BASE_FIELDS: FieldModel[] = [
   {

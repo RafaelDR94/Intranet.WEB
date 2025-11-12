@@ -5,7 +5,7 @@ import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
-import type { PasswordFormValues, UsePasswordReturn } from "../types";
+import type { UsePasswordReturn } from "../types";
 
 const BASE_FIELDS: FieldModel[] = [
   {

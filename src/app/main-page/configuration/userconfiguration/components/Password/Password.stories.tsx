@@ -15,30 +15,38 @@ type StoryArgs = PasswordProps & {
   currentPassword?: string;
 };
 
-const StoryContainer: React.FC<StoryArgs> = ({ theme, email, userName, currentPassword }) => {
+const StoryContainer: React.FC<StoryArgs> = ({
+  theme,
+  email,
+  userName,
+  currentPassword,
+}) => {
   useEffect(() => {
     const previousState = useAuthStore.getState();
 
     useAuthStore.setState(
-      (state) => ({
+      (state): Partial<typeof state> => ({
         ...state,
         user:
           email || userName
-            ? {
+            ? ({
                 ...(state.user ?? {}),
-                email: email ?? state.user?.email,
-                userName: userName ?? state.user?.userName,
-                password: currentPassword ?? state.user?.password ?? "",
-              }
+                email: email ?? (state.user as any)?.email ?? "",
+                userName: userName ?? (state.user as any)?.userName ?? "",
+                password:
+                  currentPassword ??
+                  (state.user as any)?.password ??
+                  "",
+              } as any)
             : null,
         successChangePassword: false,
         error: undefined,
-        changePassword: async (payload) => {
+        changePassword: async (payload: any) => {
           action("changePassword")(payload);
-          useAuthStore.setState((current) => ({
+          useAuthStore.setState((current): Partial<typeof current> => ({
             ...current,
             user: current.user
-              ? { ...current.user, password: payload.newPassword }
+              ? ({ ...current.user, password: payload.newPassword } as any)
               : current.user,
             successChangePassword: true,
             error: undefined,
@@ -46,7 +54,7 @@ const StoryContainer: React.FC<StoryArgs> = ({ theme, email, userName, currentPa
         },
         resetFlags: () => {
           action("resetFlags")();
-          useAuthStore.setState((current) => ({
+          useAuthStore.setState((current): Partial<typeof current> => ({
             ...current,
             successChangePassword: false,
             error: undefined,

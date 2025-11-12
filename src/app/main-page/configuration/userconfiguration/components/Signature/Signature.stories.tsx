@@ -52,26 +52,26 @@ const StoryContainer: React.FC<StoryArgs> = ({ theme, employeeId, signatureUrl }
     const previousState = useAuthStore.getState();
 
     useAuthStore.setState(
-      (state) => ({
+      (state): Partial<typeof state> => ({
         ...state,
         user: employeeId
-          ? {
+          ? ({
               ...(state.user ?? {}),
               idEmployee: employeeId,
-              signature: signatureUrl ?? state.user?.signature ?? "",
-            }
+              signature: signatureUrl ?? (state.user as any)?.signature ?? "",
+            } as any)
           : null,
         signature: signatureUrl ?? "",
         succesChangeSignature: false,
         changingSignature: false,
         error: undefined,
-        changeSignature: async (payload) => {
+        changeSignature: async (payload: any) => {
           action("changeSignature")(payload);
-          useAuthStore.setState((current) => ({
+          useAuthStore.setState((current): Partial<typeof current> => ({
             ...current,
             signature: payload.signature,
             user: current.user
-              ? { ...current.user, signature: payload.signature }
+              ? ({ ...current.user, signature: payload.signature } as any)
               : current.user,
             succesChangeSignature: true,
             changingSignature: false,
@@ -80,7 +80,7 @@ const StoryContainer: React.FC<StoryArgs> = ({ theme, employeeId, signatureUrl }
         },
         resetFlags: () => {
           action("resetFlags")();
-          useAuthStore.setState((current) => ({
+          useAuthStore.setState((current): Partial<typeof current> => ({
             ...current,
             succesChangeSignature: false,
             changingSignature: false,
