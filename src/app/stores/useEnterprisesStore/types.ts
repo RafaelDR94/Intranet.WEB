@@ -1,4 +1,9 @@
-import type { Enterprise } from "@/app/mappings/enterprises/enterprises.types";
+import type {
+  Enterprise,
+  EnterprisePost,
+  EnterprisePut,
+  ExternalEnterprisePost,
+} from "@/app/mappings/enterprises/enterprises.types";
 import type { WorkPositionType } from "@/app/mappings/workposition/workposition.types";
 
 export type WorkpositionsMap = Record<string, WorkPositionType[]>;
@@ -16,10 +21,14 @@ export type EnterprisesState = {
   /** Flags de proceso */
   loadingEnterprises: boolean;
   loadingWorkpositions: boolean;
+  creating: boolean;
+  updating: boolean;
 
   /** Flags de exito */
   successGetEnterprises: boolean;
   successGetWorkpositions: boolean;
+  successPost: boolean;
+  successPut: boolean;
 
   /** Mensajes de error / advertencia */
   error?: string;
@@ -30,6 +39,11 @@ export type EnterprisesState = {
     enterpriseId?: string,
     force?: boolean
   ) => Promise<WorkPositionType[]>;
+  createEnterprise: (payload: EnterprisePost) => Promise<Enterprise | null>;
+  updateEnterprise: (payload: EnterprisePut) => Promise<Enterprise | null>;
+  createExternalEnterprise: (
+    payload: ExternalEnterprisePost
+  ) => Promise<Enterprise | null>;
   reset: () => void;
   resetFlags: () => void;
 };

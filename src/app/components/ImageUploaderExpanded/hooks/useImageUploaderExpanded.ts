@@ -6,7 +6,6 @@ import { useFileUploaderExpanded } from '@/app/components/FileUploaderexpanded/h
 
 import {
   UseImageUploaderExpandedParams,
-  UseImageUploaderExpandedReturn,
 } from './types';
 
 const DEFAULT_PLACEHOLDER = 'arrastra/selecciona la imagen que deseas subir';
@@ -17,7 +16,7 @@ export const useImageUploaderExpanded = ({
   disabled = false,
   placeholder = DEFAULT_PLACEHOLDER,
   initialFile,
-}: UseImageUploaderExpandedParams): UseImageUploaderExpandedReturn => {
+}: UseImageUploaderExpandedParams) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -31,7 +30,8 @@ export const useImageUploaderExpanded = ({
     handleDragOver,
     handleDragLeave,
     handleDrop,
-  } = useFileUploaderExpanded(onImage, accept, disabled, initialFile);
+    previewUrl,
+    applyExternalFile } = useFileUploaderExpanded(onImage, accept, disabled, initialFile);
 
   const displayText = useMemo(() => fileName ?? placeholder, [fileName, placeholder]);
 
@@ -39,7 +39,7 @@ export const useImageUploaderExpanded = ({
     (file: File) => {
       const input = inputRef.current;
       if (!input) {
-        onImage(file);
+        applyExternalFile(file);
         return;
       }
 
@@ -50,10 +50,10 @@ export const useImageUploaderExpanded = ({
         const changeEvent = new Event('change', { bubbles: true });
         input.dispatchEvent(changeEvent);
       } catch {
-        onImage(file);
+        applyExternalFile(file);
       }
     },
-    [inputRef, onImage]
+    [inputRef, applyExternalFile]
   );
 
   const openCamera = useCallback(() => {
@@ -110,5 +110,6 @@ export const useImageUploaderExpanded = ({
     openCamera,
     closeCamera,
     handleCaptureFromCamera,
+    previewUrl,
   };
 };

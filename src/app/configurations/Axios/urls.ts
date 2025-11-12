@@ -9,8 +9,13 @@ export const AuthCreateNIP = process.env.NEXT_PUBLIC_AUTHCREATENIP ?? "/Auth/Cre
 export const VerifyOTP = process.env.NEXT_PUBLIC_VERIFY_OTP ?? "/VerifyOTP";
 
 export const Enterprises = process.env.NEXT_PUBLIC_ENTERPRISES ?? "/Enterprises";
+export const EnterprisesExternal = process.env.NEXT_PUBLIC_ENTERPRISESEXTERNAL ?? "/Enterprises/External";
 export const Departments = process.env.NEXT_PUBLIC_DEPARTMENTS ?? "/Enterprises/Departments";
 
+export const CustomAccessControler = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLER??"/CustomsAccessControler/ExternalPersonnel"
+export const CustomAccessControlerByEnterprise = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYENTERPRISE??"/CustomsAccessControler/ExternalPersonnel/ByEnterprise"
+export const CustomAccessControlerById = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYID??"/CustomsAccessControler/ExternalPersonnel/ByID"
+export const CustomAccessControlerAccesRequirement =process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT||"/CustomsAccessControler/AccessRequirement"
 export const Persons = process.env.NEXT_PUBLIC_PERSONS ?? "/Persons";
 export const WorkPosition = process.env.NEXT_PUBLIC_WORK_POSITION ?? "/Enterprises/WorkPosition";
 

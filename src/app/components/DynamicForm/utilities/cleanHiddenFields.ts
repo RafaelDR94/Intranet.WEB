@@ -21,6 +21,7 @@ export const cleanHiddenFields = (fields: FieldModel[], values: Record<string, a
           cleanedValues[field.name] = null;
           break;
         case 'file':
+        case 'imageUploaderExpanded':
           cleanedValues[field.name] = null;
           break;
         default:

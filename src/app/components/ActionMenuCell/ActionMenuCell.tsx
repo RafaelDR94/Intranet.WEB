@@ -87,6 +87,7 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
   row,
   onEdit,
   onDelete,
+  onDetails,
   permissions,
 }: ActionMenuCellBaseProps<T> & { permissions: ActionMenuPermissions }): ContextMenuItem[] => {
   const items: ContextMenuItem[] = [];
@@ -96,7 +97,7 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
     items.push({
       label: permissions.details ? "Ver Detalle" : "Actualizar",
       icon: EditIcon,
-      onClick: () => onEdit(row),
+      onClick: () => onEdit?.(row) ?? onDetails?.(row),
     });
   }
 
@@ -105,9 +106,10 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
       label: "Cancelar o eliminar",
       icon: DeleteIcon,
       danger: true,
-      onClick: () => onDelete(row),
+      onClick: () => onDelete?.(row),
     });
   }
+
 
   return items;
 };
@@ -125,13 +127,14 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
   row,
   onEdit,
   onDelete,
+  onDetails,
   permissions,
   isMobile,
   menuComponent: MenuComponent = ContextMenu,
   buttonComponent: ButtonComponent = Button,
 }: ActionMenuCellViewProps<T>) => {
   const menuItems = useMemo(
-    () => buildActionMenuItems<T>({ row, onEdit, onDelete, permissions }),
+    () => buildActionMenuItems<T>({ row, onEdit, onDelete,onDetails, permissions }),
     [row, onEdit, onDelete, permissions]
   );
 
