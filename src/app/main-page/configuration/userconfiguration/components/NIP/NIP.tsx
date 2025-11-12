@@ -1,165 +1,35 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { shallow } from "zustand/shallow";
+import clsx from "clsx";
+import React from "react";
 
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
-import type { FieldModel } from "@/app/components/DynamicForm/types";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
-const BASE_FIELDS: FieldModel[] = [
-  {
-    name: "nip",
-    type: "password",
-    label: "NIP",
-    placeholder: "Ingresa tu NIP",
-    value: "",
-    validations: [
-      { type: "required" },
-      { type: "minLength", value: 4 },
-      { type: "maxLength", value: 4 },
-    ],
-  },
-];
+import { useNip } from "./hooks/useNip";
+import { card, description, header, title } from "./styles";
+import type { NipProps } from "./types";
 
-const Nip = () => {
-  const [valuesVersion, setValuesVersion] = useState(0);
-
-  const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
-  const { withLoading } = usePrincipalLoading;
-  const { showAlert } = usePrincipalAlert;
-
-  const { userId, currentNip, changeNip, successChangeNIP, error, resetFlags } =
-    useAuthStore(
-      (state) => ({
-        userId: state.user?.idUser ?? "",
-        currentNip: state.user?.nip ?? "",
-        changeNip: state.changeNip,
-        successChangeNIP: state.successChangeNIP,
-        error: state.error,
-        resetFlags: state.resetFlags,
-      }),
-      shallow
-    );
-
-  const fields = useMemo(
-    () =>
-      BASE_FIELDS.map((field) =>
-        field.name === "nip"
-          ? {
-              ...field,
-              value: currentNip,
-            }
-          : { ...field }
-      ),
-    [currentNip]
-  );
-
-  const handleSubmit = useCallback(
-    async (values: Record<string, string>) => {
-      const nipValue: string = (values.nip ?? "").trim();
-      const normalizedUserId = userId.trim();
-
-      if (!normalizedUserId) {
-        showAlert({
-          type: "error",
-          variant: "subtle",
-          title: "No se pudo identificar al usuario",
-          description: "Intenta volver a iniciar sesión para actualizar tu NIP.",
-          showPrimaryButton: false,
-          showSecondaryButton: false,
-          autoCloseMs: 4000,
-        });
-        return;
-      }
-
-      if (!nipValue || nipValue.length !== 4) {
-        showAlert({
-          type: "warning",
-          variant: "subtle",
-          title: "NIP inválido",
-          description: "El NIP debe contener exactamente 4 dígitos.",
-          showPrimaryButton: false,
-          showSecondaryButton: false,
-          autoCloseMs: 3500,
-        });
-        return;
-      }
-
-      await withLoading(
-        () =>
-          changeNip({
-            user_id: normalizedUserId,
-            nip: nipValue,
-          }),
-        { message: "Actualizando NIP" }
-      );
-    },
-    [changeNip, showAlert, userId, withLoading]
-  );
-
-  useEffect(() => {
-    if (!successChangeNIP) {
-      return;
-    }
-
-    showAlert({
-      type: "success",
-      variant: "subtle",
-      title: "NIP actualizado",
-      description: "Tu NIP se actualizó correctamente.",
-      showPrimaryButton: false,
-      showSecondaryButton: false,
-      autoCloseMs: 3500,
-    });
-
-    setValuesVersion((version) => version + 1);
-    resetFlags();
-  }, [resetFlags, showAlert, successChangeNIP]);
-
-  useEffect(() => {
-    if (!error) {
-      return;
-    }
-
-    showAlert({
-      type: "error",
-      variant: "subtle",
-      title: "No se pudo actualizar el NIP",
-      description: error,
-      showPrimaryButton: false,
-      showSecondaryButton: false,
-      autoCloseMs: 4000,
-    });
-
-    resetFlags();
-  }, [error, resetFlags, showAlert]);
-
-  useEffect(() => () => resetFlags(), [resetFlags]);
+const Nip: React.FC<NipProps> = ({ className }) => {
+  const { fields, handleSubmit, valuesVersion } = useNip();
 
   return (
-    <React.Fragment>
-      <section className="flex h-full flex-col gap-6 rounded-2xl border border-gray-30 bg-white-100 p-6 shadow-sm">
-        <header className="flex flex-col gap-1">
-          <h3 className="text-b4 font-medium text-blue-60">NIP</h3>
-          <p className="text-b4 text-gray-70">
-            El NIP autoriza acciones sin firmar digitalmente
-          </p>
-        </header>
+    <section className={clsx(card, className)}>
+      <header className={header}>
+        <h3 className={title}>NIP</h3>
+        <p className={description}>
+          El NIP autoriza acciones sin firmar digitalmente
+        </p>
+      </header>
 
-        <div>
-          <DynamicForm
-            fields={fields}
-            onSubmit={handleSubmit}
-            marginButton="90px"
-            submitLabel="Cambiar NIP"
-            responsiveLayoutMatrix={{ sm: [[10]], md: [[10]] }}
-            valuesVersion={valuesVersion}
-          />
-        </div>
-      </section>
-    </React.Fragment>
+      <DynamicForm
+        fields={fields}
+        onSubmit={handleSubmit}
+        marginButton="90px"
+        submitLabel="Cambiar NIP"
+        responsiveLayoutMatrix={{ sm: [[10]], md: [[10]] }}
+        valuesVersion={valuesVersion}
+      />
+    </section>
   );
 };
 
