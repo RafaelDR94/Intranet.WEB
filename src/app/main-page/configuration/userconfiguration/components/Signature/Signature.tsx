@@ -17,12 +17,12 @@ const Signature = () => {
       user: state.user,
       signature: state.signature,
     }),
-    shallow
+    shallow,
   );
 
   const initialSignature = useMemo(
     () => signature || user?.signature || "",
-    [signature, user?.signature]
+    [signature, user?.signature],
   );
 
   const [preview, setPreview] = useState(initialSignature);
@@ -42,62 +42,60 @@ const Signature = () => {
     setOpen(false);
   }, []);
 
-  const handleAuthorization = useCallback(
-    (authorized: Authorized) => {
-      if (authorized?.signature) {
-        setPreview(authorized.signature);
-      }
-    },
-    []
-  );
+  const handleAuthorization = useCallback((authorized: Authorized) => {
+    if (authorized?.signature) {
+      setPreview(authorized.signature);
+    }
+  }, []);
 
   const hasSignature = Boolean(preview);
 
   return (
-    <React.Fragment>
-      <section className="flex h-full flex-col gap-6 rounded-2xl border border-gray-30 bg-white-100 p-6 shadow-sm">
-        <header className="flex flex-col gap-1">
-          <h3 className="text-b4 font-medium text-blue-60">Firma Digital</h3>
-          <p className="text-b4 text-gray-70">
-            La firma se insertará en los documentos después de haber autorizado una acción
-          </p>
-        </header>
+    <section className="border-gray-30 bg-white-100 flex h-full flex-col gap-6 rounded-2xl border p-6 shadow-sm">
+      <header className="flex flex-col gap-1">
+        <h3 className="text-b4 text-blue-60 font-medium">Firma Digital</h3>
+        <p className="text-b4 text-gray-70">
+          La firma se insertará en los documentos después de haber autorizado
+          una acción
+        </p>
+      </header>
 
-        <div className="flex flex-col gap-4">
-          <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-gray-30 bg-gray-10 px-4">
-            {hasSignature ? (
-              <Image
-                src={preview}
-                width={100}
-                height={100}
-                alt="Firma digital"
-                className="max-h-24 w-auto max-w-full object-contain"
-              />
-            ) : (
-              <span className="text-b3 text-gray-50">Aún no tienes una firma registrada.</span>
-            )}
-          </div>
-
-          <Button
-            onClick={handleOpen}
-            variant="solid"
-            hideIcon
-            disabled={!user?.idEmployee}
-          >
-            Actualizar Firma
-          </Button>
+      <div className="flex flex-col gap-4">
+        <div className="border-gray-30 bg-gray-10 flex h-32 items-center justify-center rounded-xl border border-dashed px-4">
+          {hasSignature ? (
+            <Image
+              src={preview}
+              width={100}
+              height={100}
+              alt="Firma digital"
+              className="max-h-24 w-auto max-w-full object-contain"
+            />
+          ) : (
+            <span className="text-b3 text-gray-50">
+              Aún no tienes una firma registrada.
+            </span>
+          )}
         </div>
 
-        <SignatureComponent
-          open={open}
-          onClose={handleClose}
-          onAuthorization={handleAuthorization}
-          responsibleGuid={user?.idEmployee ?? ""}
-          skipAuthorization
-          fullScreenPad
-        />
-      </section>
-    </React.Fragment>
+        <Button
+          onClick={handleOpen}
+          variant="solid"
+          hideIcon
+          disabled={!user?.idEmployee}
+        >
+          Actualizar Firma
+        </Button>
+      </div>
+
+      <SignatureComponent
+        open={open}
+        onClose={handleClose}
+        onAuthorization={handleAuthorization}
+        responsibleGuid={user?.idEmployee ?? ""}
+        skipAuthorization
+        fullScreenPad
+      />
+    </section>
   );
 };
 

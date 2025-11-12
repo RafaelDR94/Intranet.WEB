@@ -1,3 +1,8 @@
+### 1.47.38 User NIP persistence sync 25-10-2025
+
+Fix:
+- Sincroniza el NIP actualizado con el estado de autenticación y el almacenamiento local para reflejar el cambio tras recargar la configuración de usuario. (Agente IA) [#]()
+
 ### 1.47.37 Request documents operational tab 25-10-2025
 
 Feat:
