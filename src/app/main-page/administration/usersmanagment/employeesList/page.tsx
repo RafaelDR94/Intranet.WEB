@@ -123,7 +123,7 @@ const EmployeesList = () => {
             actionLabel="Nuevo Empleado"
             showButton={currentPagePermissions?.create}
             showCalendar={false}
-            textSize={{ mobile: "text-d3" }}
+            textSize={{ mobile: "text-d3", desktop: "text-b3" }}
             tables={[{
                 data: employeesList,
                 columns: columnas,

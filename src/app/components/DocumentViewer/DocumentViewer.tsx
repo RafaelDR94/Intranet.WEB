@@ -1,6 +1,8 @@
 import React from "react";
 import CancelIcon from "@/assets/icons/acciones/cancel.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
+import { useIsMobile } from "../DataTable/components/DataTableLayout/hooks/useMediaQuery";
+
 interface DocumentViewerProps {
   fileUrl: string;
   title?: string;
@@ -8,6 +10,7 @@ interface DocumentViewerProps {
 }
 
 const DocumentViewer: React.FC<DocumentViewerProps> = ({ fileUrl, title, onClose }) => {
+  const isMobile = useIsMobile();
 
   return (
     <div className="fixed inset-0 z-80 flex items-center justify-center backdrop-blur-[2px] bg-[rgba(0,42,65,0.70)]">
@@ -39,7 +42,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ fileUrl, title, onClose
         <div className="p-4 flex justify-center">
           <iframe
             src={fileUrl}
-            className="w-[600px] h-[80vh] rounded-lg"
+            className={isMobile ? "w-[90vw] h-[70vh] rounded-lg" : "w-[80vw] h-[80vh] rounded-lg"}
             title={title}
           />
         </div>

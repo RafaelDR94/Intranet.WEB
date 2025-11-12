@@ -10,6 +10,7 @@ import {
   PutBillingsInvoiceReject,
   PettyCashVoucherHistoryAmountItem,
   PutPettyCashVoucherHistoryAmount,
+  PutPettyCashRejectAuthorizationEvidence,
 } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 
 /**
@@ -55,6 +56,7 @@ export type BillingPettyCashState = {
   successPutVoucherAmount: boolean;
   successDeleteVoucher: boolean;
   successRejectVoucher: boolean;
+  successRejectAuthorizationEvidence: boolean;
   successRejectInvoice: boolean;
   successValidateVoucher: boolean;
   successGetVoucherAmountHistory: boolean;
@@ -83,6 +85,9 @@ export type BillingPettyCashState = {
   ) => Promise<boolean>;
   deletePettyCashVoucher: (id: string) => Promise<boolean>;
   rejectPettyCashVoucher: (id: string, comments?: string) => Promise<boolean>;
+  rejectAuthorizationEvidence: (
+    payload: PutPettyCashRejectAuthorizationEvidence,
+  ) => Promise<boolean>;
   rejectBillingInvoice: (payload: PutBillingsInvoiceReject) => Promise<boolean>;
   validatePettyCashVoucher: (id: string) => Promise<boolean>;
   reset: () => void;

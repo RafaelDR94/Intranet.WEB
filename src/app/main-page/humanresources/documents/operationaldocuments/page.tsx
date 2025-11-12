@@ -10,11 +10,13 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import DocumentActionsMenuCell from "@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell";
 import type { ManagementDocumentTableRow } from "@/app/mappings/documents/documents.types";
 import DocIcon from "@/assets/icons/Docs/page.svg";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 import { useOperationalDocuments } from "./hooks/useOperationalDocuments";
 
 const OperationalDocuments = () => {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const { rows, refresh, deleteDocument, deletingDocument } =
     useOperationalDocuments();
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
@@ -104,6 +106,41 @@ const OperationalDocuments = () => {
     },
   ];
 
+  const columnsMobile: ColumnDefinition<ManagementDocumentTableRow>[] = [
+    {
+      key: "files" as unknown as keyof ManagementDocumentTableRow,
+      label: "FORMATO",
+      render: (row) => (
+        <div>
+          {row.route && (
+            <Button
+              size="xsmall"
+              variant="ghost"
+              icon={DocIcon}
+              onClick={() => window.open(row.route, "_blank")}
+            />
+          )}
+        </div>
+      ),
+    },
+    { key: "code", label: "CLAVE" },
+    { key: "documentType", label: "TIPO" },
+    {
+      key: "actions" as unknown as keyof ManagementDocumentTableRow,
+      label: "",
+      render: (row) => (
+        <div className="flex justify-end pr-2">
+          <DocumentActionsMenuCell
+            row={row}
+            onView={handleViewDocument}
+            onDelete={handleRequestDelete}
+          />
+        </div>
+      ),
+      invisible: false,
+    },
+  ];
+
   return (
     <section className="space-y-8">
       <DataTable<ManagementDocumentTableRow>
@@ -111,15 +148,15 @@ const OperationalDocuments = () => {
           {
             title: "",
             enableCollaps: false,
-              enableSelection: true,
+            enableSelection: true,
             data: rows,
-            columns,
+            columns: isMobile ? columnsMobile : columns,
             defaultSortKey: "name",
           },
         ]}
         showRefresh={true}
         onRefreshPage={handleRefresh}
-        textSize={{ mobile: "c2", desktop: "text-c2" }}
+        textSize={{ mobile: "text-d3", desktop: "text-c2" }}
         enableInternalSearch
         searchableKeys={[
           "name",
@@ -139,14 +176,19 @@ const OperationalDocuments = () => {
               size="medium"
               variant="solid"
               hideIcon
-              onClick={() => router.push('/main-page/humanresources/documents/documentregistry')}
+              className={isMobile ? "w-full" : ""}
+              onClick={() =>
+                router.push(
+                  "/main-page/humanresources/documents/documentregistry",
+                )
+              }
             >
               Nuevo Documento
             </Button>
           </div>
         )}
       />
-      
+
       <PopUp
         open={deleteDialogOpen}
         onClose={handleCloseDelete}
@@ -155,8 +197,8 @@ const OperationalDocuments = () => {
           deletingDocument
             ? "Eliminando documento…"
             : selectedDocument?.name
-            ? `Esta acción confirmará la eliminación del documento seleccionado`
-            : "¿Deseas eliminar el documento?"
+              ? `Esta acción confirmará la eliminación del documento seleccionado`
+              : "¿Deseas eliminar el documento?"
         }
         showPrimaryButton
         primaryButtonText="Eliminar"

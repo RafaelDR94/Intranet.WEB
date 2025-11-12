@@ -43,6 +43,10 @@ export const getTabsFromPath = (
       {
         label: "Documentos Gerenciales",
         path: "/main-page/request/documents/managementdocuments",
+      },
+      {
+        label: "Documentos Operativos",
+        path: "/main-page/request/documents/operationaldocuments",
       }
     ],
     "accounting/invoices": [
@@ -102,6 +106,9 @@ export const getTabsFromPath = (
     'administration/usersmanagment': [
       { label: 'Crear Empleado', path: '/main-page/administration/usersmanagment/createemployee' },
       { label: 'Lista de Empleados', path: '/main-page/administration/usersmanagment/employeesList' },
+    ],
+    'configuration': [
+      { label: 'Configuración', path: '/main-page/configuration/userconfiguration' },
     ],
   };
 

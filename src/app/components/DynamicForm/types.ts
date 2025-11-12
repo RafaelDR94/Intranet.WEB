@@ -179,4 +179,5 @@ export interface DynamicFormProps {
   disabled?: boolean
   /** Identificador base para data-testid del formulario */
   dataTestId?: string
+  marginButton?: string
 }

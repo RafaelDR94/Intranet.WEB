@@ -151,8 +151,11 @@ export const useVoucherPink = ({
 
     const hasXmlField = fields.some((field) => field.name === "xml");
     const hasPdfField = fields.some((field) => field.name === "pdf");
+    const hasAuthorizationField = fields.some(
+      (field) => field.name === "authorization_evidence",
+    );
 
-    if (hasXmlField && hasPdfField) {
+    if (hasXmlField && hasPdfField && hasAuthorizationField) {
       return;
     }
 
@@ -160,7 +163,9 @@ export const useVoucherPink = ({
     const nextFields = [...fields];
     const initialLength = nextFields.length;
 
-    const ensureField = (fieldName: "xml" | "pdf") => {
+    const ensureField = (
+      fieldName: "xml" | "pdf" | "authorization_evidence",
+    ) => {
       if (nextFields.some((field) => field.name === fieldName)) {
         return;
       }
@@ -179,6 +184,7 @@ export const useVoucherPink = ({
 
     ensureField("xml");
     ensureField("pdf");
+    ensureField("authorization_evidence");
 
     if (nextFields.length !== initialLength) {
       setFields(formId, nextFields);
@@ -341,6 +347,37 @@ export const useVoucherPink = ({
     });
   }, [opError, mode, showAlert, hideAlert, resetFlags]);
 
+  const uploadAuthorizationEvidenceIfNeeded = useCallback(
+    async (file: unknown): Promise<string | undefined> => {
+      const maybeFile = file instanceof File ? file : null;
+      if (maybeFile && firebasestorage?.uploadFile) {
+        const extension = maybeFile.name.split(".").pop()?.toLowerCase() ?? "png";
+        const unique = `${user?.idEmployee}-${Date.now()}`;
+        const url = await firebasestorage.uploadFile(
+          maybeFile,
+          `Billings/PettyCashVouchers/${unique}-authorization.${extension}`,
+        );
+        if (!url) {
+          throw new Error("Hubo un problema al subir la evidencia de autorización");
+        }
+        return url;
+      }
+
+      const urlObj = (file as { url?: string } | null | undefined)?.url;
+      if (urlObj) return urlObj;
+      if (isEdit && dataEdit?.authorization_evidence) {
+        return dataEdit.authorization_evidence;
+      }
+      return undefined;
+    },
+    [
+      firebasestorage,
+      isEdit,
+      dataEdit?.authorization_evidence,
+      user?.idEmployee,
+    ],
+  );
+
   const uploadXmlIfNeeded = async (
     file: unknown,
   ): Promise<string | undefined> => {
@@ -385,11 +422,18 @@ export const useVoucherPink = ({
       try {
         const xmlUrl = await uploadXmlIfNeeded(values.xml);
         const pdfUrl = await uploadPdfIfNeeded(values.pdf);
+        const authorizationEvidenceUrl =
+          await uploadAuthorizationEvidenceIfNeeded(
+            values.authorization_evidence,
+          );
 
         const payloadValues = {
           ...values,
           xml: xmlUrl ? { url: xmlUrl } : undefined,
           pdf: pdfUrl ? { url: pdfUrl } : undefined,
+          authorization_evidence: authorizationEvidenceUrl
+            ? { url: authorizationEvidenceUrl }
+            : undefined,
         };
 
         const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
@@ -432,6 +476,7 @@ export const useVoucherPink = ({
       user?.idEmployee,
       uploadXmlIfNeeded,
       uploadPdfIfNeeded,
+      uploadAuthorizationEvidenceIfNeeded,
     ],
   );
 

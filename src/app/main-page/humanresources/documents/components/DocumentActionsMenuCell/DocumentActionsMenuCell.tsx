@@ -4,7 +4,6 @@ import React from "react";
 import { Button } from "@/app/components/Button/Button";
 import ContextMenu from "@/app/components/ContextMenu/ContextMenu";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
-import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import type { DocumentActionsMenuCellProps } from "./types";
 import { useDocumentActionsMenu } from "./hooks/useDocumentActionsMenu";
@@ -29,7 +28,7 @@ const DocumentActionsMenuCell: React.FC<DocumentActionsMenuCellProps> = ({
         <Button
           size="xsmall"
           variant="ghost"
-          icon={isMobile ? RightArrowIcon : DotsIcon}
+          icon={isMobile ? DotsIcon : DotsIcon}
         />
       }
       items={menuItems}

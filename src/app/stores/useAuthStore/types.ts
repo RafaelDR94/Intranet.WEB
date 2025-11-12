@@ -21,7 +21,7 @@ export interface RecoverPasswordPayload {
 }
 
 export interface NipPayload {
-  idUser: number
+  user_id: string
   nip: string
 }
 

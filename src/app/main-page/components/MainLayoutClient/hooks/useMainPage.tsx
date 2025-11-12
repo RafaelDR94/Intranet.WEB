@@ -75,7 +75,7 @@ export const sidebarRoutes = [
     ],
   },
   {
-    label: 'Administracion de usuarios',
+    label: 'Administración',
     path: '/main-page/usersmanagment',
     icon: ServerIcon,
     subroutes: [

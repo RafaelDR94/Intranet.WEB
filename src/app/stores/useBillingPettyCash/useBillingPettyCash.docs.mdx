@@ -25,6 +25,7 @@ Store de **Zustand** para manejar fondos y vales de caja chica.
 - `createPettyCashVoucher(payload: PostPettyCashVoucher): Promise<PettyCashVoucherData | null>`
 - `updatePettyCashVoucher(payload: PutPettyCashVoucher): Promise<PettyCashVoucherData | null>`
 - `deletePettyCashVoucher(id: string): Promise<boolean>`
+- `rejectAuthorizationEvidence(payload: PutPettyCashRejectAuthorizationEvidence): Promise<boolean>`
 - `rejectPettyCashVoucher(id: string, comments?: string): Promise<boolean>`
 - `validatePettyCashVoucher(id: string): Promise<boolean>`
 - `reset(): void`

@@ -4,7 +4,6 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import type { ManagementDocumentTableRow } from "@/app/mappings/documents/documents.types";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
-import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
 
 import DocumentActionsMenuCell from "./DocumentActionsMenuCell";
 
@@ -79,7 +78,7 @@ describe("DocumentActionsMenuCell", () => {
     expect(screen.getByTestId("menu-trigger")).toBeInTheDocument();
   });
 
-  it("switches the trigger icon when rendered on mobile", () => {
+  it("uses the context menu trigger icon on mobile layouts", () => {
     const hookReturn = {
       menuItems: [{ label: "Ver Detalle" }],
       menuOpen: false,
@@ -91,7 +90,7 @@ describe("DocumentActionsMenuCell", () => {
     render(<DocumentActionsMenuCell row={ROW} />);
 
     const [[buttonProps]] = buttonMock.mock.calls;
-    expect(buttonProps.icon).toBe(RightArrowIcon);
+    expect(buttonProps.icon).toBe(DotsIcon);
   });
 
   it("passes hook state to the context menu", () => {

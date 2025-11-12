@@ -13,7 +13,7 @@ describe('updatePettyCashVoucher', () => {
     const state: Partial<BillingPettyCashState> = { updating: false, successPutVoucher: false }
     const set: Set = (partial) => Object.assign(state, typeof partial === 'function' ? partial(state as BillingPettyCashState) : partial)
 
-    const res = await updatePettyCashVoucher(set, { id: '1', petty_cash_funds_id: '1', employee_id: '1', voucher_type: 't', application_date: 'd', concept: 'c', amount: 0, comments: '', project_id: 'p', xml: '', pdf: '' })
+    const res = await updatePettyCashVoucher(set, { id: '1', petty_cash_funds_id: '1', employee_id: '1', voucher_type: 't', application_date: 'd', concept: 'c', amount: 0, comments: '', project_id: 'p', xml: '', pdf: '', authorization_evidence: '' })
     expect(res).toEqual({ id: '1' })
     expect(state.updating).toBe(false)
     expect(state.successPutVoucher).toBe(true)

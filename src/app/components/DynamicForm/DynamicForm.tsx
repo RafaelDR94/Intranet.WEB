@@ -125,6 +125,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   dataTestId,
   valuesVersion = 0,
   valuesVersionActive = false,
+  marginButton
 }) => {
   const { initialValues, validationSchema, cleanValues, resolveVariant } =
     useDynamicForm(fields, valuesVersion, valuesVersionActive);
@@ -305,6 +306,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     <Button
                       type="submit"
                       hideIcon={true}
+                      style={{marginTop: marginButton}}
                       className={
                         !showSecondaryButtonIf?.(values) ? "w-full" : ""
                       }

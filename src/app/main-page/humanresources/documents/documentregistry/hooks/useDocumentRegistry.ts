@@ -20,6 +20,7 @@ import { requireGateway } from "@/app/utilities/Http/requireGateway";
 import { useDepartmentsStore } from "@/app/stores/useDepartmentsStore/useDepartmentsStore";
 import { useDocumentTypesStore } from "@/app/stores/useDocumentTypesStore/useDocumentTypesStore";
 import { useDocumentsStore } from "@/app/stores/useDocumentsStore/useDocumentsStore";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
   sm: [[10], [10], [10], [10], [10], [10], [10]],
@@ -33,7 +34,6 @@ const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
 };
 
 const DOCUMENTS_STORAGE_PREFIX = "HumanResources/DocumentRegistry/";
-
 const createDocumentRegistryFields = (
   documentTypeOptions: { label: string; value: string }[],
   documentTypesLoading: boolean,
@@ -42,6 +42,7 @@ const createDocumentRegistryFields = (
   areasChecklistOptions: { label: string; value: string }[],
   documentRoute: string,
   documentFileLabel: string,
+   isMobile: boolean,
 ): FieldModel[] => [
   {
     type: "file",
@@ -132,7 +133,7 @@ const createDocumentRegistryFields = (
     checkboxListProps: {
       labelPosition: "right",
       showSelectAll: true,
-      columns: 3,
+      columns: isMobile ? 1 : 3,
     },
   },
 ];
@@ -315,6 +316,7 @@ const useDocumentRegistry = (documentId?: string) => {
   const ignoredFileRef = useRef<File | null>(null);
   const ignoreNextFileRef = useRef(false);
   const [formVersion, setFormVersion] = useState(0);
+  const isMobile = useIsMobile();
   const [shouldPrefillFromDocument, setShouldPrefillFromDocument] = useState(
     () => Boolean(documentId),
   );
@@ -458,28 +460,41 @@ const useDocumentRegistry = (documentId?: string) => {
     [existingDocument, setShouldPrefillFromDocument],
   );
 
-  const uploadDocumentFile = useCallback(
-    async (file: File, values: Record<string, unknown>) => {
-      if (!firebasestorage?.uploadFile) {
-        throw new Error("Firebase Storage no disponible");
-      }
+const createTimestampedStorageKey = (
+  base: string,
+  extension: string,
+): string => {
+  const isoTimestamp = new Date().toISOString();
+  const normalizedTimestamp = isoTimestamp
+    .replace(/[-:.TZ]/g, "")
+    .trim();
+  const suffix = normalizedTimestamp ? `_${normalizedTimestamp}` : "";
 
-      const rawExtension = getFileExtension(file.name) || "dat";
-      const resolvedExtension = normalizeExtension(rawExtension) || "dat";
-      const code = safeString(values.documentKey).trim();
-      const baseNameFromFile = getFileBaseName(file.name);
-      const storageBase =
-        sanitizeStorageKey(code) || sanitizeStorageKey(baseNameFromFile) || "documento";
-      const storageKey = `${DOCUMENTS_STORAGE_PREFIX}${storageBase}.${resolvedExtension}`;
+  return `${DOCUMENTS_STORAGE_PREFIX}${base}${suffix}.${extension}`;
+};
 
-      const url = await firebasestorage.uploadFile(file, storageKey);
-      return {
-        url,
-        extension: resolvedExtension,
-      };
-    },
-    [firebasestorage],
-  );
+const uploadDocumentFile = useCallback(
+  async (file: File, values: Record<string, unknown>) => {
+    if (!firebasestorage?.uploadFile) {
+      throw new Error("Firebase Storage no disponible");
+    }
+
+    const rawExtension = getFileExtension(file.name) || "dat";
+    const resolvedExtension = normalizeExtension(rawExtension) || "dat";
+    const code = safeString(values.documentKey).trim();
+    const baseNameFromFile = getFileBaseName(file.name);
+    const storageBase =
+      sanitizeStorageKey(code) || sanitizeStorageKey(baseNameFromFile) || "documento";
+    const storageKey = createTimestampedStorageKey(storageBase, resolvedExtension);
+
+    const url = await firebasestorage.uploadFile(file, storageKey, true);
+    return {
+      url,
+      extension: resolvedExtension,
+    };
+  },
+  [firebasestorage],
+);
 
   const handleValuesChange = useCallback(
     async (values: Record<string, unknown>) => {
@@ -546,6 +561,7 @@ const useDocumentRegistry = (documentId?: string) => {
       destinationAreaOptions,
       documentRouteForField,
       documentLabelForField,
+      isMobile,
     );
 
     return mapDocumentToFieldValues(
