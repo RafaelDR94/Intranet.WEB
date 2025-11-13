@@ -10,6 +10,7 @@ import { Button } from "@/app/components/Button/Button";
 import AddUser from "@/assets/icons/Users/Users/add-user.svg"
 import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import Label from "@/app/components/Label/Label";
+import type { LabelType } from "@/app/components/Label/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
 const AcccesHistory = () => {
@@ -27,6 +28,17 @@ const AcccesHistory = () => {
         handleOpenClosePopUP,
         openDetails,
         openConfirmPopUp } = useAccesHistory();
+    const mapStatusToLabel = (status?: string): LabelType => {
+        const s = (status || '').toLowerCase();
+        if (s.includes('aprobada')) return 'valido';
+        if (s.includes('rechaz')) return 'rechazado';
+        if (s.includes('enviad')) return 'actualizado';
+        if (s.includes('finaliz')) return 'restringido';
+        if (s.includes('pendiente')) return 'pendiente';
+        if (s.includes('cancel')) return 'sin-factura';
+        return 'actualizado';
+    }
+
     const columnRows = () => {
         const columns: ColumnDefinition<AccesRequirmentGet>[] = [
             {
@@ -109,6 +121,7 @@ const AcccesHistory = () => {
                 key: "status",
                 label: "Estatus",
                 render: (row) => <div className="flex">
+                    <Label type={mapStatusToLabel(row.status)} text={row.status} />
                     {(currentPagePermissions?.delete || currentPagePermissions?.delete) && <ActionMenuCell row={row} onDelete={handleOpenConfirmPopUP} onDetails={handleOpenDetails} />}
                 </div>
             },
@@ -131,7 +144,8 @@ const AcccesHistory = () => {
                 key: "link" as keyof AccesRequirmentGet,
                 label: "Link",
                 render: (row) => <div className="flex">
-                    <Label type="valido" text={row.status} />
+                    <Label type={mapStatusToLabel(row.status)} text={row.status} />
+                    {(currentPagePermissions?.delete || currentPagePermissions?.delete) && <ActionMenuCell row={row} onDelete={handleOpenConfirmPopUP} onDetails={handleOpenDetails} />}
                 </div>
             },
         ]
@@ -153,7 +167,7 @@ const AcccesHistory = () => {
                 columns: columnRowsHistory(),
                 title: "Historial de accesos",
             }
-        ]} actionLabel="Crear solicitud" onTableActionClick={handleCreate} showButton={currentPagePermissions?.create}/>
+        ]} actionLabel="Crear solicitud" onTableActionClick={handleCreate} showButton={currentPagePermissions?.create} />
         <HistoryDetails open={openDetails} onClose={handleCloseDetails} />
         <PopUp open={openConfirmPopUp} onClose={handleOpenClosePopUP}
             title="Eliminar"

@@ -17,6 +17,7 @@ const AddExternalPersonForm:React.FC<AddExtneralPersonFormProps> = ({formId,curr
             submitLabel={currentexternalperson?"Actualizar información":"Registrar persona"}
             showSecondaryButtonIf={()=>!!onCancel}
             secondaryButtonLabel="Cancelar"
+            showSubmitIf={()=>!!canUpdateForm}
             onSecondaryButtonClick={onCancel ?? (() =>{})}
             disabled={!canUpdateForm}
         />

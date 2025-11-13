@@ -56,7 +56,7 @@ export type AccesPut = {
     internalpersons: string[],//GUID[]
     externalpersons: string[],//GUID[]
     tools: string,//Yo lo envio como string
-    status: 'Pendiente' | 'I Aprobada' | 'I Rechazada' | 'Enviada' | 'A rechazado' | 'A finalizado' | 'Cancelada',
+    id_status: string,
     motive: string,
     start_date: string,
     end_date: string,

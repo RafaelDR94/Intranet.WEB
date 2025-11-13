@@ -2,7 +2,7 @@ import useAddVehiclesForm from "./hooks/useAddVehiclesForm";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import { AddExtneralPersonFormProps } from "./types";
 
-const AddVehiclesForm:React.FC<AddExtneralPersonFormProps> = ({formId,currentexternalperson,onCancel}) => {
+const AddVehiclesForm:React.FC<AddExtneralPersonFormProps> = ({formId,currentexternalperson,onCancel,canUpdateForm}) => {
     const { fields, handleSubmit, canStart } = useAddVehiclesForm({formId,currentexternalperson});
     if (!canStart) return (<></>)
     return (
@@ -17,7 +17,9 @@ const AddVehiclesForm:React.FC<AddExtneralPersonFormProps> = ({formId,currentext
             submitLabel={currentexternalperson?"Actualizar información":"Registrar persona"}
             showSecondaryButtonIf={()=>!!onCancel}
             secondaryButtonLabel="Cancelar"
+            showSubmitIf={()=>!!canUpdateForm}
             onSecondaryButtonClick={onCancel ?? (() =>{})}
+            disabled={!canUpdateForm}
         />
     )
 }

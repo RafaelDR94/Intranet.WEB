@@ -7,9 +7,7 @@ import type { AccesPut, AccesRequirmentGet } from "@/app/mappings/accesrequest/a
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pPut } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
-
-import { fetchAccesRequirements } from "./fetchAccesRequirements";
-
+import {fetchAccesRequirementById} from "./fetchAccesRequirementById";
 export const updateAccesRequirement = async (
   set: Set,
   get: Get,
@@ -21,8 +19,7 @@ export const updateAccesRequirement = async (
     const res = await put(CustomAccessControlerAccesRequirement, payload);
     const raw = res.data?.data ?? res.data ?? null;
     const updated = raw ? mapAccesRequirement(raw) : null;
-
-    await fetchAccesRequirements(set, get, true);
+    await fetchAccesRequirementById( payload.id,set, get,true);
 
     set({ updating: false, successPut: true });
     return updated;
