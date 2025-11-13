@@ -3,6 +3,7 @@ import ButtonsNavigation from "@/app/components/ButtonsNavigation/ButtonsNavigat
 import Information from "./components/Information/Information";
 import Personal from "./components/Personal/Personal";
 import Tools from "./components/Tools/Tools";
+import Automobiles from "./components/Automobiles/Automobiles";
 import { Button } from "@/app/components/Button/Button";
 
 interface HistoryDetailsProps {
@@ -35,6 +36,11 @@ const HistoryDetails: React.FC<HistoryDetailsProps> = ({ open, onClose }) => {
           label="Herramienta"
           id="tools"
           renderContent={<Tools />}
+        />
+        <ButtonsNavigation.Item
+          label="Automoviles"
+          id="automoviles"
+          renderContent={<Automobiles />}
         />
       </ButtonsNavigation>
     </DetailsPanelLayout>
