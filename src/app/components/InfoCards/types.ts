@@ -8,6 +8,7 @@ export type InfoItem = {
   className?: string;
   dataTestId?: string;
   icon?: React.FC<SVGProps<SVGSVGElement>>;
+  src?: string;
 };
 
 export interface InfoCardsProps {

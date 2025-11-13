@@ -1,7 +1,7 @@
 import { useAccesRequirementStore } from "@/app/stores/useAccesRequirementStore/useAccesRequirementStore";
 import { shallow } from "zustand/shallow";
 
-const usePersonaL = () => {
+const useTools = () => {
   const { current } = useAccesRequirementStore(
     (s) => ({
       current: s.current,
@@ -9,7 +9,7 @@ const usePersonaL = () => {
     shallow,
   );
   return {
-    current
+    current,
   };
 };
-export default usePersonaL;
+export default useTools;

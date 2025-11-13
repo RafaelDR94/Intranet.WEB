@@ -36,6 +36,8 @@ export type AccesRequirementsState = {
 
   reset: () => void;
   resetFlags: () => void;
+
+  setCurrent: (acces: AccesRequirmentGet | undefined) => void
 };
 
 export type Set = (
