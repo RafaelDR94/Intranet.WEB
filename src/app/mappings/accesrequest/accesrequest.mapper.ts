@@ -148,7 +148,7 @@ export const mapAccesPut = (payload: Partial<AccesPut> | any): AccesPut => ({
   internalpersons: toIdArray(payload?.internalpersons ?? payload?.internal_persons),
   externalpersons: toIdArray(payload?.externalpersons ?? payload?.external_persons),
   tools:JSON.stringify(payload?.tools),
-  status: toString(payload?.status) as AccesPut["status"],
+  id_status: toString(payload?.id_status),
   motive: toString(payload?.motive ?? payload?.reason),
   start_date: toString(payload?.start_date ?? payload?.startDate),
   end_date: toString(payload?.end_date ?? payload?.endDate),

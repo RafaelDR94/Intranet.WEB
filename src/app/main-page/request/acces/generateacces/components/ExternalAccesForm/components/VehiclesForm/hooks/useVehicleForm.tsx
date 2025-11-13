@@ -3,7 +3,10 @@ import useAccessRequestStore from "@/app/stores/useAccesRequestStore/useAccesReq
 import { useExternalPersonsStore } from "@/app/stores/useExternalPersonsStore/useExternalPersonsStore";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ExternalPersonModel } from "@/app/mappings/externalperson/externalperson.types";
+import useQuery from "@/app/hooks/useQuery/useQuery";
 const useVehicleForm = () => {
+    const { all } = useQuery();
+    const enterpriseId = all.enterpriseId
     const hasInitExternalperson = useRef(false);
     const [personSelected, setPersonSelected] = useState("");
     const [openPersonForm, setOpenPersonForm] = useState(false);
@@ -14,15 +17,15 @@ const useVehicleForm = () => {
     }), shallow);
     const { systemexternalpersons, fetchExternalPersons } = useExternalPersonsStore((s) => ({
         systemexternalpersons: s.externalPersons,
-        fetchExternalPersons: s.fetchExternalPersons,
+        fetchExternalPersons: s.fetchExternalPersonsByEnterprise,
     }), shallow);
 
     useEffect(() => {
         if (systemexternalpersons?.length == 0 && !hasInitExternalperson.current) {
             hasInitExternalperson.current = true;
-            fetchExternalPersons(true);
+            if (enterpriseId) fetchExternalPersons(String(enterpriseId), true);
         }
-    }, [systemexternalpersons, fetchExternalPersons]);
+    }, [systemexternalpersons, fetchExternalPersons, enterpriseId]);
 
     const handleSelectPerson = (selected: string) => {
         setPersonSelected(selected);

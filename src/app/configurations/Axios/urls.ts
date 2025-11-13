@@ -36,7 +36,8 @@ export const EmployeesById = process.env.NEXT_PUBLIC_EMPLOYEESBYID ?? "/Employee
 export const EmployeesActive = process.env.NEXT_PUBLIC_EMPLOYEES_ACTIVE_ID ?? "/Employees/Activate";
 export const EmployeesIsActive = process.env.NEXT_PUBLIC_EMPLOYEES_IS_ACTIVE ?? "Employees/EmployeesActive";
 
-
+export const Statuses = process.env.NEXT_PUBLIC_STATUS ?? "/Status";
+export const StatusByType = process.env.NEXT_PUBLIC_STATUSBYTYPE ?? "/Status/ByType";
 
 export const HMRequisitions = process.env.NEXT_PUBLIC_HM_REQUISITIONS ?? "/HumanResources/PersonalRequisitions";
 export const HMRequisitionsStatuses = process.env.NEXT_PUBLIC_HM_REQUISITIONSSTATUSES ?? "/HumanResources/PersonalRequisitions/Statuses";

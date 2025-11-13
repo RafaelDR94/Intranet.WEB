@@ -3,4 +3,5 @@ export interface AddExtneralPersonFormProps {
     formId:string,
     currentexternalperson?:ExternalPersonModel
     onCancel?:()=>void
+    canUpdateForm?:boolean
 }

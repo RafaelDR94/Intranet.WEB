@@ -47,8 +47,11 @@ const AccesRequestClient = () => {
         onClose={hideImage}
         disableOutsideClose={disableOutsideClose}
       />
+      <div className={mainLayoutStyles.main}>
+        <ExternalAcccesForm />
+      </div>
 
-      <ExternalAcccesForm />
+
 
       <LoadingOverlay open={open} message={message} spinnerSize={spinnerSize} />
     </div>

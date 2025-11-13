@@ -13,21 +13,19 @@ const useAccesHistory = () => {
     const { showSpinner, hideSpinner } = usePrincipalLoading;
     const { showAlert } = usePrincipalAlert
     const router = useRouter();
-    const { resetflags, fetchreq, accesreq, loading, error, setCurrent, current } = useAccesRequirementStore((s) => ({
+    const { resetflags, fetchreq, accesreq, loading, error, deleteAccesRequirement, deleting, succesDelete, current, setCurrent } = useAccesRequirementStore((s) => ({
         fetchreq: s.fetchAccesRequirements,
+        deleteAccesRequirement: s.deleteAccesRequirement,
+        deleting: s.deleting,
         accesreq: s.accesRequirements,
         loading: s.loading,
         error: s.error,
         succesGet: s.successGet,
+        succesDelete: s.successDelete,
+        current: s.current,
         resetflags: s.resetFlags,
         setCurrent: s.setCurrent,
-        current: s.current
     }), shallow)
-
-    useEffect(() => {
-        console.log('current ', current);
-        
-    },[current])
 
     useEffect(() => {
         if (accesreq.length == 0 && !hasAskedforHistory.current) {
@@ -56,15 +54,22 @@ const useAccesHistory = () => {
             autoCloseMs: 1000,
         });
     }
-    const handleAddPerson = (acces:AccesRequirmentGet) => {
-        router.push(`/main-page/request/acces/generateacces/?idAcces=`+acces.id);
+    const handleAddPerson = (acces: AccesRequirmentGet) => {
+        router.push(`/main-page/request/acces/generateacces/?idAcces=` + acces.id);
     }
     const handleDelete = () => {
-
+        if (current) deleteAccesRequirement(current.id);
+        else showAlert({
+            type: "warning",
+            title: "Error al eliminar",
+            description: "No se ha seleccionado ninguna solicitud para eliminar.",
+            showPrimaryButton: false,
+            showSecondaryButton: false,
+            autoCloseMs: 1500,
+        });
+        setCurrent(undefined)
     }
-    const handleOpenDetails = (acces:AccesRequirmentGet) => {
-        console.log('acces', acces);
-        
+    const handleOpenDetails = (acces: AccesRequirmentGet) => {
         setOpenDetails(true);
         setCurrent(acces)
     }
@@ -72,10 +77,12 @@ const useAccesHistory = () => {
         setOpenDetails(false);
         setCurrent(undefined)
     }
-    const handleOpenConfirmPopUP = () => {
+    const handleOpenConfirmPopUP = (acces: AccesRequirmentGet) => {
+        setCurrent(acces)
         setOpenConfirmPopUp(true);
     }
     const handleOpenClosePopUP = () => {
+        setCurrent(undefined)
         setOpenConfirmPopUp(false);
     }
 
@@ -85,6 +92,22 @@ const useAccesHistory = () => {
     useEffect(() => {
         if (loading) {
             showSpinner(({ message: "Cargando información" }))
+            return;
+        }
+        if (deleting) {
+            showSpinner(({ message: "Eliminando solicitud" }))
+            return;
+        }
+        if (succesDelete) {
+            showAlert({
+                type: "success",
+                title: "Solicitud eliminada",
+                description: "La solicitud ha sido eliminada correctamente.",
+                showPrimaryButton: false,
+                showSecondaryButton: false,
+                autoCloseMs: 1500,
+            });
+            resetflags();
         }
         if (error) {
             showAlert({
@@ -99,7 +122,7 @@ const useAccesHistory = () => {
         }
         hideSpinner();
 
-    }, [error, loading])
+    }, [error, loading, deleting, succesDelete])
     return { accesreq, handleCreate, handleLinkClick, handleAddPerson, handleDelete, handleOpenDetails, handleCloseDetails, handleOpenConfirmPopUP, handleOpenClosePopUP, openDetails, openConfirmPopUp }
 }
 export default useAccesHistory;

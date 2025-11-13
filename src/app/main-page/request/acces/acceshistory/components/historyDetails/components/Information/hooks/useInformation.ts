@@ -1,7 +1,7 @@
 import { useAccesRequirementStore } from "@/app/stores/useAccesRequirementStore/useAccesRequirementStore";
 import { useCallback, useMemo } from "react";
 import { shallow } from "zustand/shallow";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const useInformation = () => {
   const router = useRouter();
