@@ -4,7 +4,6 @@ import Information from "./components/Information/Information";
 import Personal from "./components/Personal/Personal";
 import Tools from "./components/Tools/Tools";
 import { Button } from "@/app/components/Button/Button";
-import Label from "@/app/components/Label/Label";
 
 interface HistoryDetailsProps {
   open: boolean;
@@ -20,7 +19,6 @@ const HistoryDetails: React.FC<HistoryDetailsProps> = ({ open, onClose }) => {
           Descargar Documento
         </Button>
       }
-      renderActions={() => <Label text="" />}
     >
       <ButtonsNavigation>
         <ButtonsNavigation.Item
