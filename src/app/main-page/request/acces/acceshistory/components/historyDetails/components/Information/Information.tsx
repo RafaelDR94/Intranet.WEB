@@ -4,7 +4,6 @@ import InfoCards from "@/app/components/InfoCards/InfoCards";
 
 const Information = () => {
   const { current, cards } = useInformation();
-  console.log("current ", current);
 
   return (
     <>
