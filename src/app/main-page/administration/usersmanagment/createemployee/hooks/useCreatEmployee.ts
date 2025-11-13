@@ -183,7 +183,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
     const initialFields: () => FieldModel[] = () => {
       const model: FieldModel[] = [
         {
-          type: "file",
+          type: "imageUploaderExpanded",
           name: "image_url",
           label: "Imagen de perfil JPG/PNG",
           initialFile: {

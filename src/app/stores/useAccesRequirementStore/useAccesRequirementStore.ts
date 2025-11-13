@@ -12,6 +12,7 @@ import {
   fetchAccesRequirements as fetchAccesRequirementsRequest,
   updateAccesRequirement as updateAccesRequirementRequest,
 } from "./utilities";
+import { AccesRequirmentGet } from "@/app/mappings/accesrequest/accesrequest.types";
 
 const initialCollections: Pick<
   AccesRequirementsState,
@@ -65,8 +66,8 @@ export const useAccesRequirementStore = createWithEqualityFn<AccesRequirementsSt
       updateAccesRequirementRequest(set, get, payload),
     deleteAccesRequirement: (id) =>
       deleteAccesRequirementRequest(set, get, id),
-
     reset: () => set({ ...initialCollections, ...initialFlags }),
+    setCurrent: (acces: AccesRequirmentGet | undefined) => set({current: acces}),
     resetFlags: () => set({ ...initialFlags }),
   }))
 );

@@ -4,6 +4,7 @@ import { shallow } from "zustand/shallow";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useRouter } from "next/navigation";
 import { AccesRequirmentGet } from "@/app/mappings/accesrequest/accesrequest.types";
+
 const useAccesHistory = () => {
     const hasAskedforHistory = useRef(false);
     const [openDetails, setOpenDetails] = useState(false);
@@ -12,14 +13,22 @@ const useAccesHistory = () => {
     const { showSpinner, hideSpinner } = usePrincipalLoading;
     const { showAlert } = usePrincipalAlert
     const router = useRouter();
-    const { resetflags, fetchreq, accesreq, loading, error } = useAccesRequirementStore((s) => ({
+    const { resetflags, fetchreq, accesreq, loading, error, setCurrent, current } = useAccesRequirementStore((s) => ({
         fetchreq: s.fetchAccesRequirements,
         accesreq: s.accesRequirements,
         loading: s.loading,
         error: s.error,
         succesGet: s.successGet,
-        resetflags: s.resetFlags
+        resetflags: s.resetFlags,
+        setCurrent: s.setCurrent,
+        current: s.current
     }), shallow)
+
+    useEffect(() => {
+        console.log('current ', current);
+        
+    },[current])
+
     useEffect(() => {
         if (accesreq.length == 0 && !hasAskedforHistory.current) {
             hasAskedforHistory.current = true
@@ -53,11 +62,15 @@ const useAccesHistory = () => {
     const handleDelete = () => {
 
     }
-    const handleOpenDetails = () => {
+    const handleOpenDetails = (acces:AccesRequirmentGet) => {
+        console.log('acces', acces);
+        
         setOpenDetails(true);
+        setCurrent(acces)
     }
     const handleCloseDetails = () => {
         setOpenDetails(false);
+        setCurrent(undefined)
     }
     const handleOpenConfirmPopUP = () => {
         setOpenConfirmPopUp(true);

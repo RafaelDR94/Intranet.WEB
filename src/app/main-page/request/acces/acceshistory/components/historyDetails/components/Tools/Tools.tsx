@@ -1,6 +1,8 @@
+import useTools from "./hooks/useTools";
+
 const Tools = () => {
-    return (<>
-    Herramientas
-    </>)
-}
+  const { current } = useTools();
+
+  return <>Herramientas</>;
+};
 export default Tools;
