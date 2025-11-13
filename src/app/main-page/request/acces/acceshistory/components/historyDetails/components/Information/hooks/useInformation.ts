@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 
 const useInformation = () => {
   const router = useRouter();
-  const { current, setCurrent } = useAccesRequirementStore(
+  const { current } = useAccesRequirementStore(
     (s) => ({
       current: s.current,
-      setCurrent: s.setCurrent,
     }),
     shallow,
   );
@@ -23,7 +22,7 @@ const useInformation = () => {
         {
           label: "Evidencia del documento enviado",
           value: "",
-          src: r?.dr_responsiblesignature,
+          src: r?.evidence_send_email,
         },
       ],
       [
@@ -42,11 +41,10 @@ const useInformation = () => {
 
   const handleEditInformation = useCallback(() => {
     if (!current?.id) return;
-    setCurrent(current);
     router.push(
-      `/main-page/request/acces/generateacces/?idAcces=${encodeURIComponent(current.id)}`,
+      `/main-page/request/acces/generateacces/?idAcces=${encodeURIComponent(current.id)}+&mode=edit`,
     );
-  }, [current, router, setCurrent]);
+  }, [current, router]);
 
   return {
     current,

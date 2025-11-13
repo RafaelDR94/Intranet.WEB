@@ -25,7 +25,7 @@ export type StatusState = {
   createStatus: (payload: StatusPost) => Promise<Status | null>;
   updateStatus: (payload: StatusPut) => Promise<Status | null>;
   deleteStatus: (id: string) => Promise<boolean>;
-
+  setCurrent: (status: Status | undefined) => void
   reset: () => void;
   resetFlags: () => void;
 };

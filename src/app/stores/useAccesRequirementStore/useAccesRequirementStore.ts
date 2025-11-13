@@ -11,6 +11,8 @@ import {
   fetchAccesRequirementById as fetchAccesRequirementByIdRequest,
   fetchAccesRequirements as fetchAccesRequirementsRequest,
   updateAccesRequirement as updateAccesRequirementRequest,
+  updateInternalComments as updateInternalCommentsRequest,
+  updateExternalComments as updateExternalCommentsRequest,
 } from "./utilities";
 import { AccesRequirmentGet } from "@/app/mappings/accesrequest/accesrequest.types";
 
@@ -64,6 +66,10 @@ export const useAccesRequirementStore = createWithEqualityFn<AccesRequirementsSt
       createAccesRequirementRequest(set, get, payload),
     updateAccesRequirement: (payload) =>
       updateAccesRequirementRequest(set, get, payload),
+    updateInternalComments: (payload) =>
+      updateInternalCommentsRequest(set, get, payload),
+    updateExternalComments: (payload) =>
+      updateExternalCommentsRequest(set, get, payload),
     deleteAccesRequirement: (id) =>
       deleteAccesRequirementRequest(set, get, id),
     reset: () => set({ ...initialCollections, ...initialFlags }),

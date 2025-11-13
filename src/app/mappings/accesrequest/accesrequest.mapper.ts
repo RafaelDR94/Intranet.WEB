@@ -89,6 +89,8 @@ export const mapAccesRequirement = (raw: any): AccesRequirmentGet => ({
   dr_responsiblesignature: toString(
     raw?.dr_responsiblesignature ?? raw?.dr_responsible_signature ?? raw?.signature
   ),
+  evidence_send_email: toString(raw?.evidence_send_email),
+  evidence_response_email: toString(raw?.evidence_response_email),
 });
 
 export const mapAccesRequirements = (list: any[] | undefined): AccesRequirmentGet[] =>
@@ -147,7 +149,7 @@ export const mapAccesPut = (payload: Partial<AccesPut> | any): AccesPut => ({
   vehicles: toIdArray(payload?.vehicles),
   internalpersons: toIdArray(payload?.internalpersons ?? payload?.internal_persons),
   externalpersons: toIdArray(payload?.externalpersons ?? payload?.external_persons),
-  tools:JSON.stringify(payload?.tools),
+  tools: JSON.stringify(payload?.tools),
   id_status: toString(payload?.id_status),
   motive: toString(payload?.motive ?? payload?.reason),
   start_date: toString(payload?.start_date ?? payload?.startDate),
@@ -156,6 +158,8 @@ export const mapAccesPut = (payload: Partial<AccesPut> | any): AccesPut => ({
   dr_responsiblesignature: toString(
     payload?.dr_responsiblesignatue ?? payload?.dr_responsible_signature ?? payload?.signature
   ),
+  evidence_send_email: toString(payload?.evidence_send_email),
+  evidence_response_email: toString(payload?.evidence_response_email),
 });
 
 // Some APIs expect tools as a serialized string. Provide helpers if needed.
