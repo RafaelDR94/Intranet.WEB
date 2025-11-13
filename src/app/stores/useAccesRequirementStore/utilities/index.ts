@@ -4,4 +4,5 @@ export * from "./fetchAccesRequirementById";
 export * from "./createAccesRequirement";
 export * from "./updateAccesRequirement";
 export * from "./deleteAccesRequirement";
-
+export * from "./updateInternalComments";
+export * from "./updateExternalComments";

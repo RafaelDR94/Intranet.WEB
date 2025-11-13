@@ -3,8 +3,7 @@ import useInformation from "./hooks/useInformation";
 import InfoCards from "@/app/components/InfoCards/InfoCards";
 
 const Information = () => {
-  const { current, cards } = useInformation();
-  console.log(current);
+  const {  cards } = useInformation();
   
   return (
     <>

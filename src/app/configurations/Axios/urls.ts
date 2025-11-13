@@ -16,6 +16,8 @@ export const CustomAccessControler = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLE
 export const CustomAccessControlerByEnterprise = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYENTERPRISE??"/CustomsAccessControler/ExternalPersonnel/ByEnterprise"
 export const CustomAccessControlerById = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYID??"/CustomsAccessControler/ExternalPersonnel/ByID"
 export const CustomAccessControlerAccesRequirement =process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT||"/CustomsAccessControler/AccessRequirement"
+export const CustomAccessControlerAccesRequirementInternalComments = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT_INTERNALCOMMENTS || "/CustomsAccessControler/AccessRequirementInternalComments"
+export const CustomAccessControlerAccesRequirementExternalComments = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT_EXTERNALCOMMENTS || "/CustomsAccessControler/AccessRequirementExternalComments"
 export const Persons = process.env.NEXT_PUBLIC_PERSONS ?? "/Persons";
 export const WorkPosition = process.env.NEXT_PUBLIC_WORK_POSITION ?? "/Enterprises/WorkPosition";
 

@@ -67,7 +67,7 @@ const useExternalAccesForm = () => {
             resetFlags();
         }
         hideSpinner();
-    }, [error, updating, succesUpdate])
+    }, [error, updating, succesUpdate,loading])
 
     const UpdateAcces = async () => {
         if (currentAcces) {
@@ -84,7 +84,6 @@ const useExternalAccesForm = () => {
             }
 
             const StatusId = statusList.find(s => s.name === currentAcces?.status)?.id;
-            console.log("StatusId", StatusId);
             if (!StatusId) {
                 showAlert({
                     type: "error",
@@ -112,6 +111,8 @@ const useExternalAccesForm = () => {
                 end_date: currentAcces?.end_date,
                 dr_responsiblename: currentAcces?.dr_responsiblename,
                 dr_responsiblesignature: currentAcces?.dr_responsiblesignature,
+                evidence_send_email: currentAcces?.evidence_send_email,
+                evidence_response_email: currentAcces?.evidence_response_email,
             };
             showSpinner(({ message: "Actualizando información de acceso" }));
             await updateAccesRequirement(accesToUpdate);

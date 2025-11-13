@@ -121,6 +121,7 @@ const AcccesHistory = () => {
                 key: "status",
                 label: "Estatus",
                 render: (row) => <div className="flex">
+                    {currentPagePermissions?.canObtainLink && <Button hideIcon onClick={() => handleLinkClick(row)}> Link Formuarlio</Button>}
                     <Label type={mapStatusToLabel(row.status)} text={row.status} />
                     {(currentPagePermissions?.delete || currentPagePermissions?.delete) && <ActionMenuCell row={row} onDelete={handleOpenConfirmPopUP} onDetails={handleOpenDetails} />}
                 </div>

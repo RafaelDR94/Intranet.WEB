@@ -3,7 +3,7 @@
 
 import { devtools } from "zustand/middleware";
 import { createWithEqualityFn } from "zustand/traditional";
-
+import { Status } from "@/app/mappings/status/status.types";
 import type { StatusState } from "./types";
 import {
   fetchStatuses as fetchStatusesRequest,
@@ -61,7 +61,7 @@ export const useStatusStore = createWithEqualityFn<StatusState>()(
     createStatus: (payload) => createStatusRequest(set, get, payload),
     updateStatus: (payload) => updateStatusRequest(set, get, payload),
     deleteStatus: (id) => deleteStatusRequest(id, set, get),
-
+    setCurrent: (status:Status|undefined) => set({ current: status }),
     reset: () => set({ ...initialCollections, ...initialFlags }),
     resetFlags: () => set({ ...initialFlags }),
   }))

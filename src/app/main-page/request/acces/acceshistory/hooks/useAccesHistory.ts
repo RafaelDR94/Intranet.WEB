@@ -85,10 +85,6 @@ const useAccesHistory = () => {
         setCurrent(undefined)
         setOpenConfirmPopUp(false);
     }
-
-
-
-
     useEffect(() => {
         if (loading) {
             showSpinner(({ message: "Cargando información" }))
@@ -121,8 +117,8 @@ const useAccesHistory = () => {
             resetflags();
         }
         hideSpinner();
-
     }, [error, loading, deleting, succesDelete])
+
     return { accesreq, handleCreate, handleLinkClick, handleAddPerson, handleDelete, handleOpenDetails, handleCloseDetails, handleOpenConfirmPopUP, handleOpenClosePopUP, openDetails, openConfirmPopUp }
 }
 export default useAccesHistory;

@@ -21,12 +21,14 @@ export type AccesRequirmentGet = {
     tools: Tools[],
     status: 'Creada' | 'Pendiente' | 'I Aprobada' | 'I Rechazada' | 'Enviada' | 'A rechazado' | 'A finalizado' | 'Cancelada',
     motive: string,
-    dateCreate:string,
-    createdBy:string,
+    dateCreate: string,
+    createdBy: string,
     start_date: string,
     end_date: string,
     dr_responsiblename: string,
     dr_responsiblesignature: string,
+    evidence_send_email: string,
+    evidence_response_email: string,
 }
 
 export type AccesPost = {
@@ -43,6 +45,7 @@ export type AccesPost = {
     end_date: string,
     dr_responsiblename: string,
     dr_responsiblesignature: string,
+
 }
 
 
@@ -62,4 +65,16 @@ export type AccesPut = {
     end_date: string,
     dr_responsiblename: string,
     dr_responsiblesignature: string,
+    evidence_send_email: string,
+    evidence_response_email: string,
+}
+
+export type AccesInternalCommentsPut = {
+    id: string,
+    internal_comments: string,
+}
+
+export type AccesExternalCommentsPut = {
+    id: string,
+    external_comments: string,
 }

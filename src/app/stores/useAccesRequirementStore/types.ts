@@ -32,6 +32,8 @@ export type AccesRequirementsState = {
   fetchAccesRequirementById: (id: string, force?: boolean) => Promise<AccesRequirmentGet | null>;
   createAccesRequirement: (payload: AccesPost) => Promise<AccesRequirmentGet | null>;
   updateAccesRequirement: (payload: AccesPut) => Promise<AccesRequirmentGet | null>;
+  updateInternalComments: (payload: import("@/app/mappings/accesrequest/accesrequest.types").AccesInternalCommentsPut) => Promise<AccesRequirmentGet | null>;
+  updateExternalComments: (payload: import("@/app/mappings/accesrequest/accesrequest.types").AccesExternalCommentsPut) => Promise<AccesRequirmentGet | null>;
   deleteAccesRequirement: (id: string) => Promise<boolean>;
 
   reset: () => void;
