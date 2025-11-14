@@ -1,6 +1,6 @@
 import useToolsForm from "./hooks/useToolsForm";
 
-import { Input } from "@/app/components/Input/Input";
+import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import { Button } from "@/app/components/Button/Button";
 import AddIcon from "@/assets/icons/acciones/plus.svg";
 import DeleteIcon from "@/assets/icons/acciones/trash.svg";
@@ -9,57 +9,33 @@ import { FormsInterface } from "../../types";
 const ToolsForm: React.FC<FormsInterface> = ({ canUpdateForm }) => {
     const {
         tools,
-        draftTool,
+        newToolFields,
+        responsiveLayout,
         isAddingTool,
         canSubmitTool,
-        handleDraftChange,
-        handleAddTool,
-        handleUpdateTool,
+        formVersion,
+        handleSubmitNewTool,
+        handleDraftValuesChange,
+        handleUpdateToolValues,
         handleRemoveTool,
-        handleOpenAddTool
+        handleOpenAddTool,
+        getToolFields
     } = useToolsForm();
 
     return (
         <div className="flex flex-col gap-6">
             {isAddingTool && (
-                <div className="grid gap-4 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
-                    <Input
-                        label="Cantidad"
-                        placeholder="Cantidad"
-                        value={draftTool.quantity}
-                        onChange={(event) => handleDraftChange("quantity", event.target.value)}
-                        disabled={!canUpdateForm}
-                    />
-                    <Input
-                        label="Marca"
-                        placeholder="Marca"
-                        value={draftTool.brand}
-                        onChange={(event) => handleDraftChange("brand", event.target.value)}
-                        disabled={!canUpdateForm}
-                    />
-                    <Input
-                        label="Descripción"
-                        placeholder="Descripción"
-                        value={draftTool.description}
-                        onChange={(event) => handleDraftChange("description", event.target.value)}
-                        disabled={!canUpdateForm}
-                    />
-                    <Input
-                        label="Modelo"
-                        placeholder="Modelo"
-                        value={draftTool.model}
-                        onChange={(event) => handleDraftChange("model", event.target.value)}
-                        disabled={!canUpdateForm}
-                    />
-                    <Button
-                        hideIcon
-                        onClick={handleAddTool}
-                        disabled={!canSubmitTool || !canUpdateForm}
-                        className="self-start lg:self-end"
-                    >
-                        Agregar
-                    </Button>
-                </div>
+                <DynamicForm
+                    dataTestId="tools-form-create"
+                    fields={newToolFields}
+                    onSubmit={handleSubmitNewTool}
+                    onValuesChange={handleDraftValuesChange}
+                    responsiveLayoutMatrix={responsiveLayout}
+                    submitLabel="Agregar"
+                    showSubmitIf={() => canUpdateForm && canSubmitTool}
+                    disabled={!canUpdateForm}
+                    valuesVersion={formVersion}
+                />
             )}
 
             {tools.length > 0 && (
@@ -67,32 +43,23 @@ const ToolsForm: React.FC<FormsInterface> = ({ canUpdateForm }) => {
                     {tools.map((tool, index) => (
                         <div
                             key={`${tool.description}-${tool.brand}-${tool.model}-${index}`}
-                            className="grid items-start gap-4 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]"
+                            className="flex flex-col gap-4 lg:flex-row lg:items-start"
                         >
-                            <Input
-                                label="Cantidad"
-                                value={tool.quantity}
-                                onChange={(event) => handleUpdateTool(index, "quantity", event.target.value)}
-                                disabled={!canUpdateForm}
-                            />
-                            <Input
-                                label="Marca"
-                                value={tool.brand}
-                                onChange={(event) => handleUpdateTool(index, "brand", event.target.value)}
-                                disabled={!canUpdateForm}
-                            />
-                            <Input
-                                label="Descripción"
-                                value={tool.description}
-                                onChange={(event) => handleUpdateTool(index, "description", event.target.value)}
-                                disabled={!canUpdateForm}
-                            />
-                            <Input
-                                label="Modelo"
-                                value={tool.model}
-                                onChange={(event) => handleUpdateTool(index, "model", event.target.value)}
-                                disabled={!canUpdateForm}
-                            />
+                            <div className="flex-1">
+                                <DynamicForm
+                                    dataTestId={`tools-form-${index}`}
+                                    fields={getToolFields(tool)}
+                                    onSubmit={() => undefined}
+                                    onValuesChange={(values) => {
+                                        if (canUpdateForm) {
+                                            handleUpdateToolValues(index, values);
+                                        }
+                                    }}
+                                    responsiveLayoutMatrix={responsiveLayout}
+                                    showSubmitIf={() => false}
+                                    disabled={!canUpdateForm}
+                                />
+                            </div>
                             <Button
                                 variant="ghost"
                                 icon={DeleteIcon}
