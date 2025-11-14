@@ -75,6 +75,7 @@ const useToolsForm = () => {
     const [draftTool, setDraftTool] = useState<Tools>(createEmptyTool());
     const [formVersion, setFormVersion] = useState(0);
     const [isAddingTool, setIsAddingTool] = useState<boolean>(() => tools.length === 0);
+    const canSubmitNewTool = useMemo(() => isToolComplete(draftTool), [draftTool]);
 
     useEffect(() => {
         if (tools.length === 0) {
@@ -138,6 +139,7 @@ const useToolsForm = () => {
         responsiveLayout,
         isAddingTool,
         formVersion,
+        canSubmitNewTool,
         handleSubmitNewTool,
         handleDraftValuesChange,
         handleUpdateToolValues,
