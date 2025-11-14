@@ -30,9 +30,11 @@ const useExternalAccesForm = () => {
         loading: s.loadingById,
         resetFlags: s.resetFlags
     }), shallow);
-    const { externalpersons, setExternalPersons } = useAccessRequestStore((s) => ({
+    const { externalpersons, setExternalPersons, tools, setTools } = useAccessRequestStore((s) => ({
         externalpersons: s.externalpersons,
         setExternalPersons: s.setExternalPersons,
+        tools: s.tools,
+        setTools: s.setTools
     }), shallow);
 
     useEffect(() => {
@@ -95,6 +97,8 @@ const useExternalAccesForm = () => {
                 });
                 return;
             }
+            const serializedTools = JSON.stringify((tools.length ? tools : currentAcces?.tools) ?? []);
+
             const accesToUpdate: AccesPut = {
                 id: currentAcces?.id,
                 id_location: currentAcces?.location?.id,
@@ -104,7 +108,7 @@ const useExternalAccesForm = () => {
                 vehicles: currentAcces?.vehicles.map(v => v.transport_id),
                 internalpersons: currentAcces?.internalpersons.map(v => v.id),
                 externalpersons: externalpersons.map(v => v.id),
-                tools: "",//Yo lo envio como string
+                tools: serializedTools,
                 id_status: statusList.find(s => s.name === "Pendiente")?.id || "",
                 motive: currentAcces?.motive,
                 start_date: currentAcces?.start_date,
@@ -134,7 +138,12 @@ const useExternalAccesForm = () => {
         if (currentAcces && currentAcces?.externalpersons.length > 0) {
             setExternalPersons(currentAcces.externalpersons);
         }
-    }, [currentAcces]);
+        if (currentAcces?.tools?.length) {
+            setTools(currentAcces.tools);
+        } else if (!currentAcces?.tools?.length && tools.length) {
+            setTools([]);
+        }
+    }, [currentAcces, setExternalPersons, setTools, tools.length]);
     useEffect(() => {
         if (statusList.length === 0 && !hasAskedforStatuses.current) {
             fetchStatusesByType("CustomsAccess");
@@ -146,7 +155,8 @@ const useExternalAccesForm = () => {
         canSubmit: externalpersons.length > 0,
         UpdateAcces,
         currentAcces,
-        canUpdateForm
+        canUpdateForm,
+        tools
     })
 }
 export default useExternalAccesForm;

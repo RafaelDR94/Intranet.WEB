@@ -41,7 +41,7 @@ const ExternalAcccesForm = () => {
                 {/* Breadcrumbs con contenido controlado por el componente */}
                 <Breadcrumbs dataTestId="proyectdetail-breadcrumbs" ariaLabel="Secciones del proyecto">
                     <Breadcrumbs.Item id="personsform" label="Pesonal" renderContent={<PersonsForm canUpdateForm={canUpdateForm} />} />
-                    <Breadcrumbs.Item id="toolsform" label="Herramientas" renderContent={<ToolsForm />} />
+                    <Breadcrumbs.Item id="toolsform" label="Herramientas" renderContent={<ToolsForm canUpdateForm={canUpdateForm} />} />
                     <Breadcrumbs.Item id="vehicleform" label="Vehículos" renderContent={<VehiclesForm canUpdateForm={canUpdateForm} />} />
                 </Breadcrumbs>
             </div>
