@@ -26,6 +26,7 @@ const AcccesHistory = () => {
         handleCloseDetails,
         handleOpenConfirmPopUP,
         handleOpenClosePopUP,
+        handleRenewAcces,
         openDetails,
         openConfirmPopUp } = useAccesHistory();
     const mapStatusToLabel = (status?: string): LabelType => {
@@ -36,6 +37,7 @@ const AcccesHistory = () => {
         if (s.includes('finaliz')) return 'restringido';
         if (s.includes('pendiente')) return 'pendiente';
         if (s.includes('cancel')) return 'sin-factura';
+        if (s.includes('incidencia')) return 'vale-rosa';
         return 'actualizado';
     }
 
@@ -123,7 +125,7 @@ const AcccesHistory = () => {
                 render: (row) => <div className="flex">
                     {currentPagePermissions?.canObtainLink && <Button hideIcon onClick={() => handleLinkClick(row)}> Link Formuarlio</Button>}
                     <Label type={mapStatusToLabel(row.status)} text={row.status} />
-                    {(currentPagePermissions?.delete || currentPagePermissions?.delete) && <ActionMenuCell row={row} onDelete={handleOpenConfirmPopUP} onDetails={handleOpenDetails} />}
+                    {(currentPagePermissions?.delete || currentPagePermissions?.delete) && <ActionMenuCell row={row} onDelete={handleOpenConfirmPopUP} onDetails={handleOpenDetails} onRenewDay={handleRenewAcces} />}
                 </div>
             },
         ]

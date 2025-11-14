@@ -1,70 +1,92 @@
-import { shallow } from "zustand/shallow";
-import useAccessRequestStore from "@/app/stores/useAccesRequestStore/useAccesRequestStore";
-import { useExternalPersonsStore } from "@/app/stores/useExternalPersonsStore/useExternalPersonsStore";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ExternalPersonModel } from "@/app/mappings/externalperson/externalperson.types";
+import { shallow } from "zustand/shallow";
+
+import useAccessRequestStore from "@/app/stores/useAccesRequestStore/useAccesRequestStore";
+import { useTransportStore } from "@/app/stores/useTransportStore/useTransportStore";
 import useQuery from "@/app/hooks/useQuery/useQuery";
+import type { CompleteTransport } from "@/app/mappings/transport/transport.types";
+
+
 const useVehicleForm = () => {
-    const { all } = useQuery();
-    const enterpriseId = all.enterpriseId
-    const hasInitExternalperson = useRef(false);
-    const [personSelected, setPersonSelected] = useState("");
-    const [openPersonForm, setOpenPersonForm] = useState(false);
-    const { externalpersons, addPerson, removeExternalPerson } = useAccessRequestStore((s) => ({
-        externalpersons: s.externalpersons,
-        addPerson: s.addExternalPerson,
-        removeExternalPerson: s.removeExternalPerson
-    }), shallow);
-    const { systemexternalpersons, fetchExternalPersons } = useExternalPersonsStore((s) => ({
-        systemexternalpersons: s.externalPersons,
-        fetchExternalPersons: s.fetchExternalPersonsByEnterprise,
-    }), shallow);
+  const { all } = useQuery();
+  const enterpriseId = all.enterpriseId;
 
-    useEffect(() => {
-        if (systemexternalpersons?.length == 0 && !hasInitExternalperson.current) {
-            hasInitExternalperson.current = true;
-            if (enterpriseId) fetchExternalPersons(String(enterpriseId), true);
-        }
-    }, [systemexternalpersons, fetchExternalPersons, enterpriseId]);
+  const hasInitVehicles = useRef(false);
+  const [vehicleSelected, setVehicleSelected] = useState("");
+  const [openVehicleForm, setOpenVehicleForm] = useState(false);
 
-    const handleSelectPerson = (selected: string) => {
-        setPersonSelected(selected);
-    }
-    const handleConfirmPerson = () => {
-        const selectedperson = systemexternalpersons.filter(person => personSelected == String(person.id))
-        if (selectedperson) addPerson(selectedperson[0]);
-        setPersonSelected("");
-    }
-    const handleAddPerson = () => {
-        setOpenPersonForm(true);
-    }
-    const handleCancel = () => {
-        setOpenPersonForm(false);
-    }
-    const handleDelete = (person: ExternalPersonModel) => {
-        removeExternalPerson(person.id);
-    }
-    const filteredSystemExternalPersons = useMemo(() => {
-        const selectedIds = new Set(externalpersons.map(p => String(p.id)));
-        return systemexternalpersons.filter(p => !selectedIds.has(String(p.id)));
-    }, [systemexternalpersons, externalpersons]);
-    useEffect(() => {
-        if (externalpersons.length > 0) {
-            setOpenPersonForm(false);
-        }
+  const { vehicles, addVehicle, removeVehicle } = useAccessRequestStore(
+    (s) => ({
+      vehicles: s.vehicles,
+      addVehicle: s.addVehicle,
+      removeVehicle: s.removeVehicle,
+    }),
+    shallow
+  );
 
-    }, [externalpersons])
+  const { transports, fetchTransportsByEnterprise } = useTransportStore(
+    (s) => ({
+      transports: s.transports,
+      fetchTransportsByEnterprise: s.fetchTransportsByEnterprise,
+    }),
+    shallow
+  );
 
-    return ({
-        systemexternalpersons: filteredSystemExternalPersons,
-        externalpersons,
-        personSelected,
-        handleSelectPerson,
-        handleConfirmPerson,
-        handleAddPerson,
-        handleCancel,
-        handleDelete,
-        openPersonForm
-    })
-}
+  useEffect(() => {
+    if (!hasInitVehicles.current && enterpriseId) {
+      hasInitVehicles.current = true;
+      void fetchTransportsByEnterprise(String(enterpriseId), true);
+    }
+  }, [enterpriseId, fetchTransportsByEnterprise]);
+
+  const handleSelectVehicle = (selected: string) => {
+    setVehicleSelected(selected);
+  };
+
+  const handleConfirmVehicle = () => {
+    const selectedVehicle = transports.find(
+      (vehicle) => vehicleSelected === String(vehicle.transport_id)
+    );
+    if (selectedVehicle) addVehicle(selectedVehicle as CompleteTransport);
+    setVehicleSelected("");
+  };
+
+  const handleAddVehicle = () => {
+    setOpenVehicleForm(true);
+  };
+
+  const handleCancel = () => {
+    setOpenVehicleForm(false);
+  };
+
+  const handleDelete = (vehicle: CompleteTransport) => {
+    removeVehicle(vehicle.transport_id);
+  };
+
+
+
+  useEffect(() => {
+    if (vehicles.length > 0) {
+      setOpenVehicleForm(false);
+    }
+  }, [vehicles]);
+
+  const filteredSystemExternalTransport = useMemo(() => {
+    const selectedIds = new Set(vehicles.map(p => String(p.transport_id)));
+    return transports.filter(p => !selectedIds.has(String(p.transport_id)));
+  }, [transports, vehicles]);
+
+  return {
+    systemVehicles: filteredSystemExternalTransport.map(t => ({ label: t.brand + " " + t.model + " " + t.year, value: t.transport_id })),
+    vehicles,
+    vehicleSelected,
+    handleSelectVehicle,
+    handleConfirmVehicle,
+    handleAddVehicle,
+    handleCancel,
+    handleDelete,
+    openVehicleForm,
+  };
+};
+
 export default useVehicleForm;

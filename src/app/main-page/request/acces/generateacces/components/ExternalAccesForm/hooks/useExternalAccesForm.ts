@@ -8,12 +8,15 @@ import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import useStatusStore from "@/app/stores/useStatusStore/useStatusStore";
 
 const useExternalAccesForm = () => {
+    
     const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
     const hasAskedforStatuses = useRef(false);
     const { showSpinner, hideSpinner } = usePrincipalLoading;
     const { showAlert } = usePrincipalAlert
     const { all } = useQuery();
     const idAcces = all.idAcces;
+    const mode = all.mode;
+    const force = all.force;
     const [canUpdateForm, setCanUpdateForm,] = useState(false);
     const { fetchStatusesByType, statusList } = useStatusStore((s) => ({
         fetchStatusesByType: s.fetchStatusesByType,
@@ -30,16 +33,19 @@ const useExternalAccesForm = () => {
         loading: s.loadingById,
         resetFlags: s.resetFlags
     }), shallow);
-    const { externalpersons, setExternalPersons, tools, setTools } = useAccessRequestStore((s) => ({
+    const { vehicles,externalpersons, setExternalPersons, setVehicles,tools, setTools } = useAccessRequestStore((s) => ({
         externalpersons: s.externalpersons,
         setExternalPersons: s.setExternalPersons,
+        setVehicles:s.setVehicles,
         tools: s.tools,
+        vehicles:s.vehicles,
         setTools: s.setTools
     }), shallow);
     const hasInitializedAccesData = useRef(false);
     const previousAccesId = useRef<string | null>(null);
     const previousExternalPersonsSnapshot = useRef<string | null>(null);
     const previousToolsSnapshot = useRef<string | null>(null);
+    const previousVehiclesSnapshot = useRef<string | null>(null);
 
     useEffect(() => {
         if (loading) {
@@ -73,7 +79,7 @@ const useExternalAccesForm = () => {
             resetFlags();
         }
         hideSpinner();
-    }, [error, updating, succesUpdate,loading])
+    }, [error, updating, succesUpdate, loading])
 
     const UpdateAcces = async () => {
         if (currentAcces) {
@@ -109,7 +115,7 @@ const useExternalAccesForm = () => {
                 id_external_enterprise: currentAcces?.external_enterprise?.enterprise_id,
                 location_responsible: currentAcces?.location_responsible,
                 location_workposition: currentAcces?.location_workposition,
-                vehicles: currentAcces?.vehicles.map(v => v.transport_id),
+                vehicles: vehicles.map(v => v.transport_id),
                 internalpersons: currentAcces?.internalpersons.map(v => v.id),
                 externalpersons: externalpersons.map(v => v.id),
                 tools: serializedTools,
@@ -121,6 +127,8 @@ const useExternalAccesForm = () => {
                 dr_responsiblesignature: currentAcces?.dr_responsiblesignature,
                 evidence_send_email: currentAcces?.evidence_send_email,
                 evidence_response_email: currentAcces?.evidence_response_email,
+                internal_comments: currentAcces?.internal_comments,
+                external_comments: currentAcces?.external_comments
             };
             showSpinner(({ message: "Actualizando información de acceso" }));
             await updateAccesRequirement(accesToUpdate);
@@ -140,23 +148,26 @@ const useExternalAccesForm = () => {
         if (!currentAcces) {
             setCanUpdateForm(false);
             if (hasInitializedAccesData.current) {
+                setVehicles([]);
                 setExternalPersons([]);
                 setTools([]);
                 hasInitializedAccesData.current = false;
                 previousAccesId.current = null;
                 previousExternalPersonsSnapshot.current = null;
                 previousToolsSnapshot.current = null;
+                previousVehiclesSnapshot.current = null;
             }
             return;
         }
 
-        const isEditable = currentAcces.status === "Creada" || currentAcces.status === "I Rechazada";
+        const isEditable = currentAcces.status === "Creada" || currentAcces.status === "I Rechazada"||!!force;
         setCanUpdateForm(isEditable);
 
         const currentId = currentAcces.id ?? null;
         const accesChanged = previousAccesId.current !== currentId;
         const nextExternalPersonsSnapshot = JSON.stringify(currentAcces.externalpersons ?? []);
         const nextToolsSnapshot = JSON.stringify(currentAcces.tools ?? []);
+        const nextVehiclesSnapshot = JSON.stringify(currentAcces.vehicles ?? []);
         const shouldSyncExternalPersons =
             accesChanged ||
             !hasInitializedAccesData.current ||
@@ -165,6 +176,10 @@ const useExternalAccesForm = () => {
             accesChanged ||
             !hasInitializedAccesData.current ||
             previousToolsSnapshot.current !== nextToolsSnapshot;
+        const shouldSyncVehicles =
+            accesChanged ||
+            !hasInitializedAccesData.current ||
+            previousVehiclesSnapshot.current !== nextVehiclesSnapshot;
 
         if (shouldSyncExternalPersons) {
             if (currentAcces.externalpersons?.length) {
@@ -173,6 +188,15 @@ const useExternalAccesForm = () => {
                 setExternalPersons([]);
             }
             previousExternalPersonsSnapshot.current = nextExternalPersonsSnapshot;
+        }
+
+        if (shouldSyncVehicles) {
+            if (currentAcces.vehicles?.length) {
+                setVehicles(currentAcces.vehicles);
+            } else {
+                setVehicles([]);
+            }
+            previousVehiclesSnapshot.current = nextVehiclesSnapshot;
         }
 
         if (shouldSyncTools) {
@@ -188,7 +212,7 @@ const useExternalAccesForm = () => {
             previousAccesId.current = currentId;
             hasInitializedAccesData.current = true;
         }
-    }, [currentAcces, setExternalPersons, setTools]);
+    }, [currentAcces, setExternalPersons, setTools, setVehicles]);
     useEffect(() => {
         if (statusList.length === 0 && !hasAskedforStatuses.current) {
             fetchStatusesByType("CustomsAccess");
@@ -203,7 +227,8 @@ const useExternalAccesForm = () => {
         UpdateAcces,
         currentAcces,
         canUpdateForm,
-        tools
+        tools,
+        mode
     })
 }
 export default useExternalAccesForm;

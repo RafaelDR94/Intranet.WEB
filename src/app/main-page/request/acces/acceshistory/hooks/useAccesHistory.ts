@@ -4,8 +4,10 @@ import { shallow } from "zustand/shallow";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useRouter } from "next/navigation";
 import { AccesRequirmentGet } from "@/app/mappings/accesrequest/accesrequest.types";
-
+import useQuery from "@/app/hooks/useQuery/useQuery";
 const useAccesHistory = () => {
+    const { all } = useQuery();
+    const idAcces = all.idAcces;
     const hasAskedforHistory = useRef(false);
     const [openDetails, setOpenDetails] = useState(false);
     const [openConfirmPopUp, setOpenConfirmPopUp] = useState(false);
@@ -13,7 +15,7 @@ const useAccesHistory = () => {
     const { showSpinner, hideSpinner } = usePrincipalLoading;
     const { showAlert } = usePrincipalAlert
     const router = useRouter();
-    const { resetflags, fetchreq, accesreq, loading, error, deleteAccesRequirement, deleting, succesDelete, current, setCurrent } = useAccesRequirementStore((s) => ({
+    const {  resetflags, fetchreq, accesreq, loading, error, deleteAccesRequirement, deleting, succesDelete, current, setCurrent } = useAccesRequirementStore((s) => ({
         fetchreq: s.fetchAccesRequirements,
         deleteAccesRequirement: s.deleteAccesRequirement,
         deleting: s.deleting,
@@ -28,16 +30,17 @@ const useAccesHistory = () => {
     }), shallow)
 
     useEffect(() => {
-        if (accesreq.length == 0 && !hasAskedforHistory.current) {
+        if (!hasAskedforHistory.current) {
             hasAskedforHistory.current = true
             fetchreq(true)
         }
-    }, [fetchreq, accesreq])
+    }, [fetchreq])
 
     const handleCreate = () => {
         router.push(`/main-page/request/acces/generateacces/`);
     }
     const handleLinkClick = async (acces: AccesRequirmentGet) => {
+
         const base = typeof window !== 'undefined' ? window.location.origin : '';
         const link = `${base}/accesrequest?idAcces=${acces.id}&enterpriseId=${acces.external_enterprise?.enterprise_id}`;
         try {
@@ -55,9 +58,10 @@ const useAccesHistory = () => {
         });
     }
     const handleAddPerson = (acces: AccesRequirmentGet) => {
-        router.push(`/main-page/request/acces/generateacces/?idAcces=` + acces.id);
+        router.push(`/main-page/request/acces/generateacces/?idAcces=${acces.id}&enterpriseId=${acces.external_enterprise?.enterprise_id}`);
     }
     const handleDelete = () => {
+        setOpenConfirmPopUp(false);
         if (current) deleteAccesRequirement(current.id);
         else showAlert({
             type: "warning",
@@ -70,11 +74,11 @@ const useAccesHistory = () => {
         setCurrent(undefined)
     }
     const handleOpenDetails = (acces: AccesRequirmentGet) => {
-        setOpenDetails(true);
+        router.push('/main-page/request/acces/acceshistory?idAcces=' + acces.id)
         setCurrent(acces)
     }
     const handleCloseDetails = () => {
-        setOpenDetails(false);
+        router.push('/main-page/request/acces/acceshistory/')
         setCurrent(undefined)
     }
     const handleOpenConfirmPopUP = (acces: AccesRequirmentGet) => {
@@ -85,6 +89,17 @@ const useAccesHistory = () => {
         setCurrent(undefined)
         setOpenConfirmPopUp(false);
     }
+    const handleRenewAcces = (acces: AccesRequirmentGet) => {
+        router.push(`/main-page/request/acces/generateacces/?idAcces=${acces.id}&enterpriseId=${acces.external_enterprise?.enterprise_id}&mode=renew`);
+    }
+    useEffect(() => {
+        if (idAcces) {
+            setOpenDetails(true);
+        }
+        else {
+            setOpenDetails(false);
+        }
+    }, [idAcces,setOpenDetails])
     useEffect(() => {
         if (loading) {
             showSpinner(({ message: "Cargando información" }))
@@ -119,6 +134,6 @@ const useAccesHistory = () => {
         hideSpinner();
     }, [error, loading, deleting, succesDelete])
 
-    return { accesreq, handleCreate, handleLinkClick, handleAddPerson, handleDelete, handleOpenDetails, handleCloseDetails, handleOpenConfirmPopUP, handleOpenClosePopUP, openDetails, openConfirmPopUp }
+    return { accesreq, handleRenewAcces, handleCreate, handleLinkClick, handleAddPerson, handleDelete, handleOpenDetails, handleCloseDetails, handleOpenConfirmPopUP, handleOpenClosePopUP, openDetails, openConfirmPopUp }
 }
 export default useAccesHistory;

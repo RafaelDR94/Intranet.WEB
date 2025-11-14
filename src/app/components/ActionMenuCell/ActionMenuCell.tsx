@@ -18,6 +18,7 @@ import DeleteIcon from "@/assets/icons/acciones/trash.svg";
 import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
 import RightArrowIcon from "@/assets/icons/navegacion/nav-arrow-right.svg";
+import CalendarPlusIcon from "@/assets/icons/System/System/calendar-plus.svg";
 
 export type { ActionMenuPermissions } from "./types";
 
@@ -65,6 +66,7 @@ const ActionMenuCell = <T extends Record<string, any>>({
       details: Boolean(permissionsOverride?.details ?? currentPagePermissions?.details),
       update: Boolean(permissionsOverride?.update ?? currentPagePermissions?.update),
       delete: Boolean(permissionsOverride?.delete ?? currentPagePermissions?.delete),
+      renew: Boolean(permissionsOverride?.renew ?? currentPagePermissions?.renew),
     }),
     [permissionsOverride, currentPagePermissions]
   );
@@ -88,6 +90,7 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
   onEdit,
   onDelete,
   onDetails,
+  onRenewDay,
   permissions,
 }: ActionMenuCellBaseProps<T> & { permissions: ActionMenuPermissions }): ContextMenuItem[] => {
   const items: ContextMenuItem[] = [];
@@ -98,6 +101,14 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
       label: permissions.details ? "Ver Detalle" : "Actualizar",
       icon: EditIcon,
       onClick: () => onEdit?.(row) ?? onDetails?.(row),
+    });
+  }
+
+  if (permissions.renew) {
+    items.push({
+      label: "Renovar",
+      icon: CalendarPlusIcon,
+      onClick: () => onRenewDay?.(row),
     });
   }
 
@@ -128,14 +139,15 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
   onEdit,
   onDelete,
   onDetails,
+  onRenewDay,
   permissions,
   isMobile,
   menuComponent: MenuComponent = ContextMenu,
   buttonComponent: ButtonComponent = Button,
 }: ActionMenuCellViewProps<T>) => {
   const menuItems = useMemo(
-    () => buildActionMenuItems<T>({ row, onEdit, onDelete,onDetails, permissions }),
-    [row, onEdit, onDelete, permissions]
+    () => buildActionMenuItems<T>({ row, onEdit, onDelete, onDetails, onRenewDay, permissions }),
+    [row, onEdit, onDelete, onDetails, onRenewDay, permissions]
   );
 
   const TriggerIcon = isMobile ? RightArrowIcon : DotsIcon;

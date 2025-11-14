@@ -1,4 +1,4 @@
-import { Transport } from "../transport/transport.types"
+import { CompleteTransport } from "../transport/transport.types"
 import { EmployeeType } from "../employees/employee.types"
 import { ExternalPersonModel } from "../externalperson/externalperson.types"
 import { Enterprise } from "../enterprises/enterprises.types"
@@ -15,11 +15,11 @@ export type AccesRequirmentGet = {
     external_enterprise?: Enterprise,
     location_responsible: string,
     location_workposition: string,
-    vehicles: Transport[],
+    vehicles: CompleteTransport[],
     internalpersons: EmployeeType[],
     externalpersons: ExternalPersonModel[],
     tools: Tools[],
-    status: 'Creada' | 'Pendiente' | 'I Aprobada' | 'I Rechazada' | 'Enviada' | 'A rechazado' | 'A finalizado' | 'Cancelada',
+    status: 'Creada' | 'Pendiente' | 'I Aprobada' | 'I Rechazada' | 'Enviada' | 'A rechazado' | 'A finalizado' | 'Cancelada'|'Incidencia',
     motive: string,
     dateCreate: string,
     createdBy: string,
@@ -69,14 +69,18 @@ export type AccesPut = {
     dr_responsiblesignature: string,
     evidence_send_email: string,
     evidence_response_email: string,
+    internal_comments: string,
+    external_comments: string
 }
 
 export type AccesInternalCommentsPut = {
     id: string,
     internal_comments: string,
+    title: string
 }
 
 export type AccesExternalCommentsPut = {
     id: string,
     external_comments: string,
+    title: string
 }

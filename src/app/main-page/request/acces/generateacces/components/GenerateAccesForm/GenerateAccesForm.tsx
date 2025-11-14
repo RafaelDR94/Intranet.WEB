@@ -11,12 +11,16 @@ const GenerateAccesForm = () => {
     formCompleted,
     canStart,
     loadingForm,
+    submitText,
+    titleText
   } = useGenerateAccesForm();
   if (!canStart) return <> Return</>;
+
+  
   return (
     <FormsLayout
-      title="Registra Acceso de empleado"
-      primaryLabel="Registrar Acceso"
+      title={titleText()}
+      primaryLabel={submitText()}
       onPrimaryClick={() => submitRef.current?.()}
       primaryDisabled={!formCompleted}
     >

@@ -1,4 +1,4 @@
-import { mapTransport } from "../transport/transport.mapper";
+import { mapCompleteTransport } from "../transport/transport.mapper";
 import { mapEmployee } from "../employees/employee.mapper";
 import { mapExternalPerson } from "../externalperson/externalperson.mapper";
 import { mapProyectLocation } from "../locations/location.mapper";
@@ -9,7 +9,7 @@ import type {
   AccesRequirmentGet,
   Tools,
 } from "./accesrequest.types";
-import type { Transport } from "../transport/transport.types";
+import type { CompleteTransport } from "../transport/transport.types";
 import type { EmployeeType } from "../employees/employee.types";
 import type { ExternalPersonModel } from "../externalperson/externalperson.types";
 
@@ -48,9 +48,9 @@ const mapTools = (raw: unknown): Tools[] => {
   return Array.isArray(parsed) ? parsed.map(mapTool) : [];
 };
 
-const mapVehicles = (raw: unknown): Transport[] => {
+const mapVehicles = (raw: unknown): CompleteTransport[] => {
   const list = Array.isArray(raw) ? raw : parseMaybeJson<any[]>(raw) ?? [];
-  return Array.isArray(list) ? list.map(mapTransport) : [];
+  return Array.isArray(list) ? list.map(mapCompleteTransport) : [];
 };
 
 const mapInternalPersons = (raw: unknown): EmployeeType[] => {
@@ -162,6 +162,8 @@ export const mapAccesPut = (payload: Partial<AccesPut> | any): AccesPut => ({
   ),
   evidence_send_email: toString(payload?.evidence_send_email),
   evidence_response_email: toString(payload?.evidence_response_email),
+  internal_comments: toString(payload?.evidence_response_email),
+  external_comments: toString(payload?.evidence_response_email)
 });
 
 // Some APIs expect tools as a serialized string. Provide helpers if needed.
@@ -173,3 +175,4 @@ export const serializeTools = (tools: Tools[] | unknown): string => {
     return "[]";
   }
 };
+

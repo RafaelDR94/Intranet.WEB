@@ -1,7 +1,7 @@
 import { useAccesRequirementStore } from "@/app/stores/useAccesRequirementStore/useAccesRequirementStore";
 import { shallow } from "zustand/shallow";
-import { useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+
 import type { Tools as Tool } from "@/app/mappings/accesrequest/accesrequest.types";
 
 const parseTools = (value: unknown): Tool[] => {
@@ -18,7 +18,7 @@ const parseTools = (value: unknown): Tool[] => {
 };
 
 const useTools = () => {
-  const router = useRouter();
+
   const { current } = useAccesRequirementStore(
     (s) => ({
       current: s.current,
@@ -31,17 +31,11 @@ const useTools = () => {
     [current?.tools],
   );
 
-  const handleEditTools = useCallback(() => {
-    if (!current?.id) return;
-    router.push(
-      `/main-page/request/acces/generateacces/?idAcces=${encodeURIComponent(current.id)}+&mode=edit`,
-    );
-  }, [current, router]);
+
 
   return {
     current,
     tools,
-    handleEditTools,
   };
 };
 export default useTools;

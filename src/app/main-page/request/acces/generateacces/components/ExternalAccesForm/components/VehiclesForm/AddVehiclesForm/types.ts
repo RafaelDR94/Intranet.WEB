@@ -1,7 +1,8 @@
-import { ExternalPersonModel } from "@/app/mappings/externalperson/externalperson.types"
-export interface AddExtneralPersonFormProps {
-    formId:string,
-    currentexternalperson?:ExternalPersonModel
-    onCancel?:()=>void
-    canUpdateForm?:boolean
+import type { CompleteTransport } from "@/app/mappings/transport/transport.types";
+
+export interface AddVehicleFormProps {
+  formId: string;
+  currentTransport?: CompleteTransport | undefined;
+  onCancel?: () => void;
+  canUpdateForm?: boolean;
 }

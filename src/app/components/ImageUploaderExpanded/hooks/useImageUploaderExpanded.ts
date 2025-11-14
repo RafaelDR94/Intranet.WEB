@@ -7,7 +7,7 @@ import { useFileUploaderExpanded } from '@/app/components/FileUploaderexpanded/h
 import {
   UseImageUploaderExpandedParams,
 } from './types';
-
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 const DEFAULT_PLACEHOLDER = 'arrastra/selecciona la imagen que deseas subir';
 
 export const useImageUploaderExpanded = ({
@@ -20,7 +20,8 @@ export const useImageUploaderExpanded = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-
+  const { usePrincipalImage } = usePrincipal();
+  const { showImage } = usePrincipalImage;
   const {
     inputRef,
     fileName,
@@ -95,6 +96,15 @@ export const useImageUploaderExpanded = ({
     }
   }, [isVisible, isCameraOpen]);
 
+  const openPreview = useCallback(() => {
+    console.log("Si se ejecuta esto");
+    if (!previewUrl) return;
+    showImage({
+      src: previewUrl,
+      alt: fileName ?? 'Vista previa',
+    });
+  }, [previewUrl, fileName, showImage]);
+
   return {
     inputRef,
     fileName,
@@ -111,5 +121,6 @@ export const useImageUploaderExpanded = ({
     closeCamera,
     handleCaptureFromCamera,
     previewUrl,
+    openPreview,
   };
 };

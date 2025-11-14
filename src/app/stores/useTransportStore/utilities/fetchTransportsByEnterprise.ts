@@ -2,25 +2,22 @@
 
 import type { AxiosResponse } from "axios";
 
-import type { GetState, SetState } from "../types";
-
-import {
-  Transport as TransportUrl,
-} from "@/app/configurations/Axios/urls";
 import { transportTransformer } from "@/app/mappings/transport/transformers";
 import type { CompleteTransport } from "@/app/mappings/transport/transport.types";
+import { TransportByEnterprise as TransportByEnterpriseUrl } from "@/app/configurations/Axios/urls";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pGet } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
 
-export const fetchTransports = async (
+import type { GetState, SetState } from "../types";
+
+export const fetchTransportsByEnterprise = async (
+  idEnterprise: string,
   set: SetState,
   get: GetState,
   force = false
 ): Promise<CompleteTransport[] | null> => {
-  if (!force && get().transports.length > 0) {
-    return get().transports;
-  }
+  if (!force && get().loadingTransports) return null;
 
   set({
     loadingTransports: true,
@@ -30,26 +27,26 @@ export const fetchTransports = async (
   });
 
   try {
-    const getFn = pGet(requireGateway("get"),[200,201]);
-    const res: AxiosResponse = await getFn(TransportUrl);
-    const raw = res.data?.data ?? res.data ?? [];
-    const list = transportTransformer.mapTransportList(
-      Array.isArray(raw) ? raw : raw?.items ?? []
+    const getRequest = pGet(requireGateway("get"), [200, 201]);
+    const res: AxiosResponse = await getRequest(
+      `${TransportByEnterpriseUrl}/${idEnterprise}`
     );
-
+    const raw = res.data?.data ?? res.data ?? [];
+    const transports = transportTransformer.mapCompleteTransportList(raw);
     set({
-      transports: list,
+      transports,
       loadingTransports: false,
       successGetTransports: true,
     });
 
-    return list;
+    return transports;
   } catch (error) {
     const err = normalizeApiError(error);
     set({
       loadingTransports: false,
       successGetTransports: false,
-      error: err.message,    });
+      error: err.message,
+    });
     return null;
   }
 };

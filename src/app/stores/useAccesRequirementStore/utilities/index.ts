@@ -6,3 +6,4 @@ export * from "./updateAccesRequirement";
 export * from "./deleteAccesRequirement";
 export * from "./updateInternalComments";
 export * from "./updateExternalComments";
+export * from "./generateTemplate";

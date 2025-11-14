@@ -15,6 +15,7 @@ export type AccesRequirementsState = {
   creating: boolean;
   updating: boolean;
   deleting: boolean;
+  templating: boolean;
 
   // Success flags
   successGet: boolean;
@@ -22,10 +23,12 @@ export type AccesRequirementsState = {
   successPost: boolean;
   successPut: boolean;
   successDelete: boolean;
+  successTemplate: boolean;
 
   // Errors
   error?: string;
   warning?: string;
+  templateError?: string;
 
   // Actions
   fetchAccesRequirements: (force?: boolean) => Promise<AccesRequirmentGet[] | null>;
@@ -35,6 +38,7 @@ export type AccesRequirementsState = {
   updateInternalComments: (payload: import("@/app/mappings/accesrequest/accesrequest.types").AccesInternalCommentsPut) => Promise<AccesRequirmentGet | null>;
   updateExternalComments: (payload: import("@/app/mappings/accesrequest/accesrequest.types").AccesExternalCommentsPut) => Promise<AccesRequirmentGet | null>;
   deleteAccesRequirement: (id: string) => Promise<boolean>;
+  generateTemplate: (ids: string[]) => Promise<any>;
 
   reset: () => void;
   resetFlags: () => void;

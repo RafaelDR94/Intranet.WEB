@@ -1,23 +1,23 @@
-import type { Transport } from '@/app/mappings/transport/transport.types'
+import type { CompleteTransport } from '@/app/mappings/transport/transport.types'
 import type { EmployeeType } from '@/app/mappings/employees/employee.types'
 import type { ExternalPersonModel } from '@/app/mappings/externalperson/externalperson.types'
 import type { Tools } from '@/app/mappings/accesrequest/accesrequest.types'
 
 export type AccessRequestStoreState = {
-  vehicles: Transport[]
+  vehicles: CompleteTransport[]
   internalpersons: EmployeeType[]
   externalpersons: ExternalPersonModel[]
   tools: Tools[]
 
   /** Setters / bulk */
-  setVehicles: (vehicles: Transport[]) => void
+  setVehicles: (vehicles: CompleteTransport[]) => void
   setInternalPersons: (persons: EmployeeType[]) => void
   setExternalPersons: (persons: ExternalPersonModel[]) => void
   setTools: (tools: Tools[]) => void
 
   /** Single item operations */
-  addVehicle: (vehicle: Transport) => void
-  updateVehicle: (transport_id: string, data: Partial<Transport>) => void
+  addVehicle: (vehicle: CompleteTransport) => void
+  updateVehicle: (transport_id: string, data: Partial<CompleteTransport>) => void
   removeVehicle: (transport_id: string) => void
 
   addInternalPerson: (person: EmployeeType) => void

@@ -9,39 +9,49 @@ import useVehicleForm from "./hooks/useVehicleForm";
 import { FormsInterface } from "../../types";
 
 const VehiclesForm : React.FC<FormsInterface> = ({ canUpdateForm }) => {
-    const { externalpersons, systemexternalpersons, personSelected, handleSelectPerson, handleConfirmPerson, handleAddPerson, openPersonForm, handleCancel, handleDelete } = useVehicleForm();
+    const {
+        vehicles,
+        systemVehicles,
+        vehicleSelected,
+        handleSelectVehicle,
+        handleConfirmVehicle,
+        handleAddVehicle,
+        openVehicleForm,
+        handleCancel,
+        handleDelete
+    } = useVehicleForm();
 
      return (
         <div>
-            {!openPersonForm && <div className="flex  gap-10">
+            {!openVehicleForm && <div className="flex  gap-10">
                 <Select
                     disabled={!canUpdateForm}
                     className="max-w-160"
-                    selected={personSelected ? [personSelected] : []}
-                    onChange={(values) => handleSelectPerson(values[0] ?? "")}
-                    options={systemexternalpersons.map(person => ({ value: String(person.id), label: person.name + " " + person.lastname + " " + person.motherslastname }))}
-                    placeholder="Selecciona una persona"
+                    selected={vehicleSelected ? [vehicleSelected] : []}
+                    onChange={(values) => handleSelectVehicle(values[0] ?? "")}
+                    options={systemVehicles}
+                    placeholder="Selecciona un vehículo"
                 />
-                <Button onClick={handleConfirmPerson} hideIcon disabled={!canUpdateForm}>
+                <Button onClick={handleConfirmVehicle} hideIcon disabled={!canUpdateForm}>
                     Agregar
                 </Button>
             </div>}
 
-            {openPersonForm ? (
-                <AddVehiclesForm formId="FirstExternalAccesForm" onCancel={handleCancel}    canUpdateForm={canUpdateForm}/>
+            {openVehicleForm ? (
+                <AddVehiclesForm formId="FirstVehicleForm" onCancel={handleCancel}    canUpdateForm={canUpdateForm}/>
             ) : (
                 <div className="w-full">
-                    {externalpersons.map((person) => (
+                    {vehicles.map((vehicle) => (
                         <CollapsibleSection
-                            key={person.electorkey ?? person.id ?? `${person.name}-${person.lastname}-${person.motherslastname}`}
-                            title={`${person.name} ${person.lastname} ${person.motherslastname}`}
+                            key={vehicle.transport_id}
+                            title={`${vehicle.plates} - ${vehicle.brand} ${vehicle.model}`}
                             defaultOpen={false}
-                            rightContent={<ActionMenuCell row={person} onDelete={handleDelete} permissions={{ delete: true }} />}
+                            rightContent={<ActionMenuCell row={vehicle} onDelete={handleDelete} permissions={{ delete: true }} />}
 
                         >
                             <AddVehiclesForm
-                                formId={person.electorkey ?? person.id}
-                                currentexternalperson={person}
+                                formId={vehicle.transport_id}
+                                currentTransport={vehicle}
                                 canUpdateForm={canUpdateForm}
                             />
                         </CollapsibleSection>
@@ -49,7 +59,7 @@ const VehiclesForm : React.FC<FormsInterface> = ({ canUpdateForm }) => {
                 </div>
             )}
 
-            <Button disabled={!canUpdateForm} icon={AddIcon} variant="outline" className="mt-5" onClick={handleAddPerson}> Agregar otra persona</Button>
+            <Button disabled={!canUpdateForm} icon={AddIcon} variant="outline" className="mt-5" onClick={handleAddVehicle}> Agregar otro vehículo</Button>
         </div>
 
     );

@@ -70,6 +70,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     closeCamera,
     handleCaptureFromCamera,
     previewUrl,
+    openPreview,
   } = useImageUploaderExpanded({
     onImage,
     accept,
@@ -99,7 +100,12 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
       {isPreviewVisible ? (
         <div className={previewWrapperClasses}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={previewUrl ?? ''} alt="Vista previa" className={previewImageClasses} />
+          <img
+            src={previewUrl ?? ''}
+            alt="Vista previa"
+            className={previewImageClasses}
+            onClick={openPreview}
+          />
 
           <div className={previewActionsClasses}>
             <Button
