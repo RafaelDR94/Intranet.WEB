@@ -30,10 +30,16 @@ const useExternalAccesForm = () => {
         loading: s.loadingById,
         resetFlags: s.resetFlags
     }), shallow);
-    const { externalpersons, setExternalPersons } = useAccessRequestStore((s) => ({
+    const { externalpersons, setExternalPersons, tools, setTools } = useAccessRequestStore((s) => ({
         externalpersons: s.externalpersons,
         setExternalPersons: s.setExternalPersons,
+        tools: s.tools,
+        setTools: s.setTools
     }), shallow);
+    const hasInitializedAccesData = useRef(false);
+    const previousAccesId = useRef<string | null>(null);
+    const previousExternalPersonsSnapshot = useRef<string | null>(null);
+    const previousToolsSnapshot = useRef<string | null>(null);
 
     useEffect(() => {
         if (loading) {
@@ -95,6 +101,8 @@ const useExternalAccesForm = () => {
                 });
                 return;
             }
+            const serializedTools = JSON.stringify((tools.length ? tools : currentAcces?.tools) ?? []);
+
             const accesToUpdate: AccesPut = {
                 id: currentAcces?.id,
                 id_location: currentAcces?.location?.id,
@@ -104,7 +112,7 @@ const useExternalAccesForm = () => {
                 vehicles: currentAcces?.vehicles.map(v => v.transport_id),
                 internalpersons: currentAcces?.internalpersons.map(v => v.id),
                 externalpersons: externalpersons.map(v => v.id),
-                tools: "",//Yo lo envio como string
+                tools: serializedTools,
                 id_status: statusList.find(s => s.name === "Pendiente")?.id || "",
                 motive: currentAcces?.motive,
                 start_date: currentAcces?.start_date,
@@ -129,12 +137,58 @@ const useExternalAccesForm = () => {
         }
     }, [idAcces, fetchAccesRequirementById]);
     useEffect(() => {
-        if (currentAcces && (currentAcces.status == "Creada" || currentAcces?.status == "I Rechazada")) setCanUpdateForm(true);
-        else setCanUpdateForm(false);
-        if (currentAcces && currentAcces?.externalpersons.length > 0) {
-            setExternalPersons(currentAcces.externalpersons);
+        if (!currentAcces) {
+            setCanUpdateForm(false);
+            if (hasInitializedAccesData.current) {
+                setExternalPersons([]);
+                setTools([]);
+                hasInitializedAccesData.current = false;
+                previousAccesId.current = null;
+                previousExternalPersonsSnapshot.current = null;
+                previousToolsSnapshot.current = null;
+            }
+            return;
         }
-    }, [currentAcces]);
+
+        const isEditable = currentAcces.status === "Creada" || currentAcces.status === "I Rechazada";
+        setCanUpdateForm(isEditable);
+
+        const currentId = currentAcces.id ?? null;
+        const accesChanged = previousAccesId.current !== currentId;
+        const nextExternalPersonsSnapshot = JSON.stringify(currentAcces.externalpersons ?? []);
+        const nextToolsSnapshot = JSON.stringify(currentAcces.tools ?? []);
+        const shouldSyncExternalPersons =
+            accesChanged ||
+            !hasInitializedAccesData.current ||
+            previousExternalPersonsSnapshot.current !== nextExternalPersonsSnapshot;
+        const shouldSyncTools =
+            accesChanged ||
+            !hasInitializedAccesData.current ||
+            previousToolsSnapshot.current !== nextToolsSnapshot;
+
+        if (shouldSyncExternalPersons) {
+            if (currentAcces.externalpersons?.length) {
+                setExternalPersons(currentAcces.externalpersons);
+            } else {
+                setExternalPersons([]);
+            }
+            previousExternalPersonsSnapshot.current = nextExternalPersonsSnapshot;
+        }
+
+        if (shouldSyncTools) {
+            if (currentAcces.tools?.length) {
+                setTools(currentAcces.tools);
+            } else {
+                setTools([]);
+            }
+            previousToolsSnapshot.current = nextToolsSnapshot;
+        }
+
+        if (!hasInitializedAccesData.current || accesChanged) {
+            previousAccesId.current = currentId;
+            hasInitializedAccesData.current = true;
+        }
+    }, [currentAcces, setExternalPersons, setTools]);
     useEffect(() => {
         if (statusList.length === 0 && !hasAskedforStatuses.current) {
             fetchStatusesByType("CustomsAccess");
@@ -142,11 +196,14 @@ const useExternalAccesForm = () => {
         }
     }, [fetchStatusesByType, statusList]);
 
+    const canSubmit = externalpersons.length > 0 || tools.length > 0;
+
     return ({
-        canSubmit: externalpersons.length > 0,
+        canSubmit,
         UpdateAcces,
         currentAcces,
-        canUpdateForm
+        canUpdateForm,
+        tools
     })
 }
 export default useExternalAccesForm;

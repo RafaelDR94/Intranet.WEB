@@ -6,7 +6,7 @@ import { Button } from "@/app/components/Button/Button";
 type Column = { key: string; label: string };
 
 const Tools = () => {
-  const { current } = useTools();
+  const { current, handleEditTools } = useTools();
 
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -47,7 +47,7 @@ const Tools = () => {
           variant="outline"
           hideIcon
           style={{ marginBlock: "10px" }}
-          onClick={() => {}}
+          onClick={handleEditTools}
         >
           Agregar Herramienta
         </Button>
