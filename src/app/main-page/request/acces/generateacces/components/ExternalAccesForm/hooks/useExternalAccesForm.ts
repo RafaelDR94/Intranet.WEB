@@ -30,12 +30,11 @@ const useExternalAccesForm = () => {
         loading: s.loadingById,
         resetFlags: s.resetFlags
     }), shallow);
-    const { externalpersons, setExternalPersons, tools, setTools, getToolsAsString } = useAccessRequestStore((s) => ({
+    const { externalpersons, setExternalPersons, tools, setTools } = useAccessRequestStore((s) => ({
         externalpersons: s.externalpersons,
         setExternalPersons: s.setExternalPersons,
         tools: s.tools,
-        setTools: s.setTools,
-        getToolsAsString: s.getToolsAsString
+        setTools: s.setTools
     }), shallow);
 
     useEffect(() => {
@@ -98,6 +97,8 @@ const useExternalAccesForm = () => {
                 });
                 return;
             }
+            const serializedTools = JSON.stringify((tools.length ? tools : currentAcces?.tools) ?? []);
+
             const accesToUpdate: AccesPut = {
                 id: currentAcces?.id,
                 id_location: currentAcces?.location?.id,
@@ -107,7 +108,7 @@ const useExternalAccesForm = () => {
                 vehicles: currentAcces?.vehicles.map(v => v.transport_id),
                 internalpersons: currentAcces?.internalpersons.map(v => v.id),
                 externalpersons: externalpersons.map(v => v.id),
-                tools: getToolsAsString(),
+                tools: serializedTools,
                 id_status: statusList.find(s => s.name === "Pendiente")?.id || "",
                 motive: currentAcces?.motive,
                 start_date: currentAcces?.start_date,

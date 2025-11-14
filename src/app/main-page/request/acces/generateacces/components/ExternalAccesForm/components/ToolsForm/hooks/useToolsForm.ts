@@ -86,7 +86,6 @@ const useToolsForm = () => {
 
     const newToolFields = useMemo(() => createToolFields(draftTool), [draftTool]);
     const responsiveLayout = useMemo(() => TOOL_FORM_LAYOUT, []);
-    const canSubmitTool = useMemo(() => isToolComplete(draftTool), [draftTool]);
 
     const handleDraftValuesChange = useCallback((values: Record<string, unknown>) => {
         setDraftTool(mapValuesToTool(values));
@@ -138,7 +137,6 @@ const useToolsForm = () => {
         newToolFields,
         responsiveLayout,
         isAddingTool,
-        canSubmitTool,
         formVersion,
         handleSubmitNewTool,
         handleDraftValuesChange,

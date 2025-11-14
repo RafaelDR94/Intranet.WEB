@@ -12,7 +12,6 @@ const ToolsForm: React.FC<FormsInterface> = ({ canUpdateForm }) => {
         newToolFields,
         responsiveLayout,
         isAddingTool,
-        canSubmitTool,
         formVersion,
         handleSubmitNewTool,
         handleDraftValuesChange,
@@ -32,7 +31,7 @@ const ToolsForm: React.FC<FormsInterface> = ({ canUpdateForm }) => {
                     onValuesChange={handleDraftValuesChange}
                     responsiveLayoutMatrix={responsiveLayout}
                     submitLabel="Agregar"
-                    showSubmitIf={() => canUpdateForm && canSubmitTool}
+                    showSubmitIf={() => canUpdateForm}
                     disabled={!canUpdateForm}
                     valuesVersion={formVersion}
                 />
