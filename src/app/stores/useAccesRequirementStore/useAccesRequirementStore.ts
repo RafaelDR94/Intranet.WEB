@@ -77,8 +77,8 @@ export const useAccesRequirementStore = createWithEqualityFn<AccesRequirementsSt
       updateInternalCommentsRequest(set, get, payload),
     updateExternalComments: (payload) =>
       updateExternalCommentsRequest(set, get, payload),
-    generateTemplate: (ids) =>
-      generateTemplateRequest(set, get, ids),
+    generateTemplate: (id) =>
+      generateTemplateRequest(set, get, id),
     deleteAccesRequirement: (id) =>
       deleteAccesRequirementRequest(set, get, id),
     reset: () => set({ ...initialCollections, ...initialFlags }),

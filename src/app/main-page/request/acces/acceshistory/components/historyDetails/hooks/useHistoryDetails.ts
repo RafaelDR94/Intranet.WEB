@@ -6,8 +6,10 @@ import useQuery from "@/app/hooks/useQuery/useQuery";
 import { LabelType } from "@/app/components/Label/types";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useRouter } from "next/navigation";
+import useAccessPdf from "./useAccesDocuments";
 const useHistoryDetails = () => {
     const router = useRouter();
+    const { generateAccessPdf } = useAccessPdf();
     const { usePrincipalLoading } = usePrincipal();
     const [activeNav, setActiveNav] = useState("information");
     const { showSpinner, hideSpinner } = usePrincipalLoading
@@ -34,7 +36,22 @@ const useHistoryDetails = () => {
         if (!currentAcces) return;
         showSpinner(({ message: "Descargando archivo" }));
         try {
-            const response: any = await generateTemplate(currentAcces.externalpersons.map(p => p.id));
+
+            await generateAccessPdf(currentAcces, (url: string) => {
+                // Crear enlace invisible
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `SolicitudAcceso_${currentAcces.id}.pdf`; // nombre del archivo
+                link.style.display = "none";
+
+                document.body.appendChild(link);
+                link.click();        // 🔥 Forzar descarga inmediata
+                document.body.removeChild(link);
+
+                // Liberar memoria opcionalmente:
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+            }, "DR");
+            const response: any = await generateTemplate(currentAcces.id);
 
             // 1) Si es URL directa, abrir/descargar
             if (typeof response === 'string' && response.startsWith('http')) {
