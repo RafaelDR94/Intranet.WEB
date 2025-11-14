@@ -29,6 +29,8 @@ export type AccesRequirmentGet = {
     dr_responsiblesignature: string,
     evidence_send_email: string,
     evidence_response_email: string,
+    internal_comments: string,
+    external_comments: string
 }
 
 export type AccesPost = {

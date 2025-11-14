@@ -91,6 +91,8 @@ export const mapAccesRequirement = (raw: any): AccesRequirmentGet => ({
   ),
   evidence_send_email: toString(raw?.evidence_send_email),
   evidence_response_email: toString(raw?.evidence_response_email),
+  internal_comments: toString(raw?.internal_comments),
+  external_comments: toString(raw?.external_comments)
 });
 
 export const mapAccesRequirements = (list: any[] | undefined): AccesRequirmentGet[] =>
