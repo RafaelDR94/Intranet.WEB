@@ -196,8 +196,10 @@ const useExternalAccesForm = () => {
         }
     }, [fetchStatusesByType, statusList]);
 
+    const canSubmit = externalpersons.length > 0 || tools.length > 0;
+
     return ({
-        canSubmit: externalpersons.length > 0,
+        canSubmit,
         UpdateAcces,
         currentAcces,
         canUpdateForm,
