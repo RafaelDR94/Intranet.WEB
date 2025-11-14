@@ -1,3 +1,5 @@
+import { useRef } from "react";
+
 import useToolsForm from "./hooks/useToolsForm";
 
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
@@ -7,12 +9,15 @@ import DeleteIcon from "@/assets/icons/acciones/trash.svg";
 import { FormsInterface } from "../../types";
 
 const ToolsForm: React.FC<FormsInterface> = ({ canUpdateForm }) => {
+    const submitNewToolRef = useRef<(() => void | Promise<any>) | null>(null);
+
     const {
         tools,
         newToolFields,
         responsiveLayout,
         isAddingTool,
         formVersion,
+        canSubmitNewTool,
         handleSubmitNewTool,
         handleDraftValuesChange,
         handleUpdateToolValues,
@@ -24,17 +29,26 @@ const ToolsForm: React.FC<FormsInterface> = ({ canUpdateForm }) => {
     return (
         <div className="flex flex-col gap-6">
             {isAddingTool && (
-                <DynamicForm
-                    dataTestId="tools-form-create"
-                    fields={newToolFields}
-                    onSubmit={handleSubmitNewTool}
-                    onValuesChange={handleDraftValuesChange}
-                    responsiveLayoutMatrix={responsiveLayout}
-                    submitLabel="Agregar"
-                    showSubmitIf={() => canUpdateForm}
-                    disabled={!canUpdateForm}
-                    valuesVersion={formVersion}
-                />
+                <div className="flex flex-col gap-4">
+                    <DynamicForm
+                        dataTestId="tools-form-create"
+                        fields={newToolFields}
+                        onSubmit={handleSubmitNewTool}
+                        onValuesChange={handleDraftValuesChange}
+                        responsiveLayoutMatrix={responsiveLayout}
+                        showSubmitIf={() => false}
+                        externalSubmitRef={submitNewToolRef}
+                        disabled={!canUpdateForm}
+                        valuesVersion={formVersion}
+                    />
+                    <Button
+                        hideIcon
+                        disabled={!canUpdateForm || !canSubmitNewTool}
+                        onClick={() => submitNewToolRef.current?.()}
+                    >
+                        Agregar
+                    </Button>
+                </div>
             )}
 
             {tools.length > 0 && (
