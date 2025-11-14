@@ -3,8 +3,8 @@ import useInformation from "./hooks/useInformation";
 import InfoCards from "@/app/components/InfoCards/InfoCards";
 
 const Information = () => {
-  const {  cards } = useInformation();
-  
+  const { cards, handleEditInformation } = useInformation();
+
   return (
     <>
       <InfoCards
@@ -13,20 +13,22 @@ const Information = () => {
         dataTestId="report-info-cards"
         responsiveLayoutMatrix={{
           sm: [[5, 5], [10], [10], [10], [10]],
-          md: [[10], [5, 5], [10], [10], [10], [10]],
+          md: [[10], [6, 4], [10], [10], [10], [10]],
         }}
       />
-      <Button
-        size="medium"
-        variant="outline"
-        hideIcon
-        style={{ marginBlock: "10px" }}
-        onClick={() => {
-         console.log();
-        }}
-      >
-        Editar Información
-      </Button>
+      <div className="flex justify-end">
+        <Button
+          size="medium"
+          variant="outline"
+          hideIcon
+          style={{ marginBlock: "10px" }}
+          onClick={() => {
+            handleEditInformation();
+          }}
+        >
+          Editar Información
+        </Button>
+      </div>
     </>
   );
 };

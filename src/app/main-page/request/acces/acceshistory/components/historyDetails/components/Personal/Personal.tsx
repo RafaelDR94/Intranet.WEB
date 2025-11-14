@@ -8,7 +8,7 @@ const Personal = () => {
     internalPersons,
     externalPersons,
     handleEditInformation,
-    downloadImagesZip
+    downloadImagesZip,
   } = usePersonal();
 
   return (
@@ -30,15 +30,17 @@ const Personal = () => {
       />
 
       <div className="flex justify-end">
-        <Button
-        size="medium"
-        variant="outline"
-        hideIcon
-        style={{ marginBlock: "10px" }}
-        onClick={handleEditInformation}
-      >
-        Editar Información
-      </Button>
+        <div className="flex justify-end">
+          <Button
+            size="medium"
+            variant="outline"
+            hideIcon
+            style={{ marginBlock: "10px" }}
+            onClick={handleEditInformation}
+          >
+            Editar Información
+          </Button>
+        </div>
       </div>
     </>
   );
