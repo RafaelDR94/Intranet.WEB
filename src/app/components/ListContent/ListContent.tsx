@@ -22,7 +22,7 @@ const ListContent = ({
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <span className="text-gray-70">
-                    {`${item.name} ${item.lastname} ${item.motherslastname}`}
+                    {`${item?.name || "" } ${item?.lastname || "" } ${item?.motherslastname || ""}`}
                   </span>
                 </div>
                 {renderAction && renderAction(item)}{" "}
