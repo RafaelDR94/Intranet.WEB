@@ -6,14 +6,15 @@ import { Button } from "@/app/components/Button/Button";
 type Column = { key: string; label: string };
 
 const Tools = () => {
-  const { current, handleEditTools } = useTools();
+  const { current, tools, handleEditTools } = useTools();
 
   const [selected, setSelected] = useState<string[]>([]);
 
   const columns: Column[] = [
-    { key: "marca", label: "Marca" },
-    { key: "descripcion", label: "Descripción" },
-    { key: "modelo", label: "Modelo" },
+    { key: "quantity", label: "Cantidad" },
+    { key: "brand", label: "Marca" },
+    { key: "description", label: "Descripción" },
+    { key: "model", label: "Modelo" },
   ];
 
   const onSelectRow = (id: string) => {
@@ -23,12 +24,12 @@ const Tools = () => {
   };
 
   const onSelectAll = () => {
-    if (!current?.tools) return;
+    if (!tools.length) return;
 
     setSelected((prev) =>
-      prev.length === current.tools.length
+      prev.length === tools.length
         ? []
-        : current.tools.map((item: any) => item.id),
+        : tools.map((item: any) => item.id),
     );
   };
 
@@ -36,7 +37,7 @@ const Tools = () => {
     <>
       <ContentDataTable
         columns={columns}
-        data={current?.tools ?? []}
+        data={tools}
         selectedRows={selected}
         onSelectRow={onSelectRow}
         onSelectAll={onSelectAll}
