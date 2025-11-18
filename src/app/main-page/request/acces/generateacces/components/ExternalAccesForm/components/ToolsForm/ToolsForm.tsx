@@ -56,7 +56,7 @@ const ToolsForm: React.FC<FormsInterface> = ({ canUpdateForm }) => {
           {tools.map((tool, index) => (
             <div
               key={`${tool.description}-${tool.brand}-${tool.model}-${index}`}
-              className="flex flex-col gap-4 lg:flex-row lg:items-start"
+              className="flex flex-col gap-4 lg:flex-row lg:items-center"
             >
               <div className="flex-1">
                 <DynamicForm

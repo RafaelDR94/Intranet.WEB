@@ -2,18 +2,19 @@ import useTools from "./hooks/useTools";
 import ContentDataTable from "@/app/components/ContentDataTable/ContentDataTable";
 import { useState } from "react";
 import { Button } from "@/app/components/Button/Button";
-
+import PlusIcon from "@/assets/icons/acciones/plus.svg";
 type Column = { key: string; label: string };
 
 const Tools = () => {
-  const { current, handleEditTools } = useTools();
+  const { tools, handleEditTools } = useTools();
 
   const [selected, setSelected] = useState<string[]>([]);
 
   const columns: Column[] = [
-    { key: "marca", label: "Marca" },
-    { key: "descripcion", label: "Descripción" },
-    { key: "modelo", label: "Modelo" },
+    { key: "quantity", label: "Cantidad" },
+    { key: "brand", label: "Marca" },
+    { key: "description", label: "Descripción" },
+    { key: "model", label: "Modelo" },
   ];
 
   const onSelectRow = (id: string) => {
@@ -23,12 +24,10 @@ const Tools = () => {
   };
 
   const onSelectAll = () => {
-    if (!current?.tools) return;
+    if (!tools.length) return;
 
     setSelected((prev) =>
-      prev.length === current.tools.length
-        ? []
-        : current.tools.map((item: any) => item.id),
+      prev.length === tools.length ? [] : tools.map((item: any) => item.id),
     );
   };
 
@@ -36,7 +35,7 @@ const Tools = () => {
     <>
       <ContentDataTable
         columns={columns}
-        data={current?.tools ?? []}
+        data={tools}
         selectedRows={selected}
         onSelectRow={onSelectRow}
         onSelectAll={onSelectAll}
@@ -45,7 +44,7 @@ const Tools = () => {
         <Button
           size="medium"
           variant="outline"
-          hideIcon
+          icon={PlusIcon}
           style={{ marginBlock: "10px" }}
           onClick={handleEditTools}
         >
