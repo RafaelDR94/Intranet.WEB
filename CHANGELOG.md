@@ -1,3 +1,8 @@
+### 1.47.39 Acces history vehicles table 25-10-2025
+
+Fix:
+- Muestra los vehículos asociados en el panel de historial cargando el detalle del acceso seleccionado y presentando la tabla con acciones para editar la solicitud. (Agente IA) [#]()
+
 ### 1.47.38 User NIP persistence sync 25-10-2025
 
 Fix:
