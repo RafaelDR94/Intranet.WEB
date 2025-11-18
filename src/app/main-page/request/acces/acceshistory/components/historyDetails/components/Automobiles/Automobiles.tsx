@@ -1,7 +1,11 @@
+import useAutomobiles from "./hooks/useAutomobiles";
+
 const Automobiles = () => {
-    return (
-        <>Auto</>
-    )
-}
+  const { current } = useAutomobiles();
+
+  console.log("current ", current);
+
+  return <>Auto</>;
+};
 
 export default Automobiles;
