@@ -3,6 +3,8 @@ export * from "./fetchTransportById";
 export * from "./createTransport";
 export * from "./updateTransport";
 export * from "./deleteTransport";
+export * from "./fetchTransportsByEnterprise";
+export * from "./createExternalTransport";
 
 export * from "./fetchAssignments";
 export * from "./fetchAssignmentById";

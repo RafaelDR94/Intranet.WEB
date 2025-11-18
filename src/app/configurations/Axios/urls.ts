@@ -13,11 +13,12 @@ export const EnterprisesExternal = process.env.NEXT_PUBLIC_ENTERPRISESEXTERNAL ?
 export const Departments = process.env.NEXT_PUBLIC_DEPARTMENTS ?? "/Enterprises/Departments";
 
 export const CustomAccessControler = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLER??"/CustomsAccessControler/ExternalPersonnel"
-export const CustomAccessControlerByEnterprise = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYENTERPRISE??"/CustomsAccessControler/ExternalPersonnel/ByEnterprise"
+export const CustomAccessControlerByEnterprise = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYENTERPRISE??"/CustomsAccessControler/ExternalPersonnel/ByIdEnterprise"
 export const CustomAccessControlerById = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYID??"/CustomsAccessControler/ExternalPersonnel/ByID"
 export const CustomAccessControlerAccesRequirement =process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT||"/CustomsAccessControler/AccessRequirement"
 export const CustomAccessControlerAccesRequirementInternalComments = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT_INTERNALCOMMENTS || "/CustomsAccessControler/AccessRequirementInternalComments"
 export const CustomAccessControlerAccesRequirementExternalComments = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT_EXTERNALCOMMENTS || "/CustomsAccessControler/AccessRequirementExternalComments"
+export const CustomAccessControlerTemplate = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLER_TEMPLATE || "/CustomsAccessControler/Template"
 export const Persons = process.env.NEXT_PUBLIC_PERSONS ?? "/Persons";
 export const WorkPosition = process.env.NEXT_PUBLIC_WORK_POSITION ?? "/Enterprises/WorkPosition";
 
@@ -32,6 +33,8 @@ export const TransportAssigments = process.env.NEXT_PUBLIC_TRANSPORT_ASSIGMENTS 
 export const TransportAssigmentInfo = process.env.NEXT_PUBLIC_TRANSPORT_ASSIGMENT_INFO ?? "/Transport/AssigmentInfo";
 export const TransportVehicleTracking = process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_TRACKING ?? "/Transport/VehicleTracking";
 export const TransportVehicleTrackingById = process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_TRACKING_BYID ?? "/Transport/VehicleTracking/ById";
+export const TransportByEnterprise = process.env.NEXT_PUBLIC_TRANSPORT_BY_ENTERPRISE ?? "/Transport/TransportByIdEnterprise";
+export const TransportExternal = process.env.NEXT_PUBLIC_TRANSPORT_EXTERNAL ?? "/Transport/External";
 
 export const Employees = process.env.NEXT_PUBLIC_EMPLOYEES ?? "/Employees";
 export const EmployeesById = process.env.NEXT_PUBLIC_EMPLOYEESBYID ?? "/Employees/ById";

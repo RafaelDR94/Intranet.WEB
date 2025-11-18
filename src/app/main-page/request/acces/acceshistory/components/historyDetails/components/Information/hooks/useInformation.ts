@@ -1,10 +1,10 @@
 import { useAccesRequirementStore } from "@/app/stores/useAccesRequirementStore/useAccesRequirementStore";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { shallow } from "zustand/shallow";
-import { useRouter } from "next/navigation";
+
 
 const useInformation = () => {
-  const router = useRouter();
+
   const { current } = useAccesRequirementStore(
     (s) => ({
       current: s.current,
@@ -39,17 +39,11 @@ const useInformation = () => {
     return newcards;
   }, [current]);
 
-  const handleEditInformation = useCallback(() => {
-    if (!current?.id) return;
-    router.push(
-      `/main-page/request/acces/generateacces/?idAcces=${encodeURIComponent(current.id)}+&mode=edit`,
-    );
-  }, [current, router]);
+
 
   return {
     current,
     cards,
-    handleEditInformation,
   };
 };
 export default useInformation;

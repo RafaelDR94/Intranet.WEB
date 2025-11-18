@@ -1,12 +1,11 @@
 import useTools from "./hooks/useTools";
 import ContentDataTable from "@/app/components/ContentDataTable/ContentDataTable";
 import { useState } from "react";
-import { Button } from "@/app/components/Button/Button";
-import PlusIcon from "@/assets/icons/acciones/plus.svg";
+
 type Column = { key: string; label: string };
 
 const Tools = () => {
-  const { tools, handleEditTools } = useTools();
+  const { tools } = useTools();
 
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -31,6 +30,8 @@ const Tools = () => {
     );
   };
 
+
+
   return (
     <>
       <ContentDataTable
@@ -40,17 +41,7 @@ const Tools = () => {
         onSelectRow={onSelectRow}
         onSelectAll={onSelectAll}
       />
-      <div className="flex justify-end">
-        <Button
-          size="medium"
-          variant="outline"
-          icon={PlusIcon}
-          style={{ marginBlock: "10px" }}
-          onClick={handleEditTools}
-        >
-          Agregar Herramienta
-        </Button>
-      </div>
+    
     </>
   );
 };

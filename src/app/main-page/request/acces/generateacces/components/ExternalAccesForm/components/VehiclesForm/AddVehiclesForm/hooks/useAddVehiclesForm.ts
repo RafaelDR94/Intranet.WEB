@@ -1,632 +1,561 @@
-import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
-import { FieldModel } from "@/app/components/DynamicForm/types";
 import { useEffect, useRef, useState } from "react";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import { parseIneText, IneData } from "@/app/utilities/OCR/INEParcer";
-import { parseIneMrz } from "@/app/utilities/OCR/INETraseraParcer";
-import { askForOCR } from "@/app/utilities/OCR/AskForOCR";
-import { parseDriverLicense } from "@/app/utilities/OCR/DriverLicenseoarecer";
-import { useExternalPersonsStore } from "@/app/stores/useExternalPersonsStore/useExternalPersonsStore";
 import { shallow } from "zustand/shallow";
-import type { ExternalPersonPost } from "@/app/mappings/externalperson/externalperson.types";
+
+import { FieldModel } from "@/app/components/DynamicForm/types";
 import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import useQuery from "@/app/hooks/useQuery/useQuery";
-import { AddExtneralPersonFormProps } from "../types";
+import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 import useAccessRequestStore from "@/app/stores/useAccesRequestStore/useAccesRequestStore";
+import { useTransportStore } from "@/app/stores/useTransportStore/useTransportStore";
+import { askForOCR } from "@/app/utilities/OCR/AskForOCR";
+import {
+  parseCirculationCard,
+  ParsedCirculationCard,
+} from "@/app/utilities/OCR/CirculationCardparcer";
 
+import type { TransportPost, TransportPut } from "@/app/mappings/transport/transport.types";
 
+import type { AddVehicleFormProps } from "../types";
 
-const useAddVehiclesForm = ({ formId, currentexternalperson }: AddExtneralPersonFormProps) => {
-    const { updateperson, addExternalPerson } = useAccessRequestStore((s) => ({
-        addExternalPerson: s.addExternalPerson,
-        updateperson: s.updateExternalPerson
-    }), shallow);
-    const hasInitFields = useRef(false);
-    const { updateExternalPerson, createExternalPerson, creating, error, succesCreate, resetFlags } = useExternalPersonsStore((s) => ({
-        createExternalPerson: s.createExternalPerson,
-        updateExternalPerson: s.updateExternalPerson,
-        creating: s.creating,
-        error: s.error,
-        succesCreate: s.successPost,
-        resetFlags: s.resetFlags,
-    }), shallow)
+const useAddVehiclesForm = ({
+  formId,
+  currentTransport,
+}: AddVehicleFormProps) => {
+  const hasInitFields = useRef(false);
+  const hasInitCiruclationCard = useRef(false);
+  const { addVehicle, updateVehicle } = useAccessRequestStore(
+    (s) => ({
+      addVehicle: s.addVehicle,
+      updateVehicle: s.updateVehicle,
+    }),
+    shallow
+  );
 
-    const { all } = useQuery();
-    const currentEnterpriseId = all.enterpriseId;
-    const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
-    const { showSpinner, hideSpinner } = usePrincipalLoading;
-    const { showAlert } = usePrincipalAlert;
-    const { fieldsByFormId, setFields, resetFields, updateField } = useFormFieldsStore();
-    const [canStart, setCanStart] = useState(false);
-    const { firebasestorage } = useFirebase();
-    const [frontalIneJson, setFrontalIneJson] = useState({});
-    const [backIneJson, setBackIneJson] = useState({});
-    const [licenseJson, setLicenseJson] = useState({});
-    const hasInitFrontINE = useRef(false);
-    const hasInitBackINE = useRef(false);
-    const hasInitLicense = useRef(false);
+  const { createExternalTransport, updateTransport } = useTransportStore(
+    (s) => ({
+      createExternalTransport: s.createExternalTransport,
+      updateTransport: s.updateTransport
+    }),
+    shallow
+  );
 
-    const loadInitialFields = () => {
-        if (hasInitFields.current) return;
-        const initialFields: () => FieldModel[] = () => {
-            const model: FieldModel[] = [
+  const { all } = useQuery();
+  const currentEnterpriseId = all.enterpriseId;
 
-                {
-                    type: "imageUploaderExpanded",
-                    name: "fronta_ine",
-                    label: "INE Frontal",
-                    value: null,
-                    initialFile: currentexternalperson?.frontal_ine_url
-                        ? { name: "frontal_ine.jpg", url: currentexternalperson.frontal_ine_url }
-                        : undefined,
-                    accept: ".jpg,.jpeg,.png",
-                    preview: true,
-                    validations: [{ type: "required" }],
-                    onChange: handleUploadINE
-                },
-                {
-                    type: "imageUploaderExpanded",
-                    name: "back_ine",
-                    label: "INE Trasera",
-                    value: null,
-                    initialFile: currentexternalperson?.back_ine_url
-                        ? { name: "back_ine.jpg", url: currentexternalperson.back_ine_url }
-                        : undefined,
-                    accept: ".jpg,.jpeg,.png",
-                    preview: true,
-                    validations: [{ type: "required" }],
-                    onChange: handleUploadINEBack
-                },
-                {
-                    type: "imageUploaderExpanded",
-                    name: "pictureURL",
-                    label: "Foto de la persona",
-                    value: null,
-                    initialFile: currentexternalperson?.pictureURL
-                        ? { name: "pictureURL.jpg", url: currentexternalperson.pictureURL }
-                        : undefined,
-                    accept: ".jpg,.jpeg,.png",
-                    preview: true,
-                    validations: [{ type: "required" }],
-                    showIf: () => !!currentexternalperson,
-                },
-                {
-                    type: "imageUploaderExpanded",
-                    name: "licence",
-                    label: "Licencia",
-                    value: null,
-                    initialFile: currentexternalperson?.license_url
-                        ? { name: "license.jpg", url: currentexternalperson.license_url }
-                        : undefined,
-                    accept: ".jpg,.jpeg,.png",
-                    preview: true,
-                    showIf: () => !!currentexternalperson,
-                    onChange: handleUploadLicense
-                },
+  const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
+  const { showSpinner, hideSpinner } = usePrincipalLoading;
+  const { showAlert } = usePrincipalAlert;
 
+  const { fieldsByFormId, setFields, resetFields, updateField } =
+    useFormFieldsStore();
+  const [canStart, setCanStart] = useState(false);
 
+  const { firebasestorage } = useFirebase();
 
-                {
-                    type: "input",
-                    name: "name",
-                    label: "Nombre",
-                    value: currentexternalperson?.name || "",
-                    showIf: () => !!currentexternalperson,
-                    validations: [{ type: "required" }],
-                },
-                {
-                    type: "input",
-                    name: "lastname",
-                    label: "Apellido Paterno",
-                    value: currentexternalperson?.lastname || "",
-                    showIf: () => !!currentexternalperson,
-                    validations: [{ type: "required" }],
-                },
-                {
-                    type: "input",
-                    name: "motherslastname",
-                    label: "Apellido Materno",
-                    value: currentexternalperson?.motherslastname || "",
-                    showIf: () => !!currentexternalperson,
-                    validations: [{ type: "required" }],
-                },
-                {
-                    type: "input",
-                    name: "curp",
-                    label: "CURP",
-                    value: currentexternalperson?.curp || "",
-                    showIf: () => !!currentexternalperson,
-                    validations: [{ type: "required" }],
-                },
+  const loadInitialFields = () => {
+    if (hasInitFields.current) return;
 
-                {
-                    type: "input",
-                    name: "electorkey",
-                    label: "Clave de elector",
-                    value: currentexternalperson?.electorkey || "",
-                    showIf: () => !!currentexternalperson,
-                    validations: [{ type: "required" }],
-                },
-                {
-                    type: "input",
-                    name: "electorvigence",
-                    label: "Vigencia de credencial de elector",
-                    value: currentexternalperson?.electorvigence || "",
-                    showIf: () => !!currentexternalperson,
-                    validations: [{ type: "required" }],
-                },
-
-
-                {
-                    type: "input",
-                    name: "license_number",
-                    label: "Número de licencia",
-                    value: currentexternalperson?.license_number || "",
-                    showIf: () => !!currentexternalperson,
-                },
-                {
-                    type: "input",
-                    name: "vigence",
-                    label: "Vigencia de credencial de Licencia",
-                    value: currentexternalperson?.vigence || "",
-                    showIf: () => !!currentexternalperson,
-                },
-                {
-                    type: "input",
-                    name: "phone_number",
-                    label: "Teléfono",
-                    value: currentexternalperson?.phone_number || "",
-                    showIf: () => !!currentexternalperson,
-                    validations: [{ type: "required" }],
-                },
-                {
-                    type: "input",
-                    name: "email",
-                    label: "Correo Electrónico",
-                    value: currentexternalperson?.email || "",
-                    showIf: () => !!currentexternalperson,
-                    validations: [{ type: "required" }],
-                },
-                {
-                    type: "input",
-                    name: "nss",
-                    label: "Número de seguridad social",
-                    value: currentexternalperson?.nss || "",
-                    showIf: () => !!currentexternalperson,
-                    // validations: [{ type: "required" }],
-                },
-
-                // {
-                //     type: "file",
-                //     name: "circulation_card",
-                //     label: "TARJETA DE CIRCULACIÓN",
-                //     initialFile: { name: "Tarjeta de circulación", url: "" },
-                //     value: { name: "Tarjeta de circulación", url: "" },
-                //     accept: ".jpg,.png",
-                //     validations: [{ type: "required" }],
-                //     showIf: () => false,
-                //     onChange: handleUploadCiruculationCard
-                // }
-            ]
-            return (model);
-        }
-        setFields(formId, initialFields());
-        hasInitFields.current = true;
-    }
-
-
-
-
-    const handleUploadINE: NonNullable<FieldModel["onChange"]> = (value, values) => {
-        if (!(value instanceof File)) {
-            showAlert({
-                type: "warning",
-                title: "Archivo no soportado",
-                description: "Selecciona una imagen válida en formato JPG o PNG.",
-                showPrimaryButton: false,
-                showSecondaryButton: false,
-                autoCloseMs: 1000,
-            });
-            return;
-        }
-        updateField(formId, "fronta_ine", { value });
-
-        void (async () => {
-
-            if (!hasInitFrontINE.current && currentexternalperson?.frontal_ine_url) {
-                hasInitFrontINE.current = true;
-                return;
+    const initialFields: () => FieldModel[] = () => {
+      const model: FieldModel[] = [
+        // Imágenes
+        {
+          type: "imageUploaderExpanded",
+          name: "image_plates",
+          label: "Imagen placa",
+          value: null,
+          initialFile: currentTransport?.image_plates
+            ? { name: "image_plates.jpg", url: currentTransport.image_plates }
+            : undefined,
+          accept: ".jpg,.jpeg,.png",
+          preview: true,
+          validations: [{ type: "required" }],
+        },
+        {
+          type: "imageUploaderExpanded",
+          name: "image_circulation_card",
+          label: "Imagen tarjeta de circulación",
+          value: null,
+          initialFile: currentTransport?.image_circulation_card
+            ? {
+              name: "image_circulation_card.jpg",
+              url: currentTransport.image_circulation_card,
             }
-            showSpinner({ message: "Procesando INE..." });
-            try {
-                const { text } = await askForOCR(value);
-                if (!text) throw new Error("El servicio OCR no devolvió texto legible.");
-
-                const parsed = parseIneText(text);
-                setFrontalIneJson(parsed);
-                // 1) Reglas de autollenado por key (solo las que tienen origen en el OCR)
-                const ocrRules: Record<string, (p: IneData) => unknown> = {
-                    name: (p) => p?.nombre?.nombres?.trim(),
-                    lastname: (p) => p?.nombre?.primer_apellido?.trim(),
-                    motherslastname: (p) => p?.nombre?.segundo_apellido?.trim(),
-                    curp: (p) => p?.curp?.trim(),
-                    electorkey: (p) => p?.clave_elector?.trim(),
-                    electorvigence: (p) => p?.vigencia != null ? String(p.vigencia) : undefined,
-                    // agrega más si en el futuro parseas otras piezas
-                };
-
-                // 2) Recorre TODAS las keys que ya existen en `values` y muéstralas,
-                //    excepto las que deben permanecer ocultas hasta la licencia.
-                const keepHidden = new Set(["vigence", "license_number"]);
-                for (const key of Object.keys(values ?? {})) {
-                    if (!keepHidden.has(key)) {
-                        updateField(formId, key, { showIf: () => true });
-                    }
-
-                    // Si hay una regla de OCR para esa key, proponemos valor
-                    const producer = ocrRules[key];
-                    if (!producer) continue;
-
-                    const newValue = producer(parsed);
-                    if (typeof newValue === "string") {
-                        const v = newValue.trim();
-                        if (v) updateField(formId, key, { value: v });
-                    } else if (newValue !== undefined) {
-                        updateField(formId, key, { value: newValue as any });
-                    }
-                }
-
-                // 3) Casos especiales (objetos/archivos) que solo quieres mostrar
-                //    sin autollenar: fronta_ine, back_ine, licence (no license_number ni vigence todavía).
-                const objectLikeKeys = ["fronta_ine", "back_ine", "licence"];
-                for (const k of objectLikeKeys) {
-                    if (k in (values ?? {})) {
-                        updateField(formId, k, { showIf: () => true });
-                    }
-                }
-
-
-            } catch (error) {
-                console.error("[external-access] Error procesando INE", error);
-                const description = error instanceof Error ? error.message : "No se pudo completar el análisis. Intenta nuevamente.";
-                showAlert({
-                    type: "error",
-                    title: "Error al procesar la INE",
-                    description,
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 4000,
-                });
-            } finally {
-                hideSpinner();
+            : undefined,
+          accept: ".jpg,.jpeg,.png",
+          preview: true,
+          validations: [{ type: "required" }],
+          onChange: handleUploadCiruculationCard,
+        },
+        {
+          type: "imageUploaderExpanded",
+          name: "front_image",
+          label: "Imagen frontal del automóvil",
+          value: null,
+          initialFile: currentTransport?.front_image
+            ? { name: "front_image.jpg", url: currentTransport.front_image }
+            : undefined,
+          accept: ".jpg,.jpeg,.png",
+          preview: true,
+        },
+        {
+          type: "imageUploaderExpanded",
+          name: "right_side_image",
+          label: "Imagen lateral derecha",
+          value: null,
+          initialFile: currentTransport?.right_side_image
+            ? {
+              name: "right_side_image.jpg",
+              url: currentTransport.right_side_image,
             }
-        })();
+            : undefined,
+          accept: ".jpg,.jpeg,.png",
+          preview: true,
+        },
+        {
+          type: "imageUploaderExpanded",
+          name: "left_side_image",
+          label: "Imagen lateral izquierda",
+          value: null,
+          initialFile: currentTransport?.left_side_image
+            ? {
+              name: "left_side_image.jpg",
+              url: currentTransport.left_side_image,
+            }
+            : undefined,
+          accept: ".jpg,.jpeg,.png",
+          preview: true,
+        },
+        {
+          type: "imageUploaderExpanded",
+          name: "back_image",
+          label: "Imagen trasera del vehículo",
+          value: null,
+          initialFile: currentTransport?.back_image
+            ? { name: "back_image.jpg", url: currentTransport.back_image }
+            : undefined,
+          accept: ".jpg,.jpeg,.png",
+          preview: true,
+        },
+        {
+          type: "imageUploaderExpanded",
+          name: "insurance_policy_doc",
+          label: "Póliza de seguro",
+          value: null,
+          initialFile: currentTransport?.insurance_policy_doc
+            ? {
+              name: "insurance_policy_doc.jpg",
+              url: currentTransport.insurance_policy_doc,
+            }
+            : undefined,
+          accept: ".jpg,.jpeg,.png,.pdf",
+          preview: true,
+        },
+        // Datos principales
+        {
+          type: "input",
+          name: "plates",
+          label: "Placa",
+          value: currentTransport?.plates ?? "",
+          validations: [{ type: "required" }],
+        },
+        {
+          type: "input",
+          name: "brand",
+          label: "Marca",
+          value: currentTransport?.brand ?? "",
+          validations: [{ type: "required" }],
+        },
+        {
+          type: "input",
+          name: "model",
+          label: "Modelo",
+          value: currentTransport?.model ?? "",
+          validations: [{ type: "required" }],
+        },
+        {
+          type: "input",
+          name: "year",
+          label: "Año",
+          value: currentTransport?.year ?? "",
+          validations: [{ type: "required" }],
+        },
+        {
+          type: "input",
+          name: "engine_number",
+          label: "No. de motor",
+          value: currentTransport?.engine_number ?? "",
+        },
+        {
+          type: "input",
+          name: "serial_number",
+          label: "No. de serie",
+          value: currentTransport?.serial_number ?? "",
+        },
+        {
+          type: "input",
+          name: "circulation_card",
+          label: "Tarjeta de circulación",
+          value: currentTransport?.circulation_card ?? "",
+        },
+        {
+          type: "input",
+          name: "circulation_card_expiration",
+          label: "Vencimiento tarjeta de circulación",
+          value: currentTransport?.circulation_card_expiration ?? "",
+        },
+        {
+          type: "input",
+          name: "insurance_policy",
+          label: "Póliza",
+          value: currentTransport?.insurance_policy ?? "",
+        },
+        {
+          type: "input",
+          name: "policy_expiration",
+          label: "Vigencia póliza",
+          value: currentTransport?.policy_expiration ?? "",
+        },
+        {
+          type: "input",
+          name: "economic_number",
+          label: "No. económico",
+          value: currentTransport?.economic_number ?? "",
+        },
+        {
+          type: "input",
+          name: "fuel_card",
+          label: "Tarjeta de combustible",
+          value: currentTransport?.fuel_card ?? "",
+        },
+        {
+          type: "input",
+          name: "tag_pass",
+          label: "TAG / PASE",
+          value: currentTransport?.tag_pass ?? "",
+        },
+        {
+          type: "number",
+          name: "key_copy",
+          label: "Copias de llave",
+          value: currentTransport?.key_copy ?? 0,
+        },
+      ];
+
+      return model;
     };
-    const handleUploadINEBack: NonNullable<FieldModel["onChange"]> = (value) => {
-        if (!(value instanceof File)) {
-            showAlert({
-                type: "warning",
-                title: "Archivo no soportado",
-                description: "Selecciona una imagen válida en formato JPG o PNG.",
-                showPrimaryButton: false,
-                showSecondaryButton: false,
-                autoCloseMs: 1000,
-            });
-            return;
-        }
-        updateField(formId, "back_ine", { value });
-        void (async () => {
-            if (!hasInitBackINE.current && currentexternalperson?.back_ine_url) {
-                hasInitBackINE.current = true;
-                return;
-            }
 
-            showSpinner({ message: "Procesando INE..." });
 
-            try {
-                const { text } = await askForOCR(value);
+    setFields(formId, initialFields());
+    hasInitFields.current = true;
+    setCanStart(true);
+  };
 
-                if (!text) {
-                    throw new Error("El servicio OCR no devolvió texto legible.");
-                }
-                const parsed = parseIneMrz(text);
-                setBackIneJson(parsed);
-            } catch (error) {
-                console.error("[external-access] Error procesando INE", error);
-                const description =
-                    error instanceof Error
-                        ? error.message
-                        : "No se pudo completar el análisis. Intenta nuevamente.";
-                showAlert({
-                    type: "error",
-                    title: "Error al procesar la INE",
-                    description,
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 4000,
-                });
-            } finally {
-                hideSpinner();
-            }
-        })();
+  useEffect(() => {
+    resetFields(formId);
+    setTimeout(() => {
+      loadInitialFields();
+      setCanStart(true);
+    }, 500)
+  }, [resetFields])
+
+  const handleUploadCiruculationCard: NonNullable<FieldModel["onChange"]> = (
+    value
+  ) => {
+    if (!(value instanceof File)) {
+      showAlert({
+        type: "warning",
+        title: "Archivo no soportado",
+        description:
+          "Selecciona una imagen válida en formato JPG o PNG para la tarjeta de circulación.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+      return;
     }
-    const handleUploadLicense: NonNullable<FieldModel["onChange"]> = (value) => {
-        if (!(value instanceof File)) {
-            showAlert({
-                type: "warning",
-                title: "Archivo no soportado",
-                description: "Selecciona una imagen válida en formato JPG o PNG.",
-                showPrimaryButton: false,
-                showSecondaryButton: false,
-                autoCloseMs: 1000,
-            });
-            return;
-        }
-        updateField(formId, "licence", { value });
-        void (async () => {
-            if (!hasInitLicense.current && currentexternalperson?.license_url) {
-                hasInitLicense.current = true;
-                return;
-            }
-
-            showSpinner({ message: "Procesando Licencia..." });
-            try {
-                const { text } = await askForOCR(value);
-
-                if (!text) {
-                    throw new Error("El servicio OCR no devolvió texto legible.");
-                }
-                const parsed = parseDriverLicense(text);
-                setLicenseJson(parsed);
-                // Hacer visibles los campos restantes y autollenarlos con el parser
-                const licenseNumber = parsed?.documento?.licencia_numero?.toString().trim();
-                const licenseVigence = parsed?.documento?.fecha_vigencia?.toString().trim();
-
-                updateField(formId, "license_number", {
-                    showIf: () => true,
-                    value: licenseNumber ?? "",
-                    validations: [{ type: "required" }],
-                });
-                updateField(formId, "vigence", {
-                    showIf: () => true,
-                    value: licenseVigence ?? "",
-                    validations: [{ type: "required" }],
-                });
-            } catch (error) {
-                console.error("[external-access] Error procesando Licencia", error);
-                const description =
-                    error instanceof Error
-                        ? error.message
-                        : "No se pudo completar el análisis. Intenta nuevamente.";
-                showAlert({
-                    type: "error",
-                    title: "Error al procesar la INE",
-                    description,
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 4000,
-                });
-            } finally {
-                hideSpinner();
-            }
-        })();
+    if (!hasInitCiruclationCard.current && currentTransport?.image_circulation_card) {
+      hasInitCiruclationCard.current = true;
+      return;
     }
+    void (async () => {
+      showSpinner({ message: "Leyendo tarjeta de circulación..." });
+      try {
+        const { text } = await askForOCR(value);
 
-    // const handleUploadCiruculationCard: NonNullable<FieldModel["onChange"]> = (value) => {
-    //     if (!(value instanceof File)) {
-    //         showAlert({
-    //             type: "warning",
-    //             title: "Archivo no soportado",
-    //             description: "Selecciona una imagen válida en formato JPG o PNG.",
-    //             showPrimaryButton: false,
-    //             showSecondaryButton: false,
-    //             autoCloseMs: 1000,
-    //         });
-    //         return;
-    //     }
-    //     void (async () => {
-    //         showSpinner({ message: "Procesando INE..." });
-    //         try {
-    //             const { rawResponse, text } = await askForOCR(value);
-    //             console.log("[external-access] OCR raw response", rawResponse);
-    //             console.log("[external-access] OCR extracted text", text);
-
-    //             if (!text) {
-    //                 throw new Error("El servicio OCR no devolvió texto legible.");
-    //             }
-
-    //             const parsed = parseCirculationCard(text);
-    //             console.log("[external-access] INE parsed data", parsed);
-    //         } catch (error) {
-    //             console.error("[external-access] Error procesando INE", error);
-    //             const description =
-    //                 error instanceof Error
-    //                     ? error.message
-    //                     : "No se pudo completar el análisis. Intenta nuevamente.";
-    //             showAlert({
-    //                 type: "error",
-    //                 title: "Error al procesar la INE",
-    //                 description,
-    //                 showPrimaryButton: false,
-    //                 showSecondaryButton: false,
-    //                 autoCloseMs: 4000,
-    //             });
-    //         } finally {
-    //             hideSpinner();
-    //         }
-    //     })();
-    // }
-    const handleSubmit = async (values: Record<string, any>) => {
-        try {
-            // Empresa obligatoria para asociar el registro
-            const enterpriseId = currentEnterpriseId;
-            if (!enterpriseId) {
-                showAlert({
-                    type: "warning",
-                    title: "Empresa no seleccionada",
-                    description: "Selecciona una empresa antes de registrar el acceso.",
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 1000,
-                });
-                return;
-            }
-            showSpinner({ message: "Cargando imagenes al sistema" });
-            const frontal_ine_url = await firebasestorage.uploadFile(values?.fronta_ine, "ExternalPerson/" + values?.electorvigence + "/frontal_ine_url");
-            const back_ine_url = await firebasestorage.uploadFile(values?.back_ine, "ExternalPerson/" + values?.electorvigence + "/back_ine_url");
-            const picture_url = await firebasestorage.uploadFile(values?.pictureURL, "ExternalPerson/" + values?.electorvigence + "/picture_url");
-
-            let license_url = ""
-            if (values?.licence) license_url = await firebasestorage.uploadFile(values?.licence, "ExternalPerson/" + values?.electorvigence + "/license_url");
-            if (!frontal_ine_url.includes("http") && values?.fronta_ine) {
-                showAlert({
-                    type: "error",
-                    title: "No se pudo subir el INE Frontal",
-                    description: "Revise su conexión de internet y vuelva a intentarlo",
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 1000,
-                });
-                hideSpinner();
-                return;
-            }
-            if (!back_ine_url.includes("http") && values?.back_ine) {
-                showAlert({
-                    type: "error",
-                    title: "No se pudo subir el INE Trasera",
-                    description: "Revise su conexión de internet y vuelva a intentarlo",
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 1000,
-                });
-                hideSpinner();
-                return;
-            }
-            if (!picture_url.includes("http") && values?.pictureURL) {
-                showAlert({
-                    type: "error",
-                    title: "No se pudo la foto de perfil",
-                    description: "Revise su conexión de internet y vuelva a intentarlo",
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 1000,
-                });
-                hideSpinner();
-                return;
-            }
-            if (!license_url.includes("http") && values?.licence) {
-                showAlert({
-                    type: "error",
-                    title: "No se pudo subir la licencia",
-                    description: "Revise su conexión de internet y vuelva a intentarlo",
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 1000,
-                });
-                hideSpinner();
-                return;
-            }
-
-            const payload: ExternalPersonPost = {
-                id_enterprise: String(enterpriseId),
-                frontal_ine_json: currentexternalperson?.frontal_ine_json || JSON.stringify(frontalIneJson) || "",
-                back_ine_json: currentexternalperson?.back_ine_json || JSON.stringify(backIneJson) || "",
-                license_json: currentexternalperson?.license_json || JSON.stringify(licenseJson) || "",
-                // los _url serán resueltos por backend tras guardar; se envían vacíos
-                frontal_ine_url,
-                back_ine_url,
-                license_url,
-                pictureURL: picture_url,
-                name: values?.name ?? "",
-                lastname: values?.lastname ?? "",
-                motherslastname: values?.motherslastname ?? "",
-                curp: values?.curp ?? "",
-                electorkey: values?.electorkey ?? "",
-                electorvigence: values?.electorvigence ?? "",
-                nss: values?.nss ?? "",
-                license_number: values?.license_number ?? "",
-                vigence: values?.vigence ?? "",
-                phone_number: values?.phone_number ?? "",
-                email: values?.email ?? "",
-            };
-
-            if (currentexternalperson) {
-                const externalPerson = await updateExternalPerson({ ...payload, id: currentexternalperson.id });
-                if (externalPerson) {
-                    updateperson(externalPerson.id, externalPerson);
-                }
-            }
-            else {
-                const externalPerson = await createExternalPerson(payload);
-                if (externalPerson) {
-                    addExternalPerson(externalPerson);
-                }
-            }
-
-            hideSpinner();
-        } catch (err) {
-            // Manejo defensivo en caso de fallo previo a flags del store
-            const description = err instanceof Error ? err.message : "Error al preparar el envío.";
-            showAlert({
-                type: "error",
-                title: "No se pudo enviar",
-                description,
-                showPrimaryButton: false,
-                showSecondaryButton: false,
-                autoCloseMs: 2000,
-            });
+        if (!text) {
+          throw new Error("El servicio OCR no devolvió texto legible.");
         }
-    }
 
+        const parsed: ParsedCirculationCard = parseCirculationCard(text);
 
+        const plates = parsed.vehiculo.placa?.trim();
+        const model =
+          parsed.vehiculo?.modelo != null
+            ? String(parsed.vehiculo.modelo)
+            : undefined;
+        const brand = parsed.vehiculo?.marca?.trim();
+        const serialNumber = parsed.vehiculo?.serie_vehicular?.trim();
+        const engineNumber = parsed.vehiculo?.numero_motor?.trim();
+        const circulationCard = parsed.documento?.numero_tarjeta?.trim();
+        const circulationVigence = parsed.documento?.vigencia?.trim();
 
-    useEffect(() => {
-        resetFields(formId);
-        setTimeout(() => {
-            loadInitialFields();
-            setCanStart(true);
-        }, 500)
-    }, [resetFields])
-
-    // Efecto de spinner + alerts en base a flags del store
-    useEffect(() => {
-        if (creating) {
-            showSpinner({ message: "Registrando persona" });
-            return;
+        if (plates) {
+          updateField(formId, "plates", {
+            value: plates,
+          });
         }
+        if (brand) {
+          updateField(formId, "brand", {
+            value: brand,
+          });
+        }
+        if (model) {
+          updateField(formId, "model", {
+            value: model,
+          });
+        }
+        if (serialNumber) {
+          updateField(formId, "serial_number", {
+            value: serialNumber,
+          });
+        }
+        if (engineNumber) {
+          updateField(formId, "engine_number", {
+            value: engineNumber,
+          });
+        }
+        if (circulationCard) {
+          updateField(formId, "circulation_card", {
+            value: circulationCard,
+          });
+        }
+        if (circulationVigence) {
+          updateField(formId, "circulation_card_expiration", {
+            value: circulationVigence,
+          });
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("[vehicles] Error procesando tarjeta circulación", error);
+        const description =
+          error instanceof Error
+            ? error.message
+            : "No se pudo completar el análisis. Intenta nuevamente.";
+        showAlert({
+          type: "error",
+          title: "Error al procesar la tarjeta de circulación",
+          description,
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 4000,
+        });
+      } finally {
         hideSpinner();
+      }
+    })();
+  };
 
-        if (error) {
-            showAlert({
-                type: "error",
-                title: "Ocurrió un error",
-                description: error,
-                showPrimaryButton: false,
-                showSecondaryButton: false,
-                autoCloseMs: 1800,
-            });
+  const handleSubmit = async (values: Record<string, any>) => {
+    try {
+      const enterpriseId = currentEnterpriseId;
+      if (!enterpriseId) {
+        showAlert({
+          type: "warning",
+          title: "Empresa no seleccionada",
+          description: "Selecciona una empresa antes de registrar el vehículo.",
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500,
+        });
+        return;
+      }
+
+      showSpinner({ message: "Guardando vehículo..." });
+
+      const basePath = `Vehicles/${values.plates || "sin-placa"}`;
+
+      const image_plates_url = values.image_plates
+        ? await firebasestorage.uploadFile(
+          values.image_plates,
+          `${basePath}/image_plates`
+        )
+        : "";
+
+      const image_circulation_card_url = values.image_circulation_card
+        ? await firebasestorage.uploadFile(
+          values.image_circulation_card,
+          `${basePath}/image_circulation_card`
+        )
+        : "";
+
+      const front_image_url = values.front_image
+        ? await firebasestorage.uploadFile(
+          values.front_image,
+          `${basePath}/front_image`
+        )
+        : "";
+
+      const back_image_url = values.back_image
+        ? await firebasestorage.uploadFile(
+          values.back_image,
+          `${basePath}/back_image`
+        )
+        : "";
+
+      const right_side_image_url = values.right_side_image
+        ? await firebasestorage.uploadFile(
+          values.right_side_image,
+          `${basePath}/right_side_image`
+        )
+        : "";
+
+      const left_side_image_url = values.left_side_image
+        ? await firebasestorage.uploadFile(
+          values.left_side_image,
+          `${basePath}/left_side_image`
+        )
+        : "";
+
+      const insurance_policy_doc_url = values.insurance_policy_doc
+        ? await firebasestorage.uploadFile(
+          values.insurance_policy_doc,
+          `${basePath}/insurance_policy_doc`
+        )
+        : "";
+
+      // UPDATE vs CREATE (igual que useAddExternalPersonForm)
+      if (currentTransport?.transport_id) {
+        const updatePayload: TransportPut = {
+          transport_id: currentTransport.transport_id,
+          is_external: currentTransport.is_external,
+          // datos base
+          plates: values.plates ?? "",
+          brand: values.brand ?? "",
+          model: values.model ?? "",
+          year: values.year ?? "",
+          engine_number: values.engine_number ?? "",
+          serial_number: values.serial_number ?? "",
+          // seguro
+          insurance_policy: values.insurance_policy ?? "",
+          policy_expiration: values.policy_expiration ?? "",
+          // tarjeta circulación
+          circulation_card: values.circulation_card ?? "",
+          circulation_card_expiration:
+            values.circulation_card_expiration ?? "",
+          // imágenes (si no suben nuevas, conserva las anteriores)
+          image_plates: image_plates_url || currentTransport.image_plates || "",
+          image_circulation_card:
+            image_circulation_card_url ||
+            currentTransport.image_circulation_card ||
+            "",
+          front_image: front_image_url || currentTransport.front_image || "",
+          right_side_image:
+            right_side_image_url || currentTransport.right_side_image || "",
+          left_side_image:
+            left_side_image_url || currentTransport.left_side_image || "",
+          back_image: back_image_url || currentTransport.back_image || "",
+          // póliza doc
+          insurance_policy_doc:
+            insurance_policy_doc_url ||
+            currentTransport.insurance_policy_doc ||
+            "",
+          // extras
+          UnitType: values.UnitType ?? currentTransport.Unit_type ?? "",
+          fuel_card: values.fuel_card ?? currentTransport.fuel_card ?? "",
+          key_copy: Number(values.key_copy ?? currentTransport.key_copy ?? 0),
+          tag_pass: values.tag_pass ?? currentTransport.tag_pass ?? "",
+          economic_number:
+            values.economic_number ?? currentTransport.economic_number ?? "",
+          id_external_enterprise: String(enterpriseId),
+        };
+
+        const updated = await updateTransport(updatePayload);
+        console.log("updated", updated);
+        if (updated) {
+
+          // reflejar cambios en el AccessRequestStore
+          updateVehicle(updated.transport_id, updated);
+
+          showAlert({
+            type: "success",
+            title: "Vehículo actualizado",
+            description: "La información del vehículo se actualizó correctamente.",
+            showPrimaryButton: false,
+            showSecondaryButton: false,
+            autoCloseMs: 2000,
+          });
         }
+      } else {
+        const createPayload: TransportPost = {
+          brand: values.brand ?? "",
+          model: values.model ?? "",
+          plates: values.plates ?? "",
+          year: values.year ?? "",
+          engine_number: values.engine_number ?? "",
+          serial_number: values.serial_number ?? "",
+          insurance_policy: values.insurance_policy ?? "",
+          policy_expiration: values.policy_expiration ?? "",
+          circulation_card: values.circulation_card ?? "",
+          circulation_card_expiration:
+            values.circulation_card_expiration ?? "",
+          image_plates: image_plates_url,
+          image_circulation_card: image_circulation_card_url,
+          front_image: front_image_url,
+          back_image: back_image_url,
+          right_side_image: right_side_image_url,
+          left_side_image: left_side_image_url,
+          insurance_policy_doc: insurance_policy_doc_url,
+          UnitType: values.UnitType ?? "",
+          fuel_card: values.fuel_card ?? "",
+          key_copy: Number(values.key_copy ?? 0),
+          tag_pass: values.tag_pass ?? "",
+          economic_number: values.economic_number ?? "",
+          id_external_enterprise: String(enterpriseId),
+        };
 
-        if (succesCreate) {
+        const created = await createExternalTransport(createPayload);
 
-            showAlert({
-                type: "success",
-                title: "Registro exitoso",
-                description: "Se registró el acceso del empleado externo.",
-                showPrimaryButton: false,
-                showSecondaryButton: false,
-                autoCloseMs: 1400,
-            });
+        if (created) {
+          addVehicle(created as any);
+          showAlert({
+            type: "success",
+            title: "Vehículo registrado",
+            description: "El vehículo se registró correctamente.",
+            showPrimaryButton: false,
+            showSecondaryButton: false,
+            autoCloseMs: 2000,
+          });
         }
+      }
 
-        resetFlags();
-    }, [creating, error, succesCreate, showSpinner, hideSpinner, showAlert, resetFlags])
+      resetFields(formId);
+    } catch (error) {
+      const description =
+        error instanceof Error
+          ? error.message
+          : "No se pudo registrar el vehículo, intenta nuevamente.";
+      showAlert({
+        type: "error",
+        title: "Error al registrar el vehículo",
+        description,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 4000,
+      });
+    } finally {
+      hideSpinner();
+    }
+  };
 
-    return ({
-        fields: fieldsByFormId[formId] ?? [],
-        handleUploadINE,
-        handleSubmit,
-        canStart
-    })
-}
+
+
+
+  return {
+    fields: fieldsByFormId[formId] ?? [],
+    handleSubmit,
+    canStart,
+  };
+};
+
 export default useAddVehiclesForm;

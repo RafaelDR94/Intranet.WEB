@@ -1,7 +1,7 @@
 
 import useStatusStore from "@/app/stores/useStatusStore/useStatusStore";
 import { useAccesRequirementStore } from "@/app/stores/useAccesRequirementStore/useAccesRequirementStore";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { shallow } from "zustand/shallow";
 import { AccesPut } from "@/app/mappings/accesrequest/accesrequest.types";
@@ -13,6 +13,7 @@ const useStatusChanger = () => {
     const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
     const { showSpinner, hideSpinner } = usePrincipalLoading;
     const [openPopUp, setOpenPopUp] = useState(false);
+    const [openReportIncidence, setOpenReportIncidence] = useState(false);
     const [canSubmitPopUp, setCanSubmitPopUp] = useState(false);
     const [needEvidence, setNeedEvidence] = useState<{ state: boolean, type: 'Image' | 'Document' | 'ImageComment' }>({ state: false, type: 'Image' });
     const [evidence, setEvidence] = useState<File | null>(null);
@@ -43,10 +44,35 @@ const useStatusChanger = () => {
     }), shallow);
     const hasAskedforStatuses = useRef(false);
 
+    const handleReportIncidence = async () => {
+
+        if (!openReportIncidence) {
+            const IncidenceStatus = statuses.find(s => s.name == "Incidencia");
+            if (IncidenceStatus) {
+                setCurrentStatus(IncidenceStatus);
+                setOpenReportIncidence(true);
+            }
+
+
+        }
+        else if (openReportIncidence && comment && currentAcces) {
+            await changeStatus();
+            setOpenReportIncidence(false);
+        }
+        else {
+            setOpenReportIncidence(false)
+        }
+        setComment(null);
+    }
+    const handleCancelEvidence = () => {
+        setComment(null);
+        setOpenReportIncidence(false);
+    }
 
 
     const changeStatus = async () => {
-
+        showSpinner({ message: "Cambiando status" });
+        setOpenPopUp(false);
         if (!currentAcces) {
             showAlert({
                 type: "warning",
@@ -80,20 +106,28 @@ const useStatusChanger = () => {
                 sendEvidence = evidenceurl;
             }
         }
+        let internal_comments = currentAcces?.internal_comments;
+        let external_comments = currentAcces?.external_comments;
+        let comentupdated = null;
         if (comment) {
-            let comentupdated = null;
+
             if (currentStatus?.name === "I Rechazada") {
                 comentupdated = await updateExternalComments({
                     id: currentAcces.id,
                     external_comments: comment,
+                    title: "Comentario de " + currentStatus?.name
+
                 });
+                if (comentupdated) external_comments = comentupdated.external_comments;
 
             }
             else {
                 comentupdated = await updateInternalComments({
                     id: currentAcces.id,
                     internal_comments: comment,
+                    title: "Comentario de " + currentStatus?.name || "Comentario"
                 });
+                if (comentupdated) internal_comments = comentupdated.internal_comments;
             }
             if (!comentupdated) {
                 showAlert({
@@ -125,13 +159,15 @@ const useStatusChanger = () => {
             dr_responsiblesignature: currentAcces?.dr_responsiblesignature,
             evidence_send_email: sendEvidence,
             evidence_response_email: responseEvidence,
+            internal_comments: internal_comments,
+            external_comments: external_comments
         };
         showSpinner(({ message: "Actualizando información de acceso" }));
         await updateAccesRequirement(accesToUpdate);
         await fetchAccesRequirementById(currentAcces?.id, true);
         hideSpinner();
         ResetControlValues();
-        fetchAccesRequirements();
+        fetchAccesRequirements(true);
     }
     const handleOpenPopUp = (statusId: string) => {
         const status = statuses.find(s => s.id === statusId);
@@ -154,6 +190,64 @@ const useStatusChanger = () => {
         setEvidence(null);
         setOpenPopUp(false);
         setComment(null);
+    }
+
+    const handleDownloadZIP = async () => {
+        try {
+            const url = currentAcces?.evidence_response_email;
+            if (!url) {
+                showAlert({
+                    type: "warning",
+                    title: "Sin evidencia",
+                    description: "No hay archivo de finalización para descargar.",
+                    showPrimaryButton: false,
+                    showSecondaryButton: false,
+                    autoCloseMs: 1500,
+                });
+                return;
+            }
+
+            showSpinner({ message: "Descargando evidencia..." });
+
+            // Intentar descarga via fetch para forzar nombre de archivo
+            let blob: Blob | null = null;
+            try {
+                const resp = await fetch(url, { credentials: "omit" });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                blob = await resp.blob();
+            } catch (e) {
+                console.error(e)
+                // Si hay error (CORS, etc.), intentar abrir el enlace directamente
+                blob = null;
+            }
+
+            if (blob) {
+                const objectUrl = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = objectUrl;
+                const defaultName = `acceso_${currentAcces?.id ?? "evidencia"}.zip`;
+                a.download = defaultName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(objectUrl);
+            } else {
+                // Fallback: abrir en nueva pestaña para que el navegador maneje la descarga
+                window.open(url, "_blank");
+            }
+
+        } catch (err) {
+            showAlert({
+                type: "error",
+                title: "Error al descargar",
+                description: err instanceof Error ? err.message : "No se pudo descargar el archivo.",
+                showPrimaryButton: false,
+                showSecondaryButton: false,
+                autoCloseMs: 1800,
+            });
+        } finally {
+            hideSpinner();
+        }
     }
 
     useEffect(() => {
@@ -241,7 +335,72 @@ const useStatusChanger = () => {
         else {
             setCanSubmitPopUp(!!comment);
         }
-    }, [needEvidence, evidence,comment]);
-    return { currentStatus, statuses, loadingstatuses, openPopUp, handleOpenPopUp, handleClosePopUp, changeStatus, needEvidence, handleSetEvidence, canSubmitPopUp, handleCommentChange };
+    }, [needEvidence, evidence, comment]);
+
+    const hasAssignedData = useMemo(
+        () =>
+            !!(
+                currentAcces &&
+                (
+                    currentAcces.vehicles?.length ||
+                    currentAcces.internalpersons?.length ||
+                    currentAcces.externalpersons?.length ||
+                    currentAcces.tools?.length
+                )
+            ),
+        [currentAcces]
+    );
+
+    const availableStatuses = useMemo(() => {
+        if (!currentAcces) return [];
+
+        const currentName = currentAcces.status;
+        let allowedNames: string[] = [];
+
+        switch (currentName) {
+            case "Creada":
+                allowedNames = hasAssignedData ? ["Cancelada", "Enviada"] : ["Cancelada"];
+                break;
+            case "Pendiente":
+                if (hasAssignedData) {
+                    allowedNames = ["I Aprobada", "I Rechazada"];
+                }
+                break;
+            case "I Rechazada":
+                allowedNames = ["Cancelada"];
+                break;
+            case "I Aprobada":
+                allowedNames = ["Enviada"];
+                break;
+            case "Enviada":
+                allowedNames = ["Cancelada", "A rechazado", "A finalizado"];
+                break;
+            default:
+                allowedNames = [];
+                break;
+        }
+
+        return statuses.filter((s) => allowedNames.includes(s.name));
+    }, [currentAcces, hasAssignedData, statuses]);
+
+    return {
+        comment,
+        handleCancelEvidence,
+        openReportIncidence,
+        handleReportIncidence,
+        currentAcces,
+        handleDownloadZIP,
+        currentStatus,
+        statuses: availableStatuses,
+        loadingstatuses,
+        openPopUp,
+        handleOpenPopUp,
+        handleClosePopUp,
+        changeStatus,
+        needEvidence,
+        handleSetEvidence,
+        canSubmitPopUp,
+        handleCommentChange
+    };
 }
 export default useStatusChanger;

@@ -46,9 +46,10 @@ export const mapTransport = (raw: any): Transport => ({
 
 export const mapCompleteTransport = (raw: any): CompleteTransport => ({
   transport_id: toString(raw?.transport_id ?? raw?.id),
+  is_external: toBoolean(raw?.is_external),
   brand: toString(raw?.brand),
   model: toString(raw?.model),
-  unit_yype: toString(raw?.unit_yype ?? raw?.UnitType ?? raw?.unit_type),
+  Unit_type: toString(raw?.unit_yype ?? raw?.UnitType ?? raw?.unit_type),
   plates: toString(raw?.plates),
   engine_number: toString(raw?.engine_number ?? raw?.engineNumber),
   serial_number: toString(raw?.serial_number ?? raw?.serialNumber),
@@ -59,6 +60,23 @@ export const mapCompleteTransport = (raw: any): CompleteTransport => ({
   tag_pass: toString(raw?.tag_pass ?? raw?.tagPass),
   year: toString(raw?.year),
   economic_number: toString(raw?.economic_number ?? raw?.economicNumber),
+  policy_expiration: toString(
+    raw?.policy_expiration ?? raw?.insurance_policy_vigency
+  ),
+  circulation_card_expiration: toString(
+    raw?.circulation_card_expiration ?? raw?.circulation_card_vigency
+  ),
+  image_plates: toString(raw?.image_plates ?? raw?.plates_image),
+  image_circulation_card: toString(
+    raw?.image_circulation_card ?? raw?.circulation_card_image
+  ),
+  front_image: toString(raw?.front_image ?? raw?.frontal_image),
+  right_side_image: toString(
+    raw?.right_side_image ?? raw?.right_lateral_image
+  ),
+  left_side_image: toString(raw?.left_side_image ?? raw?.left_lateral_image),
+  back_image: toString(raw?.back_image ?? raw?.rear_image),
+  insurance_policy_doc: toString(raw?.insurance_policy_doc),
 });
 
 export const mapCompleteTransportList = (
@@ -120,16 +138,59 @@ export const mapTransportAssignaments = (
 export const mapTransportPost = (payload: any): TransportPost => ({
   brand: toString(payload?.brand),
   model: toString(payload?.model),
-  UnitType: toString(payload?.UnitType),
   plates: toString(payload?.plates),
+  year: toString(payload?.year),
+  engine_number: toString(payload?.engine_number),
+  serial_number: toString(payload?.serial_number),
+  insurance_policy: toString(payload?.insurance_policy),
+  policy_expiration: toString(payload?.policy_expiration),
+  circulation_card: toString(payload?.circulation_card),
+  circulation_card_expiration: toString(
+    payload?.circulation_card_expiration
+  ),
+  image_plates: toString(payload?.image_plates),
+  image_circulation_card: toString(payload?.image_circulation_card),
+  front_image: toString(payload?.front_image),
+  back_image: toString(payload?.back_image),
+  right_side_image: toString(payload?.right_side_image),
+  left_side_image: toString(payload?.left_side_image),
+  insurance_policy_doc: toString(payload?.insurance_policy_doc),
+  UnitType: toString(payload?.UnitType),
+  fuel_card: toString(payload?.fuel_card),
+  key_copy: toNumber(payload?.key_copy),
+  tag_pass: toString(payload?.tag_pass),
+  economic_number: toString(payload?.economic_number),
+  id_external_enterprise: toString(payload?.id_external_enterprise),
 });
 
 export const mapTransportPut = (payload: any): TransportPut => ({
   transport_id: toString(payload?.transport_id),
+  is_external: toBoolean(payload?.is_external),
+  plates: toString(payload?.plates),
   brand: toString(payload?.brand),
   model: toString(payload?.model),
+  year: toString(payload?.year),
+  engine_number: toString(payload?.engine_number),
+  serial_number: toString(payload?.serial_number),
+  insurance_policy: toString(payload?.insurance_policy),
+  policy_expiration: toString(payload?.policy_expiration),
+  circulation_card: toString(payload?.circulation_card),
+  circulation_card_expiration: toString(
+    payload?.circulation_card_expiration
+  ),
+  image_plates: toString(payload?.image_plates),
+  image_circulation_card: toString(payload?.image_circulation_card),
+  front_image: toString(payload?.front_image),
+  right_side_image: toString(payload?.right_side_image),
+  left_side_image: toString(payload?.left_side_image),
+  back_image: toString(payload?.back_image),
+  insurance_policy_doc: toString(payload?.insurance_policy_doc),
   UnitType: toString(payload?.UnitType),
-  plates: toString(payload?.plates),
+  fuel_card: toString(payload?.fuel_card),
+  key_copy: toNumber(payload?.key_copy),
+  tag_pass: toString(payload?.tag_pass),
+  economic_number: toString(payload?.economic_number),
+  id_external_enterprise: toString(payload?.id_external_enterprise),
 });
 
 export const mapVehicleTrakingPost = (

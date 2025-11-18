@@ -3,7 +3,7 @@ import { devtools } from 'zustand/middleware'
 import { createWithEqualityFn } from 'zustand/traditional'
 
 import type { AccessRequestStoreState, } from './types'
-import type { Transport } from '@/app/mappings/transport/transport.types'
+import type { CompleteTransport } from '@/app/mappings/transport/transport.types'
 
 /**
  * Store para manejar las listas de un Access Request (vehicles, internal/external persons, tools).
@@ -15,7 +15,7 @@ export const useAccessRequestStore = createWithEqualityFn<AccessRequestStoreStat
     externalpersons: [],
     tools: [],
 
-    setVehicles: (vehicles: Transport[]) => set({ vehicles }),
+    setVehicles: (vehicles: CompleteTransport[]) => set({ vehicles }),
     setInternalPersons: (persons) => set({ internalpersons: persons }),
     setExternalPersons: (persons) => set({ externalpersons: persons }),
     setTools: (tools) => set({ tools }),

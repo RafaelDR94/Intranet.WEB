@@ -1,11 +1,11 @@
 import useComments from "./hooks/useComments";
 import CommentCard from "./components/commentCard/commentCard";
-
+import { formatDateHour } from "@/app/utilities/DatesHelper/Dateshelper";
 interface CommentItem {
   Comment: string;
   userName: string;
-  title?: string;
-  date?: string;
+  Title?: string;
+  DateTime: string;
 }
 
 const parseComments = (value: unknown): CommentItem[] => {
@@ -33,12 +33,12 @@ const Comments = () => {
   const externalComments = parseComments(current?.external_comments);
 
   return (
-    <>
+    <div >
       {internalComments.map((c, index) => (
         <CommentCard
           key={`internal-${index}`}
-          title={c.title ?? "Comentario interno"}
-          date={c.date}
+          title={c.Title ?? "Comentario interno"}
+          date={formatDateHour(c.DateTime)}
           comment={c.Comment}
           commentName={c.userName}
         />
@@ -47,13 +47,13 @@ const Comments = () => {
       {externalComments.map((c, index) => (
         <CommentCard
           key={`external-${index}`}
-          title={c.title ?? "Comentario externo"}
-          date={c.date}
+          title={c.Title ?? "Comentario externo"}
+          date={formatDateHour(c.DateTime)}
           comment={c.Comment}
           commentName={c.userName}
         />
       ))}
-    </>
+    </div>
   );
 };
 

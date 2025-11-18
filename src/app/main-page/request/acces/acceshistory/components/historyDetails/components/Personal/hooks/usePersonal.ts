@@ -1,21 +1,20 @@
 import { useAccesRequirementStore } from "@/app/stores/useAccesRequirementStore/useAccesRequirementStore";
 import { shallow } from "zustand/shallow";
-import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+
+
 import JSZip from "jszip";
 
 const usePersonal = () => {
-  const { current, setCurrent } = useAccesRequirementStore(
+  const { current } = useAccesRequirementStore(
     (s) => ({
       current: s.current,
-      setCurrent: s.setCurrent,
     }),
     shallow,
   );
 
   const externalPersons = current?.externalpersons ?? [];
   const internalPersons = current?.internalpersons ?? [];
-  const router = useRouter();
+
 
   const downloadImagesZip = async (item: any) => {
     const zip = new JSZip();
@@ -43,19 +42,11 @@ const usePersonal = () => {
     a.click();
   };
 
-  const handleEditInformation = useCallback(() => {
-    if (!current?.id) return;
-    setCurrent(current);
-    router.push(
-      `/main-page/request/acces/generateacces/?idAcces=${encodeURIComponent(current.id)}`,
-    );
-  }, [current, router, setCurrent]);
 
   return {
     current,
     externalPersons,
     internalPersons,
-    handleEditInformation,
     downloadImagesZip
   };
 };

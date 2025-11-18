@@ -13,6 +13,7 @@ import {
   updateAccesRequirement as updateAccesRequirementRequest,
   updateInternalComments as updateInternalCommentsRequest,
   updateExternalComments as updateExternalCommentsRequest,
+  generateTemplate as generateTemplateRequest,
 } from "./utilities";
 import { AccesRequirmentGet } from "@/app/mappings/accesrequest/accesrequest.types";
 
@@ -31,26 +32,32 @@ const initialFlags: Pick<
   | "creating"
   | "updating"
   | "deleting"
+  | "templating"
   | "successGet"
   | "successGetById"
   | "successPost"
   | "successPut"
   | "successDelete"
+  | "successTemplate"
   | "error"
   | "warning"
+  | "templateError"
 > = {
   loading: false,
   loadingById: false,
   creating: false,
   updating: false,
   deleting: false,
+  templating: false,
   successGet: false,
   successGetById: false,
   successPost: false,
   successPut: false,
   successDelete: false,
+  successTemplate: false,
   error: undefined,
   warning: undefined,
+  templateError: undefined,
 };
 
 export const useAccesRequirementStore = createWithEqualityFn<AccesRequirementsState>()(
@@ -70,6 +77,8 @@ export const useAccesRequirementStore = createWithEqualityFn<AccesRequirementsSt
       updateInternalCommentsRequest(set, get, payload),
     updateExternalComments: (payload) =>
       updateExternalCommentsRequest(set, get, payload),
+    generateTemplate: (ids) =>
+      generateTemplateRequest(set, get, ids),
     deleteAccesRequirement: (id) =>
       deleteAccesRequirementRequest(set, get, id),
     reset: () => set({ ...initialCollections, ...initialFlags }),
