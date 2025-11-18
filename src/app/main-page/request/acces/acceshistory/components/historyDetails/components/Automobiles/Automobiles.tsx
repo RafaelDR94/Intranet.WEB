@@ -30,7 +30,7 @@ const Automobiles = () => {
           variant="ghost"
           size="small"
           className="rounded-xl"
-          onClick={() => downloadImagesZip(current)}
+          onClick={() => downloadImagesZip(current?.vehicles[0])}
         >
           <ImagesIcon />
         </Button>

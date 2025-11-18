@@ -11,7 +11,6 @@ type VehicleRow = {
   brand: string;
   model: string;
   Unit_type: string;
-  front_image: string;
 };
 
 const mapVehicleRow = (vehicle: CompleteTransport, index: number): VehicleRow => ({
@@ -20,7 +19,6 @@ const mapVehicleRow = (vehicle: CompleteTransport, index: number): VehicleRow =>
   brand: vehicle.brand,
   model: vehicle.model,
   Unit_type: vehicle.Unit_type,
-  front_image: vehicle.front_image
 });
 
 const useAutomobiles = () => {
@@ -58,7 +56,7 @@ const useAutomobiles = () => {
         },
         {
           label: "Póliza",
-          value: r?.model,
+          value: r?.insurance_policy,
         },
       ],
       [
@@ -67,42 +65,38 @@ const useAutomobiles = () => {
           value: r?.brand,
         },
         {
-          label: "Serie",
-          value: r?.model,
-        },
-        {
           label: "Modelo",
           value: r?.model,
         },
       ],
       [
         {
-          label: "Vencimiento",
-          value: r?.model
+          label: "Vigencia de Póliza",
+          value: r?.policy_expiration
         }
       ],
       [
         {
           label: "Tarjeta de circulación",
-          value: r?.model
+          value: r?.circulation_card
         }
       ],
       [
         {
           label: "Vigencia",
-          value: r?.model
+          value: r?.circulation_card_expiration
         }
       ],
       [
         {
           label: "No. de Serie",
-          value: r?.model
+          value: r?.serial_number
         }
       ],
       [
         {
           label: "No. de Motor",
-          value: r?.model
+          value: r?.engine_number
         }
       ]
     ];
@@ -133,7 +127,7 @@ const useAutomobiles = () => {
 
     const a = document.createElement("a");
     a.href = URL.createObjectURL(zipBlob);
-    a.download = `${item.name}_${item.lastname}_Acceso.zip`;
+    a.download = `${current?.dr_responsiblename}_Acceso.zip`;
     a.click();
   };
 
