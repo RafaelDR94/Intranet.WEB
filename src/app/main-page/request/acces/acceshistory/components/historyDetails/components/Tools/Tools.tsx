@@ -2,11 +2,11 @@ import useTools from "./hooks/useTools";
 import ContentDataTable from "@/app/components/ContentDataTable/ContentDataTable";
 import { useState } from "react";
 import { Button } from "@/app/components/Button/Button";
-
+import PlusIcon from "@/assets/icons/acciones/plus.svg";
 type Column = { key: string; label: string };
 
 const Tools = () => {
-  const { current, tools, handleEditTools } = useTools();
+  const { tools, handleEditTools } = useTools();
 
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -27,9 +27,7 @@ const Tools = () => {
     if (!tools.length) return;
 
     setSelected((prev) =>
-      prev.length === tools.length
-        ? []
-        : tools.map((item: any) => item.id),
+      prev.length === tools.length ? [] : tools.map((item: any) => item.id),
     );
   };
 
@@ -46,7 +44,7 @@ const Tools = () => {
         <Button
           size="medium"
           variant="outline"
-          hideIcon
+          icon={PlusIcon}
           style={{ marginBlock: "10px" }}
           onClick={handleEditTools}
         >

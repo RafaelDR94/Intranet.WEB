@@ -26,19 +26,22 @@ const useTools = () => {
     shallow,
   );
 
-  const tools = useMemo(() => parseTools((current?.tools ?? []) as unknown), [current?.tools]);
+  const tools = useMemo(
+    () => parseTools((current?.tools ?? []) as unknown),
+    [current?.tools],
+  );
 
   const handleEditTools = useCallback(() => {
-      if (!current?.id) return;
-      router.push(
-        `/main-page/request/acces/generateacces/?idAcces=${encodeURIComponent(current.id)}+&mode=edit`,
-      );
-    }, [current, router]);
+    if (!current?.id) return;
+    router.push(
+      `/main-page/request/acces/generateacces/?idAcces=${encodeURIComponent(current.id)}+&mode=edit`,
+    );
+  }, [current, router]);
 
   return {
     current,
     tools,
-    handleEditTools
+    handleEditTools,
   };
 };
 export default useTools;
