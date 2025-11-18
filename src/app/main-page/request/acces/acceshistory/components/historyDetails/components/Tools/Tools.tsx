@@ -11,9 +11,10 @@ const Tools = () => {
   const [selected, setSelected] = useState<string[]>([]);
 
   const columns: Column[] = [
-    { key: "marca", label: "Marca" },
-    { key: "descripcion", label: "Descripción" },
-    { key: "modelo", label: "Modelo" },
+    { key: "quantity", label: "Cantidad" },
+    { key: "brand", label: "Marca" },
+    { key: "description", label: "Descripción" },
+    { key: "model", label: "Modelo" },
   ];
 
   const onSelectRow = (id: string) => {
