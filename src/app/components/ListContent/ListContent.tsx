@@ -21,12 +21,12 @@ const ListContent = ({
                   <span className="text-gray-70 w-6 text-right">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <span className="text-gray-70">
-                    {`${item?.name || "" } ${item?.lastname || "" } ${item?.motherslastname || ""}`}
-                  </span>
+                  <span className="text-gray-70">{item?.name}</span>
                 </div>
-                {renderAction && renderAction(item)}{" "}
                 {/* <<--- BOTÓN DINÁMICO */}
+                <div>
+                  {renderAction && renderAction(item)}{" "}
+                </div>
               </div>
             </div>
           ))}
@@ -43,12 +43,12 @@ const ListContent = ({
                   <span className="text-c2 w-6 text-right text-gray-500">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <span className="text-gray-70 text-c2">
-                    {`${item.name} ${item.lastname} ${item.motherslastname}`}
-                  </span>
+                  <span className="text-gray-70 text-c2">{item.name}</span>
                 </div>
-                {renderAction && renderAction(item)}{" "}
                 {/* <<--- BOTÓN DINÁMICO */}
+                <div>
+                  {renderAction && renderAction(item)}{" "}
+                </div>
               </div>
             </div>
           ))}

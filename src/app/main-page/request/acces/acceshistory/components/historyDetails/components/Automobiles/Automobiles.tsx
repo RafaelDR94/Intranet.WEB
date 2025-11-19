@@ -12,8 +12,6 @@ const Automobiles = () => {
     current
   } = useAutomobiles();
 
-  console.log('current ', current);
-
   return (
     <div className="space-y-4">
       <InfoCards
