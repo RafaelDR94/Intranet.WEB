@@ -60,7 +60,7 @@ export const useCameraViewer = ({
       try {
         await tryStart(buildConstraints(mode));
       } catch (firstError) {
-        console.log("firstError",firstError);
+        console.error("firstError",firstError);
         try {
           await tryStart({ audio: false, video: true });
         } catch (finalError) {

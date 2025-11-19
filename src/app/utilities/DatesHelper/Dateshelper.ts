@@ -32,6 +32,19 @@ export const currentDate = (d: Date = new Date()): string => {
   return `${y}-${m}-${day}`;
 };
 
+export const currentDateEs = (date: Date = new Date()): string => {
+  const meses = [
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+  ];
+
+  const day = date.getDate();
+  const month = meses[date.getMonth()];
+  const year = date.getFullYear();
+
+  return `${day} de ${month} de ${year}`;
+};
+
 // YYYY/MM/DD (usado por APIs/DB del proyecto)
 export const currentDateDataBase = (d: Date = new Date()): string => {
   const { y, m, day } = parts(d);
@@ -133,7 +146,7 @@ export const formatDate = () => {
 export const formatDateHour = (s: string): string => {
   if (!s) return s;
   const normalized = s.replace("T", " ").trim()
-  
+
   const m = normalized.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}):(\d{2})/);
   return m ? `${m[1]} ${m[2]}:${m[3]}` : normalized;
 };
@@ -141,7 +154,7 @@ export const formatDateHour = (s: string): string => {
 export const formatDateOnlyDate = (s: string): string => {
   if (!s) return s;
   const normalized = s.replace("T", " ").trim()
-  
+
   const m = normalized.match(/^(\d{4}-\d{2}-\d{2})/);
   return m ? `${m[1]}` : normalized;
 };
@@ -156,7 +169,7 @@ export const toDateInputValue = (value?: string | null) => {
 
   if (!value) return "";
   const newValue = value.includes("T") ? value.split("T")[0] : value;
-  if(newValue.includes("/")) return newValue.replaceAll("/","-");
+  if (newValue.includes("/")) return newValue.replaceAll("/", "-");
   return newValue
 };
 // ------------------------------

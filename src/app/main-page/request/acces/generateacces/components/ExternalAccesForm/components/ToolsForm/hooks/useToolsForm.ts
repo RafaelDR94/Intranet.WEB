@@ -5,20 +5,40 @@ import type { FieldModel, ResponsiveLayoutMatrix } from "@/app/components/Dynami
 import useAccessRequestStore from "@/app/stores/useAccesRequestStore/useAccesRequestStore";
 import type { Tools } from "@/app/mappings/accesrequest/accesrequest.types";
 
-const TOOL_KEYS: Array<keyof Tools> = ["quantity", "brand", "description", "model"];
-
+const TOOL_KEYS: Array<keyof Tools> = ["quantity", "brand", "description", "model","materialtype","meditiontype"];
+const MATERIAL_TYPES = [
+    { label: "Ferretero", value: "Ferretero" },
+    { label: "Desechos Inorgánicos", value: "Desechos Inorgánicos" },
+    { label: "Líquidos", value: "Líquidos" },
+    { label: "Mercancías peligrosas", value: "Mercancías peligrosas" },
+    { label: "A granel", value: "A granel" },
+];
+const MEDITION_TYPES = [
+    { label: "Metros", value: "Metros" },
+    { label: "Litros", value: "Litros" },
+    { label: "Toneladas", value: "Toneladas" },
+    { label: "Kilos", value: "Kilos" },
+    { label: "Pieza", value: "Pieza" },
+    { label: "Gramos", value: "Gramos" },
+    { label: "Metros cúbicos", value: "Metros cúbicos" },
+    { label: "Metros cuadrados", value: "Metros cuadrados" },
+];
 const createEmptyTool = (): Tools => ({
     quantity: "",
     brand: "",
     description: "",
-    model: ""
+    model: "",
+    meditiontype: "Pieza",
+    materialtype: "Ferretero"
 });
 
 const mapValuesToTool = (values: Record<string, unknown>): Tools => ({
     quantity: String(values.quantity ?? ""),
     brand: String(values.brand ?? ""),
     description: String(values.description ?? ""),
-    model: String(values.model ?? "")
+    model: String(values.model ?? ""),
+    meditiontype: values.meditiontype as any,
+    materialtype: values.materialtype as any
 });
 
 const isToolComplete = (tool: Tools) => TOOL_KEYS.every((key) => tool[key].trim().length > 0);
@@ -55,13 +75,31 @@ const createToolFields = (tool: Tools): FieldModel[] => [
         placeholder: "Modelo",
         value: tool.model,
         validations: [{ type: "required" }]
+    },
+    {
+        type: "select",
+        name: "materialtype",
+        label: "Tipo de material",
+        placeholder: "Selecciona un tipo",
+        value: tool.materialtype || "Ferretero",
+        options: MATERIAL_TYPES,
+        validations: [{ type: "required" }]
+    },
+    {
+        type: "select",
+        name: "meditiontype",
+        label: "Tipo de medida",
+        placeholder: "Selecciona un tipo",
+        value: tool.meditiontype || "Pieza",
+        options: MEDITION_TYPES,
+        validations: [{ type: "required" }]
     }
 ];
 
 const TOOL_FORM_LAYOUT: ResponsiveLayoutMatrix = {
-    sm: [[10], [10], [10], [10]],
-    md: [[5, 5], [5, 5]],
-    lg: [[2.5, 2.5, 2.5, 2.5]]
+    sm: [[10], [10], [10], [10], [10], [10]],
+    md: [[5, 5], [5, 5], [5, 5]],
+    lg: [[1.6, 1.6, 1.6, 1.6, 1.6, 1.6]]
 };
 
 const useToolsForm = () => {
@@ -107,9 +145,8 @@ const useToolsForm = () => {
     const handleUpdateToolValues = useCallback((index: number, values: Record<string, unknown>) => {
         const currentTool = tools[index];
         if (!currentTool) return;
-
         const nextTool = mapValuesToTool(values);
-        const updates = TOOL_KEYS.reduce<Partial<Tools>>((acc, key) => {
+        const updates = TOOL_KEYS.reduce<Partial<Tools>>((acc: any, key) => {
             if (currentTool[key] !== nextTool[key]) {
                 acc[key] = nextTool[key];
             }

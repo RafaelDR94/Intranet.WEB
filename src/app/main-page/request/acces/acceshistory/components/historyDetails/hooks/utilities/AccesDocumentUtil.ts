@@ -3,7 +3,6 @@ import type {
   FullDocument,
   newDocument,
   DataChart,
-  DataChartElement,
   ImageElement,
   Table,
 } from '@/app/utilities/PDF/types'; // 👈 ajusta esta ruta a donde tengas los tipos/creador de PDF
@@ -86,9 +85,6 @@ const buildExternalPersonPage = (person: ExternalPersonModel): newDocument => {
       { label: 'NSS', text: person.nss },
       { label: 'No. licencia', text: person.license_number },
       { label: 'Vigencia licencia', text: person.vigence },
-      { label: 'Vigencia INE', text: person.electorvigence },
-      { label: 'Teléfono', text: person.phone_number },
-      { label: 'Correo', text: person.email, fullWidth: true },
     ],
   };
 
@@ -152,19 +148,19 @@ const buildInternalEmployeePage = (employee: EmployeeType): newDocument => {
 
   const pictures: ImageElement[] = employee.image_url
     ? [
-        {
-          title: 'Fotografía',
-          urlimage: employee.image_url,
-        },
-      ]
+      {
+        title: 'Fotografía',
+        urlimage: employee.image_url,
+      },
+    ]
     : [];
 
   const imageList =
     pictures.length > 0
       ? {
-          title: 'Identificación interna',
-          pictures,
-        }
+        title: 'Identificación interna',
+        pictures,
+      }
       : null;
 
   return {
@@ -186,10 +182,8 @@ const buildVehiclePage = (vehicle: CompleteTransport): newDocument => {
       { label: 'Marca', text: vehicle.brand },
       { label: 'Modelo', text: vehicle.model },
       { label: 'Año', text: vehicle.year },
-      { label: 'Tipo de unidad', text: vehicle.Unit_type },
-      { label: 'No. económico', text: vehicle.economic_number },
-      { label: 'No. de serie', text: vehicle.serial_number, fullWidth: true },
-      { label: 'No. de motor', text: vehicle.engine_number, fullWidth: true },
+      { label: 'No. de serie', text: vehicle.serial_number },
+      { label: 'No. de motor', text: vehicle.engine_number },
       { label: 'Póliza', text: vehicle.insurance_policy },
       {
         label: 'Vigencia póliza',
@@ -202,38 +196,64 @@ const buildVehiclePage = (vehicle: CompleteTransport): newDocument => {
           ? formatDate(vehicle.circulation_card_expiration)
           : '',
       },
-      { label: 'Tarjeta de combustible', text: vehicle.fuel_card },
-      { label: 'Copias de llave', text: String(vehicle.key_copy ?? '') },
-      { label: 'TAG / Telepeaje', text: vehicle.tag_pass },
     ],
   };
 
-  const pictures: ImageElement[] = [
-    vehicle.front_image && {
+  const pictures: ImageElement[] = [];
+
+  if (vehicle.front_image) {
+    pictures.push({
       title: 'Frontal',
       urlimage: vehicle.front_image,
-    },
-    vehicle.right_side_image && {
+      width: 180,
+      height: 110,
+    });
+  }
+
+  if (vehicle.right_side_image) {
+    pictures.push({
       title: 'Lateral derecho',
       urlimage: vehicle.right_side_image,
-    },
-    vehicle.left_side_image && {
+      width: 180,
+      height: 110,
+    });
+  }
+
+  if (vehicle.left_side_image) {
+    pictures.push({
       title: 'Lateral izquierdo',
       urlimage: vehicle.left_side_image,
-    },
-    vehicle.back_image && {
+      width: 180,
+      height: 110,
+    });
+  }
+
+  if (vehicle.back_image) {
+    pictures.push({
       title: 'Trasera',
       urlimage: vehicle.back_image,
-    },
-    vehicle.image_plates && {
+      width: 180,
+      height: 110,
+    });
+  }
+
+  if (vehicle.image_plates) {
+    pictures.push({
       title: 'Placas',
       urlimage: vehicle.image_plates,
-    },
-    vehicle.image_circulation_card && {
+      width: 180,
+      height: 110,
+    });
+  }
+
+  if (vehicle.image_circulation_card) {
+    pictures.push({
       title: 'Tarjeta de circulación',
       urlimage: vehicle.image_circulation_card,
-    },
-  ].filter((p): p is ImageElement => Boolean(p));
+      width: 180,
+      height: 110,
+    });
+  }
 
   const elements: newDocument['elements'] = [infoChart];
 
@@ -260,27 +280,83 @@ const buildVehiclePage = (vehicle: CompleteTransport): newDocument => {
 /**
  * Página de herramientas (solo se agrega si hay herramientas).
  */
-const buildToolsPage = (access: AccesRequirmentGet): newDocument => {
+
+const ACCESS_TOOLS_FULL_PAGE_ROWS = 17;
+const ACCESS_TOOLS_LAST_PAGE_ROWS = 14;
+
+interface AccessToolsSplit {
+  fullTables: Table[];
+  lastTable?: Table;
+}
+
+/**
+ * Divide las herramientas en páginas seguras:
+ * - fullTables: páginas llenas de tabla
+ * - lastTable: última página con pocas filas
+ */
+const splitToolsForAccess = (tools: Tools[]): AccessToolsSplit => {
+  if (!tools || tools.length === 0) {
+    return { fullTables: [], lastTable: undefined };
+  }
+
   const headers = ['Cantidad', 'Descripción', 'Marca', 'Modelo'];
 
-  const datatable: string[][] = (access.tools ?? []).map((tool: Tools) => [
-    tool.quantity,
-    tool.description,
-    tool.brand,
-    tool.model,
+  const rows: string[][] = tools.map((t) => [
+    t.quantity,
+    t.description,
+    t.brand,
+    t.model ?? 'N/A',
   ]);
 
-  const toolsTable: Table = {
-    title: 'Lista de herramientas',
-    headers,
-    datatable,
-  };
+  const fullTables: Table[] = [];
 
-  return {
-    title: 'Lista de Herramientas',
-    orientation: 'vertical',
-    elements: [toolsTable],
-  };
+  // Mientras haya demasiadas filas para caber en la última página
+  while (rows.length > ACCESS_TOOLS_LAST_PAGE_ROWS) {
+    const chunk = rows.splice(0, ACCESS_TOOLS_FULL_PAGE_ROWS);
+    fullTables.push({
+      title: 'Lista de herramientas',
+      headers,
+      datatable: chunk,
+    });
+  }
+
+  // Lo que queda es para la última página
+  const lastTable: Table | undefined =
+    rows.length > 0
+      ? {
+        title: 'Lista de herramientas',
+        headers,
+        datatable: rows,
+      }
+      : undefined;
+
+  return { fullTables, lastTable };
+};
+const buildToolsPages = (access: AccesRequirmentGet): newDocument[] => {
+  const tools = access.tools ?? [];
+  const { fullTables, lastTable } = splitToolsForAccess(tools);
+
+  const pages: newDocument[] = [];
+
+  // Páginas completas (solo tabla)
+  fullTables.forEach((tbl) => {
+    pages.push({
+      title: 'Lista de Herramientas',
+      orientation: 'vertical',
+      elements: [tbl],
+    });
+  });
+
+  // Última página
+  if (lastTable) {
+    pages.push({
+      title: 'Lista de Herramientas',
+      orientation: 'vertical',
+      elements: [lastTable],
+    });
+  }
+
+  return pages;
 };
 
 /**
@@ -311,7 +387,7 @@ export const buildAccessRequirementDocument = (
 
   // 5) Herramientas (solo si hay al menos una)
   if (access.tools && access.tools.length > 0) {
-    pages.push(buildToolsPage(access));
+    pages.push(...buildToolsPages(access));
   }
 
   return { pages };

@@ -97,7 +97,6 @@ export const useImageUploaderExpanded = ({
   }, [isVisible, isCameraOpen]);
 
   const openPreview = useCallback(() => {
-    console.log("Si se ejecuta esto");
     if (!previewUrl) return;
     showImage({
       src: previewUrl,

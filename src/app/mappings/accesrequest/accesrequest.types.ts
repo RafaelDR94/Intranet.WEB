@@ -7,7 +7,9 @@ export type Tools = {
     quantity: string,
     description: string,
     brand: string,
-    model: string
+    model: string,
+    materialtype: 'Ferretero' | 'Desechos Inorgánicos' | 'Líquidos' | 'Mercancías peligrosas' | 'A granel'
+    meditiontype: 'Metros' | 'Litros' | 'Toneladas' | 'Kilos' | 'Pieza'| 'Gramos'| 'Metros cúbicos'| 'Metros cuadrados'
 }
 export type AccesRequirmentGet = {
     id: string,
@@ -19,7 +21,7 @@ export type AccesRequirmentGet = {
     internalpersons: EmployeeType[],
     externalpersons: ExternalPersonModel[],
     tools: Tools[],
-    status: 'Creada' | 'Pendiente' | 'I Aprobada' | 'I Rechazada' | 'Enviada' | 'A rechazado' | 'A finalizado' | 'Cancelada'|'Incidencia',
+    status: 'Creada' | 'Pendiente' | 'I Aprobada' | 'I Rechazada' | 'Enviada' | 'A rechazado' | 'A finalizado' | 'Cancelada' | 'Incidencia',
     motive: string,
     dateCreate: string,
     createdBy: string,

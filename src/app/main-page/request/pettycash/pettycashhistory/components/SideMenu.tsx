@@ -57,10 +57,7 @@ const SideMenu = ({
   isDetailLoading,
 }: SideMenuProps) => {
   const submitRef = useRef<() => void | Promise<void>>(null);
-  const { user } = useAuth();
-
-  console.log('selected uno', selected);
-  
+  const { user } = useAuth();  
 
   const { amountRaw, amountNumeric } = useMemo<{
     amountRaw: string | number | undefined;

@@ -201,6 +201,7 @@ const useExternalAccesForm = () => {
 
         if (shouldSyncTools) {
             if (currentAcces.tools?.length) {
+    
                 setTools(currentAcces.tools);
             } else {
                 setTools([]);

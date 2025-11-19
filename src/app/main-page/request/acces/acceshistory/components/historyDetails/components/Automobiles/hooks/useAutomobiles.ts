@@ -127,6 +127,7 @@ const useAutomobiles = () => {
         { url: vehicle.right_side_image, name: "lado_derecho.jpg" },
         { url: vehicle.left_side_image, name: "lado_izquierdo.jpg" },
         { url: vehicle.back_image, name: "imagen_trasera.jpg" },
+        { url: vehicle.insurance_policy_doc, name: "poliza_seguro.pdf" },
       ];
 
       for (const file of files) {
