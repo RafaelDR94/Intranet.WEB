@@ -9,7 +9,7 @@ import useAutomobiles from "./hooks/useAutomobiles";
 import type { AutomobilesListItem } from "./hooks/useAutomobiles";
 
 const Automobiles = () => {
-  const { vehicles, loadingVehicles, downloadImagesZip, getCardsForVehicle } = useAutomobiles();
+  const { vehicles, downloadImagesZip, getCardsForVehicle } = useAutomobiles();
   const [selectedVehicle, setSelectedVehicle] = useState<AutomobilesListItem | null>(null);
 
   const handleToggleInfo = (vehicle: AutomobilesListItem) => {
