@@ -1,24 +1,87 @@
-import { useAccesRequirementStore } from "@/app/stores/useAccesRequirementStore/useAccesRequirementStore";
-import { useEffect, useMemo } from "react";
-import { shallow } from "zustand/shallow";
+import { useEffect, useMemo, useCallback } from "react";
 import JSZip from "jszip";
+import { shallow } from "zustand/shallow";
 
+import type { InfoItem } from "@/app/components/InfoCards/types";
+import { useAccesRequirementStore } from "@/app/stores/useAccesRequirementStore/useAccesRequirementStore";
 import type { CompleteTransport } from "@/app/mappings/transport/transport.types";
 
-type VehicleRow = {
-  id: string;
-  plates: string;
-  brand: string;
-  model: string;
-  Unit_type: string;
+export type AutomobilesListItem = CompleteTransport & { id: string; name: string };
+
+const buildVehicleName = (vehicle: CompleteTransport) => {
+  const brandModel = [vehicle.brand, vehicle.model].filter(Boolean).join(" ").trim();
+  if (brandModel && vehicle.plates) {
+    return `${brandModel} · ${vehicle.plates}`;
+  }
+
+  return brandModel || vehicle.plates || "Vehículo sin datos";
 };
 
-const mapVehicleRow = (vehicle: CompleteTransport, index: number): VehicleRow => ({
+const buildVehicleCards = (vehicle: CompleteTransport): InfoItem[][] => [
+  [
+    {
+      label: "Placa",
+      value: vehicle?.plates,
+    },
+    {
+      label: "Póliza",
+      value: vehicle?.insurance_policy,
+    },
+  ],
+  [
+    {
+      label: "Marca",
+      value: vehicle?.brand,
+    },
+    {
+      label: "Modelo",
+      value: vehicle?.model,
+    },
+  ],
+  [
+    {
+      label: "Tipo de Unidad",
+      value: vehicle?.Unit_type,
+    },
+    {
+      label: "Año",
+      value: vehicle?.year,
+    },
+  ],
+  [
+    {
+      label: "Vigencia de Póliza",
+      value: vehicle?.policy_expiration,
+    },
+  ],
+  [
+    {
+      label: "Tarjeta de circulación",
+      value: vehicle?.circulation_card,
+    },
+  ],
+  [
+    {
+      label: "Vigencia tarjeta",
+      value: vehicle?.circulation_card_expiration,
+    },
+  ],
+  [
+    {
+      label: "No. de Serie",
+      value: vehicle?.serial_number,
+    },
+    {
+      label: "No. de Motor",
+      value: vehicle?.engine_number,
+    },
+  ],
+];
+
+const mapVehicleRow = (vehicle: CompleteTransport, index: number): AutomobilesListItem => ({
+  ...vehicle,
   id: vehicle.transport_id || String(index),
-  plates: vehicle.plates,
-  brand: vehicle.brand,
-  model: vehicle.model,
-  Unit_type: vehicle.Unit_type,
+  name: buildVehicleName(vehicle),
 });
 
 const useAutomobiles = () => {
@@ -43,99 +106,55 @@ const useAutomobiles = () => {
     [current?.vehicles],
   );
 
-  const cards = useMemo(() => {
-    const r = current?.vehicles[0];
+  const getCardsForVehicle = useCallback(
+    (vehicle?: AutomobilesListItem | null) => {
+      if (!vehicle) return [];
+      return buildVehicleCards(vehicle);
+    },
+    [],
+  );
 
-    if (!r) return [] as { label: string; value?: React.ReactNode }[][];
+  const downloadImagesZip = useCallback(
+    async (vehicle?: AutomobilesListItem) => {
+      if (!vehicle) return;
 
-    const newcards = [
-      [
-        {
-          label: "Placa",
-          value: r?.plates,
-        },
-        {
-          label: "Póliza",
-          value: r?.insurance_policy,
-        },
-      ],
-      [
-        {
-          label: "Marca",
-          value: r?.brand,
-        },
-        {
-          label: "Modelo",
-          value: r?.model,
-        },
-      ],
-      [
-        {
-          label: "Vigencia de Póliza",
-          value: r?.policy_expiration
-        }
-      ],
-      [
-        {
-          label: "Tarjeta de circulación",
-          value: r?.circulation_card
-        }
-      ],
-      [
-        {
-          label: "Vigencia",
-          value: r?.circulation_card_expiration
-        }
-      ],
-      [
-        {
-          label: "No. de Serie",
-          value: r?.serial_number
-        }
-      ],
-      [
-        {
-          label: "No. de Motor",
-          value: r?.engine_number
-        }
-      ]
-    ];
-    return newcards;
-  }, [current]);
+      const zip = new JSZip();
 
-  const downloadImagesZip = async (item: any) => {
-    const zip = new JSZip();
+      const files = [
+        { url: vehicle.image_plates, name: "placa.jpg" },
+        { url: vehicle.image_circulation_card, name: "tarjeta_circulacion.jpg" },
+        { url: vehicle.front_image, name: "imagen_frontal.jpg" },
+        { url: vehicle.right_side_image, name: "lado_derecho.jpg" },
+        { url: vehicle.left_side_image, name: "lado_izquierdo.jpg" },
+        { url: vehicle.back_image, name: "imagen_trasera.jpg" },
+      ];
 
-    const files = [
-      { url: item.image_plates, name: "placa.jpg" },
-      { url: item.image_circulation_card, name: "tarjeta_circulacion.jpg" },
-      { url: item.front_image, name: "imagen_frontal.jpg" },
-      { url: item.right_side_image, name: "lado_derecho.jpg" },
-      { url: item.left_side_image, name: "lado_izquierdo.jpg" },
-      { url: item.back_image, name: "imagen_trasera.jpg" },
-    ];
+      for (const file of files) {
+        if (!file.url) continue;
 
-    for (const file of files) {
-      if (!file.url) continue;
+        const response = await fetch(file.url);
+        const blob = await response.blob();
+        zip.file(file.name, blob);
+      }
 
-      const response = await fetch(file.url);
-      const blob = await response.blob();
-      zip.file(file.name, blob);
-    }
+      const zipBlob = await zip.generateAsync({ type: "blob" });
 
-    const zipBlob = await zip.generateAsync({ type: "blob" });
-
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(zipBlob);
-    a.download = `${current?.dr_responsiblename}_Acceso.zip`;
-    a.click();
-  };
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(zipBlob);
+      const identifier =
+        [vehicle.brand, vehicle.model, vehicle.plates].filter(Boolean).join("_") ||
+        current?.dr_responsiblename ||
+        "vehiculo";
+      a.download = `${identifier}_Acceso.zip`;
+      a.click();
+    },
+    [current?.dr_responsiblename],
+  );
 
   return {
     vehicles,
     loadingVehicles,
-    cards,
-    current,
+    getCardsForVehicle,
     downloadImagesZip,
   };
 };

@@ -1,8 +1,57 @@
-import { useAccesRequirementStore } from "@/app/stores/useAccesRequirementStore/useAccesRequirementStore";
+import { useMemo, useCallback } from "react";
+import JSZip from "jszip";
 import { shallow } from "zustand/shallow";
 
+import { useAccesRequirementStore } from "@/app/stores/useAccesRequirementStore/useAccesRequirementStore";
+import type { InfoItem } from "@/app/components/InfoCards/types";
+import type { EmployeeType } from "@/app/mappings/employees/employee.types";
+import type { ExternalPersonModel } from "@/app/mappings/externalperson/externalperson.types";
 
-import JSZip from "jszip";
+export type PersonalListItem =
+  | (ExternalPersonModel & { personType: "external" })
+  | (EmployeeType & { personType: "internal"; name: string });
+
+const buildExternalCards = (external: ExternalPersonModel): InfoItem[][] => [
+  [
+    { label: "Nombre", value: external?.name },
+    { label: "Apellido Paterno", value: external?.lastname },
+    { label: "Apellido Materno", value: external?.motherslastname },
+  ],
+  [
+    { label: "CURP", value: external?.curp },
+    { label: "Número de Seguridad Social", value: external?.nss },
+  ],
+  [
+    { label: "Clave de Elector", value: external?.electorkey },
+    { label: "Vigencia de Credencial", value: external?.electorvigence },
+  ],
+  [{ label: "Número de Licencia", value: external?.license_number }],
+  [{ label: "Vigencia de Licencia", value: external?.vigence }],
+  [{ label: "Telefono", value: external?.phone_number }],
+  [{ label: "Correo Electrónico", value: external?.email }],
+];
+
+const buildInternalCards = (internal: EmployeeType): InfoItem[][] => [
+  [
+    { label: "Primer Nombre", value: internal?.firstname },
+    { label: "Segundo Nombre", value: internal?.secondname },
+    { label: "Apellido Paterno", value: internal?.lastname },
+  ],
+  [
+    { label: "Apellido Materno", value: internal?.motherlast_name ?? "—" },
+    { label: "Número de Empleado", value: internal?.employee_number },
+    { label: "Género", value: internal?.gender },
+  ],
+  [
+    { label: "Correo Electrónico", value: internal?.email },
+    { label: "Telefono", value: internal?.phone_number },
+    { label: "Extensión", value: internal?.extension },
+  ],
+  [
+    { label: "Departamento", value: internal?.department?.name },
+    { label: "Puesto", value: internal?.workposition?.name },
+  ],
+];
 
 const usePersonal = () => {
   const { current } = useAccesRequirementStore(
@@ -15,8 +64,7 @@ const usePersonal = () => {
   const externalPersons = current?.externalpersons ?? [];
   const internalPersons = current?.internalpersons ?? [];
 
-
-  const downloadImagesZip = async (item: any) => {
+  const downloadImagesZip = async (item: ExternalPersonModel) => {
     const zip = new JSZip();
 
     const files = [
@@ -42,12 +90,42 @@ const usePersonal = () => {
     a.click();
   };
 
+  const normalizedInternalPersons = useMemo(
+    () =>
+      internalPersons.map((person) => ({
+        ...person,
+        name:
+          person.fullname ||
+          [person.firstname, person.secondname, person.lastname]
+            .filter(Boolean)
+            .join(" "),
+        personType: "internal" as const,
+      })),
+    [internalPersons],
+  );
+
+  const normalizedExternalPersons = useMemo(
+    () =>
+      externalPersons.map((person) => ({
+        ...person,
+        personType: "external" as const,
+      })),
+    [externalPersons],
+  );
+
+  const getCardsForPerson = useCallback((person?: PersonalListItem | null) => {
+    if (!person) return [];
+    return person.personType === "external"
+      ? buildExternalCards(person)
+      : buildInternalCards(person);
+  }, []);
 
   return {
     current,
-    externalPersons,
-    internalPersons,
-    downloadImagesZip
+    externalPersons: normalizedExternalPersons,
+    internalPersons: normalizedInternalPersons,
+    getCardsForPerson,
+    downloadImagesZip,
   };
 };
 
