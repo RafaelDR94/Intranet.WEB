@@ -1,54 +1,71 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ImagesIcon from "@/assets/icons/Fotos y Videos/media-image-list.svg";
 import ArrowDownIcon from "@/assets/icons/navegacion/nav-arrow-down.svg";
 import usePersonal from "./hooks/usePersonal";
 import ListContent from "../../../../../../../../components/ListContent/ListContent";
 import { Button } from "@/app/components/Button/Button";
 import InfoCards from "@/app/components/InfoCards/InfoCards";
+import type { PersonalListItem } from "./hooks/usePersonal";
 
 const Personal = () => {
-  const { internalPersons, externalPersons, downloadImagesZip, cards } =
+  const { internalPersons, externalPersons, downloadImagesZip, getCardsForPerson } =
     usePersonal();
 
   // Estado para mostrar/ocultar InfoCards
   const [showInfo, setShowInfo] = useState(false);
+  const [selectedPerson, setSelectedPerson] = useState<PersonalListItem | null>(null);
 
-  const toggleInfo = () => {
-    setShowInfo((prev) => !prev);
+  const handleToggleInfo = (person: PersonalListItem) => {
+    setSelectedPerson((prevSelected) => {
+      setShowInfo((prevShow) => {
+        const isSamePerson =
+          prevSelected?.id === person.id &&
+          prevSelected?.personType === person.personType;
+        return isSamePerson ? !prevShow : true;
+      });
+      return person;
+    });
   };
+
+  const cards = useMemo(
+    () => (selectedPerson ? getCardsForPerson(selectedPerson) : []),
+    [getCardsForPerson, selectedPerson],
+  );
 
   return (
     <>
       <ListContent
         dataTable={internalPersons}
         dataTableSecondary={externalPersons}
-        renderAction={(item) => (
+        renderAction={(item: PersonalListItem) => (
           <>
             <Button
               hideIcon
               variant="ghost"
               size="small"
               className="rounded-xl"
-              onClick={toggleInfo}
+              onClick={() => handleToggleInfo(item)}
             >
               <ArrowDownIcon />
             </Button>
 
-            <Button
-              hideIcon
-              variant="ghost"
-              size="small"
-              className="rounded-xl"
-              onClick={() => downloadImagesZip(item)}
-            >
-              <ImagesIcon />
-            </Button>
+            {item.personType === "external" && (
+              <Button
+                hideIcon
+                variant="ghost"
+                size="small"
+                className="rounded-xl"
+                onClick={() => downloadImagesZip(item)}
+              >
+                <ImagesIcon />
+              </Button>
+            )}
           </>
         )}
       />
 
       <div className="mt-3">
-        {showInfo && (
+        {showInfo && cards.length > 0 && (
           <InfoCards
             cards={cards}
             responsiveLayoutMatrix={{
