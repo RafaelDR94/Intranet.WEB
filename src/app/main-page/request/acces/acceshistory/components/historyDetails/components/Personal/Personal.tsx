@@ -32,50 +32,60 @@ const Personal = () => {
     [getCardsForPerson, selectedPerson],
   );
 
+  const renderInfoCards = (item: PersonalListItem) => {
+    const isSelected =
+      showInfo &&
+      selectedPerson?.id === item.id &&
+      selectedPerson?.personType === item.personType;
+
+    if (!isSelected || cards.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="mt-2">
+        <InfoCards
+          cards={cards}
+          responsiveLayoutMatrix={{
+            sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10], [10]],
+            md: [[5, 5], [10], [5, 5], [10], [10]],
+          }}
+        />
+      </div>
+    );
+  };
+
   return (
-    <>
-      <ListContent
-        dataTable={internalPersons}
-        dataTableSecondary={externalPersons}
-        renderAction={(item: PersonalListItem) => (
-          <>
+    <ListContent
+      dataTable={internalPersons}
+      dataTableSecondary={externalPersons}
+      renderAction={(item: PersonalListItem) => (
+        <>
+          <Button
+            hideIcon
+            variant="ghost"
+            size="small"
+            className="rounded-xl"
+            onClick={() => handleToggleInfo(item)}
+          >
+            <ArrowDownIcon />
+          </Button>
+
+          {item.personType === "external" && (
             <Button
               hideIcon
               variant="ghost"
               size="small"
               className="rounded-xl"
-              onClick={() => handleToggleInfo(item)}
+              onClick={() => downloadImagesZip(item)}
             >
-              <ArrowDownIcon />
+              <ImagesIcon />
             </Button>
-
-            {item.personType === "external" && (
-              <Button
-                hideIcon
-                variant="ghost"
-                size="small"
-                className="rounded-xl"
-                onClick={() => downloadImagesZip(item)}
-              >
-                <ImagesIcon />
-              </Button>
-            )}
-          </>
-        )}
-      />
-
-      <div className="mt-3">
-        {showInfo && cards.length > 0 && (
-          <InfoCards
-            cards={cards}
-            responsiveLayoutMatrix={{
-              sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10], [10]],
-              md: [[5, 5], [10], [5, 5], [10], [10]],
-            }}
-          />
-        )}
-      </div>
-    </>
+          )}
+        </>
+      )}
+      renderDetails={renderInfoCards}
+    />
   );
 };
 
