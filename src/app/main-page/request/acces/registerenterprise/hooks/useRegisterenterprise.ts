@@ -21,7 +21,15 @@ const useRegisterEnterprise = () => {
         type: "input",
         value: "",
         name: "name",
-        label: "Nombre de la empresa"
+        label: "Nombre de la empresa",
+        validations: [{ type: "required" }]
+    },
+    {
+        type: "input",
+        value: "",
+        name: "rfc",
+        label: "RFC",
+        validations: [{ type: "required" }]
     },
     {
         type: "checkbox",
@@ -33,7 +41,8 @@ const useRegisterEnterprise = () => {
     const handleSubmit = (values: Record<string, any>) => {
         console.log("Si llega aqui",values);
         const Payload = {
-            newEnterprise: values.name
+            newEnterprise: values.name,
+            rfc: values.rfc,
         }
         if (values.external) {
             createExternal(Payload)
