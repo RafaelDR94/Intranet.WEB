@@ -11,19 +11,14 @@ const Personal = () => {
   const { internalPersons, externalPersons, downloadImagesZip, getCardsForPerson } =
     usePersonal();
 
-  // Estado para mostrar/ocultar InfoCards
-  const [showInfo, setShowInfo] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState<PersonalListItem | null>(null);
 
   const handleToggleInfo = (person: PersonalListItem) => {
     setSelectedPerson((prevSelected) => {
-      setShowInfo((prevShow) => {
-        const isSamePerson =
-          prevSelected?.id === person.id &&
-          prevSelected?.personType === person.personType;
-        return isSamePerson ? !prevShow : true;
-      });
-      return person;
+      const isSamePerson =
+        prevSelected?.id === person.id && prevSelected?.personType === person.personType;
+
+      return isSamePerson ? null : person;
     });
   };
 
@@ -34,9 +29,7 @@ const Personal = () => {
 
   const renderInfoCards = (item: PersonalListItem) => {
     const isSelected =
-      showInfo &&
-      selectedPerson?.id === item.id &&
-      selectedPerson?.personType === item.personType;
+      selectedPerson?.id === item.id && selectedPerson?.personType === item.personType;
 
     if (!isSelected || cards.length === 0) {
       return null;
