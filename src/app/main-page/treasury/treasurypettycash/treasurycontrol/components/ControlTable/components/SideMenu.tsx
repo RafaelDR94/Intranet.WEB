@@ -109,8 +109,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   amountHistory = [],
   isHistoryLoading = false,
 }) => {
-  console.log("Rendering SideMenu with detail ", detail);
-
   const [voucherRejectModalOpen, setVoucherRejectModalOpen] =
     React.useState(false);
   const [rejectTarget, setRejectTarget] = React.useState<

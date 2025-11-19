@@ -19,14 +19,15 @@ const AddVehiclesForm: React.FC<AddVehicleFormProps> = ({
   return (
     <DynamicForm
       responsiveLayoutMatrix={{
-        sm: [[10], [10], [10], [10], [10], [10], [10], [10]],
-        md: [[10], [10], [10], [10], [10], [10], [10], [10]],
+        sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10]],
+        md: [[10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10]],
         lg: [
-          [2.5, 2.5, 2.5, 2.5],
           [3.3, 3.3, 3.3],
+          [2.5, 2.5, 2.5, 2.5],
           [3.3, 3.3, 3.3],
           [3.3, 3.3],
           [3.3, 3.3, 3.3],
+          [3.3, 3.3],
         ],
       }}
       onSubmit={handleSubmit}
@@ -35,7 +36,7 @@ const AddVehiclesForm: React.FC<AddVehicleFormProps> = ({
       showSecondaryButtonIf={() => !!onCancel}
       secondaryButtonLabel="Cancelar"
       showSubmitIf={() => !!canUpdateForm}
-      onSecondaryButtonClick={onCancel ?? (() => {})}
+      onSecondaryButtonClick={onCancel ?? (() => { })}
       disabled={!canUpdateForm}
     />
   );

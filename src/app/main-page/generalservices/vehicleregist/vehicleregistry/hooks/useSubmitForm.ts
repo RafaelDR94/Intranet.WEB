@@ -66,7 +66,6 @@ const useSubmitForm = () => {
 
     } finally {
       // Garantiza que se cierre el spinner pase lo que pase (éxito o error).
-      console.log("Se queda aqui");
       hideSpinner();
     }
   };

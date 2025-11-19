@@ -70,6 +70,7 @@ const useAddVehiclesForm = ({
           accept: ".jpg,.jpeg,.png",
           preview: true,
           validations: [{ type: "required" }],
+
         },
         {
           type: "imageUploaderExpanded",
@@ -88,6 +89,21 @@ const useAddVehiclesForm = ({
           onChange: handleUploadCiruculationCard,
         },
         {
+          type: "file",
+          name: "insurance_policy_doc",
+          label: "Póliza de seguro",
+          value: null,
+          initialFile: currentTransport?.insurance_policy_doc
+            ? {
+              name: "insurance_policy_doc",
+              url: currentTransport.insurance_policy_doc,
+            }
+            : undefined,
+          accept: ".pdf",
+          preview: true,
+          validations: [{ type: "required" }],
+        },
+        {
           type: "imageUploaderExpanded",
           name: "front_image",
           label: "Imagen frontal del automóvil",
@@ -97,6 +113,7 @@ const useAddVehiclesForm = ({
             : undefined,
           accept: ".jpg,.jpeg,.png",
           preview: true,
+          validations: [{ type: "required" }],
         },
         {
           type: "imageUploaderExpanded",
@@ -111,6 +128,7 @@ const useAddVehiclesForm = ({
             : undefined,
           accept: ".jpg,.jpeg,.png",
           preview: true,
+          validations: [{ type: "required" }],
         },
         {
           type: "imageUploaderExpanded",
@@ -125,6 +143,7 @@ const useAddVehiclesForm = ({
             : undefined,
           accept: ".jpg,.jpeg,.png",
           preview: true,
+          validations: [{ type: "required" }],
         },
         {
           type: "imageUploaderExpanded",
@@ -136,21 +155,9 @@ const useAddVehiclesForm = ({
             : undefined,
           accept: ".jpg,.jpeg,.png",
           preview: true,
+          validations: [{ type: "required" }],
         },
-        {
-          type: "imageUploaderExpanded",
-          name: "insurance_policy_doc",
-          label: "Póliza de seguro",
-          value: null,
-          initialFile: currentTransport?.insurance_policy_doc
-            ? {
-              name: "insurance_policy_doc.jpg",
-              url: currentTransport.insurance_policy_doc,
-            }
-            : undefined,
-          accept: ".jpg,.jpeg,.png,.pdf",
-          preview: true,
-        },
+
         // Datos principales
         {
           type: "input",
@@ -185,61 +192,44 @@ const useAddVehiclesForm = ({
           name: "engine_number",
           label: "No. de motor",
           value: currentTransport?.engine_number ?? "",
+          validations: [{ type: "required" }],
         },
         {
           type: "input",
           name: "serial_number",
           label: "No. de serie",
           value: currentTransport?.serial_number ?? "",
+          validations: [{ type: "required" }],
         },
         {
           type: "input",
           name: "circulation_card",
           label: "Tarjeta de circulación",
           value: currentTransport?.circulation_card ?? "",
+          validations: [{ type: "required" }],
         },
         {
           type: "input",
           name: "circulation_card_expiration",
           label: "Vencimiento tarjeta de circulación",
           value: currentTransport?.circulation_card_expiration ?? "",
+          validations: [{ type: "required" }],
         },
         {
           type: "input",
           name: "insurance_policy",
           label: "Póliza",
           value: currentTransport?.insurance_policy ?? "",
+          validations: [{ type: "required" }],
         },
         {
           type: "input",
           name: "policy_expiration",
           label: "Vigencia póliza",
           value: currentTransport?.policy_expiration ?? "",
+          validations: [{ type: "required" }],
         },
-        {
-          type: "input",
-          name: "economic_number",
-          label: "No. económico",
-          value: currentTransport?.economic_number ?? "",
-        },
-        {
-          type: "input",
-          name: "fuel_card",
-          label: "Tarjeta de combustible",
-          value: currentTransport?.fuel_card ?? "",
-        },
-        {
-          type: "input",
-          name: "tag_pass",
-          label: "TAG / PASE",
-          value: currentTransport?.tag_pass ?? "",
-        },
-        {
-          type: "number",
-          name: "key_copy",
-          label: "Copias de llave",
-          value: currentTransport?.key_copy ?? 0,
-        },
+
       ];
 
       return model;
@@ -356,6 +346,37 @@ const useAddVehiclesForm = ({
     })();
   };
 
+  // Dentro de tu hook/componente, arriba de handleSubmit
+
+  const uploadOrKeepUrl = async (
+    fileOrUrl: any,
+    path: string,
+    previousUrl?: string,
+    type?: string
+  ): Promise<string> => {
+    // Si no hay valor, regresa la URL previa o vacío
+    if (!fileOrUrl) return previousUrl ?? "";
+
+    // Si ya es URL https, la dejamos tal cual
+    if (typeof fileOrUrl === "string" && fileOrUrl.startsWith("http")) {
+      return fileOrUrl;
+    }
+
+    // Si es File / Blob u otro tipo soportado, subimos
+    try {
+
+      const url = type == "File" ? await firebasestorage.uploadFile(fileOrUrl, path) : await firebasestorage.uploadImage(fileOrUrl, path)
+      if (!url) {
+        throw new Error("El servicio de almacenamiento no devolvió una URL.");
+      }
+      return url;
+    } catch (err) {
+      console.error(`[vehicle] Error subiendo imagen ${path}`, err);
+      throw new Error(`Error al subir la imagen (${path}).`);
+    }
+  };
+
+
   const handleSubmit = async (values: Record<string, any>) => {
     try {
       const enterpriseId = currentEnterpriseId;
@@ -375,54 +396,60 @@ const useAddVehiclesForm = ({
 
       const basePath = `Vehicles/${values.plates || "sin-placa"}`;
 
-      const image_plates_url = values.image_plates
-        ? await firebasestorage.uploadFile(
+      const [
+        image_plates_url,
+        image_circulation_card_url,
+        front_image_url,
+        back_image_url,
+        right_side_image_url,
+        left_side_image_url,
+        insurance_policy_doc_url,
+      ] = await Promise.all([
+        uploadOrKeepUrl(
           values.image_plates,
-          `${basePath}/image_plates`
-        )
-        : "";
-
-      const image_circulation_card_url = values.image_circulation_card
-        ? await firebasestorage.uploadFile(
+          `${basePath}/image_plates`,
+          currentTransport?.image_plates,
+          "Image"
+        ),
+        uploadOrKeepUrl(
           values.image_circulation_card,
-          `${basePath}/image_circulation_card`
-        )
-        : "";
-
-      const front_image_url = values.front_image
-        ? await firebasestorage.uploadFile(
+          `${basePath}/image_circulation_card`,
+          currentTransport?.image_circulation_card,
+          "Image"
+        ),
+        uploadOrKeepUrl(
           values.front_image,
-          `${basePath}/front_image`
-        )
-        : "";
-
-      const back_image_url = values.back_image
-        ? await firebasestorage.uploadFile(
+          `${basePath}/front_image`,
+          currentTransport?.front_image,
+          "Image"
+        ),
+        uploadOrKeepUrl(
           values.back_image,
-          `${basePath}/back_image`
-        )
-        : "";
-
-      const right_side_image_url = values.right_side_image
-        ? await firebasestorage.uploadFile(
+          `${basePath}/back_image`,
+          currentTransport?.back_image,
+          "Image"
+        ),
+        uploadOrKeepUrl(
           values.right_side_image,
-          `${basePath}/right_side_image`
-        )
-        : "";
-
-      const left_side_image_url = values.left_side_image
-        ? await firebasestorage.uploadFile(
+          `${basePath}/right_side_image`,
+          currentTransport?.right_side_image,
+          "Image"
+        ),
+        uploadOrKeepUrl(
           values.left_side_image,
-          `${basePath}/left_side_image`
-        )
-        : "";
-
-      const insurance_policy_doc_url = values.insurance_policy_doc
-        ? await firebasestorage.uploadFile(
+          `${basePath}/left_side_image`,
+          currentTransport?.left_side_image,
+          "Image"
+        ),
+        uploadOrKeepUrl(
           values.insurance_policy_doc,
-          `${basePath}/insurance_policy_doc`
-        )
-        : "";
+          `${basePath}/insurance_policy_doc`,
+          currentTransport?.insurance_policy_doc,
+          "File"
+        ),
+      ]);
+
+
 
       // UPDATE vs CREATE (igual que useAddExternalPersonForm)
       if (currentTransport?.transport_id) {
@@ -471,9 +498,7 @@ const useAddVehiclesForm = ({
         };
 
         const updated = await updateTransport(updatePayload);
-        console.log("updated", updated);
         if (updated) {
-
           // reflejar cambios en el AccessRequestStore
           updateVehicle(updated.transport_id, updated);
 

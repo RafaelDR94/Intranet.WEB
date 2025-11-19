@@ -22,10 +22,12 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
         updateperson: s.updateExternalPerson
     }), shallow);
     const hasInitFields = useRef(false);
-    const { updateExternalPerson, createExternalPerson, creating, error, succesCreate, resetFlags } = useExternalPersonsStore((s) => ({
+    const { updateExternalPerson, createExternalPerson, creating, updating, succesUpdate, error, succesCreate, resetFlags } = useExternalPersonsStore((s) => ({
         createExternalPerson: s.createExternalPerson,
         updateExternalPerson: s.updateExternalPerson,
         creating: s.creating,
+        updating: s.updating,
+        succesUpdate: s.successPut,
         error: s.error,
         succesCreate: s.successPost,
         resetFlags: s.resetFlags,
@@ -192,17 +194,6 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                     // validations: [{ type: "required" }],
                 },
 
-                // {
-                //     type: "file",
-                //     name: "circulation_card",
-                //     label: "TARJETA DE CIRCULACIÓN",
-                //     initialFile: { name: "Tarjeta de circulación", url: "" },
-                //     value: { name: "Tarjeta de circulación", url: "" },
-                //     accept: ".jpg,.png",
-                //     validations: [{ type: "required" }],
-                //     showIf: () => false,
-                //     onChange: handleUploadCiruculationCard
-                // }
             ]
             return (model);
         }
@@ -406,50 +397,34 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
         })();
     }
 
-    // const handleUploadCiruculationCard: NonNullable<FieldModel["onChange"]> = (value) => {
-    //     if (!(value instanceof File)) {
-    //         showAlert({
-    //             type: "warning",
-    //             title: "Archivo no soportado",
-    //             description: "Selecciona una imagen válida en formato JPG o PNG.",
-    //             showPrimaryButton: false,
-    //             showSecondaryButton: false,
-    //             autoCloseMs: 1000,
-    //         });
-    //         return;
-    //     }
-    //     void (async () => {
-    //         showSpinner({ message: "Procesando INE..." });
-    //         try {
-    //             const { rawResponse, text } = await askForOCR(value);
-    //             console.log("[external-access] OCR raw response", rawResponse);
-    //             console.log("[external-access] OCR extracted text", text);
+    const uploadOrKeepUrl = async (
+        fileOrUrl: any,
+        path: string,
+        previousUrl?: string
+    ): Promise<string> => {
+        // Si no hay valor, regresa la URL previa o vacío
+        if (!fileOrUrl) return previousUrl ?? "";
 
-    //             if (!text) {
-    //                 throw new Error("El servicio OCR no devolvió texto legible.");
-    //             }
+        // Si ya es URL https, la dejamos tal cual
+        if (typeof fileOrUrl === "string" && fileOrUrl.startsWith("http")) {
+            return fileOrUrl;
+        }
 
-    //             const parsed = parseCirculationCard(text);
-    //             console.log("[external-access] INE parsed data", parsed);
-    //         } catch (error) {
-    //             console.error("[external-access] Error procesando INE", error);
-    //             const description =
-    //                 error instanceof Error
-    //                     ? error.message
-    //                     : "No se pudo completar el análisis. Intenta nuevamente.";
-    //             showAlert({
-    //                 type: "error",
-    //                 title: "Error al procesar la INE",
-    //                 description,
-    //                 showPrimaryButton: false,
-    //                 showSecondaryButton: false,
-    //                 autoCloseMs: 4000,
-    //             });
-    //         } finally {
-    //             hideSpinner();
-    //         }
-    //     })();
-    // }
+        // Si es File / Blob u otro tipo soportado, subimos
+        try {
+            const url = await firebasestorage.uploadImage(fileOrUrl, path);
+            if (!url) {
+                throw new Error("El servicio de almacenamiento no devolvió una URL.");
+            }
+            return url;
+        } catch (err) {
+            console.error(`[vehicle] Error subiendo imagen ${path}`, err);
+            throw new Error(`Error al subir la imagen (${path}).`);
+        }
+    };
+
+
+
     const handleSubmit = async (values: Record<string, any>) => {
         try {
             // Empresa obligatoria para asociar el registro
@@ -466,60 +441,37 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                 return;
             }
             showSpinner({ message: "Cargando imagenes al sistema" });
-            const frontal_ine_url = await firebasestorage.uploadFile(values?.fronta_ine, "ExternalPerson/" + values?.electorvigence + "/frontal_ine_url");
-            const back_ine_url = await firebasestorage.uploadFile(values?.back_ine, "ExternalPerson/" + values?.electorvigence + "/back_ine_url");
-            const picture_url = await firebasestorage.uploadFile(values?.pictureURL, "ExternalPerson/" + values?.electorvigence + "/picture_url");
 
-            let license_url = ""
-            if (values?.licence) license_url = await firebasestorage.uploadFile(values?.licence, "ExternalPerson/" + values?.electorvigence + "/license_url");
-            if (!frontal_ine_url.includes("http") && values?.fronta_ine) {
-                showAlert({
-                    type: "error",
-                    title: "No se pudo subir el INE Frontal",
-                    description: "Revise su conexión de internet y vuelva a intentarlo",
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 1000,
-                });
-                hideSpinner();
-                return;
-            }
-            if (!back_ine_url.includes("http") && values?.back_ine) {
-                showAlert({
-                    type: "error",
-                    title: "No se pudo subir el INE Trasera",
-                    description: "Revise su conexión de internet y vuelva a intentarlo",
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 1000,
-                });
-                hideSpinner();
-                return;
-            }
-            if (!picture_url.includes("http") && values?.pictureURL) {
-                showAlert({
-                    type: "error",
-                    title: "No se pudo la foto de perfil",
-                    description: "Revise su conexión de internet y vuelva a intentarlo",
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 1000,
-                });
-                hideSpinner();
-                return;
-            }
-            if (!license_url.includes("http") && values?.licence) {
-                showAlert({
-                    type: "error",
-                    title: "No se pudo subir la licencia",
-                    description: "Revise su conexión de internet y vuelva a intentarlo",
-                    showPrimaryButton: false,
-                    showSecondaryButton: false,
-                    autoCloseMs: 1000,
-                });
-                hideSpinner();
-                return;
-            }
+            const basePath = `ExternalPersons/${values.curp || values.electorkey || currentexternalperson?.id || "sin-id"}`;
+
+            // 1️⃣ Subir TODAS las imágenes en paralelo
+            const [
+                pictureURL,
+                frontal_ine_url,
+                back_ine_url,
+                license_url,
+            ] = await Promise.all([
+                uploadOrKeepUrl(
+                    values.pictureURL,
+                    `${basePath}/picture`,
+                    currentexternalperson?.pictureURL
+                ),
+                uploadOrKeepUrl(
+                    values.frontal_ine_url,
+                    `${basePath}/frontal_ine`,
+                    currentexternalperson?.frontal_ine_url
+                ),
+                uploadOrKeepUrl(
+                    values.back_ine_url,
+                    `${basePath}/back_ine`,
+                    currentexternalperson?.back_ine_url
+                ),
+                uploadOrKeepUrl(
+                    values.license_url,
+                    `${basePath}/license`,
+                    currentexternalperson?.license_url
+                ),
+            ]);
 
             const payload: ExternalPersonPost = {
                 id_enterprise: String(enterpriseId),
@@ -529,7 +481,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                 frontal_ine_url,
                 back_ine_url,
                 license_url,
-                pictureURL: picture_url,
+                pictureURL,
                 name: values?.name ?? "",
                 lastname: values?.lastname ?? "",
                 motherslastname: values?.motherslastname ?? "",
@@ -587,6 +539,10 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             showSpinner({ message: "Registrando persona" });
             return;
         }
+        if (updating) {
+            showSpinner({ message: "Actualizando persona" });
+            return;
+        }
         hideSpinner();
 
         if (error) {
@@ -605,15 +561,29 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             showAlert({
                 type: "success",
                 title: "Registro exitoso",
-                description: "Se registró el acceso del empleado externo.",
+                description: "Se registró la información de la persona.",
                 showPrimaryButton: false,
                 showSecondaryButton: false,
                 autoCloseMs: 1400,
             });
         }
 
+
+        if (succesUpdate) {
+
+            showAlert({
+                type: "success",
+                title: "Actualización exitosa",
+                description: "Se actualizó la información de la persona.",
+                showPrimaryButton: false,
+                showSecondaryButton: false,
+                autoCloseMs: 1400,
+            });
+        }
+
+
         resetFlags();
-    }, [creating, error, succesCreate, showSpinner, hideSpinner, showAlert, resetFlags])
+    }, [creating, error, succesCreate, updating, succesUpdate, updating, showSpinner, hideSpinner, showAlert, resetFlags])
 
     return ({
         fields: fieldsByFormId[formId] ?? [],

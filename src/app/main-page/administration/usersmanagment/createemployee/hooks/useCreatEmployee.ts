@@ -163,7 +163,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
           (enterprise) => enterprise.enterprise_id == idEnterprise,
         ) || [];
       const departments = enterpriseSelected[0].departments;
-      console.log('departments', departments);
+ 
      
       updateField(formId, "departments", {
         options: departments.map((deparments) => ({

@@ -39,7 +39,6 @@ const useRegisterEnterprise = () => {
     }
     ]
     const handleSubmit = (values: Record<string, any>) => {
-        console.log("Si llega aqui",values);
         const Payload = {
             newEnterprise: values.name,
             RFC: values.rfc,

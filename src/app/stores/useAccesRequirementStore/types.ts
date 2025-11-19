@@ -38,7 +38,7 @@ export type AccesRequirementsState = {
   updateInternalComments: (payload: import("@/app/mappings/accesrequest/accesrequest.types").AccesInternalCommentsPut) => Promise<AccesRequirmentGet | null>;
   updateExternalComments: (payload: import("@/app/mappings/accesrequest/accesrequest.types").AccesExternalCommentsPut) => Promise<AccesRequirmentGet | null>;
   deleteAccesRequirement: (id: string) => Promise<boolean>;
-  generateTemplate: (ids: string[]) => Promise<any>;
+  generateTemplate: (id: string) => Promise<any>;
 
   reset: () => void;
   resetFlags: () => void;

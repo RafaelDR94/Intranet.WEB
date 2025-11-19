@@ -9,12 +9,12 @@ import { requireGateway } from "@/app/utilities/Http/requireGateway";
 export const generateTemplate = async (
   set: Set,
   get: Get,
-  ids: string[]
+  id: string
 ): Promise<any> => {
   set({ templating: true, successTemplate: false, templateError: undefined });
   try {
     const post = pPost(requireGateway("post"));
-    const res = await post(CustomAccessControlerTemplate, ids);
+    const res = await post(CustomAccessControlerTemplate+"?accesRequirementId="+id, {accesRequirementId:id});
     const payload = res.data?.data ?? res.data ?? true;
     set({ templating: false, successTemplate: true });
     return payload;

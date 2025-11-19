@@ -228,7 +228,7 @@ const useGenerateAccesForm = () => {
     }
 
     const handleSubmit = async (values: Record<string, any>) => {
-        console.log("Esto solo se ejecuta una vez");
+
         try {
             if (String(mode) == "renew" && current) {
                 const payload: AccesPost = {
@@ -246,7 +246,7 @@ const useGenerateAccesForm = () => {
                     dr_responsiblename: "Roman de Jesús Rodriguez Granados",
                     dr_responsiblesignature: "https://firebasestorage.googleapis.com/v0/b/intranetdr-50f9e.appspot.com/o/Employees%2F10004%2Fsignature2025-05-22?alt=media&token=42c11137-885a-4333-b9be-46a34683fe18",
                 };
-                console.log("Creando", payload);
+
                 const newacces = await createAccesRequirement(payload);
                 if (newacces) {
 
@@ -272,7 +272,7 @@ const useGenerateAccesForm = () => {
                         internal_comments: newacces?.internal_comments,
                         external_comments: newacces?.external_comments
                     };
-                    console.log("Actualizando", accesToUpdate);
+            
                     await updateAccesRequirement(accesToUpdate);
                 }
 
