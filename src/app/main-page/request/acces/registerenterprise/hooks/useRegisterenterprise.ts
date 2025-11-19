@@ -42,7 +42,7 @@ const useRegisterEnterprise = () => {
         console.log("Si llega aqui",values);
         const Payload = {
             newEnterprise: values.name,
-            rfc: values.rfc,
+            RFC: values.rfc,
         }
         if (values.external) {
             createExternal(Payload)

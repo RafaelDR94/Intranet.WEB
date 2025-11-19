@@ -20,4 +20,5 @@ export type EnterprisePut = {
 }
 export type ExternalEnterprisePost = {
     newEnterprise: string,
+    RFC: string,
 }

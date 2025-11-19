@@ -33,7 +33,7 @@ export const createExternalEnterprise = async (
   try {
     const post = pPost(requireGateway("post"), [200, 201]);
     const res = await post(
-      EnterprisesExternal+"?newEnterprise="+payload.newEnterprise,
+      `${EnterprisesExternal}?newEnterprise=${payload.newEnterprise}&RFC=${payload.RFC}`,
       mapExternalEnterprisePost(payload)
     );
     const raw = res.data?.data ?? res.data ?? null;

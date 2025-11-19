@@ -47,4 +47,5 @@ export const mapExternalEnterprisePost = (
   payload: Partial<ExternalEnterprisePost> | any
 ): ExternalEnterprisePost => ({
   newEnterprise: toString(payload?.newEnterprise),
+  RFC: toString(payload?.RFC)
 });
