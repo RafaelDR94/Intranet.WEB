@@ -23,10 +23,10 @@ const ListContent = ({
               <div key={item.id || index} className="border-b border-gray-20 last:border-b-0">
                 <div className="flex items-center justify-between px-4 py-4">
                   <div className="flex items-center gap-3 text-base">
-                    <span className="text-gray-70 w-6 text-right">
+                    <span className="text-c2 text-gray-500 w-6 text-right">
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    <span className="text-gray-70">{item?.name}</span>
+                    <span className="text-gray-70 text-c2">{item?.name}</span>
                   </div>
                   {/* <<--- BOTÓN DINÁMICO */}
                   <div>
@@ -53,7 +53,7 @@ const ListContent = ({
                     <span className="text-c2 w-6 text-right text-gray-500">
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    <span className="text-gray-70 text-c2">{item.name}</span>
+                    <span className="text-gray-70 text-c2">{`${item.name || ''} ${item.lastname || ''} ${item.motherslastname || ''}`}</span>
                   </div>
                   {/* <<--- BOTÓN DINÁMICO */}
                   <div>

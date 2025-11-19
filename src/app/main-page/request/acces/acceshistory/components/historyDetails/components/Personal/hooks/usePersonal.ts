@@ -19,10 +19,12 @@ const buildExternalCards = (external: ExternalPersonModel): InfoItem[][] => [
   ],
   [
     { label: "CURP", value: external?.curp },
+    { label: "Número de Seguridad Social", value: external?.nss },
+  ],
+  [
     { label: "Clave de Elector", value: external?.electorkey },
     { label: "Vigencia de Credencial", value: external?.electorvigence },
   ],
-  [{ label: "Número de Seguridad Social", value: external?.nss }],
   [{ label: "Número de Licencia", value: external?.license_number }],
   [{ label: "Vigencia de Licencia", value: external?.vigence }],
   [{ label: "Telefono", value: external?.phone_number }],
@@ -111,15 +113,12 @@ const usePersonal = () => {
     [externalPersons],
   );
 
-  const getCardsForPerson = useCallback(
-    (person?: PersonalListItem | null) => {
-      if (!person) return [];
-      return person.personType === "external"
-        ? buildExternalCards(person)
-        : buildInternalCards(person);
-    },
-    [],
-  );
+  const getCardsForPerson = useCallback((person?: PersonalListItem | null) => {
+    if (!person) return [];
+    return person.personType === "external"
+      ? buildExternalCards(person)
+      : buildInternalCards(person);
+  }, []);
 
   return {
     current,

@@ -8,8 +8,11 @@ import InfoCards from "@/app/components/InfoCards/InfoCards";
 import type { PersonalListItem } from "./hooks/usePersonal";
 
 const Personal = () => {
-  const { internalPersons, externalPersons, downloadImagesZip, getCardsForPerson } =
+  const { internalPersons, externalPersons, downloadImagesZip, getCardsForPerson, current } =
     usePersonal();
+
+    console.log(current);
+    
 
   const [selectedPerson, setSelectedPerson] = useState<PersonalListItem | null>(null);
 

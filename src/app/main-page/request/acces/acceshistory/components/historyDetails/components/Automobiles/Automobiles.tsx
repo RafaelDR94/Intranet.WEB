@@ -46,12 +46,6 @@ const Automobiles = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-c2 text-gray-70">
-          {loadingVehicles ? "Cargando vehículos…" : `${vehicles.length} vehículos`}
-        </p>
-      </div>
-
       <ListContent
         dataTable={vehicles}
         renderAction={(item: AutomobilesListItem) => (
