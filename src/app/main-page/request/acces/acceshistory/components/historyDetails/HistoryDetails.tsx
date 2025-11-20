@@ -9,11 +9,13 @@ import Comments from "./components/Comments/Comments";
 import Automobiles from "./components/Automobiles/Automobiles";
 import Label from "@/app/components/Label/Label";
 import useHistoryDetails from "./hooks/useHistoryDetails";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 interface HistoryDetailsProps {
   open: boolean;
   onClose: () => void;
 }
 const HistoryDetails: React.FC<HistoryDetailsProps> = ({ open, onClose }) => {
+  const { currentPagePermissions } = useAuth();
   const { canSeeEditButton, handleActiveChange, mapStatusToLabel, currentAcces, handleDownloadZIP, handleEditInformation } = useHistoryDetails();
 
   return (
@@ -23,9 +25,11 @@ const HistoryDetails: React.FC<HistoryDetailsProps> = ({ open, onClose }) => {
       open={open}
       onClose={onClose}
       actionButton={
-        <Button size="medium" variant="solid" hideIcon onClick={handleDownloadZIP}>
-          Descargar Documento
-        </Button>
+        <>
+          {currentPagePermissions?.canDownloadDocuments && <Button size="medium" variant="solid" hideIcon onClick={handleDownloadZIP}>
+            Descargar Documento
+          </Button>}
+        </>
       }
       renderActions={() => <Label type={mapStatusToLabel(currentAcces?.status)} text={currentAcces?.status} />}
 
@@ -58,7 +62,7 @@ const HistoryDetails: React.FC<HistoryDetailsProps> = ({ open, onClose }) => {
           renderContent={<Comments />}
         />
       </ButtonsNavigation>
-      {canSeeEditButton() && <div className="flex justify-end">
+      {(canSeeEditButton() && currentPagePermissions?.canEditInformation) && <div className="flex justify-end">
         <div className="flex justify-end">
           <Button
             size="medium"

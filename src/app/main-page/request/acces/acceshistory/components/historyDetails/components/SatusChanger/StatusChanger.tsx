@@ -7,10 +7,11 @@ import FileUploaderExpanded from "@/app/components/FileUploaderexpanded/FileUplo
 import { Input } from "@/app/components/Input/Input";
 import { Button } from "@/app/components/Button/Button";
 import dowloadIncon from "@/assets/icons/acciones/download.svg"
-
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
 const StatusChanger = () => {
-    const { handleCancelEvidence,openReportIncidence,comment, currentAcces, handleDownloadZIP, currentStatus, statuses, loadingstatuses, openPopUp, handleOpenPopUp, handleClosePopUp, handleSetEvidence, changeStatus, needEvidence, canSubmitPopUp, handleCommentChange, handleReportIncidence } = useStatusChanger();
+    const { currentPagePermissions } = useAuth();
+    const { handleCancelEvidence, openReportIncidence, comment, currentAcces, handleDownloadZIP, currentStatus, statuses, loadingstatuses, openPopUp, handleOpenPopUp, handleClosePopUp, handleSetEvidence, changeStatus, needEvidence, canSubmitPopUp, handleCommentChange, handleReportIncidence } = useStatusChanger();
     return (
         <>
             {currentAcces?.status == "A finalizado" &&
@@ -18,25 +19,29 @@ const StatusChanger = () => {
                 <>
                     <div className="flex gap-10 mb-4 ">
                         <h1>{currentAcces?.location.name}</h1>
-                        {openReportIncidence && <Button hideIcon variant="ghost" onClick={handleCancelEvidence}>Cancelar</Button>}
-                        <Button disabled={openReportIncidence && !comment}hideIcon variant="outline" onClick={handleReportIncidence}>{openReportIncidence ? "Enviar Incidencia" : "Reportar Incidencia"}</Button>
+                        {(openReportIncidence && currentPagePermissions?.canMakeIncidence) && <Button hideIcon variant="ghost" onClick={handleCancelEvidence}>Cancelar</Button>}
+                        <Button disabled={openReportIncidence && !comment} hideIcon variant="outline" onClick={handleReportIncidence}>{openReportIncidence ? "Enviar Incidencia" : "Reportar Incidencia"}</Button>
                     </div>
                     {openReportIncidence && <Input label="Comentario" onChange={(e) => handleCommentChange((e.target as HTMLTextAreaElement).value)} as="textarea" />}
 
                 </>
             }
             <div className="flex gap-10 mb-4 ">
+                {
+                    currentPagePermissions?.canChangeStatus &&
+                    <Select
+                        disabled={loadingstatuses}
+                        className="max-w-100 "
+                        selected={currentStatus?.id ? [currentStatus?.id] : []}
+                        onChange={(values) => handleOpenPopUp(values[0] ?? "")}
+                        options={statuses.map(status => ({ value: String(status.id), label: status.name }))}
+                        placeholder="Cambiar Estatus"
+                    />
+                }
 
 
-                <Select
-                    disabled={loadingstatuses}
-                    className="max-w-100 "
-                    selected={currentStatus?.id ? [currentStatus?.id] : []}
-                    onChange={(values) => handleOpenPopUp(values[0] ?? "")}
-                    options={statuses.map(status => ({ value: String(status.id), label: status.name }))}
-                    placeholder="Cambiar Estatus"
-                />
-                {currentAcces?.evidence_response_email &&
+
+                {(currentAcces?.evidence_response_email && currentPagePermissions?.canDownloadFinalDocuments) &&
                     <Button icon={dowloadIncon} variant="outline" size="small" onClick={handleDownloadZIP}  >
                         Archivos Finalización
                     </Button>}

@@ -7,11 +7,11 @@ import InfoCards from "@/app/components/InfoCards/InfoCards";
 import ListContent from "@/app/components/ListContent/ListContent";
 import useAutomobiles from "./hooks/useAutomobiles";
 import type { AutomobilesListItem } from "./hooks/useAutomobiles";
-
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 const Automobiles = () => {
   const { vehicles, downloadImagesZip, getCardsForVehicle } = useAutomobiles();
   const [selectedVehicle, setSelectedVehicle] = useState<AutomobilesListItem | null>(null);
-
+  const { currentPagePermissions } = useAuth();
   const handleToggleInfo = (vehicle: AutomobilesListItem) => {
     setSelectedVehicle((prevSelected) => {
       const isSameVehicle = prevSelected?.id === vehicle.id;
@@ -59,8 +59,7 @@ const Automobiles = () => {
             >
               <ArrowDownIcon />
             </Button>
-
-            <Button
+            {currentPagePermissions?.canDownloadSingleInformation && <Button
               hideIcon
               variant="ghost"
               size="small"
@@ -68,7 +67,9 @@ const Automobiles = () => {
               onClick={() => downloadImagesZip(item)}
             >
               <ImagesIcon />
-            </Button>
+            </Button>}
+
+
           </>
         )}
         renderDetails={renderInfoCards}
