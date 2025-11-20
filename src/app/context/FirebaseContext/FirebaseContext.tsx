@@ -28,7 +28,7 @@ import Uselogs from "./hooks/uselogs";
 import { usePermissionsListener } from "./hooks/usePermissionsListener";
 import { UseFirebasereturn } from "./types";
 
-import { AuthFirebaseConfiguration } from "@/app/configurations/Axios/urls";
+// import { AuthFirebaseConfiguration } from "@/app/configurations/Axios/urls";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
 export const FirebaseContext = createContext<UseFirebasereturn | undefined>(
@@ -129,33 +129,54 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const GetFirebaseConfigurations = async (attempt = 1) => {
-    if (user?.token && !firebaseConfiguration && !offlineMode) {
-      const onFirebaseConfigResponse = (response: any) => {
-        if (response instanceof Error) {
-          console.error("Error fetching firebase config:", response);
-          setHasExpired(true);
-          return;
-        }
-        if (response.status === 200) {
-          const Configurations = response.data.data;
-          setFirebaseConfiguration(Configurations);
-          return;
-        }
-        if (response.status === 401) {
-          setHasExpired(true);
-          return;
-        }
-        if (attempt >= 10) {
-          setHasExpired(true);
-          return;
-        }
-        setTimeout(() => {
-          GetFirebaseConfigurations(attempt + 1);
-        }, 1000);
-      };
-      IntranetGet(AuthFirebaseConfiguration, onFirebaseConfigResponse);
+
+    if (attempt) {
+      setTimeout(() => {
+        const firebaseConfig = {
+          apiKey: "AIzaSyBtlZct5NCo1_a6pxywUnuzESfj69HEQtY",
+          authDomain: "intranetdr-50f9e.firebaseapp.com",
+          databaseURL: "https://intranetdr-50f9e-default-rtdb.firebaseio.com",
+          projectId: "intranetdr-50f9e",
+          storageBucket: "intranetdr-50f9e.appspot.com",
+          messagingSenderId: "1069765395792",
+          appId: "1:1069765395792:web:503f82a1ee32c02f7c9855",
+          measurementId: "G-SMY838399L"
+        };
+
+        setFirebaseConfiguration({firebaseConfig});
+      }, 2000)
+
     }
+
+
+    // if (user?.token && !firebaseConfiguration && !offlineMode) {
+    //   const onFirebaseConfigResponse = (response: any) => {
+    //     if (response instanceof Error) {
+    //       console.error("Error fetching firebase config:", response);
+    //       setHasExpired(true);
+    //       return;
+    //     }
+    //     if (response.status === 200) {
+    //       const Configurations = response.data.data;
+    //       setFirebaseConfiguration(Configurations);
+    //       return;
+    //     }
+    //     if (response.status === 401) {
+    //       setHasExpired(true);
+    //       return;
+    //     }
+    //     if (attempt >= 10) {
+    //       setHasExpired(true);
+    //       return;
+    //     }
+    //     setTimeout(() => {
+    //       GetFirebaseConfigurations(attempt + 1);
+    //     }, 1000);
+    //   };
+    //   IntranetGet(AuthFirebaseConfiguration, onFirebaseConfigResponse);
+    // }
   };
+
 
   const GetFirebaseConfigurationsCb = useCallback(
     GetFirebaseConfigurations,

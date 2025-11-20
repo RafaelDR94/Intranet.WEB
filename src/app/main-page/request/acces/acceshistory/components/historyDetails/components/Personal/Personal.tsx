@@ -6,13 +6,12 @@ import ListContent from "../../../../../../../../components/ListContent/ListCont
 import { Button } from "@/app/components/Button/Button";
 import InfoCards from "@/app/components/InfoCards/InfoCards";
 import type { PersonalListItem } from "./hooks/usePersonal";
-
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 const Personal = () => {
-  const { internalPersons, externalPersons, downloadImagesZip, getCardsForPerson, current } =
+  const { currentPagePermissions } = useAuth();
+  const { internalPersons, externalPersons, downloadImagesZip, getCardsForPerson } =
     usePersonal();
 
-    console.log(current);
-    
 
   const [selectedPerson, setSelectedPerson] = useState<PersonalListItem | null>(null);
 
@@ -67,7 +66,7 @@ const Personal = () => {
             <ArrowDownIcon />
           </Button>
 
-          {item.personType === "external" && (
+          {item.personType === "external" && currentPagePermissions?.canDownloadSingleInformation && (
             <Button
               hideIcon
               variant="ghost"
