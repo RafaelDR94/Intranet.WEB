@@ -48,13 +48,28 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
     const hasInitBackINE = useRef(false);
     const hasInitLicense = useRef(false);
 
+    const handleUploadPicture: NonNullable<FieldModel["onChange"]> = (value) => {
+        if (!(value instanceof File)) {
+            showAlert({
+                type: "warning",
+                title: "Archivo no soportado",
+                description: "Selecciona una imagen válida en formato JPG o PNG.",
+                showPrimaryButton: false,
+                showSecondaryButton: false,
+                autoCloseMs: 1000,
+            });
+            return;
+        }
+        updateField(formId, "pictureURL", { value });
+    };
+
     const loadInitialFields = () => {
         if (hasInitFields.current) return;
         const initialFields: () => FieldModel[] = () => {
             const model: FieldModel[] = [
                 {
                     type: "imageUploaderExpanded",
-                    name: "fronta_ine",
+                    name: "frontal_ine_url",
                     label: "INE Frontal",
                     value: null,
                     initialFile: currentexternalperson?.frontal_ine_url
@@ -67,7 +82,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                 },
                 {
                     type: "imageUploaderExpanded",
-                    name: "back_ine",
+                    name: "back_ine_url",
                     label: "INE Trasera",
                     value: null,
                     initialFile: currentexternalperson?.back_ine_url
@@ -89,11 +104,11 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                     accept: ".jpg,.jpeg,.png",
                     preview: true,
                     validations: [{ type: "required" }],
-                    showIf: () => !!currentexternalperson,
+                    onChange: handleUploadPicture,
                 },
                 {
                     type: "imageUploaderExpanded",
-                    name: "licence",
+                    name: "license_url",
                     label: "Licencia",
                     value: null,
                     initialFile: currentexternalperson?.license_url
@@ -216,7 +231,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             });
             return;
         }
-        updateField(formId, "fronta_ine", { value });
+        updateField(formId, "frontal_ine_url", { value });
 
         void (async () => {
 
@@ -264,8 +279,8 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                 }
 
                 // 3) Casos especiales (objetos/archivos) que solo quieres mostrar
-                //    sin autollenar: fronta_ine, back_ine, licence (no license_number ni vigence todavía).
-                const objectLikeKeys = ["fronta_ine", "back_ine", "licence"];
+                //    sin autollenar: frontal_ine_url, back_ine_url y license_url (sin license_number ni vigence todavía).
+                const objectLikeKeys = ["frontal_ine_url", "back_ine_url", "license_url"];
                 for (const k of objectLikeKeys) {
                     if (k in (values ?? {})) {
                         updateField(formId, k, { showIf: () => true });
@@ -299,7 +314,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             });
             return;
         }
-        updateField(formId, "back_ine", { value });
+        updateField(formId, "back_ine_url", { value });
         void (async () => {
             if (!hasInitBackINE.current && currentexternalperson?.back_ine_url) {
                 hasInitBackINE.current = true;
@@ -347,7 +362,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             });
             return;
         }
-        updateField(formId, "licence", { value });
+        updateField(formId, "license_url", { value });
         void (async () => {
             if (!hasInitLicense.current && currentexternalperson?.license_url) {
                 hasInitLicense.current = true;
