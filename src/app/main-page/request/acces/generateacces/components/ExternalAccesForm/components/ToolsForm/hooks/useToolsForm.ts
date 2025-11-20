@@ -52,6 +52,20 @@ const TOOL_TEMPLATE_HEADERS: ColumnDef[] = [
 
 const parseToString = (value: unknown) => String(value ?? "").trim();
 
+const parseCellValue = (value: ExcelJS.CellValue): string => {
+    if (typeof value === "object" && value !== null) {
+        if ("text" in value) {
+            return parseToString((value as ExcelJS.CellHyperlinkValue | ExcelJS.CellRichTextValue).text);
+        }
+
+        if ("richText" in value && Array.isArray(value.richText)) {
+            return parseToString(value.richText.map((part) => part.text ?? "").join(""));
+        }
+    }
+
+    return parseToString(value);
+};
+
 const normalizeOption = <T extends string>(
     value: string,
     allowed: ReadonlyArray<{ value: T }>,
@@ -281,7 +295,7 @@ const useToolsForm = () => {
         const headerMap = new Map<string, number>();
 
         headerRow.eachCell((cell, colNumber) => {
-            const headerValue = parseToString((cell as ExcelJS.Cell).value);
+            const headerValue = parseCellValue((cell as ExcelJS.Cell).value as ExcelJS.CellValue);
             const matched = TOOL_TEMPLATE_HEADERS.find(
                 (column) =>
                     column.header.toLowerCase() === headerValue.toLowerCase() ||
@@ -307,11 +321,7 @@ const useToolsForm = () => {
             TOOL_TEMPLATE_HEADERS.forEach((column) => {
                 const colIndex = headerMap.get(String(column.key));
                 const cellValue = colIndex ? row.getCell(colIndex).value : "";
-                const normalized = parseToString(
-                    typeof cellValue === "object" && cellValue && "text" in cellValue
-                        ? (cellValue as ExcelJS.CellRichTextValue).text
-                        : cellValue
-                );
+                const normalized = parseCellValue(cellValue as ExcelJS.CellValue);
                 rowValues[String(column.key)] = normalized;
             });
 
