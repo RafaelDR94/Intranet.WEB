@@ -1,3 +1,8 @@
+### 1.47.40 Vehicle insurance fields 25-10-2025
+
+Feat:
+- Añade campos de aseguradora, expedición de póliza, tipo de pago, cobertura y color en el registro de vehículos para enviarlos en las peticiones correspondientes. (Agente IA) [#]()
+
 ### 1.47.39 Acces history vehicles table 25-10-2025
 
 Fix:
