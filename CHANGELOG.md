@@ -1,3 +1,8 @@
+### 1.47.41 External person images mapping 26-10-2025
+
+Fix:
+- Alinea los nombres de los campos de imágenes en el registro de personal externo para que la foto, INE y licencia se validen y carguen correctamente desde el primer envío. (Agente IA) [#]()
+
 ### 1.47.40 Vehicle insurance fields 25-10-2025
 
 Feat:
