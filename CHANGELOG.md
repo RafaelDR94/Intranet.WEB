@@ -1,3 +1,8 @@
+### 1.47.43 Tools serial number import 27-10-2025
+
+Feat:
+- Agrega el número de serie a herramientas y habilita la descarga/carga masiva mediante plantilla de Excel para poblar el formulario. (Agente IA) [#]()
+
 ### 1.47.42 External person picture persistence 26-10-2025
 
 Fix:

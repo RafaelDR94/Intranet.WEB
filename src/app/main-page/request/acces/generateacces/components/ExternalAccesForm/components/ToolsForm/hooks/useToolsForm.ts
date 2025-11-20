@@ -1,18 +1,31 @@
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
+import type { ColumnDef } from "@/app/utilities/Excel/ExportExcel";
+import { exportExcelPro } from "@/app/utilities/Excel/ExportExcel";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { FieldModel, ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
 import useAccessRequestStore from "@/app/stores/useAccesRequestStore/useAccesRequestStore";
 import type { Tools } from "@/app/mappings/accesrequest/accesrequest.types";
 
-const TOOL_KEYS: Array<keyof Tools> = ["quantity", "brand", "description", "model","materialtype","meditiontype"];
+const TOOL_KEYS: Array<keyof Tools> = [
+    "quantity",
+    "brand",
+    "description",
+    "model",
+    "serialnumber",
+    "materialtype",
+    "meditiontype",
+];
 const MATERIAL_TYPES = [
     { label: "Ferretero", value: "Ferretero" },
     { label: "Desechos Inorgánicos", value: "Desechos Inorgánicos" },
     { label: "Líquidos", value: "Líquidos" },
     { label: "Mercancías peligrosas", value: "Mercancías peligrosas" },
     { label: "A granel", value: "A granel" },
-];
+] as const;
 const MEDITION_TYPES = [
     { label: "Metros", value: "Metros" },
     { label: "Litros", value: "Litros" },
@@ -22,23 +35,73 @@ const MEDITION_TYPES = [
     { label: "Gramos", value: "Gramos" },
     { label: "Metros cúbicos", value: "Metros cúbicos" },
     { label: "Metros cuadrados", value: "Metros cuadrados" },
+] as const;
+
+const DEFAULT_MATERIAL_TYPE: Tools["materialtype"] = "Ferretero";
+const DEFAULT_MEDITION_TYPE: Tools["meditiontype"] = "Pieza";
+
+const TOOL_TEMPLATE_HEADERS: ColumnDef[] = [
+    { key: "quantity", header: "Cantidad" },
+    { key: "description", header: "Descripción" },
+    { key: "brand", header: "Marca" },
+    { key: "model", header: "Modelo" },
+    { key: "serialnumber", header: "No. de serie" },
+    { key: "materialtype", header: "Tipo de material" },
+    { key: "meditiontype", header: "Tipo de medida" },
 ];
+
+const parseToString = (value: unknown) => String(value ?? "").trim();
+
+const parseCellValue = (value: ExcelJS.CellValue): string => {
+    if (typeof value === "object" && value !== null) {
+        if ("text" in value) {
+            return parseToString((value as ExcelJS.CellHyperlinkValue | ExcelJS.CellRichTextValue).text);
+        }
+
+        if ("richText" in value && Array.isArray(value.richText)) {
+            return parseToString(value.richText.map((part) => part.text ?? "").join(""));
+        }
+    }
+
+    return parseToString(value);
+};
+
+const normalizeOption = <T extends string>(
+    value: string,
+    allowed: ReadonlyArray<{ value: T }>,
+    fallback: T
+): T => {
+    const normalized = value.trim().toLowerCase();
+    const match = allowed.find((option) => option.value.toLowerCase() === normalized);
+    return match ? match.value : fallback;
+};
+
 const createEmptyTool = (): Tools => ({
     quantity: "",
     brand: "",
     description: "",
     model: "",
-    meditiontype: "Pieza",
-    materialtype: "Ferretero"
+    serialnumber: "",
+    meditiontype: DEFAULT_MEDITION_TYPE,
+    materialtype: DEFAULT_MATERIAL_TYPE,
 });
 
 const mapValuesToTool = (values: Record<string, unknown>): Tools => ({
-    quantity: String(values.quantity ?? ""),
-    brand: String(values.brand ?? ""),
-    description: String(values.description ?? ""),
-    model: String(values.model ?? ""),
-    meditiontype: values.meditiontype as any,
-    materialtype: values.materialtype as any
+    quantity: parseToString(values.quantity),
+    brand: parseToString(values.brand),
+    description: parseToString(values.description),
+    model: parseToString(values.model),
+    serialnumber: parseToString(values.serialnumber),
+    meditiontype: normalizeOption(
+        parseToString(values.meditiontype),
+        MEDITION_TYPES,
+        DEFAULT_MEDITION_TYPE
+    ),
+    materialtype: normalizeOption(
+        parseToString(values.materialtype),
+        MATERIAL_TYPES,
+        DEFAULT_MATERIAL_TYPE
+    ),
 });
 
 const isToolComplete = (tool: Tools) => TOOL_KEYS.every((key) => tool[key].trim().length > 0);
@@ -50,7 +113,7 @@ const createToolFields = (tool: Tools): FieldModel[] => [
         label: "Cantidad",
         placeholder: "Cantidad",
         value: tool.quantity,
-        validations: [{ type: "required" }]
+        validations: [{ type: "required" }],
     },
     {
         type: "input",
@@ -58,7 +121,7 @@ const createToolFields = (tool: Tools): FieldModel[] => [
         label: "Marca",
         placeholder: "Marca",
         value: tool.brand,
-        validations: [{ type: "required" }]
+        validations: [{ type: "required" }],
     },
     {
         type: "input",
@@ -66,7 +129,7 @@ const createToolFields = (tool: Tools): FieldModel[] => [
         label: "Descripción",
         placeholder: "Descripción",
         value: tool.description,
-        validations: [{ type: "required" }]
+        validations: [{ type: "required" }],
     },
     {
         type: "input",
@@ -74,45 +137,62 @@ const createToolFields = (tool: Tools): FieldModel[] => [
         label: "Modelo",
         placeholder: "Modelo",
         value: tool.model,
-        validations: [{ type: "required" }]
+        validations: [{ type: "required" }],
+    },
+    {
+        type: "input",
+        name: "serialnumber",
+        label: "No. de serie",
+        placeholder: "No. de serie",
+        value: tool.serialnumber,
+        validations: [{ type: "required" }],
     },
     {
         type: "select",
         name: "materialtype",
         label: "Tipo de material",
         placeholder: "Selecciona un tipo",
-        value: tool.materialtype || "Ferretero",
+        value: tool.materialtype || DEFAULT_MATERIAL_TYPE,
         options: MATERIAL_TYPES,
-        validations: [{ type: "required" }]
+        validations: [{ type: "required" }],
     },
     {
         type: "select",
         name: "meditiontype",
         label: "Tipo de medida",
         placeholder: "Selecciona un tipo",
-        value: tool.meditiontype || "Pieza",
+        value: tool.meditiontype || DEFAULT_MEDITION_TYPE,
         options: MEDITION_TYPES,
-        validations: [{ type: "required" }]
-    }
+        validations: [{ type: "required" }],
+    },
 ];
 
 const TOOL_FORM_LAYOUT: ResponsiveLayoutMatrix = {
-    sm: [[10], [10], [10], [10], [10], [10]],
-    md: [[5, 5], [5, 5], [5, 5]],
-    lg: [[1.6, 1.6, 1.6, 1.6, 1.6, 1.6]]
+    sm: [[10], [10], [10], [10], [10], [10], [10]],
+    md: [[5, 5], [5, 5], [5, 5], [5, 5]],
+    lg: [[1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5]],
 };
 
+const MIME_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
 const useToolsForm = () => {
-    const { tools, addTool, updateTool, removeTool } = useAccessRequestStore((state) => ({
+    const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
+    const { showAlert } = usePrincipalAlert;
+    const { showSpinner, hideSpinner } = usePrincipalLoading;
+
+    const { tools, addTool, updateTool, removeTool, setTools } = useAccessRequestStore((state) => ({
         tools: state.tools,
         addTool: state.addTool,
         updateTool: state.updateTool,
-        removeTool: state.removeTool
+        removeTool: state.removeTool,
+        setTools: state.setTools,
     }), shallow);
 
     const [draftTool, setDraftTool] = useState<Tools>(createEmptyTool());
     const [formVersion, setFormVersion] = useState(0);
     const [isAddingTool, setIsAddingTool] = useState<boolean>(() => tools.length === 0);
+    const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
+    const [isProcessingImport, setIsProcessingImport] = useState(false);
     const canSubmitNewTool = useMemo(() => isToolComplete(draftTool), [draftTool]);
 
     useEffect(() => {
@@ -146,12 +226,12 @@ const useToolsForm = () => {
         const currentTool = tools[index];
         if (!currentTool) return;
         const nextTool = mapValuesToTool(values);
-        const updates = TOOL_KEYS.reduce<Partial<Tools>>((acc: any, key) => {
+        const updates = TOOL_KEYS.reduce<Partial<Tools>>((acc, key) => {
             if (currentTool[key] !== nextTool[key]) {
                 acc[key] = nextTool[key];
             }
             return acc;
-        }, {});
+        }, {} as Partial<Tools>);
 
         if (Object.keys(updates).length > 0) {
             updateTool(index, updates);
@@ -170,6 +250,145 @@ const useToolsForm = () => {
 
     const getToolFields = useCallback((tool: Tools) => createToolFields(tool), []);
 
+    const handleDownloadTemplate = useCallback(async () => {
+        setIsDownloadingTemplate(true);
+        try {
+            const { buffer } = await exportExcelPro({
+                fileName: "plantilla_herramientas",
+                sheets: [
+                    {
+                        name: "Herramientas",
+                        columns: TOOL_TEMPLATE_HEADERS,
+                        rows: [
+                            {
+                                quantity: "1",
+                                description: "Descripción del equipo",
+                                brand: "Marca",
+                                model: "Modelo",
+                                serialnumber: "ABC123",
+                                materialtype: DEFAULT_MATERIAL_TYPE,
+                                meditiontype: DEFAULT_MEDITION_TYPE,
+                            },
+                        ],
+                    },
+                ],
+                zebra: true,
+            });
+
+            const blob = new Blob([buffer], { type: MIME_XLSX });
+            saveAs(blob, "plantilla_herramientas.xlsx");
+        } catch (error) {
+            showAlert({
+                type: "error",
+                title: "No se pudo descargar la plantilla",
+                description: "Ocurrió un error al generar el archivo. Intenta nuevamente.",
+                showPrimaryButton: true,
+                primaryLabel: "Entendido",
+            });
+        } finally {
+            setIsDownloadingTemplate(false);
+        }
+    }, [showAlert]);
+
+    const readToolsFromWorksheet = useCallback((worksheet: ExcelJS.Worksheet): Tools[] => {
+        const headerRow = worksheet.getRow(1);
+        const headerMap = new Map<string, number>();
+
+        headerRow.eachCell((cell, colNumber) => {
+            const headerValue = parseCellValue((cell as ExcelJS.Cell).value as ExcelJS.CellValue);
+            const matched = TOOL_TEMPLATE_HEADERS.find(
+                (column) =>
+                    column.header.toLowerCase() === headerValue.toLowerCase() ||
+                    String(column.key).toLowerCase() === headerValue.toLowerCase()
+            );
+            if (matched) {
+                headerMap.set(String(matched.key), colNumber);
+            }
+        });
+
+        if (headerMap.size !== TOOL_TEMPLATE_HEADERS.length) {
+            const missing = TOOL_TEMPLATE_HEADERS.filter((column) => !headerMap.has(String(column.key)))
+                .map((column) => column.header)
+                .join(", ");
+            throw new Error(`La plantilla no tiene todas las columnas requeridas: ${missing}.`);
+        }
+
+        const parsedTools: Tools[] = [];
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber === 1) return;
+
+            const rowValues: Record<string, unknown> = {};
+            TOOL_TEMPLATE_HEADERS.forEach((column) => {
+                const colIndex = headerMap.get(String(column.key));
+                const cellValue = colIndex ? row.getCell(colIndex).value : "";
+                const normalized = parseCellValue(cellValue as ExcelJS.CellValue);
+                rowValues[String(column.key)] = normalized;
+            });
+
+            const candidate = mapValuesToTool(rowValues);
+            const hasContent = TOOL_KEYS.some((key) => candidate[key].trim().length > 0);
+            if (!hasContent) return;
+
+            if (!isToolComplete(candidate)) {
+                throw new Error(`La fila ${rowNumber} tiene campos vacíos. Todos son requeridos.`);
+            }
+
+            parsedTools.push(candidate);
+        });
+
+        return parsedTools;
+    }, []);
+
+    const handleImportToolsFile = useCallback(
+        async (file: File) => {
+            setIsProcessingImport(true);
+            showSpinner({ message: "Procesando archivo de herramientas..." });
+
+            try {
+                const buffer = await file.arrayBuffer();
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.load(buffer);
+                const worksheet = workbook.worksheets[0];
+
+                if (!worksheet) {
+                    throw new Error("La plantilla no contiene datos.");
+                }
+
+                const importedTools = readToolsFromWorksheet(worksheet);
+
+                if (importedTools.length === 0) {
+                    throw new Error("No se encontraron herramientas para importar.");
+                }
+
+                setTools(importedTools);
+                setDraftTool(createEmptyTool());
+                setFormVersion((prev) => prev + 1);
+                setIsAddingTool(false);
+
+                showAlert({
+                    type: "success",
+                    title: "Herramientas cargadas",
+                    description: `${importedTools.length} herramienta(s) agregadas desde Excel.`,
+                    showPrimaryButton: true,
+                    primaryLabel: "Entendido",
+                });
+            } catch (error) {
+                const description = error instanceof Error ? error.message : "No se pudo leer el archivo.";
+                showAlert({
+                    type: "error",
+                    title: "Error al cargar Excel",
+                    description,
+                    showPrimaryButton: true,
+                    primaryLabel: "Entendido",
+                });
+            } finally {
+                setIsProcessingImport(false);
+                hideSpinner();
+            }
+        },
+        [hideSpinner, readToolsFromWorksheet, setTools, showAlert, showSpinner]
+    );
+
     return {
         tools,
         newToolFields,
@@ -182,7 +401,11 @@ const useToolsForm = () => {
         handleUpdateToolValues,
         handleRemoveTool,
         handleOpenAddTool,
-        getToolFields
+        getToolFields,
+        handleDownloadTemplate,
+        handleImportToolsFile,
+        isDownloadingTemplate,
+        isProcessingImport,
     };
 };
 

@@ -8,6 +8,7 @@ export type Tools = {
     description: string,
     brand: string,
     model: string,
+    serialnumber: string,
     materialtype: 'Ferretero' | 'Desechos Inorgánicos' | 'Líquidos' | 'Mercancías peligrosas' | 'A granel'
     meditiontype: 'Metros' | 'Litros' | 'Toneladas' | 'Kilos' | 'Pieza'| 'Gramos'| 'Metros cúbicos'| 'Metros cuadrados'
 }

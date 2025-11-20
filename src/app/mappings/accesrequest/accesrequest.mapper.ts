@@ -41,6 +41,7 @@ const mapTool = (raw: any): Tools => ({
   description: toString(raw?.description),
   brand: toString(raw?.brand),
   model: toString(raw?.model),
+  serialnumber: toString(raw?.serialnumber ?? raw?.serialNumber ?? raw?.serial_number),
   materialtype:raw?.materialtype,
   meditiontype:raw?.meditiontype
 });
