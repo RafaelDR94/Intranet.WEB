@@ -1,3 +1,8 @@
+### 1.47.42 External person picture persistence 26-10-2025
+
+Fix:
+- Guarda el archivo de la foto de la persona en el primer envío del formulario de personal externo para que no vuelva a marcarse como requerido y se suba junto con las otras imágenes. (Agente IA) [#]()
+
 ### 1.47.41 External person images mapping 26-10-2025
 
 Fix:

@@ -48,6 +48,21 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
     const hasInitBackINE = useRef(false);
     const hasInitLicense = useRef(false);
 
+    const handleUploadPicture: NonNullable<FieldModel["onChange"]> = (value) => {
+        if (!(value instanceof File)) {
+            showAlert({
+                type: "warning",
+                title: "Archivo no soportado",
+                description: "Selecciona una imagen válida en formato JPG o PNG.",
+                showPrimaryButton: false,
+                showSecondaryButton: false,
+                autoCloseMs: 1000,
+            });
+            return;
+        }
+        updateField(formId, "pictureURL", { value });
+    };
+
     const loadInitialFields = () => {
         if (hasInitFields.current) return;
         const initialFields: () => FieldModel[] = () => {
@@ -89,7 +104,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                     accept: ".jpg,.jpeg,.png",
                     preview: true,
                     validations: [{ type: "required" }],
-                    showIf: () => !!currentexternalperson,
+                    onChange: handleUploadPicture,
                 },
                 {
                     type: "imageUploaderExpanded",
