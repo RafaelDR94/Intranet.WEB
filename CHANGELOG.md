@@ -1,3 +1,8 @@
+### 1.47.45 Tools template header alignment 27-10-2025
+
+Fix:
+- Quita la columna de consecutivo de la plantilla de herramientas y permite importar archivos con encabezados en cualquier fila sin errores. (Agente IA) [#]()
+
 ### 1.47.44 Tools template without sample rows 27-10-2025
 
 Fix:

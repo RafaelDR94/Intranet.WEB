@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
 import type { ColumnDef } from "@/app/utilities/Excel/ExportExcel";
-import { exportExcelPro } from "@/app/utilities/Excel/ExportExcel";
+import { Workbook } from "exceljs";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { FieldModel, ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
 import useAccessRequestStore from "@/app/stores/useAccesRequestStore/useAccesRequestStore";
@@ -253,18 +253,11 @@ const useToolsForm = () => {
     const handleDownloadTemplate = useCallback(async () => {
         setIsDownloadingTemplate(true);
         try {
-            const { buffer } = await exportExcelPro({
-                fileName: "plantilla_herramientas",
-                sheets: [
-                    {
-                        name: "Herramientas",
-                        columns: TOOL_TEMPLATE_HEADERS,
-                        rows: [],
-                    },
-                ],
-                zebra: true,
-            });
+            const workbook = new Workbook();
+            const worksheet = workbook.addWorksheet("Herramientas", { properties: { defaultRowHeight: 18 } });
+            worksheet.addRow(TOOL_TEMPLATE_HEADERS.map((column) => column.header));
 
+            const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: MIME_XLSX });
             saveAs(blob, "plantilla_herramientas.xlsx");
         } catch (error) {
@@ -281,35 +274,44 @@ const useToolsForm = () => {
     }, [showAlert]);
 
     const readToolsFromWorksheet = useCallback((worksheet: ExcelJS.Worksheet): Tools[] => {
-        const headerRow = worksheet.getRow(1);
-        const headerMap = new Map<string, number>();
+        let headerRowIndex = 0;
+        let headerMap: Map<string, number> | null = null;
 
-        headerRow.eachCell((cell, colNumber) => {
-            const headerValue = parseCellValue((cell as ExcelJS.Cell).value as ExcelJS.CellValue);
-            const matched = TOOL_TEMPLATE_HEADERS.find(
-                (column) =>
-                    column.header.toLowerCase() === headerValue.toLowerCase() ||
-                    String(column.key).toLowerCase() === headerValue.toLowerCase()
-            );
-            if (matched) {
-                headerMap.set(String(matched.key), colNumber);
+        for (let rowNumber = 1; rowNumber <= worksheet.rowCount; rowNumber++) {
+            const row = worksheet.getRow(rowNumber);
+            const currentHeaderMap = new Map<string, number>();
+
+            row.eachCell((cell, colNumber) => {
+                const headerValue = parseCellValue((cell as ExcelJS.Cell).value as ExcelJS.CellValue);
+                const matched = TOOL_TEMPLATE_HEADERS.find(
+                    (column) =>
+                        column.header.toLowerCase() === headerValue.toLowerCase() ||
+                        String(column.key).toLowerCase() === headerValue.toLowerCase()
+                );
+                if (matched) {
+                    currentHeaderMap.set(String(matched.key), colNumber);
+                }
+            });
+
+            if (currentHeaderMap.size === TOOL_TEMPLATE_HEADERS.length) {
+                headerMap = currentHeaderMap;
+                headerRowIndex = rowNumber;
+                break;
             }
-        });
+        }
 
-        if (headerMap.size !== TOOL_TEMPLATE_HEADERS.length) {
-            const missing = TOOL_TEMPLATE_HEADERS.filter((column) => !headerMap.has(String(column.key)))
-                .map((column) => column.header)
-                .join(", ");
+        if (!headerMap) {
+            const missing = TOOL_TEMPLATE_HEADERS.map((column) => column.header).join(", ");
             throw new Error(`La plantilla no tiene todas las columnas requeridas: ${missing}.`);
         }
 
         const parsedTools: Tools[] = [];
         worksheet.eachRow((row, rowNumber) => {
-            if (rowNumber === 1) return;
+            if (rowNumber <= headerRowIndex) return;
 
             const rowValues: Record<string, unknown> = {};
             TOOL_TEMPLATE_HEADERS.forEach((column) => {
-                const colIndex = headerMap.get(String(column.key));
+                const colIndex = headerMap?.get(String(column.key));
                 const cellValue = colIndex ? row.getCell(colIndex).value : "";
                 const normalized = parseCellValue(cellValue as ExcelJS.CellValue);
                 rowValues[String(column.key)] = normalized;
