@@ -4,11 +4,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
 import type { ColumnDef } from "@/app/utilities/Excel/ExportExcel";
-import { Workbook } from "exceljs";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { FieldModel, ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
 import useAccessRequestStore from "@/app/stores/useAccesRequestStore/useAccesRequestStore";
 import type { Tools } from "@/app/mappings/accesrequest/accesrequest.types";
+import DRLogo from "@/assets/images/LogosDR/DRLogoOficial.png";
+import type { StaticImageData } from "next/image";
 
 const TOOL_KEYS: Array<keyof Tools> = [
     "quantity",
@@ -40,6 +41,19 @@ const MEDITION_TYPES = [
 const DEFAULT_MATERIAL_TYPE: Tools["materialtype"] = "Ferretero";
 const DEFAULT_MEDITION_TYPE: Tools["meditiontype"] = "Pieza";
 
+const TOOL_COLUMNS_WIDTH: Record<keyof Tools, number> = {
+    quantity: 12,
+    description: 38,
+    brand: 18,
+    model: 18,
+    serialnumber: 22,
+    materialtype: 22,
+    meditiontype: 18,
+};
+
+const TOOL_COLOR_PRIMARY = "FF1E3A8A";
+const TOOL_COLOR_ACCENT = "FF1D4ED8";
+
 const TOOL_TEMPLATE_HEADERS: ColumnDef[] = [
     { key: "quantity", header: "Cantidad" },
     { key: "description", header: "Descripción" },
@@ -49,6 +63,107 @@ const TOOL_TEMPLATE_HEADERS: ColumnDef[] = [
     { key: "materialtype", header: "Tipo de material" },
     { key: "meditiontype", header: "Tipo de medida" },
 ];
+
+const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+
+    bytes.forEach((byte) => {
+        binary += String.fromCharCode(byte);
+    });
+
+    return btoa(binary);
+};
+
+const getLogoAsBase64 = async () => {
+    try {
+        const logoSource = (DRLogo as StaticImageData).src ?? (DRLogo as string);
+        const response = await fetch(logoSource);
+
+        if (!response.ok) return undefined;
+
+        const buffer = await response.arrayBuffer();
+        const base64 = arrayBufferToBase64(buffer);
+
+        return `data:image/png;base64,${base64}`;
+    } catch (error) {
+        console.warn("No se pudo cargar el logo para la plantilla de herramientas.", error);
+        return undefined;
+    }
+};
+
+const applyColumnsLayout = (worksheet: ExcelJS.Worksheet) => {
+    worksheet.columns = TOOL_TEMPLATE_HEADERS.map((column) => ({
+        key: column.key,
+        width: TOOL_COLUMNS_WIDTH[column.key as keyof Tools],
+    }));
+};
+
+const addWorksheetHeader = (worksheet: ExcelJS.Worksheet) => {
+    const headerRow = worksheet.addRow(TOOL_TEMPLATE_HEADERS.map((column) => column.header));
+    headerRow.height = 22;
+
+    headerRow.eachCell((cell) => {
+        cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: TOOL_COLOR_ACCENT },
+        };
+        cell.font = {
+            color: { argb: "FFFFFFFF" },
+            bold: true,
+            size: 12,
+        };
+        cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+        cell.border = {
+            top: { style: "thin", color: { argb: TOOL_COLOR_PRIMARY } },
+            left: { style: "thin", color: { argb: TOOL_COLOR_PRIMARY } },
+            bottom: { style: "thin", color: { argb: TOOL_COLOR_PRIMARY } },
+            right: { style: "thin", color: { argb: TOOL_COLOR_PRIMARY } },
+        };
+    });
+
+    worksheet.views = [{ state: "frozen", ySplit: headerRow.number }];
+
+    return headerRow;
+};
+
+const setWorksheetTitle = (worksheet: ExcelJS.Worksheet) => {
+    const titleRow = worksheet.addRow(["", "Herramientas"]);
+    const startColumn = 2;
+    const endColumn = TOOL_TEMPLATE_HEADERS.length + 1;
+
+    worksheet.mergeCells(titleRow.number, startColumn, titleRow.number, endColumn);
+
+    const titleCell = titleRow.getCell(startColumn);
+    titleCell.value = "Herramientas";
+    titleCell.font = { size: 18, bold: true, color: { argb: TOOL_COLOR_PRIMARY } };
+    titleCell.alignment = { vertical: "middle", horizontal: "center" };
+    titleRow.height = 30;
+};
+
+const decorateWorksheet = async (workbook: ExcelJS.Workbook, worksheet: ExcelJS.Worksheet) => {
+    worksheet.properties.defaultRowHeight = 20;
+    applyColumnsLayout(worksheet);
+
+    worksheet.getRow(1).height = 12;
+    worksheet.addRow([]);
+
+    await getLogoAsBase64().then((base64) => {
+        if (!base64) return;
+
+        const imageId = workbook.addImage({ base64, extension: "png" });
+        worksheet.addImage(imageId, {
+            tl: { col: 0, row: 0 },
+            ext: { width: 140, height: 60 },
+            editAs: "oneCell",
+        });
+    });
+
+    setWorksheetTitle(worksheet);
+    worksheet.addRow([]);
+    addWorksheetHeader(worksheet);
+};
 
 const parseToString = (value: unknown) => String(value ?? "").trim();
 
@@ -253,14 +368,14 @@ const useToolsForm = () => {
     const handleDownloadTemplate = useCallback(async () => {
         setIsDownloadingTemplate(true);
         try {
-            const workbook = new Workbook();
+            const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet("Herramientas", { properties: { defaultRowHeight: 18 } });
-            worksheet.addRow(TOOL_TEMPLATE_HEADERS.map((column) => column.header));
+            await decorateWorksheet(workbook, worksheet);
 
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: MIME_XLSX });
             saveAs(blob, "plantilla_herramientas.xlsx");
-        } catch (error) {
+        } catch {
             showAlert({
                 type: "error",
                 title: "No se pudo descargar la plantilla",

@@ -1,3 +1,8 @@
+### 1.47.46 Tools template branding 28-10-2025
+
+Feat:
+- Añade branding en azul, título y logo de DR a la plantilla de herramientas para descarga y carga masiva, manteniendo columnas consistentes. (Agente IA) [#]()
+
 ### 1.47.45 Tools template header alignment 27-10-2025
 
 Fix:
