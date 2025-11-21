@@ -22,7 +22,7 @@ const PersonsForm: React.FC<FormsInterface> = ({ canUpdateForm }) => {
                     options={systemexternalpersons.map(person => ({ value: String(person.id), label: person.name + " " + person.lastname + " " + person.motherslastname }))}
                     placeholder="Selecciona una persona"
                 />
-                <Button onClick={handleConfirmPerson} hideIcon disabled={!canUpdateForm}>
+                <Button onClick={handleConfirmPerson} hideIcon disabled={!canUpdateForm || !personSelected}>
                     Agregar
                 </Button>
             </div>}
