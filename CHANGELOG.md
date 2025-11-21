@@ -1,3 +1,8 @@
+### 1.47.49 Tools template resilience 29-10-2025
+
+Fix:
+- Refuerza la generación de la plantilla de herramientas para que funcione en entornos parciales y evita errores de tipado al procesar valores de Excel. (Agente IA) [#]()
+
 ### 1.47.48 External persons alert flow 29-10-2025
 
 Fix:
