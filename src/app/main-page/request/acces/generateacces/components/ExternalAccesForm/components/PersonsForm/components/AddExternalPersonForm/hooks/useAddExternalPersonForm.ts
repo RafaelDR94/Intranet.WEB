@@ -1,5 +1,6 @@
 import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 import { FieldModel } from "@/app/components/DynamicForm/types";
+import { AlertProps } from "@/app/components/Alert/types";
 import { useEffect, useRef, useState } from "react";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { parseIneText, IneData } from "@/app/utilities/OCR/INEParcer";
@@ -37,7 +38,8 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
     const currentEnterpriseId = all.enterpriseId;
     const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
     const { showSpinner, hideSpinner } = usePrincipalLoading;
-    const { showAlert } = usePrincipalAlert;
+    const { showAlert, hideAlert } = usePrincipalAlert;
+    const showAlertAutoClose = (props: AlertProps) => showAlert({ onClose: hideAlert, ...props });
     const { fieldsByFormId, setFields, resetFields, updateField } = useFormFieldsStore();
     const [canStart, setCanStart] = useState(false);
     const { firebasestorage } = useFirebase();
@@ -50,7 +52,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
 
     const handleUploadPicture: NonNullable<FieldModel["onChange"]> = (value) => {
         if (!(value instanceof File)) {
-            showAlert({
+            showAlertAutoClose({
                 type: "warning",
                 title: "Archivo no soportado",
                 description: "Selecciona una imagen válida en formato JPG o PNG.",
@@ -221,7 +223,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
 
     const handleUploadINE: NonNullable<FieldModel["onChange"]> = (value, values) => {
         if (!(value instanceof File)) {
-            showAlert({
+            showAlertAutoClose({
                 type: "warning",
                 title: "Archivo no soportado",
                 description: "Selecciona una imagen válida en formato JPG o PNG.",
@@ -289,7 +291,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             } catch (error) {
                 console.error("[external-access] Error procesando INE", error);
                 const description = error instanceof Error ? error.message : "No se pudo completar el análisis. Intenta nuevamente.";
-                showAlert({
+                showAlertAutoClose({
                     type: "error",
                     title: "Error al procesar la INE",
                     description,
@@ -304,7 +306,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
     };
     const handleUploadINEBack: NonNullable<FieldModel["onChange"]> = (value) => {
         if (!(value instanceof File)) {
-            showAlert({
+            showAlertAutoClose({
                 type: "warning",
                 title: "Archivo no soportado",
                 description: "Selecciona una imagen válida en formato JPG o PNG.",
@@ -337,7 +339,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                     error instanceof Error
                         ? error.message
                         : "No se pudo completar el análisis. Intenta nuevamente.";
-                showAlert({
+                showAlertAutoClose({
                     type: "error",
                     title: "Error al procesar la INE",
                     description,
@@ -352,7 +354,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
     }
     const handleUploadLicense: NonNullable<FieldModel["onChange"]> = (value) => {
         if (!(value instanceof File)) {
-            showAlert({
+            showAlertAutoClose({
                 type: "warning",
                 title: "Archivo no soportado",
                 description: "Selecciona una imagen válida en formato JPG o PNG.",
@@ -398,7 +400,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                     error instanceof Error
                         ? error.message
                         : "No se pudo completar el análisis. Intenta nuevamente.";
-                showAlert({
+                showAlertAutoClose({
                     type: "error",
                     title: "Error al procesar la INE",
                     description,
@@ -445,7 +447,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             // Empresa obligatoria para asociar el registro
             const enterpriseId = currentEnterpriseId;
             if (!enterpriseId) {
-                showAlert({
+                showAlertAutoClose({
                     type: "warning",
                     title: "Empresa no seleccionada",
                     description: "Selecciona una empresa antes de registrar el acceso.",
@@ -527,7 +529,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
         } catch (err) {
             // Manejo defensivo en caso de fallo previo a flags del store
             const description = err instanceof Error ? err.message : "Error al preparar el envío.";
-            showAlert({
+            showAlertAutoClose({
                 type: "error",
                 title: "No se pudo enviar",
                 description,
@@ -561,7 +563,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
         hideSpinner();
 
         if (error) {
-            showAlert({
+            showAlertAutoClose({
                 type: "error",
                 title: "Ocurrió un error",
                 description: error,
@@ -573,7 +575,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
 
         if (succesCreate) {
 
-            showAlert({
+            showAlertAutoClose({
                 type: "success",
                 title: "Registro exitoso",
                 description: "Se registró la información de la persona.",
@@ -586,7 +588,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
 
         if (succesUpdate) {
 
-            showAlert({
+            showAlertAutoClose({
                 type: "success",
                 title: "Actualización exitosa",
                 description: "Se actualizó la información de la persona.",

@@ -1,3 +1,8 @@
+### 1.47.48 External persons alert flow 29-10-2025
+
+Fix:
+- Habilita el botón de agregar solo tras elegir una persona y asegura el autocierre de alertas al registrar o actualizar datos de personas externas. (Agente IA) [#]()
+
 ### 1.47.47 Tools template single header 28-10-2025
 
 Fix:
