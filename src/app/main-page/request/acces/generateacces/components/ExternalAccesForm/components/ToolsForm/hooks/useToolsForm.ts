@@ -259,17 +259,7 @@ const useToolsForm = () => {
                     {
                         name: "Herramientas",
                         columns: TOOL_TEMPLATE_HEADERS,
-                        rows: [
-                            {
-                                quantity: "1",
-                                description: "Descripción del equipo",
-                                brand: "Marca",
-                                model: "Modelo",
-                                serialnumber: "ABC123",
-                                materialtype: DEFAULT_MATERIAL_TYPE,
-                                meditiontype: DEFAULT_MEDITION_TYPE,
-                            },
-                        ],
+                        rows: [],
                     },
                 ],
                 zebra: true,
