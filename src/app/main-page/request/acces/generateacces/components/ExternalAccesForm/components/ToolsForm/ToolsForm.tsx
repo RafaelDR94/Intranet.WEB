@@ -46,26 +46,28 @@ const ToolsForm: React.FC<FormsInterface> = ({ canUpdateForm }) => {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
         <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
           <Button
-            variant="outline"
+            variant="solid"
             onClick={handleDownloadTemplate}
             disabled={!canUpdateForm || isDownloadingTemplate}
             className="sm:w-auto"
+            hideIcon
           >
-            Descargar plantilla
+            Descargar Plantilla
           </Button>
           <Button
-            variant="secondary"
+            variant="solid"
             onClick={triggerUpload}
             disabled={!canUpdateForm || isProcessingImport}
             className="sm:w-auto"
+            hideIcon
           >
-            Carga masiva desde Excel
+            Subir Excel
           </Button>
         </div>
         <input
           ref={uploadInputRef}
           type="file"
-          accept=".xlsx,.xls"
+          accept=".xlsx, .xls"
           className="hidden"
           onChange={onFileSelected}
         />
