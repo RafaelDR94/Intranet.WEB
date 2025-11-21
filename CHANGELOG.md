@@ -1,3 +1,53 @@
+### 1.47.49 Tools template resilience 29-10-2025
+
+Fix:
+- Refuerza la generación de la plantilla de herramientas para que funcione en entornos parciales y evita errores de tipado al procesar valores de Excel. (Agente IA) [#]()
+
+### 1.47.48 External persons alert flow 29-10-2025
+
+Fix:
+- Habilita el botón de agregar solo tras elegir una persona y asegura el autocierre de alertas al registrar o actualizar datos de personas externas. (Agente IA) [#]()
+
+### 1.47.47 Tools template single header 28-10-2025
+
+Fix:
+- Ajusta la plantilla de herramientas para mostrar una sola tabla con encabezado azul #002a41, aumenta el tamaño del logo y mantiene la limpieza del formato al regenerar el archivo. (Agente IA) [#]()
+
+### 1.47.46 Tools template branding 28-10-2025
+
+Feat:
+- Añade branding en azul, título y logo de DR a la plantilla de herramientas para descarga y carga masiva, manteniendo columnas consistentes. (Agente IA) [#]()
+
+### 1.47.45 Tools template header alignment 27-10-2025
+
+Fix:
+- Quita la columna de consecutivo de la plantilla de herramientas y permite importar archivos con encabezados en cualquier fila sin errores. (Agente IA) [#]()
+
+### 1.47.44 Tools template without sample rows 27-10-2025
+
+Fix:
+- Descarga la plantilla de herramientas sin filas de ejemplo y permite cargar los datos capturados en Excel para mostrarlos en el formulario. (Agente IA) [#]()
+
+### 1.47.43 Tools serial number import 27-10-2025
+
+Feat:
+- Agrega el número de serie a herramientas y habilita la descarga/carga masiva mediante plantilla de Excel para poblar el formulario. (Agente IA) [#]()
+
+### 1.47.42 External person picture persistence 26-10-2025
+
+Fix:
+- Guarda el archivo de la foto de la persona en el primer envío del formulario de personal externo para que no vuelva a marcarse como requerido y se suba junto con las otras imágenes. (Agente IA) [#]()
+
+### 1.47.41 External person images mapping 26-10-2025
+
+Fix:
+- Alinea los nombres de los campos de imágenes en el registro de personal externo para que la foto, INE y licencia se validen y carguen correctamente desde el primer envío. (Agente IA) [#]()
+
+### 1.47.40 Vehicle insurance fields 25-10-2025
+
+Feat:
+- Añade campos de aseguradora, expedición de póliza, tipo de pago, cobertura y color en el registro de vehículos para enviarlos en las peticiones correspondientes. (Agente IA) [#]()
+
 ### 1.47.39 Acces history vehicles table 25-10-2025
 
 Fix:

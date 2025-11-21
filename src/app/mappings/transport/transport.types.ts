@@ -18,7 +18,11 @@ export type TransportPost= {
     engine_number: string,
     serial_number: string,
     insurance_policy: string,
+    insurance_company: string,
+    policy_issue_date: string,
     policy_expiration: string,
+    payment_type: string,
+    coverage: string,
     circulation_card: string,
     circulation_card_expiration: string, // antes "circulation_card_vigency"
 
@@ -31,7 +35,7 @@ export type TransportPost= {
     back_image: string,                 // antes "rear_image"
     right_side_image: string,           // antes "right_lateral_image"
     left_side_image: string,            // antes "left_lateral_image"
-
+    
     // ------------------------
     // Campo exclusivo del primer JSON
     // ------------------------
@@ -40,6 +44,7 @@ export type TransportPost= {
     // ------------------------
     // Campos exclusivos del segundo JSON (agregados al final)
     // ------------------------
+    vehicle_color: string,
     UnitType: string,
     fuel_card: string,
     key_copy: number,
@@ -63,7 +68,11 @@ export type TransportPut = {
 
     // Seguro
     insurance_policy: string;
+    insurance_company: string;
+    policy_issue_date: string;
     policy_expiration: string;              // antes: insurance_policy_vigency
+    payment_type: string;
+    coverage: string;
 
     // Tarjeta circulación
     circulation_card: string;
@@ -83,6 +92,7 @@ export type TransportPut = {
       // ------------------------
     // Campos exclusivos del segundo JSON (agregados al final)
     // ------------------------
+    vehicle_color: string,
     UnitType: string,
     fuel_card: string,
     key_copy: number,
@@ -106,11 +116,16 @@ export type CompleteTransport = {
     engine_number: string;
     serial_number: string;
     year: string;
+    vehicle_color: string;
     economic_number: string;
 
     // Seguro
     insurance_policy: string;
+    insurance_company: string;
+    policy_issue_date?: string;       // fecha de expedición de la póliza
     policy_expiration?: string;       // antes: insurance_policy_vigency
+    payment_type: string;
+    coverage: string;
 
     // Otros datos administrativos
     fuel_card: string;

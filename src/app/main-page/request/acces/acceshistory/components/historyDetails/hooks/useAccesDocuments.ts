@@ -59,6 +59,7 @@ const useAccessPdf = () => {
       { key: "description", header: "Descripción", type: "string", width: 40 },
       { key: "brand", header: "Marca", type: "string" },
       { key: "model", header: "Modelo", type: "string" },
+      { key: "serialnumber", header: "No. de serie", type: "string" },
       { key: "materialtype", header: "Tipo de material", type: "string" },
       { key: "meditiontype", header: "Unidad de medida", type: "string" },
     ];
@@ -68,6 +69,7 @@ const useAccessPdf = () => {
       description: t.description,
       brand: t.brand,
       model: t.model,
+      serialnumber: t.serialnumber,
       materialtype: t.materialtype,
       meditiontype: t.meditiontype,
     }));

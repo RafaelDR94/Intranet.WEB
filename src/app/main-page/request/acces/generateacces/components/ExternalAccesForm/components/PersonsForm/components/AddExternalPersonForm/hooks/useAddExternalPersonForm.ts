@@ -1,5 +1,6 @@
 import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 import { FieldModel } from "@/app/components/DynamicForm/types";
+import { AlertProps } from "@/app/components/Alert/types";
 import { useEffect, useRef, useState } from "react";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { parseIneText, IneData } from "@/app/utilities/OCR/INEParcer";
@@ -37,7 +38,8 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
     const currentEnterpriseId = all.enterpriseId;
     const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
     const { showSpinner, hideSpinner } = usePrincipalLoading;
-    const { showAlert } = usePrincipalAlert;
+    const { showAlert, hideAlert } = usePrincipalAlert;
+    const showAlertAutoClose = (props: AlertProps) => showAlert({ onClose: hideAlert, ...props });
     const { fieldsByFormId, setFields, resetFields, updateField } = useFormFieldsStore();
     const [canStart, setCanStart] = useState(false);
     const { firebasestorage } = useFirebase();
@@ -48,13 +50,28 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
     const hasInitBackINE = useRef(false);
     const hasInitLicense = useRef(false);
 
+    const handleUploadPicture: NonNullable<FieldModel["onChange"]> = (value) => {
+        if (!(value instanceof File)) {
+            showAlertAutoClose({
+                type: "warning",
+                title: "Archivo no soportado",
+                description: "Selecciona una imagen válida en formato JPG o PNG.",
+                showPrimaryButton: false,
+                showSecondaryButton: false,
+                autoCloseMs: 1000,
+            });
+            return;
+        }
+        updateField(formId, "pictureURL", { value });
+    };
+
     const loadInitialFields = () => {
         if (hasInitFields.current) return;
         const initialFields: () => FieldModel[] = () => {
             const model: FieldModel[] = [
                 {
                     type: "imageUploaderExpanded",
-                    name: "fronta_ine",
+                    name: "frontal_ine_url",
                     label: "INE Frontal",
                     value: null,
                     initialFile: currentexternalperson?.frontal_ine_url
@@ -67,7 +84,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                 },
                 {
                     type: "imageUploaderExpanded",
-                    name: "back_ine",
+                    name: "back_ine_url",
                     label: "INE Trasera",
                     value: null,
                     initialFile: currentexternalperson?.back_ine_url
@@ -89,11 +106,11 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                     accept: ".jpg,.jpeg,.png",
                     preview: true,
                     validations: [{ type: "required" }],
-                    showIf: () => !!currentexternalperson,
+                    onChange: handleUploadPicture,
                 },
                 {
                     type: "imageUploaderExpanded",
-                    name: "licence",
+                    name: "license_url",
                     label: "Licencia",
                     value: null,
                     initialFile: currentexternalperson?.license_url
@@ -206,7 +223,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
 
     const handleUploadINE: NonNullable<FieldModel["onChange"]> = (value, values) => {
         if (!(value instanceof File)) {
-            showAlert({
+            showAlertAutoClose({
                 type: "warning",
                 title: "Archivo no soportado",
                 description: "Selecciona una imagen válida en formato JPG o PNG.",
@@ -216,7 +233,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             });
             return;
         }
-        updateField(formId, "fronta_ine", { value });
+        updateField(formId, "frontal_ine_url", { value });
 
         void (async () => {
 
@@ -264,8 +281,8 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                 }
 
                 // 3) Casos especiales (objetos/archivos) que solo quieres mostrar
-                //    sin autollenar: fronta_ine, back_ine, licence (no license_number ni vigence todavía).
-                const objectLikeKeys = ["fronta_ine", "back_ine", "licence"];
+                //    sin autollenar: frontal_ine_url, back_ine_url y license_url (sin license_number ni vigence todavía).
+                const objectLikeKeys = ["frontal_ine_url", "back_ine_url", "license_url"];
                 for (const k of objectLikeKeys) {
                     if (k in (values ?? {})) {
                         updateField(formId, k, { showIf: () => true });
@@ -274,7 +291,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             } catch (error) {
                 console.error("[external-access] Error procesando INE", error);
                 const description = error instanceof Error ? error.message : "No se pudo completar el análisis. Intenta nuevamente.";
-                showAlert({
+                showAlertAutoClose({
                     type: "error",
                     title: "Error al procesar la INE",
                     description,
@@ -289,7 +306,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
     };
     const handleUploadINEBack: NonNullable<FieldModel["onChange"]> = (value) => {
         if (!(value instanceof File)) {
-            showAlert({
+            showAlertAutoClose({
                 type: "warning",
                 title: "Archivo no soportado",
                 description: "Selecciona una imagen válida en formato JPG o PNG.",
@@ -299,7 +316,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             });
             return;
         }
-        updateField(formId, "back_ine", { value });
+        updateField(formId, "back_ine_url", { value });
         void (async () => {
             if (!hasInitBackINE.current && currentexternalperson?.back_ine_url) {
                 hasInitBackINE.current = true;
@@ -322,7 +339,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                     error instanceof Error
                         ? error.message
                         : "No se pudo completar el análisis. Intenta nuevamente.";
-                showAlert({
+                showAlertAutoClose({
                     type: "error",
                     title: "Error al procesar la INE",
                     description,
@@ -337,7 +354,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
     }
     const handleUploadLicense: NonNullable<FieldModel["onChange"]> = (value) => {
         if (!(value instanceof File)) {
-            showAlert({
+            showAlertAutoClose({
                 type: "warning",
                 title: "Archivo no soportado",
                 description: "Selecciona una imagen válida en formato JPG o PNG.",
@@ -347,7 +364,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             });
             return;
         }
-        updateField(formId, "licence", { value });
+        updateField(formId, "license_url", { value });
         void (async () => {
             if (!hasInitLicense.current && currentexternalperson?.license_url) {
                 hasInitLicense.current = true;
@@ -383,7 +400,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
                     error instanceof Error
                         ? error.message
                         : "No se pudo completar el análisis. Intenta nuevamente.";
-                showAlert({
+                showAlertAutoClose({
                     type: "error",
                     title: "Error al procesar la INE",
                     description,
@@ -430,7 +447,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
             // Empresa obligatoria para asociar el registro
             const enterpriseId = currentEnterpriseId;
             if (!enterpriseId) {
-                showAlert({
+                showAlertAutoClose({
                     type: "warning",
                     title: "Empresa no seleccionada",
                     description: "Selecciona una empresa antes de registrar el acceso.",
@@ -512,7 +529,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
         } catch (err) {
             // Manejo defensivo en caso de fallo previo a flags del store
             const description = err instanceof Error ? err.message : "Error al preparar el envío.";
-            showAlert({
+            showAlertAutoClose({
                 type: "error",
                 title: "No se pudo enviar",
                 description,
@@ -546,7 +563,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
         hideSpinner();
 
         if (error) {
-            showAlert({
+            showAlertAutoClose({
                 type: "error",
                 title: "Ocurrió un error",
                 description: error,
@@ -558,7 +575,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
 
         if (succesCreate) {
 
-            showAlert({
+            showAlertAutoClose({
                 type: "success",
                 title: "Registro exitoso",
                 description: "Se registró la información de la persona.",
@@ -571,7 +588,7 @@ const useAddExternalPersonForm = ({ formId, currentexternalperson }: AddExtneral
 
         if (succesUpdate) {
 
-            showAlert({
+            showAlertAutoClose({
                 type: "success",
                 title: "Actualización exitosa",
                 description: "Se actualizó la información de la persona.",
