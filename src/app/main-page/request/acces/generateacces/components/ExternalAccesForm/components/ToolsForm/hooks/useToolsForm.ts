@@ -51,8 +51,8 @@ const TOOL_COLUMNS_WIDTH: Record<keyof Tools, number> = {
     meditiontype: 18,
 };
 
-const TOOL_COLOR_PRIMARY = "FF1E3A8A";
-const TOOL_COLOR_ACCENT = "FF1D4ED8";
+const TOOL_COLOR_PRIMARY = "FF002A41";
+const TOOL_COLOR_ACCENT = TOOL_COLOR_PRIMARY;
 
 const TOOL_TEMPLATE_HEADERS: ColumnDef[] = [
     { key: "quantity", header: "Cantidad" },
@@ -143,10 +143,14 @@ const setWorksheetTitle = (worksheet: ExcelJS.Worksheet) => {
 };
 
 const decorateWorksheet = async (workbook: ExcelJS.Workbook, worksheet: ExcelJS.Worksheet) => {
+    if (worksheet.rowCount > 0) {
+        worksheet.spliceRows(1, worksheet.rowCount);
+    }
+
     worksheet.properties.defaultRowHeight = 20;
     applyColumnsLayout(worksheet);
 
-    worksheet.getRow(1).height = 12;
+    worksheet.getRow(1).height = 16;
     worksheet.addRow([]);
 
     await getLogoAsBase64().then((base64) => {
@@ -155,7 +159,7 @@ const decorateWorksheet = async (workbook: ExcelJS.Workbook, worksheet: ExcelJS.
         const imageId = workbook.addImage({ base64, extension: "png" });
         worksheet.addImage(imageId, {
             tl: { col: 0, row: 0 },
-            ext: { width: 140, height: 60 },
+            ext: { width: 190, height: 90 },
             editAs: "oneCell",
         });
     });

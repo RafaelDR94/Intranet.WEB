@@ -1,3 +1,8 @@
+### 1.47.47 Tools template single header 28-10-2025
+
+Fix:
+- Ajusta la plantilla de herramientas para mostrar una sola tabla con encabezado azul #002a41, aumenta el tamaño del logo y mantiene la limpieza del formato al regenerar el archivo. (Agente IA) [#]()
+
 ### 1.47.46 Tools template branding 28-10-2025
 
 Feat:
