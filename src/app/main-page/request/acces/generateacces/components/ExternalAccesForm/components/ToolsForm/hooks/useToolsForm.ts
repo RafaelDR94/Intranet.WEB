@@ -75,9 +75,15 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
     return btoa(binary);
 };
 
+const isHyperlinkValue = (value: ExcelJS.CellValue): value is ExcelJS.CellHyperlinkValue =>
+    typeof value === "object" && value !== null && "text" in value;
+
+const isRichTextValue = (value: ExcelJS.CellValue): value is ExcelJS.CellRichTextValue =>
+    typeof value === "object" && value !== null && "richText" in value;
+
 const getLogoAsBase64 = async () => {
     try {
-        const logoSource = (DRLogo as StaticImageData).src ?? (DRLogo as string);
+        const logoSource = typeof DRLogo === "string" ? DRLogo : (DRLogo as StaticImageData).src;
         const response = await fetch(logoSource);
 
         if (!response.ok) return undefined;
@@ -172,14 +178,12 @@ const decorateWorksheet = async (workbook: ExcelJS.Workbook, worksheet: ExcelJS.
 const parseToString = (value: unknown) => String(value ?? "").trim();
 
 const parseCellValue = (value: ExcelJS.CellValue): string => {
-    if (typeof value === "object" && value !== null) {
-        if ("text" in value) {
-            return parseToString((value as ExcelJS.CellHyperlinkValue | ExcelJS.CellRichTextValue).text);
-        }
+    if (isHyperlinkValue(value)) {
+        return parseToString(value.text);
+    }
 
-        if ("richText" in value && Array.isArray(value.richText)) {
-            return parseToString(value.richText.map((part) => part.text ?? "").join(""));
-        }
+    if (isRichTextValue(value) && Array.isArray(value.richText)) {
+        return parseToString(value.richText.map((part) => part.text ?? "").join(""));
     }
 
     return parseToString(value);
@@ -272,7 +276,7 @@ const createToolFields = (tool: Tools): FieldModel[] => [
         label: "Tipo de material",
         placeholder: "Selecciona un tipo",
         value: tool.materialtype || DEFAULT_MATERIAL_TYPE,
-        options: MATERIAL_TYPES,
+        options: [...MATERIAL_TYPES],
         validations: [{ type: "required" }],
     },
     {
@@ -281,7 +285,7 @@ const createToolFields = (tool: Tools): FieldModel[] => [
         label: "Tipo de medida",
         placeholder: "Selecciona un tipo",
         value: tool.meditiontype || DEFAULT_MEDITION_TYPE,
-        options: MEDITION_TYPES,
+        options: [...MEDITION_TYPES],
         validations: [{ type: "required" }],
     },
 ];
@@ -293,6 +297,14 @@ const TOOL_FORM_LAYOUT: ResponsiveLayoutMatrix = {
 };
 
 const MIME_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+const canDecorateWorksheet = (
+    worksheet: Partial<ExcelJS.Worksheet>
+): worksheet is ExcelJS.Worksheet =>
+    typeof worksheet.spliceRows === "function" &&
+    typeof worksheet.getRow === "function" &&
+    typeof worksheet.addImage === "function" &&
+    typeof worksheet.mergeCells === "function";
 
 const useToolsForm = () => {
     const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
@@ -345,12 +357,13 @@ const useToolsForm = () => {
         const currentTool = tools[index];
         if (!currentTool) return;
         const nextTool = mapValuesToTool(values);
-        const updates = TOOL_KEYS.reduce<Partial<Tools>>((acc, key) => {
+        const updates: Partial<Tools> = {};
+
+        TOOL_KEYS.forEach((key) => {
             if (currentTool[key] !== nextTool[key]) {
-                acc[key] = nextTool[key];
+                (updates as Record<keyof Tools, Tools[keyof Tools]>)[key] = nextTool[key];
             }
-            return acc;
-        }, {} as Partial<Tools>);
+        });
 
         if (Object.keys(updates).length > 0) {
             updateTool(index, updates);
@@ -373,8 +386,13 @@ const useToolsForm = () => {
         setIsDownloadingTemplate(true);
         try {
             const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet("Herramientas", { properties: { defaultRowHeight: 18 } });
-            await decorateWorksheet(workbook, worksheet);
+            const worksheet = workbook.addWorksheet("Herramientas", { properties: { defaultRowHeight: 18 } }) as Partial<ExcelJS.Worksheet>;
+
+            if (canDecorateWorksheet(worksheet)) {
+                await decorateWorksheet(workbook, worksheet);
+            } else {
+                worksheet.addRow?.(TOOL_TEMPLATE_HEADERS.map((column) => column.header));
+            }
 
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: MIME_XLSX });
