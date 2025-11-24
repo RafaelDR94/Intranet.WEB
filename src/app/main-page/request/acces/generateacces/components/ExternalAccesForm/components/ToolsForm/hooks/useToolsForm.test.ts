@@ -9,7 +9,15 @@ const mocks = vi.hoisted(() => ({
     mockShowSpinner: vi.fn(),
     mockHideSpinner: vi.fn(),
     mockSaveAs: vi.fn(),
+    mockUpdateTool: vi.fn(),
     mockSetTools: vi.fn(),
+    toolsState: {
+        tools: [],
+        addTool: vi.fn(),
+        updateTool: vi.fn(),
+        removeTool: vi.fn(),
+        setTools: vi.fn(),
+    },
 }));
 
 vi.mock("file-saver", () => ({
@@ -24,13 +32,9 @@ vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
 }));
 
 vi.mock("@/app/stores/useAccesRequestStore/useAccesRequestStore", () => {
-    const toolsState = {
-        tools: [],
-        addTool: vi.fn(),
-        updateTool: vi.fn(),
-        removeTool: vi.fn(),
-        setTools: mocks.mockSetTools,
-    };
+    const toolsState = mocks.toolsState;
+    toolsState.setTools = mocks.mockSetTools;
+    toolsState.updateTool = mocks.mockUpdateTool;
     return {
         __esModule: true,
         default: (selector: (state: typeof toolsState) => unknown) => selector(toolsState),
@@ -73,6 +77,7 @@ const createToolsFile = async (options?: { headerRow?: number; withConsecutive?:
 describe("useToolsForm", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mocks.toolsState.tools = [];
     });
 
     afterEach(() => {
@@ -124,5 +129,28 @@ describe("useToolsForm", () => {
                 title: "Herramientas cargadas",
             })
         );
+    });
+
+    it("conserva los valores existentes al actualizar parcialmente una herramienta", () => {
+        mocks.toolsState.tools = [
+            {
+                quantity: "2",
+                brand: "ACME",
+                description: "Caja de herramientas",
+                model: "MX-100",
+                serialnumber: "12345",
+                materialtype: "Ferretero",
+                meditiontype: "Pieza",
+            },
+        ];
+
+        const { result } = renderHook(() => useToolsForm());
+
+        act(() => {
+            result.current.handleUpdateToolValues(0, { description: "Maletín" });
+        });
+
+        expect(mocks.mockUpdateTool).toHaveBeenCalledWith(0, { description: "Maletín" });
+        expect(mocks.toolsState.tools[0].quantity).toBe("2");
     });
 });

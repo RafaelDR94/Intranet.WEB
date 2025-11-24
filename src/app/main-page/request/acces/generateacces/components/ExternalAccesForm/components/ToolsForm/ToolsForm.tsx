@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef } from "react";
+import React, { ChangeEvent, useRef } from "react";
 
 import useToolsForm from "./hooks/useToolsForm";
 
@@ -100,7 +100,7 @@ const ToolsForm: React.FC<FormsInterface> = ({ canUpdateForm }) => {
         <div className="flex flex-col gap-4">
           {tools.map((tool, index) => (
             <div
-              key={`${tool.description}-${tool.brand}-${tool.model}-${tool.serialnumber}-${index}`}
+              key={`tool-${index}`}
               className="flex flex-col gap-4 lg:flex-row lg:items-center"
             >
               <div className="flex-1">

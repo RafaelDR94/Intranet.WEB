@@ -1,3 +1,13 @@
+### 1.47.51 Tools form stable editing 30-10-2025
+
+Fix:
+- Evita que el formulario de herramientas se reinicie al teclear o borrar varias letras al usar teclas rápidas, manteniendo una clave estable por fila. (Agente IA) [#]()
+
+### 1.47.50 Tools form partial updates 30-10-2025
+
+Fix:
+- Evita que los campos de herramientas se vacíen al editar, mezclando los cambios parciales con el valor original para permitir escribir o borrar sin reinicios inesperados. (Agente IA) [#]()
+
 ### 1.47.49 Tools template resilience 29-10-2025
 
 Fix:
