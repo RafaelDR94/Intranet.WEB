@@ -419,6 +419,7 @@ const useAddVehiclesForm = ({
   };
 
   const handleSubmit = async (values: Record<string, any>) => {
+    let wasSuccessful = false;
     try {
       const enterpriseId = currentEnterpriseId;
       if (!enterpriseId) {
@@ -554,6 +555,7 @@ const useAddVehiclesForm = ({
             showSecondaryButton: false,
             autoCloseMs: 2000,
           });
+          wasSuccessful = true;
         } else {
           showAlert({
             type: "error",
@@ -610,6 +612,7 @@ const useAddVehiclesForm = ({
             showSecondaryButton: false,
             autoCloseMs: 2000,
           });
+          wasSuccessful = true;
         } else {
           showAlert({
             type: "error",
@@ -624,7 +627,9 @@ const useAddVehiclesForm = ({
         }
       }
 
-      resetFields(formId);
+      if (wasSuccessful) {
+        resetFields(formId);
+      }
     } catch (error) {
       const description =
         error instanceof Error
