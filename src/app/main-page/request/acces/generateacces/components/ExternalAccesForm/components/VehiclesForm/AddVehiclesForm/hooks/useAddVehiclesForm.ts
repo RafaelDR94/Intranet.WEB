@@ -378,7 +378,7 @@ const useAddVehiclesForm = ({
           description,
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 4000,
+          autoCloseMs: 1500,
         });
       } finally {
         hideSpinner();
@@ -553,7 +553,7 @@ const useAddVehiclesForm = ({
               "La información del vehículo se actualizó correctamente.",
             showPrimaryButton: false,
             showSecondaryButton: false,
-            autoCloseMs: 2000,
+            autoCloseMs: 1500,
           });
           wasSuccessful = true;
         } else {
@@ -565,7 +565,7 @@ const useAddVehiclesForm = ({
               "Intenta nuevamente o comunícate con soporte si el problema persiste.",
             showPrimaryButton: false,
             showSecondaryButton: false,
-            autoCloseMs: 4000,
+            autoCloseMs: 1500,
           });
         }
       } else {
@@ -610,7 +610,7 @@ const useAddVehiclesForm = ({
             description: "El vehículo se registró correctamente.",
             showPrimaryButton: false,
             showSecondaryButton: false,
-            autoCloseMs: 2000,
+            autoCloseMs: 1500,
           });
           wasSuccessful = true;
         } else {
@@ -622,7 +622,7 @@ const useAddVehiclesForm = ({
               "Revisa la información e intenta nuevamente en unos minutos.",
             showPrimaryButton: false,
             showSecondaryButton: false,
-            autoCloseMs: 4000,
+            autoCloseMs: 1500,
           });
         }
       }
@@ -641,7 +641,7 @@ const useAddVehiclesForm = ({
         description,
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 4000,
+        autoCloseMs: 1500,
       });
     } finally {
       hideSpinner();
