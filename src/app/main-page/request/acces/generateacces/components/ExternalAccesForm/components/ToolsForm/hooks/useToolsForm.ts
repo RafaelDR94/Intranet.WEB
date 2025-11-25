@@ -356,7 +356,7 @@ const useToolsForm = () => {
     const handleUpdateToolValues = useCallback((index: number, values: Record<string, unknown>) => {
         const currentTool = tools[index];
         if (!currentTool) return;
-        const nextTool = mapValuesToTool(values);
+        const nextTool = mapValuesToTool({ ...currentTool, ...values });
         const updates: Partial<Tools> = {};
 
         TOOL_KEYS.forEach((key) => {
