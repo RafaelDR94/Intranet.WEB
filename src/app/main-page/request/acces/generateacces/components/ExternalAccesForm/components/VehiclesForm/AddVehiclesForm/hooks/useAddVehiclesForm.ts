@@ -14,7 +14,10 @@ import {
   ParsedCirculationCard,
 } from "@/app/utilities/OCR/CirculationCardparcer";
 
-import type { TransportPost, TransportPut } from "@/app/mappings/transport/transport.types";
+import type {
+  TransportPost,
+  TransportPut,
+} from "@/app/mappings/transport/transport.types";
 
 import type { AddVehicleFormProps } from "../types";
 
@@ -29,16 +32,18 @@ const useAddVehiclesForm = ({
       addVehicle: s.addVehicle,
       updateVehicle: s.updateVehicle,
     }),
-    shallow
+    shallow,
   );
 
-  const { createExternalTransport, updateTransport } = useTransportStore(
-    (s) => ({
-      createExternalTransport: s.createExternalTransport,
-      updateTransport: s.updateTransport
-    }),
-    shallow
-  );
+  const { createExternalTransport, updateTransport, transportError } =
+    useTransportStore(
+      (s) => ({
+        createExternalTransport: s.createExternalTransport,
+        updateTransport: s.updateTransport,
+        transportError: s.error,
+      }),
+      shallow,
+    );
 
   const { all } = useQuery();
   const currentEnterpriseId = all.enterpriseId;
@@ -70,7 +75,6 @@ const useAddVehiclesForm = ({
           accept: ".jpg,.jpeg,.png",
           preview: true,
           validations: [{ type: "required" }],
-
         },
         {
           type: "imageUploaderExpanded",
@@ -79,9 +83,9 @@ const useAddVehiclesForm = ({
           value: null,
           initialFile: currentTransport?.image_circulation_card
             ? {
-              name: "image_circulation_card.jpg",
-              url: currentTransport.image_circulation_card,
-            }
+                name: "image_circulation_card.jpg",
+                url: currentTransport.image_circulation_card,
+              }
             : undefined,
           accept: ".jpg,.jpeg,.png",
           preview: true,
@@ -95,9 +99,9 @@ const useAddVehiclesForm = ({
           value: null,
           initialFile: currentTransport?.insurance_policy_doc
             ? {
-              name: "insurance_policy_doc",
-              url: currentTransport.insurance_policy_doc,
-            }
+                name: "insurance_policy_doc",
+                url: currentTransport.insurance_policy_doc,
+              }
             : undefined,
           accept: ".pdf",
           preview: true,
@@ -122,9 +126,9 @@ const useAddVehiclesForm = ({
           value: null,
           initialFile: currentTransport?.right_side_image
             ? {
-              name: "right_side_image.jpg",
-              url: currentTransport.right_side_image,
-            }
+                name: "right_side_image.jpg",
+                url: currentTransport.right_side_image,
+              }
             : undefined,
           accept: ".jpg,.jpeg,.png",
           preview: true,
@@ -137,9 +141,9 @@ const useAddVehiclesForm = ({
           value: null,
           initialFile: currentTransport?.left_side_image
             ? {
-              name: "left_side_image.jpg",
-              url: currentTransport.left_side_image,
-            }
+                name: "left_side_image.jpg",
+                url: currentTransport.left_side_image,
+              }
             : undefined,
           accept: ".jpg,.jpeg,.png",
           preview: true,
@@ -264,12 +268,10 @@ const useAddVehiclesForm = ({
           value: currentTransport?.coverage ?? "",
           validations: [{ type: "required" }],
         },
-
       ];
 
       return model;
     };
-
 
     setFields(formId, initialFields());
     hasInitFields.current = true;
@@ -281,11 +283,11 @@ const useAddVehiclesForm = ({
     setTimeout(() => {
       loadInitialFields();
       setCanStart(true);
-    }, 500)
-  }, [resetFields])
+    }, 500);
+  }, [resetFields]);
 
   const handleUploadCiruculationCard: NonNullable<FieldModel["onChange"]> = (
-    value
+    value,
   ) => {
     if (!(value instanceof File)) {
       showAlert({
@@ -299,7 +301,10 @@ const useAddVehiclesForm = ({
       });
       return;
     }
-    if (!hasInitCiruclationCard.current && currentTransport?.image_circulation_card) {
+    if (
+      !hasInitCiruclationCard.current &&
+      currentTransport?.image_circulation_card
+    ) {
       hasInitCiruclationCard.current = true;
       return;
     }
@@ -373,7 +378,7 @@ const useAddVehiclesForm = ({
           description,
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 4000,
+          autoCloseMs: 1500,
         });
       } finally {
         hideSpinner();
@@ -387,7 +392,7 @@ const useAddVehiclesForm = ({
     fileOrUrl: any,
     path: string,
     previousUrl?: string,
-    type?: string
+    type?: string,
   ): Promise<string> => {
     // Si no hay valor, regresa la URL previa o vacío
     if (!fileOrUrl) return previousUrl ?? "";
@@ -399,8 +404,10 @@ const useAddVehiclesForm = ({
 
     // Si es File / Blob u otro tipo soportado, subimos
     try {
-
-      const url = type == "File" ? await firebasestorage.uploadFile(fileOrUrl, path) : await firebasestorage.uploadImage(fileOrUrl, path)
+      const url =
+        type == "File"
+          ? await firebasestorage.uploadFile(fileOrUrl, path)
+          : await firebasestorage.uploadImage(fileOrUrl, path);
       if (!url) {
         throw new Error("El servicio de almacenamiento no devolvió una URL.");
       }
@@ -411,8 +418,8 @@ const useAddVehiclesForm = ({
     }
   };
 
-
   const handleSubmit = async (values: Record<string, any>) => {
+    let wasSuccessful = false;
     try {
       const enterpriseId = currentEnterpriseId;
       if (!enterpriseId) {
@@ -444,47 +451,45 @@ const useAddVehiclesForm = ({
           values.image_plates,
           `${basePath}/image_plates`,
           currentTransport?.image_plates,
-          "Image"
+          "Image",
         ),
         uploadOrKeepUrl(
           values.image_circulation_card,
           `${basePath}/image_circulation_card`,
           currentTransport?.image_circulation_card,
-          "Image"
+          "Image",
         ),
         uploadOrKeepUrl(
           values.front_image,
           `${basePath}/front_image`,
           currentTransport?.front_image,
-          "Image"
+          "Image",
         ),
         uploadOrKeepUrl(
           values.back_image,
           `${basePath}/back_image`,
           currentTransport?.back_image,
-          "Image"
+          "Image",
         ),
         uploadOrKeepUrl(
           values.right_side_image,
           `${basePath}/right_side_image`,
           currentTransport?.right_side_image,
-          "Image"
+          "Image",
         ),
         uploadOrKeepUrl(
           values.left_side_image,
           `${basePath}/left_side_image`,
           currentTransport?.left_side_image,
-          "Image"
+          "Image",
         ),
         uploadOrKeepUrl(
           values.insurance_policy_doc,
           `${basePath}/insurance_policy_doc`,
           currentTransport?.insurance_policy_doc,
-          "File"
+          "File",
         ),
       ]);
-
-
 
       // UPDATE vs CREATE (igual que useAddExternalPersonForm)
       if (currentTransport?.transport_id) {
@@ -508,8 +513,7 @@ const useAddVehiclesForm = ({
           coverage: values.coverage ?? "",
           // tarjeta circulación
           circulation_card: values.circulation_card ?? "",
-          circulation_card_expiration:
-            values.circulation_card_expiration ?? "",
+          circulation_card_expiration: values.circulation_card_expiration ?? "",
           // imágenes (si no suben nuevas, conserva las anteriores)
           image_plates: image_plates_url || currentTransport.image_plates || "",
           image_circulation_card:
@@ -545,10 +549,23 @@ const useAddVehiclesForm = ({
           showAlert({
             type: "success",
             title: "Vehículo actualizado",
-            description: "La información del vehículo se actualizó correctamente.",
+            description:
+              "La información del vehículo se actualizó correctamente.",
             showPrimaryButton: false,
             showSecondaryButton: false,
-            autoCloseMs: 2000,
+            autoCloseMs: 1500,
+          });
+          wasSuccessful = true;
+        } else {
+          showAlert({
+            type: "error",
+            title: "No se pudo actualizar el vehículo",
+            description:
+              transportError ??
+              "Intenta nuevamente o comunícate con soporte si el problema persiste.",
+            showPrimaryButton: false,
+            showSecondaryButton: false,
+            autoCloseMs: 1500,
           });
         }
       } else {
@@ -567,8 +584,7 @@ const useAddVehiclesForm = ({
           payment_type: values.payment_type ?? "",
           coverage: values.coverage ?? "",
           circulation_card: values.circulation_card ?? "",
-          circulation_card_expiration:
-            values.circulation_card_expiration ?? "",
+          circulation_card_expiration: values.circulation_card_expiration ?? "",
           image_plates: image_plates_url,
           image_circulation_card: image_circulation_card_url,
           front_image: front_image_url,
@@ -594,12 +610,26 @@ const useAddVehiclesForm = ({
             description: "El vehículo se registró correctamente.",
             showPrimaryButton: false,
             showSecondaryButton: false,
-            autoCloseMs: 2000,
+            autoCloseMs: 1500,
+          });
+          wasSuccessful = true;
+        } else {
+          showAlert({
+            type: "error",
+            title: "No se pudo registrar el vehículo",
+            description:
+              transportError ??
+              "Revisa la información e intenta nuevamente en unos minutos.",
+            showPrimaryButton: false,
+            showSecondaryButton: false,
+            autoCloseMs: 1500,
           });
         }
       }
 
-      resetFields(formId);
+      if (wasSuccessful) {
+        resetFields(formId);
+      }
     } catch (error) {
       const description =
         error instanceof Error
@@ -611,15 +641,12 @@ const useAddVehiclesForm = ({
         description,
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 4000,
+        autoCloseMs: 1500,
       });
     } finally {
       hideSpinner();
     }
   };
-
-
-
 
   return {
     fields: fieldsByFormId[formId] ?? [],

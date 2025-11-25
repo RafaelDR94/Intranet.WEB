@@ -32,7 +32,11 @@ const VehiclesForm : React.FC<FormsInterface> = ({ canUpdateForm }) => {
                     options={systemVehicles}
                     placeholder="Selecciona un vehículo"
                 />
-                <Button onClick={handleConfirmVehicle} hideIcon disabled={!canUpdateForm}>
+                <Button
+                    onClick={handleConfirmVehicle}
+                    hideIcon
+                    disabled={!canUpdateForm || !vehicleSelected}
+                >
                     Agregar
                 </Button>
             </div>}

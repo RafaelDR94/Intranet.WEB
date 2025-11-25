@@ -221,7 +221,7 @@ const useExternalAccesForm = () => {
         }
     }, [fetchStatusesByType, statusList]);
 
-    const canSubmit = externalpersons.length > 0 || tools.length > 0;
+    const canSubmit = externalpersons.length > 0 || tools.length > 0 || vehicles.length > 0;
 
     return ({
         canSubmit,
