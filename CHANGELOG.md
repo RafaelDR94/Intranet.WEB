@@ -1,3 +1,8 @@
+### 1.47.52 Vehicles form error persistence 31-10-2025
+
+Fix:
+- Mantiene los datos capturados en el formulario de vehículos cuando ocurre un error al registrar o actualizar, permitiendo corregir la información sin volver a llenarla. (Agente IA) [#]()
+
 ### 1.47.51 Tools form stable editing 30-10-2025
 
 Fix:
