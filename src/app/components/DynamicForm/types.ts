@@ -23,6 +23,7 @@ export type InputType =
   | 'checkbox'
   | 'toggle'
   | 'file'
+  | 'imageUploaderExpanded'
   | 'textarea';
 
 export type ControlLevelFieldProps = Partial<
@@ -91,6 +92,22 @@ export interface FieldModel {
   icon?: FC<SVGProps<SVGSVGElement>>;
   initialFile?: InitialFile;
   onlyText?: boolean;
+
+  /** Props opcionales para ImageUploaderExpanded */
+  /** Texto del botón seleccionar imagen */
+  buttonLabel?: string;
+  /** Etiquetas personalizadas para la cámara */
+  cameraLabels?: {
+    capture?: string;
+    switchCamera?: string;
+    close?: string;
+  };
+  /** Aria-label del botón de cámara */
+  cameraButtonAriaLabel?: string;
+  /** Cámara por defecto ('user' | 'environment') */
+  defaultFacingMode?: 'user' | 'environment';
+  /** Modo vista previa con opción de cambiar */
+  preview?: boolean;
 
   onChange?: (value: any, values: Record<string, any>) => void;
   /**Numero de filas en multilinea*/

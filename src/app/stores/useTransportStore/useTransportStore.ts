@@ -7,6 +7,7 @@ import type { TransportStoreState } from './types';
 import {
   createAssignment as createAssignmentRequest,
   createTransport as createTransportRequest,
+  createExternalTransport as createExternalTransportRequest,
   createVehicleTracking as createVehicleTrackingRequest,
   deleteAssignment as deleteAssignmentRequest,
   deleteTransport as deleteTransportRequest,
@@ -15,6 +16,7 @@ import {
   fetchAssignments as fetchAssignmentsRequest,
   fetchTransportById as fetchTransportByIdRequest,
   fetchTransports as fetchTransportsRequest,
+  fetchTransportsByEnterprise as fetchTransportsByEnterpriseRequest,
   fetchVehicleTrackingById as fetchVehicleTrackingByIdRequest,
   fetchVehicleTrackings as fetchVehicleTrackingsRequest,
   updateAssignment as updateAssignmentRequest,
@@ -69,7 +71,11 @@ export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
 
     fetchTransports: (force = false) => fetchTransportsRequest(set, get, force),
     fetchTransportById: (id, force = false) => fetchTransportByIdRequest(id, set, get, force),
+    fetchTransportsByEnterprise: (enterpriseId, force = false) =>
+      fetchTransportsByEnterpriseRequest(enterpriseId, set, get, force),
     createTransport: (payload) => createTransportRequest(set, get, payload),
+    createExternalTransport: (payload) =>
+      createExternalTransportRequest(set, get, payload),
     updateTransport: (payload) => updateTransportRequest(set, get, payload),
     deleteTransport: (id) => deleteTransportRequest(set, get, id),
 

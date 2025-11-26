@@ -82,7 +82,7 @@ const paintHeader = ({ sheet, logoBase64, meta, startCol, spanCols, startRow }: 
     sheet.addImage(id, { tl: { col: 0, row: 0 }, ext: { width: 200, height: 100 } });
   }
 
-  const title = meta?.title ?? "Hoja de costeo presupuestal";
+  const title = meta?.title ?? "";
   const titleStartCol = startCol;
   const titleEndCol = startCol + spanCols - 1;
 

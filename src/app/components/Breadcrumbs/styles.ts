@@ -10,7 +10,7 @@ export const breadcrumbsStyles = {
       'text-c2 sm:text-b2',          // tipografías semánticas (mobile ↓)  📝
       'overflow-x-auto overscroll-x-contain',
       'whitespace-nowrap',
-      '-mx-2 px-2',                  // “sangrado” para scroll cómodo
+      '-mx-2 px-2 mb-0',                  // “sangrado” para scroll cómodo
       'py-1',
       'rounded-md',
       // oculta scrollbars de forma cross-browser sin plugins

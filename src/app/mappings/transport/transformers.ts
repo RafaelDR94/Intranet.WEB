@@ -1,10 +1,9 @@
 import {
-  Transport,
+  CompleteTransport,
 } from "./transport.types";
 import {
   mapCompleteTransport,
   mapCompleteTransportList,
-  mapTransport,
   mapTransportAssignament,
   mapTransportAssignamentPost,
   mapTransportAssignamentPut,
@@ -20,8 +19,8 @@ import {
 export const transportTransformer = {
   mapCompleteTransport,
   mapCompleteTransportList,
-  mapTransport,
-  mapTransportList: (list: any[]): Transport[] => list.map(mapTransport),
+  mapTransport:mapCompleteTransport,
+  mapTransportList: (list: any[]): CompleteTransport[] => list.map(mapCompleteTransport),
   mapTransportPost,
   mapTransportPut,
   mapVehicleTraking,

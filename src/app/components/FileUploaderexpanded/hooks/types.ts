@@ -16,4 +16,8 @@ export type UseFileUploaderExpandedReturn = {
 
   // UI helpers
   mainText: string;
+  // Preview helpers
+  previewUrl: string | null;
+  /** Usar cuando el archivo proviene de una fuente externa (p.ej. cámara) y no pasa por input */
+  applyExternalFile: (file: File) => void;
 };

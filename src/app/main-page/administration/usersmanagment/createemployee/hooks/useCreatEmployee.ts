@@ -53,7 +53,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
     }),
     shallow,
   );
-
+ 
   const {
     fetchEmployeeById,
     fetchActiveEmployees,
@@ -86,7 +86,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
     }),
     shallow,
   );
-
+ 
   const { fieldsByFormId, setFields, updateField, resetFields } =
     useFormFieldsStore();
   const handleValidChange = (valid: boolean) => {
@@ -97,9 +97,9 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
       return;
     }
     let image_url = "";
-
+ 
     const rawImage = values.image_url;
-
+ 
     // 1️⃣ Validar que image_url es string con https
     if (typeof rawImage === "string" && /^https?:\/\//i.test(rawImage)) {
       image_url = rawImage;
@@ -116,7 +116,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
         image_url = ""; // fallback
       }
     }
-
+ 
     // 3️⃣ Construir payload final
     const postPayload = {
       employee_number: values.employee_number,
@@ -134,7 +134,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
       manager_id: values.manager,
       gtstype: values.gtstype,
     };
-
+ 
     // 4️⃣ Crear o actualizar
     if (currentEmployee) {
       updateEmployee({
@@ -145,7 +145,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
       createEmployee({ ...postPayload });
     }
   };
-
+ 
   const completeSelect = async (idEnterprise: string) => {
     setLoadingForm(true);
     const workposition = await fetchWorkPosition(idEnterprise, true);
@@ -163,8 +163,8 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
           (enterprise) => enterprise.enterprise_id == idEnterprise,
         ) || [];
       const departments = enterpriseSelected[0].departments;
-      console.log('departments', departments);
-      
+ 
+     
       updateField(formId, "departments", {
         options: departments.map((deparments) => ({
           label: deparments.name,
@@ -174,16 +174,16 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
         disabled: isReadOnly,
       });
     }
-
+ 
     setLoadingForm(false);
   };
-
+ 
   const loadInitialFields = () => {
     if (hasInitFields.current) return;
     const initialFields: () => FieldModel[] = () => {
       const model: FieldModel[] = [
         {
-          type: "file",
+          type: "imageUploaderExpanded",
           name: "image_url",
           label: "Imagen de perfil JPG/PNG",
           initialFile: {
@@ -326,11 +326,11 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
     setFields(formId, initialFields());
     hasInitFields.current = true;
   };
-
+ 
   useEffect(() => {
     if (creatingEmployee) {
       showSpinner({ message: "Creando empleado" });
-
+ 
       return;
     }
     if (updatingEmployee) {
@@ -399,7 +399,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
     succesCreate,
     succesUpdate,
   ]);
-
+ 
   useEffect(() => {
     if (canStart) {
       loadInitialFields();
@@ -451,14 +451,14 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
     canStart,
     isReadOnly,
   ]);
-
+ 
   const getEmployeeInfo = async (employeeId: string) => {
     if (!currentEmployee || currentEmployee.employee_id !== employeeId) {
       await fetchEmployeeById(String(employeeId));
     }
     setCanStart(true);
   };
-
+ 
   useEffect(() => {
     if (!hasresetedfields.current) {
       resetFields(formId);
@@ -472,7 +472,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
       setCanStart(true);
     }
   }, [targetEmployeeId, resetCurrentEmployee, resetFields]);
-
+ 
   useEffect(() => {
     if (
       currentEmployee &&
@@ -484,7 +484,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
       completeSelect(currentEmployee?.department?.enterprise_id || "");
     }
   }, [currentEmployee, enterprisesList, employeesList]);
-
+ 
   return {
     loadingForm,
     fields: fieldsByFormId[formId],

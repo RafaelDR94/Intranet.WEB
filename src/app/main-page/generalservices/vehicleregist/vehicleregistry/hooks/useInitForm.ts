@@ -9,7 +9,7 @@ import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesSt
 import { shallow } from "zustand/shallow";
 import { EmployeeType } from "@/app/mappings/employees/employee.types";
 import { useTransportStore } from "@/app/stores/useTransportStore/useTransportStore";
-import { Transport, TransportAssignament, VehicleTraking } from "@/app/mappings/transport/transport.types";
+import { CompleteTransport, TransportAssignament, VehicleTraking } from "@/app/mappings/transport/transport.types";
 import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 const formId1 = "departure-form";
@@ -386,7 +386,7 @@ const useInitForm = (formType: keyof typeof FORM_IDS = "departure") => {
     );
     if (!hasVehicleField) return;
 
-    const options = transports.map((vehicle: Transport) => {
+    const options = transports.map((vehicle: CompleteTransport) => {
       const mainLabel = [vehicle.brand, vehicle.model]
         .filter(Boolean)
         .join(" ")

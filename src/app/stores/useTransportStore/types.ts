@@ -12,7 +12,7 @@ import type {
 } from "@/app/mappings/transport/transport.types";
 
 export type TransportStoreState = {
-  transports: Transport[];
+  transports: CompleteTransport[];
   transport?: CompleteTransport;
 
   assignments: TransportAssignament[];
@@ -57,8 +57,10 @@ export type TransportStoreState = {
 
   fetchTransports: (force?: boolean) => Promise<Transport[] | null>;
   fetchTransportById: (id: string, force?: boolean) => Promise<CompleteTransport | null>;
-  createTransport: (payload: TransportPost) => Promise<Transport | null>;
-  updateTransport: (payload: TransportPut) => Promise<Transport | null>;
+  fetchTransportsByEnterprise: (enterpriseId: string, force?: boolean) => Promise<CompleteTransport[] | null>;
+  createTransport: (payload: TransportPost) => Promise<CompleteTransport | null>;
+  createExternalTransport: (payload: TransportPost) => Promise<CompleteTransport | null>;
+  updateTransport: (payload: TransportPut) => Promise<CompleteTransport | null>;
   deleteTransport: (id: string) => Promise<boolean>;
 
   fetchAssignments: (force?: boolean) => Promise<TransportAssignament[] | null>;

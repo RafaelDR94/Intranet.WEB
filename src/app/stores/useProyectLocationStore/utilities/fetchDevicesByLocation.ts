@@ -32,7 +32,6 @@ export const fetchDevicesByLocation = async (
     const response: AxiosResponse = await pGet(getFn)(url);
     const raw = response.data?.data ?? [];
     const mapped: ReportDeviceView[] = mapReportDevicesExternal(Array.isArray(raw) ? raw : []);
-
     set({
       devices: mapped,
       lastLocationId: trimmed,

@@ -37,7 +37,7 @@ export const mapEmployee = (emp: any): EmployeeType => ({
   image_url: toString(emp?.image_url),
   manager_id: toString(emp?.manager_id),
   department: mapDepartment(emp?.department ?? {}),
-  gtstype: toString(emp.gtstype),
+  gtstype: toString(emp?.gtstype),
   workposition: mapWorkPosition(emp?.workposition ?? {}),
   user: emp?.user ? mapUser(emp.user) : null,
   is_active: toBoolean(emp?.is_active),

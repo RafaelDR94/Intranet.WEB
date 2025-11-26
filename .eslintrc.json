@@ -40,6 +40,7 @@
     "import/no-named-as-default": "off",
     "import/no-named-as-default-member": "off",
     "react-hooks/exhaustive-deps": "off",
+  
     // "@typescript-eslint/no-explicit-any": "warn"
     "@typescript-eslint/no-explicit-any": "off"
     
@@ -56,7 +57,9 @@
         "@next/next/no-img-element":"off",
         "react/display-name":"off",
         "prefer-const":"off",
-        "@typescript-eslint/no-require-imports":"off"
+        "@typescript-eslint/no-require-imports":"off",
+        "import/namespace":"off",
+        "import/default":"off"
       }
     },
     {

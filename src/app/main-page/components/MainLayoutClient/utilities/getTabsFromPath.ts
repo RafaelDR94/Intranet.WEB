@@ -49,6 +49,20 @@ export const getTabsFromPath = (
         path: "/main-page/request/documents/operationaldocuments",
       }
     ],
+    "request/acces": [
+      {
+        label: "Generación de accesos",
+        path: "/main-page/request/acces/generateacces",
+      },
+      {
+        label: "Historial de accesos",
+        path: "/main-page/request/acces/acceshistory",
+      },
+      {
+        label: "Registro de proveedores",
+        path: "/main-page/request/acces/registerenterprise",
+      }
+    ],
     "accounting/invoices": [
       {
         label: "Subir Archivos",
@@ -107,6 +121,7 @@ export const getTabsFromPath = (
       { label: 'Crear Empleado', path: '/main-page/administration/usersmanagment/createemployee' },
       { label: 'Lista de Empleados', path: '/main-page/administration/usersmanagment/employeesList' },
     ],
+
     'configuration': [
       { label: 'Configuración', path: '/main-page/configuration/userconfiguration' },
     ],

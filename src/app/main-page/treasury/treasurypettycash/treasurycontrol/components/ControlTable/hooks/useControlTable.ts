@@ -348,8 +348,7 @@ export const useControlTable = () => {
     setEditOpen(openEditPanel);
     setDetailOpen(!openEditPanel);
     const detail = await fetchPettyCashVoucherById(row.id, true);
-    console.log('detail aquiiiii', detail);
-    
+       
     if (!detail) {
       showAlert({
         type: 'error',
@@ -743,8 +742,7 @@ export const useControlTable = () => {
         setDetailLoading(true);
         try {
           const detail = await fetchPettyCashVoucherById(target.id, true);
-          console.log('detail ', detail);
-          
+                
           setDetailData(detail);
         } finally {
           setDetailLoading(false);
@@ -821,9 +819,7 @@ export const useControlTable = () => {
       return date;
     }
   };
-
-  console.log('detailData ', detailData);
-  
+ 
 
   return {
     rows,
