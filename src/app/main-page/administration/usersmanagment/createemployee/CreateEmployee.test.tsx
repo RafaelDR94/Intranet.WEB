@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
-import CreateEmployee from './page';
+import CreateEmployee from './CreateEmployee';
 import useCreateEemployee from './hooks/useCreatEmployee';
 
 vi.mock('./hooks/useCreatEmployee', () => ({
@@ -17,7 +17,11 @@ vi.mock('@/app/components/FormsLayout/FormsLayout', () => ({
     formsLayoutSpy(props);
     return (
       <div data-testid="forms-layout">
-        <button type="button" onClick={() => props.onPrimaryClick?.()}>
+        <button
+          type="button"
+          disabled={props.primaryDisabled}
+          onClick={() => props.onPrimaryClick?.()}
+        >
           {props.primaryLabel}
         </button>
         {props.children}
@@ -63,6 +67,7 @@ describe('CreateEmployee page', () => {
       handleSubmit: vi.fn(),
       handleValidChange: vi.fn(),
       formCompleted: false,
+      isReadOnly: false,
     });
 
     const { queryByTestId } = render(<CreateEmployee />);
@@ -82,7 +87,8 @@ describe('CreateEmployee page', () => {
       canStart: true,
       handleSubmit,
       handleValidChange,
-      formCompleted: false,
+      formCompleted: true,
+      isReadOnly: false,
     });
 
     render(<CreateEmployee />);
@@ -97,5 +103,26 @@ describe('CreateEmployee page', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Registrar empleado' }));
     expect(submitMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('pasa loggedUser al hook y deshabilita el botón cuando es solo lectura', () => {
+    const mockUser = { idEmployee: '123' } as any;
+    mockHook.mockReturnValue({
+      loadingForm: true,
+      fields: [{ name: 'firstname', type: 'input' }],
+      submitRef: { current: vi.fn() },
+      canStart: true,
+      handleSubmit: vi.fn(),
+      handleValidChange: vi.fn(),
+      formCompleted: true,
+      isReadOnly: true,
+    });
+
+    render(<CreateEmployee loggedUser={mockUser} />);
+
+    expect(mockHook).toHaveBeenCalledWith({ loggedUser: mockUser });
+    expect(
+      screen.getByRole('button', { name: 'Registrar empleado' })
+    ).toBeDisabled();
   });
 });

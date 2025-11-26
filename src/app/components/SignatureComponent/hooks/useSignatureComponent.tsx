@@ -6,7 +6,11 @@ import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
 import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 
-const useSignatureComponent = ({ onAuthorization, onClose, open, responsibleGuid, externalSignature }: SignaturePopUpProps) => {
+type UseSignatureComponentProps = SignaturePopUpProps & {
+    skipAuthorization?: boolean;
+};
+
+const useSignatureComponent = ({ onAuthorization, onClose, open, responsibleGuid, externalSignature, skipAuthorization = false }: UseSignatureComponentProps) => {
     const { firebasestorage } = useFirebase();
     const { changeSignature, error, changingSignature, succesChangeSignature, resetFlags } = useAuthStore();
     const [openSignaturePopUp, setOpenSignaturePopUp] = useState(false);
@@ -69,8 +73,20 @@ const useSignatureComponent = ({ onAuthorization, onClose, open, responsibleGuid
         finalClose();
     }
     useEffect(() => {
-        setOpenSignaturePopUp(open)
-    }, [open])
+        if (!open) {
+            setOpenSignaturePopUp(false);
+            setShowSignaturePad(false);
+            return;
+        }
+
+        if (skipAuthorization) {
+            setOpenSignaturePopUp(false);
+            setShowSignaturePad(true);
+            return;
+        }
+
+        setOpenSignaturePopUp(true);
+    }, [open, skipAuthorization])
 
     useEffect(() => {
         if (changingSignature) return;

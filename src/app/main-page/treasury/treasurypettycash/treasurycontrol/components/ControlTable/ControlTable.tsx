@@ -174,6 +174,7 @@ const ControlTable = () => {
     formatDate,
     handleValidate,
     handleReject,
+    handleRejectAuthorizationEvidence,
     handleRejectInvoice,
     validating,
     rejecting,
@@ -184,9 +185,6 @@ const ControlTable = () => {
     amountHistory,
     isAmountHistoryLoading,
   } = useControlTable();
-
-
-  
 
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
@@ -201,7 +199,7 @@ const ControlTable = () => {
       {
         key: "amount",
         label: "MTO. SOL.",
-        render: (row) => <span>${(row.amount)}</span>,
+        render: (row) => <span>${row.amount}</span>,
       },
       {
         key: "applicationDate",
@@ -314,6 +312,7 @@ const ControlTable = () => {
         onValidate={handleValidate}
         isValidating={validating}
         onReject={handleReject}
+        onRejectAuthorizationEvidence={handleRejectAuthorizationEvidence}
         onRejectInvoice={handleRejectInvoice}
         isRejecting={rejecting}
         isEditingAmount={isEditing}
@@ -341,7 +340,7 @@ const ControlTable = () => {
             handleFilterChange(value);
             refreshData();
           }}
-          textSize={{ mobile: 'c2', desktop: 'text-d3' }}
+          textSize={{ mobile: "text-d3", tablet: "text-d3", desktop: "text-d3" }}
           tables={[
             {
               data: rows,

@@ -1,6 +1,6 @@
 // src/app/components/FileUploaderExpanded/hooks/useFileUploaderExpanded.ts
 'use client';
-import { useState, DragEvent, useMemo } from 'react';
+import { useState, DragEvent, useMemo, useEffect, useRef, useCallback, ChangeEvent } from 'react';
 
 import { UseFileUploaderExpandedReturn } from './types';
 
@@ -14,10 +14,44 @@ export const useFileUploaderExpanded = (
   disabled: boolean = false,
   initialFile?: InitialFile
 ): UseFileUploaderExpandedReturn => {
-  const { inputRef, fileName, handleButtonClick, handleChange } =
+  const { inputRef, fileName, handleButtonClick, handleChange: baseHandleChange } =
     useFileUploader(onFile, accept, disabled, initialFile);
 
   const [isDragging, setIsDragging] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
+
+  // Limpieza de ObjectURLs creados localmente
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current && typeof URL !== 'undefined' && 'revokeObjectURL' in URL) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+    };
+  }, []);
+
+  // Sincronizar preview con initialFile si viene por url/base64
+  useEffect(() => {
+    if (!initialFile) return;
+    const src = initialFile.url ?? initialFile.base64 ?? null;
+    setPreviewUrl(src);
+  }, [initialFile, initialFile?.url, initialFile?.base64]);
+
+  const setPreviewFromFile = useCallback((file: File) => {
+    // liberar previo si era objectURL
+    if (objectUrlRef.current && typeof URL !== 'undefined' && 'revokeObjectURL' in URL) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+    if (typeof URL !== 'undefined' && 'createObjectURL' in URL) {
+      const url = URL.createObjectURL(file);
+      objectUrlRef.current = url;
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, []);
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -54,8 +88,18 @@ export const useFileUploaderExpanded = (
       const evt = new Event('change', { bubbles: true });
       inputRef.current.dispatchEvent(evt);
     } else {
+      setPreviewFromFile(file);
       onFile?.(file);
     }
+  };
+
+  // Interceptar cambios del input para actualizar vista previa
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPreviewFromFile(file);
+    }
+    baseHandleChange(e);
   };
 
   const mainText = useMemo(() => {
@@ -73,5 +117,10 @@ export const useFileUploaderExpanded = (
     handleDragLeave,
     handleDrop,
     mainText,
+    previewUrl,
+    applyExternalFile: (file: File) => {
+      setPreviewFromFile(file);
+      onFile?.(file);
+    },
   };
 };

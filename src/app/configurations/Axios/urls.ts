@@ -9,8 +9,16 @@ export const AuthCreateNIP = process.env.NEXT_PUBLIC_AUTHCREATENIP ?? "/Auth/Cre
 export const VerifyOTP = process.env.NEXT_PUBLIC_VERIFY_OTP ?? "/VerifyOTP";
 
 export const Enterprises = process.env.NEXT_PUBLIC_ENTERPRISES ?? "/Enterprises";
+export const EnterprisesExternal = process.env.NEXT_PUBLIC_ENTERPRISESEXTERNAL ?? "/Enterprises/External";
 export const Departments = process.env.NEXT_PUBLIC_DEPARTMENTS ?? "/Enterprises/Departments";
 
+export const CustomAccessControler = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLER??"/CustomsAccessControler/ExternalPersonnel"
+export const CustomAccessControlerByEnterprise = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYENTERPRISE??"/CustomsAccessControler/ExternalPersonnel/ByIdEnterprise"
+export const CustomAccessControlerById = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYID??"/CustomsAccessControler/ExternalPersonnel/ByID"
+export const CustomAccessControlerAccesRequirement =process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT||"/CustomsAccessControler/AccessRequirement"
+export const CustomAccessControlerAccesRequirementInternalComments = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT_INTERNALCOMMENTS || "/CustomsAccessControler/AccessRequirementInternalComments"
+export const CustomAccessControlerAccesRequirementExternalComments = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT_EXTERNALCOMMENTS || "/CustomsAccessControler/AccessRequirementExternalComments"
+export const CustomAccessControlerTemplate = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLER_TEMPLATE || "/CustomsAccessControler/Template"
 export const Persons = process.env.NEXT_PUBLIC_PERSONS ?? "/Persons";
 export const WorkPosition = process.env.NEXT_PUBLIC_WORK_POSITION ?? "/Enterprises/WorkPosition";
 
@@ -25,13 +33,16 @@ export const TransportAssigments = process.env.NEXT_PUBLIC_TRANSPORT_ASSIGMENTS 
 export const TransportAssigmentInfo = process.env.NEXT_PUBLIC_TRANSPORT_ASSIGMENT_INFO ?? "/Transport/AssigmentInfo";
 export const TransportVehicleTracking = process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_TRACKING ?? "/Transport/VehicleTracking";
 export const TransportVehicleTrackingById = process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_TRACKING_BYID ?? "/Transport/VehicleTracking/ById";
+export const TransportByEnterprise = process.env.NEXT_PUBLIC_TRANSPORT_BY_ENTERPRISE ?? "/Transport/TransportByIdEnterprise";
+export const TransportExternal = process.env.NEXT_PUBLIC_TRANSPORT_EXTERNAL ?? "/Transport/External";
 
 export const Employees = process.env.NEXT_PUBLIC_EMPLOYEES ?? "/Employees";
 export const EmployeesById = process.env.NEXT_PUBLIC_EMPLOYEESBYID ?? "/Employees/ById";
 export const EmployeesActive = process.env.NEXT_PUBLIC_EMPLOYEES_ACTIVE_ID ?? "/Employees/Activate";
 export const EmployeesIsActive = process.env.NEXT_PUBLIC_EMPLOYEES_IS_ACTIVE ?? "Employees/EmployeesActive";
 
-
+export const Statuses = process.env.NEXT_PUBLIC_STATUS ?? "/Status";
+export const StatusByType = process.env.NEXT_PUBLIC_STATUSBYTYPE ?? "/Status/ByType";
 
 export const HMRequisitions = process.env.NEXT_PUBLIC_HM_REQUISITIONS ?? "/HumanResources/PersonalRequisitions";
 export const HMRequisitionsStatuses = process.env.NEXT_PUBLIC_HM_REQUISITIONSSTATUSES ?? "/HumanResources/PersonalRequisitions/Statuses";
@@ -134,6 +145,9 @@ export const BillingCashOnHand = process.env.NEXT_PUBLIC_BILLINGS_CASHONHAND ?? 
 export const BillingPettyCashVoucher = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER ?? "/Billings/PettyCashVoucher";
 export const BillingPettyCashVoucherById = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_BYID ?? "/Billings/PettyCashVoucher/ById";
 export const BillingPettyCashVoucherReject = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_REJECT ?? "/Billings/PettyCashVoucher/Reject";
+export const BillingPettyCashVoucherRejectAuthorizationEvidence =
+  process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_REJECTAUTHORIZATIONEVIDENCE ??
+  "/Billings/PettyCashVoucher/RejectAuthorizationEvidence";
 export const BillingPettyCashVoucherValidate = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_VALIDATE ?? "/Billings/PettyCashVoucher/Validate";
 export const BillingPettyCashVoucherByIdEmployee = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_BYIDEMPLOYEE ?? "/Billings/PettyCashVoucher/ByIdEmployee"
 export const BillingPettyCashVoucherHistoryAmount = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_HISTORYAMOUNT ?? "/Billings/PettyCashVoucher/HistoryAmount"

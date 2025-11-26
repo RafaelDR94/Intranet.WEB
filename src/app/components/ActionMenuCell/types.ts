@@ -3,6 +3,7 @@ export type ActionMenuPermissions = Partial<{
   details: boolean;
   update: boolean;
   delete: boolean;
+  renew: boolean;
 }>;
 
 /** Props minimas para operar sobre una fila del menu contextual. */
@@ -10,9 +11,13 @@ export type ActionMenuCellBaseProps<T> = {
   /** Fila actual (se reenvia como argumento de los callbacks). */
   row: T;
   /** Callback cuando se elige la opcion de ver/editar. */
-  onEdit: (row: T) => void;
+  onEdit?: (row: T) => void;
   /** Callback cuando se elige la opcion de cancelar/eliminar. */
-  onDelete: (row: T) => void;
+  onDelete?: (row: T) => void;
+
+  onDetails?: (row: T) => void;
+  /** Callback cuando se elige la opcion "Qué día renovar". */
+  onRenewDay?: (row: T) => void;
 };
 
 /** Props internas con permisos resueltos e indicador de vista mobile. */

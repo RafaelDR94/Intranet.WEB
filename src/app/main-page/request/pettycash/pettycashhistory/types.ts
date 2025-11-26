@@ -70,6 +70,9 @@ export type PettyCashHistoryRow = {
 
   /** Nombre del empleado asociado. */
   employeeName: string;
+  authorization_evidence?: string;
+  isauthorization_evidence_rejected: boolean;
+
 };
 
 /**

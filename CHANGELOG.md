@@ -1,3 +1,103 @@
+### 1.47.52 Vehicles form error persistence 31-10-2025
+
+Fix:
+- Mantiene los datos capturados en el formulario de vehículos cuando ocurre un error al registrar o actualizar, permitiendo corregir la información sin volver a llenarla. (Agente IA) [#]()
+
+### 1.47.51 Tools form stable editing 30-10-2025
+
+Fix:
+- Evita que el formulario de herramientas se reinicie al teclear o borrar varias letras al usar teclas rápidas, manteniendo una clave estable por fila. (Agente IA) [#]()
+
+### 1.47.50 Tools form partial updates 30-10-2025
+
+Fix:
+- Evita que los campos de herramientas se vacíen al editar, mezclando los cambios parciales con el valor original para permitir escribir o borrar sin reinicios inesperados. (Agente IA) [#]()
+
+### 1.47.49 Tools template resilience 29-10-2025
+
+Fix:
+- Refuerza la generación de la plantilla de herramientas para que funcione en entornos parciales y evita errores de tipado al procesar valores de Excel. (Agente IA) [#]()
+
+### 1.47.48 External persons alert flow 29-10-2025
+
+Fix:
+- Habilita el botón de agregar solo tras elegir una persona y asegura el autocierre de alertas al registrar o actualizar datos de personas externas. (Agente IA) [#]()
+
+### 1.47.47 Tools template single header 28-10-2025
+
+Fix:
+- Ajusta la plantilla de herramientas para mostrar una sola tabla con encabezado azul #002a41, aumenta el tamaño del logo y mantiene la limpieza del formato al regenerar el archivo. (Agente IA) [#]()
+
+### 1.47.46 Tools template branding 28-10-2025
+
+Feat:
+- Añade branding en azul, título y logo de DR a la plantilla de herramientas para descarga y carga masiva, manteniendo columnas consistentes. (Agente IA) [#]()
+
+### 1.47.45 Tools template header alignment 27-10-2025
+
+Fix:
+- Quita la columna de consecutivo de la plantilla de herramientas y permite importar archivos con encabezados en cualquier fila sin errores. (Agente IA) [#]()
+
+### 1.47.44 Tools template without sample rows 27-10-2025
+
+Fix:
+- Descarga la plantilla de herramientas sin filas de ejemplo y permite cargar los datos capturados en Excel para mostrarlos en el formulario. (Agente IA) [#]()
+
+### 1.47.43 Tools serial number import 27-10-2025
+
+Feat:
+- Agrega el número de serie a herramientas y habilita la descarga/carga masiva mediante plantilla de Excel para poblar el formulario. (Agente IA) [#]()
+
+### 1.47.42 External person picture persistence 26-10-2025
+
+Fix:
+- Guarda el archivo de la foto de la persona en el primer envío del formulario de personal externo para que no vuelva a marcarse como requerido y se suba junto con las otras imágenes. (Agente IA) [#]()
+
+### 1.47.41 External person images mapping 26-10-2025
+
+Fix:
+- Alinea los nombres de los campos de imágenes en el registro de personal externo para que la foto, INE y licencia se validen y carguen correctamente desde el primer envío. (Agente IA) [#]()
+
+### 1.47.40 Vehicle insurance fields 25-10-2025
+
+Feat:
+- Añade campos de aseguradora, expedición de póliza, tipo de pago, cobertura y color en el registro de vehículos para enviarlos en las peticiones correspondientes. (Agente IA) [#]()
+
+### 1.47.39 Acces history vehicles table 25-10-2025
+
+Fix:
+- Muestra los vehículos asociados en el panel de historial cargando el detalle del acceso seleccionado y presentando la tabla con acciones para editar la solicitud. (Agente IA) [#]()
+
+### 1.47.38 User NIP persistence sync 25-10-2025
+
+Fix:
+- Sincroniza el NIP actualizado con el estado de autenticación y el almacenamiento local para reflejar el cambio tras recargar la configuración de usuario. (Agente IA) [#]()
+
+### 1.47.37 Request documents operational tab 25-10-2025
+
+Feat:
+- Agrega una pestaña de Documentos Operativos en solicitudes para consultar y descargar los archivos con la misma tabla que Documentos Gerenciales. (Agente IA) [#]()
+
+### 1.47.36 Document registry storage naming 25-10-2025
+
+Fix:
+- Genera nombres de archivo con sello de tiempo antes de la extensión y desactiva el sufijo automático de Firebase para conservar rutas válidas al previsualizar documentos de Office en las tablas gerenciales y operativas. (Agente IA) [#]()
+
+### 1.47.35 User password display sync 25-10-2025
+
+Fix:
+- Sincroniza el campo de contraseña mostrada con el valor actualizado en el store inmediatamente después de guardar la nueva contraseña. (Agente IA) [#]()
+
+### 1.47.34 User signature pad popup bypass 25-10-2025
+
+Fix:
+- Evita que el flujo de actualización de firma en configuración de usuario vuelva a mostrar el popup de autorización y asegura que el SignaturePad se muestre inmediatamente en modo de pantalla completa. (Agente IA) [#]()
+
+### 1.47.33 User configuration signature pad 25-10-2025
+
+Fix:
+- Permite actualizar la firma del usuario sin solicitar autorización previa y muestra el SignaturePad en pantalla completa para facilitar la captura. (Agente IA) [#]()
+
 ### 1.47.32 Human resources hook stories canvas 25-10-2025
 
 Fix:

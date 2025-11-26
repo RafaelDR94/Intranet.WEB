@@ -10,7 +10,7 @@ import {
 import { getDatabase, Database } from "firebase/database";
 import { Messaging, getMessaging } from "firebase/messaging";
 import { getStorage, FirebaseStorage } from "firebase/storage";
-import React, { createContext, useState, ReactNode, useEffect, useCallback } from "react";
+import React, { createContext, useState, ReactNode, useEffect, useCallback, useRef } from "react";
 
 
 import useAxios from "../../hooks/useIntranetCRUD/useIntranetCRUD";
@@ -21,14 +21,14 @@ import {
   readFirebaseToken,
 } from "../AuthContext/utilities/AuthService";
 
-import useFirebaseMessagingHelper  from "./hooks/useFirebaseMessaginHelper";
+import useFirebaseMessagingHelper from "./hooks/useFirebaseMessaginHelper";
 import useFirebaseRealtimeHelper from "./hooks/useFirebaseRealTimeHelpet";
 import useFirebaseStorageHelper from "./hooks/useFirebaseStorageHelper";
 import Uselogs from "./hooks/uselogs";
 import { usePermissionsListener } from "./hooks/usePermissionsListener";
 import { UseFirebasereturn } from "./types";
 
-import { AuthFirebaseConfiguration } from "@/app/configurations/Axios/urls";
+// import { AuthFirebaseConfiguration } from "@/app/configurations/Axios/urls";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
 export const FirebaseContext = createContext<UseFirebasereturn | undefined>(
@@ -36,6 +36,7 @@ export const FirebaseContext = createContext<UseFirebasereturn | undefined>(
 );
 
 export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
+  const hasFirebaseauth = useRef(false);
   const [app, setApp] = useState<FirebaseApp | null>(null);
   const [auth, setAuth] = useState<Auth | null>(null);
   const [storage, setStorage] = useState<FirebaseStorage | null>(null);
@@ -53,7 +54,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     database,
     user?.idUser || ""
   );
-   const state = useAuthStore()
+  const state = useAuthStore()
   useEffect(() => {
     if (permissionsChanged.state) {
       state.updateUserPermissions(permissionsChanged.newPermissions);
@@ -128,33 +129,54 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const GetFirebaseConfigurations = async (attempt = 1) => {
-    if (user?.token && !firebaseConfiguration && !offlineMode) {
-      const onFirebaseConfigResponse = (response: any) => {
-        if (response instanceof Error) {
-          console.error("Error fetching firebase config:", response);
-          setHasExpired(true);
-          return;
-        }
-        if (response.status === 200) {
-          const Configurations = response.data.data;
-          setFirebaseConfiguration(Configurations);
-          return;
-        }
-        if (response.status === 401) {
-          setHasExpired(true);
-          return;
-        }
-        if (attempt >= 10) {
-          setHasExpired(true);
-          return;
-        }
-        setTimeout(() => {
-          GetFirebaseConfigurations(attempt + 1);
-        }, 1000);
-      };
-      IntranetGet(AuthFirebaseConfiguration, onFirebaseConfigResponse);
+
+    if (attempt) {
+      setTimeout(() => {
+        const firebaseConfig = {
+          apiKey: "AIzaSyBtlZct5NCo1_a6pxywUnuzESfj69HEQtY",
+          authDomain: "intranetdr-50f9e.firebaseapp.com",
+          databaseURL: "https://intranetdr-50f9e-default-rtdb.firebaseio.com",
+          projectId: "intranetdr-50f9e",
+          storageBucket: "intranetdr-50f9e.appspot.com",
+          messagingSenderId: "1069765395792",
+          appId: "1:1069765395792:web:503f82a1ee32c02f7c9855",
+          measurementId: "G-SMY838399L"
+        };
+
+        setFirebaseConfiguration({firebaseConfig});
+      }, 2000)
+
     }
+
+
+    // if (user?.token && !firebaseConfiguration && !offlineMode) {
+    //   const onFirebaseConfigResponse = (response: any) => {
+    //     if (response instanceof Error) {
+    //       console.error("Error fetching firebase config:", response);
+    //       setHasExpired(true);
+    //       return;
+    //     }
+    //     if (response.status === 200) {
+    //       const Configurations = response.data.data;
+    //       setFirebaseConfiguration(Configurations);
+    //       return;
+    //     }
+    //     if (response.status === 401) {
+    //       setHasExpired(true);
+    //       return;
+    //     }
+    //     if (attempt >= 10) {
+    //       setHasExpired(true);
+    //       return;
+    //     }
+    //     setTimeout(() => {
+    //       GetFirebaseConfigurations(attempt + 1);
+    //     }, 1000);
+    //   };
+    //   IntranetGet(AuthFirebaseConfiguration, onFirebaseConfigResponse);
+    // }
   };
+
 
   const GetFirebaseConfigurationsCb = useCallback(
     GetFirebaseConfigurations,
@@ -181,9 +203,10 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   }, [app]);
 
   useEffect(() => {
-    if (auth && user?.userName) {
+    if (auth && user?.userName && !hasFirebaseauth.current) {
       // authenticateWithEmailAndPassword(user?.userName, atob(firebaseConfiguration.paswordFirebase));
       authenticateWithEmailAndPasswordCb(user?.userName, "Dr123qwe");
+      hasFirebaseauth.current = true;
     }
   }, [auth, user, authenticateWithEmailAndPasswordCb]);
 

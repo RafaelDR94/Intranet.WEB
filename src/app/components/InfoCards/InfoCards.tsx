@@ -1,24 +1,34 @@
 "use client";
-import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import clsx from "clsx";
+import React, { useMemo } from "react";
+import Image from "next/image";
+import type { InfoCardsProps } from "./types";
 
-import type { InfoCardsProps } from './types';
-
-import { useMediaBreakpoints } from '@/app/components/DynamicForm/hooks/useMediaBreakpoints';
-import type { ResponsiveLayoutMatrix } from '@/app/components/DynamicForm/types';
-import { containerCls, rowGridCls, cardBaseCls, labelCls, valueCls, staticCls } from './styles';
-import { useIsMobile } from '../DataTable/components/DataTableLayout/hooks/useMediaQuery';
-
+import { useMediaBreakpoints } from "@/app/components/DynamicForm/hooks/useMediaBreakpoints";
+import type { ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
+import {
+  containerCls,
+  rowGridCls,
+  cardBaseCls,
+  labelCls,
+  valueCls,
+  staticCls,
+} from "./styles";
+import { useIsMobile } from "../DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 function resolveEffectiveLayout(
   layoutMatrix: number[][] | undefined,
   responsiveLayoutMatrix: ResponsiveLayoutMatrix | undefined,
-  current: 'sm' | 'md' | 'lg'
+  current: "sm" | "md" | "lg",
 ): number[][] | undefined {
   if (layoutMatrix?.length) return layoutMatrix;
   if (!responsiveLayoutMatrix) return undefined;
   const order: Array<keyof ResponsiveLayoutMatrix> =
-    current === 'lg' ? ['lg', 'md', 'sm'] : current === 'md' ? ['md', 'sm', 'lg'] : ['sm', 'md', 'lg'];
+    current === "lg"
+      ? ["lg", "md", "sm"]
+      : current === "md"
+        ? ["md", "sm", "lg"]
+        : ["sm", "md", "lg"];
   for (const key of order) {
     const candidate = responsiveLayoutMatrix[key];
     if (candidate?.length) return candidate;
@@ -35,13 +45,13 @@ export const InfoCards: React.FC<InfoCardsProps> = ({
   maxWidthClassName,
   cardClassName,
   itemClassName,
-  dataTestId = 'info-cards',
+  dataTestId = "info-cards",
 }) => {
   const { current } = useMediaBreakpoints(breakpoints ?? { sm: 640, md: 1024 });
   const isMobile = useIsMobile();
   const effective = useMemo(
     () => resolveEffectiveLayout(layoutMatrix, responsiveLayoutMatrix, current),
-    [layoutMatrix, responsiveLayoutMatrix, current]
+    [layoutMatrix, responsiveLayoutMatrix, current],
   );
 
   // Construye filas a partir de la matriz de layout, consumiendo tarjetas en orden
@@ -74,9 +84,18 @@ export const InfoCards: React.FC<InfoCardsProps> = ({
 
   return (
     <div className={clsx(containerCls, className)} data-testid={dataTestId}>
-      <div className={clsx('w-full space-y-4 md:space-y-5', maxWidthClassName && ['mx-auto', maxWidthClassName])}>
+      <div
+        className={clsx(
+          "w-full space-y-4 md:space-y-5",
+          maxWidthClassName && ["mx-auto", maxWidthClassName],
+        )}
+      >
         {rows.map((row, rIdx) => (
-          <div className={rowGridCls} key={`${dataTestId}-row-${rIdx}`} data-testid={`${dataTestId}-row-${rIdx}`}>
+          <div
+            className={rowGridCls}
+            key={`${dataTestId}-row-${rIdx}`}
+            data-testid={`${dataTestId}-row-${rIdx}`}
+          >
             {row.cardIndexes.map((cardIdx, cIdx) => {
               const span = row.widths[cIdx] ?? 10;
               const card = cards[cardIdx] ?? [];
@@ -87,22 +106,41 @@ export const InfoCards: React.FC<InfoCardsProps> = ({
                     cardBaseCls,
                     cardClassName,
                     staticCls,
-                    'w-full'
+                    "w-full",
                   )}
-                  style={{ ['--span' as any]: String(span) }}
+                  style={{ ["--span" as any]: String(span) }}
                   data-testid={`${dataTestId}-card-${cardIdx}`}
                 >
                   <div className="space-y-1">
                     {card.map((item, iIdx) => (
-                      <div key={`kv-${item.dataTestId}-${iIdx}`} className={clsx('text-sm', itemClassName)} data-testid={item.dataTestId}>
-
-                        <div className='flex gap-1'>
-                          {item.icon && <item.icon  className= {isMobile?'w-10 h-10':''}/>}
+                      <div
+                        key={`kv-${item.dataTestId}-${iIdx}`}
+                        className={clsx("text-sm", itemClassName)}
+                        data-testid={item.dataTestId}
+                      >
+                        <div className="flex gap-1">
+                          {item.icon && (
+                            <item.icon
+                              className={isMobile ? "h-10 w-10" : ""}
+                            />
+                          )}
                           <span className={labelCls}>{item.label}: </span>
-                          {!isMobile && <span className={valueCls}>{item.value ?? '—'}</span>}
+                          {!isMobile && (
+                            <span className={valueCls}>
+                              {item.value ?? "—"}
+                            </span>
+                          )}
+                        </div>
 
-                        </div >
-                        {isMobile && <span className={valueCls}>{item.value ?? '—'}</span>}
+                        <div>
+                          {item.src && (
+                            <Image src={item.src} alt="" width={100} height={100} style={{marginBlock: '1rem'}}/>
+                          )}
+                        </div>
+
+                        {isMobile && (
+                          <span className={valueCls}>{item.value ?? "—"}</span>
+                        )}
                       </div>
                     ))}
                   </div>

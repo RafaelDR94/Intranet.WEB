@@ -37,6 +37,7 @@ export const mapEmployee = (emp: any): EmployeeType => ({
   image_url: toString(emp?.image_url),
   manager_id: toString(emp?.manager_id),
   department: mapDepartment(emp?.department ?? {}),
+  gtstype: toString(emp?.gtstype),
   workposition: mapWorkPosition(emp?.workposition ?? {}),
   user: emp?.user ? mapUser(emp.user) : null,
   is_active: toBoolean(emp?.is_active),
@@ -64,6 +65,7 @@ export const mapEmployeePost = (payload: Partial<PostEmployees> | any): PostEmpl
   department_id: toString(payload?.department_id),
   workposition_id: toString(payload?.workposition_id),
   manager_id: toOptionalString(payload?.manager_id),
+  gtstype: toString(payload?.gtstype),
 });
 
 export const mapEmployeePut = (payload: Partial<PutEmployees> | any): PutEmployees => ({
@@ -82,4 +84,5 @@ export const mapEmployeePut = (payload: Partial<PutEmployees> | any): PutEmploye
   department_id: toString(payload?.department_id),
   workposition_id: toString(payload?.workposition_id),
   manager_id: toOptionalString(payload?.manager_id),
+  gtstype: toString(payload?.gtstype),
 });

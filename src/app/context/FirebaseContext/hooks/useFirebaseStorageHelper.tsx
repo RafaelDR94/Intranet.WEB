@@ -5,7 +5,7 @@ import { FiletoURL, urlToFile } from "@/app/utilities/FilesHelper/FilesHelper";
 import { compressImage, getBase64FileSizeInKB } from "@/app/utilities/PicturesHelper/PictureHelper";
 export interface FirebaseStorageHelper {
     uploadImage: (file: File, filePath: string, qualitycompressed?: number | undefined) => Promise<string>
-    uploadFile: (file: File|Blob, filePath: string,disableTime?:boolean) => Promise<string>;
+    uploadFile: (file: File | Blob, filePath: string, disableTime?: boolean) => Promise<string>;
     updateFile: (file: File, filePath: string) => Promise<string>;
     listFilesAndUrls: (path: string) => Promise<any>;
     downloadFile: (filePath: string) => Promise<string>;
@@ -15,7 +15,8 @@ export interface FirebaseStorageHelper {
 
 const useFirebaseStorageHelper = (storage: FirebaseStorage | null): FirebaseStorageHelper => {
 
-    const uploadImage = async (file: File, filePath: string, qualitycompressed?: number) => {
+    const uploadImage = async (file: File, filePath: string, qualitycompressed?: number, disableTime: boolean = false) => {
+        const finalPath = disableTime ? filePath : filePath + getCurrentDateTime();
         const fileUrl = await FiletoURL(file);
         const originalSize = await getBase64FileSizeInKB(fileUrl);
         console.log(`Tamaño original: ${originalSize} KB`);
@@ -24,17 +25,18 @@ const useFirebaseStorageHelper = (storage: FirebaseStorage | null): FirebaseStor
             const sizeInKB = await getBase64FileSizeInKB(imageCompressed);
             console.log(`Tamaño de la imagen: ${sizeInKB} KB`);
             const filecompressedImage = await urlToFile(imageCompressed, file.name, file.type);
-            return await uploadFile(filecompressedImage, filePath);
+            return await uploadFile(filecompressedImage, finalPath);
         } else {
             return uploadFile(file, filePath);
         }
     };
 
-    const uploadFile = async (file: File|Blob, filePath: string ,disableTime:boolean = false) => {
+    const uploadFile = async (file: File | Blob, filePath: string, disableTime: boolean = false) => {
         if (!storage) throw "Firebase no configurado correctamente";
-        const finalPath = disableTime?filePath:filePath + getCurrentDateTime();
+        const finalPath = disableTime ? filePath : filePath + getCurrentDateTime();
         const storageRef = ref(storage, finalPath);
         const snapshot = await uploadBytes(storageRef, file);
+        console.log("snapshot",snapshot);
         return await getDownloadURL(snapshot.ref);
     };
 

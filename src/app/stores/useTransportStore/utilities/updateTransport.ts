@@ -5,10 +5,10 @@ import type { AxiosResponse } from "axios";
 import type { GetState, SetState } from "../types";
 
 import { fetchTransports } from "./fetchTransports";
-
+import { fetchTransportsByEnterprise } from "./fetchTransportsByEnterprise";
 import { Transport as TransportUrl } from "@/app/configurations/Axios/urls";
 import { transportTransformer } from "@/app/mappings/transport/transformers";
-import type { Transport, TransportPut } from "@/app/mappings/transport/transport.types";
+import type { CompleteTransport, TransportPut } from "@/app/mappings/transport/transport.types";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pPut } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
@@ -17,7 +17,7 @@ export const updateTransport = async (
   set: SetState,
   get: GetState,
   payload: TransportPut
-): Promise<Transport | null> => {
+): Promise<CompleteTransport | null> => {
   set({
     updatingTransport: true,
     error: undefined,
@@ -33,9 +33,11 @@ export const updateTransport = async (
     );
     const raw = res.data?.data ?? res.data ?? null;
     const updated = raw ? transportTransformer.mapTransport(raw) : null;
-
-    await fetchTransports(set, get, true);
-
+    if (payload.id_external_enterprise) {
+      await fetchTransportsByEnterprise(payload.id_external_enterprise,set, get,true)
+    } else {
+      await fetchTransports(set, get, true);
+    }
     set({
       updatingTransport: false,
       successUpdateTransport: true,

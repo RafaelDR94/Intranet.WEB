@@ -14,6 +14,7 @@ import { UseVoucherFormProps, UseVoucherFormReturn } from "./types";
 
 import type { FieldModel } from "@/app/components/DynamicForm/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { SubmitFn } from "@/app/main-page/accounting/requisitions/requisitions/components/ExcelLoader/hooks/types";
 import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
@@ -35,6 +36,7 @@ export const useVoucherBlue = ({
   const formId = `petty-cash-voucher-blue-form-${mode}`;
   const isEdit = mode === "edit";
   const { currentPagePermissions, user } = useAuth();
+  const { firebasestorage } = useFirebase();
   // Principal (spinner + alert)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -286,13 +288,48 @@ export const useVoucherBlue = ({
   }, [opError, mode, showAlert, hideAlert, resetFlags]);
 
   // Submit (para DynamicForm) -> decide create o update
+  const uploadAuthorizationEvidenceIfNeeded = useCallback(
+    async (file: unknown): Promise<string | undefined> => {
+      const maybeFile = file instanceof File ? file : null;
+      if (maybeFile && firebasestorage?.uploadFile) {
+        const extension = maybeFile.name.split(".").pop()?.toLowerCase() ?? "png";
+        const unique = `${user?.idEmployee}-${Date.now()}`;
+        const url = await firebasestorage.uploadFile(
+          maybeFile,
+          `Billings/PettyCashVouchers/${unique}-authorization.${extension}`,
+        );
+        if (!url) {
+          throw new Error("Hubo un problema al subir la evidencia de autorización");
+        }
+        return url;
+      }
+
+      const urlObj = (file as { url?: string } | null | undefined)?.url;
+      if (urlObj) return urlObj;
+      if (isEdit && dataEdit?.authorization_evidence) {
+        return dataEdit.authorization_evidence;
+      }
+      return undefined;
+    },
+    [firebasestorage, isEdit, dataEdit?.authorization_evidence, user?.idEmployee],
+  );
+
   const handleSubmit = useCallback(
     async (values: Record<string, any>) => {
       setOpRunning(true);
       try {
+        const authorizationEvidenceUrl =
+          await uploadAuthorizationEvidenceIfNeeded(
+            values.authorization_evidence,
+          );
 
         const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
-          values: { ...values },
+          values: {
+            ...values,
+            authorization_evidence: authorizationEvidenceUrl
+              ? { url: authorizationEvidenceUrl }
+              : undefined,
+          },
           proyects,
           fields,
           pettyCashFundId: pettyCashFunds?.[0]?.id,
@@ -329,6 +366,7 @@ export const useVoucherBlue = ({
       createPettyCashVoucher,
       updatePettyCashVoucher,
       user?.idEmployee,
+      uploadAuthorizationEvidenceIfNeeded,
     ],
   );
 

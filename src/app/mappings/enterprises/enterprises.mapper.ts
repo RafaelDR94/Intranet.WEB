@@ -1,4 +1,10 @@
-import type { Department, Enterprise } from "./enterprises.types";
+import type {
+  Department,
+  Enterprise,
+  EnterprisePost,
+  EnterprisePut,
+  ExternalEnterprisePost,
+} from "./enterprises.types";
 
 const toString = (value: unknown, fallback = "") =>
   value == null ? fallback : String(value);
@@ -13,6 +19,7 @@ const mapEnterpriseDepartment = (dep: any): Department => ({
 export const mapEnterprise = (raw: any): Enterprise => ({
   enterprise_id: toString(raw?.enterprise_id ?? raw?.id),
   name: toString(raw?.name),
+  is_external:(raw?.is_external),
   departments: Array.isArray(raw?.departments)
     ? raw.departments.map(mapEnterpriseDepartment)
     : [],
@@ -20,3 +27,25 @@ export const mapEnterprise = (raw: any): Enterprise => ({
 
 export const mapEnterprises = (list: any[] | undefined): Enterprise[] =>
   Array.isArray(list) ? list.map(mapEnterprise) : [];
+
+// Payload mappers
+export const mapEnterprisePost = (
+  payload: Partial<EnterprisePost> | any
+): EnterprisePost => ({
+  newEnterprise: toString(payload?.newEnterprise),
+});
+
+export const mapEnterprisePut = (
+  payload: Partial<EnterprisePut> | any
+): EnterprisePut => ({
+  enterprise_id: toString(payload?.enterprise_id ?? payload?.id),
+  name: toString(payload?.name),
+  is_external: Boolean(payload?.is_external),
+});
+
+export const mapExternalEnterprisePost = (
+  payload: Partial<ExternalEnterprisePost> | any
+): ExternalEnterprisePost => ({
+  newEnterprise: toString(payload?.newEnterprise),
+  RFC: toString(payload?.RFC)
+});

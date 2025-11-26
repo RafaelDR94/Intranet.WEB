@@ -8,7 +8,7 @@ import { fetchTransports } from "./fetchTransports";
 
 import { Transport as TransportUrl } from "@/app/configurations/Axios/urls";
 import { transportTransformer } from "@/app/mappings/transport/transformers";
-import type { Transport, TransportPost } from "@/app/mappings/transport/transport.types";
+import type { CompleteTransport, TransportPost } from "@/app/mappings/transport/transport.types";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pPost } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
@@ -17,7 +17,7 @@ export const createTransport = async (
   set: SetState,
   get: GetState,
   payload: TransportPost
-): Promise<Transport | null> => {
+): Promise<CompleteTransport | null> => {
   set({
     creatingTransport: true,
     error: undefined,

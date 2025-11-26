@@ -31,11 +31,27 @@ export const getValidationSchema = (fields: FieldModel[]) => {
           }
         });
         acc[field.name] = schema;
-      } else if (field.type === 'file') {
-        let schema = Yup.mixed().nullable();
+      } else if (field.type === 'file' || field.type === 'imageUploaderExpanded') {
+        // Para archivos/imágenes consideramos válido si existe un valor (File)
+        // o si viene un archivo inicial (initialFile) ya cargado/mostrado.
+        // Esto evita que, al editar un registro con imagen precargada,
+        // la validación "required" falle antes de que el loader asincrónico
+        // convierta initialFile en File.
+        const schema = Yup.mixed()
+          .nullable()
+          .test('file-or-initial', 'Este campo es requerido', (val) => {
+            const hasValue = val != null;
+            const hasInitial = !!field.initialFile;
+            // Si el campo es requerido, aceptamos que exista valor o initialFile
+            const required = field.validations?.some((v) => v.type === 'required');
+            return required ? (hasValue || hasInitial) : true;
+          });
+
+        // Mantiene compatibilidad por si en el futuro se agregan otras reglas
         field.validations?.forEach((rule) => {
           if (rule.type === 'required') {
-            schema = schema.required('Este campo es requerido');
+            // Ya validamos en el test anterior, no añadimos required aquí para no
+            // sobrescribir la lógica personalizada.
           }
         });
         acc[field.name] = schema;
