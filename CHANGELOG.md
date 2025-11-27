@@ -1,3 +1,8 @@
+### 1.47.53 Personal requisitions by employee 02-11-2025
+
+Fix:
+- Muestra en la tabla de requisiciones personales la información obtenida desde el endpoint `fetchRequisitionsByIdEmployee`, incluyendo alertas cuando no hay resultados. (Agente IA) [#]()
+
 ### 1.47.52 Vehicles form error persistence 31-10-2025
 
 Fix:

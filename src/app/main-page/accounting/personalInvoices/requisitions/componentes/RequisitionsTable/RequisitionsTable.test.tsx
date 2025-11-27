@@ -38,7 +38,8 @@ vi.mock('@/app/context/AuthContext/AuthContext', () => ({
 describe('RequisitionsTable', () => {
   it('renders rows from hook', () => {
     render(<RequisitionsTable onEditRequest={() => {}} />)
-    expect(screen.getByTestId('table')).toHaveTextContent('REQ-1')
+    const tables = screen.getAllByTestId('table')
+    expect(tables[0]).toHaveTextContent('REQ-1')
   })
 
   it('shows confirmation popup when hook flag is true', () => {

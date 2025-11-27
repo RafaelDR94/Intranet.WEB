@@ -14,7 +14,7 @@ vi.mock('next/navigation', () => ({
 }))
 
 vi.mock('@/app/stores/system/useIntranetGatewayStore', () => ({
-  useIntranetGatewayStore: () => true,
+  useIntranetGatewayStore: (sel: any) => sel({ isReady: true }),
 }))
 
 vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
@@ -30,12 +30,17 @@ vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
     }],
     loading: false,
     error: undefined,
+    warning: undefined,
     removing: false,
     successPut: false,
-    fetchRequisitionsByDate: vi.fn(),
+    fetchRequisitionsByIdEmployee: vi.fn(),
     deleteRequisition: vi.fn().mockResolvedValue(true),
     resetFlags: vi.fn(),
   }),
+}))
+
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({ user: { idEmployee: 'emp1' } }),
 }))
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({

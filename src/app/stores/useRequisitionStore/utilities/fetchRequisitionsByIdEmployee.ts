@@ -21,6 +21,8 @@ export const fetchRequisitionsByIdEmployee = async (idEmployee: string, set: Set
   // cache básica
   if (get().requisitions.length > 0 && !force) return
 
+  set({ loading: true, error: undefined, warning: undefined, successGet: false, requisitions: [] })
+
 
   try {
     // 1) Obtiene GET del gateway (lanza si no está listo)

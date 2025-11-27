@@ -5,10 +5,10 @@ import { shallow } from 'zustand/shallow'
 
 import type { RequisitionRow } from '../types'
 
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
-import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper'
 
 /**
  * Handles data loading, filtering and row actions for the requisitions table.
@@ -17,7 +17,7 @@ export const useRequisitionTable = () => {
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
   const { showSpinner, hideSpinner } = usePrincipalLoading
   const { showAlert, hideAlert } = usePrincipalAlert
-  const [lastDates, setLastDates] = useState<{ startDate: string, endDate: string }>({ startDate: currentDate(), endDate: currentDate() })
+  const { user } = useAuth()
   const isGatewayReady = useIntranetGatewayStore(s => s.isReady)
   const path = usePathname();
   const router = useRouter();
@@ -27,29 +27,31 @@ export const useRequisitionTable = () => {
       ? (searchParams as any).has("id")
       : new URLSearchParams((searchParams as any) ?? "").has("id");
   const {
-    requisitions, loading, error, removing,successPut, fetchRequisitionsByDate, deleteRequisition, resetFlags
+    requisitions, loading, error, warning, removing, successPut, fetchRequisitionsByIdEmployee, deleteRequisition, resetFlags
   } = useRequisitionsStore(s => ({
     requisitions: s.requisitions,
     loading: s.loading,
     error: s.error,
+    warning: s.warning,
     removing: s.removing,
     successPut:s.successPut,
-    fetchRequisitionsByDate: s.fetchRequisitionsByDate,
+    fetchRequisitionsByIdEmployee: s.fetchRequisitionsByIdEmployee,
     deleteRequisition: s.deleteRequisition,
     resetFlags: s.resetFlags
   }), shallow)
 
   // Prefetch
   useEffect(() => {
-    if (isGatewayReady && !hasIdParam) fetchRequisitionsByDate(lastDates.startDate, lastDates.endDate, true);
-  }, [isGatewayReady, hasIdParam, fetchRequisitionsByDate, lastDates.startDate, lastDates.endDate])
+    if (isGatewayReady && !hasIdParam && user?.idEmployee) {
+      fetchRequisitionsByIdEmployee(user.idEmployee, true);
+    }
+  }, [isGatewayReady, hasIdParam, user?.idEmployee, fetchRequisitionsByIdEmployee])
 
 
   // Alert de error general de carga
   useEffect(() => {
     if (loading) { showSpinner({ message: 'Cargando requisiciones…' }); return; }
     hideSpinner();
-    resetFlags();
     if (!error) return
     showAlert({
       type: 'error',
@@ -61,10 +63,29 @@ export const useRequisitionTable = () => {
       onPrimaryClick: hideAlert,
       showSecondaryButton: true,
       secondaryLabel: 'Reintentar',
-      onSecondaryClick: () => { hideAlert(); fetchRequisitionsByDate(lastDates.startDate, lastDates.endDate, true); },
+      onSecondaryClick: () => { hideAlert(); if (user?.idEmployee) fetchRequisitionsByIdEmployee(user.idEmployee, true); },
     })
+    resetFlags();
 
-  }, [error, loading, successPut, hideSpinner, resetFlags, showAlert, showSpinner, hideAlert, fetchRequisitionsByDate, lastDates.startDate, lastDates.endDate])
+  }, [error, loading, successPut, hideSpinner, resetFlags, showAlert, showSpinner, hideAlert, fetchRequisitionsByIdEmployee, user?.idEmployee])
+
+  useEffect(() => {
+    if (!warning) return
+
+    showAlert({
+      type: 'warning',
+      variant: 'filled',
+      title: 'Sin requisiciones',
+      description: warning,
+      showPrimaryButton: true,
+      primaryLabel: 'Entendido',
+      onPrimaryClick: hideAlert,
+      showSecondaryButton: true,
+      secondaryLabel: 'Refrescar',
+      onSecondaryClick: () => { hideAlert(); if (user?.idEmployee) fetchRequisitionsByIdEmployee(user.idEmployee, true); },
+    })
+    resetFlags();
+  }, [warning, hideAlert, showAlert, user?.idEmployee, fetchRequisitionsByIdEmployee, resetFlags])
 
   const [query, setQuery] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -143,11 +164,8 @@ export const useRequisitionTable = () => {
     }
   }
 
-  const refresh = (start?: Date, end?: Date) => {
-    const startDate = start ? currentDate(start) : currentDate();
-    const endDate = end ? currentDate(end) : currentDate();
-    setLastDates({ startDate: startDate, endDate: endDate })
-    fetchRequisitionsByDate(startDate, endDate, true);
+  const refresh = (_start?: Date, _end?: Date) => {
+    if (user?.idEmployee) fetchRequisitionsByIdEmployee(user.idEmployee, true);
   }
 
   // columns estático si en algún punto deseas moverlo aquí (dejo ejemplo):
