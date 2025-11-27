@@ -40,7 +40,6 @@ export default function MainLayoutClient({
 }) {
   const {
     alert,
-    hideAlert,
     theme,
     toggleTheme,
     pathname,
@@ -53,6 +52,7 @@ export default function MainLayoutClient({
     handleOfflineChange,
     handleOkMessageOffline,
     handleCancelMessageOffline,
+    handleAlertClose,
     sidebarRoutes,
     usePrincipalImage,
   } = useMainPage();
@@ -87,6 +87,7 @@ export default function MainLayoutClient({
     routes: sidebarRoutes,
   };
 
+
   return (
     <ErrorBoundary>
 
@@ -96,9 +97,10 @@ export default function MainLayoutClient({
             <div className={mainLayoutStyles.alertContainer}>
               <Alert
                 {...alert}
-                onClose={() => { hideAlert(); }}
-                onPrimaryClick={alert.onPrimaryClick ?? hideAlert}
-                onSecondaryClick={alert.onSecondaryClick ?? hideAlert}
+                onClose={handleAlertClose}
+                closeOnClick
+                onPrimaryClick={alert.onPrimaryClick ?? handleAlertClose}
+                onSecondaryClick={alert.onSecondaryClick ?? handleAlertClose}
                 variant="subtle"
               />
             </div>

@@ -51,6 +51,23 @@ describe('Alert component', () => {
     expect(root).toHaveClass('bg-alert-green-10', 'border-alert-green-100')
   })
 
+  it('cierra la alerta al hacer clic cuando closeOnClick=true', () => {
+    const onClose = vi.fn()
+    const { container } = render(
+      <Alert
+        {...baseProps}
+        autoCloseMs={0}
+        onClose={onClose}
+        closeOnClick
+      />
+    )
+
+    const root = container.firstElementChild as HTMLElement
+    fireEvent.click(root)
+
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
   it('renderiza y dispara callbacks de botones con labels personalizados', () => {
     render(
       <Alert
