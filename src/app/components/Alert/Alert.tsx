@@ -57,6 +57,7 @@ export const Alert: React.FC<AlertProps> = ({
   secondaryLabel = 'Button',
   autoCloseMs,
   onClose,
+  closeOnClick,
 }) => {
  useAlertComponent({ title, description, type, variant, autoCloseMs, onClose })
   const icons: Record<AlertType, React.ReactNode> = {
@@ -68,8 +69,17 @@ export const Alert: React.FC<AlertProps> = ({
     notification: <>🔔</>,
   }
 
+  const handleRootClick = () => {
+    if (closeOnClick) {
+      onClose?.()
+    }
+  }
+
   return (
-    <div className={clsx(styles.containerClasses, styles.getBgClasses(type, variant))}>
+    <div
+      className={clsx(styles.containerClasses, styles.getBgClasses(type, variant))}
+      onClick={handleRootClick}
+    >
       <div className={styles.headerClasses}>
         <div className={clsx(styles.iconContainerClasses, styles.getIconClasses(type, variant))}>
           {icons[type]}
