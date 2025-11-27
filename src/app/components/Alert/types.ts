@@ -6,39 +6,48 @@
  * - `warning`: Advertencia al usuario
  * - `error`: Operación fallida
  */
-export type AlertType = 'default' | 'success' | 'info' | 'warning' | 'error'|'notification'
+export type AlertType =
+  | 'default'
+  | 'success'
+  | 'info'
+  | 'warning'
+  | 'error'
+  | 'notification';
 
 /**
  * Variantes de estilo de la alerta.
  * - `filled`: Fondo sólido y texto claro
  * - `subtle`: Fondo claro y borde
  */
-export type AlertVariant = 'filled' | 'subtle'
+export type AlertVariant = 'filled' | 'subtle';
 
 /** Props del componente `Alert`. */
 export interface AlertProps {
   /** Tipo de alerta */
-  type?: AlertType
+  type?: AlertType;
   /** Variante de estilo */
-  variant?: AlertVariant
+  variant?: AlertVariant;
   /** Título de la alerta */
-  title: string
+  title: string;
   /** Descripción de la alerta */
-  description: string
+  description: string;
   /** Mostrar botón primario */
-  showPrimaryButton?: boolean
+  showPrimaryButton?: boolean;
   /** Mostrar botón secundario */
-  showSecondaryButton?: boolean
+  showSecondaryButton?: boolean;
   /** Callback de clic primario */
-  onPrimaryClick?: () => void
+  onPrimaryClick?: () => void;
   /** Callback de clic secundario */
-  onSecondaryClick?: () => void
+  onSecondaryClick?: () => void;
   /** Etiqueta del botón primario */
-  primaryLabel?: string
+  primaryLabel?: string;
   /** Etiqueta del botón secundario */
-  secondaryLabel?: string
+  secondaryLabel?: string;
   /** Tiempo en ms para cerrar automáticamente */
-  autoCloseMs?: number
-  /** Callback al cerrar (auto o manual futuro) */
-  onClose?: () => void
+  autoCloseMs?: number;
+  /** Callback al cerrar (auto o manual, incluyendo clic) */
+  onClose?: () => void;
+  /** Si es true, cerrar al hacer clic en cualquier parte de la alerta */
+  closeOnClick?: boolean;
 }
+

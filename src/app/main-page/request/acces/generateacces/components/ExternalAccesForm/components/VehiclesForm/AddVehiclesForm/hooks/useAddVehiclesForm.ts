@@ -75,6 +75,7 @@ const useAddVehiclesForm = ({
           accept: ".jpg,.jpeg,.png",
           preview: true,
           validations: [{ type: "required" }],
+          onChange: handleUploadPlatesImage,
         },
         {
           type: "imageUploaderExpanded",
@@ -286,6 +287,25 @@ const useAddVehiclesForm = ({
     }, 500);
   }, [resetFields]);
 
+  const handleUploadPlatesImage: NonNullable<FieldModel["onChange"]> = (
+    value,
+  ) => {
+    if (!(value instanceof File)) {
+      showAlert({
+        type: "warning",
+        title: "Archivo no soportado",
+        description:
+          "Selecciona una imagen válida en formato JPG o PNG para la imagen de placa.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+      return;
+    }
+
+    updateField(formId, "image_plates", { value });
+  };
+
   const handleUploadCiruculationCard: NonNullable<FieldModel["onChange"]> = (
     value,
   ) => {
@@ -301,6 +321,9 @@ const useAddVehiclesForm = ({
       });
       return;
     }
+
+    updateField(formId, "image_circulation_card", { value });
+
     if (
       !hasInitCiruclationCard.current &&
       currentTransport?.image_circulation_card
@@ -553,7 +576,7 @@ const useAddVehiclesForm = ({
               "La información del vehículo se actualizó correctamente.",
             showPrimaryButton: false,
             showSecondaryButton: false,
-            autoCloseMs: 1500,
+            autoCloseMs: 100,
           });
           wasSuccessful = true;
         } else {
