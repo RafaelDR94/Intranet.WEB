@@ -75,13 +75,17 @@ export const getTabsFromPath = (
       { label: "SAT", path: "/main-page/accounting/invoices/sat" },
     ],
     "accounting/personalInvoices": [
+      // {
+      //   label: "Facturas",
+      //   path: "/main-page/accounting/personalInvoices/invoices",
+      // },
+      // {
+      //   label: "Historial",
+      //   path: "/main-page/accounting/personalInvoices/history",
+      // },
       {
-        label: "Facturas",
-        path: "/main-page/accounting/personalInvoices/invoices",
-      },
-      {
-        label: "Historial",
-        path: "/main-page/accounting/personalInvoices/history",
+        label: "Requisiciones",
+        path: "/main-page/accounting/personalInvoices/requisitions",
       },
     ],
     "accounting/requisitions": [
@@ -141,6 +145,15 @@ export const getTabsFromPath = (
 
   // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id
   if (first === 'accounting' && second === 'requisitions' && third == 'requisitionsList' && id) {
+    const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+    const detailPath = `${clean}?id=${id}`;
+    if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
+      tabs = [...tabs, { label: labelparam || 'Detalle de Requisición', path: detailPath }];
+    }
+  }
+
+  // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id
+  if (first === 'accounting' && second === 'personalInvoices' && third == 'requisitions' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
     const detailPath = `${clean}?id=${id}`;
     if (!tabs.some(t => t.label === 'Detalle de Requisición')) {

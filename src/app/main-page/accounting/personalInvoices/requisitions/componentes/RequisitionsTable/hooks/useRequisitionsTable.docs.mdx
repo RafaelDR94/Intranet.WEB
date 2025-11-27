@@ -1,0 +1,20 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MainPage/Accounting/Requisitions/RequisitionsList/RequisitionsTable/hooks/useRequisitionsTable" />
+
+# useRequisitionsTable
+
+Gestiona la lógica de la tabla de requisiciones: carga de datos,
+filtrado, confirmación de borrado y acciones por fila.
+
+```tsx
+const {
+  rows,
+  setQuery,
+  onEdit,
+  onDelete,
+} = useRequisitionTable({ onEditRequest })
+```
+
+El hook mapea el estado de la tienda de requisiciones y expone los
+callbacks necesarios para el componente `RequisitionsTable`.
