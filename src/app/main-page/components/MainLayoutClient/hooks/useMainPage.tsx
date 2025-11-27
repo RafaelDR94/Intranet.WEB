@@ -1,11 +1,10 @@
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 
 import { useAuth } from '../../../../context/AuthContext/AuthContext';
 import { useFirebase } from '../../../../context/FirebaseContext/FirebaseContext';
 import { usePrincipal } from '../../../../context/PrincipalContext/PrincipalContext';
 import { getTabsFromPath } from '../utilities/getTabsFromPath';
-
 import { OfflineMessage } from './types';
 
 import ServerIcon from '@/assets/icons/Connectivity/server.svg';
@@ -104,6 +103,11 @@ export const useMainPage = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const handleAlertClose = useCallback(() => {
+    alert?.onClose?.();
+    hideAlert();
+  }, [alert, hideAlert]);
+
   const tabs = useMemo(
     () => getTabsFromPath(pathname, searchParams),
     [pathname, searchParams]
@@ -189,6 +193,7 @@ export const useMainPage = () => {
     handleOfflineChange,
     handleOkMessageOffline,
     handleCancelMessageOffline,
+    handleAlertClose,
     sidebarRoutes,
     usePrincipalImage
   };
