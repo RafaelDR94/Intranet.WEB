@@ -49,10 +49,13 @@ const RequisitionsTable = () => {
     () => [
       { key: "projectCode", label: "PROYECTO" },
       { key: "state", label: "ESTADO" },
+      { key: "state", label: "CÓDIGO DE SOLICITUD" },
+      { key: "state", label: "PERIODO" },
+      { key: "state", label: "DÍA CORRIENTE" },
       { key: "dueDate", label: "TERMINO", render: (row) => row.dueDate },
       {
         key: "status",
-        label: "",
+        label: "ESTATUS",
         render: (row) => <StatusBadge status={row.status} />,
       },
       {
@@ -96,16 +99,10 @@ const RequisitionsTable = () => {
 
   // Filtra columnas si currentPagePermissions.sapprofile es true
   const filteredComputedColumns = React.useMemo(() => {
-    if (currentPagePermissions?.sapprofile) {
-      return computedColumns.filter((col) => col.key !== "status");
-    }
     return computedColumns;
   }, [computedColumns, currentPagePermissions?.sapprofile]);
 
   const filteredMobileColumns = React.useMemo(() => {
-    if (currentPagePermissions?.sapprofile) {
-      return mobileColumns.filter((col) => col.key !== "status");
-    }
     return mobileColumns;
   }, [mobileColumns, currentPagePermissions?.sapprofile]);
 

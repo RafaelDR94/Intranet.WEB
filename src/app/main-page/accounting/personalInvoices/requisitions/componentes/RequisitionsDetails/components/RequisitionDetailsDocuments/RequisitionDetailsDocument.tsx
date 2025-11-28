@@ -11,11 +11,12 @@ import Label from "@/app/components/Label/Label";
 // NEW: Overlay (ruta de ejemplo)
 import LoadingOverlay from "@/app/components/LoadingOverLay/LoadingOverlay";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import DetailsPanel from "@/app/main-page/accounting/invoices/validateinvoices/components/DetailsPanel/DetailsPanel";
+import DetailsPanel from "../DetailsPanel/DetailsPanel";
 import type { BillingDocumentDetailsTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import DowloadIcon from "@/assets/icons/acciones/download.svg";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
 /**
  * Tabla de comprobantes asociados a una requisición. Permite descargar el
  * reporte y ver detalles individuales de cada documento.
@@ -77,7 +78,8 @@ const RequisitionDetailsDocument: React.FC = () => {
       {
         key: "xmlUrl" as unknown as keyof BillingDocumentDetailsTable,
         label: "ARCHIVOS",
-        cellClass: "w-1/15 text-left", headerClass: "w-1/15 text-left",
+        cellClass: "w-2/15 text-left",
+        headerClass: "w-2/15 text-left",
         render: (row) => (
           <div className="flex items-center gap-1">
             {row.xmlUrl && (
@@ -101,25 +103,23 @@ const RequisitionDetailsDocument: React.FC = () => {
           </div>
         ),
       },
-      { key: "fecha", label: "FECHA", cellClass: "w-2/15 text-center", headerClass: "w-2/15 text-center" },
-      { key: "fecha", label: "CATEGORÍA", cellClass: "w-2/15 text-center", headerClass: "w-2/15 text-center" },
-      { key: "fecha", label: "COMENTARIOS", cellClass: "w-2/15 text-center", headerClass: "w-2/15 text-center" },
-      // { key: "description", label: "DESCRIPCIÓN", cellClass: "w-2/15 text-center", headerClass: "w-2/15", },
-      // { key: "numpersons", label: "No. PERS.", cellClass: "w-1/15 text-center", headerClass: "w-1/15 text-center" },
-      // { key: "numnights", label: "No. NOCHES", cellClass: "w-1/15 text-center", headerClass: "w-1/15 text-center" },
-      // {
-      //   key: "uuid",
-      //   label: "No. FACTURA/TICKET",
-      //   cellClass: "w-3/15", headerClass: "w-3/15"
-      // },
-      // { key: "subtotal", label: "SUBTOTAL", cellClass: "w-1/15", headerClass: "w-1/15" },
-      // { key: "iva", label: "IVA", cellClass: "w-1/15", headerClass: "w-1/15" },
-      // { key: "otherinvoices", label: "OTROS IMP.", cellClass: "w-1/15", headerClass: "w-1/15" },
-      // { key: "total", label: "TOTAL", cellClass: "w-1/15", headerClass: "w-1/15" },
+      {
+        key: "fecha",
+        label: "FECHA",
+        cellClass: "w-2/15 text-left",
+        headerClass: "w-2/15 text-left",
+      },
+      {
+        key: "fecha",
+        label: "CATEGORÍA",
+        cellClass: "w-2/15 text-left",
+        headerClass: "w-2/15 text-left",
+      },
       {
         key: "status",
-        label: "STATUS",
-        cellClass: "w-1/15", headerClass: "w-1/15",
+        label: "ESTATUS",
+        cellClass: "w-6/15 text-right",
+        headerClass: "w-5/15 text-right",
         render: (row) => (
           <Label
             type={row.status.toLocaleLowerCase() as any}
@@ -128,8 +128,24 @@ const RequisitionDetailsDocument: React.FC = () => {
         ),
       },
       {
+        key: "fecha",
+        render: (row) => (
+          <Button
+            size="small"
+            onClick={() => handleOpenDetails(row)}
+            variant="ghost"
+            hideIcon
+          >
+            <ChatIcon className="h-6 w-6" />
+          </Button>
+        ),
+        label: "COMENTARIOS",
+        cellClass: "w-2/15 text-center",
+        headerClass: "w-2/15 text-right",
+      },
+      {
         key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
-        headerRender: () => <span className="text-lg">⋯</span>,
+        headerRender: () => <span className="text-lg"></span>,
         render: (row) => (
           <Button
             size="small"
@@ -140,27 +156,23 @@ const RequisitionDetailsDocument: React.FC = () => {
             Ver Detalles
           </Button>
         ),
-        cellClass: "w-1/15 text-right", headerClass: "w-1/15 text-right",
+        cellClass: "w-2/15 text-center",
+        headerClass: "w-2/15 text-right",
       },
     ],
     [handleOpenDetails],
   );
 
   const filteredMobileColumns = useMemo(() => {
-    if (sapprofile) {
-      return mobileColumns.filter((col) => col.key !== "status");
-    }
     return mobileColumns;
   }, [mobileColumns, sapprofile]);
 
   const filteredColumns = useMemo(() => {
     return columns.filter((col) => {
-      if (sapprofile && col.key === "status") return false; // quitar "status" si sapprofile es true
       if (!sapprofile && col.key === "invoiceNumber") return false; // quitar factura/ticket si sapprofile es false
       return true;
     });
   }, [columns, sapprofile]);
-
 
   const isBusy = Boolean(loading || downloadingDocument);
   const busyMessage = downloadingDocument
@@ -176,6 +188,8 @@ const RequisitionDetailsDocument: React.FC = () => {
       </div>
 
       <DataTable
+        showCalendar={true}
+        textSize={{ mobile: "c2", desktop: "text-b3" }}
         startCollpas={false}
         actionsRender={() => (
           <>
@@ -204,7 +218,6 @@ const RequisitionDetailsDocument: React.FC = () => {
           </>
         )}
         showButton={false}
-        showCalendar={false}
         enablePagination={false}
         tables={[
           {
