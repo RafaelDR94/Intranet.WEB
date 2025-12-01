@@ -1,3 +1,8 @@
+### 1.47.54 Billing requisitions active endpoint 01-12-2025
+
+Fix:
+- Ajusta la tabla de requisiciones para consumir el endpoint `Billings/BillingRequisition?active=true`, asegurando que se muestren las requisiciones activas desde el backend. (Agente IA) [#]()
+
 ### 1.47.53 Personal requisitions by employee 02-11-2025
 
 Fix:
