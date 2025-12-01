@@ -88,6 +88,17 @@ export const getTabsFromPath = (
         path: "/main-page/accounting/personalInvoices/requisitions",
       },
     ],
+    "operations/requisitions": [
+      {
+        label: "Requisiciones",
+        path: "/main-page/operations/requisitions/requisitionsPage",
+      },
+      {
+        label: "Listado Beneficiarios",
+        path: "/main-page/operations/requisitions/requisitionListPage",
+      }
+    ],
+
     "accounting/requisitions": [
       {
         label: "Requisiciones",

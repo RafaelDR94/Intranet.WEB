@@ -28,6 +28,14 @@ export const sidebarRoutes = [
     ],
   },
   {
+    label: 'Operaciones',
+    path: '/main-page/operations',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Requisiciones', path: '/main-page/operations/requisitions' },
+    ],
+  },
+  {
     label: 'Solicitudes',
     path: '/main-page/request',
     icon: FileIcon,
