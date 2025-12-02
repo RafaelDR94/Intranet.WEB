@@ -172,6 +172,15 @@ export const getTabsFromPath = (
     }
   }
 
+  // agrega la Tab de archivos solo si estás en operations/requisitions/requisitionListPage y hay id
+  if (first === 'operations' && second === 'requisitions' && third == 'requisitionListPage' && id) {
+    const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+    const detailPath = `${clean}?id=${id}`;
+    if (!tabs.some(t => t.label === 'Archivos')) {
+      tabs = [...tabs, { label: labelparam || 'Archivos', path: detailPath }];
+    }
+  }
+
   // SIP/Proyectos: agrega tab dinámica para edición si viene un id
   if (first === 'sip' && second === 'proyects' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;

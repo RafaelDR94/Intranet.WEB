@@ -20,4 +20,26 @@ describe('getTabsFromPath utility', () => {
     const result = getTabsFromPath('/main-page/other');
     expect(result).toEqual([]);
   });
+
+  it('adds files tab when operations requisition list has an id', () => {
+    const result = getTabsFromPath(
+      '/main-page/operations/requisitions/requisitionListPage',
+      '?id=123&label=Archivos',
+    );
+
+    expect(result).toEqual([
+      { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
+      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
+      { label: 'Archivos', path: '/main-page/operations/requisitions/requisitionListPage?id=123' },
+    ]);
+  });
+
+  it('does not add files tab when requisition list has no id', () => {
+    const result = getTabsFromPath('/main-page/operations/requisitions/requisitionListPage');
+
+    expect(result).toEqual([
+      { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
+      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
+    ]);
+  });
 });

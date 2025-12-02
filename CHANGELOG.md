@@ -1,3 +1,9 @@
+### 1.47.55 Operations requisition files tab 02-12-2025
+
+Fix:
+
+- Muestra una pestaña dinámica de Archivos en operaciones > requisiciones > listado cuando se consulta un beneficiario específico por id. (Agente IA) [#]()
+
 ### 1.47.54 Billing requisitions active endpoint 01-12-2025
 
 Fix:
