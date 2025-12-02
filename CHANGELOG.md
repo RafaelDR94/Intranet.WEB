@@ -1,3 +1,9 @@
+### 1.47.56 Named requisition tabs 03-12-2025
+
+Fix:
+
+- Permite abrir pestañas de Archivos o Requisiciones con el nombre del beneficiario para identificar los contenidos por persona y mantener la etiqueta en la navegación. (Agente IA) [#]()
+
 ### 1.47.55 Operations requisition files tab 02-12-2025
 
 Fix:

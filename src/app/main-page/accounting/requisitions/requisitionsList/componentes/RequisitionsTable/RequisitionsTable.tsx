@@ -28,6 +28,7 @@ const RequisitionsTable = () => {
     setConfirmOpen,
     onEdit,
     onViewFiles,
+    onViewRequisitions,
     onDelete,
     refresh,
     hasIdParam,
@@ -69,7 +70,9 @@ const RequisitionsTable = () => {
         key: "projectCode",
         label: "Requisiciones",
         render: (row) => (
-          <Button variant="ghost" hideIcon>Ver Requisiciones</Button>
+          <Button variant="ghost" hideIcon onClick={() => onViewRequisitions(row)}>
+            Ver Requisiciones
+          </Button>
         ),
       },
       {
@@ -83,7 +86,7 @@ const RequisitionsTable = () => {
         invisible: false,
       },
     ],
-    [onEdit, onDelete],
+    [onEdit, onDelete, onViewFiles, onViewRequisitions],
   );
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(

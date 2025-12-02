@@ -14,6 +14,7 @@ const mockHook = vi.fn().mockReturnValue({
   setConfirmOpen: vi.fn(),
   onEdit: vi.fn(),
   onViewFiles: vi.fn(),
+  onViewRequisitions: vi.fn(),
   onDelete: vi.fn(),
   refresh: vi.fn(),
 })
@@ -53,6 +54,7 @@ describe('RequisitionsTable', () => {
       setConfirmOpen: vi.fn(),
       onEdit: vi.fn(),
       onViewFiles: vi.fn(),
+      onViewRequisitions: vi.fn(),
       onDelete: vi.fn(),
       refresh: vi.fn(),
     })

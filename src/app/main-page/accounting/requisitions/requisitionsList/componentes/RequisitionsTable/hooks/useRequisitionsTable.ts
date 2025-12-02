@@ -101,11 +101,22 @@ export const useRequisitionTable = () => {
     router.push(`${clean}?${qs.toString()}`);
   };
 
+  const buildLabel = (prefix: string, name?: string | null) =>
+    name && name.trim() ? `${prefix} ${name.trim()}` : prefix;
+
   const onViewFiles = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path;
     const qs = new URLSearchParams(searchParams.toString());
     qs.set('id', row.id);
-    qs.set('label', 'Archivos');
+    qs.set('label', buildLabel('Archivos', row.debtorName));
+    router.push(`${clean}?${qs.toString()}`);
+  };
+
+  const onViewRequisitions = (row: RequisitionRow) => {
+    const clean = path.endsWith('/') ? path.slice(0, -1) : path;
+    const qs = new URLSearchParams(searchParams.toString());
+    qs.set('id', row.id);
+    qs.set('label', buildLabel('Requisiciones', row.debtorName));
     router.push(`${clean}?${qs.toString()}`);
   };
 
@@ -168,7 +179,7 @@ export const useRequisitionTable = () => {
     // borrar
     confirmOpen, setConfirmOpen, rowToDelete, removing, handleConfirmDelete,
     // acciones
-    onEdit, onViewFiles, onDelete, refresh,
+    onEdit, onViewFiles, onViewRequisitions, onDelete, refresh,
     hasIdParam
   }
 }

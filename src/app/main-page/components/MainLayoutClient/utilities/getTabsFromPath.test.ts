@@ -30,8 +30,23 @@ describe('getTabsFromPath utility', () => {
     expect(result).toEqual([
       { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
       { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
-      { label: 'Archivos', path: '/main-page/operations/requisitions/requisitionListPage?id=123' },
+      {
+        label: 'Archivos',
+        path: '/main-page/operations/requisitions/requisitionListPage?id=123&label=Archivos',
+      },
     ]);
+  });
+
+  it('keeps provided label in operations requisition file tab path', () => {
+    const result = getTabsFromPath(
+      '/main-page/operations/requisitions/requisitionListPage',
+      '?id=777&label=Archivos%20Bruno',
+    );
+
+    expect(result[2]).toEqual({
+      label: 'Archivos Bruno',
+      path: '/main-page/operations/requisitions/requisitionListPage?id=777&label=Archivos+Bruno',
+    });
   });
 
   it('does not add files tab when requisition list has no id', () => {

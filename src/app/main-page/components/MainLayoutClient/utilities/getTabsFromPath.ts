@@ -157,7 +157,10 @@ export const getTabsFromPath = (
   // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id
   if (first === 'accounting' && second === 'requisitions' && third == 'requisitionsList' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-    const detailPath = `${clean}?id=${id}`;
+    const qs = new URLSearchParams();
+    qs.set('id', id);
+    if (labelparam) qs.set('label', labelparam);
+    const detailPath = `${clean}?${qs.toString()}`;
     if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
       tabs = [...tabs, { label: labelparam || 'Detalle de Requisición', path: detailPath }];
     }
@@ -166,7 +169,10 @@ export const getTabsFromPath = (
   // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id
   if (first === 'accounting' && second === 'personalInvoices' && third == 'requisitions' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-    const detailPath = `${clean}?id=${id}`;
+    const qs = new URLSearchParams();
+    qs.set('id', id);
+    if (labelparam) qs.set('label', labelparam);
+    const detailPath = `${clean}?${qs.toString()}`;
     if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
       tabs = [...tabs, { label: labelparam || 'Detalle de Requisición', path: detailPath }];
     }
@@ -175,7 +181,10 @@ export const getTabsFromPath = (
   // agrega la Tab de archivos solo si estás en operations/requisitions/requisitionListPage y hay id
   if (first === 'operations' && second === 'requisitions' && third == 'requisitionListPage' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-    const detailPath = `${clean}?id=${id}`;
+    const qs = new URLSearchParams();
+    qs.set('id', id);
+    if (labelparam) qs.set('label', labelparam);
+    const detailPath = `${clean}?${qs.toString()}`;
     if (!tabs.some(t => t.label === 'Archivos')) {
       tabs = [...tabs, { label: labelparam || 'Archivos', path: detailPath }];
     }
