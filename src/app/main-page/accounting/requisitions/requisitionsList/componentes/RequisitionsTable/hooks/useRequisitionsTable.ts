@@ -97,12 +97,21 @@ export const useRequisitionTable = () => {
   const onEdit = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path; // quita slash final si viene
     const qs = new URLSearchParams(searchParams.toString());     // clona params actuales
+    qs.delete('label');                                          // remueve label previo de vistas de archivos/requisiciones
     qs.set('id', row.id);                                        // añade/reemplaza id
     router.push(`${clean}?${qs.toString()}`);
   };
 
-  const buildLabel = (prefix: string, name?: string | null) =>
-    name && name.trim() ? `${prefix} ${name.trim()}` : prefix;
+  const getFirstName = (name?: string | null) => {
+    if (!name) return '';
+    const parts = name.trim().split(/\s+/);
+    return parts[0] || '';
+  };
+
+  const buildLabel = (prefix: string, name?: string | null) => {
+    const firstName = getFirstName(name);
+    return firstName ? `${prefix} ${firstName}` : prefix;
+  };
 
   const onViewFiles = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path;

@@ -1,3 +1,9 @@
+### 1.47.57 First-name requisition tabs 04-12-2025
+
+Fix:
+
+- Ajusta las pestañas dinámicas de Archivos/Requisiciones para mostrar solo el primer nombre del beneficiario y limpiar la vista al abrirlas para personalizar el contenido. (Agente IA) [#]()
+
 ### 1.47.56 Named requisition tabs 03-12-2025
 
 Fix:

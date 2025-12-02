@@ -144,6 +144,17 @@ export const getTabsFromPath = (
 
   let tabs = tabsMap[key] || tabsMap[first] || [];
 
+  const normalizePersonLabel = (label?: string | null) => {
+    if (!label) return null;
+    const trimmed = label.trim();
+    const lower = trimmed.toLowerCase();
+    const prefixed = lower.startsWith('archivos ') || lower.startsWith('requisiciones ');
+    if (!prefixed) return trimmed;
+    const parts = trimmed.split(/\s+/);
+    if (parts.length <= 1) return trimmed;
+    return `${parts[0]} ${parts[1]}`;
+  };
+
   let id: string | null = null;
   let idEmployee: string | null = null;
   let labelparam: string | null = null;
@@ -151,7 +162,7 @@ export const getTabsFromPath = (
     const sp = typeof search === 'string' ? new URLSearchParams(search) : search;
     id = sp.get('id');
     idEmployee = sp.get('idEmployee');
-    labelparam = sp.get('label');
+    labelparam = normalizePersonLabel(sp.get('label'));
   }
 
   // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id

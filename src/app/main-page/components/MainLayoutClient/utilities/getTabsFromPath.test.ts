@@ -49,6 +49,18 @@ describe('getTabsFromPath utility', () => {
     });
   });
 
+  it('only keeps the first name in person-based labels', () => {
+    const result = getTabsFromPath(
+      '/main-page/operations/requisitions/requisitionListPage',
+      '?id=888&label=Requisiciones%20Bruno%20Mendoza',
+    );
+
+    expect(result[2]).toEqual({
+      label: 'Requisiciones Bruno',
+      path: '/main-page/operations/requisitions/requisitionListPage?id=888&label=Requisiciones+Bruno',
+    });
+  });
+
   it('does not add files tab when requisition list has no id', () => {
     const result = getTabsFromPath('/main-page/operations/requisitions/requisitionListPage');
 
