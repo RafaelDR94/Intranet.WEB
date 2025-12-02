@@ -115,6 +115,9 @@ export const useRequisitionTable = () => {
     )
   }, [requisitions, query])
 
+  console.log('rows ', rows);
+  
+
   const onEdit = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path; // quita slash final si viene
     const qs = new URLSearchParams(searchParams.toString());     // clona params actuales

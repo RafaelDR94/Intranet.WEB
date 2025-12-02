@@ -14,6 +14,8 @@ import { LabelType } from "@/app/components/Label/types";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
+import Avatar from "@/app/components/Avatar/Avatar";
+import { Button } from "@/app/components/Button/Button";
 
 const RequisitionsTable = () => {
   const {
@@ -47,25 +49,25 @@ const RequisitionsTable = () => {
   // Desktop columns (leave mobileColumns intact as requested)
   const computedColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
-      { key: "snCode", label: "SCI" },
       {
-        key: "assignmentDate",
-        label: "ASIGNACIÓN",
-        render: (row) => row.assignmentDate,
+        key: "debtorName",
+        label: "Nombre",
       },
-      { key: "debtorName", label: "NOMBRE" },
-      { key: "projectCode", label: "PROYECTO" },
-      { key: "state", label: "ESTADO" },
+      { key: "projectCode", label: "Número" },
+      { key: "state", label: "Correo eléctronico" },
       {
-        key: "amount",
-        label: "CANTIDAD",
-        render: (row) => <span>{formatCurrency(Number(row?.amount))}</span>,
+        key: "projectCode",
+        label: "Archivos",
+        render: (row) => (
+          <Button variant="ghost" hideIcon>Ver Archivos</Button>
+        ),
       },
-      { key: "dueDate", label: "TERMINO", render: (row) => row.dueDate },
       {
-        key: "status",
-        label: "",
-        render: (row) => <StatusBadge status={row.status} />,
+        key: "projectCode",
+        label: "Requisiciones",
+        render: (row) => (
+          <Button variant="ghost" hideIcon>Ver Requisiciones</Button>
+        ),
       },
       {
         key: "actions" as unknown as keyof RequisitionRow,
@@ -75,7 +77,6 @@ const RequisitionsTable = () => {
             <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
           </div>
         ),
-
         invisible: false,
       },
     ],
@@ -151,18 +152,18 @@ const RequisitionsTable = () => {
           onSearchChange={setQuery}
           onCalendarClick={(start, end) => refresh(start, end)}
           onFilterClick={refresh}
+          showRefresh={true}
           tables={[
             {
               data: rows,
               columns: columns,
-              enableSelection: true,
-              title: "Listado Requisiciones",
+              enableSelection: false,
+              title: "Requisiciones",
               enableCollaps: true,
               defaultSortKey: "date_created",
               defaultSortDirection: "desc",
             },
           ]}
-          showDownloadTable
           showButton={false}
           dateKey={"date_created"}
         />
