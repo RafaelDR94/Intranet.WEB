@@ -101,6 +101,14 @@ export const useRequisitionTable = () => {
     router.push(`${clean}?${qs.toString()}`);
   };
 
+  const onViewFiles = (row: RequisitionRow) => {
+    const clean = path.endsWith('/') ? path.slice(0, -1) : path;
+    const qs = new URLSearchParams(searchParams.toString());
+    qs.set('id', row.id);
+    qs.set('label', 'Archivos');
+    router.push(`${clean}?${qs.toString()}`);
+  };
+
   const onDelete = (row: RequisitionRow) => {
     setRowToDelete(row)
     setConfirmOpen(true)
@@ -160,7 +168,7 @@ export const useRequisitionTable = () => {
     // borrar
     confirmOpen, setConfirmOpen, rowToDelete, removing, handleConfirmDelete,
     // acciones
-    onEdit, onDelete, refresh,
+    onEdit, onViewFiles, onDelete, refresh,
     hasIdParam
   }
 }

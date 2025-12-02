@@ -27,6 +27,7 @@ const RequisitionsTable = () => {
     handleConfirmDelete,
     setConfirmOpen,
     onEdit,
+    onViewFiles,
     onDelete,
     refresh,
     hasIdParam,
@@ -59,7 +60,9 @@ const RequisitionsTable = () => {
         key: "projectCode",
         label: "Archivos",
         render: (row) => (
-          <Button variant="ghost" hideIcon>Ver Archivos</Button>
+          <Button variant="ghost" hideIcon onClick={() => onViewFiles(row)}>
+            Ver Archivos
+          </Button>
         ),
       },
       {
