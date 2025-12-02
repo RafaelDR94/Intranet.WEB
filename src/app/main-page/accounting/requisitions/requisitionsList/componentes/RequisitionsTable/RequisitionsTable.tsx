@@ -17,7 +17,15 @@ import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
 import Avatar from "@/app/components/Avatar/Avatar";
 import { Button } from "@/app/components/Button/Button";
 
-const RequisitionsTable = () => {
+type RequisitionsTableProps = {
+  /**
+   * Forces the table to render even when an `id` query param is present.
+   * Useful for views that need the list alongside detail tabs.
+   */
+  forceVisible?: boolean;
+};
+
+const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ forceVisible = false }) => {
   const {
     rows,
     setQuery,
@@ -130,7 +138,7 @@ const RequisitionsTable = () => {
 
   const columns = isMobile ? filteredMobileColumns : filteredComputedColumns;
 
-  if (hasIdParam) return <></>;
+  if (hasIdParam && !forceVisible) return <></>;
   return (
     <div className={container}>
       <PopUp

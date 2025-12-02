@@ -1,3 +1,9 @@
+### 1.47.58 Requisition files view tables 05-12-2025
+
+Fix:
+
+- Muestra la pestaña de Archivos con la tabla de comprobantes y mantiene visible el listado de requisiciones aun cuando se abra un beneficiario. (Agente IA) [#]()
+
 ### 1.47.57 First-name requisition tabs 04-12-2025
 
 Fix:

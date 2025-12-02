@@ -26,6 +26,14 @@ vi.mock(
   }),
 );
 
+vi.mock(
+  '@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsDetails/components/RequisitionDetailsDocuments/RequisitionDetailsDocument',
+  () => ({
+    __esModule: true,
+    default: () => <div>Documentos</div>,
+  }),
+);
+
 describe('RequisitionListPage', () => {
   it('renders details and table when there is no label', () => {
     const { container } = render(<RequisitionListPage />);
@@ -34,15 +42,26 @@ describe('RequisitionListPage', () => {
     expect(container).toHaveTextContent('Tabla');
   });
 
-  it('renders blank page for archivos or requisiciones views', () => {
+  it('renders documents and table for archivos view', () => {
     useSearchParamsMock.mockReturnValueOnce(new URLSearchParams('label=Archivos%20Bruno'));
 
     const { container } = render(<RequisitionListPage />);
 
     expect(screen.queryByText('Detalle')).not.toBeInTheDocument();
-    expect(screen.queryByText('Tabla')).not.toBeInTheDocument();
-    expect(container.childElementCount).toBe(1);
-    expect(container.firstElementChild?.textContent).toBe('');
+    expect(screen.getByText('Documentos')).toBeInTheDocument();
+    expect(screen.getByText('Tabla')).toBeInTheDocument();
+    expect(container.childElementCount).toBeGreaterThan(0);
+  });
+
+  it('renders only requisitions table for requisiciones view', () => {
+    useSearchParamsMock.mockReturnValueOnce(new URLSearchParams('label=Requisiciones%20Bruno'));
+
+    const { container } = render(<RequisitionListPage />);
+
+    expect(screen.queryByText('Detalle')).not.toBeInTheDocument();
+    expect(screen.queryByText('Documentos')).not.toBeInTheDocument();
+    expect(screen.getByText('Tabla')).toBeInTheDocument();
+    expect(container.childElementCount).toBeGreaterThan(0);
   });
 });
 
