@@ -120,8 +120,12 @@ export const useRequisitionTable = () => {
 
   const onEdit = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path; // quita slash final si viene
-    const qs = new URLSearchParams(searchParams.toString());     // clona params actuales
-    qs.set('id', row.id);                                        // añade/reemplaza id
+    const qs = new URLSearchParams(searchParams.toString()); // clona params actuales
+    const label = row.debtorName?.trim();
+
+    qs.set('id', row.id); // añade/reemplaza id
+    qs.set('label', label ? `Detalle ${label}` : 'Detalle'); // fuerza tab de detalle
+
     router.push(`${clean}?${qs.toString()}`);
   };
 

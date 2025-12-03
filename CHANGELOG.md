@@ -1,3 +1,9 @@
+### 1.47.62 Requisition detail label fix 09-12-2025
+
+Fix:
+
+- Fuerza que la acción de "Ver detalle" abra la pestaña correcta agregando la etiqueta de detalle al navegar desde el historial de requisiciones. (Agente IA) [#]()
+
 ### 1.47.61 Requisition detail tab 08-12-2025
 
 Fix:
