@@ -25,7 +25,9 @@ type RequisitionsTableProps = {
   forceVisible?: boolean;
 };
 
-const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ forceVisible = false }) => {
+const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
+  forceVisible = false,
+}) => {
   const {
     rows,
     setQuery,
@@ -62,6 +64,12 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ forceVisible = fa
       {
         key: "debtorName",
         label: "Nombre",
+        render: (row) => (
+          <div className="flex items-center gap-2">
+            <Avatar size="xxs" />
+            <span>{row.debtorName}</span>
+          </div>
+        ),
       },
       { key: "projectCode", label: "Número" },
       { key: "state", label: "Correo eléctronico" },
@@ -78,7 +86,11 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({ forceVisible = fa
         key: "projectCode",
         label: "Requisiciones",
         render: (row) => (
-          <Button variant="ghost" hideIcon onClick={() => onViewRequisitions(row)}>
+          <Button
+            variant="ghost"
+            hideIcon
+            onClick={() => onViewRequisitions(row)}
+          >
             Ver Requisiciones
           </Button>
         ),

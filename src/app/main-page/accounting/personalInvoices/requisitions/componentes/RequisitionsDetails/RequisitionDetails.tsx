@@ -25,7 +25,7 @@ const RequisitionDetails: React.FC = () => {
           <CollapsibleSection
             enableCollapse
             defaultOpen={true}
-            title="Información de Viáticos"
+            title="Solicitud de Requisición"
           >
             <div className="flex w-full">
               {!isMobile && (

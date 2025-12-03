@@ -5,6 +5,9 @@ import { useSearchParams } from "next/navigation";
 import RequisitionDetails from "@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsDetails/RequisitionDetails";
 import RequisitionDetailsDocument from "@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsDetails/components/RequisitionDetailsDocuments/RequisitionDetailsDocument";
 import RequisitionsTable from "@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsTable/RequisitionsTable";
+import TicketsFiles from "./components/TicketsFiles/TicketsFiles";
+import InvoicesFiles from "./components/InvoicesFiles/InvoicesFiles";
+import RequisitionsFiles from "./components/RequisitionsFiles/RequisitionsFiles";
 
 const RequisitionListPage: React.FC = () => {
   const searchParams = useSearchParams();
@@ -16,14 +19,14 @@ const RequisitionListPage: React.FC = () => {
   if (isFilesView) {
     return (
       <>
-        <RequisitionDetailsDocument />
-        <RequisitionsTable forceVisible />
+        <TicketsFiles />
+        <InvoicesFiles forceVisible />
       </>
     );
   }
 
   if (isRequisitionsView) {
-    return <RequisitionsTable forceVisible />;
+    return <RequisitionsFiles forceVisible/>;
   }
 
   return (

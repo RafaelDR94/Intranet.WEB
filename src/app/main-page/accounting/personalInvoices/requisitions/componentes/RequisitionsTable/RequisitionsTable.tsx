@@ -15,7 +15,7 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
 
-const RequisitionsTable = () => {
+const RequisitionsTable = ({ forceVisible = false }) => {
   const {
     rows,
     setQuery,
@@ -85,7 +85,7 @@ const RequisitionsTable = () => {
         key: "actions" as unknown as keyof RequisitionRow,
         label: "",
         render: (row) => (
-          <div className="flex justify-end pr-2">
+          <div className="flex justify-end">
             <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
           </div>
         ),
@@ -108,7 +108,7 @@ const RequisitionsTable = () => {
 
   const columns = isMobile ? filteredMobileColumns : filteredComputedColumns;
 
-  if (hasIdParam) return <></>;
+  if (hasIdParam && !forceVisible ) return <></>;
   return (
     <div className={container}>
       <PopUp
