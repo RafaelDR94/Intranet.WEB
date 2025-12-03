@@ -37,6 +37,19 @@ describe('getTabsFromPath utility', () => {
     ]);
   });
 
+  it('adds detail tab when operations requisition list has an id without label', () => {
+    const result = getTabsFromPath(
+      '/main-page/operations/requisitions/requisitionListPage',
+      '?id=123',
+    );
+
+    expect(result).toEqual([
+      { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
+      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
+      { label: 'Detalle', path: '/main-page/operations/requisitions/requisitionListPage?id=123' },
+    ]);
+  });
+
   it('keeps provided label in operations requisition file tab path', () => {
     const result = getTabsFromPath(
       '/main-page/operations/requisitions/requisitionListPage',

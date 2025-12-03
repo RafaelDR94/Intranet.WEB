@@ -148,7 +148,8 @@ export const getTabsFromPath = (
     if (!label) return null;
     const trimmed = label.trim();
     const lower = trimmed.toLowerCase();
-    const prefixed = lower.startsWith('archivos ') || lower.startsWith('requisiciones ');
+    const prefixed =
+      lower.startsWith('archivos ') || lower.startsWith('requisiciones ') || lower.startsWith('detalle ');
     if (!prefixed) return trimmed;
     const parts = trimmed.split(/\s+/);
     if (parts.length <= 1) return trimmed;
@@ -189,15 +190,16 @@ export const getTabsFromPath = (
     }
   }
 
-  // agrega la Tab de archivos solo si estás en operations/requisitions/requisitionListPage y hay id
+  // agrega la Tab de archivos/detalle solo si estás en operations/requisitions/requisitionListPage y hay id
   if (first === 'operations' && second === 'requisitions' && third == 'requisitionListPage' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
     const qs = new URLSearchParams();
     qs.set('id', id);
     if (labelparam) qs.set('label', labelparam);
     const detailPath = `${clean}?${qs.toString()}`;
-    if (!tabs.some(t => t.label === 'Archivos')) {
-      tabs = [...tabs, { label: labelparam || 'Archivos', path: detailPath }];
+    const detailLabel = labelparam || 'Detalle';
+    if (!tabs.some(t => t.path === detailPath || t.label === detailLabel)) {
+      tabs = [...tabs, { label: detailLabel, path: detailPath }];
     }
   }
 

@@ -1,3 +1,9 @@
+### 1.47.61 Requisition detail tab 08-12-2025
+
+Fix:
+
+- Muestra la pestaña de Detalle al abrir una requisición desde el listado para que la acción de "Ver detalle" cargue la vista correcta. (Agente IA) [#]()
+
 ### 1.47.60 Requisition files actions column 07-12-2025
 
 Fix:
