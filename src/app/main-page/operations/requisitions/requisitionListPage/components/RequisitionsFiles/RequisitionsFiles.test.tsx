@@ -1,14 +1,18 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 import RequisitionsFiles from './RequisitionsFiles'
 
 const fetchMock = vi.fn()
 const resetMock = vi.fn()
+const deleteMock = vi.fn(async () => true)
+const pushMock = vi.fn()
 
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams('id=99'),
+  useRouter: () => ({ push: pushMock }),
+  usePathname: () => '/main-page/operations/requisitions/requisitionListPage',
 }))
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
@@ -45,9 +49,21 @@ vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
       loading: false,
       error: undefined,
       warning: undefined,
+      removing: false,
       fetchRequisitionsByIdEmployee: fetchMock,
+      deleteRequisition: deleteMock,
       resetFlags: resetMock,
     }),
+}))
+
+vi.mock('@/app/components/ActionMenuCell/ActionMenuCell', () => ({
+  __esModule: true,
+  default: () => <div>Actions</div>,
+}))
+
+vi.mock('@/app/components/PopUp/PopUp', () => ({
+  __esModule: true,
+  PopUp: ({ children }: any) => <div>{children}</div>,
 }))
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
@@ -62,6 +78,10 @@ vi.mock('@/app/components/DataTable/DataTable', () => ({
 }))
 
 describe('RequisitionsFiles', () => {
+  beforeEach(() => {
+    pushMock.mockClear()
+  })
+
   it('renders requisitions history table with rows and fetches by user id', async () => {
     render(<RequisitionsFiles />)
 
@@ -72,6 +92,6 @@ describe('RequisitionsFiles', () => {
     expect(screen.getByText('DataTable')).toBeInTheDocument()
     expect(screen.getByText('Historial')).toBeInTheDocument()
     expect(screen.getByText('SN-01')).toBeInTheDocument()
-    expect(screen.getByText('debtorName,projectCode,snCode,status')).toBeInTheDocument()
+    expect(screen.getByText('debtorName,projectCode,snCode,status,actions')).toBeInTheDocument()
   })
 })

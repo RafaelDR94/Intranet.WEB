@@ -1,13 +1,16 @@
 "use client";
-import React, { useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { shallow } from "zustand/shallow";
 
+import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
+import { PopUp } from "@/app/components/PopUp/PopUp";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { actionCell } from "@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsTable/styles";
 import { RequisitionRow } from "@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsTable/types";
 import { useRequisitionsStore } from "@/app/stores/useRequisitionStore/useRequisitionStore";
 
@@ -26,7 +29,12 @@ const RequisitionsFiles: React.FC<RequisitionsFilesProps> = ({
   userId,
 }) => {
   const searchParams = useSearchParams();
-  const effectiveUserId = userId ?? searchParams.get("id");
+  const router = useRouter();
+  const path = usePathname();
+  const effectiveUserId =
+    userId ?? searchParams.get("idEmployee") ?? searchParams.get("id");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState<RequisitionRow | null>(null);
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
@@ -36,7 +44,9 @@ const RequisitionsFiles: React.FC<RequisitionsFilesProps> = ({
     loading,
     error,
     warning,
+    removing,
     fetchRequisitionsByIdEmployee,
+    deleteRequisition,
     resetFlags,
   } = useRequisitionsStore(
     (state) => ({
@@ -44,7 +54,9 @@ const RequisitionsFiles: React.FC<RequisitionsFilesProps> = ({
       loading: state.loading,
       error: state.error,
       warning: state.warning,
+      removing: state.removing,
       fetchRequisitionsByIdEmployee: state.fetchRequisitionsByIdEmployee,
+      deleteRequisition: state.deleteRequisition,
       resetFlags: state.resetFlags,
     }),
     shallow,
@@ -132,6 +144,75 @@ const RequisitionsFiles: React.FC<RequisitionsFilesProps> = ({
     [requisitions],
   );
 
+  const buildLabel = (prefix: string, name?: string | null) => {
+    const normalized = name?.trim();
+    return normalized ? `${prefix} ${normalized}` : prefix;
+  };
+
+  const onViewDetails = (row: RequisitionRow) => {
+    const clean = path.endsWith("/") ? path.slice(0, -1) : path;
+    const qs = new URLSearchParams(searchParams.toString());
+    qs.set("id", row.id);
+    if (row.employeeId || effectiveUserId) {
+      qs.set("idEmployee", row.employeeId ?? effectiveUserId ?? "");
+    }
+    qs.set("label", "Detalle Requisición");
+    qs.set("view", "detail");
+    qs.set("requisitionsLabel", buildLabel("Requisiciones", row.debtorName));
+
+    router.push(`${clean}?${qs.toString()}`);
+  };
+
+  const onDelete = (row: RequisitionRow) => {
+    setRowToDelete(row);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    const current = rowToDelete;
+    if (!current || !effectiveUserId) {
+      setConfirmOpen(false);
+      return;
+    }
+
+    setConfirmOpen(false);
+    showSpinner({ message: "Espera un momento, el documento se está eliminando" });
+    const ok = await deleteRequisition(current.id);
+    hideSpinner();
+    setRowToDelete(null);
+
+    if (ok) {
+      showAlert({
+        type: "warning",
+        variant: "filled",
+        title: "Requisición eliminada",
+        description: `${current.snCode} fue eliminada correctamente.`,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+        onClose: hideAlert,
+      });
+      fetchRequisitionsByIdEmployee(effectiveUserId, true);
+      return;
+    }
+
+    showAlert({
+      type: "error",
+      variant: "filled",
+      title: "No se pudo eliminar",
+      description: "Intenta de nuevo en unos segundos.",
+      showPrimaryButton: true,
+      primaryLabel: "Entendido",
+      onPrimaryClick: hideAlert,
+      showSecondaryButton: true,
+      secondaryLabel: "Reintentar",
+      onSecondaryClick: () => {
+        hideAlert();
+        onDelete(current);
+      },
+    });
+  };
+
   const statusBadge = (status?: string) => {
     const normalizedStatus = (status || "").toLowerCase();
     let type: LabelType = "pendiente";
@@ -154,8 +235,18 @@ const RequisitionsFiles: React.FC<RequisitionsFilesProps> = ({
         label: "Estatus",
         render: (row) => statusBadge(row.status),
       },
+      {
+        key: "actions" as unknown as keyof RequisitionRow,
+        label: "",
+        render: (row) => (
+          <div className={actionCell}>
+            <ActionMenuCell row={row} onEdit={onViewDetails} onDelete={onDelete} />
+          </div>
+        ),
+        invisible: false,
+      },
     ],
-    [],
+    [onDelete, onViewDetails],
   );
 
   if (!effectiveUserId && !forceVisible) {
@@ -168,6 +259,23 @@ const RequisitionsFiles: React.FC<RequisitionsFilesProps> = ({
 
   return (
     <div>
+      <PopUp
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="¿Deseas eliminar la requisición seleccionada?"
+        content={
+          rowToDelete
+            ? `Esta acción confirmará la eliminación de ${rowToDelete.snCode}.`
+            : "Esta acción confirmará la eliminación."
+        }
+        showSecondaryButton
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={() => setConfirmOpen(false)}
+        showPrimaryButton
+        primaryButtonText={removing ? "Eliminando…" : "Eliminar"}
+        onPrimaryButtonClick={handleConfirmDelete}
+      />
+
       <DataTable
         showCalendar={false}
         textSize={{ mobile: "c2", desktop: "text-c2" }}

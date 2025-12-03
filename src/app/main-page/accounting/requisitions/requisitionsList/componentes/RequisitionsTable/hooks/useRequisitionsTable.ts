@@ -125,8 +125,11 @@ export const useRequisitionTable = () => {
   const onViewRequisitions = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path;
     const qs = new URLSearchParams(searchParams.toString());
+    const requisitionsLabel = buildLabel('Requisiciones', row.debtorName);
     qs.set('id', row.employeeId ?? row.id);
-    qs.set('label', buildLabel('Requisiciones', row.debtorName));
+    qs.set('idEmployee', row.employeeId ?? row.id);
+    qs.set('label', requisitionsLabel);
+    qs.set('requisitionsLabel', requisitionsLabel);
     router.push(`${clean}?${qs.toString()}`);
   };
 

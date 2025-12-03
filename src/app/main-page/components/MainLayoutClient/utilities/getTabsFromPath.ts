@@ -94,7 +94,7 @@ export const getTabsFromPath = (
         path: "/main-page/operations/requisitions/requisitionsPage",
       },
       {
-        label: "Listado Beneficiarios",
+        label: "Listado Requisiciones",
         path: "/main-page/operations/requisitions/requisitionListPage",
       }
     ],
@@ -159,11 +159,15 @@ export const getTabsFromPath = (
   let id: string | null = null;
   let idEmployee: string | null = null;
   let labelparam: string | null = null;
+  let requisitionsLabel: string | null = null;
+  let view: string | null = null;
   if (search) {
     const sp = typeof search === 'string' ? new URLSearchParams(search) : search;
     id = sp.get('id');
     idEmployee = sp.get('idEmployee');
     labelparam = normalizePersonLabel(sp.get('label'));
+    requisitionsLabel = normalizePersonLabel(sp.get('requisitionsLabel'));
+    view = sp.get('view');
   }
 
   // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id
@@ -190,16 +194,43 @@ export const getTabsFromPath = (
     }
   }
 
-  // agrega la Tab de archivos/detalle solo si estás en operations/requisitions/requisitionListPage y hay id
-  if (first === 'operations' && second === 'requisitions' && third == 'requisitionListPage' && id) {
+  // agrega tabs dinámicos para la lista de requisiciones de operaciones
+  if (first === 'operations' && second === 'requisitions' && third == 'requisitionListPage') {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-    const qs = new URLSearchParams();
-    qs.set('id', id);
-    if (labelparam) qs.set('label', labelparam);
-    const detailPath = `${clean}?${qs.toString()}`;
-    const detailLabel = labelparam || 'Detalle';
-    if (!tabs.some(t => t.path === detailPath || t.label === detailLabel)) {
-      tabs = [...tabs, { label: detailLabel, path: detailPath }];
+    const requisitionsTabLabel = requisitionsLabel ||
+      (labelparam && (labelparam.toLowerCase().startsWith('requisiciones') || labelparam.toLowerCase().startsWith('archivos'))
+        ? labelparam
+        : null);
+
+    if (requisitionsTabLabel && (id || idEmployee)) {
+      const requisitionsQs = new URLSearchParams();
+      const requisitionsId = idEmployee || id;
+      if (requisitionsId) requisitionsQs.set('id', requisitionsId);
+      requisitionsQs.set('label', requisitionsTabLabel);
+      if (idEmployee) requisitionsQs.set('idEmployee', idEmployee);
+      requisitionsQs.set('requisitionsLabel', requisitionsTabLabel);
+      const requisitionsPath = `${clean}?${requisitionsQs.toString()}`;
+
+      if (!tabs.some(t => t.path === requisitionsPath || t.label === requisitionsTabLabel)) {
+        tabs = [...tabs, { label: requisitionsTabLabel, path: requisitionsPath }];
+      }
+    }
+
+    const shouldAddDetail = view === 'detail' || labelparam?.toLowerCase().startsWith('detalle') || (!labelparam && Boolean(id));
+
+    if (shouldAddDetail && id) {
+      const detailLabel = labelparam || 'Detalle Requisición';
+      const detailQs = new URLSearchParams();
+      detailQs.set('id', id);
+      detailQs.set('label', detailLabel);
+      detailQs.set('view', 'detail');
+      if (idEmployee) detailQs.set('idEmployee', idEmployee);
+      if (requisitionsLabel) detailQs.set('requisitionsLabel', requisitionsLabel);
+      const detailPath = `${clean}?${detailQs.toString()}`;
+
+      if (!tabs.some(t => t.path === detailPath || t.label === detailLabel)) {
+        tabs = [...tabs, { label: detailLabel, path: detailPath }];
+      }
     }
   }
 

@@ -29,10 +29,10 @@ describe('getTabsFromPath utility', () => {
 
     expect(result).toEqual([
       { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
-      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
+      { label: 'Listado Requisiciones', path: '/main-page/operations/requisitions/requisitionListPage' },
       {
         label: 'Archivos',
-        path: '/main-page/operations/requisitions/requisitionListPage?id=123&label=Archivos',
+        path: '/main-page/operations/requisitions/requisitionListPage?id=123&label=Archivos&requisitionsLabel=Archivos',
       },
     ]);
   });
@@ -45,8 +45,11 @@ describe('getTabsFromPath utility', () => {
 
     expect(result).toEqual([
       { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
-      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
-      { label: 'Detalle', path: '/main-page/operations/requisitions/requisitionListPage?id=123' },
+      { label: 'Listado Requisiciones', path: '/main-page/operations/requisitions/requisitionListPage' },
+      {
+        label: 'Detalle Requisición',
+        path: '/main-page/operations/requisitions/requisitionListPage?id=123&label=Detalle+Requisici%C3%B3n&view=detail',
+      },
     ]);
   });
 
@@ -58,7 +61,7 @@ describe('getTabsFromPath utility', () => {
 
     expect(result[2]).toEqual({
       label: 'Archivos Bruno',
-      path: '/main-page/operations/requisitions/requisitionListPage?id=777&label=Archivos+Bruno',
+      path: '/main-page/operations/requisitions/requisitionListPage?id=777&label=Archivos+Bruno&requisitionsLabel=Archivos+Bruno',
     });
   });
 
@@ -70,7 +73,7 @@ describe('getTabsFromPath utility', () => {
 
     expect(result[2]).toEqual({
       label: 'Requisiciones Bruno',
-      path: '/main-page/operations/requisitions/requisitionListPage?id=888&label=Requisiciones+Bruno',
+      path: '/main-page/operations/requisitions/requisitionListPage?id=888&label=Requisiciones+Bruno&requisitionsLabel=Requisiciones+Bruno',
     });
   });
 
@@ -79,7 +82,27 @@ describe('getTabsFromPath utility', () => {
 
     expect(result).toEqual([
       { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
-      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
+      { label: 'Listado Requisiciones', path: '/main-page/operations/requisitions/requisitionListPage' },
+    ]);
+  });
+
+  it('adds requisitions and detail tabs when viewing requisition detail', () => {
+    const result = getTabsFromPath(
+      '/main-page/operations/requisitions/requisitionListPage',
+      '?id=555&idEmployee=777&label=Detalle%20Requisici%C3%B3n&requisitionsLabel=Requisiciones%20Bruno%20Mendoza&view=detail',
+    );
+
+    expect(result).toEqual([
+      { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
+      { label: 'Listado Requisiciones', path: '/main-page/operations/requisitions/requisitionListPage' },
+      {
+        label: 'Requisiciones Bruno',
+        path: '/main-page/operations/requisitions/requisitionListPage?id=777&label=Requisiciones+Bruno&idEmployee=777&requisitionsLabel=Requisiciones+Bruno',
+      },
+      {
+        label: 'Detalle Requisición',
+        path: '/main-page/operations/requisitions/requisitionListPage?id=555&label=Detalle+Requisici%C3%B3n&view=detail&idEmployee=777&requisitionsLabel=Requisiciones+Bruno',
+      },
     ]);
   });
 });

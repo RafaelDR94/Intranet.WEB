@@ -1,3 +1,9 @@
+### 1.47.64 Requisition actions and detail tab 10-13-2025
+
+Fix:
+
+- Agrega columna de acciones con acceso a detalle o eliminación en la vista de requisiciones filtradas y crea la tab "Detalle Requisición" en la navegación de operaciones. (Agente IA) [#]()
+
 ### 1.47.63 Requisition files by user 10-12-2025
 
 Fix:
