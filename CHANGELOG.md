@@ -1,3 +1,10 @@
+### 1.47.60 Requisition files actions column 07-12-2025
+
+Fix:
+
+- Agrega la columna de acciones con menú contextual en la tabla de historial de Archivos para mantener las mismas opciones que la
+tabla principal. (Agente IA) [#]()
+
 ### 1.47.59 Requisition history files table 06-12-2025
 
 Fix:

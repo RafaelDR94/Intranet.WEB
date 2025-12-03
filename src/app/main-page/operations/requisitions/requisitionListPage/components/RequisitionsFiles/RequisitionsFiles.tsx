@@ -1,17 +1,22 @@
 "use client";
 import React from "react";
 
+import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
-import { container } from "@/app/main-page/accounting/personalInvoices/requisitions/componentes/RequisitionsTable/styles";
+import {
+  actionCell,
+  container,
+} from "@/app/main-page/accounting/personalInvoices/requisitions/componentes/RequisitionsTable/styles";
 import { useRequisitionTable } from "@/app/main-page/accounting/personalInvoices/requisitions/componentes/RequisitionsTable/hooks/useRequisitionsTable";
 import type { RequisitionRow } from "@/app/main-page/accounting/personalInvoices/requisitions/componentes/RequisitionsTable/types";
 
 const RequisitionsFiles = ({ forceVisible = false }) => {
-  const { rows, setQuery, refresh, hasIdParam } = useRequisitionTable();
+  const { rows, setQuery, refresh, hasIdParam, onEdit, onDelete } =
+    useRequisitionTable();
   const isMobile = useIsMobile();
 
   const StatusBadge = ({ status }: { status?: string }) => {
@@ -38,8 +43,18 @@ const RequisitionsFiles = ({ forceVisible = false }) => {
         label: "ESTATUS",
         render: (row) => <StatusBadge status={row.status} />,
       },
+      {
+        key: "actions" as unknown as keyof RequisitionRow,
+        label: "",
+        render: (row) => (
+          <div className={actionCell}>
+            <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+          </div>
+        ),
+        invisible: false,
+      },
     ],
-    [],
+    [onEdit, onDelete],
   );
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
@@ -50,8 +65,20 @@ const RequisitionsFiles = ({ forceVisible = false }) => {
         label: "",
         render: (row) => <StatusBadge status={row.status} />,
       },
+      {
+        key: "actions" as unknown as keyof RequisitionRow,
+        label: "",
+        render: (row) => (
+          <div className="flex justify-end">
+            <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+          </div>
+        ),
+        cellClass: "w-12 text-right",
+        headerClass: "w-12",
+        invisible: false,
+      },
     ],
-    [],
+    [onEdit, onDelete],
   );
 
   const columns = isMobile ? mobileColumns : computedColumns;

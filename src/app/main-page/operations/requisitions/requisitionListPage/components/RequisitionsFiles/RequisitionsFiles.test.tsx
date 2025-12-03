@@ -23,6 +23,8 @@ vi.mock(
       setQuery: vi.fn(),
       refresh: vi.fn(),
       hasIdParam: false,
+      onEdit: vi.fn(),
+      onDelete: vi.fn(),
     }),
   }),
 )
@@ -33,6 +35,7 @@ vi.mock('@/app/components/DataTable/DataTable', () => ({
       <div>DataTable</div>
       <div>{tables?.[0]?.title}</div>
       <div>{tables?.[0]?.data?.[0]?.snCode}</div>
+      <div>{tables?.[0]?.columns?.map((col: any) => String(col.key)).join(',')}</div>
     </div>
   ),
 }))
@@ -51,5 +54,6 @@ describe('RequisitionsFiles', () => {
     expect(screen.getByText('DataTable')).toBeInTheDocument()
     expect(screen.getByText('Historial')).toBeInTheDocument()
     expect(screen.getByText('SN-01')).toBeInTheDocument()
+    expect(screen.getByText(/actions/)).toBeInTheDocument()
   })
 })
