@@ -1,3 +1,9 @@
+### 1.47.59 Requisition history files table 06-12-2025
+
+Fix:
+
+- Conecta la vista de archivos de requisiciones con el historial para mostrar las filas existentes cuando se abre la pestaña de Requisiciones. (Agente IA) [#]()
+
 ### 1.47.58 Requisition files view tables 05-12-2025
 
 Fix:

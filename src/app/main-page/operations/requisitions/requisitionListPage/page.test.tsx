@@ -26,6 +26,21 @@ vi.mock(
   }),
 );
 
+vi.mock('./components/RequisitionsFiles/RequisitionsFiles', () => ({
+  __esModule: true,
+  default: () => <div>Requisiciones</div>,
+}));
+
+vi.mock('./components/TicketsFiles/TicketsFiles', () => ({
+  __esModule: true,
+  default: () => <div>Tickets</div>,
+}));
+
+vi.mock('./components/InvoicesFiles/InvoicesFiles', () => ({
+  __esModule: true,
+  default: () => <div>Facturas</div>,
+}));
+
 vi.mock(
   '@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsDetails/components/RequisitionDetailsDocuments/RequisitionDetailsDocument',
   () => ({
@@ -48,8 +63,8 @@ describe('RequisitionListPage', () => {
     const { container } = render(<RequisitionListPage />);
 
     expect(screen.queryByText('Detalle')).not.toBeInTheDocument();
-    expect(screen.getByText('Documentos')).toBeInTheDocument();
-    expect(screen.getByText('Tabla')).toBeInTheDocument();
+    expect(screen.getByText('Tickets')).toBeInTheDocument();
+    expect(screen.getByText('Facturas')).toBeInTheDocument();
     expect(container.childElementCount).toBeGreaterThan(0);
   });
 
@@ -60,7 +75,7 @@ describe('RequisitionListPage', () => {
 
     expect(screen.queryByText('Detalle')).not.toBeInTheDocument();
     expect(screen.queryByText('Documentos')).not.toBeInTheDocument();
-    expect(screen.getByText('Tabla')).toBeInTheDocument();
+    expect(screen.getByText('Requisiciones')).toBeInTheDocument();
     expect(container.childElementCount).toBeGreaterThan(0);
   });
 });
