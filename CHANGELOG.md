@@ -1,3 +1,9 @@
+### 1.47.63 Requisition files by user 10-12-2025
+
+Fix:
+
+- Muestra la tabla de requisiciones filtrada por el colaborador seleccionado al abrir la vista de "Requisiciones". (Agente IA) [#]()
+
 ### 1.47.62 Requisition detail label fix 09-12-2025
 
 Fix:

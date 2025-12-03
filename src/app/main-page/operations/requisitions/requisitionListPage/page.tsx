@@ -12,6 +12,7 @@ import RequisitionsFiles from "./components/RequisitionsFiles/RequisitionsFiles"
 const RequisitionListPage: React.FC = () => {
   const searchParams = useSearchParams();
   const label = searchParams.get("label");
+  const userId = searchParams.get("id");
   const normalizedLabel = label?.toLowerCase();
   const isFilesView = normalizedLabel?.startsWith("archivos");
   const isRequisitionsView = normalizedLabel?.startsWith("requisiciones");
@@ -26,7 +27,7 @@ const RequisitionListPage: React.FC = () => {
   }
 
   if (isRequisitionsView) {
-    return <RequisitionsFiles forceVisible/>;
+    return <RequisitionsFiles forceVisible userId={userId} />;
   }
 
   return (

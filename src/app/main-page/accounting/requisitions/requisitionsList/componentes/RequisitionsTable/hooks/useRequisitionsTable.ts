@@ -74,6 +74,7 @@ export const useRequisitionTable = () => {
   const rows: RequisitionRow[] = useMemo(() => {
     const base = requisitions.map(r => ({
       id: r?.billingrequisition_id,
+      employeeId: r?.id_Employee,
       snCode: r?.requisitionkey,
       debtorName: r?.employeename,
       // Prefer project ID/code to match visual sample
@@ -124,7 +125,7 @@ export const useRequisitionTable = () => {
   const onViewRequisitions = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path;
     const qs = new URLSearchParams(searchParams.toString());
-    qs.set('id', row.id);
+    qs.set('id', row.employeeId ?? row.id);
     qs.set('label', buildLabel('Requisiciones', row.debtorName));
     router.push(`${clean}?${qs.toString()}`);
   };

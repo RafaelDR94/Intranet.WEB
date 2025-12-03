@@ -1,33 +1,54 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import RequisitionsFiles from './RequisitionsFiles'
 
-vi.mock(
-  '@/app/main-page/accounting/personalInvoices/requisitions/componentes/RequisitionsTable/hooks/useRequisitionsTable',
-  () => ({
-    useRequisitionTable: () => ({
-      rows: [
+const fetchMock = vi.fn()
+const resetMock = vi.fn()
+
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams('id=99'),
+}))
+
+vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
+  usePrincipal: () => ({
+    usePrincipalLoading: {
+      showSpinner: vi.fn(),
+      hideSpinner: vi.fn(),
+    },
+    usePrincipalAlert: {
+      showAlert: vi.fn(),
+      hideAlert: vi.fn(),
+    },
+  }),
+}))
+
+vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
+  useRequisitionsStore: (selector: any) =>
+    selector({
+      requisitions: [
         {
-          id: '1',
-          snCode: 'SN-01',
-          debtorName: 'John Doe',
-          projectCode: 'PR-01',
-          assignmentDate: '2025-01-01',
-          dueDate: '2025-01-02',
+          billingrequisition_id: '1',
+          id_Employee: '99',
+          requisitionkey: 'SN-01',
+          employeename: 'John Doe',
+          projectname: 'PR-01',
+          assignmentdate: '2025-01-01',
+          endDate: '2025-01-02',
+          amountdeposited: '1500',
           status: 'validación',
           date_created: '2025-01-01',
+          state: 'Activo',
         },
       ],
-      setQuery: vi.fn(),
-      refresh: vi.fn(),
-      hasIdParam: false,
-      onEdit: vi.fn(),
-      onDelete: vi.fn(),
+      loading: false,
+      error: undefined,
+      warning: undefined,
+      fetchRequisitionsByIdEmployee: fetchMock,
+      resetFlags: resetMock,
     }),
-  }),
-)
+}))
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
   DataTable: ({ tables }: any) => (
@@ -40,20 +61,17 @@ vi.mock('@/app/components/DataTable/DataTable', () => ({
   ),
 }))
 
-vi.mock(
-  '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery',
-  () => ({
-    useIsMobile: () => false,
-  }),
-)
-
 describe('RequisitionsFiles', () => {
-  it('renders requisitions history table with rows', () => {
+  it('renders requisitions history table with rows and fetches by user id', async () => {
     render(<RequisitionsFiles />)
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith('99', true)
+    })
 
     expect(screen.getByText('DataTable')).toBeInTheDocument()
     expect(screen.getByText('Historial')).toBeInTheDocument()
     expect(screen.getByText('SN-01')).toBeInTheDocument()
-    expect(screen.getByText(/actions/)).toBeInTheDocument()
+    expect(screen.getByText('debtorName,projectCode,snCode,status')).toBeInTheDocument()
   })
 })

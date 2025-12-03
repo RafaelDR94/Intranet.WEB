@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import RequisitionListPage from './page';
 
 const useSearchParamsMock = vi.fn(() => new URLSearchParams());
+const requisitionsFilesMock = vi.fn();
 
 vi.mock('next/navigation', () => ({
   useSearchParams: () => useSearchParamsMock(),
@@ -28,7 +29,10 @@ vi.mock(
 
 vi.mock('./components/RequisitionsFiles/RequisitionsFiles', () => ({
   __esModule: true,
-  default: () => <div>Requisiciones</div>,
+  default: (props: unknown) => {
+    requisitionsFilesMock(props);
+    return <div>Requisiciones</div>;
+  },
 }));
 
 vi.mock('./components/TicketsFiles/TicketsFiles', () => ({
@@ -50,6 +54,11 @@ vi.mock(
 );
 
 describe('RequisitionListPage', () => {
+  beforeEach(() => {
+    useSearchParamsMock.mockReturnValue(new URLSearchParams());
+    requisitionsFilesMock.mockClear();
+  });
+
   it('renders details and table when there is no label', () => {
     const { container } = render(<RequisitionListPage />);
 
@@ -69,7 +78,7 @@ describe('RequisitionListPage', () => {
   });
 
   it('renders only requisitions table for requisiciones view', () => {
-    useSearchParamsMock.mockReturnValueOnce(new URLSearchParams('label=Requisiciones%20Bruno'));
+    useSearchParamsMock.mockReturnValueOnce(new URLSearchParams('label=Requisiciones%20Bruno&id=99'));
 
     const { container } = render(<RequisitionListPage />);
 
@@ -77,6 +86,9 @@ describe('RequisitionListPage', () => {
     expect(screen.queryByText('Documentos')).not.toBeInTheDocument();
     expect(screen.getByText('Requisiciones')).toBeInTheDocument();
     expect(container.childElementCount).toBeGreaterThan(0);
+    expect(requisitionsFilesMock).toHaveBeenCalledWith(
+      expect.objectContaining({ forceVisible: true, userId: '99' }),
+    );
   });
 });
 
