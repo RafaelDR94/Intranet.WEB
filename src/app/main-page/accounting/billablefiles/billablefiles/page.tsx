@@ -1,39 +1,30 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { shallow } from 'zustand/shallow'
+import React from 'react'
 
-import AddFilesComponent from '../../invoices/addFiles/components/AddFIlesComponent/AddFilesComponent'
-import PictureTable from '../../invoices/addFiles/components/PicturesTable/PicturesTable'
-
-import { BillingImagesTable } from '@/app/mappings/billingimages/billingimages.types'
-import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore'
-import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
+import InvoicesForm from '../../personalInvoices/invoices/components/InvoicesForm/InvoicesForm'
+import TicketForm from '../../personalInvoices/invoices/components/TicketForm/TicketForm'
+import { InvoicesProvider } from '../../personalInvoices/invoices/context/InvoicesContext'
 
 const BillableFilesPage = () => {
-  const [selectedPicture, setSelectedPicture] = useState<BillingImagesTable | null>(null)
-  const { successPost } = useBillingDocumentsStore(
-    (s) => ({
-      successPost: s.successPost,
-    }),
-    shallow,
-  )
-  const { fetchBillingImages } = useBillingImagesStore(
-    (s) => ({
-      fetchBillingImages: s.fetchBillingImages,
-    }),
-    shallow,
-  )
-
-  useEffect(() => {
-    if (successPost) fetchBillingImages(true)
-  }, [successPost, fetchBillingImages])
-
   return (
-    <>
-      <AddFilesComponent billingImages={selectedPicture} setSelectedPictures={setSelectedPicture} />
-      <PictureTable setSelectedPictures={setSelectedPicture} />
-    </>
+    <InvoicesProvider>
+      <TicketForm
+        responsiveLayoutMatrix={{
+          sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+          md: [[5, 5], [5, 5], [2.5, 2.5, 5], [5, 5]],
+          lg: [[5, 5], [3.3, 3.3, 3.3], [3, 3, 3]],
+        }}
+      />
+      <InvoicesForm
+        responsiveLayoutMatrix={{
+          sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+          md: [[5, 5], [5, 5], [2.5, 2.5, 5], [5, 5]],
+          lg: [[5, 5], [3.3, 3.3, 3.3], [2, 2, 3, 3]],
+        }}
+        withoutName
+      />
+    </InvoicesProvider>
   )
 }
 

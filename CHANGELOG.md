@@ -1,3 +1,9 @@
+### 1.47.66 Billable ticket upload form 12-05-2025
+
+Fix:
+
+- Reemplaza la tabla de tickets por el formulario de subida de imágenes reutilizando TicketForm dentro de billablefiles. (Agente IA) [#]()
+
 ### 1.47.65 Billable files upload location 12-05-2025
 
 Fix:
