@@ -1,3 +1,9 @@
+### 1.47.67 Ticket uploader redesign 12-06-2025
+
+Fix:
+
+- Refresca el formulario de tickets con dropzone de cámara y vista previa para alinearlo con el nuevo diseño de carga de imágenes. (Agente IA) [#]()
+
 ### 1.47.66 Billable ticket upload form 12-05-2025
 
 Fix:

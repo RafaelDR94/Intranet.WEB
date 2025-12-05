@@ -109,14 +109,18 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
           className: "max-w-[300px]",
         },
         {
-          type: 'file',
+          type: 'imageUploaderExpanded',
           name: 'ticket',
-          label: 'Documento JPG/PNG',
+          label: 'Imagen del ticket (JPG o PNG)',
+          placeholder: 'Arrastra o selecciona la foto del ticket',
           value: { name: 'Imagen', url: dataEdit?.image },
           initialFile: { name: dataEdit?.image ?? "", url: dataEdit?.image },
           accept: '.jpg,.png',
           validations: [], // en edición es opcional
-          className: 'max-w-[300px]',
+          className: 'w-full',
+          buttonLabel: 'Seleccionar imagen',
+          cameraButtonAriaLabel: 'Tomar foto del ticket',
+          preview: true,
         },
       ]
     }
