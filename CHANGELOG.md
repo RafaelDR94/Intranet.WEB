@@ -1,3 +1,9 @@
+### 1.47.65 Billable files upload location 12-05-2025
+
+Fix:
+
+- Mueve el formulario de carga de comprobantes a la vista de Archivos Facturables y redirige la ruta antigua de facturas para evitar duplicidad. (Agente IA) [#]()
+
 ### 1.47.64 Requisition actions and detail tab 10-13-2025
 
 Fix:
