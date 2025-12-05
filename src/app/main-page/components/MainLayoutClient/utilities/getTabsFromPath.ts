@@ -1,3 +1,5 @@
+import path from "path";
+
 // utils/getTabsFromPath.ts
 export type Tab = { label: string; path: string };
 
@@ -117,6 +119,12 @@ export const getTabsFromPath = (
       {
         label: "Operaciones",
         path: "/main-page/accounting/sap/operations",
+      },
+    ],
+    "accounting/billablefiles": [
+      {
+        label: "Carga de Archivos Facturables",
+        path: "/main-page/accounting/billablefiles/billablefiles",
       },
     ],
     'sip/proyects': [

@@ -2,12 +2,11 @@
 import React from "react";
 import { useSearchParams } from "next/navigation";
 
-import RequisitionDetails from "@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsDetails/RequisitionDetails";
-import RequisitionDetailsDocument from "@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsDetails/components/RequisitionDetailsDocuments/RequisitionDetailsDocument";
 import RequisitionsTable from "@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsTable/RequisitionsTable";
 import TicketsFiles from "./components/TicketsFiles/TicketsFiles";
 import InvoicesFiles from "./components/InvoicesFiles/InvoicesFiles";
 import RequisitionsFiles from "./components/RequisitionsFiles/RequisitionsFiles";
+import RequisitionDetails from "./components/RequisitionDetails/RequisitionDetails";
 
 const RequisitionListPage: React.FC = () => {
   const searchParams = useSearchParams();

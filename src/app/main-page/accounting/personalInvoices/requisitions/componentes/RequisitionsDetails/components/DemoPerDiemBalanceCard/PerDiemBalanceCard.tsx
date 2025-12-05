@@ -12,13 +12,16 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 function diffInDays(start: string, end: string) {
   const d1 = new Date(start);
   const d2 = new Date(end);
-  return Math.max(0, Math.ceil((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)));
+  return Math.max(
+    0,
+    Math.ceil((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)),
+  );
 }
 
 function computeBalances(requested: number, verified: number) {
   const diff = requested - verified;
   return {
-    enterpriseAmount: diff > 0 ? diff : 0,   // sobra dinero → a favor empresa
+    enterpriseAmount: diff > 0 ? diff : 0, // sobra dinero → a favor empresa
     employeeAmount: diff < 0 ? Math.abs(diff) : 0, // gastó más → a favor colaborador
   };
 }
@@ -28,25 +31,36 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
   endDate,
   requestedAmount,
   verifiedAmount,
+  bodyClassName,
+  donutSize,
 }) => {
   // 🔹 calcular días
   const totalDays = diffInDays(startDate, endDate) || 1;
-  const elapsedDays = Math.min(totalDays, diffInDays(startDate, new Date().toISOString()));
+  const elapsedDays = Math.min(
+    totalDays,
+    diffInDays(startDate, new Date().toISOString()),
+  );
 
   // 🔹 calcular porcentajes
-  const verifiedPct = Math.round(Math.max(0, Math.min(100, (verifiedAmount / requestedAmount) * 100 || 0)));
+  const verifiedPct = Math.round(
+    Math.max(0, Math.min(100, (verifiedAmount / requestedAmount) * 100 || 0)),
+  );
   const pendingPct = 100 - verifiedPct;
 
   // 🔹 calcular saldos
-  const { enterpriseAmount, employeeAmount } = computeBalances(requestedAmount, verifiedAmount);
+  const { enterpriseAmount, employeeAmount } = computeBalances(
+    requestedAmount,
+    verifiedAmount,
+  );
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
 
   const isSapProfile = currentPagePermissions?.sapprofile;
+  const defaultSize = isMobile ? 150 : 200;
 
   return (
     <div className={s.root}>
-      <div className={isSapProfile ? s.cardSap : s.card }>
+      <div className={isSapProfile ? s.cardSap : s.card}>
         <div className="col-span-2">
           <h3 className={s.title}>Balance de viáticos</h3>
           <p className={s.period}>
@@ -54,14 +68,20 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
           </p>
 
           <p className={s.amountLine}>
-            Importe Solicitado: <span className={s.amountValue}>{formatCurrency(requestedAmount)}</span>
+            Importe Solicitado:{" "}
+            <span className={s.amountValue}>
+              {formatCurrency(requestedAmount)}
+            </span>
           </p>
           <p className={s.amountLine}>
-            Monto Comprobado: <span className={s.amountValue}>{formatCurrency(verifiedAmount)}</span>
+            Monto Comprobado:{" "}
+            <span className={s.amountValue}>
+              {formatCurrency(verifiedAmount)}
+            </span>
           </p>
         </div>
 
-        <div className={s.body}>
+        <div className={bodyClassName || s.body}>
           {/* Columna izquierda */}
           <div className={s.leftCol}>
             <div className={s.dayCounter}>
@@ -78,7 +98,10 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
             </div>
 
             <div className={s.legendRow}>
-              <span className={s.legendDot} style={{ backgroundColor: "#FFBB00" }} />
+              <span
+                className={s.legendDot}
+                style={{ backgroundColor: "#FFBB00" }}
+              />
               <div className="leading-5">
                 <div className={s.legendPctYellow}>{pendingPct}%</div>
                 <div className={s.legendText}>Pendiente</div>
@@ -88,7 +111,12 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
 
           {/* Donut */}
           <div className={s.donutWrap}>
-            <Donut percentage={verifiedPct}  size = {isMobile?150:200} thickness = {isMobile?20:30} innerRadius = {isMobile?70:40}/>
+            <Donut
+              percentage={verifiedPct}
+              size={donutSize || defaultSize}
+              thickness={isMobile ? 20 : 30}
+              innerRadius={isMobile ? 70 : 40}
+            />
           </div>
         </div>
 
@@ -96,11 +124,15 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
         <div className={s.footer}>
           <p>
             Monto a favor de la empresa:{" "}
-            <span className={s.footerValue}>{formatCurrency(enterpriseAmount)}</span>
+            <span className={s.footerValue}>
+              {formatCurrency(enterpriseAmount)}
+            </span>
           </p>
           <p>
             Monto a favor del colaborador:{" "}
-            <span className={s.footerValue}>{formatCurrency(employeeAmount)}</span>
+            <span className={s.footerValue}>
+              {formatCurrency(employeeAmount)}
+            </span>
           </p>
         </div>
       </div>
