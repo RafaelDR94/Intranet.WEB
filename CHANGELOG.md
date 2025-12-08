@@ -1,3 +1,9 @@
+### 1.47.75 Galería de tickets con arrastre 12-19-2025
+
+Feature:
+
+- Permite arrastrar y reordenar las miniaturas de tickets mientras se mantiene la selección múltiple para subirlas. (Agente IA) [#]()
+
 ### 1.47.74 Galería de tickets sin vista grande 12-18-2025
 
 Fix:

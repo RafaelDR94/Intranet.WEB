@@ -1,5 +1,6 @@
 'use client';
 
+import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useFileUploaderExpanded } from '@/app/components/FileUploaderexpanded/hooks/useFileUploaderExpanded';
@@ -23,6 +24,7 @@ export const useImageUploaderExpanded = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
   const { usePrincipalImage } = usePrincipal();
   const { showImage } = usePrincipalImage;
   const [images, setImages] = useState<SelectedImage[]>(() => {
@@ -180,7 +182,7 @@ export const useImageUploaderExpanded = ({
   }, [fileName, multiPreview, showImage]);
 
   const handleInputChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       if (multiple) {
         addFiles(event.target.files ?? undefined);
       } else {
@@ -191,7 +193,7 @@ export const useImageUploaderExpanded = ({
   );
 
   const handleDropInput = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
+    (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
       if (disabled) return;
       handleDragLeave();
@@ -218,6 +220,51 @@ export const useImageUploaderExpanded = ({
     notifyImages([]);
   }, [notifyImages]);
 
+  const reorderImages = useCallback(
+    (targetId: string) => {
+      if (!multiple || !draggingId || draggingId === targetId) return;
+
+      const currentIndex = images.findIndex((img) => img.id === draggingId);
+      const targetIndex = images.findIndex((img) => img.id === targetId);
+
+      if (currentIndex === -1 || targetIndex === -1) return;
+
+      const next = [...images];
+      const [moved] = next.splice(currentIndex, 1);
+      next.splice(targetIndex, 0, moved);
+      notifyImages(next);
+    },
+    [draggingId, images, notifyImages]
+  );
+
+  const handleImageDragStart = useCallback((id: string) => {
+    if (disabled || !multiple) return;
+    setDraggingId(id);
+  }, [disabled, multiple]);
+
+  const handleImageDragOverGallery = useCallback(
+    (event: DragEvent<HTMLLabelElement>, id: string) => {
+      event.preventDefault();
+      if (disabled || !multiple || !draggingId || draggingId === id) return;
+      event.dataTransfer.dropEffect = 'move';
+    },
+    [disabled, draggingId, multiple]
+  );
+
+  const handleImageDropGallery = useCallback(
+    (event: DragEvent<HTMLLabelElement>, id: string) => {
+      event.preventDefault();
+      if (disabled || !multiple) return;
+      reorderImages(id);
+      setDraggingId(null);
+    },
+    [disabled, multiple, reorderImages]
+  );
+
+  const handleImageDragEnd = useCallback(() => {
+    setDraggingId(null);
+  }, []);
+
   return {
     inputRef,
     fileName,
@@ -238,5 +285,10 @@ export const useImageUploaderExpanded = ({
     images,
     toggleImage,
     clearImages,
+    draggingId,
+    handleImageDragStart,
+    handleImageDragOverGallery,
+    handleImageDropGallery,
+    handleImageDragEnd,
   };
 };

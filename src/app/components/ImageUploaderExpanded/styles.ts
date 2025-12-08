@@ -47,10 +47,11 @@ export const previewCancelButtonClasses = clsx(
 
 export const galleryWrapper = 'mt-6 flex flex-col gap-4';
 export const galleryGrid = 'grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
-export const galleryItem = (selected: boolean) =>
+export const galleryItem = (selected: boolean, dragging?: boolean) =>
   clsx(
     'relative overflow-hidden rounded-md border',
     selected ? 'border-blue-50 ring-2 ring-blue-50' : 'border-gray-30',
-    'cursor-pointer'
+    dragging ? 'opacity-80 ring-2 ring-dashed ring-blue-30' : '',
+    'cursor-grab'
   );
 export const galleryImage = 'h-32 w-full object-cover';

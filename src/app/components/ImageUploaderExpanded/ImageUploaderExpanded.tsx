@@ -80,6 +80,11 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     images,
     toggleImage,
     clearImages,
+    draggingId,
+    handleImageDragStart,
+    handleImageDragOverGallery,
+    handleImageDropGallery,
+    handleImageDragEnd,
   } = useImageUploaderExpanded({
     onImage,
     accept,
@@ -213,7 +218,15 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
         <div className={galleryWrapper}>
           <div className={galleryGrid}>
             {images.map((img) => (
-              <label key={img.id} className={galleryItem(img.selected !== false)}>
+              <label
+                key={img.id}
+                className={galleryItem(img.selected !== false, draggingId === img.id)}
+                draggable={!disabled}
+                onDragStart={() => handleImageDragStart?.(img.id)}
+                onDragOver={(event) => handleImageDragOverGallery?.(event, img.id)}
+                onDrop={(event) => handleImageDropGallery?.(event, img.id)}
+                onDragEnd={handleImageDragEnd}
+              >
                 <input
                   type="checkbox"
                   checked={img.selected !== false}

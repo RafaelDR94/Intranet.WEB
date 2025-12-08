@@ -1,4 +1,4 @@
-import { RefObject } from 'react';
+import type { DragEvent, RefObject } from 'react';
 
 import { InitialFile } from '@/app/components/FileUploader/types';
 import { SelectedImage } from '../types';
@@ -25,4 +25,9 @@ export interface UseImageUploaderExpandedReturn
   images?: SelectedImage[];
   toggleImage?: (id: string) => void;
   clearImages?: () => void;
+  draggingId?: string | null;
+  handleImageDragStart?: (id: string) => void;
+  handleImageDragOverGallery?: (event: DragEvent<HTMLLabelElement>, id: string) => void;
+  handleImageDropGallery?: (event: DragEvent<HTMLLabelElement>, id: string) => void;
+  handleImageDragEnd?: () => void;
 }
