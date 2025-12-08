@@ -53,10 +53,10 @@ describe('getTabsFromPath utility', () => {
     ]);
   });
 
-  it('adds billable files tab when personal requisitions detail includes an id', () => {
+  it('adds billable files tab when personal requisitions detail includes an id and billable view', () => {
     const result = getTabsFromPath(
       '/main-page/accounting/personalInvoices/requisitions',
-      '?id=123&label=Detalle%20Requisici%C3%B3n',
+      '?id=123&label=Detalle%20Requisici%C3%B3n&view=billablefiles',
     );
 
     expect(result).toEqual([
@@ -67,7 +67,22 @@ describe('getTabsFromPath utility', () => {
       },
       {
         label: 'Carga de Archivos Facturables',
-        path: '/main-page/accounting/billablefiles/billablefiles?id=123&label=Detalle+Requisici%C3%B3n',
+        path: '/main-page/accounting/personalInvoices/requisitions?id=123&label=Detalle+Requisici%C3%B3n&view=billablefiles',
+      },
+    ]);
+  });
+
+  it('does not add billable files tab if view is not billablefiles', () => {
+    const result = getTabsFromPath(
+      '/main-page/accounting/personalInvoices/requisitions',
+      '?id=123&label=Detalle%20Requisici%C3%B3n',
+    );
+
+    expect(result).toEqual([
+      { label: 'Requisiciones', path: '/main-page/accounting/personalInvoices/requisitions' },
+      {
+        label: 'Detalle Requisición',
+        path: '/main-page/accounting/personalInvoices/requisitions?id=123&label=Detalle+Requisici%C3%B3n',
       },
     ]);
   });

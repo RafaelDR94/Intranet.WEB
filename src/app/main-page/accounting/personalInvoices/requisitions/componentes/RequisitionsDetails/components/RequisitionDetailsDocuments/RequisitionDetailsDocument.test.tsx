@@ -6,8 +6,10 @@ const pushMock = vi.fn()
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock }),
+  usePathname: () => '/main-page/accounting/personalInvoices/requisitions',
   useSearchParams: () => ({
     get: (key: string) => (key === 'label' ? 'Detalle Requisición' : null),
+    toString: () => '',
   }),
 }))
 
@@ -78,7 +80,7 @@ describe('RequisitionDetailsDocument', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Subir Archivos' }))
 
     expect(pushMock).toHaveBeenCalledWith(
-      '/main-page/accounting/billablefiles/billablefiles?id=1&label=Detalle+Requisici%C3%B3n',
+      '/main-page/accounting/personalInvoices/requisitions?id=1&label=Detalle+Requisici%C3%B3n&view=billablefiles',
     )
   })
 })

@@ -1,3 +1,9 @@
+### 1.47.69 Billable files tab on demand 12-10-2025
+
+Fix:
+
+- Muestra la pestaña de carga de archivos facturables solo al activarla desde el detalle de requisición y abre el formulario en la misma vista sin redirecciones externas. (Agente IA) [#]()
+
 ### 1.47.68 Billable files tab from requisition detail 12-09-2025
 
 Fix:

@@ -1,6 +1,6 @@
 "use client";
 import React, { useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import useRequisitionDetailsDocument from "./hooks/useRequisitionDetailsDocument";
 
@@ -39,21 +39,21 @@ const RequisitionDetailsDocument: React.FC = () => {
   const isMobile = useIsMobile();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const sapprofile = currentPagePermissions?.sapprofile;
 
   const handleUploadBillableFiles = () => {
     if (!requisitionId) return;
 
-    const query = new URLSearchParams();
+    const query = new URLSearchParams(searchParams.toString());
     query.set("id", requisitionId);
     const label = searchParams.get("label");
     if (label) {
       query.set("label", label);
     }
+    query.set("view", "billablefiles");
 
-    router.push(
-      `/main-page/accounting/billablefiles/billablefiles?${query.toString()}`,
-    );
+    router.push(`${pathname}?${query.toString()}`);
   };
 
   const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] =

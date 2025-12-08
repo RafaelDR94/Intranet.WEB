@@ -201,12 +201,13 @@ export const getTabsFromPath = (
       tabs = [...tabs, { label: labelparam || 'Detalle de Requisición', path: detailPath }];
     }
 
-    const billableQs = new URLSearchParams();
-    billableQs.set('id', id);
-    if (labelparam) billableQs.set('label', labelparam);
-    const billablePath = `/main-page/accounting/billablefiles/billablefiles?${billableQs.toString()}`;
-    if (!tabs.some(t => t.path === billablePath || t.label === 'Carga de Archivos Facturables')) {
-      tabs = [...tabs, { label: 'Carga de Archivos Facturables', path: billablePath }];
+    if (view === 'billablefiles') {
+      const billableQs = new URLSearchParams(qs);
+      billableQs.set('view', view);
+      const billablePath = `${clean}?${billableQs.toString()}`;
+      if (!tabs.some(t => t.path === billablePath || t.label === 'Carga de Archivos Facturables')) {
+        tabs = [...tabs, { label: 'Carga de Archivos Facturables', path: billablePath }];
+      }
     }
   }
 
