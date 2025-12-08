@@ -1,5 +1,6 @@
 // src/app/.../hooks/useTicketForm.ts
 import { useEffect, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { shallow } from 'zustand/shallow'
 
 import { useInvoices } from '../../../context/InvoicesContext'
@@ -130,6 +131,8 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
   }, [dataEdit, isEdit])
 
   const { field2, formId2, user } = useInvoices()
+  const searchParams = useSearchParams()
+  const requisitionIdFromQuery = searchParams.get('id') ?? ''
   const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm } =
     useInitInvoicesForms({ initialformFields, field: field2, formId: formId2, dataEdit, })
 
@@ -157,11 +160,18 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
   const handleSubmit = async (values: Record<string, any>) => {
     showSpinner({ message: isEdit ? 'Actualizando ticket...' : 'Subiendo ticket...' })
     try {
-      const imgUrl = await uploadIfNeeded(values.ticket, values.requisition)
+      const requisition =
+        values?.requisition || dataEdit?.billingrequisition_id || requisitionIdFromQuery
+
+      if (!requisition) {
+        throw new Error('No se encontró la requisición para asociar el ticket')
+      }
+
+      const imgUrl = await uploadIfNeeded(values.ticket, requisition)
       if (isEdit && dataEdit) {
         const payload = {
           billing_image_id: dataEdit?.billing_image_id,
-          requisition_id: values?.requisition,
+          requisition_id: requisition,
           Image: imgUrl,
           comments: dataEdit?.comments,
           user_comments: "",
@@ -174,7 +184,7 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
       } else {
         // CREATE
         const payload = {
-          requisition_id: values.requisition,
+          requisition_id: requisition,
           Image: imgUrl,
           description: values?.description,
           numpersons: values?.numpersons,

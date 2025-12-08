@@ -1,3 +1,9 @@
+### 1.47.71 Requisition id for billable tickets 12-12-2025
+
+Fix:
+
+- Envía el `requisition_id` en las peticiones de carga de tickets cuando se abre el flujo desde el detalle de requisición. (Agente IA) [#]()
+
 ### 1.47.70 Ticket form spinner fix 12-11-2025
 
 Fix:
