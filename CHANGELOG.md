@@ -1,3 +1,9 @@
+### 1.47.70 Ticket form spinner fix 12-11-2025
+
+Fix:
+
+- Evita el spinner permanente en TicketForm cuando solo se muestran categoría y carga de imagen, permitiendo subir tickets sin esperar datos faltantes. (Agente IA) [#]()
+
 ### 1.47.69 Billable files tab on demand 12-10-2025
 
 Fix:

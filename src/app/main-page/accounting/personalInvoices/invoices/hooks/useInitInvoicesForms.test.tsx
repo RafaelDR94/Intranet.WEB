@@ -35,4 +35,24 @@ describe('useInitInvoicesForms', () => {
     });
     expect(setFields).toHaveBeenCalledWith('form1', initialFields);
   });
+
+  it('marks form info as ready when only category options are present', () => {
+    const initialFields: any[] = [
+      {
+        name: 'category',
+        options: [
+          {
+            label: 'Hospedaje',
+            value: 'cat-1',
+          },
+        ],
+      },
+      { name: 'ticket' },
+    ];
+    const { result } = renderHook(() =>
+      useInitInvoicesForms({ initialformFields: initialFields, field: initialFields, formId: 'form1' })
+    );
+
+    expect(result.current.loadingFormInfo).toBe(false);
+  });
 });

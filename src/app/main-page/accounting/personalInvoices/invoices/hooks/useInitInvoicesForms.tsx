@@ -181,18 +181,15 @@ const useInitInvoicesForms = ({
     const debtorName = fields.find((f) => f.name === "debtorName");
     const hasDebtor = Boolean(debtorName);
     const reqReady =
-      Array.isArray(req?.options) && (req?.options?.length ?? 0) > 0;
+      !req || (Array.isArray(req?.options) && (req?.options?.length ?? 0) > 0);
     const descReady =
-      Array.isArray(description?.options) &&
-      (description?.options?.length ?? 0) > 0;
+      !description ||
+      (Array.isArray(description?.options) &&
+        (description?.options?.length ?? 0) > 0);
     const catReady =
-      Array.isArray(category?.options) && (category?.options?.length ?? 0) > 0;
-    return !(
-      reqReady &&
-      descReady &&
-      catReady &&
-      (debtorName?.value || !hasDebtor)
-    );
+      !category ||
+      (Array.isArray(category?.options) && (category?.options?.length ?? 0) > 0);
+    return !(reqReady && descReady && catReady && (debtorName?.value || !hasDebtor));
   };
 
   const loadingFormInfo = useMemo(() => computeLoadingFormInfo(field), [field]);
