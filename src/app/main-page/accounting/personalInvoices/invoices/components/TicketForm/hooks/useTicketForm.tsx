@@ -6,6 +6,7 @@ import { shallow } from 'zustand/shallow'
 import { useInvoices } from '../../../context/InvoicesContext'
 import useInitInvoicesForms from '../../../hooks/useInitInvoicesForms'
 import { createTicketFields } from '../../../utilities/InitialFields'
+import { ticketFormDropzoneClasses } from '../styles'
 
 import { UseTicketFormReturn, UseInvoicesFormProps } from './types'
 
@@ -118,7 +119,7 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
           initialFile: { name: dataEdit?.image ?? "", url: dataEdit?.image },
           accept: '.jpg,.png',
           validations: [], // en edición es opcional
-          className: 'w-full',
+          className: ticketFormDropzoneClasses,
           buttonLabel: 'Seleccionar imagen',
           cameraButtonAriaLabel: 'Tomar foto del ticket',
           preview: true,

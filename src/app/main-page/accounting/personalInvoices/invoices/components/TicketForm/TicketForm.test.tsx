@@ -24,7 +24,7 @@ vi.mock('@/app/components/FormsLayout/FormsLayout', () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({
-  useAuth: () => ({ currentPagePermissions: { canAddPicture: true } }),
+  useAuth: () => ({ currentPagePermissions: { canAddPicture: false } }),
 }));
 
 const matrix: any = { sm: [[10]] };

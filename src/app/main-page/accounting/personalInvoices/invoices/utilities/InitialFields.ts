@@ -1,4 +1,5 @@
 import { FieldModel } from "@/app/components/DynamicForm/types";
+import { ticketFormDropzoneClasses } from "../components/TicketForm/styles";
 
 /**
  * Creates base fields for the invoice form.
@@ -190,7 +191,7 @@ export const createTicketFields = (): FieldModel[] => [
     placeholder: "Arrastra o selecciona la foto del ticket",
     value: { name: "Imagen", url: "" },
     accept: ".jpg,.png",
-    className: "w-full",
+    className: ticketFormDropzoneClasses,
     validations: [{ type: "required" }],
     buttonLabel: "Seleccionar imagen",
     cameraButtonAriaLabel: "Tomar foto del ticket",

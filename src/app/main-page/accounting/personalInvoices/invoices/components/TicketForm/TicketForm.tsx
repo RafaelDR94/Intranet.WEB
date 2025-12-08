@@ -4,6 +4,7 @@ import React from 'react'
 
 import { InvoicesFormProps } from '../types'
 import useTicketForm from './hooks/useTicketForm'
+import { ticketFormContainer } from './styles'
 
 import DynamicForm from '@/app/components/DynamicForm/DynamicForm'
 import FormsLayout from '@/app/components/FormsLayout/FormsLayout'
@@ -46,16 +47,18 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, exter
       primaryDisabled={!formReady}
       enableCollapse={true}
     >
-        <DynamicForm
-          fields={fields}
-          loadingFormInfo={loadingFormInfo}
-          responsiveLayoutMatrix={responsiveLayoutMatrix}
-          submitLabel="Enviar solicitud"
-          onSubmit={handleSubmit}
-          onValidChange={setFormReady}
-          externalSubmitRef={submitRef}
-          showSubmitIf={() => false}
-        />
+        <div className={ticketFormContainer}>
+          <DynamicForm
+            fields={fields}
+            loadingFormInfo={loadingFormInfo}
+            responsiveLayoutMatrix={responsiveLayoutMatrix}
+            submitLabel="Enviar solicitud"
+            onSubmit={handleSubmit}
+            onValidChange={setFormReady}
+            externalSubmitRef={submitRef}
+            showSubmitIf={() => false}
+          />
+        </div>
     </FormsLayout>
   )
 }

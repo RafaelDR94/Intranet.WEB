@@ -1,3 +1,9 @@
+### 1.47.72 Ticket form layout polish 12-14-2025
+
+Fix:
+
+- Ajusta TicketForm con estilos aislados para replicar el nuevo diseño de dropzone y mantener sin cambios otros formularios. (Agente IA) [#]()
+
 ### 1.47.71 Requisition id for billable tickets 12-12-2025
 
 Fix:
