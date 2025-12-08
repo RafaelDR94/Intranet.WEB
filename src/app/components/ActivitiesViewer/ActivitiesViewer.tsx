@@ -41,9 +41,7 @@ export const ActivitiesViewer = <TRow,>({
     totalPages,
     containerRef,
     effectiveCols,
-    currentInWindow,
-    visibleCount,
-    windowStart,
+    currentPage,
     setPage,
   } = useActivitiesViewer<TRow>(items, columns);
 
@@ -86,9 +84,9 @@ export const ActivitiesViewer = <TRow,>({
         {totalPages > 1 && (
           <div className="flex justify-center pt-4">
             <PaginationDots
-              totalPages={visibleCount}
-              currentPage={currentInWindow}
-              onPageChange={localIdx => setPage(windowStart + localIdx)}
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={setPage}
             />
           </div>
         )}
