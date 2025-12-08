@@ -1,3 +1,9 @@
+### 1.47.74 Galería de tickets sin vista grande 12-18-2025
+
+Fix:
+
+- Oculta la vista previa principal en TicketForm y usa solo la galería de miniaturas con selección múltiple para editar o crear tickets. (Agente IA) [#]()
+
 ### 1.47.73 Multi image ticket upload 12-15-2025
 
 Feature:

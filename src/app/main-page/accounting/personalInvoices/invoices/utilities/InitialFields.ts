@@ -195,7 +195,7 @@ export const createTicketFields = (): FieldModel[] => [
     validations: [{ type: "required" }],
     buttonLabel: "Seleccionar imagen",
     cameraButtonAriaLabel: "Tomar foto del ticket",
-    preview: true,
+    preview: false,
     multiple: true,
   },
 ];

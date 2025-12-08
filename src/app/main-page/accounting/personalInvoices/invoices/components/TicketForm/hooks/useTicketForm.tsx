@@ -116,14 +116,19 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
           name: 'ticket',
           label: 'Imagen del ticket (JPG o PNG)',
           placeholder: 'Arrastra o selecciona la foto del ticket',
-          value: { name: 'Imagen', url: dataEdit?.image },
-          initialFile: { name: dataEdit?.image ?? "", url: dataEdit?.image },
+          value: dataEdit?.image
+            ? [{ id: 'initial-ticket', name: dataEdit.image, url: dataEdit.image, selected: true }]
+            : [],
+          initialFiles: dataEdit?.image
+            ? [{ id: 'initial-ticket', name: dataEdit.image, url: dataEdit.image, selected: true }]
+            : [],
           accept: '.jpg,.png',
           validations: [], // en edición es opcional
           className: ticketFormDropzoneClasses,
           buttonLabel: 'Seleccionar imagen',
           cameraButtonAriaLabel: 'Tomar foto del ticket',
-          preview: true,
+          preview: false,
+          multiple: true,
         },
       ]
     }
