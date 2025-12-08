@@ -8,20 +8,23 @@ import { Props } from './types';
 describe('PaginationDots', () => {
   const setup = (props: Props) => render(<PaginationDots {...props} />);
 
-  it('debería renderizar la cantidad correcta de botones', () => {
+  it('debería renderizar la cantidad correcta de puntos cuando hay pocas páginas', () => {
     setup({ totalPages: 5, currentPage: 0, onPageChange: vi.fn() });
 
-    const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(5);
+    const pageButtons = screen.getAllByRole('button').filter(btn =>
+      btn.getAttribute('aria-label')?.startsWith('P')
+    );
+    expect(pageButtons).toHaveLength(5);
   });
 
   it('debería aplicar la clase activa al botón correspondiente', () => {
     setup({ totalPages: 3, currentPage: 1, onPageChange: vi.fn() });
 
-    const buttons = screen.getAllByRole('button');
+    const pageButtons = screen.getAllByRole('button').filter(btn =>
+      btn.getAttribute('aria-label')?.startsWith('P')
+    );
 
-    // Verifica que solo el segundo tenga la clase de botón activo
-    buttons.forEach((button, index) => {
+    pageButtons.forEach((button, index) => {
       if (index === 1) {
         expect(button.className).toContain('bg-green-90'); // Activo
       } else {
@@ -34,20 +37,37 @@ describe('PaginationDots', () => {
     const mockFn = vi.fn();
     setup({ totalPages: 4, currentPage: 0, onPageChange: mockFn });
 
-    const buttons = screen.getAllByRole('button');
-    fireEvent.click(buttons[2]);
+    const pageButtons = screen.getAllByRole('button').filter(btn =>
+      btn.getAttribute('aria-label')?.startsWith('P')
+    );
+    fireEvent.click(pageButtons[2]);
 
     expect(mockFn).toHaveBeenCalledTimes(1);
     expect(mockFn).toHaveBeenCalledWith(2);
   });
 
-  it('debería ocultar los botones más allá del índice 6', () => {
+  it('debería mostrar flechas cuando hay más de 7 páginas', () => {
     setup({ totalPages: 10, currentPage: 0, onPageChange: vi.fn() });
 
-    const buttons = screen.getAllByRole('button');
-    const hiddenButtons = buttons.filter((btn) => btn.className.includes('hidden'));
+    const prevArrow = screen.getByLabelText('PÇ­ginas anteriores');
+    const nextArrow = screen.getByLabelText('PÇ­ginas siguientes');
 
-    // Debería haber 3 botones ocultos: índices 7, 8, 9
-    expect(hiddenButtons).toHaveLength(3);
+    expect(prevArrow).toBeInTheDocument();
+    expect(nextArrow).toBeInTheDocument();
+  });
+
+  it('debería desplazar la ventana al usar la flecha siguiente', () => {
+    setup({ totalPages: 10, currentPage: 0, onPageChange: vi.fn() });
+
+    const nextArrow = screen.getByLabelText('PÇ­ginas siguientes');
+    fireEvent.click(nextArrow);
+
+    const pageButtons = screen.getAllByRole('button').filter(btn =>
+      btn.getAttribute('aria-label')?.startsWith('P')
+    );
+
+    // La primera página visible ya no debe ser la 1
+    expect(pageButtons[0].getAttribute('aria-label')).not.toBe('PÇ­gina 1');
   });
 });
+
