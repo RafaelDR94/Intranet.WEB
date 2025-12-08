@@ -44,7 +44,7 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, exter
       primaryLabel="Subir Archivos"
       onPrimaryClick={() => submitRef.current?.()}
       primaryDisabled={!formReady}
-      enableCollapse={false}
+      enableCollapse={true}
     >
         <DynamicForm
           fields={fields}

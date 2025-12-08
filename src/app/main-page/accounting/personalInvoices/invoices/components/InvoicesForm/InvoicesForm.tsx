@@ -32,7 +32,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
     handleImageClick
   } = useInvoicesForm({ dataEdit, withoutName, billingImages, onCloseImage, })
   const { currentPagePermissions } = useAuth();
-  if (!currentPagePermissions?.canAddDocuments) return;
+  if (currentPagePermissions?.canAddDocuments) return;
   if (externalSubmitRef) {
     return (
       <DynamicForm
@@ -56,7 +56,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
       primaryLabel="Subir Archivos"
       onPrimaryClick={() => submitRef.current?.()}
       primaryDisabled={!formReady}
-      enableCollapse={false}
+      enableCollapse={true}
     >
       {/* En móvil se apilan; desde md son columnas 3/4 y 1/4 */}
       <>

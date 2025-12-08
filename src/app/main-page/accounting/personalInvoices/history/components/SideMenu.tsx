@@ -179,39 +179,9 @@ const SideMenu: React.FC<SideMenuProps> = ({
                 <div id="ticket-form">
                   <TicketForm
                     responsiveLayoutMatrix={{
-                      sm: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
-                      md: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
-                      lg: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
+                      sm: [[10], [10]],
+                      md: [[10], [10]],
+                      lg: [[10], [10]],
                     }}
                     dataEdit={selected}
                     externalSubmitRef={submitRef}
