@@ -124,7 +124,7 @@ export const useRequisitionTable = () => {
     const label = row.debtorName?.trim();
 
     qs.set('id', row.id); // añade/reemplaza id
-    qs.set('label', label ? `Detalle ${label}` : 'Detalle'); // fuerza tab de detalle
+    qs.set('label', label ? `Detalle Requisición` : 'Detalle'); // fuerza tab de detalle
 
     router.push(`${clean}?${qs.toString()}`);
   };

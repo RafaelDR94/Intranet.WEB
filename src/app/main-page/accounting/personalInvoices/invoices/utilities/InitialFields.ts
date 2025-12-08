@@ -107,52 +107,52 @@ export const createInvoiceFields = (): FieldModel[] => [
  * Used when the user only has a picture of the ticket.
  */
 export const createTicketFields = (): FieldModel[] => [
-  {
-    type: "input",
-    name: "debtorName",
-    label: "Nombre del Deudor",
-    placeholder: "Ingrese el nombre completo",
-    value: "",
-    className: "max-w-[400px]",
-    onlyText: true,
-    showIf: (value) => Boolean(value.debtorName),
-  },
-  {
-    type: "input",
-    name: "proyect",
-    label: "Proyecto",
-    placeholder: "Ingrese el nombre completo",
-    value: "",
-    className: "max-w-[400px]",
-    onlyText: true,
-  },
-  {
-    type: "select",
-    name: "requisition",
-    label: "Código de Requisición",
-    placeholder: "Seleccione el código",
-    value: "",
-    options: [],
-    className: "max-w-[400px]",
-    showIf: (_v, all) => {
-      const f = all.find((x) => x.name === "requisition");
-      return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-    },
-  },
-  {
-    type: "select",
-    name: "description",
-    label: "Descripción",
-    placeholder: "Selecciona una descripción",
-    value: "",
-    options: [],
-    className: "max-w-[400px]",
-    showIf: (_v, all) => {
-      const f = all.find((x) => x.name === "description");
-      return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-    },
-    validations: [{ type: "required" }],
-  },
+  // {
+  //   type: "input",
+  //   name: "debtorName",
+  //   label: "Nombre del Deudor",
+  //   placeholder: "Ingrese el nombre completo",
+  //   value: "",
+  //   className: "max-w-[400px]",
+  //   onlyText: true,
+  //   showIf: (value) => Boolean(value.debtorName),
+  // },
+  // {
+  //   type: "input",
+  //   name: "proyect",
+  //   label: "Proyecto",
+  //   placeholder: "Ingrese el nombre completo",
+  //   value: "",
+  //   className: "max-w-[400px]",
+  //   onlyText: true,
+  // },
+  // {
+  //   type: "select",
+  //   name: "requisition",
+  //   label: "Código de Requisición",
+  //   placeholder: "Seleccione el código",
+  //   value: "",
+  //   options: [],
+  //   className: "max-w-[400px]",
+  //   showIf: (_v, all) => {
+  //     const f = all.find((x) => x.name === "requisition");
+  //     return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+  //   },
+  // },
+  // {
+  //   type: "select",
+  //   name: "description",
+  //   label: "Descripción",
+  //   placeholder: "Selecciona una descripción",
+  //   value: "",
+  //   options: [],
+  //   className: "max-w-[400px]",
+  //   showIf: (_v, all) => {
+  //     const f = all.find((x) => x.name === "description");
+  //     return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+  //   },
+  //   validations: [{ type: "required" }],
+  // },
   {
     type: "select",
     name: "category",
@@ -167,22 +167,22 @@ export const createTicketFields = (): FieldModel[] => [
     },
     validations: [{ type: "required" }],
   },
-  {
-    type: "numberControl",
-    name: "numnights",
-    label: "Número de noches",
-    value: 1,
-    validations: [{ type: "required" }],
-    className: "max-w-[300px]",
-  },
-  {
-    type: "numberControl",
-    name: "numpersons",
-    label: "Número de personas",
-    value: 1,
-    validations: [{ type: "required" }],
-    className: "max-w-[300px]",
-  },
+  // {
+  //   type: "numberControl",
+  //   name: "numnights",
+  //   label: "Número de noches",
+  //   value: 1,
+  //   validations: [{ type: "required" }],
+  //   className: "max-w-[300px]",
+  // },
+  // {
+  //   type: "numberControl",
+  //   name: "numpersons",
+  //   label: "Número de personas",
+  //   value: 1,
+  //   validations: [{ type: "required" }],
+  //   className: "max-w-[300px]",
+  // },
   {
     type: "imageUploaderExpanded",
     name: "ticket",

@@ -207,6 +207,7 @@ export interface DataTableProps<T = any> {
   showViewSwitcher?: boolean;
    /** Nuevo: tamaño de texto global (fallback si la tabla no define textSize) */
   textSize?: TextSize
+  rightContent?: React.ReactNode
 }
 
 /** Mapeo de campos para adaptar filas (T) a tarjetas renderizables */

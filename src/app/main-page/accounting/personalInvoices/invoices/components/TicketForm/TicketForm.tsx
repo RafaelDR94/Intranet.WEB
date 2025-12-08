@@ -21,7 +21,7 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, exter
 
   const { currentPagePermissions } = useAuth()
 
-  if (!currentPagePermissions?.canAddPicture) return null
+  if (currentPagePermissions?.canAddPicture) return null
 
   if (externalSubmitRef) {
     return (
@@ -46,21 +46,6 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, exter
       primaryDisabled={!formReady}
       enableCollapse={false}
     >
-      <div className="flex w-full flex-col gap-6">
-        <div className="flex flex-col gap-2 rounded-2xl bg-blue-5 px-6 py-5 text-blue-90 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-wide">Subir ticket</p>
-          <p className="text-lg font-semibold leading-tight">Arrastra tu imagen o tómala con la cámara</p>
-          <p className="text-sm text-gray-70">
-            Asegúrate de que la foto sea legible, completa y en formato JPG o PNG. También puedes usar la cámara de tu dispositivo
-            para capturarla al momento.
-          </p>
-          <div className="flex flex-wrap gap-4 text-xs text-gray-70">
-            <span className="rounded-full bg-white-100 px-3 py-1 shadow-200">• Imagen nítida y completa</span>
-            <span className="rounded-full bg-white-100 px-3 py-1 shadow-200">• Formatos JPG o PNG</span>
-            <span className="rounded-full bg-white-100 px-3 py-1 shadow-200">• Requisición asociada</span>
-          </div>
-        </div>
-
         <DynamicForm
           fields={fields}
           loadingFormInfo={loadingFormInfo}
@@ -71,7 +56,6 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, exter
           externalSubmitRef={submitRef}
           showSubmitIf={() => false}
         />
-      </div>
     </FormsLayout>
   )
 }

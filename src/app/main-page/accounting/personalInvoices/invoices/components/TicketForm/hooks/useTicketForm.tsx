@@ -51,33 +51,33 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
   const initialformFields: FieldModel[] = useMemo(() => {
     if (isEdit) {
       return [
-        {
-          type: 'select',
-          name: 'requisition',
-          label: 'Código de Requisición',
-          placeholder: 'Seleccione el código',
-          value: '',
-          options: [],
-          className: 'max-w-[400px]',
-          showIf: (_v, all) => {
-            const f = all.find((x) => x.name === 'requisition')
-            return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0
-          },
-        },
-        {
-          type: "select",
-          name: "description",
-          label: "Descripción",
-          placeholder: "Selecciona una descripción",
-          value: "",
-          options: [],
-          className: "max-w-[400px]",
-          showIf: (_v, all) => {
-            const f = all.find((x) => x.name === "description");
-            return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-          },
-          validations: [{ type: "required" }],
-        },
+        // {
+        //   type: 'select',
+        //   name: 'requisition',
+        //   label: 'Código de Requisición',
+        //   placeholder: 'Seleccione el código',
+        //   value: '',
+        //   options: [],
+        //   className: 'max-w-[400px]',
+        //   showIf: (_v, all) => {
+        //     const f = all.find((x) => x.name === 'requisition')
+        //     return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0
+        //   },
+        // },
+        // {
+        //   type: "select",
+        //   name: "description",
+        //   label: "Descripción",
+        //   placeholder: "Selecciona una descripción",
+        //   value: "",
+        //   options: [],
+        //   className: "max-w-[400px]",
+        //   showIf: (_v, all) => {
+        //     const f = all.find((x) => x.name === "description");
+        //     return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+        //   },
+        //   validations: [{ type: "required" }],
+        // },
         {
           type: "select",
           name: "category",
@@ -92,22 +92,22 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
           },
           validations: [{ type: "required" }],
         },
-        {
-          type: "numberControl",
-          name: "numnights",
-          label: "Número de noches",
-          value: dataEdit?.numnights ?? 0,
-          validations: [{ type: "required" }],
-          className: "max-w-[300px]",
-        },
-        {
-          type: "numberControl",
-          name: "numpersons",
-          label: "Número de personas",
-          value: dataEdit?.numpersons ?? 0,
-          validations: [{ type: "required" }],
-          className: "max-w-[300px]",
-        },
+        // {
+        //   type: "numberControl",
+        //   name: "numnights",
+        //   label: "Número de noches",
+        //   value: dataEdit?.numnights ?? 0,
+        //   validations: [{ type: "required" }],
+        //   className: "max-w-[300px]",
+        // },
+        // {
+        //   type: "numberControl",
+        //   name: "numpersons",
+        //   label: "Número de personas",
+        //   value: dataEdit?.numpersons ?? 0,
+        //   validations: [{ type: "required" }],
+        //   className: "max-w-[300px]",
+        // },
         {
           type: 'imageUploaderExpanded',
           name: 'ticket',

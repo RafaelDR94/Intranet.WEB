@@ -209,6 +209,7 @@ const RequisitionDetailsDocument: React.FC = () => {
                 <Button
                   icon={DowloadIcon}
                   variant="outline"
+                  size="small"
                   onClick={() => {
                     if (requisitionId) downloadRequistionResume(requisitionId);
                   }}
@@ -219,13 +220,18 @@ const RequisitionDetailsDocument: React.FC = () => {
         )}
         showButton={false}
         enablePagination={false}
+        rightContent={
+          <Button variant="solid" size="medium" hideIcon onClick={() => {}}>
+            Subir Archivos
+          </Button>
+        }
         tables={[
           {
             data: rows,
             columns: isMobile ? filteredMobileColumns : filteredColumns,
             enableSelection: false,
             title: "Reporte de gastos",
-            enableCollaps: false,
+            enableCollaps: true,
             defaultSortKey: "fecha",
             defaultSortDirection: "desc",
           },
