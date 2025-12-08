@@ -25,6 +25,10 @@ import {
   previewImageClasses,
   previewActionsClasses,
   previewCancelButtonClasses,
+  galleryWrapper,
+  galleryGrid,
+  galleryItem,
+  galleryImage,
 } from './styles';
 import { ImageUploaderExpandedProps } from './types';
 
@@ -51,8 +55,10 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
   cameraLabels,
   cameraButtonAriaLabel = 'Abrir camara',
   initialFile,
+  initialFiles,
   dataTestId,
   preview = false,
+  multiple = false,
 }) => {
   const [isChanging, setIsChanging] = React.useState(false);
   const {
@@ -71,12 +77,17 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     handleCaptureFromCamera,
     previewUrl,
     openPreview,
+    images,
+    toggleImage,
+    clearImages,
   } = useImageUploaderExpanded({
     onImage,
     accept,
     disabled,
     placeholder,
     initialFile,
+    initialFiles,
+    multiple,
   });
 
   // Mantener modo "cambiar" hasta que el usuario seleccione/capture otra imagen.
@@ -160,6 +171,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
           <input
             type="file"
             accept={accept}
+            multiple={multiple}
             ref={inputRef}
             onChange={(e) => {
               handleChange(e);
@@ -196,6 +208,31 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
         switchButtonLabel={switchCamera ?? 'Cambiar camara'}
         closeButtonLabel={close ?? 'Cerrar'}
       />
+
+      {multiple && images && images.length > 0 && (
+        <div className={galleryWrapper}>
+          <div className={galleryGrid}>
+            {images.map((img) => (
+              <label key={img.id} className={galleryItem(img.selected !== false)}>
+                <input
+                  type="checkbox"
+                  checked={img.selected !== false}
+                  onChange={() => toggleImage?.(img.id)}
+                  className="sr-only"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={img.url ?? ''} alt={img.name} className={galleryImage} />
+              </label>
+            ))}
+          </div>
+
+          <div className="flex justify-end">
+            <Button variant="ghost" onClick={clearImages} disabled={disabled}>
+              Quitar imágenes
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

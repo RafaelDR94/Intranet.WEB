@@ -44,3 +44,13 @@ export const previewActionsClasses = 'mt-4 flex justify-center';
 export const previewCancelButtonClasses = clsx(
   'absolute top-3 right-3'
 );
+
+export const galleryWrapper = 'mt-6 flex flex-col gap-4';
+export const galleryGrid = 'grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+export const galleryItem = (selected: boolean) =>
+  clsx(
+    'relative overflow-hidden rounded-md border',
+    selected ? 'border-blue-50 ring-2 ring-blue-50' : 'border-gray-30',
+    'cursor-pointer'
+  );
+export const galleryImage = 'h-32 w-full object-cover';

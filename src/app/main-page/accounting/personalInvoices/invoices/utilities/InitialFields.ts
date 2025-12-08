@@ -189,13 +189,14 @@ export const createTicketFields = (): FieldModel[] => [
     name: "ticket",
     label: "Imagen del ticket (JPG o PNG)",
     placeholder: "Arrastra o selecciona la foto del ticket",
-    value: { name: "Imagen", url: "" },
+    value: [],
     accept: ".jpg,.png",
     className: ticketFormDropzoneClasses,
     validations: [{ type: "required" }],
     buttonLabel: "Seleccionar imagen",
     cameraButtonAriaLabel: "Tomar foto del ticket",
     preview: true,
+    multiple: true,
   },
 ];
 

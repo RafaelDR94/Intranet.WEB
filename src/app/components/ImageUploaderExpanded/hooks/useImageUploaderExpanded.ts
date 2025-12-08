@@ -8,6 +8,7 @@ import {
   UseImageUploaderExpandedParams,
 } from './types';
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import { SelectedImage } from '../types';
 const DEFAULT_PLACEHOLDER = 'arrastra/selecciona la imagen que deseas subir';
 
 export const useImageUploaderExpanded = ({
@@ -16,12 +17,29 @@ export const useImageUploaderExpanded = ({
   disabled = false,
   placeholder = DEFAULT_PLACEHOLDER,
   initialFile,
+  initialFiles,
+  multiple,
 }: UseImageUploaderExpandedParams) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const { usePrincipalImage } = usePrincipal();
   const { showImage } = usePrincipalImage;
+  const [images, setImages] = useState<SelectedImage[]>(() => {
+    if (Array.isArray(initialFiles) && initialFiles.length > 0) return initialFiles;
+    if (initialFile) {
+      return [
+        {
+          id: `initial-${initialFile.name ?? initialFile.url ?? 'image'}`,
+          name: initialFile.name ?? 'Imagen',
+          url: initialFile.url ?? initialFile.base64 ?? undefined,
+          selected: true,
+        },
+      ];
+    }
+    return [];
+  });
+
   const {
     inputRef,
     fileName,
@@ -31,13 +49,64 @@ export const useImageUploaderExpanded = ({
     handleDragOver,
     handleDragLeave,
     handleDrop,
-    previewUrl,
-    applyExternalFile } = useFileUploaderExpanded(onImage, accept, disabled, initialFile);
+    previewUrl: singlePreview,
+    applyExternalFile,
+  } = useFileUploaderExpanded(onImage, accept, disabled, initialFile);
 
-  const displayText = useMemo(() => fileName ?? placeholder, [fileName, placeholder]);
+  const displayText = useMemo(() => {
+    if (multiple) {
+      const selectedCount = images.filter((img) => img.selected !== false).length;
+      if (selectedCount > 0) return `${selectedCount} imagen(es) seleccionada(s)`;
+    }
+    return fileName ?? placeholder;
+  }, [fileName, images, multiple, placeholder]);
+
+  useEffect(() => {
+    if (!multiple) return;
+    if (Array.isArray(initialFiles)) {
+      setImages(initialFiles);
+    }
+  }, [initialFiles, multiple]);
+
+  const notifyImages = useCallback(
+    (list: SelectedImage[]) => {
+      setImages(list);
+      if (multiple) {
+        const selected = list.filter((item) => item.selected !== false);
+        onImage?.(selected);
+      }
+    },
+    [multiple, onImage]
+  );
+
+  const addFiles = useCallback(
+    (files: FileList | File[] | null | undefined) => {
+      if (!files || files.length === 0) return;
+      const nextImages: SelectedImage[] = [...images];
+
+      Array.from(files).forEach((file) => {
+        const id = `${file.name}-${file.lastModified}-${Math.random().toString(16).slice(2)}`;
+        nextImages.push({
+          id,
+          file,
+          name: file.name,
+          url: typeof URL !== 'undefined' ? URL.createObjectURL(file) : undefined,
+          selected: true,
+        });
+      });
+
+      notifyImages(nextImages);
+    },
+    [images, notifyImages]
+  );
 
   const handleCaptureFromCamera = useCallback(
     (file: File) => {
+      if (multiple) {
+        addFiles([file]);
+        return;
+      }
+
       const input = inputRef.current;
       if (!input) {
         applyExternalFile(file);
@@ -54,7 +123,7 @@ export const useImageUploaderExpanded = ({
         applyExternalFile(file);
       }
     },
-    [inputRef, applyExternalFile]
+    [addFiles, applyExternalFile, inputRef, multiple]
   );
 
   const openCamera = useCallback(() => {
@@ -96,30 +165,78 @@ export const useImageUploaderExpanded = ({
     }
   }, [isVisible, isCameraOpen]);
 
+  const multiPreview = useMemo(() => {
+    if (!multiple) return singlePreview;
+    const selected = images.find((img) => img.selected !== false);
+    return selected?.url ?? null;
+  }, [images, multiple, singlePreview]);
+
   const openPreview = useCallback(() => {
-    if (!previewUrl) return;
+    if (!multiPreview) return;
     showImage({
-      src: previewUrl,
+      src: multiPreview,
       alt: fileName ?? 'Vista previa',
     });
-  }, [previewUrl, fileName, showImage]);
+  }, [fileName, multiPreview, showImage]);
+
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (multiple) {
+        addFiles(event.target.files ?? undefined);
+      } else {
+        handleChange(event);
+      }
+    },
+    [addFiles, handleChange, multiple]
+  );
+
+  const handleDropInput = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      if (disabled) return;
+      handleDragLeave();
+      if (multiple) {
+        addFiles(event.dataTransfer.files);
+      } else {
+        handleDrop(event);
+      }
+    },
+    [addFiles, disabled, handleDragLeave, handleDrop, multiple]
+  );
+
+  const toggleImage = useCallback(
+    (id: string) => {
+      const next = images.map((img) =>
+        img.id === id ? { ...img, selected: !(img.selected !== false) } : img
+      );
+      notifyImages(next);
+    },
+    [images, notifyImages]
+  );
+
+  const clearImages = useCallback(() => {
+    notifyImages([]);
+  }, [notifyImages]);
 
   return {
     inputRef,
     fileName,
     handleButtonClick,
-    handleChange,
+    handleChange: handleInputChange,
     isDragging,
     handleDragOver,
     handleDragLeave,
-    handleDrop,
+    handleDrop: handleDropInput,
     displayText,
     containerRef,
     isCameraOpen,
     openCamera,
     closeCamera,
     handleCaptureFromCamera,
-    previewUrl,
+    previewUrl: multiPreview,
     openPreview,
+    images,
+    toggleImage,
+    clearImages,
   };
 };

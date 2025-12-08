@@ -16,7 +16,9 @@ export const BillingImageMap = (raw: any): BillingImages => ({
   billing_image_id: String(raw?.billing_image_id ?? ''),
   requisition: RequisitionMap(raw?.requisition),
   status: String(raw?.status ?? ''),
-  Image: String(raw?.Image ?? ''),
+  Image: Array.isArray(raw?.Image)
+    ? raw.Image.map((img: any) => String(img ?? ''))
+    : String(raw?.Image ?? ''),
   comments: String(raw?.comments ?? ''),
   dateCreate: String(raw?.date_created ?? ''),
   category: BillingDocumentCategoryMap(raw?.Category),
@@ -38,7 +40,7 @@ export const BillingImagesMap = (list: any[]): BillingImages[] =>
  */
 export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => ({
   requisition_id: src?.requisition_id ?? '',
-  Image: String(src?.Image ?? false),
+  Image: Array.isArray(src?.Image) ? src.Image : src?.Image ? [src.Image] : [],
   description: String(src?.description ?? ''),
   numpersons: String(src?.numpersons ?? 0),
   numnights: String(src?.numnights ?? 0),
@@ -52,7 +54,7 @@ export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => 
 export const BillingPutMap = (src: Partial<BillingPut> | any): BillingPut => ({
   billing_image_id: src?.billing_image_id ?? '',
   requisition_id: String(src?.requisition_id ?? ''),
-  Image: String(src?.Image ?? ''),
+  Image: Array.isArray(src?.Image) ? src.Image : src?.Image ? [src.Image] : [],
   comments: String(src?.comments ?? ''),
   user_comments: String(src?.user_comments ?? ''),
   description: String(src?.description ?? ''),

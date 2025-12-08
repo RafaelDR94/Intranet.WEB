@@ -1,6 +1,14 @@
 import { FacingMode } from '@/app/components/CameraViewer/types';
 import { InitialFile } from '@/app/components/FileUploader/types';
 
+export type SelectedImage = {
+  id: string;
+  name: string;
+  url?: string;
+  file?: File;
+  selected?: boolean;
+};
+
 export interface CameraViewerLabels {
   capture?: string;
   switchCamera?: string;
@@ -13,7 +21,7 @@ export interface ImageUploaderExpandedProps {
   /** Custom text displayed inside the dropzone when no image was selected. */
   placeholder?: string;
   /** Callback fired whenever a file is selected or captured. */
-  onImage: (file: File | null) => void;
+  onImage: (file: File | SelectedImage[] | null) => void;
   /** Disable both the input and the camera trigger. */
   disabled?: boolean;
   /** Extra classes for the dropzone wrapper. */
@@ -30,8 +38,12 @@ export interface ImageUploaderExpandedProps {
   cameraButtonAriaLabel?: string;
   /** Preload an image file. */
   initialFile?: InitialFile;
+  /** Preload multiple images. */
+  initialFiles?: SelectedImage[];
   /** Testing id. */
   dataTestId?: string;
   /** Modo de vista previa: muestra la imagen seleccionada con opción para cambiar. */
   preview?: boolean;
+  /** Permite seleccionar varias imágenes. */
+  multiple?: boolean;
 }

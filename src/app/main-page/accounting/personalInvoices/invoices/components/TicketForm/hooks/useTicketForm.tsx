@@ -15,6 +15,7 @@ import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useBillingHistoryStore } from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
 import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
+import { SelectedImage } from '@/app/components/ImageUploaderExpanded/types'
 const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn => {
   const isEdit = Boolean(dataEdit)
   const { firebasestorage } = useFirebase()
@@ -143,19 +144,33 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
   const { showAlert, hideAlert } = usePrincipalAlert
 
   const uploadIfNeeded = async (
-    file: File | null | undefined,
+    files: SelectedImage[] | File[] | File | null | undefined,
     requisition: string
-  ): Promise<string> => {
-    if (file) {
-      const url = await firebasestorage.uploadImage(
-        file,
-        `Billings/BillingTickets/${requisition}`
-      )
-      if (!url) throw new Error('Hubo un problema al subir la imagen')
-      return url
-    }
-    if (isEdit && dataEdit?.image) return dataEdit.image
-    throw new Error('No se encontró imagen válida para continuar')
+  ): Promise<string[]> => {
+    const fileList: SelectedImage[] = Array.isArray(files)
+      ? (files as SelectedImage[])
+      : files
+      ? [{ id: 'single', name: (files as File).name, file: files as File, selected: true }]
+      : []
+
+    if (fileList.length === 0 && isEdit && dataEdit?.image) return [dataEdit.image]
+    if (fileList.length === 0) throw new Error('No se encontró imagen válida para continuar')
+
+    const uploads = await Promise.all(
+      fileList
+        .filter((item) => item.selected !== false)
+        .map(async (item, index) => {
+          if (item.url && !item.file) return item.url
+          if (!item.file) throw new Error('Imagen inválida')
+          const url = await firebasestorage.uploadImage(
+            item.file,
+            `Billings/BillingTickets/${requisition}/${index}`
+          )
+          if (!url) throw new Error('Hubo un problema al subir la imagen')
+          return url
+        })
+    )
+    return uploads
   }
 
   const handleSubmit = async (values: Record<string, any>) => {

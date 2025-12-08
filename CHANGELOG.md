@@ -1,3 +1,9 @@
+### 1.47.73 Multi image ticket upload 12-15-2025
+
+Feature:
+
+- Permite seleccionar múltiples imágenes en TicketForm, marcarlas con checkbox y enviarlas al backend como arreglo de URLs. (Agente IA) [#]()
+
 ### 1.47.72 Ticket form layout polish 12-14-2025
 
 Fix:
