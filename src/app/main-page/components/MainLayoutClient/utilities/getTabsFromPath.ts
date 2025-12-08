@@ -200,6 +200,26 @@ export const getTabsFromPath = (
     if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
       tabs = [...tabs, { label: labelparam || 'Detalle de Requisición', path: detailPath }];
     }
+
+    const billableQs = new URLSearchParams();
+    billableQs.set('id', id);
+    if (labelparam) billableQs.set('label', labelparam);
+    const billablePath = `/main-page/accounting/billablefiles/billablefiles?${billableQs.toString()}`;
+    if (!tabs.some(t => t.path === billablePath || t.label === 'Carga de Archivos Facturables')) {
+      tabs = [...tabs, { label: 'Carga de Archivos Facturables', path: billablePath }];
+    }
+  }
+
+  if (first === 'accounting' && second === 'billablefiles' && third == 'billablefiles' && id) {
+    const detailQs = new URLSearchParams();
+    detailQs.set('id', id);
+    if (labelparam) detailQs.set('label', labelparam);
+    const detailLabel = labelparam || 'Detalle Requisición';
+    const detailPath = `/main-page/accounting/personalInvoices/requisitions?${detailQs.toString()}`;
+
+    if (!tabs.some(t => t.path === detailPath || t.label === detailLabel)) {
+      tabs = [...tabs, { label: detailLabel, path: detailPath }];
+    }
   }
 
   // agrega tabs dinámicos para la lista de requisiciones de operaciones

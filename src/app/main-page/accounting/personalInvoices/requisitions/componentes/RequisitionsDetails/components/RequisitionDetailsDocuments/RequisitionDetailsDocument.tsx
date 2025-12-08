@@ -1,5 +1,6 @@
 "use client";
 import React, { useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import useRequisitionDetailsDocument from "./hooks/useRequisitionDetailsDocument";
 
@@ -36,7 +37,24 @@ const RequisitionDetailsDocument: React.FC = () => {
     downloadingDocument, // NEW: lo traemos del hook
   } = useRequisitionDetailsDocument();
   const isMobile = useIsMobile();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const sapprofile = currentPagePermissions?.sapprofile;
+
+  const handleUploadBillableFiles = () => {
+    if (!requisitionId) return;
+
+    const query = new URLSearchParams();
+    query.set("id", requisitionId);
+    const label = searchParams.get("label");
+    if (label) {
+      query.set("label", label);
+    }
+
+    router.push(
+      `/main-page/accounting/billablefiles/billablefiles?${query.toString()}`,
+    );
+  };
 
   const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] =
     useMemo(
@@ -221,7 +239,12 @@ const RequisitionDetailsDocument: React.FC = () => {
         showButton={false}
         enablePagination={false}
         rightContent={
-          <Button variant="solid" size="medium" hideIcon onClick={() => {}}>
+          <Button
+            variant="solid"
+            size="medium"
+            hideIcon
+            onClick={handleUploadBillableFiles}
+          >
             Subir Archivos
           </Button>
         }

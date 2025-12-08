@@ -1,3 +1,9 @@
+### 1.47.68 Billable files tab from requisition detail 12-09-2025
+
+Fix:
+
+- Abre la pestaña de carga de archivos facturables desde el detalle de requisición y mantiene el retorno al detalle desde la nueva vista. (Agente IA) [#]()
+
 ### 1.47.67 Ticket uploader redesign 12-06-2025
 
 Fix:
