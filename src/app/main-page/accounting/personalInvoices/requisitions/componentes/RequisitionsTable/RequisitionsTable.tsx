@@ -19,6 +19,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
   const {
     rows,
     setQuery,
+    activeRows,
     confirmOpen,
     rowToDelete,
     removing,
@@ -150,7 +151,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
             onFilterClick={refresh}
             tables={[
               {
-                data: rows,
+                data: activeRows,
                 columns: columns,
                 enableSelection: false,
                 title: "Activas",

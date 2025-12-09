@@ -65,7 +65,7 @@ describe('useRequisitionTable', () => {
     })
 
     expect(pushMock).toHaveBeenCalledWith(
-      '/main-page/operations/requisitions/requisitionListPage?label=Detalle+Juan+Perez&id=req-1',
+      '/main-page/operations/requisitions/requisitionListPage?label=Detalle+Requisici%C3%B3n&id=req-1',
     )
   })
 })

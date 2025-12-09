@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 
 import { useRequisitionTable } from './useRequisitionsTable'
 
@@ -17,17 +17,35 @@ vi.mock('@/app/stores/system/useIntranetGatewayStore', () => ({
   useIntranetGatewayStore: (sel: any) => sel({ isReady: true }),
 }))
 
+let mockRequisitions = [{
+  billingrequisition_id: '1',
+  requisitionkey: 'REQ-1',
+  employeename: 'John Doe',
+  projectname: 'PRJ-1',
+  status: 'Activa',
+  state: 'Activa',
+  date_created: '2025-01-01',
+  id_Employee: 'emp1',
+  idProject: 'pr1',
+}]
+
+beforeEach(() => {
+  mockRequisitions = [{
+    billingrequisition_id: '1',
+    requisitionkey: 'REQ-1',
+    employeename: 'John Doe',
+    projectname: 'PRJ-1',
+    status: 'Activa',
+    state: 'Activa',
+    date_created: '2025-01-01',
+    id_Employee: 'emp1',
+    idProject: 'pr1',
+  }]
+})
+
 vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
   useRequisitionsStore: (sel: any) => sel({
-    requisitions: [{
-      billingrequisition_id: '1',
-      requisitionkey: 'REQ-1',
-      employeename: 'John Doe',
-      projectname: 'PRJ-1',
-      date_created: '2025-01-01',
-      id_Employee: 'emp1',
-      idProject: 'pr1',
-    }],
+    requisitions: mockRequisitions,
     loading: false,
     error: undefined,
     warning: undefined,
@@ -54,8 +72,34 @@ describe('useRequisitionTable', () => {
   it('filters rows based on query', () => {
     const { result } = renderHook(() => useRequisitionTable())
     expect(result.current.rows).toHaveLength(1)
+    expect(result.current.activeRows).toHaveLength(1)
     act(() => result.current.setQuery('no match'))
     expect(result.current.rows).toHaveLength(0)
+    expect(result.current.activeRows).toHaveLength(0)
+  })
+
+  it('only marks non-cancelled rows as active', () => {
+    const { result, rerender } = renderHook(() => useRequisitionTable())
+    expect(result.current.activeRows).toHaveLength(1)
+
+    // Simula requisiciones canceladas para verificar el filtro
+    mockRequisitions = [
+      {
+        billingrequisition_id: '2',
+        requisitionkey: 'REQ-2',
+        employeename: 'Jane Doe',
+        projectname: 'PRJ-2',
+        status: 'Cancelada',
+        state: 'Cancelada',
+        date_created: '2025-01-02',
+        id_Employee: 'emp2',
+        idProject: 'pr2',
+      },
+    ]
+
+    rerender()
+    expect(result.current.rows).toHaveLength(1)
+    expect(result.current.activeRows).toHaveLength(0)
   })
 
   it('navigates on edit with correct URL', () => {
@@ -67,8 +111,8 @@ describe('useRequisitionTable', () => {
       projectCode: 'PRJ-1',
       date_created: '2025-01-01',
     } as any))
-    // Se esperaba: limpia el slash final y agrega ?x=1&id=1
-    expect(push).toHaveBeenCalledWith('/main-page/accounting/requisitions?x=1&id=1')
+    // Se esperaba: limpia el slash final y agrega parámetros de detalle
+    expect(push).toHaveBeenCalledWith('/main-page/accounting/requisitions?x=1&id=1&label=Detalle+Requisici%C3%B3n')
   })
 
   it('sets row to delete and opens confirmation', () => {

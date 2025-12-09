@@ -1,3 +1,9 @@
+### 1.47.77 Filtrado de requisiciones activas 12-20-2025
+
+Fix:
+
+- Separa las requisiciones activas para la tabla "Activas" y mantiene el historial con todas las requisiciones. (Agente IA) [#]()
+
 ### 1.47.76 Botón de detalles en requisiciones 12-09-2025
 
 Fix:

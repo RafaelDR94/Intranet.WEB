@@ -115,8 +115,21 @@ export const useRequisitionTable = () => {
     )
   }, [requisitions, query])
 
-  console.log('rows ', rows);
-  
+  const isActiveRequisition = (row: RequisitionRow) => {
+    const normalized = `${row.status ?? ''} ${row.state ?? ''}`.toLowerCase()
+    if (!normalized.trim()) return false
+
+    const inactiveKeywords = ['cancelada', 'cierre', 'cerrada']
+    if (inactiveKeywords.some(keyword => normalized.includes(keyword))) return false
+
+    return normalized.includes('activa') || normalized.includes('activo') || normalized.includes('viatic') || normalized.includes('validaci')
+  }
+
+  const activeRows = useMemo(
+    () => rows.filter(isActiveRequisition),
+    [rows]
+  )
+
 
   const openDetails = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path; // quita slash final si viene
@@ -183,7 +196,7 @@ export const useRequisitionTable = () => {
 
   return {
     // tabla
-    rows, query, setQuery,
+    rows, activeRows, query, setQuery,
     columns,
     // borrar
     confirmOpen, setConfirmOpen, rowToDelete, removing, handleConfirmDelete,
