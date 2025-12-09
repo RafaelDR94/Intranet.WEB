@@ -49,7 +49,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
   // Desktop columns (leave mobileColumns intact as requested)
   const computedColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
-      { key: "projectCode", label: "PROYECTO" },
+      { key: "projectCode", label: "PROYECTO"},
       { key: "state", label: "ESTADO" },
       { key: "snCode", label: "CÓDIGO DE SOLICITUD" },
       { key: "state", label: "PERIODO" },

@@ -64,15 +64,37 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
       {
         key: "debtorName",
         label: "Nombre",
-        render: (row) => (
-          <div className="flex items-center gap-2">
-            <Avatar size="xxs" />
-            <span>{row.debtorName}</span>
-          </div>
-        ),
+        render: (row) => {
+          const initials = row.debtorName
+            ?.split(" ")
+            .filter(Boolean)
+            .map((n) => n[0].toUpperCase())
+            .slice(0, 2)
+            .join("");
+
+          return (
+            <div className="flex items-center gap-2">
+              <Avatar size="xxs" initials={initials} />
+              <span>{row.debtorName}</span>
+            </div>
+          );
+        },
+
+        cellClass: "w-70",
+        headerClass: "w-70",
       },
-      { key: "projectCode", label: "Número" },
-      { key: "state", label: "Correo eléctronico" },
+      {
+        key: "projectCode",
+        label: "Número",
+        cellClass: "w-40",
+        headerClass: "w-40",
+      },
+      {
+        key: "state",
+        label: "Correo eléctronico",
+        cellClass: "w-50",
+        headerClass: "w-50",
+      },
       {
         key: "projectCode",
         label: "Archivos",
@@ -81,6 +103,8 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
             Ver Archivos
           </Button>
         ),
+        cellClass: "w-50",
+        headerClass: "w-50 pl-4",
       },
       {
         key: "projectCode",
@@ -94,6 +118,8 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
             Ver Requisiciones
           </Button>
         ),
+        cellClass: "w-50",
+        headerClass: "w-50 pl-4",
       },
       {
         key: "actions" as unknown as keyof RequisitionRow,

@@ -122,7 +122,7 @@ export const useRequisitionTable = () => {
     const inactiveKeywords = ['cancelada', 'cierre', 'cerrada']
     if (inactiveKeywords.some(keyword => normalized.includes(keyword))) return false
 
-    return normalized.includes('activa') || normalized.includes('activo') || normalized.includes('viatic') || normalized.includes('validaci')
+    return normalized.includes('activa') || normalized.includes('activo') || normalized.includes('viatic') || normalized.includes('validaci') || normalized.includes('no iniciada')
   }
 
   const activeRows = useMemo(
