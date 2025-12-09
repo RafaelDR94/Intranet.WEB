@@ -21,7 +21,7 @@ export type RequisitionRow = {
   status?: string
   /** ISO formatted creation date. */
   date_created?: string
-  
+  requisitionkey?:string,
   state?:string,
 }
 

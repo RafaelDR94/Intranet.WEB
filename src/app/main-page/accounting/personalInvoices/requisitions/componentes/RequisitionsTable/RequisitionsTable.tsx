@@ -14,7 +14,7 @@ import { LabelType } from "@/app/components/Label/types";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
-
+import { Button } from "@/app/components/Button/Button";
 const RequisitionsTable = ({ forceVisible = false }) => {
   const {
     rows,
@@ -49,10 +49,9 @@ const RequisitionsTable = ({ forceVisible = false }) => {
     () => [
       { key: "projectCode", label: "PROYECTO" },
       { key: "state", label: "ESTADO" },
-      { key: "state", label: "CÓDIGO DE SOLICITUD" },
+      { key: "snCode", label: "CÓDIGO DE SOLICITUD" },
       { key: "state", label: "PERIODO" },
       { key: "state", label: "DÍA CORRIENTE" },
-      { key: "dueDate", label: "TERMINO", render: (row) => row.dueDate },
       {
         key: "status",
         label: "ESTATUS",
@@ -61,10 +60,20 @@ const RequisitionsTable = ({ forceVisible = false }) => {
       {
         key: "actions" as unknown as keyof RequisitionRow,
         label: "",
+        // render: (row) => (
+        //   <div className={actionCell}>
+        //     <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+        //   </div>
+        // ),
         render: (row) => (
-          <div className={actionCell}>
-            <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
-          </div>
+          <Button
+            size="small"
+            onClick={() => handleOpenDetails(row)}
+            variant="ghost"
+            hideIcon
+          >
+            Ver Detalles
+          </Button>
         ),
 
         invisible: false,
@@ -108,7 +117,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
 
   const columns = isMobile ? filteredMobileColumns : filteredComputedColumns;
 
-  if (hasIdParam && !forceVisible ) return <></>;
+  if (hasIdParam && !forceVisible) return <></>;
   return (
     <div className={container}>
       <PopUp
@@ -135,20 +144,20 @@ const RequisitionsTable = ({ forceVisible = false }) => {
             textSize={{ mobile: "c2", desktop: "text-c2" }}
             dataTableTitle="Listado de Requisiciones"
             onSearchChange={setQuery}
+            showRefresh={true}
             onCalendarClick={(start, end) => refresh(start, end)}
             onFilterClick={refresh}
             tables={[
               {
                 data: rows,
                 columns: columns,
-                enableSelection: true,
+                enableSelection: false,
                 title: "Activas",
                 enableCollaps: true,
                 defaultSortKey: "date_created",
                 defaultSortDirection: "desc",
               },
             ]}
-            showDownloadTable
             showButton={false}
             dateKey={"date_created"}
           />
@@ -164,14 +173,13 @@ const RequisitionsTable = ({ forceVisible = false }) => {
               {
                 data: rows,
                 columns: columns,
-                enableSelection: true,
+                enableSelection: false,
                 title: "Historial",
                 enableCollaps: true,
                 defaultSortKey: "date_created",
                 defaultSortDirection: "desc",
               },
             ]}
-            showDownloadTable
             showButton={false}
             dateKey={"date_created"}
           />
