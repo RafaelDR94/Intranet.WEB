@@ -1,3 +1,9 @@
+### 1.47.76 Botón de detalles en requisiciones 12-09-2025
+
+Fix:
+
+- Activa el botón de "Ver Detalles" en RequisitionsTable de facturas personales para abrir el panel de detalle. (Agente IA) [#]()
+
 ### 1.47.75 Galería de tickets con arrastre 12-19-2025
 
 Feature:

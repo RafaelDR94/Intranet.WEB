@@ -2,7 +2,7 @@
 import React from "react";
 
 import { useRequisitionTable } from "./hooks/useRequisitionsTable";
-import { container, actionCell } from "./styles";
+import { container } from "./styles";
 import { RequisitionRow } from "./types";
 
 import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
@@ -25,6 +25,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
     handleConfirmDelete,
     setConfirmOpen,
     onEdit,
+    handleOpenDetails,
     onDelete,
     refresh,
     hasIdParam,
@@ -79,7 +80,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
         invisible: false,
       },
     ],
-    [onEdit, onDelete],
+    [handleOpenDetails],
   );
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(

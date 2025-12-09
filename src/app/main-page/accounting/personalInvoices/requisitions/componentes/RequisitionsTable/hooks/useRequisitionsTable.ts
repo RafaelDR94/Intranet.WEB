@@ -118,7 +118,7 @@ export const useRequisitionTable = () => {
   console.log('rows ', rows);
   
 
-  const onEdit = (row: RequisitionRow) => {
+  const openDetails = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path; // quita slash final si viene
     const qs = new URLSearchParams(searchParams.toString()); // clona params actuales
     const label = row.debtorName?.trim();
@@ -128,6 +128,9 @@ export const useRequisitionTable = () => {
 
     router.push(`${clean}?${qs.toString()}`);
   };
+
+  const onEdit = openDetails;
+  const handleOpenDetails = openDetails;
 
   const onDelete = (row: RequisitionRow) => {
     setRowToDelete(row)
@@ -185,7 +188,7 @@ export const useRequisitionTable = () => {
     // borrar
     confirmOpen, setConfirmOpen, rowToDelete, removing, handleConfirmDelete,
     // acciones
-    onEdit, onDelete, refresh,
+    onEdit, handleOpenDetails, onDelete, refresh,
     hasIdParam
   }
 }
