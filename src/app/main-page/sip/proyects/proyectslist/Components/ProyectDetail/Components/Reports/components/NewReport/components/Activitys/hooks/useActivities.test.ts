@@ -45,16 +45,18 @@ describe("useActivities", () => {
     });
   });
 
-  it("reinicia la tienda, habilita el flujo y replica las actividades del reporte", async () => {
-    const { result } = renderHook(() => useActivities());
+  it("habilita el flujo y replica una vez las actividades del reporte", async () => {
+    const { result, unmount } = renderHook(() => useActivities());
 
     await waitFor(() => {
       expect(result.current.canStart).toBe(true);
     });
 
-    expect(resetMock).toHaveBeenCalledTimes(1);
     expect(setActivitiesMock).toHaveBeenCalledWith(reportMock.activities);
     expect(result.current.report).toEqual(reportMock);
+    expect(resetMock).not.toHaveBeenCalled();
+
+    unmount();
   });
 
   it("solo inicializa las actividades una unica vez", async () => {
