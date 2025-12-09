@@ -660,3 +660,8 @@ Fix:
 Fix:
 
 - Add unit coverage for SAP administration and operations panels, extract shared logic into a reusable hook, and validate their supporting hooks. (Agente IA) [#]()
+### 1.47.23 Report Activities 2025-12-08
+
+Fix:
+- Because activities had lost when changes tabs fastly.
+  (Bruno Mendoza) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
