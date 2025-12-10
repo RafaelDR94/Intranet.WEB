@@ -9,7 +9,6 @@ import useInvoicesForm from "./hooks/useInvoicesForm";
 import { Button } from "@/app/components/Button/Button";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import CancelIncon from "@/assets/icons/acciones/cancel.svg"
 /* eslint-disable @next/next/no-img-element */
 
@@ -31,8 +30,6 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
     ResetForm,
     handleImageClick
   } = useInvoicesForm({ dataEdit, withoutName, billingImages, onCloseImage, })
-  const { currentPagePermissions } = useAuth();
-  if (!currentPagePermissions?.canAddDocuments) return;
   if (externalSubmitRef) {
     return (
       <DynamicForm

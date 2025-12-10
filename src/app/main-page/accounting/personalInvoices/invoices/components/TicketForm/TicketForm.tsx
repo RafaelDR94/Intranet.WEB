@@ -8,7 +8,6 @@ import { ticketFormContainer } from './styles'
 
 import DynamicForm from '@/app/components/DynamicForm/DynamicForm'
 import FormsLayout from '@/app/components/FormsLayout/FormsLayout'
-import { useAuth } from '@/app/context/AuthContext/AuthContext'
 
 const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, externalSubmitRef, dataEdit }) => {
   const {
@@ -19,10 +18,6 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, exter
     setFormReady,
     handleSubmit,
   } = useTicketForm({ dataEdit })
-
-  const { currentPagePermissions } = useAuth()
-
-  if (currentPagePermissions?.canAddPicture) return null
 
   if (externalSubmitRef) {
     return (
