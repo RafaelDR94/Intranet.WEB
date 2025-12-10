@@ -16,6 +16,7 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
+
 const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
   setPanelOpen,
@@ -212,7 +213,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             </div>
             <div className={s.breakdownRow}>
               <span className={isMobile ? ms.breakdownLabel : s.breakdownLabel}>
-                TOTAL:
+                TOTAL: 
               </span>
               <span className={isMobile ? ms.breakdownValue : s.breakdownValue}>
                 {selected?.total}

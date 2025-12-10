@@ -49,6 +49,7 @@ const RequisitionDetails: React.FC = () => {
                     startDisabled
                     startCollaps={isMobile}
                     enableCollaps
+                    showEditForm={false}
                     responsiveLayoutMatrix={{
                       sm: [
                         [10],

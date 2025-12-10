@@ -1,16 +1,19 @@
 import { DataTable } from "@/app/components/DataTable/DataTable";
+import useInvoicesFiles from "./useInvoicesFiles";
 
 const InvoicesFiles = ({ forceVisible = false }) => {
+  const { columns } = useInvoicesFiles();
+
   return (
     <div>
       <DataTable
         showCalendar={true}
-        showDownloadTable={true}
+        showDownloadTable={false}
         tables={[
           {
             data: [],
-            columns: [],
-            title: 'Facturas',
+            columns: columns,
+            title: "Facturas",
             enableCollaps: true,
             enableSelection: true,
           },

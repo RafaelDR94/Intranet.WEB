@@ -1,19 +1,21 @@
 import { DataTable } from "@/app/components/DataTable/DataTable";
+import useTicketsFiles from "./useTicketsFiles";
 
 const TicketsFiles = () => {
+  const { columns } = useTicketsFiles();
   return (
     <div>
-      <DataTable 
+      <DataTable
         showCalendar={true}
         showDownloadTable={true}
         tables={[
           {
             data: [],
-            columns: [],
-            title: 'Tickets',
+            columns: columns,
+            title: "Tickets",
             enableCollaps: true,
             enableSelection: true,
-          }
+          },
         ]}
       />
       <p></p>
