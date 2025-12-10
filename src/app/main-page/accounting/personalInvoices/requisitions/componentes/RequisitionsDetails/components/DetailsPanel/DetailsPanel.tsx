@@ -5,9 +5,11 @@ import React from "react";
 import { useDetailsPanel } from "./hooks/useDetailsPanel";
 import { classes as s, mobileclasses as ms } from "./styles";
 import { DetailsPanelProps } from "./types";
+import InvoicesForm from "@/app/main-page/accounting/personalInvoices/invoices/components/InvoicesForm/InvoicesForm";
+import TicketForm from "@/app/main-page/accounting/personalInvoices/invoices/components/TicketForm/TicketForm";
+import { InvoicesProvider } from "@/app/main-page/accounting/personalInvoices/invoices/context/InvoicesContext";
 import Label from "@/app/components/Label/Label";
 import { Button } from "@/app/components/Button/Button";
-import CollapsibleSection from "@/app/components/CollapsibleSection/CollapsibleSection";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
@@ -17,6 +19,8 @@ import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 
+import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
+import { Proyect } from "@/app/mappings/proyects/proyects.types";
 const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
   setPanelOpen,
@@ -48,6 +52,36 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   });
   const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
+  const hasInvoiceFiles = Boolean(selected?.xml || selected?.pdf || selected?.image);
+  const projectFallback: Proyect = {
+    id: selected?.requisition?.idProject ?? "",
+    name: selected?.requisition?.projectname ?? "",
+    proyectKey: selected?.requisition?.projectname ?? "",
+    client: "",
+    manager: {} as any,
+    collaborators: [],
+  };
+  const dataEdit: HistoryRow | null = selected
+    ? {
+        id: selected.id,
+        billing_image_id: selected.billingimages_id,
+        billingdocument_id: selected.billingdocument_id,
+        project: projectFallback,
+        requisitionkey: selected.requisition?.requisitionkey ?? "",
+        status: (selected.status?.toLowerCase() as HistoryRow["status"]) ?? "pendiente",
+        xml: selected.xml,
+        pdf: selected.pdf,
+        image: selected.image,
+        comments: selected.comments,
+        dateCreate: selected.date_created,
+        certificationDate: selected.fecha,
+        uuid: selected.uuid,
+        description: selected.description,
+        category: selected.category,
+        numpersons: selected.numpersons,
+        numnights: selected.numnights,
+      }
+    : null;
   console.log("selected ", selected);
 
   return (
@@ -229,6 +263,35 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 </p>
               </div>
             )}
+            <InvoicesProvider>
+              {hasInvoiceFiles ? (
+                <InvoicesForm
+                  dataEdit={dataEdit}
+                  responsiveLayoutMatrix={{
+                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    md: [
+                      [5, 5],
+                      [3.3, 3.3, 3.3],
+                      [2, 2, 3, 3],
+                    ],
+                    lg: [
+                      [5, 5],
+                      [3.3, 3.3, 3.3],
+                      [2, 2, 3, 3],
+                    ],
+                  }}
+                />
+              ) : (
+                <TicketForm
+                  dataEdit={dataEdit}
+                  responsiveLayoutMatrix={{
+                    sm: [[10], [10]],
+                    md: [[10], [10]],
+                    lg: [[10], [10]],
+                  }}
+                />
+              )}
+            </InvoicesProvider>
           </div>
         </div>
       ) : (
