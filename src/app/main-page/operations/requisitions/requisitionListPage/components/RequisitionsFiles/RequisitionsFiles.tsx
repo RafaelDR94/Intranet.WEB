@@ -216,11 +216,12 @@ const RequisitionsFiles: React.FC<RequisitionsFilesProps> = ({
   const statusBadge = (status?: string) => {
     const normalizedStatus = (status || "").toLowerCase();
     let type: LabelType = "pendiente";
-    if (normalizedStatus.includes("cierre de periodo")) type = "invalido";
+    if (normalizedStatus.includes("cierre de periodo")) type = "actualizado";
     if (normalizedStatus.includes("viaticando")) type = "purple";
     if (normalizedStatus.includes("folio adicional")) type = "prohibido";
-    if (normalizedStatus.includes("cancelada")) type = "restringido";
-    if (normalizedStatus.includes("validaci")) type = "valido";
+    if (normalizedStatus.includes("cerrado")) type = "restringido";
+    if (normalizedStatus.includes("valid")) type = "valido";
+    if (normalizedStatus.includes("rechaz")) type = "rechazado";
 
     return <Label type={type} text={status || "En espera"} />;
   };

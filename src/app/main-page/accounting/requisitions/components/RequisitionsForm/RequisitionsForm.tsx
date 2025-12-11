@@ -29,6 +29,7 @@ type Props = {
   enableCollaps?: boolean;
   /**Inicia la tabla colapsada */
   startCollaps?: boolean;
+  showEditForm?: boolean;
 };
 
 /**
@@ -44,6 +45,7 @@ const RequisitionsForm: React.FC<Props> = ({
   onClose,
   responsiveLayoutMatrix,
   startDisabled,
+  showEditForm = false,
 }) => {
   const {
     fields,

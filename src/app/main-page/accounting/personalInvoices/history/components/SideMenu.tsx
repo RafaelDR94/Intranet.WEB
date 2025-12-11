@@ -126,7 +126,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           )}
           {/* Editar Documento (como en la maqueta) */}
 
-          {selected.status.toLocaleLowerCase() == "rechazado" && (
+          {selected.status.toLocaleLowerCase() !== "rechazado" && (
             <>
               <div className="text-gray-90 text-b4 font-medium">
                 Editar documento:

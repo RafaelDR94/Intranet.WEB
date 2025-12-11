@@ -49,11 +49,12 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
   const StatusBadge = ({ status }: { status?: string }) => {
     const s = (status || "").toLowerCase();
     let type: LabelType = "pendiente";
-    if (s.includes("cierre de periodo")) type = "invalido";
+    if (s.includes("cierre de periodo")) type = "actualizado";
     if (s.includes("viaticando")) type = "purple";
     if (s.includes("folio adicional")) type = "prohibido";
-    if (s.includes("cancelada")) type = "restringido";
-    if (s.includes("validaci")) type = "valido";
+    if (s.includes("cerrado")) type = "restringido";
+    if (s.includes("valid")) type = "valido";
+    if (s.includes("rechaz")) type = "rechazado";
 
     return <Label type={type} text={status || "En espera"} />;
   };
@@ -84,13 +85,13 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
         headerClass: "w-70",
       },
       {
-        key: "projectCode",
+        key: "phone_number",
         label: "Número",
         cellClass: "w-40",
         headerClass: "w-40",
       },
       {
-        key: "state",
+        key: "email",
         label: "Correo eléctronico",
         cellClass: "w-50",
         headerClass: "w-50",

@@ -23,5 +23,8 @@ export type RequisitionRow = {
   date_created?: string
   requisitionkey?:string,
   state?:string,
+  projectname?:string,
+  period?:string,
+  current_days?:string,
 }
 

@@ -46,24 +46,19 @@ const useInvoicesForm = ({
       updateBillingDocument: s.updateBillingDocument,
       resetFlags: s.resetFlags,
     }),
-    shallow
+    shallow,
   );
 
   const { forceFetchBillingHistory } = useBillingHistoryStore(
     (s) => ({
       forceFetchBillingHistory: s.forceFetchBillingHistory,
     }),
-    shallow
+    shallow,
   );
-
-
-
-
 
   const initialformFields: FieldModel[] = useMemo(() => {
     if (isEdit || withoutName) {
       return [
-
         {
           type: "input",
           name: "personName",
@@ -167,8 +162,6 @@ const useInvoicesForm = ({
           className: "max-w-[300px]",
           validations: [{ type: "required" }],
         },
-
-
       ];
     }
 
@@ -185,19 +178,20 @@ const useInvoicesForm = ({
       billingImages,
     });
 
-  const { usePrincipalLoading, usePrincipalAlert, usePrincipalImage } = usePrincipal();
+  const { usePrincipalLoading, usePrincipalAlert, usePrincipalImage } =
+    usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
   const { showImage } = usePrincipalImage;
 
   const uploadXmlIfNeeded = async (
     file: File | null | undefined,
-    requisition: string
+    requisition: string,
   ): Promise<string> => {
     if (file) {
       const url = await firebasestorage.uploadFile(
         file,
-        `Billings/BillingDocuments/${requisition}.xml`
+        `Billings/BillingDocuments/${requisition}.xml`,
       );
       if (!url) throw new Error("Hubo un problema al subir el XML");
       return url;
@@ -208,12 +202,12 @@ const useInvoicesForm = ({
 
   const uploadPdfIfNeeded = async (
     file: File | null | undefined,
-    requisition: string
+    requisition: string,
   ): Promise<string> => {
     if (file) {
       const url = await firebasestorage.uploadFile(
         file,
-        `Billings/BillingDocuments/${requisition}.pdf`
+        `Billings/BillingDocuments/${requisition}.pdf`,
       );
       if (!url) throw new Error("Hubo un problema al subir el PDF");
       return url;
@@ -225,11 +219,11 @@ const useInvoicesForm = ({
   const handleImageClick = (image: string) => {
     showImage({
       src: image,
-      alt: 'Ticket',
+      alt: "Ticket",
       showAction: false,
       disableOutsideClose: false, // si quieres obligar a usar los botones, ponlo en true
     });
-  }
+  };
 
   const handleSubmit = async (values: Record<string, any>) => {
     showSpinner({
@@ -251,7 +245,7 @@ const useInvoicesForm = ({
           category_id: values?.category,
           numnights: values?.numnights,
           numpersons: values?.numpersons,
-          user_comments: ""
+          user_comments: "",
         };
         updateBillingDocument(payload);
       } else {
@@ -263,7 +257,7 @@ const useInvoicesForm = ({
           description_id: values?.description,
           category_id: values?.category,
           numnights: values?.numnights,
-          numpersons: values?.numpersons
+          numpersons: values?.numpersons,
         };
         createBillingDocument(payload);
       }
@@ -274,7 +268,8 @@ const useInvoicesForm = ({
         variant: "filled",
         title: isEdit ? "No se pudo actualizar" : "No se pudo enviar",
         description:
-          String(err) || "Ocurrió un error al subir los archivos. Intenta de nuevo.",
+          String(err) ||
+          "Ocurrió un error al subir los archivos. Intenta de nuevo.",
         showPrimaryButton: true,
         primaryLabel: "Entendido",
         onPrimaryClick: hideAlert,
@@ -332,7 +327,7 @@ const useInvoicesForm = ({
         autoCloseMs: 1500,
       });
     }
-       // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     creating,
     updating,
@@ -352,7 +347,7 @@ const useInvoicesForm = ({
     setFormReady,
     handleSubmit,
     ResetForm,
-    handleImageClick
+    handleImageClick,
   };
 };
 

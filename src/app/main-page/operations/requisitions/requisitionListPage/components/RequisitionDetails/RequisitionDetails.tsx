@@ -25,7 +25,7 @@ const RequisitionDetails: React.FC = () => {
       <>
         <div className="flex w-full gap-6">
           <div className={clsx(isMobile ? "basis-3/3" : "basis-2/3")}>
-            {currentPagePermissions?.showDetails && (
+            {currentPagePermissions?.showDetails  && (
               <RequisitionsForm
                 mode="edit"
                 startDisabled

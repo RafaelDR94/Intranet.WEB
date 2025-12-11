@@ -52,7 +52,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   });
   const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
-  const hasInvoiceFiles = Boolean(selected?.xml || selected?.pdf || selected?.image);
+  const hasInvoiceFiles = Boolean(
+    selected?.xml || selected?.pdf || selected?.image,
+  );
   const projectFallback: Proyect = {
     id: selected?.requisition?.idProject ?? "",
     name: selected?.requisition?.projectname ?? "",
@@ -68,7 +70,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
         billingdocument_id: selected.billingdocument_id,
         project: projectFallback,
         requisitionkey: selected.requisition?.requisitionkey ?? "",
-        status: (selected.status?.toLowerCase() as HistoryRow["status"]) ?? "pendiente",
+        status:
+          (selected.status?.toLowerCase() as HistoryRow["status"]) ??
+          "pendiente",
         xml: selected.xml,
         pdf: selected.pdf,
         image: selected.image,
@@ -247,7 +251,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             </div>
             <div className={s.breakdownRow}>
               <span className={isMobile ? ms.breakdownLabel : s.breakdownLabel}>
-                TOTAL: 
+                TOTAL:
               </span>
               <span className={isMobile ? ms.breakdownValue : s.breakdownValue}>
                 {selected?.total}
@@ -274,11 +278,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                       [3.3, 3.3, 3.3],
                       [2, 2, 3, 3],
                     ],
-                    lg: [
-                      [5, 5],
-                      [3.3, 3.3, 3.3],
-                      [2, 2, 3, 3],
-                    ],
+                    lg: [[10], [10], [10], [10], [10], [10], [10], [5, 5]],
                   }}
                 />
               ) : (

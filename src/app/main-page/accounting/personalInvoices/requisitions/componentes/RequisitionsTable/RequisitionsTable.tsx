@@ -37,11 +37,12 @@ const RequisitionsTable = ({ forceVisible = false }) => {
   const StatusBadge = ({ status }: { status?: string }) => {
     const s = (status || "").toLowerCase();
     let type: LabelType = "pendiente";
-    if (s.includes("cierre de periodo")) type = "invalido";
+    if (s.includes("cierre de periodo")) type = "actualizado";
     if (s.includes("viaticando")) type = "purple";
     if (s.includes("folio adicional")) type = "prohibido";
-    if (s.includes("cancelada")) type = "restringido";
-    if (s.includes("validaci")) type = "valido";
+    if (s.includes("cerrado")) type = "restringido";
+    if (s.includes("valid")) type = "valido";
+    if (s.includes("rechaz")) type = "rechazado";
 
     return <Label type={type} text={status || "En espera"} />;
   };
@@ -49,11 +50,11 @@ const RequisitionsTable = ({ forceVisible = false }) => {
   // Desktop columns (leave mobileColumns intact as requested)
   const computedColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
-      { key: "projectCode", label: "PROYECTO"},
+      { key: "projectname", label: "PROYECTO"},
       { key: "state", label: "ESTADO" },
-      { key: "snCode", label: "CÓDIGO DE SOLICITUD" },
-      { key: "state", label: "PERIODO" },
-      { key: "state", label: "DÍA CORRIENTE" },
+      { key: "requisitionkey", label: "CÓDIGO DE SOLICITUD" },
+      { key: "period", label: "PERIODO" },
+      { key: "current_days", label: "DÍA CORRIENTE" },
       {
         key: "status",
         label: "ESTATUS",
@@ -62,11 +63,6 @@ const RequisitionsTable = ({ forceVisible = false }) => {
       {
         key: "actions" as unknown as keyof RequisitionRow,
         label: "",
-        // render: (row) => (
-        //   <div className={actionCell}>
-        //     <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
-        //   </div>
-        // ),
         render: (row) => (
           <Button
             size="small"
@@ -86,7 +82,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
-      { key: "snCode", label: "CÓDIGO SN" },
+      { key: "requisitionkey", label: "CÓDIGO SN" },
       {
         key: "status",
         label: "",

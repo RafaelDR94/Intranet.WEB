@@ -25,5 +25,9 @@ export type RequisitionRow = {
   date_created?: string
   
   state?:string,
+
+  phone_number?:string,
+
+  email?:string,
 }
 

@@ -41,9 +41,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
         externalSubmitRef={externalSubmitRef}
         showSubmitIf={() => false}
       >
-
       </DynamicForm>
-
     );
   }
 
