@@ -7,15 +7,15 @@ import { Requisition, RequitionPost, RequitionPut } from '@/app/mappings/requisi
 export type RequisitionsState = {
   /** Lista de requisiciones */
   requisitions: Requisition[]
-  currentRequisition: Requisition|null
+  currentRequisition: Requisition | null
   /** Flags de proceso */
   loading: boolean
   creating: boolean
   updating: boolean
   removing: boolean
   updatingExcel: boolean
-  gettincurrentReq:boolean
-  downloadingDocument:boolean
+  gettincurrentReq: boolean
+  downloadingDocument: boolean
 
   /** Flags de éxito por operación */
   successGet: boolean
@@ -23,8 +23,8 @@ export type RequisitionsState = {
   successPut: boolean
   successDelete: boolean
   successUpdateExcel: boolean
-  succesgetingCurrent:boolean
-  succesDownloadDocument:boolean
+  succesgetingCurrent: boolean
+  succesDownloadDocument: boolean
   /** Mensaje de error general */
   error?: string
   /** Advertencias retornadas por API */
@@ -38,10 +38,10 @@ export type RequisitionsState = {
   deleteRequisition: (id: string) => Promise<boolean>
   downloadRequistionResume: (idRequisition: string) => Promise<boolean>
   updateExcelRequisition: (excel: File) => Promise<Requisition | null>
-  fetchCurrentRequisition: (id:string,force?: boolean) => Promise<void> | void
+  fetchCurrentRequisition: (id: string, force?: boolean) => Promise<void> | void
   reset: () => void
   resetFlags: () => void
-  resetCurrentReq:()=>void
+  resetCurrentReq: () => void
 }
 export type Set = (
   partial: Partial<RequisitionsState> |

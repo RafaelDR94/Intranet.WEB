@@ -1,3 +1,9 @@
+### 1.47.78 Campos extra en requisiciones por empleado 12-21-2025
+
+Fix:
+
+- Ajusta store, tipos y mapeos para incluir los nuevos campos y documentos que regresa BillingRequisitionByIdEmployee. (Agente IA) [#]()
+
 ### 1.47.77 Filtrado de requisiciones activas 12-20-2025
 
 Fix:
