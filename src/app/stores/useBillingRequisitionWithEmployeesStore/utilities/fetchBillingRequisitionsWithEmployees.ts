@@ -28,8 +28,6 @@ export const fetchBillingRequisitionsWithEmployees = async (
     const getReq = pGet(GetFn)
 
     const params = new URLSearchParams({ active: 'true' })
-    if (startDate) params.set('startDate', startDate)
-    if (endDate) params.set('endDate', endDate)
     const query = params.toString()
     const url = query
       ? `${BillingRequisitionWithEmployeesUrl}?${query}`

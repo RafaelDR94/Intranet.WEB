@@ -96,17 +96,19 @@ export const useRequisitionTable = () => {
 
   const rows: RequisitionRow[] = useMemo(() => {
     const base = requisitions.map(r => ({
-      id: r?.billingrequisition_id,
-      employeeId: r?.id_Employee,
-      snCode: r?.requisitionkey,
-      debtorName: r?.employeename,
+      id: r?.billingrequisition_id ?? '',
+      employeeId: r?.id_Employee ?? '',
+      snCode: r?.requisitionkey ?? '',
+      debtorName: r?.employeename ?? '',
       // Prefer project ID/code to match visual sample
-      projectCode: r?.projectname,
+      projectCode: r?.projectname ?? '',
       assignmentDate: r?.assignmentdate,
       dueDate: r.endDate,
       amount: Number(r?.amountdeposited),
       status: r?.status,
-      state:r?.state,
+      state: r?.state,
+      phone_number: r?.phone_number ?? '',
+      email: r?.email ?? '',
       date_created: r?.date_created,
     }))
     if (!query) return base
