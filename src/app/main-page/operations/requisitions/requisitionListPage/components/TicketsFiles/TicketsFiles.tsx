@@ -2,7 +2,7 @@ import { DataTable } from "@/app/components/DataTable/DataTable";
 import useTicketsFiles from "./useTicketsFiles";
 
 const TicketsFiles = () => {
-  const { columns } = useTicketsFiles();
+  const { columns, rows } = useTicketsFiles();
   return (
     <div>
       <DataTable
@@ -10,7 +10,7 @@ const TicketsFiles = () => {
         showDownloadTable={true}
         tables={[
           {
-            data: [],
+            data: rows,
             columns: columns,
             title: "Tickets",
             enableCollaps: true,

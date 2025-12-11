@@ -2,7 +2,7 @@ import { DataTable } from "@/app/components/DataTable/DataTable";
 import useInvoicesFiles from "./useInvoicesFiles";
 
 const InvoicesFiles = ({ forceVisible = false }) => {
-  const { columns } = useInvoicesFiles();
+  const { columns, rows } = useInvoicesFiles();
 
   return (
     <div>
@@ -11,7 +11,7 @@ const InvoicesFiles = ({ forceVisible = false }) => {
         showDownloadTable={false}
         tables={[
           {
-            data: [],
+            data: rows,
             columns: columns,
             title: "Facturas",
             enableCollaps: true,

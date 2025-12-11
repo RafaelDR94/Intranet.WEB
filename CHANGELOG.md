@@ -1,3 +1,9 @@
+### 1.47.80 Archivos de requisiciones activas 12-23-2025
+
+Fix:
+
+- Muestra los documentos de BillingRequisitionWithEmployees en las tablas de facturas y tickets al usar "Ver Archivos", separando XML/PDF de imágenes. (Agente IA) [#]()
+
 ### 1.47.79 Requisiciones con empleados 12-23-2025
 
 Fix:
