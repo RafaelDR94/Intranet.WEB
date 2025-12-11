@@ -1,3 +1,9 @@
+### 1.47.79 Requisiciones con empleados 12-23-2025
+
+Fix:
+
+- Añade el endpoint BillingRequisitionWithEmployees con su store, tipos y mapeo y actualiza la tabla de operaciones para usar los nuevos datos. (Agente IA) [#]()
+
 ### 1.47.78 Campos extra en requisiciones por empleado 12-21-2025
 
 Fix:

@@ -7,7 +7,7 @@ import type { RequisitionRow } from '../types'
 
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
-import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
+import { useBillingRequisitionWithEmployeesStore } from '@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore'
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper'
 
 /**
@@ -27,22 +27,31 @@ export const useRequisitionTable = () => {
       ? (searchParams as any).has("id")
       : new URLSearchParams((searchParams as any) ?? "").has("id");
   const {
-    requisitions, loading, error, removing,successPut, fetchRequisitionsByDate, deleteRequisition, resetFlags
-  } = useRequisitionsStore(s => ({
-    requisitions: s.requisitions,
-    loading: s.loading,
-    error: s.error,
-    removing: s.removing,
-    successPut:s.successPut,
-    fetchRequisitionsByDate: s.fetchRequisitionsByDate,
-    deleteRequisition: s.deleteRequisition,
-    resetFlags: s.resetFlags
-  }), shallow)
+    requisitions,
+    loading,
+    error,
+    removing,
+    fetchRequisitionsWithEmployees,
+    deleteRequisition,
+    resetFlags,
+  } = useBillingRequisitionWithEmployeesStore(
+    (s) => ({
+      requisitions: s.requisitions,
+      loading: s.loading,
+      error: s.error,
+      removing: s.removing,
+      fetchRequisitionsWithEmployees: s.fetchRequisitionsWithEmployees,
+      deleteRequisition: s.deleteRequisition,
+      resetFlags: s.resetFlags,
+    }),
+    shallow,
+  )
 
   // Prefetch
   useEffect(() => {
-    if (isGatewayReady && !hasIdParam) fetchRequisitionsByDate(lastDates.startDate, lastDates.endDate, true);
-  }, [isGatewayReady, hasIdParam, fetchRequisitionsByDate, lastDates.startDate, lastDates.endDate])
+    if (isGatewayReady && !hasIdParam)
+      fetchRequisitionsWithEmployees(lastDates.startDate, lastDates.endDate, true)
+  }, [isGatewayReady, hasIdParam, fetchRequisitionsWithEmployees, lastDates.startDate, lastDates.endDate])
 
 
   // Alert de error general de carga
@@ -61,10 +70,24 @@ export const useRequisitionTable = () => {
       onPrimaryClick: hideAlert,
       showSecondaryButton: true,
       secondaryLabel: 'Reintentar',
-      onSecondaryClick: () => { hideAlert(); fetchRequisitionsByDate(lastDates.startDate, lastDates.endDate, true); },
+      onSecondaryClick: () => {
+        hideAlert();
+        fetchRequisitionsWithEmployees(lastDates.startDate, lastDates.endDate, true);
+      },
     })
 
-  }, [error, loading, successPut, hideSpinner, resetFlags, showAlert, showSpinner, hideAlert, fetchRequisitionsByDate, lastDates.startDate, lastDates.endDate])
+  }, [
+    error,
+    loading,
+    hideSpinner,
+    resetFlags,
+    showAlert,
+    showSpinner,
+    hideAlert,
+    fetchRequisitionsWithEmployees,
+    lastDates.startDate,
+    lastDates.endDate,
+  ])
 
   const [query, setQuery] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -179,7 +202,7 @@ export const useRequisitionTable = () => {
     const startDate = start ? currentDate(start) : currentDate();
     const endDate = end ? currentDate(end) : currentDate();
     setLastDates({ startDate: startDate, endDate: endDate })
-    fetchRequisitionsByDate(startDate, endDate, true);
+    fetchRequisitionsWithEmployees(startDate, endDate, true)
   }
 
   // columns estático si en algún punto deseas moverlo aquí (dejo ejemplo):
