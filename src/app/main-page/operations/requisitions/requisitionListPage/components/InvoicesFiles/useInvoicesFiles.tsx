@@ -5,11 +5,11 @@ import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
 import type { BillingDocumentRequisition } from "@/app/mappings/requisitions/requisitions.types";
-import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-
+import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
 import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
+import { Input } from "@/app/components/Input/Input";
 
 type InvoiceRow = {
   id: string;
@@ -23,15 +23,29 @@ type InvoiceRow = {
   attachments?: string;
 };
 
-const mapInvoices = (
-  documents: BillingDocumentRequisition[],
-): InvoiceRow[] =>
+/**
+ * Formatea una fecha ISO a DD/MM/YYYY
+ */
+const formatDate = (value?: string): string => {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat("es-MX", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+};
+
+const mapInvoices = (documents: BillingDocumentRequisition[]): InvoiceRow[] =>
   documents
     .filter((doc) => doc.xml || doc.pdf)
     .map((doc) => ({
       id: doc.billingdocument_id,
       uuid: doc.uuid ?? doc.billingdocument_id,
-      date: doc.certification_date ?? doc.date_created,
+      date: formatDate(doc.certification_date ?? doc.date_created),
       category: doc.category ?? "",
       status: doc.status ?? "",
       comments: doc.comments ?? "",
@@ -57,7 +71,7 @@ const useInvoicesFiles = () => {
 
   const columns: ColumnDefinition<InvoiceRow>[] = useMemo(
     () => [
-      { key: "uuid", label: "Id" },
+      // { key: "uuid", label: "Id" },
       {
         key: "attachments",
         label: "Archivos",
@@ -81,28 +95,73 @@ const useInvoicesFiles = () => {
                 aria-label="Abrir PDF"
               />
             )}
-            {row.pdfUrl && (
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={DownloadIcon}
-                onClick={() => window.open(row.pdfUrl ?? undefined, "_blank")}
-                aria-label="Descargar"
-              />
-            )}
           </div>
         ),
+        cellClass: "w-30",
+        headerClass: "w-30",
       },
-      { key: "date", label: "Fecha" },
-      { key: "category", label: "Categoría" },
+      {
+        key: "date",
+        label: "Fecha",
+        cellClass: "w-30",
+        headerClass: "w-30",
+      },
+      {
+        key: "category",
+        label: "Categoría",
+        cellClass: "w-30",
+        headerClass: "w-30",
+      },
       {
         key: "status",
         label: "Estatus",
         render: (row) => (
           <Label type={statusToType(row.status)} text={row.status || ""} />
         ),
+        cellClass: "w-30",
+        headerClass: "w-30",
       },
-      { key: "comments", label: "Comentario" },
+      {
+        key: "comments",
+        label: "Comentario",
+        render: (row) => (
+          <Button
+            size="small"
+            // onClick={() => handleOpenDetails(row)}
+            variant="ghost"
+            hideIcon
+          >
+            <ChatIcon className="h-6 w-6" />
+          </Button>
+        ),
+        cellClass: "w-38",
+        headerClass: "w-40 ",
+      },
+      {
+        key: "acciones" as unknown as keyof InvoiceRow,
+        label: "DETALLE",
+        render: (row) => (
+          <Button
+            size="small"
+            // onClick={() => handleOpenDetails(row)}
+            variant="ghost"
+            hideIcon
+          >
+            Ver Detalles
+          </Button>
+        ),
+        cellClass: "w-30",
+        headerClass: "w-30",
+      },
+      {
+        key: "acciones" as unknown as keyof InvoiceRow,
+        label: "VINCULAR",
+        render: (row) => (
+          <Input></Input>
+        ),
+        cellClass: "w-30",
+        headerClass: "w-30",
+      },
     ],
     [],
   );

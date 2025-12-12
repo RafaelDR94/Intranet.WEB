@@ -75,37 +75,37 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
 
           return (
             <div className="flex items-center gap-2">
-              <Avatar size="xxs" initials={initials} />
+              <Avatar size="xxs" initials={initials} className="mr-1" />
               <span>{row.debtorName}</span>
             </div>
           );
         },
 
-        cellClass: "w-70",
-        headerClass: "w-70",
+        cellClass: "w-80",
+        headerClass: "w-80",
       },
       {
         key: "phone_number",
         label: "Número",
-        cellClass: "w-40",
-        headerClass: "w-40",
+        cellClass: "w-35",
+        headerClass: "w-33",
       },
       {
         key: "email",
         label: "Correo eléctronico",
-        cellClass: "w-50",
-        headerClass: "w-50",
+        cellClass: "w-70",
+        headerClass: "w-72",
       },
       {
         key: "projectCode",
         label: "Archivos",
         render: (row) => (
-          <Button variant="ghost" hideIcon onClick={() => onViewFiles(row)}>
+          <Button variant="ghost" size="small" hideIcon onClick={() => onViewFiles(row)}>
             Ver Archivos
           </Button>
         ),
         cellClass: "w-50",
-        headerClass: "w-50 pl-4",
+        headerClass: "w-45",
       },
       {
         key: "projectCode",
@@ -114,6 +114,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
           <Button
             variant="ghost"
             hideIcon
+            size="small"
             onClick={() => onViewRequisitions(row)}
           >
             Ver Requisiciones

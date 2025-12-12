@@ -101,7 +101,7 @@ const RequisitionsForm: React.FC<Props> = ({
             primaryLabel="Guardar"
             onPrimaryClick={onSubmit}
             primaryDisabled={buttonDisabled || (startDisabled && disableForm)}
-            enableCollapse={enableCollaps}
+            enableCollapse={true}
             showSecondaryButton={mode === "edit" || startDisabled}
             secondaryLabel={disableForm ? "Editar información" : "Cancelar"}
             onSecondaryClick={() => {

@@ -6,6 +6,7 @@ import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
 import type { BillingDocumentRequisition } from "@/app/mappings/requisitions/requisitions.types";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
+import DownloadIcon from "@/assets/icons/acciones/download.svg";
 
 import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
 
@@ -51,7 +52,7 @@ const useTicketsFiles = () => {
 
   const columns: ColumnDefinition<TicketRow>[] = useMemo(
     () => [
-      { key: "id", label: "Id", cellClass: "w-1/15 text-left", headerClass: "w-1/15 text-left" },
+      // { key: "id", label: "Id", cellClass: "w-1/15 text-left", headerClass: "w-1/15 text-left" },
       {
         key: "attachments",
         label: "Archivos",
@@ -59,6 +60,15 @@ const useTicketsFiles = () => {
         headerClass: "w-2/15 text-left",
         render: (row) => (
           <div className="flex items-center gap-1">
+            {row.imageUrl && (
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={DownloadIcon}
+                onClick={() => window.open(row.imageUrl ?? undefined, "_blank")}
+                aria-label="Descargar"
+              />
+            )}
             {row.imageUrl && (
               <Button
                 size="xsmall"
