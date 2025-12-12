@@ -22,6 +22,8 @@ let mockRequisitions = [{
   requisitionkey: 'REQ-1',
   employeename: 'John Doe',
   projectname: 'PRJ-1',
+  period: '2025-01-01 - 2025-02-01',
+  current_days: 5,
   status: 'Activa',
   state: 'Activa',
   date_created: '2025-01-01',
@@ -35,6 +37,8 @@ beforeEach(() => {
     requisitionkey: 'REQ-1',
     employeename: 'John Doe',
     projectname: 'PRJ-1',
+    period: '2025-01-01 - 2025-02-01',
+    current_days: 5,
     status: 'Activa',
     state: 'Activa',
     date_created: '2025-01-01',
@@ -89,6 +93,7 @@ describe('useRequisitionTable', () => {
         requisitionkey: 'REQ-2',
         employeename: 'Jane Doe',
         projectname: 'PRJ-2',
+        period: '2025-01-02 - 2025-02-02',
         status: 'Cancelada',
         state: 'Cancelada',
         date_created: '2025-01-02',
@@ -107,8 +112,11 @@ describe('useRequisitionTable', () => {
     act(() => result.current.onEdit({
       id: '1',
       snCode: 'REQ-1',
+      requisitionkey: 'REQ-1',
       debtorName: 'John Doe',
+      employeeName: 'John Doe',
       projectCode: 'PRJ-1',
+      projectname: 'PRJ-1',
       date_created: '2025-01-01',
     } as any))
     // Se esperaba: limpia el slash final y agrega parámetros de detalle

@@ -13,7 +13,6 @@ import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
-import { formatCurrency } from "@/app/utilities/FormatHelpers/FormatHelpets";
 import { Button } from "@/app/components/Button/Button";
 const RequisitionsTable = ({ forceVisible = false }) => {
   const {

@@ -1,3 +1,9 @@
+### 1.47.82 Historial de requisiciones personales visible 12-24-2025
+
+Fix:
+
+- Mapea los campos de BillingRequisitionByIdEmployee (proyecto, estado, periodo y días corrientes) para que la tabla muestre la información real del historial. (Agente IA) [#]()
+
 ### 1.47.81 Icono de tickets en archivos de requisición 12-23-2025
 
 Fix:

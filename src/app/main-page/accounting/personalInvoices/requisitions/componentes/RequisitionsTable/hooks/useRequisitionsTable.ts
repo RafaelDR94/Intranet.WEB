@@ -93,26 +93,48 @@ export const useRequisitionTable = () => {
 
 
   const rows: RequisitionRow[] = useMemo(() => {
-    const base = requisitions.map(r => ({
-      id: r?.billingrequisition_id,
-      snCode: r?.requisitionkey,
-      debtorName: r?.employeename,
-      // Prefer project ID/code to match visual sample
-      projectCode: r?.projectname,
-      assignmentDate: r?.assignmentdate,
-      dueDate: r.endDate,
-      amount: Number(r?.amountdeposited),
-      status: r?.status,
-      state:r?.state,
-      date_created: r?.date_created,
-    }))
-    if (!query) return base
-    const q = query.toLowerCase()
-    return base.filter(r =>
-      r.snCode.toLowerCase().includes(q) ||
-      r.debtorName.toLowerCase().includes(q) ||
-      r.projectCode.toLowerCase().includes(q)
-    )
+    const base = requisitions.map((r) => {
+      const start = r?.assignmentdate?.split('T')?.[0];
+      const end = (r as any)?.enddate ?? (r as any)?.endDate;
+      const period = r?.period ?? (start && end ? `${start} - ${String(end).split('T')?.[0] ?? end}` : undefined);
+
+      return {
+        id: r?.billingrequisition_id ?? '',
+        snCode: r?.requisitionkey ?? '',
+        requisitionkey: r?.requisitionkey ?? '',
+        debtorName: r?.employeename ?? '',
+        employeeName: r?.employeename ?? '',
+        // Prefer project ID/code to match visual sample
+        projectCode: r?.projectname ?? '',
+        projectname: r?.projectname ?? '',
+        assignmentDate: r?.assignmentdate,
+        dueDate: end,
+        amount: Number(r?.amountdeposited ?? r?.provenamount ?? 0),
+        status: r?.status,
+        state: r?.state,
+        date_created: r?.date_created,
+        period,
+        current_days: r?.current_days,
+        phone_number: (r as any)?.phone_number ?? '',
+        email: (r as any)?.email ?? '',
+      };
+    });
+
+    if (!query) return base;
+
+    const q = query.toLowerCase();
+    return base.filter((r) =>
+      [
+        r.requisitionkey,
+        r.debtorName,
+        r.projectname,
+        r.state,
+        r.status,
+        r.period,
+      ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(q)),
+    );
   }, [requisitions, query])
 
   const isActiveRequisition = (row: RequisitionRow) => {

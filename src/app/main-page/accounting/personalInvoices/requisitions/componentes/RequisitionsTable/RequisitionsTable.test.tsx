@@ -5,7 +5,36 @@ import { describe, it, expect, vi } from 'vitest'
 import RequisitionsTable from './RequisitionsTable'
 
 const mockHook = vi.fn().mockReturnValue({
-  rows: [{ id: '1', snCode: 'REQ-1', debtorName: 'John', projectCode: 'PRJ-1', date_created: '2025-01-01' }],
+  rows: [
+    {
+      id: '1',
+      snCode: 'REQ-1',
+      requisitionkey: 'REQ-1',
+      debtorName: 'John',
+      employeeName: 'John',
+      projectCode: 'PRJ-1',
+      projectname: 'Proyecto 1',
+      state: 'CDMX',
+      period: '2025-01-01 - 2025-01-05',
+      current_days: 3,
+      date_created: '2025-01-01',
+    },
+  ],
+  activeRows: [
+    {
+      id: '1',
+      snCode: 'REQ-1',
+      requisitionkey: 'REQ-1',
+      debtorName: 'John',
+      employeeName: 'John',
+      projectCode: 'PRJ-1',
+      projectname: 'Proyecto 1',
+      state: 'CDMX',
+      period: '2025-01-01 - 2025-01-05',
+      current_days: 3,
+      date_created: '2025-01-01',
+    },
+  ],
   setQuery: vi.fn(),
   confirmOpen: false,
   rowToDelete: null,
@@ -13,8 +42,10 @@ const mockHook = vi.fn().mockReturnValue({
   handleConfirmDelete: vi.fn(),
   setConfirmOpen: vi.fn(),
   onEdit: vi.fn(),
+  handleOpenDetails: vi.fn(),
   onDelete: vi.fn(),
   refresh: vi.fn(),
+  hasIdParam: false,
 })
 
 vi.mock('./hooks/useRequisitionsTable', () => ({
@@ -22,7 +53,9 @@ vi.mock('./hooks/useRequisitionsTable', () => ({
 }))
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
-  DataTable: ({ tables }: any) => <div data-testid="table">{tables[0].data[0].snCode}</div>,
+  DataTable: ({ tables }: any) => (
+    <div data-testid="table">{tables?.[0]?.data?.[0]?.projectname ?? 'no-data'}</div>
+  ),
 }))
 
 vi.mock('@/app/components/PopUp/PopUp', () => ({
@@ -37,25 +70,30 @@ vi.mock('@/app/context/AuthContext/AuthContext', () => ({
 
 describe('RequisitionsTable', () => {
   it('renders rows from hook', () => {
-    render(<RequisitionsTable onEditRequest={() => {}} />)
+    render(<RequisitionsTable />)
     const tables = screen.getAllByTestId('table')
-    expect(tables[0]).toHaveTextContent('REQ-1')
+    expect(tables[0]).toHaveTextContent('Proyecto 1')
   })
 
   it('shows confirmation popup when hook flag is true', () => {
     mockHook.mockReturnValueOnce({
-      rows: [{ id: '1', snCode: 'REQ-1', debtorName: 'John', projectCode: 'PRJ-1', date_created: '2025-01-01' }],
+      rows: [{
+        id: '1', snCode: 'REQ-1', requisitionkey: 'REQ-1', debtorName: 'John', employeeName: 'John', projectCode: 'PRJ-1', projectname: 'Proyecto 1', date_created: '2025-01-01',
+      }],
+      activeRows: [],
       setQuery: vi.fn(),
       confirmOpen: true,
-      rowToDelete: { id: '1', snCode: 'REQ-1' },
+      rowToDelete: { id: '1', requisitionkey: 'REQ-1', snCode: 'REQ-1' },
       removing: false,
       handleConfirmDelete: vi.fn(),
       setConfirmOpen: vi.fn(),
       onEdit: vi.fn(),
+      handleOpenDetails: vi.fn(),
       onDelete: vi.fn(),
       refresh: vi.fn(),
+      hasIdParam: false,
     })
-    render(<RequisitionsTable onEditRequest={() => {}} />)
+    render(<RequisitionsTable />)
     expect(screen.getByText('¿Deseas eliminar el documento seleccionado?')).toBeInTheDocument()
   })
 })
