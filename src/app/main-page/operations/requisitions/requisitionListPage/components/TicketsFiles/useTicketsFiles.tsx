@@ -5,7 +5,7 @@ import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
 import type { BillingDocumentRequisition } from "@/app/mappings/requisitions/requisitions.types";
-import ImageIcon from "@/assets/icons/Filtros/Image.svg";
+import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 
 import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
 

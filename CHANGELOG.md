@@ -1,3 +1,9 @@
+### 1.47.81 Icono de tickets en archivos de requisición 12-23-2025
+
+Fix:
+
+- Corrige la ruta del icono de tickets para que la vista "Ver Archivos" cargue sin errores de módulo y abra las imágenes adjuntas. (Agente IA) [#]()
+
 ### 1.47.80 Archivos de requisiciones activas 12-23-2025
 
 Fix:
