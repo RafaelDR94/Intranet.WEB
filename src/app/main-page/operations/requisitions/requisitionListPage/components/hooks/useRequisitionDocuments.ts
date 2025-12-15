@@ -10,6 +10,7 @@ import { useBillingRequisitionWithEmployeesStore } from '@/app/stores/useBilling
 type UseRequisitionDocumentsResult = {
   requisitionId?: string
   requisition?: Requisition
+  requisitions: Requisition[]
   documents: BillingDocumentRequisition[]
 }
 
@@ -62,6 +63,7 @@ export const useRequisitionDocuments = (): UseRequisitionDocumentsResult => {
   return {
     requisitionId,
     requisition,
+    requisitions,
     documents: requisition?.billingDocumentRquisition ?? [],
   }
 }

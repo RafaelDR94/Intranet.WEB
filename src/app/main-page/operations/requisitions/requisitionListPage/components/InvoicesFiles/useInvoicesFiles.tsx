@@ -1,15 +1,20 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/app/components/Button/Button";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
 import type { BillingDocumentRequisition } from "@/app/mappings/requisitions/requisitions.types";
+import { Select } from "@/app/components/Select/Select";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { BillingRequisition as BillingRequisitionUrl } from "@/app/configurations/Axios/urls";
+import { pPut } from "@/app/utilities/Http/promisifyIntranet";
+import { requireGateway } from "@/app/utilities/Http/requireGateway";
+import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
 import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
-import { Input } from "@/app/components/Input/Input";
 
 type InvoiceRow = {
   id: string;
@@ -21,6 +26,7 @@ type InvoiceRow = {
   xmlUrl?: string | null;
   pdfUrl?: string | null;
   attachments?: string;
+  requisitionId?: string;
 };
 
 /**
@@ -39,7 +45,10 @@ const formatDate = (value?: string): string => {
   }).format(date);
 };
 
-const mapInvoices = (documents: BillingDocumentRequisition[]): InvoiceRow[] =>
+const mapInvoices = (
+  documents: BillingDocumentRequisition[],
+  requisitionId?: string,
+): InvoiceRow[] =>
   documents
     .filter((doc) => doc.xml || doc.pdf)
     .map((doc) => ({
@@ -51,6 +60,7 @@ const mapInvoices = (documents: BillingDocumentRequisition[]): InvoiceRow[] =>
       comments: doc.comments ?? "",
       xmlUrl: doc.xml,
       pdfUrl: doc.pdf,
+      requisitionId,
     }));
 
 const statusToType = (status?: string): LabelType => {
@@ -65,9 +75,85 @@ const statusToType = (status?: string): LabelType => {
 };
 
 const useInvoicesFiles = () => {
-  const { documents } = useRequisitionDocuments();
+  const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
+  const { showAlert, hideAlert } = usePrincipalAlert;
+  const { showSpinner, hideSpinner } = usePrincipalLoading;
+  const { documents, requisitions, requisitionId } = useRequisitionDocuments();
+  const [linkingId, setLinkingId] = useState<string | null>(null);
+  const [selectedRequisitions, setSelectedRequisitions] = useState<
+    Record<string, string>
+  >({});
 
-  const rows = useMemo(() => mapInvoices(documents), [documents]);
+  const requisitionOptions = useMemo(
+    () =>
+      requisitions.map((item) => ({
+        label: `${item.requisitionkey} - ${item.projectname}`.trim(),
+        value: item.billingrequisition_id,
+      })),
+    [requisitions],
+  );
+
+  useEffect(() => {
+    setSelectedRequisitions((prev) => {
+      const next = { ...prev };
+      documents.forEach((doc) => {
+        if (!next[doc.billingdocument_id] && requisitionId) {
+          next[doc.billingdocument_id] = requisitionId;
+        }
+      });
+      return next;
+    });
+  }, [documents, requisitionId]);
+
+  const handleLinkRequisition = useCallback(
+    async (invoiceId: string, billingrequisition_id: string) => {
+      setLinkingId(invoiceId);
+      setSelectedRequisitions((prev) => ({
+        ...prev,
+        [invoiceId]: billingrequisition_id,
+      }));
+
+      showSpinner({ message: "Vinculando requisición…" });
+      try {
+        const put = pPut(requireGateway("put"), [200, 204]);
+        await put(BillingRequisitionUrl, {
+          billingdocument_id: invoiceId,
+          billingrequisition_id,
+        });
+
+        showAlert({
+          type: "success",
+          variant: "filled",
+          title: "Requisición vinculada",
+          description: "La factura se vinculó correctamente.",
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 2000,
+          onClose: hideAlert,
+        });
+      } catch (error) {
+        const normalized = normalizeApiError(error);
+        showAlert({
+          type: "error",
+          variant: "filled",
+          title: "No se pudo vincular",
+          description: normalized.message,
+          showPrimaryButton: true,
+          primaryLabel: "Entendido",
+          onPrimaryClick: hideAlert,
+        });
+      } finally {
+        hideSpinner();
+        setLinkingId(null);
+      }
+    },
+    [hideAlert, hideSpinner, showAlert, showSpinner],
+  );
+
+  const rows = useMemo(
+    () => mapInvoices(documents, requisitionId),
+    [documents, requisitionId],
+  );
 
   const columns: ColumnDefinition<InvoiceRow>[] = useMemo(
     () => [
@@ -116,9 +202,7 @@ const useInvoicesFiles = () => {
         key: "status",
         label: "Estatus",
         render: (row) => (
-          // <Label type={statusToType(row.status)} text={row.status || ""} />
-          console.log(row)
-          
+          <Label type={statusToType(row.status)} text={row.status || ""} />
         ),
         cellClass: "w-40",
         headerClass: "w-40",
@@ -159,13 +243,29 @@ const useInvoicesFiles = () => {
         key: "acciones" as unknown as keyof InvoiceRow,
         label: "VINCULAR",
         render: (row) => (
-          <Input></Input>
+          <Select
+            options={requisitionOptions}
+            selected={
+              selectedRequisitions[row.id]
+                ? [selectedRequisitions[row.id]]
+                : []
+            }
+            placeholder="Selecciona una requisición"
+            onChange={(values) => {
+              const selectedValue = values[0];
+              if (selectedValue) {
+                handleLinkRequisition(row.id, selectedValue);
+              }
+            }}
+            size="md"
+            disabled={linkingId === row.id || requisitionOptions.length === 0}
+          />
         ),
         cellClass: "w-40",
         headerClass: "w-40",
       },
     ],
-    [],
+    [handleLinkRequisition, linkingId, requisitionOptions, selectedRequisitions],
   );
 
   return {

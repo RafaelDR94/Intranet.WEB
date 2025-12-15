@@ -1,3 +1,9 @@
+### 1.47.85 Vincular facturas con requisiciones 12-28-2025
+
+Fix:
+
+- Agrega un selector de códigos de requisición en la tabla de facturas para vincular facturas existentes mediante un `PUT` a `Billings/BillingRequisition`, mostrando confirmaciones y errores al usuario. (Agente IA) [#]()
+
 ### 1.47.84 Nombres visibles en requisiciones 12-27-2025
 
 Fix:
