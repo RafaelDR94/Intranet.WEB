@@ -17,8 +17,8 @@ vi.mock('@/app/stores/system/useIntranetGatewayStore', () => ({
   useIntranetGatewayStore: () => true,
 }))
 
-vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
-  useRequisitionsStore: (sel: any) => sel({
+vi.mock('@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore', () => ({
+  useBillingRequisitionWithEmployeesStore: (sel: any) => sel({
     requisitions: [{
       billingrequisition_id: '1',
       requisitionkey: 'REQ-1',
@@ -27,12 +27,18 @@ vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
       date_created: '2025-01-01',
       id_Employee: 'emp1',
       idProject: 'pr1',
+      amountdeposited: 1200,
+      assignmentdate: '2025-01-01',
+      endDate: '2025-01-05',
+      phone_number: '555-1234',
+      email: 'john@example.com',
     }],
     loading: false,
     error: undefined,
     removing: false,
-    successPut: false,
-    fetchRequisitionsByDate: vi.fn(),
+    successGet: false,
+    successDelete: false,
+    fetchRequisitionsWithEmployees: vi.fn(),
     deleteRequisition: vi.fn().mockResolvedValue(true),
     resetFlags: vi.fn(),
   }),
@@ -49,6 +55,7 @@ describe('useRequisitionTable', () => {
   it('filters rows based on query', () => {
     const { result } = renderHook(() => useRequisitionTable())
     expect(result.current.rows).toHaveLength(1)
+    expect(result.current.rows[0].employeename).toBe('John Doe')
     act(() => result.current.setQuery('no match'))
     expect(result.current.rows).toHaveLength(0)
   })

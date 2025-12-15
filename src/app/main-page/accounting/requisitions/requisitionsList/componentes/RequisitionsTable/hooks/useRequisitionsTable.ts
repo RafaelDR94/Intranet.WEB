@@ -95,26 +95,32 @@ export const useRequisitionTable = () => {
 
 
   const rows: RequisitionRow[] = useMemo(() => {
-    const base = requisitions.map(r => ({
-      id: r?.billingrequisition_id ?? '',
-      employeeId: r?.id_Employee ?? '',
-      snCode: r?.requisitionkey ?? '',
-      debtorName: r?.employeename ?? '',
-      // Prefer project ID/code to match visual sample
-      projectCode: r?.projectname ?? '',
-      assignmentDate: r?.assignmentdate,
-      dueDate: r.endDate,
-      amount: Number(r?.amountdeposited),
-      status: r?.status,
-      state: r?.state,
-      phone_number: r?.phone_number ?? '',
-      email: r?.email ?? '',
-      date_created: r?.date_created,
-    }))
+    const base = requisitions.map(r => {
+      const employeename = r?.employeename ?? ''
+
+      return {
+        id: r?.billingrequisition_id ?? '',
+        employeeId: r?.id_Employee ?? '',
+        snCode: r?.requisitionkey ?? '',
+        employeename,
+        debtorName: employeename,
+        // Prefer project ID/code to match visual sample
+        projectCode: r?.projectname ?? '',
+        assignmentDate: r?.assignmentdate,
+        dueDate: r?.endDate,
+        amount: Number(r?.amountdeposited),
+        status: r?.status,
+        state: r?.state,
+        phone_number: r?.phone_number ?? '',
+        email: r?.email ?? '',
+        date_created: r?.date_created,
+      }
+    })
     if (!query) return base
     const q = query.toLowerCase()
     return base.filter(r =>
       r.snCode.toLowerCase().includes(q) ||
+      r.employeename?.toLowerCase().includes(q) ||
       r.debtorName.toLowerCase().includes(q) ||
       r.projectCode.toLowerCase().includes(q)
     )

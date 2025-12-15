@@ -1,3 +1,9 @@
+### 1.47.84 Nombres visibles en requisiciones 12-27-2025
+
+Fix:
+
+- Propaga el campo `employeename` al listado de requisiciones generales para mostrar el nombre del empleado en la columna "Nombre". (Agente IA) [#]()
+
 ### 1.47.83 Requisiciones con campos snake_case 12-24-2025
 
 Fix:
