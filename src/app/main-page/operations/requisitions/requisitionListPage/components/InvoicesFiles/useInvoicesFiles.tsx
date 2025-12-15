@@ -109,17 +109,19 @@ const useInvoicesFiles = () => {
       {
         key: "category",
         label: "Categoría",
-        cellClass: "w-30",
-        headerClass: "w-30",
+        cellClass: "w-45",
+        headerClass: "w-45",
       },
       {
         key: "status",
         label: "Estatus",
         render: (row) => (
-          <Label type={statusToType(row.status)} text={row.status || ""} />
+          // <Label type={statusToType(row.status)} text={row.status || ""} />
+          console.log(row)
+          
         ),
-        cellClass: "w-30",
-        headerClass: "w-30",
+        cellClass: "w-40",
+        headerClass: "w-40",
       },
       {
         key: "comments",
@@ -150,8 +152,8 @@ const useInvoicesFiles = () => {
             Ver Detalles
           </Button>
         ),
-        cellClass: "w-30",
-        headerClass: "w-30",
+        cellClass: "w-50",
+        headerClass: "w-50",
       },
       {
         key: "acciones" as unknown as keyof InvoiceRow,
@@ -159,8 +161,8 @@ const useInvoicesFiles = () => {
         render: (row) => (
           <Input></Input>
         ),
-        cellClass: "w-30",
-        headerClass: "w-30",
+        cellClass: "w-40",
+        headerClass: "w-40",
       },
     ],
     [],

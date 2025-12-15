@@ -8,6 +8,7 @@ const TicketsFiles = () => {
       <DataTable
         showCalendar={true}
         showDownloadTable={true}
+        textSize= {{ mobile: "text-c3", desktop: "text-c2" }}
         tables={[
           {
             data: rows,

@@ -9,6 +9,7 @@ const InvoicesFiles = ({ forceVisible = false }) => {
       <DataTable
         showCalendar={true}
         showDownloadTable={false}
+        textSize= {{ mobile: "text-c3", desktop: "text-c2" }}
         tables={[
           {
             data: rows,
