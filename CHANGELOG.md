@@ -1,3 +1,9 @@
+### 1.47.83 Requisiciones con campos snake_case 12-24-2025
+
+Fix:
+
+- Normaliza respuestas `BillingRequisitionWithEmployees` y `BillingRequisitionByIdEmployee` en snake_case para que las tablas de requisiciones generales y personales muestren proyectos, periodos, días corrientes y documentos adjuntos. (Agente IA) [#]()
+
 ### 1.47.82 Historial de requisiciones personales visible 12-24-2025
 
 Fix:

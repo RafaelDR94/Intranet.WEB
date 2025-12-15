@@ -11,6 +11,26 @@ import { toInputDateString } from '@/app/utilities/FormatHelpers/FormatHelpets'
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
 
+const extractName = (value: unknown): string => {
+  if (typeof value === 'string') return value
+  if (isRecord(value) && typeof value.name === 'string') return value.name
+  return ''
+}
+
+const getBillingData = (raw: unknown): Record<string, unknown> => {
+  if (!isRecord(raw)) return {}
+  if (isRecord(raw.billingRequisition)) return raw.billingRequisition
+  if (isRecord(raw.billing_requisition)) return raw.billing_requisition
+  return raw
+}
+
+const getBillingDocuments = (raw: unknown): unknown[] => {
+  if (!isRecord(raw)) return []
+  if (Array.isArray(raw.billingDocumentRquisition)) return raw.billingDocumentRquisition
+  if (Array.isArray(raw.billing_document_requisition)) return raw.billing_document_requisition
+  return []
+}
+
 const mapBillingDocumentRequisition = (
   raw: unknown,
 ): BillingDocumentRequisition => {
@@ -19,8 +39,8 @@ const mapBillingDocumentRequisition = (
   return {
     billingdocument_id: String(document.billingdocument_id ?? ''),
     billingimages_id: (document.billingimages_id as string | null | undefined) ?? null,
-    category: (document.category as string | null | undefined) ?? null,
-    description: (document.description as string | null | undefined) ?? null,
+    category: extractName(document.category) || null,
+    description: extractName(document.description) || null,
     numpersons: Number(document.numpersons ?? 0),
     numnights: Number(document.numnights ?? 0),
     iva: Number(document.iva ?? 0),
@@ -47,6 +67,7 @@ const mapBillingDocumentRequisition = (
     forbidden_code: Boolean(document.forbidden_code),
     user_comments: String(document.user_comments ?? ''),
     validatedbyoperations: Boolean(document.validatedbyoperations),
+    employeename: extractName(document.employeename) || '',
   }
 }
 
@@ -59,37 +80,34 @@ const mapBillingDocuments = (
  * Mapea un registro crudo de la API a un objeto tipado Requisition.
  */
 export const RequisitionMap = (raw: unknown): Requisition => {
-  const billingData = isRecord(raw) && isRecord(raw.billingRequisition)
-    ? raw.billingRequisition
-    : isRecord(raw)
-      ? raw
-      : {}
-
-  const documents = isRecord(raw) && Array.isArray(raw.billingDocumentRquisition)
-    ? raw.billingDocumentRquisition
-    : []
+  const billingData = getBillingData(raw)
+  const documents = getBillingDocuments(raw)
+  const assignmentDate = (billingData as any)?.assignmentdate ?? (billingData as any)?.assignmentDate
+  const endDate = (billingData as any)?.enddate ?? (billingData as any)?.endDate
+  const projectId = (billingData as any)?.idproject ?? (billingData as any)?.idProject
+  const currentDays = (billingData as any)?.current_days ?? (billingData as any)?.currentDays
 
   return {
-    billingrequisition_id: String(billingData.billingrequisition_id ?? ''),
-    requisitionkey: String(billingData.requisitionkey ?? ''),
-    id_Employee: String(billingData.employee_id ?? ''),
-    employeename: String(billingData.employeename ?? ''),
-    idProject: String(billingData.idproject ?? ''),
-    projectname: String(billingData.projectname ?? ''),
-    assignmentdate: toInputDateString(billingData.assignmentdate) ?? '',
-    endDate: toInputDateString(billingData.enddate) ?? '',
-    motive: String(billingData.motive ?? ''),
-    state: String(billingData.state ?? ''),
-    amountdeposited: String(billingData.amountdeposited ?? ''),
-    provenamount: String(billingData.provenamount ?? ''),
-    amountdifference: String(billingData.amountdifference ?? ''),
-    date_created: String(billingData.date_created ?? ''),
-    status: String(billingData.status ?? ''),
-    gts_type: String(billingData.gts_type ?? ''),
-    email: String(billingData.email ?? ''),
-    phone_number: String(billingData.phone_number ?? ''),
-    period: String(billingData.period ?? ''),
-    current_days: Number(billingData.current_days ?? 0),
+    billingrequisition_id: String((billingData as any)?.billingrequisition_id ?? ''),
+    requisitionkey: String((billingData as any)?.requisitionkey ?? ''),
+    id_Employee: String((billingData as any)?.employee_id ?? ''),
+    employeename: String((billingData as any)?.employeename ?? ''),
+    idProject: String(projectId ?? ''),
+    projectname: String((billingData as any)?.projectname ?? ''),
+    assignmentdate: toInputDateString(assignmentDate) ?? '',
+    endDate: toInputDateString(endDate) ?? '',
+    motive: String((billingData as any)?.motive ?? ''),
+    state: String((billingData as any)?.state ?? ''),
+    amountdeposited: String((billingData as any)?.amountdeposited ?? ''),
+    provenamount: String((billingData as any)?.provenamount ?? ''),
+    amountdifference: String((billingData as any)?.amountdifference ?? ''),
+    date_created: String((billingData as any)?.date_created ?? ''),
+    status: String((billingData as any)?.status ?? ''),
+    gts_type: String((billingData as any)?.gts_type ?? ''),
+    email: String((billingData as any)?.email ?? ''),
+    phone_number: String((billingData as any)?.phone_number ?? ''),
+    period: String((billingData as any)?.period ?? ''),
+    current_days: Number(currentDays ?? 0),
     billingDocumentRquisition: mapBillingDocuments(documents),
   }
 }
