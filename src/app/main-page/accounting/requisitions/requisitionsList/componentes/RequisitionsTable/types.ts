@@ -11,6 +11,7 @@ export type RequisitionRow = {
   snCode: string
   /** Name of the debtor associated with the requisition. */
   debtorName: string
+  employeename?:string,
   /** Project code for the requisition. */
   projectCode: string
   /** Assignment date (raw ISO or yyyy-mm-dd). */

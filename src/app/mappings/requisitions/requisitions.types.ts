@@ -29,6 +29,7 @@ export type BillingDocumentRequisition = {
   forbidden_code: boolean
   user_comments: string
   validatedbyoperations: boolean
+  employeename: string
 }
 
 export type Requisition = {

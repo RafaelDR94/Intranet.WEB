@@ -63,10 +63,10 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
   const computedColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
       {
-        key: "debtorName",
+        key: "employeename",
         label: "Nombre",
         render: (row) => {
-          const initials = row.debtorName
+          const initials = row.employeename
             ?.split(" ")
             .filter(Boolean)
             .map((n) => n[0].toUpperCase())
@@ -76,7 +76,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
           return (
             <div className="flex items-center gap-2">
               <Avatar size="xxs" initials={initials} className="mr-1" />
-              <span>{row.debtorName}</span>
+              <span>{row.employeename}</span>
             </div>
           );
         },
