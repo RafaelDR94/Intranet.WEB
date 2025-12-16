@@ -18,4 +18,5 @@ export type PerDiemBalanceCardProps = {
   verifiedAmount: number;
   bodyClassName?: string;
   donutSize?: number;
+  cardClassName?: string;
 };

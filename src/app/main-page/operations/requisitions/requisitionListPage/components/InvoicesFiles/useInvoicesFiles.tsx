@@ -261,8 +261,8 @@ const useInvoicesFiles = () => {
             disabled={linkingId === row.id || requisitionOptions.length === 0}
           />
         ),
-        cellClass: "w-40",
-        headerClass: "w-40",
+        cellClass: "w-60",
+        headerClass: "w-60",
       },
     ],
     [handleLinkRequisition, linkingId, requisitionOptions, selectedRequisitions],

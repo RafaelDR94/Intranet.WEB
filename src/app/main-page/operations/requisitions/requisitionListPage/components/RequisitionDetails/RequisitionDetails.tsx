@@ -4,8 +4,8 @@ import React from "react";
 import RequisitionsForm from "@/app/main-page/accounting/requisitions/components/RequisitionsForm/RequisitionsForm";
 
 import PerDiemBalanceCard from "@/app/main-page/accounting/personalInvoices/requisitions/componentes/RequisitionsDetails/components/DemoPerDiemBalanceCard/PerDiemBalanceCard";
-import RequisitionDetailsDocument from "@/app/main-page/accounting/personalInvoices/requisitions/componentes/RequisitionsDetails/components/RequisitionDetailsDocuments/RequisitionDetailsDocument";
 import useRequisitionsDetails from "@/app/main-page/accounting/personalInvoices/requisitions/componentes/RequisitionsDetails/hooks/useRequisitionsDetails";
+import RequisitionDetailsTable from "./components/RequisitionsDetailsTable";
 
 import CollapsibleSection from "@/app/components/CollapsibleSection/CollapsibleSection";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
@@ -60,7 +60,8 @@ const RequisitionDetails: React.FC = () => {
                   requestedAmount={Number(currentRequisition.amountdeposited)}
                   verifiedAmount={Number(currentRequisition.provenamount)}
                   bodyClassName="flex justify-between"
-                  donutSize={150}
+                  donutSize={130}
+                  cardClassName="!py-[18px]"
                 />
               )}
               </div>
@@ -91,7 +92,7 @@ const RequisitionDetails: React.FC = () => {
           </CollapsibleSection>
         )}
         {currentPagePermissions?.showDocuments && (
-          <RequisitionDetailsDocument />
+          <RequisitionDetailsTable />
         )}
       </>
     );

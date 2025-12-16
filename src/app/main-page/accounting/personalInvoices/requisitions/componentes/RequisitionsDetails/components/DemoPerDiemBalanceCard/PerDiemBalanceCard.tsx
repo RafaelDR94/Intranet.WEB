@@ -33,6 +33,7 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
   verifiedAmount,
   bodyClassName,
   donutSize,
+  cardClassName,
 }) => {
   // 🔹 calcular días
   const totalDays = diffInDays(startDate, endDate) || 1;
@@ -55,12 +56,13 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
 
-  const isSapProfile = currentPagePermissions?.sapprofile;
   const defaultSize = isMobile ? 150 : 200;
+  const isSapProfile = currentPagePermissions?.sapprofile;
+  const baseCardClass = isSapProfile ? s.cardSap : s.card;
 
   return (
     <div className={s.root}>
-      <div className={isSapProfile ? s.cardSap : s.card}>
+      <div className={[baseCardClass, cardClassName].filter(Boolean).join(" ")}>
         <div className="col-span-2">
           <h3 className={s.title}>Balance de viáticos</h3>
           <p className={s.period}>
