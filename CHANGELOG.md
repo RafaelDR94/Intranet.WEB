@@ -1,3 +1,9 @@
+### 1.47.86 Payload completo de vinculación 12-29-2025
+
+Fix:
+
+- Ajusta el PUT de vinculación de facturas para enviar todos los campos requeridos de la requisición junto con el identificador del documento. (Agente IA) [#]()
+
 ### 1.47.85 Vincular facturas con requisiciones 12-28-2025
 
 Fix:

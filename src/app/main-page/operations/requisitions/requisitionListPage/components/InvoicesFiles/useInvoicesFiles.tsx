@@ -113,13 +113,47 @@ const useInvoicesFiles = () => {
         [invoiceId]: billingrequisition_id,
       }));
 
+      const requisition = requisitions.find(
+        (item) => item.billingrequisition_id === billingrequisition_id,
+      );
+
+      if (!requisition) {
+        showAlert({
+          type: "error",
+          variant: "filled",
+          title: "No se encontró la requisición",
+          description: "Selecciona una opción válida para continuar.",
+          showPrimaryButton: true,
+          primaryLabel: "Entendido",
+          onPrimaryClick: hideAlert,
+        });
+        setLinkingId(null);
+        return;
+      }
+
+      const toNumber = (value: string | number | undefined): number => {
+        const parsed = Number(value ?? 0);
+        return Number.isFinite(parsed) ? parsed : 0;
+      };
+
+      const payload = {
+        billingdocument_id: invoiceId,
+        billingrequisition_id,
+        requisitionkey: requisition.requisitionkey ?? "",
+        employeename: requisition.employeename ?? "",
+        projectname: requisition.projectname ?? "",
+        motive: requisition.motive ?? "",
+        state: requisition.state ?? "",
+        amountdeposited: toNumber(requisition.amountdeposited),
+        provenamount: toNumber(requisition.provenamount),
+        amountdifference: toNumber(requisition.amountdifference),
+        gts_type: requisition.gts_type ?? "",
+      };
+
       showSpinner({ message: "Vinculando requisición…" });
       try {
         const put = pPut(requireGateway("put"), [200, 204]);
-        await put(BillingRequisitionUrl, {
-          billingdocument_id: invoiceId,
-          billingrequisition_id,
-        });
+        await put(BillingRequisitionUrl, payload);
 
         showAlert({
           type: "success",
@@ -147,7 +181,7 @@ const useInvoicesFiles = () => {
         setLinkingId(null);
       }
     },
-    [hideAlert, hideSpinner, showAlert, showSpinner],
+    [hideAlert, hideSpinner, requisitions, showAlert, showSpinner],
   );
 
   const rows = useMemo(
