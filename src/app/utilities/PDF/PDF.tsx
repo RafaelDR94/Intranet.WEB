@@ -5,7 +5,7 @@ import React from 'react';
 import { styles } from './styles';
 import type { Table, FullDocument } from './types';
 
-import HojaMembretada from '@/assets/images/Walpapers/HojaMembretada.png';
+import HojaMembretada from '@/assets/images/Walpapers/HojaMembretada.jpg';
 import HojaMembretadaDistrik from '@/assets/images/Walpapers/HOJA MEMBRETADA DISITREK.jpg'
 Font.register({ family: 'Izayoi', src: '/fonts/IzayoiMonospaced-nwoY.ttf' });
 Font.register({ family: 'Mechanical', src: '/fonts/Mechanical-g5Y5.otf' });
@@ -128,12 +128,13 @@ const MyDocument: React.FC<{ data: FullDocument | null, membret?: 'DR' | 'DISITR
           ) : (
             <Text style={styles.folioText}>{pageData.folio ? pageData.folio : ""}</Text>
           )}
-          {membret != "DISITREK" && <Text style={styles.footer}>
+          
+          {/* {membret != "DISITREK" && <Text style={styles.footer}>
             Calle Becerra 70-B Col. Tacubaya{'\n'}
             Alcaldía Miguel Hidalgo C.P. 11870{'\n'}
             Tel. (55) 5511 6508 • contacto@drsecurity.net{'\n'}
             www.drsecurity.net
-          </Text>}
+          </Text>} */}
 
           <Text style={styles.titleText}>{pageData.title}</Text>
           {pageData.progress && (

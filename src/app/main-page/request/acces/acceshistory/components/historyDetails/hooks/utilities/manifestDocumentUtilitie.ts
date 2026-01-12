@@ -36,26 +36,59 @@ export interface ManifestConfig {
     closingText?: string;
 }
 
-const formatDate = (raw: string | undefined | null): string => {
+const MONTHS_ES = [
+    'enero',
+    'febrero',
+    'marzo',
+    'abril',
+    'mayo',
+    'junio',
+    'julio',
+    'agosto',
+    'septiembre',
+    'octubre',
+    'noviembre',
+    'diciembre',
+];
+
+const formatDateLong = (raw: string | undefined | null): string => {
     if (!raw) return '';
     const d = new Date(raw);
     if (Number.isNaN(d.getTime())) return raw;
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = d.getDate();
+    const month = MONTHS_ES[d.getMonth()];
     const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
+    return `${day} de ${month} del ${year}`;
+};
+
+const isSameDay = (
+    start: string | undefined | null,
+    end: string | undefined | null,
+): boolean => {
+    if (!start || !end) return false;
+    const a = new Date(start);
+    const b = new Date(end);
+    if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return false;
+    return (
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate()
+    );
 };
 
 const buildIntroParagraph = (
     access: AccesRequirmentGet,
     cfg: ManifestConfig,
 ): string => {
-    const inicio = formatDate(access.start_date);
-    const fin = formatDate(access.end_date);
+    const inicio = formatDateLong(access.start_date);
+    const fin = formatDateLong(access.end_date);
+    const periodoTexto = isSameDay(access.start_date, access.end_date)
+        ? `para el día ${inicio}`
+        : `para el período del ${inicio} al ${fin}`;
 
     return (
         `A través de este medio solicitamos su autorización y apoyo para el acceso y retiro ` +
-        `del siguiente personal, vehículos y herramientas, para el período del ${inicio} al ${fin}, ` +
+        `del siguiente personal, vehículos y herramientas, ${periodoTexto}, ` +
         `para la realización de ${cfg.workDescription} en ${cfg.locationName}.`
     );
 };
@@ -75,18 +108,17 @@ const buildPeopleVehiclesItems = (access: AccesRequirmentGet): string[] => {
   // Personas externas
   access.externalpersons.forEach((p: ExternalPersonModel) => {
     const fullName = `${p.name} ${p.lastname} ${p.motherslastname}`;
-    const enterprise = p.enterprise?.name ? ` (${p.enterprise.name})` : "";
-    personItems.push(`• ${fullName}${enterprise}`);
+    personItems.push(`${fullName}`);
   });
 
   // Personas internas
   access.internalpersons.forEach((e: EmployeeType) => {
-    personItems.push(`• ${e.fullname} (${e.department?.name ?? "Sin depto."})`);
+    personItems.push(`${e.fullname}`);
   });
 
   // Vehículos
   access.vehicles.forEach((v: CompleteTransport) => {
-    const desc = `• Vehículo ${v.Unit_type} marca ${v.brand} modelo ${v.model} con placas ${v.plates}`;
+    const desc = `Vehículo ${v.Unit_type} marca ${v.brand} modelo ${v.model} con placas ${v.plates}`;
     personItems.push(desc);
   });
 
@@ -139,7 +171,7 @@ const splitToolsForManifest = (tools: Tools[]): ManifestToolsSplit => {
   while (rows.length > TOOLS_ROWS_LAST_PAGE) {
     const chunk = rows.splice(0, TOOLS_ROWS_PER_FULL_PAGE);
     fullTables.push({
-      title: "Quienes ingresarán con los siguientes materiales y herramientas:",
+      title: "Quienes ingresarán y se retirarán con los siguientes materiales y herramientas:",
       headers,
       datatable: chunk,
     });
@@ -148,7 +180,7 @@ const splitToolsForManifest = (tools: Tools[]): ManifestToolsSplit => {
   const lastTable: Table | undefined =
     rows.length > 0
       ? {
-          title: "Quienes ingresarán con los siguientes materiales y herramientas:",
+          title: "Quienes ingresarán y se retirarán con los siguientes materiales y herramientas:",
           headers,
           datatable: rows,
         }

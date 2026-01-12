@@ -665,3 +665,9 @@ Fix:
 Fix:
 - Because activities had lost when changes tabs fastly.
   (Bruno Mendoza) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
+
+  ### 1.47.24 Report Activities 2026-12-01
+
+Fix:
+- Because in acces, it has some troubles.
+  (Bruno Mendoza) [327#](https://github.com/DR-Mexico/dr.intranet.web/pull/327)
