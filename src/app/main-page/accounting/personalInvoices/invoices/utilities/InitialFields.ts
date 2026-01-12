@@ -188,7 +188,7 @@ export const createTicketFields = (): FieldModel[] => [
     type: "imageUploaderExpanded",
     name: "ticket",
     label: "Imagen del ticket (JPG o PNG)",
-    placeholder: "Arrastra o selecciona la foto del ticket",
+    placeholder: "o arrastra/selecciona las imágenes que deseas subir",
     value: [],
     accept: ".jpg,.png",
     className: ticketFormDropzoneClasses,

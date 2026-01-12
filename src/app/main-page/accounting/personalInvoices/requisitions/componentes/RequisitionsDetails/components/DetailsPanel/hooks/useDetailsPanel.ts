@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
 
 import { UseDetailsPanelArgs } from "./types";
@@ -17,6 +17,8 @@ export const useDetailsPanel = ({
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
+  const submitRef = useRef<(() => void | Promise<void>) | null>(null);
+
   const {
     sending,
   } = useBillingCompleteProcessToSAPStore(
@@ -119,6 +121,7 @@ export const useDetailsPanel = ({
   };
 
   const handleSubmitValid = () => {
+    submitRef.current?.();
     setOpenValidInvoice(false);
     if (operations)
       validateBillingDocumentOperations(
@@ -215,6 +218,7 @@ export const useDetailsPanel = ({
   ]);
 
   return {
+    submitRef,
     labels,
     openRejectInvoice,
     openValidInvoice,

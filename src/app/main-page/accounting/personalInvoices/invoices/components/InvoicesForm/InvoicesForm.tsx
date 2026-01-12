@@ -90,11 +90,11 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
               <button
                 type="button"
                 aria-label="Ver comprobante en grande"
-                onClick={() => handleImageClick(billingImages.Image)}
+                onClick={() => handleImageClick(billingImages?.Image)}
                 className="block h-full w-full focus:outline-none"
               >
                 <img
-                  src={billingImages.Image}
+                  src={billingImages?.Image}
                   alt="Comprobante de pago"
                   className="max-h-full max-w-full object-contain cursor-zoom-in"
                 />

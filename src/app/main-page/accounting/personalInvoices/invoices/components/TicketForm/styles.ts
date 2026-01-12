@@ -6,5 +6,5 @@ export const ticketFormContainer = 'flex w-full flex-col gap-6'
 
 export const ticketFormDropzoneClasses = clsx(
   dropzoneBaseClasses,
-  'w-full min-h-[260px] bg-white'
+  'w-full min-h-[160px] bg-white'
 )

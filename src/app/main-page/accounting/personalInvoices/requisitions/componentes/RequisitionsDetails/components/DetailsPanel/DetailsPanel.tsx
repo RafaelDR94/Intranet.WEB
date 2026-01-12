@@ -25,14 +25,10 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
   setPanelOpen,
   selected,
-  onlyText = false,
   validInvoice = true,
-  rejectInvoice = true,
-  sendInvoiceToSap = false,
   operations = false,
   rejectType = true,
   reqisition,
-  onSendToSap,
 }) => {
   const {
     labels,
@@ -40,9 +36,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     openRejectInvoice,
     setOpenValidInvoice,
     setOpenRejectInvoice,
-    handleSubmitComment,
     handleSubmitReject,
     handleSubmitValid,
+    submitRef
   } = useDetailsPanel({
     selected,
     rejectType,
@@ -94,7 +90,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       withinContainer
       onClose={() => setPanelOpen(false)}
       leftLabel={isMobile ? "" : labels?.left}
-      rightLabel={isMobile ? "" : labels?.right}
+      rightLabel={isMobile ? "" : labels?.right} 
       actionButton={
         <div
           className={clsx(
@@ -102,7 +98,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             isMobile ? "w-full flex-col gap-2" : "flex-row items-center gap-3",
           )}
         >
-          {currentPagePermissions?.canValidInvoice && validInvoice && (
+          {!currentPagePermissions?.canValidInvoice && validInvoice && (
             <Button
               size="medium"
               variant="solid"
@@ -271,6 +267,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               {hasInvoiceFiles ? (
                 <InvoicesForm
                   dataEdit={dataEdit}
+                  externalSubmitRef={submitRef}
                   responsiveLayoutMatrix={{
                     sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
                     md: [
@@ -284,6 +281,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               ) : (
                 <TicketForm
                   dataEdit={dataEdit}
+                  externalSubmitRef={submitRef}
                   responsiveLayoutMatrix={{
                     sm: [[10], [10]],
                     md: [[10], [10]],

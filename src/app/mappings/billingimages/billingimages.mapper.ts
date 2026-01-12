@@ -16,9 +16,9 @@ export const BillingImageMap = (raw: any): BillingImages => ({
   billing_image_id: String(raw?.billing_image_id ?? ''),
   requisition: RequisitionMap(raw?.requisition),
   status: String(raw?.status ?? ''),
-  Image: Array.isArray(raw?.Image)
-    ? raw.Image.map((img: any) => String(img ?? ''))
-    : String(raw?.Image ?? ''),
+  images: Array.isArray(raw?.images)
+    ? raw.images.map((img: any) => String(img ?? ''))
+    : String(raw?.images ?? ''),
   comments: String(raw?.comments ?? ''),
   dateCreate: String(raw?.date_created ?? ''),
   category: BillingDocumentCategoryMap(raw?.Category),
@@ -40,7 +40,7 @@ export const BillingImagesMap = (list: any[]): BillingImages[] =>
  */
 export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => ({
   requisition_id: src?.requisition_id ?? '',
-  Image: Array.isArray(src?.Image) ? src.Image : src?.Image ? [src.Image] : [],
+  images: Array.isArray(src?.images) ? src.images : src?.images ? [src.images] : [],
   description: String(src?.description ?? ''),
   numpersons: String(src?.numpersons ?? 0),
   numnights: String(src?.numnights ?? 0),
@@ -54,7 +54,7 @@ export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => 
 export const BillingPutMap = (src: Partial<BillingPut> | any): BillingPut => ({
   billing_image_id: src?.billing_image_id ?? '',
   requisition_id: String(src?.requisition_id ?? ''),
-  Image: Array.isArray(src?.Image) ? src.Image : src?.Image ? [src.Image] : [],
+  images: Array.isArray(src?.images) ? src.images : src?.images ? [src.images] : [],
   comments: String(src?.comments ?? ''),
   user_comments: String(src?.user_comments ?? ''),
   description: String(src?.description ?? ''),
@@ -69,7 +69,7 @@ export const BillingImagesTableMap = (src: BillingImages[]): BillingImagesTable[
     billing_image_id: item.billing_image_id,
     deudor: item?.requisition?.employeename,
     proyect: item?.requisition?.projectname,
-    Image: item?.Image,
+    images: item?.images,
     comments: item?.comments,
     dateCreate: item?.dateCreate,
     requisition_id: item?.requisition?.billingrequisition_id || '',
