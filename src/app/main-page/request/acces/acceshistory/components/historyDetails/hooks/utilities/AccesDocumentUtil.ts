@@ -63,7 +63,6 @@ const buildCoverPage = (access: AccesRequirmentGet): newDocument => {
 
   return {
     title: 'Solicitud de Acceso',
-    folio: access.id,
     orientation: 'vertical',
     elements: [motivoChart, periodoChart],
   };
@@ -74,7 +73,6 @@ const buildCoverPage = (access: AccesRequirmentGet): newDocument => {
  */
 const buildExternalPersonPage = (person: ExternalPersonModel): newDocument => {
   const fullName = `${person.name} ${person.lastname} ${person.motherslastname}`;
-
   const data: DataChart = {
     title: 'DATOS DEL COLABORADOR EXTERNO',
     data: [
@@ -365,6 +363,8 @@ const buildToolsPages = (access: AccesRequirmentGet): newDocument[] => {
 export const buildAccessRequirementDocument = (
   access: AccesRequirmentGet,
 ): FullDocument => {
+
+
   const pages: newDocument[] = [];
 
   // 1) Portada
