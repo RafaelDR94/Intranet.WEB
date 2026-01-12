@@ -12,7 +12,7 @@ import JSZip from "jszip";
 import { ExternalPersonModel } from "@/app/mappings/externalperson/externalperson.types";
 import { CompleteTransport } from "@/app/mappings/transport/transport.types";
 import { currentDateEs } from "@/app/utilities/DatesHelper/Dateshelper";
-import { AccesRequirmentGet } from "@/app/mappings/accesrequest/accesrequest.types";
+
 const useHistoryDetails = () => {
     const router = useRouter();
     const { generateAccessPdf, generateManifestPdf, generateDetentarLetterPdf, generateToolsExcel } = useAccessPdf();
@@ -43,93 +43,30 @@ const useHistoryDetails = () => {
             }),
             shallow,
         );
-    const repeatArray = <T,>(
-        arr: T[],
-        times: number,
-        mutate?: (item: T, index: number, copyIndex: number) => T
-    ): T[] => {
-        const result: T[] = [];
-        for (let copy = 0; copy < times; copy++) {
-            arr.forEach((item, idx) => {
-                // Por si quieres modificar algo (ej: agregar sufijo al nombre)
-                const newItem = mutate ? mutate(item, idx, copy) : item;
-                result.push(newItem);
-            });
-        }
-        return result;
-    };
 
-    const buildStressAccess = (
-        acces: AccesRequirmentGet,
-        personsFactor = 1,
-        toolsFactor = 1,
-        vehiclesFactor = 1
-    ): AccesRequirmentGet => {
-        const externalpersons = repeatArray(
-            acces.externalpersons,
-            personsFactor,
-            (p, _idx, copy) => ({
-                ...p,
-                // opcional: cambiar el id/nombre para que no choquen
-                id: `${p.id}_copy_${copy}`,
-                name: `${p.name} (${copy + 1})`,
-            })
-        );
-
-        const tools = repeatArray(
-            acces.tools,
-            toolsFactor,
-            (t, _idx, copy) => ({
-                ...t,
-                description: `${t.description} (copy ${copy + 1})`,
-            })
-        );
-
-        // Vehículos si quieres también inflarlos
-        const vehicles = repeatArray(
-            acces.vehicles,
-            vehiclesFactor, // o el factor que quieras
-            (v, _idx, copy) => ({
-                ...v,
-                transport_id: `${v.transport_id}_copy_${copy}`,
-                plates: `${v.plates}-C${copy + 1}`, // para distinguir
-            })
-        );
-
-        return {
-            ...acces,
-            externalpersons,
-            tools,
-            vehicles,
-        };
-    };
     const handleDownloadZIP = async () => {
         if (!currentAcces) return;
         showSpinner({ message: "Descargando archivo" });
 
         try {
-            // 🔥 Versión inflada SOLO PARA PROBAR
-            const stressAcces = buildStressAccess(currentAcces, 1, 1, 1);
-            const accesForZip = stressAcces; // o currentAcces en producción
-
 
             const zip = new JSZip();
 
             // 1) PDFs
             const cfg1: DetentarLetterConfig = {
-                recipientName: accesForZip.location_responsible,
-                recipientTitle: accesForZip.location_workposition,
+                recipientName: currentAcces.location_responsible,
+                recipientTitle: currentAcces.location_workposition,
                 signerRole:"Responsable",
                 cityAndDate: currentDateEs(),
-                workDescription: accesForZip.motive,
+                workDescription: currentAcces.motive,
             };
 
             await new Promise<void>((resolve) => {
-                void generateDetentarLetterPdf(accesForZip, cfg1, async (url) => {
+                void generateDetentarLetterPdf(currentAcces, cfg1, async (url) => {
                     try {
                         const response = await fetch(url);
                         const blob = await response.blob();
-                        zip.file(`CARTA_DE_DETENTAR_${accesForZip.id}.pdf`, blob);
+                        zip.file(`CARTA_DE_DETENTAR_${currentAcces.id}.pdf`, blob);
                     } finally {
                         URL.revokeObjectURL(url);
                         resolve();
@@ -138,19 +75,19 @@ const useHistoryDetails = () => {
             });
 
             const cfg: ManifestConfig = {
-                recipientName: accesForZip.location_responsible,
-                recipientTitle: accesForZip.location_workposition,
-                locationName: accesForZip.location.name,
+                recipientName: currentAcces.location_responsible,
+                recipientTitle: currentAcces.location_workposition,
+                locationName: currentAcces.location.name,
                 cityAndDate: currentDateEs(),
-                workDescription: accesForZip.motive,
+                workDescription: currentAcces.motive,
             };
 
             await new Promise<void>((resolve) => {
-                void generateManifestPdf(accesForZip, cfg, async (url) => {
+                void generateManifestPdf(currentAcces, cfg, async (url) => {
                     try {
                         const response = await fetch(url);
                         const blob = await response.blob();
-                        zip.file(`MANIFIESTO_${accesForZip.id}.pdf`, blob);
+                        zip.file(`MANIFIESTO_${currentAcces.id}.pdf`, blob);
                     } finally {
                         URL.revokeObjectURL(url);
                         resolve();
@@ -159,11 +96,11 @@ const useHistoryDetails = () => {
             });
 
             await new Promise<void>((resolve) => {
-                void generateAccessPdf(accesForZip, async (url: string) => {
+                void generateAccessPdf(currentAcces, async (url: string) => {
                     try {
                         const response = await fetch(url);
                         const blob = await response.blob();
-                        zip.file(`SolicitudAcceso_${accesForZip.id}.pdf`, blob);
+                        zip.file(`SolicitudAcceso_${currentAcces.id}.pdf`, blob);
                     } finally {
                         URL.revokeObjectURL(url);
                         resolve();
@@ -172,10 +109,10 @@ const useHistoryDetails = () => {
             });
 
             // 2) Imágenes de personas en carpeta
-            if (accesForZip.externalpersons && accesForZip.externalpersons.length > 0) {
+            if (currentAcces.externalpersons && currentAcces.externalpersons.length > 0) {
                 const personsFolder = zip.folder("personas");
                 if (personsFolder) {
-                    for (const person of accesForZip.externalpersons as ExternalPersonModel[]) {
+                    for (const person of currentAcces.externalpersons as ExternalPersonModel[]) {
                         const personName = `${person.name || "sin_nombre"}_${person.lastname || ""}`.trim();
                         const personFolder = personsFolder.folder(personName || "persona");
                         if (!personFolder) continue;
@@ -198,11 +135,11 @@ const useHistoryDetails = () => {
             }
 
             // 3) Imágenes de vehículos en carpeta
-            if (accesForZip.vehicles && accesForZip.vehicles.length > 0) {
+            if (currentAcces.vehicles && currentAcces.vehicles.length > 0) {
                 const vehiclesFolder = zip.folder("vehiculos");
                 if (vehiclesFolder) {
                     let index = 1;
-                    for (const vehicle of accesForZip.vehicles as CompleteTransport[]) {
+                    for (const vehicle of currentAcces.vehicles as CompleteTransport[]) {
                         const vehicleName = vehicle.plates || `vehiculo_${index}`;
                         index += 1;
                         const vehicleFolder = vehiclesFolder.folder(vehicleName);
@@ -229,7 +166,7 @@ const useHistoryDetails = () => {
             }
 
             // 4) Archivo de template (Excel) desde backend
-            const responseTemplate: any = await generateTemplate(accesForZip.id);
+            const responseTemplate: any = await generateTemplate(currentAcces.id);
 
             let excelBlob: Blob | null = null;
 
@@ -273,7 +210,7 @@ const useHistoryDetails = () => {
             }
 
             if (excelBlob) {
-                zip.file(`acceso_${accesForZip.id}_finalizacion.xlsx`, excelBlob);
+                zip.file(`acceso_${currentAcces.id}_finalizacion.xlsx`, excelBlob);
             } else {
                 alert(
                     "No se pudo agregar el archivo de finalización al ZIP. Formato de respuesta no reconocido.",
@@ -281,9 +218,9 @@ const useHistoryDetails = () => {
             }
 
             // 4.b) Excel con listado de herramientas (tools) generado en cliente
-            const toolsExcelBlob = await generateToolsExcel(accesForZip);
+            const toolsExcelBlob = await generateToolsExcel(currentAcces);
             if (toolsExcelBlob) {
-                zip.file(`acceso_${accesForZip.id}_herramientas.xlsx`, toolsExcelBlob);
+                zip.file(`acceso_${currentAcces.id}_herramientas.xlsx`, toolsExcelBlob);
             }
 
             // 5) Generar y descargar ZIP final
@@ -291,7 +228,7 @@ const useHistoryDetails = () => {
             const url = URL.createObjectURL(zipBlob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `acceso_${accesForZip.id}_documentos.zip`;
+            a.download = `acceso_${currentAcces.id}_documentos.zip`;
             document.body.appendChild(a);
             a.click();
             a.remove();
