@@ -96,7 +96,7 @@ export const getTabsFromPath = (
         path: "/main-page/operations/requisitions/requisitionsPage",
       },
       {
-        label: "Listado Requisiciones",
+        label: "Listado Beneficiarios",
         path: "/main-page/operations/requisitions/requisitionListPage",
       }
     ],

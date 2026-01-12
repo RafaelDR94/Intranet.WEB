@@ -258,6 +258,14 @@ const RequisitionsFiles: React.FC<RequisitionsFilesProps> = ({
     );
   }
 
+  const filterOptions = [
+      { label: "Cancelada", value: "all" },
+      { label: "Cierre Periodo", value: "all" },
+      { label: "Folio Adicional", value: "all" },
+      { label: "Validación", value: "all" },
+      { label: "Viaticando", value: "all" },
+    ];
+
   return (
     <div>
       <PopUp
@@ -278,7 +286,10 @@ const RequisitionsFiles: React.FC<RequisitionsFilesProps> = ({
       />
 
       <DataTable
-        showCalendar={false}
+        showCalendar={true}
+        showFilter={true}
+        showRefresh={true}
+        filterOptions={filterOptions}
         textSize={{ mobile: "c2", desktop: "text-c2" }}
         dataTableTitle="Requisiciones"
         tables={[

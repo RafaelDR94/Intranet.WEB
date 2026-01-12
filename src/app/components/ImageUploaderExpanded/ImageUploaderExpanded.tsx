@@ -240,7 +240,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
           </div>
 
           <div className="flex justify-end">
-            <Button variant="ghost" onClick={clearImages} disabled={disabled}>
+            <Button variant="outline" onClick={clearImages} disabled={disabled}>
               Quitar imágenes
             </Button>
           </div>

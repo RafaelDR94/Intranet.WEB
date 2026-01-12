@@ -197,6 +197,11 @@ const RequisitionDetailsDocument: React.FC = () => {
     ? "Generando y descargando reporte…"
     : "Cargando comprobantes…";
 
+  const filterOptions = [
+    { label: "Proceso", value: "process" },
+    { label: "Rechazado", value: "rejected" },
+    { label: "Validado", value: "validated" },
+  ];
   return (
     // NEW: relative para anclar el overlay al contenedor
     <div className="space-y-6">
@@ -207,6 +212,9 @@ const RequisitionDetailsDocument: React.FC = () => {
 
       <DataTable
         showCalendar={true}
+        showFilter={true}
+        onFilterChange={() => {}}
+        filterOptions={filterOptions}
         textSize={{ mobile: "c2", desktop: "text-b3" }}
         startCollpas={false}
         actionsRender={() => (
