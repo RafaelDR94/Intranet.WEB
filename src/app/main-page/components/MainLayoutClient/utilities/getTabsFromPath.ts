@@ -261,6 +261,21 @@ export const getTabsFromPath = (
         tabs = [...tabs, { label: detailLabel, path: detailPath }];
       }
     }
+
+    if (view === 'billablefiles' && id) {
+      const billableLabel = 'Subir Facturas';
+      const billableQs = new URLSearchParams();
+      billableQs.set('id', id);
+      if (labelparam) billableQs.set('label', labelparam);
+      billableQs.set('view', view);
+      if (idEmployee) billableQs.set('idEmployee', idEmployee);
+      if (requisitionsLabel) billableQs.set('requisitionsLabel', requisitionsLabel);
+      const billablePath = `${clean}?${billableQs.toString()}`;
+
+      if (!tabs.some(t => t.path === billablePath || t.label === billableLabel)) {
+        tabs = [...tabs, { label: billableLabel, path: billablePath }];
+      }
+    }
   }
 
   // SIP/Proyectos: agrega tab dinámica para edición si viene un id

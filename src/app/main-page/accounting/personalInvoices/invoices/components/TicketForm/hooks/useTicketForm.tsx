@@ -1,5 +1,5 @@
 // src/app/.../hooks/useTicketForm.ts
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { shallow } from 'zustand/shallow'
 
@@ -16,7 +16,7 @@ import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useBillingHistoryStore } from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
 import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
 import { SelectedImage } from '@/app/components/ImageUploaderExpanded/types'
-const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn => {
+const useTicketForm = ({ dataEdit, disabled }: UseInvoicesFormProps): UseTicketFormReturn => {
   const isEdit = Boolean(dataEdit)
   const { firebasestorage } = useFirebase()
 
@@ -54,33 +54,6 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
   const initialformFields: FieldModel[] = useMemo(() => {
     if (isEdit) {
       return [
-        // {
-        //   type: 'select',
-        //   name: 'requisition',
-        //   label: 'Código de Requisición',
-        //   placeholder: 'Seleccione el código',
-        //   value: '',
-        //   options: [],
-        //   className: 'max-w-[400px]',
-        //   showIf: (_v, all) => {
-        //     const f = all.find((x) => x.name === 'requisition')
-        //     return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0
-        //   },
-        // },
-        // {
-        //   type: "select",
-        //   name: "description",
-        //   label: "Descripción",
-        //   placeholder: "Selecciona una descripción",
-        //   value: "",
-        //   options: [],
-        //   className: "max-w-[400px]",
-        //   showIf: (_v, all) => {
-        //     const f = all.find((x) => x.name === "description");
-        //     return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-        //   },
-        //   validations: [{ type: "required" }],
-        // },
         {
           type: "select",
           name: "category",
@@ -95,22 +68,6 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
           },
           validations: [{ type: "required" }],
         },
-        // {
-        //   type: "numberControl",
-        //   name: "numnights",
-        //   label: "Número de noches",
-        //   value: dataEdit?.numnights ?? 0,
-        //   validations: [{ type: "required" }],
-        //   className: "max-w-[300px]",
-        // },
-        // {
-        //   type: "numberControl",
-        //   name: "numpersons",
-        //   label: "Número de personas",
-        //   value: dataEdit?.numpersons ?? 0,
-        //   validations: [{ type: "required" }],
-        //   className: "max-w-[300px]",
-        // },
         {
           type: 'imageUploaderExpanded',
           name: 'ticket',
@@ -140,8 +97,9 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
   const { field2, formId2, user } = useInvoices()
   const searchParams = useSearchParams()
   const requisitionIdFromQuery = searchParams.get('id') ?? ''
-  const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm } =
+  const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm, updateField } =
     useInitInvoicesForms({ initialformFields, field: field2, formId: formId2, dataEdit, })
+  const lastUploadedRef = useRef<SelectedImage[] | null>(null)
 
   // Loading + Alerts (desde PrincipalContext)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
@@ -189,11 +147,17 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
       }
 
       const imgUrl = await uploadIfNeeded(values.ticket, requisition)
+      lastUploadedRef.current = imgUrl.map((url, index) => ({
+        id: `uploaded-${Date.now()}-${index}`,
+        name: `ticket-${index + 1}`,
+        url,
+        selected: true,
+      }))
       if (isEdit && dataEdit) {
         const payload = {
           billing_image_id: dataEdit?.billing_image_id,
           requisition_id: requisition,
-          Image: imgUrl,
+          images: imgUrl,
           comments: dataEdit?.comments,
           user_comments: "",
           numnights: values.numnights,
@@ -206,7 +170,7 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
         // CREATE
         const payload = {
           requisition_id: requisition,
-          Image: imgUrl,
+          images: imgUrl,
           description: values?.description,
           numpersons: values?.numpersons,
           numnights: values?.numnights,
@@ -262,7 +226,14 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
         },
       })
     } else if (postOk || putOk) {
-      if (postOk) ResetForm();
+      if (postOk && lastUploadedRef.current?.length) {
+        updateField(formId2, "ticket", {
+          value: lastUploadedRef.current,
+          initialFiles: lastUploadedRef.current,
+        });
+      } else if (postOk) {
+        ResetForm();
+      }
       if (putOk && user) forceFetchBillingHistory(user?.idEmployee);
       showAlert({
         type: 'success',
@@ -288,8 +259,16 @@ const useTicketForm = ({ dataEdit }: UseInvoicesFormProps): UseTicketFormReturn 
     isEdit,
   ])
 
+  const resolvedFields = useMemo(
+    () =>
+      disabled
+        ? field2.map((field) => ({ ...field, disabled: true }))
+        : field2,
+    [disabled, field2],
+  );
+
   return {
-    fields: field2,
+    fields: resolvedFields,
     loadingFormInfo,
     submitRef,
     formReady,

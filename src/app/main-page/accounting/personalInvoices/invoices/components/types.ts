@@ -16,5 +16,7 @@ export interface InvoicesFormProps {
   billingImages?: BillingImagesTable | null;
   /** Callback when image preview is closed. */
   onCloseImage?: () => void;
+  /** Disable all fields. */
+  disabled?: boolean;
 }
 

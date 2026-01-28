@@ -77,7 +77,7 @@ export const useDetailsPanel = ({
   const labels = useMemo(
     () => ({
       left: selected
-        ? `Usuario: ${getShortName(selected?.requisition?.employeename)}`
+        ? `Nombre: ${getShortName(selected?.requisition?.employeename)}`
         : undefined,
       secondLeft: selected ? `Tipo de gastos: 105` : undefined,
       childrenLabel: selected ? `Denom. Gto.: Analisis Clínico ` : undefined,

@@ -22,6 +22,7 @@ const useInvoicesForm = ({
   withoutName,
   billingImages,
   onCloseImage,
+  disabled,
 }: UseInvoicesFormProps): UseInvoicesFormReturn => {
   const isEdit = Boolean(dataEdit);
   const { firebasestorage } = useFirebase();
@@ -339,8 +340,16 @@ const useInvoicesForm = ({
     user,
   ]);
 
+  const resolvedFields = useMemo(
+    () =>
+      disabled
+        ? field1.map((field) => ({ ...field, disabled: true }))
+        : field1,
+    [disabled, field1],
+  );
+
   return {
-    fields: field1,
+    fields: resolvedFields,
     loadingFormInfo,
     submitRef,
     formReady,

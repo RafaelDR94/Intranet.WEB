@@ -11,6 +11,8 @@ import { BillingRequisition as BillingRequisitionUrl } from "@/app/configuration
 import { pPut } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
+import { shallow } from "zustand/shallow";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
@@ -20,13 +22,23 @@ type InvoiceRow = {
   id: string;
   uuid: string;
   date: string;
+  certificationDate?: string;
   category: string;
+  description: string;
   status: string;
   comments: string;
   xmlUrl?: string | null;
   pdfUrl?: string | null;
   attachments?: string;
   requisitionId?: string;
+  requisitionKey?: string;
+  employeeName?: string;
+  rfcEmisor?: string | null;
+  rfcReceptor?: string | null;
+  claveSat?: string | null;
+  subtotal?: number;
+  iva?: number;
+  total?: number;
 };
 
 /**
@@ -47,21 +59,38 @@ const formatDate = (value?: string): string => {
 
 const mapInvoices = (
   documents: BillingDocumentRequisition[],
+  requisitions: Requisition[],
   requisitionId?: string,
 ): InvoiceRow[] =>
   documents
     .filter((doc) => doc.xml || doc.pdf)
-    .map((doc) => ({
-      id: doc.billingdocument_id,
-      uuid: doc.uuid ?? doc.billingdocument_id,
-      date: formatDate(doc.certification_date ?? doc.date_created),
-      category: doc.category ?? "",
-      status: doc.status ?? "",
-      comments: doc.comments ?? "",
-      xmlUrl: doc.xml,
-      pdfUrl: doc.pdf,
-      requisitionId,
-    }));
+    .map((doc) => {
+      const requisition = requisitions.find(
+        (item) => item.billingrequisition_id === requisitionId,
+      );
+      const certificationDate = doc.certification_date ?? doc.date_created;
+      return {
+        id: doc.billingdocument_id,
+        uuid: doc.uuid ?? doc.billingdocument_id,
+        date: formatDate(certificationDate),
+        certificationDate,
+        category: doc.category ?? "",
+        description: doc.description ?? "",
+        status: doc.status ?? "",
+        comments: doc.comments ?? "",
+        xmlUrl: doc.xml,
+        pdfUrl: doc.pdf,
+        requisitionId,
+        requisitionKey: requisition?.requisitionkey ?? "",
+        employeeName: doc.employeename ?? requisition?.employeename ?? "",
+        rfcEmisor: doc.rfc_emisor,
+        rfcReceptor: doc.rfc_receptor,
+        claveSat: doc.conceptos,
+        subtotal: doc.subtotal,
+        iva: doc.iva,
+        total: doc.total,
+      };
+    });
 
 const statusToType = (status?: string): LabelType => {
   const normalized = (status ?? "").toLowerCase();
@@ -79,10 +108,36 @@ const useInvoicesFiles = () => {
   const { showAlert, hideAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { documents, requisitions, requisitionId } = useRequisitionDocuments();
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailRow, setDetailRow] = useState<InvoiceRow | null>(null);
+  const [openValidInvoice, setOpenValidInvoice] = useState(false);
+  const [openRejectInvoice, setOpenRejectInvoice] = useState(false);
   const [linkingId, setLinkingId] = useState<string | null>(null);
   const [selectedRequisitions, setSelectedRequisitions] = useState<
     Record<string, string>
   >({});
+  const {
+    validateBillingDocumentOperations,
+    rejectBillingDocument,
+    validating,
+    rejecting,
+    succesValidate,
+    succesReject,
+    resetFlags,
+    error,
+  } = useBillingDocumentsStore(
+    (s) => ({
+      validateBillingDocumentOperations: s.validateBillingDocumentOperations,
+      rejectBillingDocument: s.rejectBillingDocument,
+      validating: s.validating,
+      rejecting: s.rejecting,
+      succesValidate: s.succesValidate,
+      succesReject: s.succesReject,
+      resetFlags: s.resetFlags,
+      error: s.error,
+    }),
+    shallow,
+  );
 
   const requisitionOptions = useMemo(
     () =>
@@ -185,9 +240,95 @@ const useInvoicesFiles = () => {
   );
 
   const rows = useMemo(
-    () => mapInvoices(documents, requisitionId),
-    [documents, requisitionId],
+    () => mapInvoices(documents, requisitions, requisitionId),
+    [documents, requisitions, requisitionId],
   );
+
+  useEffect(() => {
+    if (!detailRow) return;
+    const updatedRow = rows.find((row) => row.id === detailRow.id);
+    if (updatedRow) {
+      setDetailRow(updatedRow);
+    }
+  }, [rows, detailRow]);
+
+  const openDetails = useCallback((row: InvoiceRow) => {
+    setDetailRow(row);
+    setDetailOpen(true);
+  }, []);
+
+  const closeDetails = useCallback(() => {
+    setDetailOpen(false);
+  }, []);
+
+  const handleSubmitValid = useCallback(() => {
+    if (!detailRow) return;
+    setOpenValidInvoice(false);
+    validateBillingDocumentOperations([detailRow.id], requisitionId ?? undefined);
+  }, [detailRow, requisitionId, validateBillingDocumentOperations]);
+
+  const handleSubmitReject = useCallback(
+    (values: Record<string, any>) => {
+      if (!detailRow) return;
+      setOpenRejectInvoice(false);
+      const payload = {
+        id: detailRow.id,
+        comment: values.comments ?? "",
+        type: true,
+      };
+      rejectBillingDocument(payload, requisitionId ?? undefined);
+    },
+    [detailRow, rejectBillingDocument, requisitionId],
+  );
+
+  useEffect(() => {
+    if (validating) {
+      showSpinner({ message: "Espera un momento, se esta validando la factura." });
+      return;
+    }
+    if (rejecting) {
+      showSpinner({ message: "Espera un momento, se esta rechazando la factura." });
+      return;
+    }
+
+    hideSpinner();
+
+    if (succesValidate) {
+      showAlert({
+        type: "info",
+        title: "Factura validada",
+        description: "Se ha validado correctamente.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+    }
+
+    if (succesReject) {
+      showAlert({
+        type: "info",
+        title: "Factura rechazada",
+        description: "Se ha rechazado correctamente.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+    }
+
+    if (error) {
+      showAlert({
+        type: "error",
+        title: "Ocurrio un error",
+        description: String(error) || "Hubo un problema desconocido",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+    }
+
+    resetFlags();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validating, rejecting, succesValidate, succesReject, error]);
 
   const columns: ColumnDefinition<InvoiceRow>[] = useMemo(
     () => [
@@ -263,7 +404,7 @@ const useInvoicesFiles = () => {
         render: (row) => (
           <Button
             size="small"
-            // onClick={() => handleOpenDetails(row)}
+            onClick={() => openDetails(row)}
             variant="ghost"
             hideIcon
           >
@@ -299,12 +440,25 @@ const useInvoicesFiles = () => {
         headerClass: "w-60",
       },
     ],
-    [handleLinkRequisition, linkingId, requisitionOptions, selectedRequisitions],
+    [handleLinkRequisition, linkingId, openDetails, requisitionOptions, selectedRequisitions],
   );
 
   return {
     columns,
     rows,
+    detailOpen,
+    detailRow,
+    closeDetails,
+    openValidInvoice,
+    openRejectInvoice,
+    setOpenValidInvoice,
+    setOpenRejectInvoice,
+    handleSubmitValid,
+    handleSubmitReject,
+    isStatusLocked: Boolean(
+      detailRow?.status?.toLowerCase().includes("valid") ||
+        detailRow?.status?.toLowerCase().includes("rechaz"),
+    ),
   };
 };
 

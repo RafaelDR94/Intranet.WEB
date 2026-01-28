@@ -5,7 +5,7 @@ export type BillingImages = {
     "billing_image_id": string,
     "requisition": Requisition,
     "status": string,
-    "images": string | string[],
+    "images": string[],
     "comments": string,
     "dateCreate": string,
     "category": BillingDocumentCategory
@@ -18,7 +18,8 @@ export type BillingImagesTable = {
     "billing_image_id": string,
     "deudor": string,
     "proyect": string,
-    "images": string | string[],
+    "images": string[],
+    "Image": string,
     "comments": string,
     "dateCreate": string,
     "requisition_id": string,

@@ -23,4 +23,6 @@ export type UseTicketFormReturn = {
 export interface UseInvoicesFormProps {
   /** Row to edit. */
   dataEdit?: HistoryRow | null;
+  /** Disable all fields. */
+  disabled?: boolean;
 }

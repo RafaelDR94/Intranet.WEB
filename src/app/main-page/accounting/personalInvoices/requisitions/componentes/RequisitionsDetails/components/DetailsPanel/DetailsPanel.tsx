@@ -18,9 +18,11 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
+import DownloadIcon from "@/assets/icons/acciones/download.svg";
 
 import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
 import { Proyect } from "@/app/mappings/proyects/proyects.types";
+import { DownloadFile } from "@/app/utilities/FilesHelper/FilesHelper";
 const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
   setPanelOpen,
@@ -48,8 +50,13 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   });
   const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
-  const hasInvoiceFiles = Boolean(
-    selected?.xml || selected?.pdf || selected?.image,
+  const isTicket = Boolean(
+    selected?.billingdocument_id?.startsWith("ticket-"),
+  );
+  const hasInvoiceFiles = Boolean(!isTicket && (selected?.xml || selected?.pdf));
+  const resendDisabled = Boolean(
+    !selected?.status?.toLowerCase().includes("rechaz") ||
+      (operations && selected?.validatedbyoperations),
   );
   const projectFallback: Proyect = {
     id: selected?.requisition?.idProject ?? "",
@@ -90,29 +97,46 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       withinContainer
       onClose={() => setPanelOpen(false)}
       leftLabel={isMobile ? "" : labels?.left}
-      rightLabel={isMobile ? "" : labels?.right} 
+      rightLabel={isMobile ? "" : labels?.right}
       actionButton={
-        <div
-          className={clsx(
-            "flex",
-            isMobile ? "w-full flex-col gap-2" : "flex-row items-center gap-3",
-          )}
-        >
-          {!currentPagePermissions?.canValidInvoice && validInvoice && (
+        isTicket ? (
+          <div
+            className={clsx(
+              "flex",
+              isMobile ? "w-full flex-col gap-2" : "flex-row items-center gap-3",
+            )}
+          >
             <Button
               size="medium"
               variant="solid"
               hideIcon
-              onClick={() => setOpenValidInvoice(true)}
-              disabled={
-                (operations && selected?.validatedbyoperations) ||
-                selected?.status?.toUpperCase() == "RECHAZADO"
-              }
+              onClick={() => submitRef.current?.()}
+              disabled={resendDisabled}
             >
               Reenviar
             </Button>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div
+            className={clsx(
+              "flex",
+              isMobile ? "w-full flex-col gap-2" : "flex-row items-center gap-3",
+            )}
+          >
+            {!currentPagePermissions?.canValidInvoice && validInvoice && (
+              <Button
+                size="medium"
+                variant="solid"
+                hideIcon
+                onClick={() => setOpenValidInvoice(true)}
+                disabled={resendDisabled}
+
+              >
+                Reenviar
+              </Button>
+            )}
+          </div>
+        )
       }
       renderActions={() => (
         <div className={s.actionsRow}>
@@ -122,37 +146,98 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               text={(selected?.status ?? "").toUpperCase()}
             />
           )}
-          {selected?.xml && (
-            <Button
-              size="xsmall"
-              variant="ghost"
-              icon={XMLIcon}
-              disabled={!selected.xml}
-              onClick={() => window.open(selected.xml!, "_blank")}
-            />
-          )}
-          {selected?.pdf && (
-            <Button
-              size="xsmall"
-              variant="ghost"
-              icon={PDFIcon}
-              disabled={!selected.pdf}
-              onClick={() => window.open(selected.pdf!, "_blank")}
-            />
-          )}
-          {selected?.image && (
-            <Button
-              size="xsmall"
-              variant="ghost"
-              icon={ImageIcon}
-              disabled={!selected.pdf}
-              onClick={() => window.open(selected?.image, "_blank")}
-            />
+          {isTicket ? (
+            <>
+              {selected?.image && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={ImageIcon}
+                  disabled={!selected.image}
+                  onClick={() => window.open(selected?.image, "_blank")}
+                />
+              )}
+              {selected?.image && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={DownloadIcon}
+                  onClick={() =>
+                    DownloadFile(
+                      selected.image,
+                      `ticket-${selected?.billingimages_id ?? "imagen"}.jpg`
+                    )
+                  }
+                  aria-label="Descargar imagen"
+                />
+              )}
+            </>
+          ) : (
+            <>
+              {selected?.xml && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={XMLIcon}
+                  disabled={!selected.xml}
+                  onClick={() => window.open(selected.xml!, "_blank")}
+                />
+              )}
+              {selected?.pdf && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={PDFIcon}
+                  disabled={!selected.pdf}
+                  onClick={() => window.open(selected.pdf!, "_blank")}
+                />
+              )}
+              {selected?.image && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={ImageIcon}
+                  disabled={!selected.pdf}
+                  onClick={() => window.open(selected?.image, "_blank")}
+                />
+              )}
+            </>
           )}
         </div>
       )}
     >
-      {selected ? (
+      {selected && isTicket && (
+        <div className={isMobile ? ms.container : s.container}>
+          <div className="text-gray-90 text-b4 font-medium">
+            Nombre:{" "}
+            <span className="text-gray-70 font-regular">
+              {selected?.requisition?.employeename ?? "-"}
+            </span>
+          </div>
+          <div className="text-gray-90 text-b4 font-medium">Comentarios:</div>
+          {selected?.comments && (
+            <div className="space-y-1">
+              <p className="text-b4 p-2 font-medium text-gray-50">
+                {selected.comments}
+              </p>
+            </div>
+          )}
+          <InvoicesProvider>
+            <TicketForm
+              dataEdit={dataEdit}
+              externalSubmitRef={submitRef}
+              disabled={resendDisabled}
+              responsiveLayoutMatrix={{
+                sm: [[10], [10]],
+                md: [[10], [10]],
+                lg: [[10], [10]],
+              }}
+            />
+          </InvoicesProvider>
+        </div>
+      )}
+
+      {selected && !isTicket && (
         <div className={isMobile ? ms.container : s.container}>
           {isMobile && (
             <div className="flex items-baseline gap-2">
@@ -172,9 +257,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           {/* UUID */}
           <div className={isMobile ? ms.uuid : s.uuid}>{selected?.uuid}</div>
 
-          {/* Fecha y hora de certificación */}
+          {/* Fecha y hora de certificacion */}
           <div className={isMobile ? ms.labelLine : s.labelLine}>
-            FECHA Y HORA DE CERTIFICACIÓN:&nbsp;
+            FECHA Y HORA DE CERTIFICACION:&nbsp;
             <span className={isMobile ? ms.valueText : s.valueText}>
               {selected?.fecha}
             </span>
@@ -210,7 +295,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                   </span>
                 </div>
                 <div className={isMobile ? ms.labelLine : s.labelLine}>
-                  DESCRIPCIÓN:&nbsp;
+                  DESCRIPCION:&nbsp;
                   <span className={isMobile ? ms.valueText : s.valueText}>
                     {concept?.clavesat_description}
                   </span>
@@ -259,7 +344,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             {selected.user_comments && (
               <div className="space-y-1">
                 <p className="text-b4 p-2 font-medium text-gray-50">
-                  {selected.user_comments || "—"}
+                  {selected.user_comments || ""}
                 </p>
               </div>
             )}
@@ -268,6 +353,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 <InvoicesForm
                   dataEdit={dataEdit}
                   externalSubmitRef={submitRef}
+                  disabled={resendDisabled}
                   responsiveLayoutMatrix={{
                     sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
                     md: [
@@ -282,6 +368,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 <TicketForm
                   dataEdit={dataEdit}
                   externalSubmitRef={submitRef}
+                  disabled={resendDisabled}
                   responsiveLayoutMatrix={{
                     sm: [[10], [10]],
                     md: [[10], [10]],
@@ -292,57 +379,63 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             </InvoicesProvider>
           </div>
         </div>
-      ) : (
+      )}
+
+      {!selected && (
         <div className={s.emptyState}>
           Selecciona un registro para ver el detalle.
         </div>
       )}
 
       {/* PopUp: Validar */}
-      <PopUp
-        open={openValidInvoice}
-        title={"¿Desea validar la factura seleccionada?"}
-        content="Esta acción confirmará la validez de los documentos marcados. Una vez validadas, no podrás revertir el cambio."
-        onClose={() => setOpenValidInvoice(false)}
-        primaryButtonText="Validar"
-        secondaryButtonText="Cancelar"
-        onPrimaryButtonClick={handleSubmitValid}
-        onSecondaryButtonClick={() => setOpenValidInvoice(false)}
-        showPrimaryButton
-        showSecondaryButton
-      />
+      {!isTicket && (
+        <PopUp
+          open={openValidInvoice}
+          title={"Desea validar la factura seleccionada?"}
+          content="Esta accion confirmara la validez de los documentos marcados. Una vez validadas, no podras revertir el cambio."
+          onClose={() => setOpenValidInvoice(false)}
+          primaryButtonText="Validar"
+          secondaryButtonText="Cancelar"
+          onPrimaryButtonClick={handleSubmitValid}
+          onSecondaryButtonClick={() => setOpenValidInvoice(false)}
+          showPrimaryButton
+          showSecondaryButton
+        />
+      )}
 
       {/* PopUp: Rechazar */}
-      <PopUp
-        title={"Rechazar Factura"}
-        content={
-          "Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su factura"
-        }
-        open={openRejectInvoice}
-        onClose={() => setOpenRejectInvoice(false)}
-      >
-        <div className={s.commentBoxPadding}>
-          <DynamicForm
-            // initialValues={{ comments: selected?.comments ?? "" }}
-            fields={[
-              {
-                type: "textarea",
-                name: "comments",
-                label: "Comentarios:",
-                value: "",
-                placeholder: "Agregar comentario",
-                validations: [{ type: "required" }],
-                className: "bg-white-40",
-                rows: 2,
-              },
-            ]}
-            submitLabel="Rechazar"
-            secondaryButtonLabel="Cancelar"
-            onSubmit={handleSubmitReject}
-            onSecondaryButtonClick={() => setOpenRejectInvoice(false)}
-          />
-        </div>
-      </PopUp>
+      {!isTicket && (
+        <PopUp
+          title={"Rechazar Factura"}
+          content={
+            "Deja aqui un comentario para que tu companero sepa la razon del rechazo de su factura"
+          }
+          open={openRejectInvoice}
+          onClose={() => setOpenRejectInvoice(false)}
+        >
+          <div className={s.commentBoxPadding}>
+            <DynamicForm
+              // initialValues={{ comments: selected?.comments ?? "" }}
+              fields={[
+                {
+                  type: "textarea",
+                  name: "comments",
+                  label: "Comentarios:",
+                  value: "",
+                  placeholder: "Agregar comentario",
+                  validations: [{ type: "required" }],
+                  className: "bg-white-40",
+                  rows: 2,
+                },
+              ]}
+              submitLabel="Rechazar"
+              secondaryButtonLabel="Cancelar"
+              onSubmit={handleSubmitReject}
+              onSecondaryButtonClick={() => setOpenRejectInvoice(false)}
+            />
+          </div>
+        </PopUp>
+      )}
     </DetailsPanelLayout>
   );
 };

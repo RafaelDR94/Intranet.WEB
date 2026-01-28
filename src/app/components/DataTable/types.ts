@@ -1,6 +1,8 @@
 import type { ActionMenuCellProps } from "../ActionMenuCell/types"
 import type { TextSize } from "./components/DataTableContent/components/DataTableBody/DataTableBody"
 
+export type SelectionMode = "single" | "multiple"
+
 /**
  * Define la estructura de cada columna de la tabla.
  *
@@ -63,6 +65,8 @@ export interface DataTableGroup<T> {
   hidetitle?: boolean
   /** Habilita selección de filas */
   enableSelection?: boolean
+  /** Controla si la selecci?n es simple o m?ltiple */
+  selectionMode?: SelectionMode
   /** Permite colapsar la sección que contiene la tabla */
   enableCollaps?: boolean
 

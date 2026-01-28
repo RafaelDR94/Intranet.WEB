@@ -19,6 +19,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
   withoutName,
   billingImages,
   onCloseImage,
+  disabled,
 }) => {
   const {
     fields,
@@ -29,7 +30,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
     handleSubmit,
     ResetForm,
     handleImageClick
-  } = useInvoicesForm({ dataEdit, withoutName, billingImages, onCloseImage, })
+  } = useInvoicesForm({ dataEdit, withoutName, billingImages, onCloseImage, disabled })
   if (externalSubmitRef) {
     return (
       <DynamicForm
@@ -53,39 +54,51 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
       primaryDisabled={!formReady}
       enableCollapse={true}
     >
-      {/* En móvil se apilan; desde md son columnas 3/4 y 1/4 */}
-      <>
-        <DynamicForm
-          fields={fields}
-          loadingFormInfo={loadingFormInfo}
-          responsiveLayoutMatrix={billingImages ? {
-            sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-            md: [[5, 5], [5, 5], [5, 2.5, 2.5], [5, 5]],
-            lg: [[5, 5], [5, 5], [4.9, 1.3, 1.3], [5, 5]],
-          } : responsiveLayoutMatrix}
-          onSubmit={handleSubmit}
-          onValidChange={setFormReady}
-          externalSubmitRef={submitRef}
-          showSubmitIf={() => false}
-        />
-
-
+      {/* En movil se apilan; desde md son columnas 3/4 y 1/4 */}
+      <div
+        className={
+          billingImages?.Image
+            ? "flex flex-col gap-4 md:flex-row md:items-start"
+            : "flex flex-col"
+        }
+      >
+        <div className={billingImages?.Image ? "w-full md:flex-1" : "w-full"}>
+          <DynamicForm
+            fields={fields}
+            loadingFormInfo={loadingFormInfo}
+            responsiveLayoutMatrix={
+              billingImages
+                ? {
+                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    md: [[5, 5], [5, 5], [3, 3, 3], [3, 3, 3]],
+                    lg: [[5, 5], [5, 5], [3, 3, 3], [3, 3, 3]],
+                  }
+                : responsiveLayoutMatrix
+            }
+            onSubmit={handleSubmit}
+            onValidChange={setFormReady}
+            externalSubmitRef={submitRef}
+            showSubmitIf={() => false}
+          />
+        </div>
 
         {/* Vista previa (1/4) */}
         {billingImages?.Image && (
-          <div className="md:basis-1/4 md:pl-2 md:shrink-0" >
+          <div className="w-full md:w-[190px] md:pl-2 md:shrink-0 md:ml-auto md:self-start">
             <figure
               className="relative mx-auto flex items-center justify-center overflow-hidden rounded-md bg-white-40 shadow-400"
               style={{ width: 172, height: 250 }}
             >
-              {/* Botón centrado sobre la imagen */}
+              {/* Boton centrado sobre la imagen */}
               <Button
-                onClick={() => { ResetForm(); onCloseImage?.(); }}
+                onClick={() => {
+                  ResetForm();
+                  onCloseImage?.();
+                }}
                 size="xsmall"
                 icon={CancelIncon}
                 className="absolute left-1/2 bottom-2 -translate-x-1/2 z-10 rounded-full"
               />
-
 
               <button
                 type="button"
@@ -102,7 +115,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
             </figure>
           </div>
         )}
-      </>
+      </div>
     </FormsLayout>
   );
 };

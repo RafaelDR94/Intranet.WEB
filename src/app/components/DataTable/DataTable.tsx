@@ -186,6 +186,7 @@ export const DataTable = <T extends { id: string | number }>({
                 data={filteredData}
                 columns={table.columns}
                 enableSelection={table.enableSelection}
+                selectionMode={table.selectionMode}
                 initialSelectedIds={table.initialSelectedRowIds}
                 defaultSortDirection={table?.defaultSortDirection}
                 defaultSortKey={table.defaultSortKey}

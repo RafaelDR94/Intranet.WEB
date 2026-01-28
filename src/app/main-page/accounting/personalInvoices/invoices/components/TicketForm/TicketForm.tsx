@@ -9,7 +9,12 @@ import { ticketFormContainer } from './styles'
 import DynamicForm from '@/app/components/DynamicForm/DynamicForm'
 import FormsLayout from '@/app/components/FormsLayout/FormsLayout'
 
-const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, externalSubmitRef, dataEdit }) => {
+const TicketForm: React.FC<InvoicesFormProps> = ({
+  responsiveLayoutMatrix,
+  externalSubmitRef,
+  dataEdit,
+  disabled,
+}) => {
   const {
     fields,
     loadingFormInfo,
@@ -17,7 +22,7 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, exter
     formReady,
     setFormReady,
     handleSubmit,
-  } = useTicketForm({ dataEdit })
+  } = useTicketForm({ dataEdit, disabled })
 
   if (externalSubmitRef) {
     return (
@@ -44,12 +49,12 @@ const TicketForm: React.FC<InvoicesFormProps> = ({ responsiveLayoutMatrix, exter
     >
         <div className={ticketFormContainer}>
           <DynamicForm
-            fields={fields}
-            loadingFormInfo={loadingFormInfo}
-            responsiveLayoutMatrix={responsiveLayoutMatrix}
-            submitLabel="Enviar solicitud"
-            onSubmit={handleSubmit}
-            onValidChange={setFormReady}
+          fields={fields}
+          loadingFormInfo={loadingFormInfo}
+          responsiveLayoutMatrix={responsiveLayoutMatrix}
+          submitLabel="Enviar solicitud"
+          onSubmit={handleSubmit}
+          onValidChange={setFormReady}
             externalSubmitRef={submitRef}
             showSubmitIf={() => false}
           />

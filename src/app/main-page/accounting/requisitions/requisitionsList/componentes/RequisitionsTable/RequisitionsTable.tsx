@@ -23,10 +23,25 @@ type RequisitionsTableProps = {
    * Useful for views that need the list alongside detail tabs.
    */
   forceVisible?: boolean;
+  /**
+   * Shows the main action button in the table header.
+   */
+  showActionButton?: boolean;
+  /**
+   * Label for the main action button.
+   */
+  actionLabel?: string;
+  /**
+   * Handler for the main action button.
+   */
+  onActionClick?: () => void;
 };
 
 const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
   forceVisible = false,
+  showActionButton = false,
+  actionLabel = "Agregar",
+  onActionClick,
 }) => {
   const {
     rows,
@@ -207,6 +222,9 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
           onCalendarClick={(start, end) => refresh(start, end)}
           onFilterClick={refresh}
           showRefresh={true}
+          showButton={showActionButton && !currentPagePermissions?.create}
+          actionLabel={actionLabel}
+          onTableActionClick={onActionClick}
           tables={[
             {
               data: rows,
@@ -218,7 +236,6 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
               defaultSortDirection: "desc",
             },
           ]}
-          showButton={false}
           dateKey={"date_created"}
         />
       )}
