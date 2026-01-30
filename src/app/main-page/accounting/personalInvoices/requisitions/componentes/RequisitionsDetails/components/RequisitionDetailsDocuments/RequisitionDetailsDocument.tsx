@@ -119,15 +119,16 @@ const RequisitionDetailsDocument: React.FC = () => {
                 aria-label="Abrir PDF"
               />
             )}
-            {row.imageUrl && (
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={ImageIcon}
-                onClick={() => window.open(row.imageUrl, "_blank")}
-                aria-label="Abrir imagen"
-              />
-            )}
+            <Button
+              size="xsmall"
+              variant="ghost"
+              icon={ImageIcon}
+              disabled={!row.imageUrl}
+              onClick={() => {
+                if (row.imageUrl) window.open(row.imageUrl, "_blank")
+              }}
+              aria-label="Abrir imagen"
+            />
           </div>
         ),
       },

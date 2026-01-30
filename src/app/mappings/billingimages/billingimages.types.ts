@@ -7,6 +7,7 @@ export type BillingImages = {
     "status": string,
     "images": string[],
     "comments": string,
+    "user_comments"?: string,
     "dateCreate": string,
     "category": BillingDocumentCategory
     "description": BillingDocumentDescription

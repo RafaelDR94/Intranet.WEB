@@ -8,6 +8,7 @@ vi.mock('./hooks/useTicketForm', () => ({
   __esModule: true,
   default: () => ({
     fields: [],
+    formKey: 0,
     loadingFormInfo: false,
     submitRef: { current: null },
     formReady: true,

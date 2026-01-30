@@ -14,19 +14,22 @@ const TicketForm: React.FC<InvoicesFormProps> = ({
   externalSubmitRef,
   dataEdit,
   disabled,
+  suppressInitialTicketImage,
 }) => {
   const {
     fields,
+    formKey,
     loadingFormInfo,
     submitRef,
     formReady,
     setFormReady,
     handleSubmit,
-  } = useTicketForm({ dataEdit, disabled })
+  } = useTicketForm({ dataEdit, disabled, suppressInitialTicketImage })
 
   if (externalSubmitRef) {
     return (
       <DynamicForm
+        key={`ticket-form-${formKey}`}
         fields={fields}
         loadingFormInfo={loadingFormInfo}
         responsiveLayoutMatrix={responsiveLayoutMatrix}
@@ -49,6 +52,7 @@ const TicketForm: React.FC<InvoicesFormProps> = ({
     >
         <div className={ticketFormContainer}>
           <DynamicForm
+          key={`ticket-form-${formKey}`}
           fields={fields}
           loadingFormInfo={loadingFormInfo}
           responsiveLayoutMatrix={responsiveLayoutMatrix}

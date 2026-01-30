@@ -4,6 +4,8 @@ import { describe, it, expect, vi } from 'vitest';
 
 import InvoicesForm from './InvoicesForm';
 
+import type { ResponsiveLayoutMatrix } from '@/app/components/DynamicForm/types';
+
 vi.mock('./hooks/useInvoicesForm', () => ({
   __esModule: true,
   default: () => ({
@@ -29,7 +31,7 @@ vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   useAuth: () => ({ currentPagePermissions: { canAddDocuments: true } }),
 }));
 
-const matrix: any = { sm: [[10]] };
+const matrix: ResponsiveLayoutMatrix = { sm: [[10]] };
 
 describe('InvoicesForm', () => {
   it('renders dynamic form', () => {

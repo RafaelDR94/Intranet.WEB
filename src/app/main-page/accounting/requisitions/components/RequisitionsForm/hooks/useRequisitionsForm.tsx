@@ -187,7 +187,7 @@ export const useRequisitionForm = (
     if (initialValues.amountdeposited !== undefined) {
       updateField(formId, 'depositamount', { value: Number(initialValues.amountdeposited) });
     }
-    if (initialValues.amountdeposited !== undefined) {
+    if (initialValues.state !== undefined) {
       updateField(formId, 'state', { value: initialValues.state });
     }
     if (initialValues.motive !== undefined) {
@@ -279,13 +279,20 @@ export const useRequisitionForm = (
       values,
       employees,
       proyects,
+      initialValues,
+      includePutFields: mode === 'edit',
       fields,
       getOptionLabel: (fieldName: string, value: unknown) =>
         getOptionLabel(fields, fieldName, value),
     });
 
     if (mode === 'edit' && initialValues?.billingrequisition_id) {
-      await updateRequisition({ ...payload, billingrequisition_id: initialValues.billingrequisition_id });
+      await updateRequisition({
+        ...payload,
+        billingrequisition_id: initialValues.billingrequisition_id,
+        amountdifference: Number(initialValues.amountdifference ?? 0),
+        gts_type: initialValues.gts_type ?? '',
+      });
       return;
     }
     await createRequisition(payload);

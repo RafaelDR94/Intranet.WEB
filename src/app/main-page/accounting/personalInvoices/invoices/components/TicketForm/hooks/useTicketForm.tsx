@@ -1,5 +1,5 @@
 // src/app/.../hooks/useTicketForm.ts
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { shallow } from 'zustand/shallow'
 
@@ -16,7 +16,11 @@ import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useBillingHistoryStore } from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
 import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
 import { SelectedImage } from '@/app/components/ImageUploaderExpanded/types'
-const useTicketForm = ({ dataEdit, disabled }: UseInvoicesFormProps): UseTicketFormReturn => {
+const useTicketForm = ({
+  dataEdit,
+  disabled,
+  suppressInitialTicketImage,
+}: UseInvoicesFormProps): UseTicketFormReturn => {
   const isEdit = Boolean(dataEdit)
   const { firebasestorage } = useFirebase()
 
@@ -53,6 +57,16 @@ const useTicketForm = ({ dataEdit, disabled }: UseInvoicesFormProps): UseTicketF
   // 🔁 Campos iniciales del formulario (condicional por modo)
   const initialformFields: FieldModel[] = useMemo(() => {
     if (isEdit) {
+      const shouldSelectInitial = !suppressInitialTicketImage;
+      const initialTicketFiles =
+        dataEdit?.image
+          ? [{
+              id: 'initial-ticket',
+              name: dataEdit.image,
+              url: dataEdit.image,
+              selected: shouldSelectInitial,
+            }]
+          : [];
       return [
         {
           type: "select",
@@ -73,12 +87,8 @@ const useTicketForm = ({ dataEdit, disabled }: UseInvoicesFormProps): UseTicketF
           name: 'ticket',
           label: 'Imagen del ticket (JPG o PNG)',
           placeholder: 'Arrastra o selecciona la foto del ticket',
-          value: dataEdit?.image
-            ? [{ id: 'initial-ticket', name: dataEdit.image, url: dataEdit.image, selected: true }]
-            : [],
-          initialFiles: dataEdit?.image
-            ? [{ id: 'initial-ticket', name: dataEdit.image, url: dataEdit.image, selected: true }]
-            : [],
+          value: shouldSelectInitial ? initialTicketFiles : [],
+          initialFiles: initialTicketFiles,
           accept: '.jpg,.png',
           validations: [], // en edición es opcional
           className: ticketFormDropzoneClasses,
@@ -92,7 +102,7 @@ const useTicketForm = ({ dataEdit, disabled }: UseInvoicesFormProps): UseTicketF
 
     // 🟢 CREATE: mantiene debtorName como estaba originalmente
     return createTicketFields()
-  }, [dataEdit, isEdit])
+  }, [dataEdit, isEdit, suppressInitialTicketImage])
 
   const { field2, formId2, user } = useInvoices()
   const searchParams = useSearchParams()
@@ -100,6 +110,7 @@ const useTicketForm = ({ dataEdit, disabled }: UseInvoicesFormProps): UseTicketF
   const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm, updateField } =
     useInitInvoicesForms({ initialformFields, field: field2, formId: formId2, dataEdit, })
   const lastUploadedRef = useRef<SelectedImage[] | null>(null)
+  const [formKey, setFormKey] = useState(0)
 
   // Loading + Alerts (desde PrincipalContext)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
@@ -116,12 +127,12 @@ const useTicketForm = ({ dataEdit, disabled }: UseInvoicesFormProps): UseTicketF
       ? [{ id: 'single', name: (files as File).name, file: files as File, selected: true }]
       : []
 
-    if (fileList.length === 0 && isEdit && dataEdit?.image) return [dataEdit.image]
-    if (fileList.length === 0) throw new Error('No se encontró imagen válida para continuar')
+    const selectedList = fileList.filter((item) => item.selected !== false)
+    if (selectedList.length === 0 && isEdit && dataEdit?.image) return [dataEdit.image]
+    if (selectedList.length === 0) throw new Error('No se encontró imagen válida para continuar')
 
     const uploads = await Promise.all(
-      fileList
-        .filter((item) => item.selected !== false)
+      selectedList
         .map(async (item, index) => {
           if (item.url && !item.file) return item.url
           if (!item.file) throw new Error('Imagen inválida')
@@ -226,13 +237,15 @@ const useTicketForm = ({ dataEdit, disabled }: UseInvoicesFormProps): UseTicketF
         },
       })
     } else if (postOk || putOk) {
-      if (postOk && lastUploadedRef.current?.length) {
+      if (postOk) {
+        lastUploadedRef.current = null;
         updateField(formId2, "ticket", {
-          value: lastUploadedRef.current,
-          initialFiles: lastUploadedRef.current,
+          value: [],
+          initialFiles: [],
         });
-      } else if (postOk) {
+        updateField(formId2, "category", { value: "" });
         ResetForm();
+        setFormKey((prev) => prev + 1);
       }
       if (putOk && user) forceFetchBillingHistory(user?.idEmployee);
       showAlert({
@@ -269,6 +282,7 @@ const useTicketForm = ({ dataEdit, disabled }: UseInvoicesFormProps): UseTicketF
 
   return {
     fields: resolvedFields,
+    formKey,
     loadingFormInfo,
     submitRef,
     formReady,

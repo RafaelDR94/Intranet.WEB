@@ -75,7 +75,14 @@ const useInitInvoicesForms = ({
             value: r.id_billingdescription,
           }),
         ),
+        onChange: (value) => {
+          updateField(formId, "description", { value });
+          syncNumnightsWithDescription(value);
+        },
       });
+    const currentDescription = field.find((f) => f.name === "description")
+      ?.value as string | undefined;
+    syncNumnightsWithDescription(currentDescription ?? null);
   };
   const SetCategories = () => {
     if (billingCategories)
@@ -256,6 +263,7 @@ const useInitInvoicesForms = ({
       updateField(formId, "description", {
         value: descriptionId,
       });
+    syncNumnightsWithDescription(descriptionId);
     if (billingImages?.proyect)
       updateField(formId, "proyect", {
         value: billingImages?.proyect,
@@ -264,12 +272,12 @@ const useInitInvoicesForms = ({
     if (billingImages?.numnights)
       updateField(formId, "numnights", {
         value: billingImages?.numnights,
-        label: "No. Noches",
+        label: "No. de Noches",
       });
     if (billingImages?.numpersons)
       updateField(formId, "numpersons", {
         value: billingImages?.numpersons,
-        label: "No. Personas",
+        label: "No. de Personas",
       });
     const debtorName = field.find((f) => f.name === "personName");
     if (debtorName)
@@ -285,6 +293,40 @@ const useInitInvoicesForms = ({
     billingCategories,
     billingDocumentDescription,
   ]);
+
+  function syncNumnightsWithDescription(descriptionId?: string | null) {
+    const normalizedId = descriptionId ? String(descriptionId) : "";
+    const description = billingDocumentDescription.find(
+      (item) => String(item.id_billingdescription) === normalizedId,
+    );
+    const name = String(description?.name ?? "").trim().toLowerCase();
+    const isHospedaje = name === "hospedaje" || name.includes("hospedaje");
+    const currentField = field.find((item) => item.name === "numnights");
+    const shouldDisable = !isHospedaje;
+    const hasRequired = currentField?.validations?.some((v) => v.type === "required");
+
+    if (
+      currentField &&
+      currentField.disabled === shouldDisable &&
+      hasRequired === isHospedaje &&
+      (shouldDisable ? currentField.value === 0 : true)
+    ) {
+      return;
+    }
+
+    updateField(formId, "numnights", {
+      disabled: shouldDisable,
+      validations: isHospedaje ? [{ type: "required" }] : [],
+      ...(isHospedaje ? {} : { value: 0 }),
+    });
+  }
+
+  useEffect(() => {
+    const descriptionValue = field.find((item) => item.name === "description")
+      ?.value as string | undefined;
+    syncNumnightsWithDescription(descriptionValue ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [field, billingDocumentDescription]);
 
   const computeLoadingFormInfo = (fields: FieldModel[]) => {
     const req = fields.find((f) => f.name === "requisition");

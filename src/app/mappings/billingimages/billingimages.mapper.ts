@@ -32,6 +32,7 @@ export const BillingImageMap = (raw: any): BillingImages => ({
   status: String(raw?.status ?? ''),
   images: normalizeImageUrls(raw?.images),
   comments: String(raw?.comments ?? ''),
+  user_comments: String(raw?.user_comments ?? ''),
   dateCreate: String(raw?.date_created ?? ''),
   category: BillingDocumentCategoryMap(raw?.Category),
   description: BillingDocumentDescriptionMap(raw?.description),

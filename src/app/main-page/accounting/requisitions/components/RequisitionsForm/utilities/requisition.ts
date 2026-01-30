@@ -3,7 +3,7 @@ import { statesList } from './statesList';
 import type { FieldModel } from '@/app/components/DynamicForm/types';
 import type { EmployeeType } from '@/app/mappings/employees/employee.types';
 import type { Proyect } from '@/app/mappings/proyects/proyects.types';
-import type { RequitionPost } from '@/app/mappings/requisitions/requisitions.types';
+import type { RequitionPost, RequitionPut } from '@/app/mappings/requisitions/requisitions.types';
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper';
 // Ya existentes en tu archivo (mantén tus implementaciones)
 /**
@@ -48,34 +48,98 @@ export const buildRequisitionPayload = ({
   values,
   employees,
   proyects,
+  initialValues,
+  includePutFields = false,
   getOptionLabel,
 }: {
   values: Record<string, unknown>;
   employees: EmployeeType[];
   proyects: Proyect[];
+  initialValues?: Partial<{
+    requisitionkey: string;
+    employeename: string;
+    projectname: string;
+    assignmentdate: string;
+    endDate: string;
+    motive: string;
+    state: string;
+    amountdeposited: string | number;
+    provenamount: string | number;
+    amountdifference: string | number;
+    gts_type: string;
+    id_Employee: string;
+    idProject: string;
+  }>;
+  includePutFields?: boolean;
   fields: FieldModel[];
   getOptionLabel: (fieldName: string, value: unknown) => string | undefined;
-}): RequitionPost => {
-  const employeeId = values.employees;
-  const projectId = values.project;
-  const requisitionkey = values?.requisitionkey as string || ""
-  const assignmentdate = values?.asignamentdate as string || ""
-  const endDate = values?.cxpdate as string || ""
-  const motive = values?.motive as string || ""
-  const state = values?.state as string || ""
-  const amountdeposited = values?.depositamount as number || 0
-  const provenamount= 0
+}): RequitionPost & Partial<Pick<RequitionPut, 'amountdifference' | 'gts_type'>> => {
+  const employeeId = (values.employees ?? initialValues?.id_Employee ?? '') as string;
+  const projectId = (values.project ?? initialValues?.idProject ?? '') as string;
+
+  const requisitionkey =
+    (values?.requisitionkey as string | undefined)?.trim()
+    || initialValues?.requisitionkey
+    || '';
+  const assignmentdate =
+    (values?.asignamentdate as string | undefined)?.trim()
+    || initialValues?.assignmentdate
+    || '';
+  const endDate =
+    (values?.cxpdate as string | undefined)?.trim()
+    || initialValues?.endDate
+    || '';
+  const motive =
+    (values?.motive as string | undefined)?.trim()
+    || initialValues?.motive
+    || '';
+  const state =
+    (values?.state as string | undefined)?.trim()
+    || initialValues?.state
+    || '';
+
+  const parsedDeposit = Number(values?.depositamount);
+  const amountdeposited = Number.isFinite(parsedDeposit)
+    ? parsedDeposit
+    : Number(initialValues?.amountdeposited ?? 0);
+
+  const parsedProven = Number(initialValues?.provenamount);
+  const provenamount = Number.isFinite(parsedProven) ? parsedProven : 0;
+  const parsedDifference = Number(initialValues?.amountdifference);
+  const amountdifference = Number.isFinite(parsedDifference) ? parsedDifference : 0;
+  const gts_type = initialValues?.gts_type ?? '';
+
   const employeename =
-    employees.find(e => e.employee_id === employeeId)?.fullname
+    employees.find((e) => e.employee_id === employeeId)?.fullname
     ?? getOptionLabel('employees', employeeId)
+    ?? initialValues?.employeename
     ?? String(employeeId ?? '');
 
   const projectname =
-    proyects.find(p => p.id === projectId)?.proyectKey
+    proyects.find((p) => p.id === projectId)?.proyectKey
     ?? getOptionLabel('project', projectId)
+    ?? initialValues?.projectname
     ?? String(projectId ?? '');
 
-  return { requisitionkey, employeename, projectname, endDate, assignmentdate,motive, state,amountdeposited,provenamount};
+  const basePayload = {
+    requisitionkey,
+    employeename,
+    projectname,
+    endDate,
+    assignmentdate,
+    motive,
+    state,
+    amountdeposited,
+    provenamount,
+  };
+  if (!includePutFields) {
+    return basePayload;
+  }
+  return {
+    ...basePayload,
+    amountdifference,
+    gts_type,
+  };
 };
 
 // --- NUEVO: helpers puros y alerts pequeñas

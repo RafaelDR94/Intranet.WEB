@@ -12,7 +12,11 @@ vi.mock('./fetchBillingDocumentByIdRequisition', () => ({ fetchBillingDocumentBy
 
 describe('rejectBillingDocument util', () => {
   it('marca succesReject y limpia rejecting', async () => {
-    const state: Partial<BillingDocumentsState> = { rejecting: false, succesReject: false }
+    const state: Partial<BillingDocumentsState> = {
+      rejecting: false,
+      succesReject: false,
+      billingDocuments: [{ billingdocument_id: '1', status: 'Pendiente' } as any],
+    }
     const set: Set = (partial) => Object.assign(state, typeof partial === 'function' ? partial(state as BillingDocumentsState) : partial)
     const get: Get = () => state as BillingDocumentsState
 
@@ -20,5 +24,6 @@ describe('rejectBillingDocument util', () => {
     expect(res?.id).toBe('1')
     expect(state.rejecting).toBe(false)
     expect(state.succesReject).toBe(true)
+    expect(state.billingDocuments?.[0]?.status).toBe('Rechazado')
   })
 })

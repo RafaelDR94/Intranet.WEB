@@ -7,6 +7,8 @@ import { HistoryRow } from '@/app/mappings/billinghistory/billinghistory.types';
 export type UseTicketFormReturn = {
   /** Current field models. */
   fields: FieldModel[];
+  /** Key to force form remounts when resetting. */
+  formKey: number;
   /** Loading state while fetching options. */
   loadingFormInfo: boolean;
   /** External submit reference. */
@@ -25,4 +27,6 @@ export interface UseInvoicesFormProps {
   dataEdit?: HistoryRow | null;
   /** Disable all fields. */
   disabled?: boolean;
+  /** Avoid preloading the ticket image when editing. */
+  suppressInitialTicketImage?: boolean;
 }

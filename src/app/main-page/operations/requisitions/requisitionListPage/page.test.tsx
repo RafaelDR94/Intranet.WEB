@@ -6,18 +6,17 @@ import RequisitionListPage from './page';
 
 const useSearchParamsMock = vi.fn(() => new URLSearchParams());
 const requisitionsFilesMock = vi.fn();
+const useRouterMock = vi.fn(() => ({ push: vi.fn() }));
 
 vi.mock('next/navigation', () => ({
   useSearchParams: () => useSearchParamsMock(),
+  useRouter: () => useRouterMock(),
 }));
 
-vi.mock(
-  '@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsDetails/RequisitionDetails',
-  () => ({
-    __esModule: true,
-    default: () => <div>Detalle</div>,
-  }),
-);
+vi.mock('./components/RequisitionDetails/RequisitionDetails', () => ({
+  __esModule: true,
+  default: () => <div>Detalle</div>,
+}));
 
 vi.mock(
   '@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsTable/RequisitionsTable',

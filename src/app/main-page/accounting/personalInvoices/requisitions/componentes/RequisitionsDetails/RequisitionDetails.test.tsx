@@ -16,7 +16,7 @@ vi.mock('./hooks/useRequisitionsDetails', () => ({
   }),
 }))
 
-vi.mock('../../../components/RequisitionsForm/RequisitionsForm', () => ({
+vi.mock('@/app/main-page/accounting/requisitions/components/RequisitionsForm/RequisitionsForm', () => ({
   __esModule: true,
   default: () => <div data-testid='form' />, 
 }))

@@ -18,5 +18,7 @@ export interface InvoicesFormProps {
   onCloseImage?: () => void;
   /** Disable all fields. */
   disabled?: boolean;
+  /** Avoid preloading the ticket image when editing. */
+  suppressInitialTicketImage?: boolean;
 }
 

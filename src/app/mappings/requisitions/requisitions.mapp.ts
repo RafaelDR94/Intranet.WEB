@@ -156,4 +156,6 @@ export const RequitionPutMap = (
   state: String(src?.state ?? ''),
   amountdeposited: Number(src?.amountdeposited ?? ''),
   provenamount: Number(src?.provenamount ?? ''),
+  amountdifference: Number(src?.amountdifference ?? ''),
+  gts_type: String(src?.gts_type ?? ''),
 })

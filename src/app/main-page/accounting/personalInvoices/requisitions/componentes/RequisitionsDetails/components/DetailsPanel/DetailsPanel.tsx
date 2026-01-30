@@ -215,10 +215,10 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             </span>
           </div>
           <div className="text-gray-90 text-b4 font-medium">Comentarios:</div>
-          {selected?.comments && (
+          {(selected?.user_comments || selected?.comments) && (
             <div className="space-y-1">
-              <p className="text-b4 p-2 font-medium text-gray-50">
-                {selected.comments}
+              <p className="text-b4 p-0 font-medium text-gray-50">
+                {selected.user_comments ?? selected.comments}
               </p>
             </div>
           )}
@@ -227,6 +227,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               dataEdit={dataEdit}
               externalSubmitRef={submitRef}
               disabled={resendDisabled}
+              suppressInitialTicketImage
               responsiveLayoutMatrix={{
                 sm: [[10], [10]],
                 md: [[10], [10]],
@@ -369,6 +370,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                   dataEdit={dataEdit}
                   externalSubmitRef={submitRef}
                   disabled={resendDisabled}
+                  suppressInitialTicketImage
                   responsiveLayoutMatrix={{
                     sm: [[10], [10]],
                     md: [[10], [10]],

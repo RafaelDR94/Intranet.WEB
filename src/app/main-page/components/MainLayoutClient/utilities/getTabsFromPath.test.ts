@@ -29,7 +29,7 @@ describe('getTabsFromPath utility', () => {
 
     expect(result).toEqual([
       { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
-      { label: 'Listado Requisiciones', path: '/main-page/operations/requisitions/requisitionListPage' },
+      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
       {
         label: 'Archivos',
         path: '/main-page/operations/requisitions/requisitionListPage?id=123&label=Archivos&requisitionsLabel=Archivos',
@@ -45,7 +45,7 @@ describe('getTabsFromPath utility', () => {
 
     expect(result).toEqual([
       { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
-      { label: 'Listado Requisiciones', path: '/main-page/operations/requisitions/requisitionListPage' },
+      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
       {
         label: 'Detalle Requisición',
         path: '/main-page/operations/requisitions/requisitionListPage?id=123&label=Detalle+Requisici%C3%B3n&view=detail',
@@ -134,7 +134,7 @@ describe('getTabsFromPath utility', () => {
 
     expect(result).toEqual([
       { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
-      { label: 'Listado Requisiciones', path: '/main-page/operations/requisitions/requisitionListPage' },
+      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
     ]);
   });
 
@@ -146,7 +146,7 @@ describe('getTabsFromPath utility', () => {
 
     expect(result).toEqual([
       { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
-      { label: 'Listado Requisiciones', path: '/main-page/operations/requisitions/requisitionListPage' },
+      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
       {
         label: 'Requisiciones Bruno',
         path: '/main-page/operations/requisitions/requisitionListPage?id=777&label=Requisiciones+Bruno&idEmployee=777&requisitionsLabel=Requisiciones+Bruno',

@@ -40,10 +40,11 @@ const useRequisitionDetailsDocument = () => {
     }),
     shallow
   )
-  const { billingImages, fetchBillingImages } = useBillingImagesStore(
+  const { billingImages, fetchBillingImages, fetchBillingImageById } = useBillingImagesStore(
     (s) => ({
       billingImages: s.billingImages,
       fetchBillingImages: s.fetchBillingImages,
+      fetchBillingImageById: s.fetchBillingImageById,
     }),
     shallow
   )
@@ -108,6 +109,38 @@ const useRequisitionDetailsDocument = () => {
   }, [requisitionId, fetchBillingDocumentByIdRequisition])
 
   useEffect(() => {
+    if (!selected) return
+    const updated = billingDocuments.find(
+      (doc) => doc.billingdocument_id === selected.billingdocument_id
+    )
+    if (updated && updated.status !== selected.status) {
+      setSelected(updated)
+    }
+  }, [billingDocuments, selected])
+
+  useEffect(() => {
+    if (!selected) return
+    const isTicket =
+      selected.billingdocument_id?.startsWith("ticket-") || selected.billingimages_id
+    if (!isTicket || selected.user_comments) return
+    const imageId =
+      selected.billingimages_id || selected.billingdocument_id?.replace("ticket-", "")
+    if (!imageId) return
+
+    const loadComment = async () => {
+      const image = await fetchBillingImageById(imageId, true)
+      if (!image) return
+      const nextComment = image.user_comments ?? image.comments ?? ""
+      if (!nextComment) return
+      setSelected((prev) =>
+        prev ? { ...prev, user_comments: nextComment, comments: prev.comments || nextComment } : prev
+      )
+    }
+
+    loadComment()
+  }, [fetchBillingImageById, selected])
+
+  useEffect(() => {
     fetchBillingImages()
   }, [fetchBillingImages])
 
@@ -151,7 +184,26 @@ const useRequisitionDetailsDocument = () => {
   const rows: BillingDocumentDetailsTable[] = useMemo(() => {
     const documentsRows = BillingDocumentDetailsTableListMap(billingDocuments ?? [])
     const ticketRows = mapTicketsToRows(billingImages ?? [], requisitionId)
-    return [...ticketRows, ...documentsRows]
+    const imagesByTicketId = new Map<string, string>()
+    ;(billingImages ?? []).forEach((image) => {
+      const imageUrl = normalizeImages(image.images)[0] ?? ""
+      if (!imageUrl) return
+      imagesByTicketId.set(`ticket-${image.billing_image_id}`, imageUrl)
+      imagesByTicketId.set(image.billing_image_id, imageUrl)
+      if (image.requisition?.requisitionkey) {
+        imagesByTicketId.set(image.requisition.requisitionkey, imageUrl)
+      }
+    })
+
+    const enrichedDocumentRows = documentsRows.map((row) => {
+      if (row.imageUrl) return row
+      const ticketImage =
+        imagesByTicketId.get(row.billingdocument_id) ??
+        imagesByTicketId.get(row.uuid)
+      return ticketImage ? { ...row, imageUrl: ticketImage } : row
+    })
+
+    return [...ticketRows, ...enrichedDocumentRows]
   }, [billingDocuments, billingImages, requisitionId])
 
   const mapImageToDocument = (image: BillingImages): BillingDocuments => ({
@@ -171,7 +223,7 @@ const useRequisitionDetailsDocument = () => {
     fecha: image.dateCreate,
     xmlinformation: "",
     date_created: image.dateCreate,
-    user_comments: image.comments ?? "",
+    user_comments: image.user_comments ?? image.comments ?? "",
     forbidden_code: false,
     sat_validation: false,
     billingAcuse: null,

@@ -79,4 +79,6 @@ export type RequitionPut = {
   state: string
   amountdeposited: number
   provenamount: number
+  amountdifference: number
+  gts_type: string
 }

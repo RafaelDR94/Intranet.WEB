@@ -58,8 +58,8 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
       <div
         className={
           billingImages?.Image
-            ? "flex flex-col gap-4 md:flex-row md:items-start"
-            : "flex flex-col"
+            ? "w-full flex flex-col gap-4 md:flex-row md:items-start"
+            : "w-full flex flex-col"
         }
       >
         <div className={billingImages?.Image ? "w-full md:flex-1" : "w-full"}>
@@ -70,8 +70,8 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
               billingImages
                 ? {
                     sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                    md: [[5, 5], [5, 5], [3, 3, 3], [3, 3, 3]],
-                    lg: [[5, 5], [5, 5], [3, 3, 3], [3, 3, 3]],
+                    md: [[5, 5], [3.3, 3.3, 3.3], [2.5, 2.5, 2.5, 2.5]],
+                    lg: [[5, 5], [3.3, 3.3, 3.3], [2.5, 2.5, 2.5, 2.5]],
                   }
                 : responsiveLayoutMatrix
             }
