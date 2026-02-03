@@ -45,7 +45,7 @@ const RequisitionsForm: React.FC<Props> = ({
   onClose,
   responsiveLayoutMatrix,
   startDisabled,
-  showEditForm = false,
+  showEditForm,
 }) => {
   const {
     fields,
@@ -101,8 +101,8 @@ const RequisitionsForm: React.FC<Props> = ({
             primaryLabel="Guardar"
             onPrimaryClick={onSubmit}
             primaryDisabled={buttonDisabled || (startDisabled && disableForm)}
-            enableCollapse={true}
-            showSecondaryButton={mode === "edit" || startDisabled}
+            enableCollapse={enableCollaps}
+            showSecondaryButton={showEditForm ?? (mode === "edit" || startDisabled)}
             secondaryLabel={disableForm ? "Editar información" : "Cancelar"}
             onSecondaryClick={() => {
               onClose?.();

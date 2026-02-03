@@ -17,7 +17,7 @@ import type { BillingDocumentDetailsTable } from "@/app/mappings/billingdocument
 import DowloadIcon from "@/assets/icons/acciones/download.svg";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
+import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 /**
  * Tabla de comprobantes asociados a una requisición. Permite descargar el
  * reporte y ver detalles individuales de cada documento.
@@ -31,6 +31,7 @@ const RequisitionDetailsTable: React.FC = () => {
     panelOpen,
     downloadRequistionResume,
     handleOpenDetails,
+    handleOpenImage,
     setPanelOpen,
     requisitionId,
     loading,
@@ -120,6 +121,15 @@ const RequisitionDetailsTable: React.FC = () => {
                 icon={PDFIcon}
                 onClick={() => window.open(row.pdfUrl, "_blank")}
                 aria-label="Abrir PDF"
+              />
+            )}
+            {(row.imageUrl || row.billingimages_id || row.billingdocument_id?.startsWith("ticket-")) && (
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={ImageIcon}
+                onClick={() => handleOpenImage(row)}
+                aria-label="Abrir Imagen"
               />
             )}
           </div>

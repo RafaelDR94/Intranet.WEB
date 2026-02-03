@@ -1,5 +1,3 @@
-import path from "path";
-
 // utils/getTabsFromPath.ts
 export type Tab = { label: string; path: string };
 

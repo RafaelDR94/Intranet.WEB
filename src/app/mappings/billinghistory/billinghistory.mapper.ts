@@ -10,6 +10,9 @@ export const HistoryRowMap = (raw: any): HistoryRow => ({
   id: String(raw?.id ?? ''),
   billing_image_id: String(raw?.billing_image_id ?? ''),
   billingdocument_id: String(raw?.billingdocument_id ?? ''),
+  billingrequisition_id: raw?.billingrequisition_id
+    ? String(raw?.billingrequisition_id ?? '')
+    : undefined,
   project: ProyectMap(raw?.project ?? {}),
   requisitionkey: String(raw?.requisitionkey ?? ''),
   status: String(raw?.status ?? 'pendiente') as HistoryRow['status'],

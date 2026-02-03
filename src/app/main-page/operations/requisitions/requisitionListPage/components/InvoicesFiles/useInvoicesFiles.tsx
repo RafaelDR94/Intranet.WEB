@@ -4,7 +4,7 @@ import { Button } from "@/app/components/Button/Button";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
-import type { BillingDocumentRequisition } from "@/app/mappings/requisitions/requisitions.types";
+import type { BillingDocumentRequisition, Requisition } from "@/app/mappings/requisitions/requisitions.types";
 import { Select } from "@/app/components/Select/Select";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingRequisition as BillingRequisitionUrl } from "@/app/configurations/Axios/urls";
@@ -385,7 +385,7 @@ const useInvoicesFiles = () => {
       {
         key: "comments",
         label: "Comentario",
-        render: (row) => (
+        render: (_row) => (
           <Button
             size="small"
             // onClick={() => handleOpenDetails(row)}

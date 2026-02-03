@@ -39,7 +39,8 @@ export const Playground: Story = {
         <ImageUploaderExpanded
           {...args}
           onImage={(file) => {
-            setFileName(file ? file.name : null);
+            const nextName = Array.isArray(file) ? file[0]?.name : file?.name;
+            setFileName(nextName ?? null);
             args.onImage?.(file ?? null);
           }}
           cameraLabels={{ capture: 'Tomar fotografia', switchCamera: 'Cambiar camara', close: 'Cerrar visor' }}

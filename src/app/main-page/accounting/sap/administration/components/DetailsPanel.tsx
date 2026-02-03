@@ -12,6 +12,7 @@ import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanel
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 
 import { useSAPDetailsPanel } from "../../common/hooks/useSAPDetailsPanel";
 
@@ -43,6 +44,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     reqisition,
   });
 
+  console.log('selected ', selected);
+  
+
   return (
     <DetailsPanelLayout
       open={panelOpen}
@@ -57,7 +61,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             isMobile ? "w-full flex-col gap-2" : "flex-row items-center gap-3",
           )}
         >
-          {!currentPagePermissions?.canValidInvoice && validInvoice && (
+          {currentPagePermissions?.canValidInvoice && validInvoice && (
             <Button
               size="small"
               variant="solid"
@@ -71,7 +75,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               Validar Factura
             </Button>
           )}
-          {!currentPagePermissions?.canSendToSap && sendInvoiceToSap && (
+          {currentPagePermissions?.canSendToSap && sendInvoiceToSap && (
             <Button
               size="small"
               variant="solid"
@@ -101,6 +105,15 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               icon={PDFIcon}
               disabled={!selected.pdf}
               onClick={() => window.open(selected.pdf!, "_blank")}
+            />
+          )}
+          {selected?.image && (
+            <Button
+              size="xsmall"
+              variant="ghost"
+              icon={ImageIcon}
+              disabled={!selected.image}
+              onClick={() => window.open(selected.image!, "_blank")}
             />
           )}
         </div>

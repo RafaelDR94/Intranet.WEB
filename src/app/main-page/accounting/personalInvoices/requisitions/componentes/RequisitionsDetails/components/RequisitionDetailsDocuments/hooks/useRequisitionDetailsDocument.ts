@@ -24,6 +24,7 @@ const useRequisitionDetailsDocument = () => {
   const requisitionId = searchParams.get('id') ?? undefined
   const [panelOpen, setPanelOpen] = useState(false)
   const [selected, setSelected] = useState<BillingDocuments | null>(null)
+  const [documentImages, setDocumentImages] = useState<Record<string, string>>({})
   const {
     fetchBillingDocumentByIdRequisition,
     billingDocuments,
@@ -141,8 +142,66 @@ const useRequisitionDetailsDocument = () => {
   }, [fetchBillingImageById, selected])
 
   useEffect(() => {
+    if (!selected?.billingimages_id || selected.image) return
+    let active = true
+
+    const loadImage = async () => {
+      const image = await fetchBillingImageById(selected.billingimages_id, true)
+      if (!image || !active) return
+      const imageUrl = normalizeImages(image.images)[0]
+      if (!imageUrl) return
+      setSelected((prev) => (prev ? { ...prev, image: imageUrl } : prev))
+    }
+
+    void loadImage()
+
+    return () => {
+      active = false
+    }
+  }, [fetchBillingImageById, selected])
+
+  useEffect(() => {
     fetchBillingImages()
   }, [fetchBillingImages])
+
+  useEffect(() => {
+    if (!billingDocuments?.length) return
+    const pendingIds = billingDocuments
+      .map((doc) => doc.billingimages_id)
+      .filter((id): id is string => Boolean(id))
+      .filter((id) => !documentImages[id])
+
+    if (pendingIds.length === 0) return
+
+    let active = true
+
+    const loadImages = async () => {
+      const results = await Promise.all(
+        pendingIds.map((id) => fetchBillingImageById(id, true))
+      )
+
+      if (!active) return
+
+      const next: Record<string, string> = {}
+      results.forEach((image, index) => {
+        if (!image) return
+        const url = normalizeImages(image.images)[0]
+        if (url) {
+          next[pendingIds[index]] = url
+        }
+      })
+
+      if (Object.keys(next).length > 0) {
+        setDocumentImages((prev) => ({ ...prev, ...next }))
+      }
+    }
+
+    void loadImages()
+
+    return () => {
+      active = false
+    }
+  }, [billingDocuments, documentImages, fetchBillingImageById])
 
   const normalizeImages = (images: BillingImages["images"]): string[] => {
     if (Array.isArray(images)) return images.filter((item) => Boolean(item))
@@ -164,6 +223,7 @@ const useRequisitionDetailsDocument = () => {
         return {
           id: `ticket-${item.billing_image_id}`,
           billingdocument_id: `ticket-${item.billing_image_id}`,
+          billingimages_id: item.billing_image_id,
           fecha: item.dateCreate,
           rfc_emisor: "",
           description: item.description?.name ?? item.category?.name ?? "Ticket",
@@ -197,6 +257,9 @@ const useRequisitionDetailsDocument = () => {
 
     const enrichedDocumentRows = documentsRows.map((row) => {
       if (row.imageUrl) return row
+      if (row.billingimages_id && documentImages[row.billingimages_id]) {
+        return { ...row, imageUrl: documentImages[row.billingimages_id] }
+      }
       const ticketImage =
         imagesByTicketId.get(row.billingdocument_id) ??
         imagesByTicketId.get(row.uuid)
@@ -204,7 +267,36 @@ const useRequisitionDetailsDocument = () => {
     })
 
     return [...ticketRows, ...enrichedDocumentRows]
-  }, [billingDocuments, billingImages, requisitionId])
+  }, [billingDocuments, billingImages, documentImages, requisitionId])
+
+  const handleOpenImage = async (row: BillingDocumentDetailsTable) => {
+    if (row.imageUrl) {
+      window.open(row.imageUrl, "_blank")
+      return
+    }
+
+    const ticketId = row.billingdocument_id?.startsWith("ticket-")
+      ? row.billingdocument_id.replace("ticket-", "")
+      : undefined
+    const imageId = row.billingimages_id ?? ticketId
+    if (!imageId) return
+
+    const image = await fetchBillingImageById(imageId, true)
+    const imageUrl = image ? normalizeImages(image.images)[0] : undefined
+    if (imageUrl) {
+      window.open(imageUrl, "_blank")
+      return
+    }
+
+    showAlert({
+      type: "warning",
+      title: "Imagen no disponible",
+      description: "No se encontrÃ³ una imagen para este registro.",
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      autoCloseMs: 1500,
+    })
+  }
 
   const mapImageToDocument = (image: BillingImages): BillingDocuments => ({
     id: `ticket-${image.billing_image_id}`,
@@ -255,7 +347,18 @@ const useRequisitionDetailsDocument = () => {
     }
   }
 
-  return { rows, panelOpen, selected, loading, requisitionId,downloadingDocument, handleOpenDetails, setPanelOpen,downloadRequistionResume }
+  return {
+    rows,
+    panelOpen,
+    selected,
+    loading,
+    requisitionId,
+    downloadingDocument,
+    handleOpenDetails,
+    handleOpenImage,
+    setPanelOpen,
+    downloadRequistionResume,
+  }
 }
 
 export default useRequisitionDetailsDocument

@@ -8,7 +8,7 @@ import useInvoicesFiles from "./useInvoicesFiles";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 
-const InvoicesFiles = ({ forceVisible = false }) => {
+const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
   const {
     columns,
     rows,

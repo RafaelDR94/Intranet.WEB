@@ -30,7 +30,6 @@ export default meta
 type Story = StoryObj<typeof RequisitionsTable>
 
 export const LightMode: Story = {
-  args: { onEditRequest: () => {} },
   decorators: [
     (Story) => (
       <div data-theme="light" style={{ backgroundColor: 'var(--color-gray-10)', color: 'var(--color-foreground)', minHeight: '20vh', padding: '1rem' }}>
@@ -41,7 +40,6 @@ export const LightMode: Story = {
 }
 
 export const DarkMode: Story = {
-  args: { onEditRequest: () => {} },
   decorators: [
     (Story) => (
       <div data-theme="dark" style={{ backgroundColor: 'var(--color-gray-10)', color: 'var(--color-foreground)', minHeight: '20vh', padding: '1rem' }}>
