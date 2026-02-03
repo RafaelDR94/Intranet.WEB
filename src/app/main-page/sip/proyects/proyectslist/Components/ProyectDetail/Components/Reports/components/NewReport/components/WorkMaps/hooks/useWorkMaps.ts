@@ -4,6 +4,7 @@ import useReportBuilderStore from "@/app/stores/useReportBuilderStore/useReportB
 import type { Activities as ActivityModel } from '@/app/mappings/reports/reports.types';
 import { shallow } from 'zustand/shallow';
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper';
+import type { SelectedImage } from '@/app/components/ImageUploaderExpanded/types';
 
 const MAP_TITLE = 'Mapa de trabajo';
 
@@ -44,8 +45,37 @@ const useWorkMaps = () => {
     const currentMap = savedMapRef.current;
 
     const handleImageSelection = useCallback(
-        (file: File | null) => {
-            if (!file) {
+        (file: File | SelectedImage[] | null) => {
+            if (!file || (Array.isArray(file) && file.length === 0)) {
+                setImagePreview(null);
+                return;
+            }
+
+            if (Array.isArray(file)) {
+                const first = file[0];
+                if (!first) {
+                    setImagePreview(null);
+                    return;
+                }
+                if (first.file) {
+                    const requestId = ++submitTokenRef.current;
+                    void fileToDataUrl(first.file)
+                        .then((url) => {
+                            if (submitTokenRef.current !== requestId) return;
+                            setImagePreview(url);
+                            setIsEditing(true);
+                        })
+                        .catch(() => {
+                            if (submitTokenRef.current !== requestId) return;
+                            setImagePreview(null);
+                        });
+                    return;
+                }
+                if (first.url) {
+                    setImagePreview(first.url);
+                    setIsEditing(true);
+                    return;
+                }
                 setImagePreview(null);
                 return;
             }

@@ -100,6 +100,13 @@ describe("SAP Administration DetailsPanel", () => {
   });
 
   it("renders invoice details and action buttons", () => {
+    useSAPDetailsPanelMock.mockReturnValue({
+      ...baseHookReturn,
+      currentPagePermissions: {
+        canValidInvoice: true,
+        canSendToSap: true,
+      },
+    });
     renderComponent();
 
     expect(screen.getByText("UUID-123")).toBeInTheDocument();
@@ -108,6 +115,13 @@ describe("SAP Administration DetailsPanel", () => {
   });
 
   it("calls hook handlers when action buttons are clicked", () => {
+    useSAPDetailsPanelMock.mockReturnValue({
+      ...baseHookReturn,
+      currentPagePermissions: {
+        canValidInvoice: true,
+        canSendToSap: true,
+      },
+    });
     renderComponent();
 
     fireEvent.click(screen.getByText("Validar Factura"));

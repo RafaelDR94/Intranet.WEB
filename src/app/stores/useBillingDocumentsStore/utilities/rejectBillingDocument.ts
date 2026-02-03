@@ -35,6 +35,26 @@ export const rejectBillingDocument = async (
     const res: AxiosResponse = await put(BillingDocumentUrl + "?id=" + payload.id + "&comment=" + payload.comment + "&type=" + payload.type, payload)
     const raw = res.data?.data
     const created = raw ? (raw as BillingDocuments) : null
+    const statusLabel = payload.type ? 'Rechazado' : 'Restringido'
+    const patchStatus = (list: BillingDocuments[]) =>
+      list.map((doc) =>
+        doc.billingdocument_id === payload.id ? { ...doc, status: statusLabel } : doc
+      )
+
+    // Actualiza de forma optimista el estatus en las listas actuales
+    const current = get()
+    set({
+      billingDocuments: patchStatus(current.billingDocuments ?? []),
+      billingDocumentnotToday: patchStatus(current.billingDocumentnotToday ?? []),
+      billingDocumentsValid: patchStatus(current.billingDocumentsValid ?? []),
+      billingDocumentsNotValid: patchStatus(current.billingDocumentsNotValid ?? []),
+      billingDocumentsBadCode: patchStatus(current.billingDocumentsBadCode ?? []),
+      billingDocumentsEfos: patchStatus(current.billingDocumentsEfos ?? []),
+      billingDocument:
+        current.billingDocument?.billingdocument_id === payload.id
+          ? { ...current.billingDocument, status: statusLabel }
+          : current.billingDocument,
+    })
 
     if (reqid) fetchBillingDocumentByIdRequisition(reqid, set, get, true)
     else {

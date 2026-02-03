@@ -16,6 +16,7 @@ import type {
   UseImagesComponentReturn,
 } from '../types';
 import useVehicleDocuments from '../../../../hooks/useVehicleDocuments';
+import type { SelectedImage } from '@/app/components/ImageUploaderExpanded/types';
 const isLabeledOption = (option: unknown): option is LabeledOption =>
   typeof option === 'object' &&
   option !== null &&
@@ -137,12 +138,31 @@ const useImagesComponent = ({
     UseImagesComponentReturn['handleImageSelect']
   >(
     (slotId) => async (file) => {
-      if (!file) {
+      if (!file || (Array.isArray(file) && file.length === 0)) {
         resetSlot(slotId);
         return;
       }
 
       try {
+        if (Array.isArray(file)) {
+          const [first] = file as SelectedImage[];
+          if (!first) {
+            resetSlot(slotId);
+            return;
+          }
+          if (first.file) {
+            const dataUrl = await readFileAsDataUrl(first.file);
+            setSlotImage(slotId, { file: first.file, imageSrc: dataUrl });
+            return;
+          }
+          if (first.url) {
+            setSlotImage(slotId, { file: null, imageSrc: first.url });
+            return;
+          }
+          resetSlot(slotId);
+          return;
+        }
+
         const dataUrl = await readFileAsDataUrl(file);
         setSlotImage(slotId, { file, imageSrc: dataUrl });
       } catch (error) {

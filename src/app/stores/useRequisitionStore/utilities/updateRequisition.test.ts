@@ -24,7 +24,20 @@ describe('updateRequisition util', () => {
     const set: Set = (partial) => Object.assign(state, typeof partial === 'function' ? partial(state) : partial)
     const get: Get = () => state
 
-    const payload: RequitionPut = { billingrequisition_id: '1', requisitionkey: 'k', employeename: 'n', projectname: 'p' }
+    const payload: RequitionPut = {
+      billingrequisition_id: '1',
+      requisitionkey: 'k',
+      employeename: 'n',
+      projectname: 'p',
+      assignmentdate: '2024-01-01',
+      endDate: '2024-01-02',
+      motive: 'm',
+      state: 's',
+      amountdeposited: 100,
+      provenamount: 0,
+      amountdifference: 0,
+      gts_type: 'gts',
+    }
     const res = await updateRequisition(set, get, payload)
 
     expect(res?.billingrequisition_id).toBe('1')

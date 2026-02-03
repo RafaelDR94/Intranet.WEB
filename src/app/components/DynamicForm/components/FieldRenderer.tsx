@@ -162,8 +162,10 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             cameraLabels={field.cameraLabels}
             cameraButtonAriaLabel={field.cameraButtonAriaLabel}
             initialFile={field.initialFile}
+            initialFiles={field.initialFiles}
             dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
             preview={field.preview}
+            multiple={field.multiple}
           />
           {helperText && (
             <span className={helperClasses(variant as InputVariant)}>

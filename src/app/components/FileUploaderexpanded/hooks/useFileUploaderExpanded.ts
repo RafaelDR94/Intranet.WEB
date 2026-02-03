@@ -104,7 +104,7 @@ export const useFileUploaderExpanded = (
 
   const mainText = useMemo(() => {
     if (fileName) return fileName;
-    return isDragging ? 'Suelta el archivo aquí' : 'Arrastra y suelta un archivo o usa el botón';
+    return isDragging ? 'Suelta el archivo aquí' : 'Arrastra o selecciona el archivo que deseas subir';
   }, [fileName, isDragging]);
 
   return {

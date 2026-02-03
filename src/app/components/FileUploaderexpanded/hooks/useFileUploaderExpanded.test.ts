@@ -10,7 +10,7 @@ describe('useFileUploaderExpanded', () => {
     const { result } = renderHook(() => useFileUploaderExpanded(onFile, '.pdf', false));
     expect(result.current.isDragging).toBe(false);
     expect(result.current.fileName).toBeNull();
-    expect(result.current.mainText).toMatch(/Arrastra y suelta/i);
+    expect(result.current.mainText).toMatch(/Arrastra o selecciona/i);
   });
 
   it('marca arrastre al dragOver y revierte al dragLeave', () => {

@@ -1,8 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
+const uploadImageMock = vi.fn();
 vi.mock('@/app/context/FirebaseContext/FirebaseContext', () => ({
-  useFirebase: () => ({ firebasestorage: { uploadFile: vi.fn() } }),
+  useFirebase: () => ({ firebasestorage: { uploadImage: uploadImageMock } }),
 }));
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   usePrincipal: () => ({
@@ -24,6 +25,8 @@ vi.mock('../../../hooks/useInitInvoicesForms', () => ({
     updateField: vi.fn(),
   }),
 }));
+const createBillingImageMock = vi.fn();
+const updateBillingImageMock = vi.fn();
 vi.mock('@/app/stores/useBillingImagesStore/useBillingImagesStore', () => ({
   useBillingImagesStore: (sel: any) =>
     sel({
@@ -32,13 +35,16 @@ vi.mock('@/app/stores/useBillingImagesStore/useBillingImagesStore', () => ({
       error: undefined,
       successPost: false,
       successPut: false,
-      createBillingImage: vi.fn(),
-      updateBillingImage: vi.fn(),
+      createBillingImage: createBillingImageMock,
+      updateBillingImage: updateBillingImageMock,
       resetFlags: vi.fn(),
     }),
 }));
 vi.mock('@/app/stores/useBillingHistoryStore/useBillingHistoryStore', () => ({
   useBillingHistoryStore: (sel: any) => sel({ forceFetchBillingHistory: vi.fn() }),
+}));
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams('id=REQ-123'),
 }));
 
 import useTicketForm from './useTicketForm';
@@ -47,5 +53,20 @@ describe('useTicketForm', () => {
   it('exposes handleSubmit function', () => {
     const { result } = renderHook(() => useTicketForm({}));
     expect(typeof result.current.handleSubmit).toBe('function');
+  });
+
+  it('sends requisition id from query params when creating a ticket', async () => {
+    uploadImageMock.mockResolvedValue('https://image.example.com/ticket.png');
+
+    const { result } = renderHook(() => useTicketForm({}));
+
+    await result.current.handleSubmit({
+      ticket: {} as File,
+      category: 'cat-1',
+    });
+
+    expect(createBillingImageMock).toHaveBeenCalledWith(
+      expect.objectContaining({ requisition_id: 'REQ-123' })
+    );
   });
 });

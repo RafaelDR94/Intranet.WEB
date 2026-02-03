@@ -34,4 +34,6 @@ export interface UseInvoicesFormProps {
   withoutName?: boolean;
   /** Callback when closing image preview. */
   onCloseImage?: () => void;
+  /** Disable all fields. */
+  disabled?: boolean;
 }

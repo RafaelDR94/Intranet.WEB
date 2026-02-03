@@ -65,6 +65,16 @@ export const useValidateInvoices = () => {
   useEffect(() => {
     fetchBillingDocuments(true);
   }, [fetchBillingDocuments])
+
+  useEffect(() => {
+    if (!selected) return;
+    const updated = billingDocuments.find(
+      (doc) => doc.billingdocument_id === selected.billingdocument_id
+    );
+    if (updated && updated.status !== selected.status) {
+      setSelected(updated);
+    }
+  }, [billingDocuments, selected]);
   useEffect(() => {
     if (loading) {
       showSpinner({ message: "Obteniendo historial..." })

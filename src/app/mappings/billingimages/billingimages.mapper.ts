@@ -8,6 +8,20 @@ import {
   BillingPost,
   BillingPut,
 } from './billingimages.types'
+
+const normalizeImageUrls = (rawImages: unknown): string[] => {
+  if (Array.isArray(rawImages)) {
+    return rawImages
+      .map((img) => {
+        if (typeof img === 'string') return img
+        if (img && typeof (img as any).image === 'string') return String((img as any).image)
+        return ''
+      })
+      .filter((img) => Boolean(img))
+  }
+  if (typeof rawImages === 'string') return rawImages ? [rawImages] : []
+  return []
+}
 /**
  * BillingImageMap
  * Mapea un registro crudo de la API a un objeto tipado BillingImages.
@@ -16,8 +30,9 @@ export const BillingImageMap = (raw: any): BillingImages => ({
   billing_image_id: String(raw?.billing_image_id ?? ''),
   requisition: RequisitionMap(raw?.requisition),
   status: String(raw?.status ?? ''),
-  Image: String(raw?.Image ?? ''),
+  images: normalizeImageUrls(raw?.images),
   comments: String(raw?.comments ?? ''),
+  user_comments: String(raw?.user_comments ?? ''),
   dateCreate: String(raw?.date_created ?? ''),
   category: BillingDocumentCategoryMap(raw?.Category),
   description: BillingDocumentDescriptionMap(raw?.description),
@@ -38,7 +53,7 @@ export const BillingImagesMap = (list: any[]): BillingImages[] =>
  */
 export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => ({
   requisition_id: src?.requisition_id ?? '',
-  Image: String(src?.Image ?? false),
+  images: Array.isArray(src?.images) ? src.images : src?.images ? [src.images] : [],
   description: String(src?.description ?? ''),
   numpersons: String(src?.numpersons ?? 0),
   numnights: String(src?.numnights ?? 0),
@@ -52,7 +67,7 @@ export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => 
 export const BillingPutMap = (src: Partial<BillingPut> | any): BillingPut => ({
   billing_image_id: src?.billing_image_id ?? '',
   requisition_id: String(src?.requisition_id ?? ''),
-  Image: String(src?.Image ?? ''),
+  images: Array.isArray(src?.images) ? src.images : src?.images ? [src.images] : [],
   comments: String(src?.comments ?? ''),
   user_comments: String(src?.user_comments ?? ''),
   description: String(src?.description ?? ''),
@@ -62,21 +77,25 @@ export const BillingPutMap = (src: Partial<BillingPut> | any): BillingPut => ({
 
 })
 export const BillingImagesTableMap = (src: BillingImages[]): BillingImagesTable[] => {
-  return src.map(item => ({
-    id: item.billing_image_id,
-    billing_image_id: item.billing_image_id,
-    deudor: item?.requisition?.employeename,
-    proyect: item?.requisition?.projectname,
-    Image: item?.Image,
-    comments: item?.comments,
-    dateCreate: item?.dateCreate,
-    requisition_id: item?.requisition?.billingrequisition_id || '',
-    category: item?.category,
-    description: item?.description,
-    numpersons: item?.numpersons,
-    numnights: item?.numnights,
-    requisitionkey: item?.requisition?.requisitionkey,
-    categoryName: item?.category?.name,
-    descriptionName:  item?.description?.name,
-  }))
+  return src.map(item => {
+    const imageUrls = Array.isArray(item?.images) ? item.images : []
+    return {
+      id: item.billing_image_id,
+      billing_image_id: item.billing_image_id,
+      deudor: item?.requisition?.employeename,
+      proyect: item?.requisition?.projectname,
+      images: imageUrls,
+      Image: imageUrls[0] ?? '',
+      comments: item?.comments,
+      dateCreate: item?.dateCreate,
+      requisition_id: item?.requisition?.billingrequisition_id || '',
+      category: item?.category,
+      description: item?.description,
+      numpersons: item?.numpersons,
+      numnights: item?.numnights,
+      requisitionkey: item?.requisition?.requisitionkey,
+      categoryName: item?.category?.name,
+      descriptionName:  item?.description?.name,
+    }
+  })
 }

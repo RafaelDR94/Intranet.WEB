@@ -1,11 +1,12 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow"
 
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 const usePictureTable = () => {
     const { usePrincipalImage, usePrincipalLoading, usePrincipalAlert } = usePrincipal();
@@ -37,9 +38,36 @@ const usePictureTable = () => {
         }),
         shallow
     )
+    const { billingDocuments, fetchBillingDocuments, successPost, successPut } = useBillingDocumentsStore(
+        (s) => ({
+            billingDocuments: s.billingDocuments,
+            fetchBillingDocuments: s.fetchBillingDocuments,
+            successPost: s.successPost,
+            successPut: s.successPut
+        }),
+        shallow
+    )
     useEffect(() => {
         fetchBillingImages(true)
     }, [fetchBillingImages])
+    useEffect(() => {
+        fetchBillingDocuments(true)
+    }, [fetchBillingDocuments])
+    useEffect(() => {
+        if (!successPost && !successPut) return
+        fetchBillingDocuments(true)
+        fetchBillingImages(true)
+    }, [fetchBillingDocuments, fetchBillingImages, successPost, successPut])
+
+    const filteredBillingImages = useMemo(() => {
+        const linkedImageIds = new Set(
+            (billingDocuments ?? [])
+                .map((doc) => String(doc?.billingimages_id ?? ""))
+                .filter((id) => Boolean(id))
+        )
+
+        return (billingImages ?? []).filter((image) => !linkedImageIds.has(image.billing_image_id))
+    }, [billingDocuments, billingImages])
 
     useEffect(() => {
 
@@ -94,6 +122,6 @@ const usePictureTable = () => {
         });
     }
 
-    return { currentPagePermissions,loading, opePicture, isMobile, billingImages, setOpenRejectPicture, openRejectPicture, handleSubmitReject, hideImage }
+    return { currentPagePermissions,loading, opePicture, isMobile, billingImages: filteredBillingImages, setOpenRejectPicture, openRejectPicture, handleSubmitReject, hideImage }
 }
 export default usePictureTable;

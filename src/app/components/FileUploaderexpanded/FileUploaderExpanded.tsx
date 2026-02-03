@@ -120,9 +120,8 @@ export const FileUploaderExpanded: React.FC<FileUploaderProps> = ({
           disabled={disabled}
           className={buttonWrapper}
           variant="outline"
-          hideIcon
         >
-          Seleccionar archivo
+          Seleccionar Archivo
         </Button>
       </div>
     </div>

@@ -7,6 +7,7 @@ import type { Activities as ActivityModel } from '@/app/mappings/reports/reports
 import { useActivitiesStore } from '@/app/stores/useActivitiesStore/useActivitiesStore'
 import useReportBuilderStore from '@/app/stores/useReportBuilderStore/useReportBuilderStore'
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper'
+import type { SelectedImage } from '@/app/components/ImageUploaderExpanded/types'
 
 export type ActivityFormValues = Pick<ActivityModel, 'title' | 'date' | 'description'>
 export type ActivityActionRow = { index: number; activity: ActivityModel }
@@ -89,8 +90,26 @@ export const useAddActivities = () => {
     }, [])
 
     const handleImage = useCallback(
-        (file: File | null) => {
-            if (!file) return resetForm()
+        (file: File | SelectedImage[] | null) => {
+            if (!file || (Array.isArray(file) && file.length === 0)) return resetForm()
+
+            if (Array.isArray(file)) {
+                const first = file[0]
+                if (!first) return resetForm()
+                if (first.file) {
+                    const id = ++readTokenRef.current
+                    void fileToDataUrl(first.file)
+                        .then((url) => id === readTokenRef.current && setImagePreview(url))
+                        .catch(() => id === readTokenRef.current && setImagePreview(null))
+                    return
+                }
+                if (first.url) {
+                    setImagePreview(first.url)
+                    return
+                }
+                return resetForm()
+            }
+
             const id = ++readTokenRef.current
             void fileToDataUrl(file)
                 .then((url) => id === readTokenRef.current && setImagePreview(url))

@@ -5,10 +5,13 @@
 export type RequisitionRow = {
   /** Unique identifier for the requisition. */
   id: string
+  /** Employee identifier associated with the requisition. */
+  employeeId?: string
   /** Serial number displayed in the list. */
   snCode: string
   /** Name of the debtor associated with the requisition. */
   debtorName: string
+  employeename?:string,
   /** Project code for the requisition. */
   projectCode: string
   /** Assignment date (raw ISO or yyyy-mm-dd). */
@@ -23,5 +26,9 @@ export type RequisitionRow = {
   date_created?: string
   
   state?:string,
+
+  phone_number?:string,
+
+  email?:string,
 }
 

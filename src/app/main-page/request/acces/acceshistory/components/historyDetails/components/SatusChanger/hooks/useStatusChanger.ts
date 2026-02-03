@@ -6,6 +6,7 @@ import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { shallow } from "zustand/shallow";
 import { AccesPut } from "@/app/mappings/accesrequest/accesrequest.types";
 import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
+import type { SelectedImage } from "@/app/components/ImageUploaderExpanded/types";
 
 
 const useStatusChanger = () => {
@@ -179,8 +180,13 @@ const useStatusChanger = () => {
         setOpenPopUp(false);
         setCurrentStatus(undefined);
     }
-    const handleSetEvidence = (file: File | null) => {
-        setEvidence(file);
+    const handleSetEvidence = (file: File | SelectedImage[] | null) => {
+        if (Array.isArray(file)) {
+            const first = file[0];
+            setEvidence(first?.file ?? null);
+            return;
+        }
+        setEvidence(file ?? null);
     }
     const handleCommentChange = (newComment: string) => {
         setComment(newComment);

@@ -1,0 +1,23 @@
+<Meta title="Stores/BillingRequisitionImageUrl/Utilities" />
+
+# BillingRequisitionImageUrl utilities
+
+Utilidades para consultar y actualizar la evidencia de aprobaciÃ³n (imagen) ligada a una requisiciÃ³n.
+
+| Utility | DescripciÃ³n |
+| --- | --- |
+| `fetchBillingRequisitionImageUrlById` | Obtiene la URL de evidencia por id de requisiciÃ³n. |
+| `updateBillingRequisitionImageUrl` | Actualiza la URL de evidencia en el backend. |
+
+## Ejemplo de uso
+
+```ts
+import { useBillingRequisitionImageUrlStore } from '../useBillingRequisitionImageUrlStore'
+
+const { updateRequisitionImageUrl } = useBillingRequisitionImageUrlStore.getState()
+
+await updateRequisitionImageUrl({
+  idRequisition: 'REQ-123',
+  imageUrl: 'https://.../evidence.jpg',
+})
+```

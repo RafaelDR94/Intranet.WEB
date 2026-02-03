@@ -7,7 +7,7 @@ import type { RequisitionRow } from '../types'
 
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
-import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
+import { useBillingRequisitionWithEmployeesStore } from '@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore'
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper'
 
 /**
@@ -27,22 +27,31 @@ export const useRequisitionTable = () => {
       ? (searchParams as any).has("id")
       : new URLSearchParams((searchParams as any) ?? "").has("id");
   const {
-    requisitions, loading, error, removing,successPut, fetchRequisitionsByDate, deleteRequisition, resetFlags
-  } = useRequisitionsStore(s => ({
-    requisitions: s.requisitions,
-    loading: s.loading,
-    error: s.error,
-    removing: s.removing,
-    successPut:s.successPut,
-    fetchRequisitionsByDate: s.fetchRequisitionsByDate,
-    deleteRequisition: s.deleteRequisition,
-    resetFlags: s.resetFlags
-  }), shallow)
+    requisitions,
+    loading,
+    error,
+    removing,
+    fetchRequisitionsWithEmployees,
+    deleteRequisition,
+    resetFlags,
+  } = useBillingRequisitionWithEmployeesStore(
+    (s) => ({
+      requisitions: s.requisitions,
+      loading: s.loading,
+      error: s.error,
+      removing: s.removing,
+      fetchRequisitionsWithEmployees: s.fetchRequisitionsWithEmployees,
+      deleteRequisition: s.deleteRequisition,
+      resetFlags: s.resetFlags,
+    }),
+    shallow,
+  )
 
   // Prefetch
   useEffect(() => {
-    if (isGatewayReady && !hasIdParam) fetchRequisitionsByDate(lastDates.startDate, lastDates.endDate, true);
-  }, [isGatewayReady, hasIdParam, fetchRequisitionsByDate, lastDates.startDate, lastDates.endDate])
+    if (isGatewayReady && !hasIdParam)
+      fetchRequisitionsWithEmployees(lastDates.startDate, lastDates.endDate, true)
+  }, [isGatewayReady, hasIdParam, fetchRequisitionsWithEmployees, lastDates.startDate, lastDates.endDate])
 
 
   // Alert de error general de carga
@@ -61,10 +70,24 @@ export const useRequisitionTable = () => {
       onPrimaryClick: hideAlert,
       showSecondaryButton: true,
       secondaryLabel: 'Reintentar',
-      onSecondaryClick: () => { hideAlert(); fetchRequisitionsByDate(lastDates.startDate, lastDates.endDate, true); },
+      onSecondaryClick: () => {
+        hideAlert();
+        fetchRequisitionsWithEmployees(lastDates.startDate, lastDates.endDate, true);
+      },
     })
 
-  }, [error, loading, successPut, hideSpinner, resetFlags, showAlert, showSpinner, hideAlert, fetchRequisitionsByDate, lastDates.startDate, lastDates.endDate])
+  }, [
+    error,
+    loading,
+    hideSpinner,
+    resetFlags,
+    showAlert,
+    showSpinner,
+    hideAlert,
+    fetchRequisitionsWithEmployees,
+    lastDates.startDate,
+    lastDates.endDate,
+  ])
 
   const [query, setQuery] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -72,23 +95,32 @@ export const useRequisitionTable = () => {
 
 
   const rows: RequisitionRow[] = useMemo(() => {
-    const base = requisitions.map(r => ({
-      id: r?.billingrequisition_id,
-      snCode: r?.requisitionkey,
-      debtorName: r?.employeename,
-      // Prefer project ID/code to match visual sample
-      projectCode: r?.projectname,
-      assignmentDate: r?.assignmentdate,
-      dueDate: r.endDate,
-      amount: Number(r?.amountdeposited),
-      status: r?.status,
-      state:r?.state,
-      date_created: r?.date_created,
-    }))
+    const base = requisitions.map(r => {
+      const employeename = r?.employeename ?? ''
+
+      return {
+        id: r?.billingrequisition_id ?? '',
+        employeeId: r?.id_Employee ?? '',
+        snCode: r?.requisitionkey ?? '',
+        employeename,
+        debtorName: employeename,
+        // Prefer project ID/code to match visual sample
+        projectCode: r?.projectname ?? '',
+        assignmentDate: r?.assignmentdate,
+        dueDate: r?.endDate,
+        amount: Number(r?.amountdeposited),
+        status: r?.status,
+        state: r?.state,
+        phone_number: r?.phone_number ?? '',
+        email: r?.email ?? '',
+        date_created: r?.date_created,
+      }
+    })
     if (!query) return base
     const q = query.toLowerCase()
     return base.filter(r =>
       r.snCode.toLowerCase().includes(q) ||
+      r.employeename?.toLowerCase().includes(q) ||
       r.debtorName.toLowerCase().includes(q) ||
       r.projectCode.toLowerCase().includes(q)
     )
@@ -97,7 +129,38 @@ export const useRequisitionTable = () => {
   const onEdit = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path; // quita slash final si viene
     const qs = new URLSearchParams(searchParams.toString());     // clona params actuales
+    qs.delete('label');                                          // remueve label previo de vistas de archivos/requisiciones
     qs.set('id', row.id);                                        // añade/reemplaza id
+    router.push(`${clean}?${qs.toString()}`);
+  };
+
+  const getFirstName = (name?: string | null) => {
+    if (!name) return '';
+    const parts = name.trim().split(/\s+/);
+    return parts[0] || '';
+  };
+
+  const buildLabel = (prefix: string, name?: string | null) => {
+    const firstName = getFirstName(name);
+    return firstName ? `${prefix} ${firstName}` : prefix;
+  };
+
+  const onViewFiles = (row: RequisitionRow) => {
+    const clean = path.endsWith('/') ? path.slice(0, -1) : path;
+    const qs = new URLSearchParams(searchParams.toString());
+    qs.set('id', row.id);
+    qs.set('label', buildLabel('Archivos', row.debtorName));
+    router.push(`${clean}?${qs.toString()}`);
+  };
+
+  const onViewRequisitions = (row: RequisitionRow) => {
+    const clean = path.endsWith('/') ? path.slice(0, -1) : path;
+    const qs = new URLSearchParams(searchParams.toString());
+    const requisitionsLabel = buildLabel('Requisiciones', row.debtorName);
+    qs.set('id', row.employeeId ?? row.id);
+    qs.set('idEmployee', row.employeeId ?? row.id);
+    qs.set('label', requisitionsLabel);
+    qs.set('requisitionsLabel', requisitionsLabel);
     router.push(`${clean}?${qs.toString()}`);
   };
 
@@ -147,7 +210,7 @@ export const useRequisitionTable = () => {
     const startDate = start ? currentDate(start) : currentDate();
     const endDate = end ? currentDate(end) : currentDate();
     setLastDates({ startDate: startDate, endDate: endDate })
-    fetchRequisitionsByDate(startDate, endDate, true);
+    fetchRequisitionsWithEmployees(startDate, endDate, true)
   }
 
   // columns estático si en algún punto deseas moverlo aquí (dejo ejemplo):
@@ -160,7 +223,7 @@ export const useRequisitionTable = () => {
     // borrar
     confirmOpen, setConfirmOpen, rowToDelete, removing, handleConfirmDelete,
     // acciones
-    onEdit, onDelete, refresh,
+    onEdit, onViewFiles, onViewRequisitions, onDelete, refresh,
     hasIdParam
   }
 }
