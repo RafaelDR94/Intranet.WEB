@@ -117,6 +117,8 @@ export const GeneralServicesMeetingRoomCalendarEventId = process.env.NEXT_PUBLIC
 export const NotificationsSendPush = process.env.NEXT_PUBLIC_NOTIFICATIONS_SENDPUSH ?? "/Notifications/SendPushNotification";
 
 export const BillingRequisition = process.env.NEXT_PUBLIC_BILLINGS_REQUISITION ?? "/Billings/BillingRequisition";
+export const BillingRequisitionImageUrl =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_IMAGE_URL ?? "/Billings/BillingRequisition/ImageUrl";
 export const BillingRequisitionWithEmployees =
   process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_WITH_EMPLOYEES ??
   "/Billings/BillingRequisitionWithEmployees";

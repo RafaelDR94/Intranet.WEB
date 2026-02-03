@@ -1,3 +1,9 @@
+### 1.47.87 Evidencia de aprobación en requisiciones 02-03-2026
+
+Feature:
+
+- Agrega el endpoint BillingRequisition/ImageUrl con store, mapeo y carga de evidencia desde el detalle de requisición. (Agente IA) [#]()
+
 ### 1.47.86 Payload completo de vinculación 12-29-2025
 
 Fix:
