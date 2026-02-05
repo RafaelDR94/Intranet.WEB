@@ -10,6 +10,120 @@ export const base64ToBlob = (base64: string) => {
     return new Blob([ab], { type: mimeString });
 };
 
+const getDataUrlMimeType = (dataUrl: string): string => {
+  const header = dataUrl.split(',')[0] || '';
+  const match = header.match(/data:([^;]+)/);
+  return match ? match[1] : 'image/jpeg';
+};
+
+const isWebpSupported = (() => {
+  let cached: boolean | null = null;
+  return () => {
+    if (cached !== null) return cached;
+    if (typeof document === 'undefined') {
+      cached = false;
+      return cached;
+    }
+    const canvas = document.createElement('canvas');
+    const dataUrl = canvas.toDataURL('image/webp');
+    cached = dataUrl.startsWith('data:image/webp');
+    return cached;
+  };
+})();
+
+const loadImageFromDataUrl = (dataUrl: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = (err) => reject(err);
+    img.src = dataUrl;
+  });
+
+const calculateTargetSize = (
+  width: number,
+  height: number,
+  maxWidth: number,
+  maxHeight: number
+) => {
+  if (width <= maxWidth && height <= maxHeight) {
+    return { width, height };
+  }
+  const widthRatio = maxWidth / width;
+  const heightRatio = maxHeight / height;
+  const ratio = Math.min(widthRatio, heightRatio);
+  return {
+    width: Math.max(1, Math.round(width * ratio)),
+    height: Math.max(1, Math.round(height * ratio)),
+  };
+};
+
+export type OptimizeImageOptions = {
+  maxWidth?: number;
+  maxHeight?: number;
+  quality?: number;
+  preferWebp?: boolean;
+};
+
+export type OptimizedImageResult = {
+  blob: Blob;
+  mime: string;
+  width: number;
+  height: number;
+};
+
+/** Redimensiona y recomprime un dataURL para reducir peso. */
+export const optimizeDataUrlToBlob = async (
+  dataUrl: string,
+  options: OptimizeImageOptions = {}
+): Promise<OptimizedImageResult> => {
+  const {
+    maxWidth = 1600,
+    maxHeight = 1600,
+    quality = 0.72,
+    preferWebp = true,
+  } = options;
+
+  if (typeof document === 'undefined') {
+    const fallbackBlob = base64ToBlob(dataUrl);
+    return {
+      blob: fallbackBlob,
+      mime: fallbackBlob.type || getDataUrlMimeType(dataUrl),
+      width: 0,
+      height: 0,
+    };
+  }
+
+  const img = await loadImageFromDataUrl(dataUrl);
+  const target = calculateTargetSize(img.width, img.height, maxWidth, maxHeight);
+  const canvas = document.createElement('canvas');
+  canvas.width = target.width;
+  canvas.height = target.height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    const fallbackBlob = base64ToBlob(dataUrl);
+    return {
+      blob: fallbackBlob,
+      mime: fallbackBlob.type || getDataUrlMimeType(dataUrl),
+      width: target.width,
+      height: target.height,
+    };
+  }
+
+  ctx.drawImage(img, 0, 0, target.width, target.height);
+  const useWebp = preferWebp && isWebpSupported();
+  const mime = useWebp ? 'image/webp' : 'image/jpeg';
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (result) => (result ? resolve(result) : reject(new Error('toBlob failed'))),
+      mime,
+      quality
+    );
+  });
+
+  return { blob, mime, width: target.width, height: target.height };
+};
+
 /** Comprime una imagen remota y devuelve un dataURL. */
 export const compressImage = (imageUrl: string, quality: number = 0.5): Promise<string> => {
   return new Promise((resolve, reject) => {

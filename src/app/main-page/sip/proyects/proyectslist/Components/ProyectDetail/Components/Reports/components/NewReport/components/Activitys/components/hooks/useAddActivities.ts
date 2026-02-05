@@ -9,6 +9,7 @@ import useReportBuilderStore from '@/app/stores/useReportBuilderStore/useReportB
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper'
 import type { SelectedImage } from '@/app/components/ImageUploaderExpanded/types'
 
+
 export type ActivityFormValues = Pick<ActivityModel, 'title' | 'date' | 'description'>
 export type ActivityActionRow = { index: number; activity: ActivityModel }
 

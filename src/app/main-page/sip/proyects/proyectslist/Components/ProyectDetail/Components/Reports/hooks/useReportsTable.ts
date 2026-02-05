@@ -115,7 +115,7 @@ const useReportsTable = () => {
     showSpinner({ message: "Generando reporte fotográfico..." });
     try {
       
-      const pdfData = makePictureDocument();
+      const pdfData = await makePictureDocument();
       if (pdfData) {
         const url: any = await new Promise((resolve, reject) => {
           const membret = idproyect == "b30f2236-bce8-4bf8-9edd-731e760f35cc" ?"DISITREK":"DR"

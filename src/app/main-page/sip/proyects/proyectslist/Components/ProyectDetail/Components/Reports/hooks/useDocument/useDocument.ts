@@ -1,5 +1,6 @@
 
 import { saveAs } from "file-saver";
+import { useRef } from "react";
 
 import { Infohelperreturninferface } from "./types";
 import { ActivitiesHelper, InfoHelper,TableHelper,DiagnosticSolutionHelper,SignatureHelper,SingleTextHelper} from "./utilities/reportUtilities";
@@ -32,8 +33,90 @@ const getLogoBase64 = async (): Promise<string | undefined> => {
 
 
 const useDocument = () => {
+    const imageCacheRef = useRef(new Map<string, string>());
     const { currentReport } = useReportsStore();
-    const makePictureDocument = () => {
+    const loadImageFromDataUrl = (dataUrl: string): Promise<HTMLImageElement> =>
+        new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = (err) => reject(err);
+            img.src = dataUrl;
+        });
+
+    const normalizeImageForPdf = async (dataUrl: string) => {
+        if (typeof document === "undefined") {
+            return dataUrl;
+        }
+        const img = await loadImageFromDataUrl(dataUrl);
+        const maxWidth = 1600;
+        const maxHeight = 1600;
+        const needsResize = img.width > maxWidth || img.height > maxHeight;
+        const isWebp = dataUrl.startsWith("data:image/webp");
+
+        if (!needsResize && !isWebp) {
+            return dataUrl;
+        }
+
+        const widthRatio = maxWidth / img.width;
+        const heightRatio = maxHeight / img.height;
+        const ratio = Math.min(widthRatio, heightRatio, 1);
+        const targetWidth = Math.max(1, Math.round(img.width * ratio));
+        const targetHeight = Math.max(1, Math.round(img.height * ratio));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            return dataUrl;
+        }
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+        return canvas.toDataURL("image/jpeg", 0.82);
+    };
+
+    const urlToBase64WithRetry = async (url: string, attempts = 2) => {
+        let lastError: unknown;
+        for (let i = 0; i < attempts; i++) {
+            try {
+                const dataUrl = await urlToBase64(url);
+                if (dataUrl) {
+                    return dataUrl;
+                }
+            } catch (error) {
+                lastError = error;
+            }
+        }
+        if (lastError) {
+            console.warn("Error al convertir imagen a base64", lastError);
+        }
+        return "";
+    };
+
+    const ensurePdfImageUrl = async (url: string) => {
+        if (!url) return "";
+        const cached = imageCacheRef.current.get(url);
+        if (cached) return cached;
+
+        let dataUrl = url;
+        if (!url.startsWith("data:image")) {
+            dataUrl = await urlToBase64WithRetry(url, 2);
+            if (!dataUrl) {
+                return url;
+            }
+        }
+
+        let normalized = dataUrl;
+        try {
+            normalized = await normalizeImageForPdf(dataUrl);
+        } catch (error) {
+            console.warn("No se pudo normalizar la imagen para PDF", error);
+        }
+
+        imageCacheRef.current.set(url, normalized);
+        return normalized;
+    };
+
+    const makePictureDocument = async () => {
         if (!currentReport) return;
         let iteration = 0;
         const MAX_ITERATIONS = 50;
@@ -86,24 +169,26 @@ const useDocument = () => {
             }
         }
         if (currentReport.activities.length > 0) {
-            currentReport.activities.forEach((picture) => {
-                picturesdata.push({
+            const normalizedActivities = await Promise.all(
+                currentReport.activities.map(async (picture) => ({
                     title: picture.title,
                     description: picture.description,
-                    urlimage: picture.urlimage,
-                });
-            });
+                    urlimage: await ensurePdfImageUrl(picture.urlimage),
+                }))
+            );
+            picturesdata.push(...normalizedActivities);
         }
         if (currentReport.maps.length > 0) {
-            currentReport.maps.forEach((picture) => {
-                mapsdata.push({
+            const normalizedMaps = await Promise.all(
+                currentReport.maps.map(async (picture) => ({
                     title: picture.title,
                     description: picture.description,
-                    urlimage: picture.urlimage,
+                    urlimage: await ensurePdfImageUrl(picture.urlimage),
                     height: 220,
                     width: 500,
-                });
-            });
+                }))
+            );
+            mapsdata.push(...normalizedMaps);
         }
         let Info = { title: "Información", data: documentdata };
         const Pictures = (pictures: ImageElement[]) => ({
@@ -119,7 +204,7 @@ const useDocument = () => {
             title: "Firma de responsable",
             signatures: [
                 {
-                    signature: currentReport?.employeesignurl || "",
+                    signature: await ensurePdfImageUrl(currentReport?.employeesignurl || ""),
                     name: currentReport?.employe?.fullname || "Nombre del responsable",
                     charge: currentReport?.employe?.workposition?.name || "Cargo del responsable",
                 },
@@ -128,7 +213,7 @@ const useDocument = () => {
         };
         if (currentReport?.model?.clientsign) {
             Signature.signatures.push({
-                signature: currentReport?.clientsign.url || "",
+                signature: await ensurePdfImageUrl(currentReport?.clientsign.url || ""),
                 name: currentReport?.clientsign.clientname || "Nombre del cliente",
                 charge: currentReport?.clientsign.clientworkposition || "Cargo del cliente",
             })
