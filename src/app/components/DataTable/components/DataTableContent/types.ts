@@ -1,4 +1,4 @@
-import { ColumnDefinition } from '../../types'
+import { ColumnDefinition, SelectionMode } from '../../types'
 
 /**
  * Propiedades del componente que renderiza el contenido de la tabla
@@ -10,6 +10,8 @@ export interface DataTableContentProps<T extends { id: string | number }> {
   columns: ColumnDefinition<T>[]
   /** Permite la selección de filas */
   enableSelection?: boolean
+  /** Controla si la selecci?n es simple o m?ltiple */
+  selectionMode?: SelectionMode
   /** Identificadores de filas que deben iniciar seleccionadas */
   initialSelectedIds?: Array<T['id']>
   /** Clave inicial para ordenar */

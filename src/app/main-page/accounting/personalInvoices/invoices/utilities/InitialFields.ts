@@ -1,4 +1,5 @@
 import { FieldModel } from "@/app/components/DynamicForm/types";
+import { ticketFormDropzoneClasses } from "../components/TicketForm/styles";
 
 /**
  * Creates base fields for the invoice form.
@@ -8,7 +9,7 @@ export const createInvoiceFields = (): FieldModel[] => [
   {
     type: "input",
     name: "debtorName",
-    label: "Nombre del Deudor",
+    label: "Nombre",
     placeholder: "Ingrese el nombre completo",
     value: "",
     className: "max-w-[400px]",
@@ -19,7 +20,7 @@ export const createInvoiceFields = (): FieldModel[] => [
     type: "input",
     name: "proyect",
     label: "Proyecto",
-    placeholder: "Ingrese el nombre completo",
+    placeholder: "Proyecto",
     value: "",
     className: "max-w-[400px]",
     onlyText: true,
@@ -69,35 +70,37 @@ export const createInvoiceFields = (): FieldModel[] => [
   {
     type: "numberControl",
     name: "numnights",
-    label: "Número de noches",
+    label: "No. de Noches",
     value: 1,
-    className: "max-w-[300px]",
+    className: "max-w-[220px]",
     validations: [{ type: "required" }],
   },
   {
     type: "numberControl",
     name: "numpersons",
-    label: "Número de personas",
+    label: "No. de Personas",
     value: 1,
-    className: "max-w-[300px]",
+    className: "max-w-[220px]",
     validations: [{ type: "required" }],
   },
   {
     type: "file",
     name: "xml",
-    label: "Documento XML",
+    label: "Sube aquí el archivo xml",
+    placeholder: "Seleccionar documento",
     value: { name: "Documento XML", url: "" },
     accept: ".xml",
-    className: "max-w-[300px]",
+    className: "w-full md:w-[200px] px-3 py-1.5 text-btn-sm",
     validations: [{ type: "required" }],
   },
   {
     type: "file",
     name: "pdf",
-    label: "Documento PDF",
+    label: "Sube aquí el archivo pdf",
+    placeholder: "Seleccionar documento",
     value: { name: "Documento PDF", url: "" },
     accept: ".pdf",
-    className: "max-w-[300px]",
+    className: "w-full md:w-[200px] px-3 py-1.5 text-btn-sm",
     validations: [{ type: "required" }],
   },
 ];
@@ -107,52 +110,52 @@ export const createInvoiceFields = (): FieldModel[] => [
  * Used when the user only has a picture of the ticket.
  */
 export const createTicketFields = (): FieldModel[] => [
-  {
-    type: "input",
-    name: "debtorName",
-    label: "Nombre del Deudor",
-    placeholder: "Ingrese el nombre completo",
-    value: "",
-    className: "max-w-[400px]",
-    onlyText: true,
-    showIf: (value) => Boolean(value.debtorName),
-  },
-  {
-    type: "input",
-    name: "proyect",
-    label: "Proyecto",
-    placeholder: "Ingrese el nombre completo",
-    value: "",
-    className: "max-w-[400px]",
-    onlyText: true,
-  },
-  {
-    type: "select",
-    name: "requisition",
-    label: "Código de Requisición",
-    placeholder: "Seleccione el código",
-    value: "",
-    options: [],
-    className: "max-w-[400px]",
-    showIf: (_v, all) => {
-      const f = all.find((x) => x.name === "requisition");
-      return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-    },
-  },
-  {
-    type: "select",
-    name: "description",
-    label: "Descripción",
-    placeholder: "Selecciona una descripción",
-    value: "",
-    options: [],
-    className: "max-w-[400px]",
-    showIf: (_v, all) => {
-      const f = all.find((x) => x.name === "description");
-      return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
-    },
-    validations: [{ type: "required" }],
-  },
+  // {
+  //   type: "input",
+  //   name: "debtorName",
+  //   label: "Nombre del Deudor",
+  //   placeholder: "Ingrese el nombre completo",
+  //   value: "",
+  //   className: "max-w-[400px]",
+  //   onlyText: true,
+  //   showIf: (value) => Boolean(value.debtorName),
+  // },
+  // {
+  //   type: "input",
+  //   name: "proyect",
+  //   label: "Proyecto",
+  //   placeholder: "Ingrese el nombre completo",
+  //   value: "",
+  //   className: "max-w-[400px]",
+  //   onlyText: true,
+  // },
+  // {
+  //   type: "select",
+  //   name: "requisition",
+  //   label: "Código de Requisición",
+  //   placeholder: "Seleccione el código",
+  //   value: "",
+  //   options: [],
+  //   className: "max-w-[400px]",
+  //   showIf: (_v, all) => {
+  //     const f = all.find((x) => x.name === "requisition");
+  //     return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+  //   },
+  // },
+  // {
+  //   type: "select",
+  //   name: "description",
+  //   label: "Descripción",
+  //   placeholder: "Selecciona una descripción",
+  //   value: "",
+  //   options: [],
+  //   className: "max-w-[400px]",
+  //   showIf: (_v, all) => {
+  //     const f = all.find((x) => x.name === "description");
+  //     return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+  //   },
+  //   validations: [{ type: "required" }],
+  // },
   {
     type: "select",
     name: "category",
@@ -167,30 +170,35 @@ export const createTicketFields = (): FieldModel[] => [
     },
     validations: [{ type: "required" }],
   },
+  // {
+  //   type: "numberControl",
+  //   name: "numnights",
+  //   label: "Número de noches",
+  //   value: 1,
+  //   validations: [{ type: "required" }],
+  //   className: "max-w-[300px]",
+  // },
+  // {
+  //   type: "numberControl",
+  //   name: "numpersons",
+  //   label: "Número de personas",
+  //   value: 1,
+  //   validations: [{ type: "required" }],
+  //   className: "max-w-[300px]",
+  // },
   {
-    type: "numberControl",
-    name: "numnights",
-    label: "Número de noches",
-    value: 1,
-    validations: [{ type: "required" }],
-    className: "max-w-[300px]",
-  },
-  {
-    type: "numberControl",
-    name: "numpersons",
-    label: "Número de personas",
-    value: 1,
-    validations: [{ type: "required" }],
-    className: "max-w-[300px]",
-  },
-  {
-    type: "file",
+    type: "imageUploaderExpanded",
     name: "ticket",
-    label: "Documento JPG/PNG",
-    value: { name: "Imagen", url: "" },
+    label: "Imagen del ticket (JPG o PNG)",
+    placeholder: "o arrastra/selecciona las imágenes que deseas subir",
+    value: [],
     accept: ".jpg,.png",
-    className: "max-w-[300px]",
+    className: ticketFormDropzoneClasses,
     validations: [{ type: "required" }],
+    buttonLabel: "Seleccionar imagen",
+    cameraButtonAriaLabel: "Tomar foto del ticket",
+    preview: false,
+    multiple: true,
   },
 ];
 

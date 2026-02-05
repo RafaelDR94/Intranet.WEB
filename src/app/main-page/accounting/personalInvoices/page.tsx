@@ -4,9 +4,9 @@ export default function PersonalInvoicesPage() {
   return (
     <PermissionRedirect
       routes={[
-        '/main-page/accounting/personalInvoices/invoices',
-        '/main-page/accounting/personalInvoices/history',
+        '/main-page/accounting/personalInvoices/requisitions',
       ]}
     />
   );
 }
+

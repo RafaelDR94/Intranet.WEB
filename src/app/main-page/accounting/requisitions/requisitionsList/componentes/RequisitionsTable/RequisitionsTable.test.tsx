@@ -13,8 +13,11 @@ const mockHook = vi.fn().mockReturnValue({
   handleConfirmDelete: vi.fn(),
   setConfirmOpen: vi.fn(),
   onEdit: vi.fn(),
+  onViewFiles: vi.fn(),
+  onViewRequisitions: vi.fn(),
   onDelete: vi.fn(),
   refresh: vi.fn(),
+  hasIdParam: false,
 })
 
 vi.mock('./hooks/useRequisitionsTable', () => ({
@@ -51,10 +54,35 @@ describe('RequisitionsTable', () => {
       handleConfirmDelete: vi.fn(),
       setConfirmOpen: vi.fn(),
       onEdit: vi.fn(),
+      onViewFiles: vi.fn(),
+      onViewRequisitions: vi.fn(),
       onDelete: vi.fn(),
       refresh: vi.fn(),
+      hasIdParam: false,
     })
     render(<RequisitionsTable onEditRequest={() => {}} />)
     expect(screen.getByText('¿Deseas eliminar el documento seleccionado?')).toBeInTheDocument()
+  })
+
+  it('renders even when an id param exists if forceVisible is enabled', () => {
+    mockHook.mockReturnValueOnce({
+      rows: [{ id: '2', snCode: 'REQ-2', debtorName: 'Jane', projectCode: 'PRJ-2', date_created: '2025-01-02' }],
+      setQuery: vi.fn(),
+      confirmOpen: false,
+      rowToDelete: null,
+      removing: false,
+      handleConfirmDelete: vi.fn(),
+      setConfirmOpen: vi.fn(),
+      onEdit: vi.fn(),
+      onViewFiles: vi.fn(),
+      onViewRequisitions: vi.fn(),
+      onDelete: vi.fn(),
+      refresh: vi.fn(),
+      hasIdParam: true,
+    })
+
+    render(<RequisitionsTable forceVisible />)
+
+    expect(screen.getByTestId('table')).toHaveTextContent('REQ-2')
   })
 })

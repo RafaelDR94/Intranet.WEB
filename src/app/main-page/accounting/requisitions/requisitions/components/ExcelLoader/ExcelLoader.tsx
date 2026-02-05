@@ -21,7 +21,7 @@ const ExcelLoader = () => {
       primaryLabel="Subir Archivo"
       onPrimaryClick={onSubmit}
       primaryDisabled={buttonDisabled}
-      enableCollapse={false}
+      enableCollapse={true}
     >
       <FileUploaderExpanded
         accept=".xlsx,.xls"

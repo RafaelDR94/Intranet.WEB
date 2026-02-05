@@ -1,3 +1,212 @@
+### 1.47.87 Evidencia de aprobación en requisiciones 02-03-2026
+
+Feature:
+
+- Agrega el endpoint BillingRequisition/ImageUrl con store, mapeo y carga de evidencia desde el detalle de requisición. (Agente IA) [#]()
+
+### 1.47.86 Payload completo de vinculación 12-29-2025
+
+Fix:
+
+- Ajusta el PUT de vinculación de facturas para enviar todos los campos requeridos de la requisición junto con el identificador del documento. (Agente IA) [#]()
+
+### 1.47.85 Vincular facturas con requisiciones 12-28-2025
+
+Fix:
+
+- Agrega un selector de códigos de requisición en la tabla de facturas para vincular facturas existentes mediante un `PUT` a `Billings/BillingRequisition`, mostrando confirmaciones y errores al usuario. (Agente IA) [#]()
+
+### 1.47.84 Nombres visibles en requisiciones 12-27-2025
+
+Fix:
+
+- Propaga el campo `employeename` al listado de requisiciones generales para mostrar el nombre del empleado en la columna "Nombre". (Agente IA) [#]()
+
+### 1.47.83 Requisiciones con campos snake_case 12-24-2025
+
+Fix:
+
+- Normaliza respuestas `BillingRequisitionWithEmployees` y `BillingRequisitionByIdEmployee` en snake_case para que las tablas de requisiciones generales y personales muestren proyectos, periodos, días corrientes y documentos adjuntos. (Agente IA) [#]()
+
+### 1.47.82 Historial de requisiciones personales visible 12-24-2025
+
+Fix:
+
+- Mapea los campos de BillingRequisitionByIdEmployee (proyecto, estado, periodo y días corrientes) para que la tabla muestre la información real del historial. (Agente IA) [#]()
+
+### 1.47.81 Icono de tickets en archivos de requisición 12-23-2025
+
+Fix:
+
+- Corrige la ruta del icono de tickets para que la vista "Ver Archivos" cargue sin errores de módulo y abra las imágenes adjuntas. (Agente IA) [#]()
+
+### 1.47.80 Archivos de requisiciones activas 12-23-2025
+
+Fix:
+
+- Muestra los documentos de BillingRequisitionWithEmployees en las tablas de facturas y tickets al usar "Ver Archivos", separando XML/PDF de imágenes. (Agente IA) [#]()
+
+### 1.47.79 Requisiciones con empleados 12-23-2025
+
+Fix:
+
+- Añade el endpoint BillingRequisitionWithEmployees con su store, tipos y mapeo y actualiza la tabla de operaciones para usar los nuevos datos. (Agente IA) [#]()
+
+### 1.47.78 Campos extra en requisiciones por empleado 12-21-2025
+
+Fix:
+
+- Ajusta store, tipos y mapeos para incluir los nuevos campos y documentos que regresa BillingRequisitionByIdEmployee. (Agente IA) [#]()
+
+### 1.47.77 Filtrado de requisiciones activas 12-20-2025
+
+Fix:
+
+- Separa las requisiciones activas para la tabla "Activas" y mantiene el historial con todas las requisiciones. (Agente IA) [#]()
+
+### 1.47.76 Botón de detalles en requisiciones 12-09-2025
+
+Fix:
+
+- Activa el botón de "Ver Detalles" en RequisitionsTable de facturas personales para abrir el panel de detalle. (Agente IA) [#]()
+
+### 1.47.75 Galería de tickets con arrastre 12-19-2025
+
+Feature:
+
+- Permite arrastrar y reordenar las miniaturas de tickets mientras se mantiene la selección múltiple para subirlas. (Agente IA) [#]()
+
+### 1.47.74 Galería de tickets sin vista grande 12-18-2025
+
+Fix:
+
+- Oculta la vista previa principal en TicketForm y usa solo la galería de miniaturas con selección múltiple para editar o crear tickets. (Agente IA) [#]()
+
+### 1.47.73 Multi image ticket upload 12-15-2025
+
+Feature:
+
+- Permite seleccionar múltiples imágenes en TicketForm, marcarlas con checkbox y enviarlas al backend como arreglo de URLs. (Agente IA) [#]()
+
+### 1.47.72 Ticket form layout polish 12-14-2025
+
+Fix:
+
+- Ajusta TicketForm con estilos aislados para replicar el nuevo diseño de dropzone y mantener sin cambios otros formularios. (Agente IA) [#]()
+
+### 1.47.71 Requisition id for billable tickets 12-12-2025
+
+Fix:
+
+- Envía el `requisition_id` en las peticiones de carga de tickets cuando se abre el flujo desde el detalle de requisición. (Agente IA) [#]()
+
+### 1.47.70 Ticket form spinner fix 12-11-2025
+
+Fix:
+
+- Evita el spinner permanente en TicketForm cuando solo se muestran categoría y carga de imagen, permitiendo subir tickets sin esperar datos faltantes. (Agente IA) [#]()
+
+### 1.47.69 Billable files tab on demand 12-10-2025
+
+Fix:
+
+- Muestra la pestaña de carga de archivos facturables solo al activarla desde el detalle de requisición y abre el formulario en la misma vista sin redirecciones externas. (Agente IA) [#]()
+
+### 1.47.68 Billable files tab from requisition detail 12-09-2025
+
+Fix:
+
+- Abre la pestaña de carga de archivos facturables desde el detalle de requisición y mantiene el retorno al detalle desde la nueva vista. (Agente IA) [#]()
+
+### 1.47.67 Ticket uploader redesign 12-06-2025
+
+Fix:
+
+- Refresca el formulario de tickets con dropzone de cámara y vista previa para alinearlo con el nuevo diseño de carga de imágenes. (Agente IA) [#]()
+
+### 1.47.66 Billable ticket upload form 12-05-2025
+
+Fix:
+
+- Reemplaza la tabla de tickets por el formulario de subida de imágenes reutilizando TicketForm dentro de billablefiles. (Agente IA) [#]()
+
+### 1.47.65 Billable files upload location 12-05-2025
+
+Fix:
+
+- Mueve el formulario de carga de comprobantes a la vista de Archivos Facturables y redirige la ruta antigua de facturas para evitar duplicidad. (Agente IA) [#]()
+
+### 1.47.64 Requisition actions and detail tab 10-13-2025
+
+Fix:
+
+- Agrega columna de acciones con acceso a detalle o eliminación en la vista de requisiciones filtradas y crea la tab "Detalle Requisición" en la navegación de operaciones. (Agente IA) [#]()
+
+### 1.47.63 Requisition files by user 10-12-2025
+
+Fix:
+
+- Muestra la tabla de requisiciones filtrada por el colaborador seleccionado al abrir la vista de "Requisiciones". (Agente IA) [#]()
+
+### 1.47.62 Requisition detail label fix 09-12-2025
+
+Fix:
+
+- Fuerza que la acción de "Ver detalle" abra la pestaña correcta agregando la etiqueta de detalle al navegar desde el historial de requisiciones. (Agente IA) [#]()
+
+### 1.47.61 Requisition detail tab 08-12-2025
+
+Fix:
+
+- Muestra la pestaña de Detalle al abrir una requisición desde el listado para que la acción de "Ver detalle" cargue la vista correcta. (Agente IA) [#]()
+
+### 1.47.60 Requisition files actions column 07-12-2025
+
+Fix:
+
+- Agrega la columna de acciones con menú contextual en la tabla de historial de Archivos para mantener las mismas opciones que la
+tabla principal. (Agente IA) [#]()
+
+### 1.47.59 Requisition history files table 06-12-2025
+
+Fix:
+
+- Conecta la vista de archivos de requisiciones con el historial para mostrar las filas existentes cuando se abre la pestaña de Requisiciones. (Agente IA) [#]()
+
+### 1.47.58 Requisition files view tables 05-12-2025
+
+Fix:
+
+- Muestra la pestaña de Archivos con la tabla de comprobantes y mantiene visible el listado de requisiciones aun cuando se abra un beneficiario. (Agente IA) [#]()
+
+### 1.47.57 First-name requisition tabs 04-12-2025
+
+Fix:
+
+- Ajusta las pestañas dinámicas de Archivos/Requisiciones para mostrar solo el primer nombre del beneficiario y limpiar la vista al abrirlas para personalizar el contenido. (Agente IA) [#]()
+
+### 1.47.56 Named requisition tabs 03-12-2025
+
+Fix:
+
+- Permite abrir pestañas de Archivos o Requisiciones con el nombre del beneficiario para identificar los contenidos por persona y mantener la etiqueta en la navegación. (Agente IA) [#]()
+
+### 1.47.55 Operations requisition files tab 02-12-2025
+
+Fix:
+
+- Muestra una pestaña dinámica de Archivos en operaciones > requisiciones > listado cuando se consulta un beneficiario específico por id. (Agente IA) [#]()
+
+### 1.47.54 Billing requisitions active endpoint 01-12-2025
+
+Fix:
+- Ajusta la tabla de requisiciones para consumir el endpoint `Billings/BillingRequisition?active=true`, asegurando que se muestren las requisiciones activas desde el backend. (Agente IA) [#]()
+
+### 1.47.53 Personal requisitions by employee 02-11-2025
+
+Fix:
+- Muestra en la tabla de requisiciones personales la información obtenida desde el endpoint `fetchRequisitionsByIdEmployee`, incluyendo alertas cuando no hay resultados. (Agente IA) [#]()
+
 ### 1.47.52 Vehicles form error persistence 31-10-2025
 
 Fix:
@@ -666,8 +875,14 @@ Fix:
 - Because activities had lost when changes tabs fastly.
   (Bruno Mendoza) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
 
-  ### 1.47.24 Report Activities 2026-12-01
+### 1.47.24 Report Activities 2026-12-01
 
 Fix:
 - Because in acces, it has some troubles.
   (Bruno Mendoza) [327#](https://github.com/DR-Mexico/dr.intranet.web/pull/327)
+
+### 1.47.25 Menu visible in report activites 2026-02-05
+
+Fix:
+- Because it didn´t open when you click it.
+  (Bruno Mendoza) [330#](https://github.com/DR-Mexico/dr.intranet.web/pull/330)

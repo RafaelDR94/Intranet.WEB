@@ -187,7 +187,7 @@ export const useRequisitionForm = (
     if (initialValues.amountdeposited !== undefined) {
       updateField(formId, 'depositamount', { value: Number(initialValues.amountdeposited) });
     }
-    if (initialValues.amountdeposited !== undefined) {
+    if (initialValues.state !== undefined) {
       updateField(formId, 'state', { value: initialValues.state });
     }
     if (initialValues.motive !== undefined) {
@@ -241,6 +241,11 @@ export const useRequisitionForm = (
 
     if (opSuccess) {
       ResetForm();
+      fetchEmployees();
+      fetchProyects();
+      if (mode === 'edit') {
+        setDisableForm(true);
+      }
       showAlert({
         type: 'success',
         variant: 'filled',
@@ -271,7 +276,20 @@ export const useRequisitionForm = (
         onSecondaryClick: () => { hideAlert(); submitRef.current?.(); },
       });
     }
-  }, [opRunning, opSuccess, opError, mode, showSpinner, hideSpinner, showAlert, hideAlert, resetFlags, ResetForm]);
+  }, [
+    opRunning,
+    opSuccess,
+    opError,
+    mode,
+    fetchEmployees,
+    fetchProyects,
+    showSpinner,
+    hideSpinner,
+    showAlert,
+    hideAlert,
+    resetFlags,
+    ResetForm,
+  ]);
 
   // Submit (para DynamicForm) -> decide create o update
   const handleSubmit = useCallback(async (values: Record<string, any>) => {
@@ -279,13 +297,20 @@ export const useRequisitionForm = (
       values,
       employees,
       proyects,
+      initialValues,
+      includePutFields: mode === 'edit',
       fields,
       getOptionLabel: (fieldName: string, value: unknown) =>
         getOptionLabel(fields, fieldName, value),
     });
 
     if (mode === 'edit' && initialValues?.billingrequisition_id) {
-      await updateRequisition({ ...payload, billingrequisition_id: initialValues.billingrequisition_id });
+      await updateRequisition({
+        ...payload,
+        billingrequisition_id: initialValues.billingrequisition_id,
+        amountdifference: Number(initialValues.amountdifference ?? 0),
+        gts_type: initialValues.gts_type ?? '',
+      });
       return;
     }
     await createRequisition(payload);

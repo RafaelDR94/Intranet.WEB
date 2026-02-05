@@ -46,7 +46,8 @@ const DataTableContent = <T extends { id: string | number }>(
     onSelectedChange,
     actionsRender,
     textSize, // <-- NUEVO
-    disableSelection
+    disableSelection,
+    selectionMode,
   } = props;
 
   const {
@@ -75,6 +76,7 @@ const DataTableContent = <T extends { id: string | number }>(
     onPageChange,
     rowHeight,
     scrollMaxHeight,
+    selectionMode,
   });
   const init = useRef(false)
   useEffect(() => {
@@ -89,6 +91,7 @@ const DataTableContent = <T extends { id: string | number }>(
         columns={columns}
         enableSelection={enableSelection}
         disableSelection={disableSelection}
+        selectionMode={selectionMode}
         allSelected={allSelected}
         onSelectAll={selectAll}
         sortKey={sortKey}
@@ -105,6 +108,7 @@ const DataTableContent = <T extends { id: string | number }>(
           columns={columns}
           enableSelection={enableSelection}
           disableSelection={disableSelection}
+        selectionMode={selectionMode}
           selected={selected}
           onToggleSelect={toggleSelect}
           textSize={textSize}   // <-- pasa la prop

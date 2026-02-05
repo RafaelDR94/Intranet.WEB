@@ -8,6 +8,7 @@ vi.mock('./hooks/useTicketForm', () => ({
   __esModule: true,
   default: () => ({
     fields: [],
+    formKey: 0,
     loadingFormInfo: false,
     submitRef: { current: null },
     formReady: true,
@@ -24,7 +25,7 @@ vi.mock('@/app/components/FormsLayout/FormsLayout', () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({
-  useAuth: () => ({ currentPagePermissions: { canAddPicture: true } }),
+  useAuth: () => ({ currentPagePermissions: { canAddPicture: false } }),
 }));
 
 const matrix: any = { sm: [[10]] };

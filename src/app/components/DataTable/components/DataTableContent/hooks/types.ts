@@ -1,3 +1,5 @@
+export type SelectionMode = "single" | "multiple"
+
 export type SortDirection = "asc" | "desc" | null;
 
 export interface UseTableContentProps<T extends { id: string | number }> {
@@ -5,6 +7,7 @@ export interface UseTableContentProps<T extends { id: string | number }> {
   defaultSortKey?: keyof T;
   defaultSortDirection?: SortDirection;
   initialSelectedIds?: Array<T['id']>;
+  selectionMode?: SelectionMode;
 }
 /** Props adicionales para paginación/scroll */
 export interface UseDataTableContentProps<T extends { id: string | number }> extends UseTableContentProps<T> {

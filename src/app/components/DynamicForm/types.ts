@@ -5,6 +5,7 @@ import type { ControlLevelProps } from '../ControlLevel/types';
 import type { CheckBoxListOption } from '../CheckBoxList/types';
 import type { LabelPosition } from '../CheckBox/types';
 import type { InitialFile } from '../FileUploader/types';
+import type { SelectedImage } from '../ImageUploaderExpanded/types';
 
 /** Tipos de campo soportados por el formulario. */
 export type InputType =
@@ -76,7 +77,7 @@ export interface FieldModel {
   name: string;
   label: string;
   placeholder?: string;
-  value: string | string[] | number | boolean | File | InitialFile | null;
+  value: string | string[] | number | boolean | File | InitialFile | SelectedImage[] | File[] | null;
   helperText?: string;
   inputSize?: 'md' | 'lg';
   variant?: Variant;
@@ -91,6 +92,7 @@ export interface FieldModel {
   className?: string;
   icon?: FC<SVGProps<SVGSVGElement>>;
   initialFile?: InitialFile;
+  initialFiles?: SelectedImage[];
   onlyText?: boolean;
 
   /** Props opcionales para ImageUploaderExpanded */
@@ -108,6 +110,8 @@ export interface FieldModel {
   defaultFacingMode?: 'user' | 'environment';
   /** Modo vista previa con opción de cambiar */
   preview?: boolean;
+  /** Permite la selección de múltiples imágenes. */
+  multiple?: boolean;
 
   onChange?: (value: any, values: Record<string, any>) => void;
   /**Numero de filas en multilinea*/

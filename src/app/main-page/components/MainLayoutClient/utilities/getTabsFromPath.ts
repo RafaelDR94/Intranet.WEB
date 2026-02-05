@@ -75,15 +75,30 @@ export const getTabsFromPath = (
       { label: "SAT", path: "/main-page/accounting/invoices/sat" },
     ],
     "accounting/personalInvoices": [
+      // {
+      //   label: "Facturas",
+      //   path: "/main-page/accounting/personalInvoices/invoices",
+      // },
+      // {
+      //   label: "Historial",
+      //   path: "/main-page/accounting/personalInvoices/history",
+      // },
       {
-        label: "Facturas",
-        path: "/main-page/accounting/personalInvoices/invoices",
-      },
-      {
-        label: "Historial",
-        path: "/main-page/accounting/personalInvoices/history",
+        label: "Requisiciones",
+        path: "/main-page/accounting/personalInvoices/requisitions",
       },
     ],
+    "operations/requisitions": [
+      {
+        label: "Requisiciones",
+        path: "/main-page/operations/requisitions/requisitionsPage",
+      },
+      {
+        label: "Listado Beneficiarios",
+        path: "/main-page/operations/requisitions/requisitionListPage",
+      }
+    ],
+
     "accounting/requisitions": [
       {
         label: "Requisiciones",
@@ -102,6 +117,12 @@ export const getTabsFromPath = (
       {
         label: "Operaciones",
         path: "/main-page/accounting/sap/operations",
+      },
+    ],
+    "accounting/billablefiles": [
+      {
+        label: "Carga de Archivos Facturables",
+        path: "/main-page/accounting/billablefiles/billablefiles",
       },
     ],
     'sip/proyects': [
@@ -129,22 +150,129 @@ export const getTabsFromPath = (
 
   let tabs = tabsMap[key] || tabsMap[first] || [];
 
+  const normalizePersonLabel = (label?: string | null) => {
+    if (!label) return null;
+    const trimmed = label.trim();
+    const lower = trimmed.toLowerCase();
+    const prefixed =
+      lower.startsWith('archivos ') || lower.startsWith('requisiciones ') || lower.startsWith('detalle ');
+    if (!prefixed) return trimmed;
+    const parts = trimmed.split(/\s+/);
+    if (parts.length <= 1) return trimmed;
+    return `${parts[0]} ${parts[1]}`;
+  };
+
   let id: string | null = null;
   let idEmployee: string | null = null;
   let labelparam: string | null = null;
+  let requisitionsLabel: string | null = null;
+  let view: string | null = null;
   if (search) {
     const sp = typeof search === 'string' ? new URLSearchParams(search) : search;
     id = sp.get('id');
     idEmployee = sp.get('idEmployee');
-    labelparam = sp.get('label');
+    labelparam = normalizePersonLabel(sp.get('label'));
+    requisitionsLabel = normalizePersonLabel(sp.get('requisitionsLabel'));
+    view = sp.get('view');
   }
 
   // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id
   if (first === 'accounting' && second === 'requisitions' && third == 'requisitionsList' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-    const detailPath = `${clean}?id=${id}`;
+    const qs = new URLSearchParams();
+    qs.set('id', id);
+    if (labelparam) qs.set('label', labelparam);
+    const detailPath = `${clean}?${qs.toString()}`;
     if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
       tabs = [...tabs, { label: labelparam || 'Detalle de Requisición', path: detailPath }];
+    }
+  }
+
+  // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id
+  if (first === 'accounting' && second === 'personalInvoices' && third == 'requisitions' && id) {
+    const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+    const qs = new URLSearchParams();
+    qs.set('id', id);
+    if (labelparam) qs.set('label', labelparam);
+    const detailPath = `${clean}?${qs.toString()}`;
+    if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
+      tabs = [...tabs, { label: labelparam || 'Detalle de Requisición', path: detailPath }];
+    }
+
+    if (view === 'billablefiles') {
+      const billableQs = new URLSearchParams(qs);
+      billableQs.set('view', view);
+      const billablePath = `${clean}?${billableQs.toString()}`;
+      if (!tabs.some(t => t.path === billablePath || t.label === 'Carga de Archivos Facturables')) {
+        tabs = [...tabs, { label: 'Carga de Archivos Facturables', path: billablePath }];
+      }
+    }
+  }
+
+  if (first === 'accounting' && second === 'billablefiles' && third == 'billablefiles' && id) {
+    const detailQs = new URLSearchParams();
+    detailQs.set('id', id);
+    if (labelparam) detailQs.set('label', labelparam);
+    const detailLabel = labelparam || 'Detalle Requisición';
+    const detailPath = `/main-page/accounting/personalInvoices/requisitions?${detailQs.toString()}`;
+
+    if (!tabs.some(t => t.path === detailPath || t.label === detailLabel)) {
+      tabs = [...tabs, { label: detailLabel, path: detailPath }];
+    }
+  }
+
+  // agrega tabs dinámicos para la lista de requisiciones de operaciones
+  if (first === 'operations' && second === 'requisitions' && third == 'requisitionListPage') {
+    const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+    const requisitionsTabLabel = requisitionsLabel ||
+      (labelparam && (labelparam.toLowerCase().startsWith('requisiciones') || labelparam.toLowerCase().startsWith('archivos'))
+        ? labelparam
+        : null);
+
+    if (requisitionsTabLabel && (id || idEmployee)) {
+      const requisitionsQs = new URLSearchParams();
+      const requisitionsId = idEmployee || id;
+      if (requisitionsId) requisitionsQs.set('id', requisitionsId);
+      requisitionsQs.set('label', requisitionsTabLabel);
+      if (idEmployee) requisitionsQs.set('idEmployee', idEmployee);
+      requisitionsQs.set('requisitionsLabel', requisitionsTabLabel);
+      const requisitionsPath = `${clean}?${requisitionsQs.toString()}`;
+
+      if (!tabs.some(t => t.path === requisitionsPath || t.label === requisitionsTabLabel)) {
+        tabs = [...tabs, { label: requisitionsTabLabel, path: requisitionsPath }];
+      }
+    }
+
+    const shouldAddDetail = view === 'detail' || labelparam?.toLowerCase().startsWith('detalle') || (!labelparam && Boolean(id));
+
+    if (shouldAddDetail && id) {
+      const detailLabel = labelparam || 'Detalle Requisición';
+      const detailQs = new URLSearchParams();
+      detailQs.set('id', id);
+      detailQs.set('label', detailLabel);
+      detailQs.set('view', 'detail');
+      if (idEmployee) detailQs.set('idEmployee', idEmployee);
+      if (requisitionsLabel) detailQs.set('requisitionsLabel', requisitionsLabel);
+      const detailPath = `${clean}?${detailQs.toString()}`;
+
+      if (!tabs.some(t => t.path === detailPath || t.label === detailLabel)) {
+        tabs = [...tabs, { label: detailLabel, path: detailPath }];
+      }
+    }
+
+    if (view === 'billablefiles' && id) {
+      const billableLabel = 'Subir Facturas';
+      const billableQs = new URLSearchParams();
+      billableQs.set('id', id);
+      if (labelparam) billableQs.set('label', labelparam);
+      billableQs.set('view', view);
+      if (idEmployee) billableQs.set('idEmployee', idEmployee);
+      if (requisitionsLabel) billableQs.set('requisitionsLabel', requisitionsLabel);
+      const billablePath = `${clean}?${billableQs.toString()}`;
+
+      if (!tabs.some(t => t.path === billablePath || t.label === billableLabel)) {
+        tabs = [...tabs, { label: billableLabel, path: billablePath }];
+      }
     }
   }
 

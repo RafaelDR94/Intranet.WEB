@@ -3,6 +3,7 @@ import React from "react";
 import { useBreakpoint } from "../../../DataTableLayout/hooks/useMediaQuery";
 
 import { Checkbox } from "@/app/components/CheckBox/CheckBox";
+import type { SelectionMode } from "@/app/components/DataTable/types";
 
 export type TextSize = {
   /** clases para móvil: ej. 'c3' o 'text-sm' */
@@ -25,6 +26,7 @@ export type DataTableBodyProps<T extends { id: string | number }> = {
   columns: Array<Column<T>>;
   enableSelection?: boolean;
   disableSelection?: boolean;
+  selectionMode?: SelectionMode;
   selected: T[];
   onToggleSelect: (row: T) => void;
   /** Nuevo: controla tamaños de texto por breakpoint */
@@ -50,6 +52,7 @@ export const DataTableBody = <T extends { id: string | number }>({
   enableSelection,
   selected,
   disableSelection,
+  selectionMode,
   onToggleSelect,
   textSize,
 }: DataTableBodyProps<T>) => {
@@ -58,6 +61,7 @@ export const DataTableBody = <T extends { id: string | number }>({
     () => new Set(selected.map((item) => String(item.id))),
     [selected],
   );
+  const isSingleSelection = selectionMode === "single";
 
   const mobileText = DataTableBodyStyles.tableTextMobile(textSize?.mobile);
   const tabletText = DataTableBodyStyles.tableTextTablet(textSize?.tablet);
@@ -76,8 +80,9 @@ export const DataTableBody = <T extends { id: string | number }>({
               <div className={DataTableBodyStyles.checkBoxContainer}>
                 <Checkbox
                   checked={isSelected}
+                  disabled={Boolean(disableSelection || (isSingleSelection && selectedIds.size > 0 && !isSelected))}
                   onChange={() => {
-                    if (disableSelection) return;
+                    if (disableSelection || (isSingleSelection && selectedIds.size > 0 && !isSelected)) return;
                     else onToggleSelect(row);
                   }}
                 />

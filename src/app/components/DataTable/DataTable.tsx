@@ -52,6 +52,7 @@ export const DataTable = <T extends { id: string | number }>({
   useCardsView = false,
   showViewSwitcher = false,
   textSize, 
+  rightContent,
 }: DataTableProps<T>) => {
 
   const {
@@ -127,6 +128,7 @@ export const DataTable = <T extends { id: string | number }>({
             title={table.hidetitle?"":table?.title}
             enableCollapse={table.enableCollaps}
             defaultOpen={!startCollpas}
+            rightContent={rightContent}
           >
             {tables.length === 1 && (
               <DataTableLayout
@@ -184,6 +186,7 @@ export const DataTable = <T extends { id: string | number }>({
                 data={filteredData}
                 columns={table.columns}
                 enableSelection={table.enableSelection}
+                selectionMode={table.selectionMode}
                 initialSelectedIds={table.initialSelectedRowIds}
                 defaultSortDirection={table?.defaultSortDirection}
                 defaultSortKey={table.defaultSortKey}

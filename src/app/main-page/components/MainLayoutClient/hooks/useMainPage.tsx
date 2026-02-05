@@ -28,6 +28,14 @@ export const sidebarRoutes = [
     ],
   },
   {
+    label: 'Operaciones',
+    path: '/main-page/operations',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Requisiciones', path: '/main-page/operations/requisitions' },
+    ],
+  },
+  {
     label: 'Solicitudes',
     path: '/main-page/request',
     icon: FileIcon,
@@ -43,9 +51,10 @@ export const sidebarRoutes = [
     path: '/main-page/accounting',
     icon: ServerIcon,
     subroutes: [
-      { label: 'Facturación', path: '/main-page/accounting/invoices' },
-      { label: 'Facturación personal', path: '/main-page/accounting/personalInvoices' },
-      { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
+      // { label: 'Facturación', path: '/main-page/accounting/invoices' },
+      { label: 'Requisiciones', path: '/main-page/accounting/personalInvoices' },
+      // { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
+      // { label: 'Archivos Facturables', path: '/main-page/accounting/billablefiles' },
       { label: 'SAP', path: '/main-page/accounting/sap' },
     ],
   },

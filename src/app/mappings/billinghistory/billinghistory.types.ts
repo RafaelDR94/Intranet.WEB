@@ -5,6 +5,7 @@ export type HistoryRow = {
   id: string,
   billing_image_id: string
   billingdocument_id: string
+  billingrequisition_id?: string
   project: Proyect // Vista de Proyecto (objeto)
   requisitionkey: string
   status: 'valido' | 'invalido' | 'prohibido' | 'actualizado' | 'pendiente' | 'rechazado' | 'restringido'
@@ -17,6 +18,6 @@ export type HistoryRow = {
   uuid: string,
   description: BillingDocumentDescription,
   category: BillingDocumentCategory
-  numpersons: number,
-  numnights: number,
+  numpersons: number | null,
+  numnights: number | null,
 }

@@ -6,6 +6,7 @@ import { Get, Set } from '../types'
 
 import { BillingImagesById } from '@/app/configurations/Axios/urls'
 import type { BillingImages } from '@/app/mappings/billingimages/billingimages.types'
+import { BillingImageMap } from '@/app/mappings/billingimages/billingimages.mapper'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
@@ -34,7 +35,8 @@ export const fetchBillingImageById = async (
     const getFn = requireGateway('get')
     const getReq = pGet(getFn)
     const res: AxiosResponse = await getReq(`${BillingImagesById}/${id}`)
-    const data: BillingImages | undefined = res.data?.data
+    const raw = res.data?.data
+    const data: BillingImages | undefined = raw ? BillingImageMap(raw) : undefined
     if (!data) {
       set({ billingImage: undefined, loading: false, warning: 'Imagen no encontrada' })
       return null
