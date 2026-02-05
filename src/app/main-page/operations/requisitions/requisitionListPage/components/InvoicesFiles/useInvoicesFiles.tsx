@@ -12,6 +12,7 @@ import { pPut } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
+import { useBillingRequisitionWithEmployeesStore } from "@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore";
 import { shallow } from "zustand/shallow";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
@@ -41,6 +42,11 @@ type InvoiceRow = {
   total?: number;
 };
 
+type InvoiceOverride = {
+  status?: string;
+  comments?: string;
+};
+
 /**
  * Formatea una fecha ISO a DD/MM/YYYY
  */
@@ -61,6 +67,7 @@ const mapInvoices = (
   documents: BillingDocumentRequisition[],
   requisitions: Requisition[],
   requisitionId?: string,
+  overrides?: Record<string, InvoiceOverride>,
 ): InvoiceRow[] =>
   documents
     .filter((doc) => doc.xml || doc.pdf)
@@ -69,7 +76,7 @@ const mapInvoices = (
         (item) => item.billingrequisition_id === requisitionId,
       );
       const certificationDate = doc.certification_date ?? doc.date_created;
-      return {
+      const baseRow = {
         id: doc.billingdocument_id,
         uuid: doc.uuid ?? doc.billingdocument_id,
         date: formatDate(certificationDate),
@@ -89,6 +96,13 @@ const mapInvoices = (
         subtotal: doc.subtotal,
         iva: doc.iva,
         total: doc.total,
+      };
+      const override = overrides?.[doc.billingdocument_id];
+      if (!override) return baseRow;
+      return {
+        ...baseRow,
+        status: override.status ?? baseRow.status,
+        comments: override.comments ?? baseRow.comments,
       };
     });
 
@@ -112,6 +126,14 @@ const useInvoicesFiles = () => {
   const [detailRow, setDetailRow] = useState<InvoiceRow | null>(null);
   const [openValidInvoice, setOpenValidInvoice] = useState(false);
   const [openRejectInvoice, setOpenRejectInvoice] = useState(false);
+  const [statusOverrides, setStatusOverrides] = useState<
+    Record<string, InvoiceOverride>
+  >({});
+  const [lastAction, setLastAction] = useState<{
+    id: string;
+    status: string;
+    comments?: string;
+  } | null>(null);
   const [linkingId, setLinkingId] = useState<string | null>(null);
   const [selectedRequisitions, setSelectedRequisitions] = useState<
     Record<string, string>
@@ -138,6 +160,13 @@ const useInvoicesFiles = () => {
     }),
     shallow,
   );
+  const { fetchRequisitionsWithEmployees } =
+    useBillingRequisitionWithEmployeesStore(
+      (s) => ({
+        fetchRequisitionsWithEmployees: s.fetchRequisitionsWithEmployees,
+      }),
+      shallow,
+    );
 
   const requisitionOptions = useMemo(
     () =>
@@ -240,8 +269,8 @@ const useInvoicesFiles = () => {
   );
 
   const rows = useMemo(
-    () => mapInvoices(documents, requisitions, requisitionId),
-    [documents, requisitions, requisitionId],
+    () => mapInvoices(documents, requisitions, requisitionId, statusOverrides),
+    [documents, requisitions, requisitionId, statusOverrides],
   );
 
   useEffect(() => {
@@ -264,6 +293,7 @@ const useInvoicesFiles = () => {
   const handleSubmitValid = useCallback(() => {
     if (!detailRow) return;
     setOpenValidInvoice(false);
+    setLastAction({ id: detailRow.id, status: "Validado" });
     validateBillingDocumentOperations([detailRow.id], requisitionId ?? undefined);
   }, [detailRow, requisitionId, validateBillingDocumentOperations]);
 
@@ -271,6 +301,11 @@ const useInvoicesFiles = () => {
     (values: Record<string, any>) => {
       if (!detailRow) return;
       setOpenRejectInvoice(false);
+      setLastAction({
+        id: detailRow.id,
+        status: "Rechazado",
+        comments: values.comments ?? "",
+      });
       const payload = {
         id: detailRow.id,
         comment: values.comments ?? "",
@@ -294,6 +329,17 @@ const useInvoicesFiles = () => {
     hideSpinner();
 
     if (succesValidate) {
+      if (lastAction?.status === "Validado") {
+        setStatusOverrides((prev) => ({
+          ...prev,
+          [lastAction.id]: {
+            ...prev[lastAction.id],
+            status: lastAction.status,
+          },
+        }));
+        fetchRequisitionsWithEmployees(undefined, undefined, true);
+        setLastAction(null);
+      }
       showAlert({
         type: "info",
         title: "Factura validada",
@@ -305,6 +351,18 @@ const useInvoicesFiles = () => {
     }
 
     if (succesReject) {
+      if (lastAction?.status === "Rechazado") {
+        setStatusOverrides((prev) => ({
+          ...prev,
+          [lastAction.id]: {
+            ...prev[lastAction.id],
+            status: lastAction.status,
+            comments: lastAction.comments,
+          },
+        }));
+        fetchRequisitionsWithEmployees(undefined, undefined, true);
+        setLastAction(null);
+      }
       showAlert({
         type: "info",
         title: "Factura rechazada",
@@ -328,7 +386,15 @@ const useInvoicesFiles = () => {
 
     resetFlags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [validating, rejecting, succesValidate, succesReject, error]);
+  }, [
+    validating,
+    rejecting,
+    succesValidate,
+    succesReject,
+    error,
+    fetchRequisitionsWithEmployees,
+    lastAction,
+  ]);
 
   const columns: ColumnDefinition<InvoiceRow>[] = useMemo(
     () => [
@@ -456,6 +522,8 @@ const useInvoicesFiles = () => {
     handleSubmitValid,
     handleSubmitReject,
     isStatusLocked: Boolean(
+      validating ||
+        rejecting ||
       detailRow?.status?.toLowerCase().includes("valid") ||
         detailRow?.status?.toLowerCase().includes("rechaz"),
     ),

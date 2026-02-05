@@ -75,7 +75,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
             columns: columns,
             title: "Facturas",
             enableCollaps: true,
-            enableSelection: true,
+            enableSelection: false,
           },
         ]}
       />
@@ -105,8 +105,9 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
               Validar
             </Button>
             <Button
-              size="medium"
-              variant="solid"
+              size="large"
+              variant="outline"
+              hideIcon={true}
               onClick={() => setOpenRejectInvoice(true)}
               disabled={isStatusLocked}
             >

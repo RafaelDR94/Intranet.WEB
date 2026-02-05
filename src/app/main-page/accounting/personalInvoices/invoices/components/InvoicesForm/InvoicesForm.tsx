@@ -20,6 +20,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
   billingImages,
   onCloseImage,
   disabled,
+  refreshRequisitionId,
 }) => {
   const {
     fields,
@@ -30,7 +31,14 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
     handleSubmit,
     ResetForm,
     handleImageClick
-  } = useInvoicesForm({ dataEdit, withoutName, billingImages, onCloseImage, disabled })
+  } = useInvoicesForm({
+    dataEdit,
+    withoutName,
+    billingImages,
+    onCloseImage,
+    disabled,
+    refreshRequisitionId,
+  })
   if (externalSubmitRef) {
     return (
       <DynamicForm

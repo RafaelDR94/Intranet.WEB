@@ -20,22 +20,17 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
   setPanelOpen,
   selected,
-  validInvoice = true,
-  sendInvoiceToSap = false,
   operations = false,
   rejectType = true,
   reqisition,
 }) => {
   const {
     labels,
-    setOpenValidInvoice,
-    currentPagePermissions,
     isMobile,
     isEditing,
     showEditConfirmation,
     setShowEditConfirmation,
     handleSave,
-    handleSendToSap,
   } = useSAPDetailsPanel({
     selected,
     rejectType,
@@ -61,21 +56,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             isMobile ? "w-full flex-col gap-2" : "flex-row items-center gap-3",
           )}
         >
-          {currentPagePermissions?.canValidInvoice && validInvoice && (
-            <Button
-              size="small"
-              variant="solid"
-              hideIcon
-              onClick={() => setOpenValidInvoice(true)}
-              disabled={
-                (operations && selected?.validatedbyoperations) ||
-                selected?.status?.toUpperCase() == "RECHAZADO"
-              }
-            >
-              Validar Factura
-            </Button>
-          )}
-          {currentPagePermissions?.canSendToSap && sendInvoiceToSap && (
+          {/* {currentPagePermissions?.canSendToSap && sendInvoiceToSap && (
             <Button
               size="small"
               variant="solid"
@@ -84,7 +65,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             >
               Subir a SAP
             </Button>
-          )}
+          )} */}
         </div>
       }
       renderActions={() => (
@@ -161,46 +142,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 {String(selected?.rfc_receptor)}
               </span>
             </div>
-          </div>
-
-          {/* Conceptos */}
-          <div className={s.conceptsScroller}>
-            <table className="w-full table-auto text-sm">
-              <thead>
-                <tr>
-                  <th className="text-gray-90 px-2 py-1 text-left">
-                    CLAVE SAT
-                  </th>
-                  <th className="text-gray-90 px-2 py-1 text-left">
-                    Tipo de Gasto
-                  </th>
-                  <th className="text-gray-90 px-2 py-1 text-left">
-                    Denom. Gto.
-                  </th>
-                  <th className="text-gray-90 px-2 py-1 text-left">
-                    Grupo IVA
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {selected.conceptos.map((concept: any, idx: number) => (
-                  <tr key={`${concept.clave_sat}-${idx}`}>
-                    <td className="text-gray-90 px-2 py-1">
-                      {concept?.clave_sat}
-                    </td>
-                    <td className="text-gray-90 px-2 py-1">
-                      {concept?.tipo_gasto}
-                    </td>
-                    <td className="text-gray-90 px-2 py-1">
-                      {concept?.clavesat_description}
-                    </td>
-                    <td className="text-gray-90 px-2 py-1">
-                      {concept?.porcentajeiva}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
 
           {/* Divider */}

@@ -23,6 +23,7 @@ const useInvoicesForm = ({
   billingImages,
   onCloseImage,
   disabled,
+  refreshRequisitionId,
 }: UseInvoicesFormProps): UseInvoicesFormReturn => {
   const isEdit = Boolean(dataEdit);
   const { firebasestorage } = useFirebase();
@@ -250,7 +251,7 @@ const useInvoicesForm = ({
           numpersons: values?.numpersons,
           user_comments: "",
         };
-        updateBillingDocument(payload);
+        updateBillingDocument(payload, refreshRequisitionId);
       } else {
         const payload: BillingDocumentsPost = {
           requisition_id: values.requisition,
@@ -320,11 +321,11 @@ const useInvoicesForm = ({
         type: "success",
         variant: "filled",
         title: isEdit
-          ? "Factura actualizada con éxito"
-          : "Factura subida con éxito",
+          ? "Archivos cargados con éxito"
+          : "Archivos cargados",
         description: isEdit
-          ? "Tu factura ha sido actualizada correctamente."
-          : "Tu factura ha sido subida correctamente.",
+          ? "Tus archivos se han cargado exitosamente."
+          : "Tus archivos se han cargado exitosamente.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,

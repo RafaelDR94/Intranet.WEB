@@ -27,7 +27,7 @@ export const fetchBillingDocumentByIdRequisition = async (
   // If we already fetched a list for this requisition and not forcing, keep cache
   if (get().billingDocuments.length > 0 && !force) return null
 
-  set({ loading: true, error: undefined, successGet: false, successGetById: false, billingDocuments: [] })
+  set({ loading: true, error: undefined, successGet: false, successGetById: false })
 
   try {
 

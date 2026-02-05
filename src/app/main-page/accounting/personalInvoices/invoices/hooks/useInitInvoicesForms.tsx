@@ -48,6 +48,7 @@ const useInitInvoicesForms = ({
     normalizedPath === "/main-page/accounting/personalInvoices/requisitions";
   const submitRef = useRef<() => void | Promise<void>>(null);
   const prefilledRequisitionIdRef = useRef<string | null>(null);
+  const lastPrefillKeyRef = useRef<string | null>(null);
   const [formReady, setFormReady] = useState(false);
   const fieldsReady = field.length > 0;
 
@@ -77,12 +78,8 @@ const useInitInvoicesForms = ({
         ),
         onChange: (value) => {
           updateField(formId, "description", { value });
-          syncNumnightsWithDescription(value);
         },
       });
-    const currentDescription = field.find((f) => f.name === "description")
-      ?.value as string | undefined;
-    syncNumnightsWithDescription(currentDescription ?? null);
   };
   const SetCategories = () => {
     if (billingCategories)
@@ -91,6 +88,10 @@ const useInitInvoicesForms = ({
           label: r.name,
           value: r.id_billingcategory,
         })),
+        onChange: (value) => {
+          updateField(formId, "category", { value });
+          syncFieldsWithCategory(value);
+        },
       });
   };
   const SetInitRequisitions = () => {
@@ -251,6 +252,11 @@ const useInitInvoicesForms = ({
     const descriptionId = dataEdit
       ? dataEdit.description.id_billingdescription
       : billingImages?.description?.id_billingdescription;
+    const prefillKey =
+      dataEdit?.billingdocument_id ?? billingImages?.billing_image_id ?? null;
+    const prefillSourceChanged = prefillKey !== lastPrefillKeyRef.current;
+    const currentDescriptionValue = field.find((f) => f.name === "description")
+      ?.value as string | undefined;
     if (requisitions.length > 0)
       updateField(formId, "requisition", {
         value: requisitionId,
@@ -259,11 +265,17 @@ const useInitInvoicesForms = ({
       updateField(formId, "category", {
         value: categoryId,
       });
-    if (billingDocumentDescription.length > 0)
+    if (
+      billingDocumentDescription.length > 0 &&
+      descriptionId &&
+      (prefillSourceChanged ||
+        currentDescriptionValue === undefined ||
+        currentDescriptionValue === "")
+    )
       updateField(formId, "description", {
         value: descriptionId,
       });
-    syncNumnightsWithDescription(descriptionId);
+    syncFieldsWithCategory(categoryId ?? null);
     if (billingImages?.proyect)
       updateField(formId, "proyect", {
         value: billingImages?.proyect,
@@ -285,6 +297,9 @@ const useInitInvoicesForms = ({
         value: billingImages?.deudor ?? "",
         onlyText: true,
       });
+    if (prefillSourceChanged) {
+      lastPrefillKeyRef.current = prefillKey;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dataEdit,
@@ -294,22 +309,45 @@ const useInitInvoicesForms = ({
     billingDocumentDescription,
   ]);
 
-  function syncNumnightsWithDescription(descriptionId?: string | null) {
-    const normalizedId = descriptionId ? String(descriptionId) : "";
-    const description = billingDocumentDescription.find(
-      (item) => String(item.id_billingdescription) === normalizedId,
+  function syncFieldsWithCategory(categoryId?: string | null) {
+    const normalizedId = categoryId ? String(categoryId) : "";
+    const category = billingCategories.find(
+      (item) => String(item.id_billingcategory) === normalizedId,
     );
-    const name = String(description?.name ?? "").trim().toLowerCase();
-    const isHospedaje = name === "hospedaje" || name.includes("hospedaje");
+    const fallbackLabel =
+      field
+        .find((item) => item.name === "category")
+        ?.options?.find((opt) => String(opt.value) === normalizedId)?.label ?? "";
+    const rawName = String(category?.name ?? fallbackLabel).trim().toLowerCase();
+    const name = rawName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const isHospedaje = name.includes("hospedaje");
+    const isFood =
+      name.includes("alimento") ||
+      name.includes("alimentacion") ||
+      name.includes("desayuno") ||
+      name.includes("comida") ||
+      name.includes("cena") ||
+      name.includes("almuerzo");
     const currentField = field.find((item) => item.name === "numnights");
     const shouldDisable = !isHospedaje;
     const hasRequired = currentField?.validations?.some((v) => v.type === "required");
+
+    const currentPersons = field.find((item) => item.name === "numpersons");
+    const shouldRequirePersons = isHospedaje || isFood;
+    const shouldDisablePersons = !shouldRequirePersons;
+    const personsHasRequired = currentPersons?.validations?.some(
+      (v) => v.type === "required",
+    );
 
     if (
       currentField &&
       currentField.disabled === shouldDisable &&
       hasRequired === isHospedaje &&
-      (shouldDisable ? currentField.value === 0 : true)
+      (shouldDisable ? currentField.value === 0 : true) &&
+      currentPersons &&
+      currentPersons.disabled === shouldDisablePersons &&
+      personsHasRequired === shouldRequirePersons &&
+      (shouldDisablePersons ? currentPersons.value === 0 : true)
     ) {
       return;
     }
@@ -319,14 +357,20 @@ const useInitInvoicesForms = ({
       validations: isHospedaje ? [{ type: "required" }] : [],
       ...(isHospedaje ? {} : { value: 0 }),
     });
+
+    updateField(formId, "numpersons", {
+      disabled: shouldDisablePersons,
+      validations: shouldRequirePersons ? [{ type: "required" }] : [],
+      ...(shouldDisablePersons ? { value: 0 } : {}),
+    });
   }
 
   useEffect(() => {
-    const descriptionValue = field.find((item) => item.name === "description")
+    const categoryValue = field.find((item) => item.name === "category")
       ?.value as string | undefined;
-    syncNumnightsWithDescription(descriptionValue ?? null);
+    syncFieldsWithCategory(categoryValue ?? null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [field, billingDocumentDescription]);
+  }, [field, billingCategories]);
 
   const computeLoadingFormInfo = (fields: FieldModel[]) => {
     const req = fields.find((f) => f.name === "requisition");

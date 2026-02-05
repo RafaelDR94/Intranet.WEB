@@ -28,6 +28,7 @@ export const useDetailsPanel = ({
     shallow,
   );
   const {
+    fetchBillingDocumentByIdRequisition,
     validateBillingDocument,
     validateBillingDocumentOperations,
     rejectBillingDocument,
@@ -42,6 +43,7 @@ export const useDetailsPanel = ({
     error,
   } = useBillingDocumentsStore(
     (s) => ({
+      fetchBillingDocumentByIdRequisition: s.fetchBillingDocumentByIdRequisition,
       updateBillingDocument: s.updateBillingDocument,
       validateBillingDocument: s.validateBillingDocument,
       validateBillingDocumentOperations: s.validateBillingDocumentOperations,
@@ -154,6 +156,9 @@ export const useDetailsPanel = ({
     hideSpinner();
 
     if (successPut) {
+      if (reqisition) {
+        fetchBillingDocumentByIdRequisition(reqisition, true)
+      }
       setPanelOpen(false);
       showAlert({
         type: "info",
@@ -203,6 +208,7 @@ export const useDetailsPanel = ({
 
     resetFlags();
   }, [
+    fetchBillingDocumentByIdRequisition,
     updating,
     error,
     successPut,

@@ -1,6 +1,6 @@
 // src/app/components/PerDiemBalanceCard/styles.ts
 export const perDiemBalanceCardStyles = {
-  root: 'max-w-full',
+  root: 'max-w-full mt-2',
 
   card: 'w-full rounded-lg bg-white-70 px-6 py-[49px] shadow-md h-auto',
   cardSap: 'w-full rounded-lg bg-white-70 p-6 shadow-md h-auto',

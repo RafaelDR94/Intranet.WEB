@@ -217,8 +217,9 @@ export const useImageUploaderExpanded = ({
   );
 
   const clearImages = useCallback(() => {
-    notifyImages([]);
-  }, [notifyImages]);
+    const remaining = images.filter((img) => img.selected === false);
+    notifyImages(remaining);
+  }, [images, notifyImages]);
 
   const reorderImages = useCallback(
     (targetId: string) => {

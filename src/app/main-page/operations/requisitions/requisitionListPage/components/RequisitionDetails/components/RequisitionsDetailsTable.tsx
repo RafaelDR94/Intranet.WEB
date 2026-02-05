@@ -17,7 +17,6 @@ import type { BillingDocumentDetailsTable } from "@/app/mappings/billingdocument
 import DowloadIcon from "@/assets/icons/acciones/download.svg";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 /**
  * Tabla de comprobantes asociados a una requisición. Permite descargar el
  * reporte y ver detalles individuales de cada documento.
@@ -31,7 +30,6 @@ const RequisitionDetailsTable: React.FC = () => {
     panelOpen,
     downloadRequistionResume,
     handleOpenDetails,
-    handleOpenImage,
     setPanelOpen,
     requisitionId,
     loading,
@@ -43,8 +41,8 @@ const RequisitionDetailsTable: React.FC = () => {
   const pathname = usePathname();
   const sapprofile = currentPagePermissions?.sapprofile;
 
-  console.log('rows ', rows);
-  console.log('selected ', selected);
+  console.log("rows ", rows);
+  console.log("selected ", selected);
   
 
   const handleUploadBillableFiles = () => {
@@ -103,37 +101,30 @@ const RequisitionDetailsTable: React.FC = () => {
         label: "ARCHIVOS",
         cellClass: "w-2/15 text-left",
         headerClass: "w-2/15 text-left",
-        render: (row) => (
-          <div className="flex items-center gap-1">
-            {row.xmlUrl && (
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={XMLIcon}
-                onClick={() => window.open(row.xmlUrl, "_blank")}
-                aria-label="Abrir XML"
-              />
-            )}
-            {row.pdfUrl && (
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={PDFIcon}
-                onClick={() => window.open(row.pdfUrl, "_blank")}
-                aria-label="Abrir PDF"
-              />
-            )}
-            {(row.imageUrl || row.billingimages_id || row.billingdocument_id?.startsWith("ticket-")) && (
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={ImageIcon}
-                onClick={() => handleOpenImage(row)}
-                aria-label="Abrir Imagen"
-              />
-            )}
-          </div>
-        ),
+        render: (row) => {
+          return (
+            <div className="flex items-center gap-1">
+              {row.xmlUrl && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={XMLIcon}
+                  onClick={() => window.open(row.xmlUrl, "_blank")}
+                  aria-label="Abrir XML"
+                />
+              )}
+              {row.pdfUrl && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={PDFIcon}
+                  onClick={() => window.open(row.pdfUrl, "_blank")}
+                  aria-label="Abrir PDF"
+                />
+              )}
+            </div>
+          );
+        },
       },
       {
         key: "fecha",
@@ -141,12 +132,6 @@ const RequisitionDetailsTable: React.FC = () => {
         cellClass: "w-2/15 text-left",
         headerClass: "w-2/15 text-left",
       },
-      // {
-      //   key: "fecha",
-      //   label: "PROVEDOR",
-      //   cellClass: "w-2/15 text-left",
-      //   headerClass: "w-2/15 text-left",
-      // },
       {
         key: "description",
         label: "DESCRIPCIÓN",
@@ -165,12 +150,6 @@ const RequisitionDetailsTable: React.FC = () => {
         cellClass: "w-2/15 text-left",
         headerClass: "w-2/15 text-left",
       },
-      // {
-      //   key: "fecha",
-      //   label: "No. FACTURA/TICKET",
-      //   cellClass: "w-2/15 text-left",
-      //   headerClass: "w-2/15 text-left",
-      // },
       {
         key: "subtotal",
         label: "SUBTOTAL",
@@ -225,6 +204,10 @@ const RequisitionDetailsTable: React.FC = () => {
       return true;
     });
   }, [columns, sapprofile]);
+
+  const filteredRows = useMemo(() => {
+    return rows.filter((row) => Boolean(row.xmlUrl || row.pdfUrl));
+  }, [rows]);
 
   const isBusy = Boolean(loading || downloadingDocument);
   const busyMessage = downloadingDocument
@@ -284,7 +267,7 @@ const RequisitionDetailsTable: React.FC = () => {
         }
         tables={[
           {
-            data: rows,
+            data: filteredRows,
             columns: isMobile ? filteredMobileColumns : filteredColumns,
             enableSelection: false,
             title: "Reporte de gastos",
