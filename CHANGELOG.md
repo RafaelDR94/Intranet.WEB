@@ -875,8 +875,14 @@ Fix:
 - Because activities had lost when changes tabs fastly.
   (Bruno Mendoza) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
 
-  ### 1.47.24 Report Activities 2026-12-01
+### 1.47.24 Report Activities 2026-12-01
 
 Fix:
 - Because in acces, it has some troubles.
   (Bruno Mendoza) [327#](https://github.com/DR-Mexico/dr.intranet.web/pull/327)
+
+### 1.47.25 Menu visible in report activites 2026-02-05
+
+Fix:
+- Because it didn´t open when you click it.
+  (Bruno Mendoza) [330#](https://github.com/DR-Mexico/dr.intranet.web/pull/330)

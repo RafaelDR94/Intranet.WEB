@@ -191,6 +191,7 @@ export const useAddActivities = () => {
                         ...base,
                         actionMenuProps: {
                             row: { index, activity },
+                            permissions:{update: true, delete: true},
                             onEdit: handleActivityEdit,
                             onDelete: handleActivityDelete,
                         },
