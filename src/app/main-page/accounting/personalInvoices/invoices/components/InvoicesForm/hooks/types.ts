@@ -36,4 +36,6 @@ export interface UseInvoicesFormProps {
   onCloseImage?: () => void;
   /** Disable all fields. */
   disabled?: boolean;
+  /** Optional requisition id to refresh requisition documents after updates. */
+  refreshRequisitionId?: string;
 }

@@ -241,6 +241,11 @@ export const useRequisitionForm = (
 
     if (opSuccess) {
       ResetForm();
+      fetchEmployees();
+      fetchProyects();
+      if (mode === 'edit') {
+        setDisableForm(true);
+      }
       showAlert({
         type: 'success',
         variant: 'filled',
@@ -271,7 +276,20 @@ export const useRequisitionForm = (
         onSecondaryClick: () => { hideAlert(); submitRef.current?.(); },
       });
     }
-  }, [opRunning, opSuccess, opError, mode, showSpinner, hideSpinner, showAlert, hideAlert, resetFlags, ResetForm]);
+  }, [
+    opRunning,
+    opSuccess,
+    opError,
+    mode,
+    fetchEmployees,
+    fetchProyects,
+    showSpinner,
+    hideSpinner,
+    showAlert,
+    hideAlert,
+    resetFlags,
+    ResetForm,
+  ]);
 
   // Submit (para DynamicForm) -> decide create o update
   const handleSubmit = useCallback(async (values: Record<string, any>) => {

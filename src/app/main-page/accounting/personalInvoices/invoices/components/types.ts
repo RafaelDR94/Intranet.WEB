@@ -20,5 +20,7 @@ export interface InvoicesFormProps {
   disabled?: boolean;
   /** Avoid preloading the ticket image when editing. */
   suppressInitialTicketImage?: boolean;
+  /** Optional requisition id to refresh requisition documents after updates. */
+  refreshRequisitionId?: string;
 }
 

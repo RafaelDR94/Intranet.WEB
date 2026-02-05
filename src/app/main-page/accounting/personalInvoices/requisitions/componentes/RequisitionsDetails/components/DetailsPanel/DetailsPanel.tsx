@@ -114,7 +114,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               disabled={resendDisabled}
             >
               Reenviar
-            </Button>
+            </Button> 
           </div>
         ) : (
           <div
@@ -128,12 +128,12 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 size="medium"
                 variant="solid"
                 hideIcon
-                onClick={() => setOpenValidInvoice(true)}
+                onClick={() => submitRef.current?.()}
                 disabled={resendDisabled}
 
               >
-                Reenviar
-              </Button>
+                Reenviar 
+              </Button> 
             )}
           </div>
         )
@@ -355,6 +355,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                   dataEdit={dataEdit}
                   externalSubmitRef={submitRef}
                   disabled={resendDisabled}
+                  refreshRequisitionId={reqisition}
                   responsiveLayoutMatrix={{
                     sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
                     md: [
