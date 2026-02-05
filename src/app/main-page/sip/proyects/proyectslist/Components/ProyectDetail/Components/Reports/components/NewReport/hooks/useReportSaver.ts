@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base64ToBlob } from '@/app/utilities/PicturesHelper/PictureHelper';
+import { base64ToBlob, optimizeDataUrlToBlob } from '@/app/utilities/PicturesHelper/PictureHelper';
 import { Activities, ReportView } from '@/app/mappings/reports/reports.types';
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper';
 import { isProduction } from '@/app/configurations/Axios/Clients';
@@ -54,8 +54,22 @@ const useReportSaver = () => {
                     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
                     const uniqueTitle = `${picture.title}_${timestamp}`;
 
+                    let blobToUpload: Blob;
+                    try {
+                        const optimized = await optimizeDataUrlToBlob(picture.urlimage, {
+                            maxWidth: 1600,
+                            maxHeight: 1600,
+                            quality: 0.72,
+                            preferWebp: true,
+                        });
+                        blobToUpload = optimized.blob;
+                    } catch (optError) {
+                        console.warn("No se pudo optimizar la imagen, usando original", optError);
+                        blobToUpload = base64ToBlob(picture.urlimage);
+                    }
+
                     const uploadedImageUrl = await firebasestorage.uploadFile(
-                        base64ToBlob(picture.urlimage),
+                        blobToUpload,
                         `${folderPath}/${uniqueTitle}`
                     );
 

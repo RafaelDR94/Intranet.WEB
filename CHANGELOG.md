@@ -886,3 +886,14 @@ Fix:
 Fix:
 - Because it didn´t open when you click it.
   (Bruno Mendoza) [330#](https://github.com/DR-Mexico/dr.intranet.web/pull/330)
+### 1.47.24 Report Activities 2026-12-01
+
+Fix:
+- Because in acces, it has some troubles.
+  (Bruno Mendoza) [334#](https://github.com/DR-Mexico/dr.intranet.web/pull/335)
+
+### 1.48.24 Report Images Optimization 2026-12-01
+
+Fix:
+- Because this module could be improved.
+  (Bruno Mendoza) [335#](https://github.com/DR-Mexico/dr.intranet.web/pull/335)
