@@ -40,20 +40,20 @@ export const getValidationSchema = (fields: FieldModel[]) => {
         const schema = Yup.mixed()
           .nullable()
           .test('file-or-initial', 'Este campo es requerido', (val) => {
+            const required = field.validations?.some((v) => v.type === 'required');
+            if (!required) return true;
+
+            if (field.multiple) {
+              const list = Array.isArray(val) ? val : [];
+              const selected = list.filter((item: any) => item && item.selected !== false);
+              return selected.length > 0 || (field.initialFiles?.length ?? 0) > 0;
+            }
+
             const hasValue = val != null;
             const hasInitial = !!field.initialFile;
-            // Si el campo es requerido, aceptamos que exista valor o initialFile
-            const required = field.validations?.some((v) => v.type === 'required');
-            return required ? (hasValue || hasInitial) : true;
+            return hasValue || hasInitial;
           });
 
-        // Mantiene compatibilidad por si en el futuro se agregan otras reglas
-        field.validations?.forEach((rule) => {
-          if (rule.type === 'required') {
-            // Ya validamos en el test anterior, no añadimos required aquí para no
-            // sobrescribir la lógica personalizada.
-          }
-        });
         acc[field.name] = schema;
       } else {
         let schema = Yup.string();

@@ -126,7 +126,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           )}
           {/* Editar Documento (como en la maqueta) */}
 
-          {selected.status.toLocaleLowerCase() == "rechazado" && (
+          {selected.status.toLocaleLowerCase() !== "rechazado" && (
             <>
               <div className="text-gray-90 text-b4 font-medium">
                 Editar documento:
@@ -179,39 +179,9 @@ const SideMenu: React.FC<SideMenuProps> = ({
                 <div id="ticket-form">
                   <TicketForm
                     responsiveLayoutMatrix={{
-                      sm: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
-                      md: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
-                      lg: [
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                        [10],
-                      ],
+                      sm: [[10], [10]],
+                      md: [[10], [10]],
+                      lg: [[10], [10]],
                     }}
                     dataEdit={selected}
                     externalSubmitRef={submitRef}

@@ -22,7 +22,9 @@ describe('FileUploaderExpanded', () => {
   it('renderiza con label y placeholder por defecto', () => {
     setup();
     expect(screen.getByText('Sube archivo')).toBeInTheDocument();
-    expect(screen.getByText(/Arrastra y suelta/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Arrastra o selecciona/i),
+    ).toBeInTheDocument();
   });
 
   it('abre selector al hacer click en el botón', () => {
@@ -45,7 +47,7 @@ describe('FileUploaderExpanded', () => {
 
   it('cambia a estilo de arrastre al hacer dragover y vuelve al salir', () => {
     setup();
-    const dropzone = screen.getByText(/Arrastra y suelta/i).parentElement!;
+    const dropzone = screen.getByText(/Arrastra o selecciona/i).parentElement!;
     fireEvent.dragOver(dropzone);
     expect(dropzone.className).toMatch(/bg-blue-10/);
     fireEvent.dragLeave(dropzone);
@@ -55,7 +57,7 @@ describe('FileUploaderExpanded', () => {
 it('dispara onFile al soltar un archivo válido', () => {
   const { onFile, container } = setup({ accept: '.pdf' });
 
-  const dropzone = screen.getByText(/Arrastra y suelta/i).parentElement!;
+  const dropzone = screen.getByText(/Arrastra o selecciona/i).parentElement!;
   const file = new File(['dummy'], 'a.pdf', { type: 'application/pdf' });
 
   // 1) localiza el input file
@@ -93,7 +95,7 @@ it('dispara onFile al soltar un archivo válido', () => {
 
   it('envía null si el archivo no coincide con accept', () => {
     const { onFile } = setup({ accept: '.pdf' });
-    const dropzone = screen.getByText(/Arrastra y suelta/i).parentElement!;
+    const dropzone = screen.getByText(/Arrastra o selecciona/i).parentElement!;
     const wrong = new File(['x'], 'a.png', { type: 'image/png' });
 
     fireEvent.drop(dropzone, {

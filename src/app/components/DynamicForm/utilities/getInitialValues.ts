@@ -27,8 +27,14 @@ export const getInitialValues = (fields: FieldModel[]) => {
         break;
       }
       case 'file':
-      case 'imageUploaderExpanded':
         acc[field.name] = field.value ?? null;
+        break;
+      case 'imageUploaderExpanded':
+        if (field.multiple) {
+          acc[field.name] = Array.isArray(field.value) ? field.value : [];
+        } else {
+          acc[field.name] = field.value ?? null;
+        }
         break;
       default:
         acc[field.name] = field.value ?? '';

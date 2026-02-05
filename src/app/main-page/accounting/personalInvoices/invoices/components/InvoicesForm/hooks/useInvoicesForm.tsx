@@ -22,6 +22,8 @@ const useInvoicesForm = ({
   withoutName,
   billingImages,
   onCloseImage,
+  disabled,
+  refreshRequisitionId,
 }: UseInvoicesFormProps): UseInvoicesFormReturn => {
   const isEdit = Boolean(dataEdit);
   const { firebasestorage } = useFirebase();
@@ -46,29 +48,24 @@ const useInvoicesForm = ({
       updateBillingDocument: s.updateBillingDocument,
       resetFlags: s.resetFlags,
     }),
-    shallow
+    shallow,
   );
 
   const { forceFetchBillingHistory } = useBillingHistoryStore(
     (s) => ({
       forceFetchBillingHistory: s.forceFetchBillingHistory,
     }),
-    shallow
+    shallow,
   );
-
-
-
-
 
   const initialformFields: FieldModel[] = useMemo(() => {
     if (isEdit || withoutName) {
       return [
-
         {
           type: "input",
           name: "personName",
-          label: "Nombre del Deudor",
-          placeholder: "Ingrese el nombre completo",
+          label: "Nombre",
+          placeholder: "Nombre del colaborador",
           value: "",
           className: "max-w-[400px]",
           onlyText: true,
@@ -78,7 +75,7 @@ const useInvoicesForm = ({
           type: "input",
           name: "proyect",
           label: "Proyecto",
-          placeholder: "Ingrese el código del proyect",
+          placeholder: "Proyecto",
           value: "",
           className: "max-w-[400px]",
           onlyText: true,
@@ -133,42 +130,42 @@ const useInvoicesForm = ({
         {
           type: "numberControl",
           name: "numnights",
-          label: "Número de noches",
+          label: "No. de Noches",
           value: dataEdit?.numnights ?? 0,
-          className: "max-w-[300px]",
+          className: "max-w-[220px]",
           validations: [{ type: "required" }],
         },
         {
           type: "numberControl",
           name: "numpersons",
-          label: "Número de personas",
+          label: "No. de Personas",
           value: dataEdit?.numpersons ?? 0,
 
-          className: "max-w-[300px]",
+          className: "max-w-[220px]",
           validations: [{ type: "required" }],
         },
         {
           type: "file",
           name: "xml",
-          label: "Documento XML",
+          label: "Sube aquí el archivo xml",
+          placeholder: "Seleccionar documento",
           value: { name: "Documento XML", url: dataEdit?.xml },
           initialFile: { name: dataEdit?.xml ?? "", url: dataEdit?.xml },
           accept: ".xml",
-          className: "max-w-[300px]",
+          className: "w-full md:w-[200px] px-3 py-1.5 text-btn-sm",
           validations: [{ type: "required" }],
         },
         {
           type: "file",
           name: "pdf",
-          label: "Documento PDF",
+          label: "Sube aquí el archivo pdf",
+          placeholder: "Seleccionar documento",
           value: { name: "Documento PDF", url: dataEdit?.pdf },
           initialFile: { name: dataEdit?.pdf ?? "", url: dataEdit?.pdf },
           accept: ".pdf",
-          className: "max-w-[300px]",
+          className: "w-full md:w-[200px] px-3 py-1.5 text-btn-sm",
           validations: [{ type: "required" }],
         },
-
-
       ];
     }
 
@@ -185,19 +182,20 @@ const useInvoicesForm = ({
       billingImages,
     });
 
-  const { usePrincipalLoading, usePrincipalAlert, usePrincipalImage } = usePrincipal();
+  const { usePrincipalLoading, usePrincipalAlert, usePrincipalImage } =
+    usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
   const { showImage } = usePrincipalImage;
 
   const uploadXmlIfNeeded = async (
     file: File | null | undefined,
-    requisition: string
+    requisition: string,
   ): Promise<string> => {
     if (file) {
       const url = await firebasestorage.uploadFile(
         file,
-        `Billings/BillingDocuments/${requisition}.xml`
+        `Billings/BillingDocuments/${requisition}.xml`,
       );
       if (!url) throw new Error("Hubo un problema al subir el XML");
       return url;
@@ -208,12 +206,12 @@ const useInvoicesForm = ({
 
   const uploadPdfIfNeeded = async (
     file: File | null | undefined,
-    requisition: string
+    requisition: string,
   ): Promise<string> => {
     if (file) {
       const url = await firebasestorage.uploadFile(
         file,
-        `Billings/BillingDocuments/${requisition}.pdf`
+        `Billings/BillingDocuments/${requisition}.pdf`,
       );
       if (!url) throw new Error("Hubo un problema al subir el PDF");
       return url;
@@ -225,11 +223,11 @@ const useInvoicesForm = ({
   const handleImageClick = (image: string) => {
     showImage({
       src: image,
-      alt: 'Ticket',
+      alt: "Ticket",
       showAction: false,
       disableOutsideClose: false, // si quieres obligar a usar los botones, ponlo en true
     });
-  }
+  };
 
   const handleSubmit = async (values: Record<string, any>) => {
     showSpinner({
@@ -251,9 +249,9 @@ const useInvoicesForm = ({
           category_id: values?.category,
           numnights: values?.numnights,
           numpersons: values?.numpersons,
-          user_comments: ""
+          user_comments: "",
         };
-        updateBillingDocument(payload);
+        updateBillingDocument(payload, refreshRequisitionId);
       } else {
         const payload: BillingDocumentsPost = {
           requisition_id: values.requisition,
@@ -263,7 +261,7 @@ const useInvoicesForm = ({
           description_id: values?.description,
           category_id: values?.category,
           numnights: values?.numnights,
-          numpersons: values?.numpersons
+          numpersons: values?.numpersons,
         };
         createBillingDocument(payload);
       }
@@ -274,7 +272,8 @@ const useInvoicesForm = ({
         variant: "filled",
         title: isEdit ? "No se pudo actualizar" : "No se pudo enviar",
         description:
-          String(err) || "Ocurrió un error al subir los archivos. Intenta de nuevo.",
+          String(err) ||
+          "Ocurrió un error al subir los archivos. Intenta de nuevo.",
         showPrimaryButton: true,
         primaryLabel: "Entendido",
         onPrimaryClick: hideAlert,
@@ -322,17 +321,17 @@ const useInvoicesForm = ({
         type: "success",
         variant: "filled",
         title: isEdit
-          ? "Factura actualizada con éxito"
-          : "Factura subida con éxito",
+          ? "Archivos cargados con éxito"
+          : "Archivos cargados",
         description: isEdit
-          ? "Tu factura ha sido actualizada correctamente."
-          : "Tu factura ha sido subida correctamente.",
+          ? "Tus archivos se han cargado exitosamente."
+          : "Tus archivos se han cargado exitosamente.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
     }
-       // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     creating,
     updating,
@@ -344,15 +343,23 @@ const useInvoicesForm = ({
     user,
   ]);
 
+  const resolvedFields = useMemo(
+    () =>
+      disabled
+        ? field1.map((field) => ({ ...field, disabled: true }))
+        : field1,
+    [disabled, field1],
+  );
+
   return {
-    fields: field1,
+    fields: resolvedFields,
     loadingFormInfo,
     submitRef,
     formReady,
     setFormReady,
     handleSubmit,
     ResetForm,
-    handleImageClick
+    handleImageClick,
   };
 };
 

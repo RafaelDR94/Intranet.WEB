@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
@@ -99,22 +99,19 @@ describe("SAP Administration DetailsPanel", () => {
     useSAPDetailsPanelMock.mockReturnValue(baseHookReturn);
   });
 
-  it("renders invoice details and action buttons", () => {
+  it("renders invoice details without action buttons", () => {
+    useSAPDetailsPanelMock.mockReturnValue({
+      ...baseHookReturn,
+      currentPagePermissions: {
+        canValidInvoice: true,
+        canSendToSap: true,
+      },
+    });
     renderComponent();
 
     expect(screen.getByText("UUID-123")).toBeInTheDocument();
-    expect(screen.getByText("Validar Factura")).toBeInTheDocument();
-    expect(screen.getByText("Subir a SAP")).toBeInTheDocument();
-  });
-
-  it("calls hook handlers when action buttons are clicked", () => {
-    renderComponent();
-
-    fireEvent.click(screen.getByText("Validar Factura"));
-    expect(baseHookReturn.setOpenValidInvoice).toHaveBeenCalledWith(true);
-
-    fireEvent.click(screen.getByText("Subir a SAP"));
-    expect(baseHookReturn.handleSendToSap).toHaveBeenCalled();
+    expect(screen.queryByText("Validar Factura")).not.toBeInTheDocument();
+    expect(screen.queryByText("Subir a SAP")).not.toBeInTheDocument();
   });
 
   it("shows an empty state when no record is selected", () => {

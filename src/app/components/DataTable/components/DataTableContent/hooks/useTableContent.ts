@@ -15,18 +15,25 @@ export const useTableContent = <T extends { id: string | number }>({
   defaultSortKey,
   defaultSortDirection,
   initialSelectedIds,
+  selectionMode,
 }: UseTableContentProps<T>) => {
   const [selected, setSelected] = useState<T[]>([]);
   const [sortKey, setSortKey] = useState<keyof T | null>(defaultSortKey ?? null);
   const [sortDirection, setSortDirection] =
     useState<SortDirection>(defaultSortDirection ?? null);
 
+  const isSingleSelection = selectionMode === "single";
+
   useEffect(() => {
     if (initialSelectedIds == null) return;
     const map = new Map(data.map((item) => [String(item.id), item]));
-    const nextSelection = initialSelectedIds
+    let nextSelection = initialSelectedIds
       .map((id) => map.get(String(id)))
       .filter((row): row is T => Boolean(row));
+
+    if (isSingleSelection && nextSelection.length > 1) {
+      nextSelection = nextSelection.slice(0, 1);
+    }
 
     setSelected((prev) => {
       if (haveSameIds(prev, nextSelection)) {
@@ -34,7 +41,7 @@ export const useTableContent = <T extends { id: string | number }>({
       }
       return nextSelection;
     });
-  }, [initialSelectedIds, data]);
+  }, [initialSelectedIds, data, isSingleSelection]);
 
   useEffect(() => {
     if (initialSelectedIds != null) return;
@@ -59,11 +66,15 @@ export const useTableContent = <T extends { id: string | number }>({
       if (exists) {
         return prev.filter((item) => String(item.id) !== String(selectedItem.id));
       }
-      return [...prev, selectedItem];
+      return isSingleSelection ? [selectedItem] : [...prev, selectedItem];
     });
   };
 
   const selectAll = (value: boolean) => {
+    if (isSingleSelection) {
+      setSelected(value && data.length > 0 ? [data[0]] : []);
+      return;
+    }
 
     setSelected(value ? data : []);
   };
@@ -143,6 +154,7 @@ export const useDataTableContent = <T extends { id: string | number }>(
     rowHeight = 56,
     scrollMaxHeight,
     initialSelectedIds,
+    selectionMode,
   }: UseDataTableContentProps<T>
 ) => {
   const {
@@ -154,7 +166,7 @@ export const useDataTableContent = <T extends { id: string | number }>(
     sortDirection,
     handleSort,
     sortedData,
-  } = useTableContent<T>({ data, defaultSortKey, defaultSortDirection, initialSelectedIds });
+  } = useTableContent<T>({ data, defaultSortKey, defaultSortDirection, initialSelectedIds, selectionMode });
   
   // paginación
   const [currentPage, setCurrentPage] = useState(1);

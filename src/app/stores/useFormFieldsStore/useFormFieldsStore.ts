@@ -54,14 +54,22 @@ export const useFormFieldsStore = create<FormFieldsState>((set) => ({
    * @param changes Propiedades a mezclar en el campo encontrado
    */
   updateField: (formId, name, changes) =>
-    set((s) => ({
-      fieldsByFormId: {
-        ...s.fieldsByFormId,
-        [formId]: (s.fieldsByFormId[formId] ?? []).map((f) =>
-          f.name === name ? { ...f, ...changes } : f
-        ),
-      },
-    })),
+    set((s) => {
+      const currentFields = s.fieldsByFormId[formId] ?? []
+      const fieldIndex = currentFields.findIndex((f) => f.name === name)
+      if (fieldIndex === -1) {
+        return s
+      }
+      const nextFields = currentFields.map((f, index) =>
+        index === fieldIndex ? { ...f, ...changes } : f
+      )
+      return {
+        fieldsByFormId: {
+          ...s.fieldsByFormId,
+          [formId]: nextFields,
+        },
+      }
+    }),
 
   /**
    * Elimina el estado de un formulario específico del store.

@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import clsx from 'clsx';
-import React from 'react';
+import clsx from "clsx";
+import React from "react";
 
-import CameraIcon from '@/assets/icons/Fotos y Videos/camera.svg';
-import { Button } from '@/app/components/Button/Button';
-import { labelClasses } from '@/app/components/Input/styles';
-import { CameraViewer } from '@/app/components/CameraViewer/CameraViewer';
-import CloseIcon from '@/assets/icons/acciones/cancel.svg';
+import CameraIcon from "@/assets/icons/Fotos y Videos/camera.svg";
+import { Button } from "@/app/components/Button/Button";
+import { labelClasses } from "@/app/components/Input/styles";
+import { CameraViewer } from "@/app/components/CameraViewer/CameraViewer";
+import CloseIcon from "@/assets/icons/acciones/cancel.svg";
 
-import { useImageUploaderExpanded } from './hooks/useImageUploaderExpanded';
+import { useImageUploaderExpanded } from "./hooks/useImageUploaderExpanded";
 import {
   buttonWrapperClasses,
   cameraButtonClasses,
@@ -25,8 +25,12 @@ import {
   previewImageClasses,
   previewActionsClasses,
   previewCancelButtonClasses,
-} from './styles';
-import { ImageUploaderExpandedProps } from './types';
+  galleryWrapper,
+  galleryGrid,
+  galleryItem,
+  galleryImage,
+} from "./styles";
+import { ImageUploaderExpandedProps } from "./types";
 
 /**
  * Componente para subir imagenes con dropzone, boton clasico y captura desde camara.
@@ -45,14 +49,16 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
   onImage,
   disabled = false,
   className,
-  defaultFacingMode = 'environment',
-  accept = 'image/*',
-  buttonLabel = 'Seleccionar Imagen',
+  defaultFacingMode = "environment",
+  accept = "image/*",
+  buttonLabel = "Seleccionar Imagen",
   cameraLabels,
-  cameraButtonAriaLabel = 'Abrir camara',
+  cameraButtonAriaLabel = "Abrir camara",
   initialFile,
+  initialFiles,
   dataTestId,
   preview = false,
+  multiple = false,
 }) => {
   const [isChanging, setIsChanging] = React.useState(false);
   const {
@@ -71,12 +77,22 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     handleCaptureFromCamera,
     previewUrl,
     openPreview,
+    images,
+    toggleImage,
+    clearImages,
+    draggingId,
+    handleImageDragStart,
+    handleImageDragOverGallery,
+    handleImageDropGallery,
+    handleImageDragEnd,
   } = useImageUploaderExpanded({
     onImage,
     accept,
     disabled,
     placeholder,
     initialFile,
+    initialFiles,
+    multiple,
   });
 
   // Mantener modo "cambiar" hasta que el usuario seleccione/capture otra imagen.
@@ -86,7 +102,6 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     className || dropzoneBaseClasses,
     isDragging ? dropzoneDraggingClasses : dropzoneIdleClasses,
     disabled && dropzoneDisabledClasses,
-
   );
 
   const { capture: captureLabel, switchCamera, close } = cameraLabels ?? {};
@@ -94,14 +109,18 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
   const isPreviewVisible = preview && !!previewUrl && !isChanging;
 
   return (
-    <div className={containerClasses} ref={containerRef} data-testid={dataTestId}>
+    <div
+      className={containerClasses}
+      ref={containerRef}
+      data-testid={dataTestId}
+    >
       {label && <label className={labelClasses()}>{label}</label>}
 
       {isPreviewVisible ? (
         <div className={previewWrapperClasses}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={previewUrl ?? ''}
+            src={previewUrl ?? ""}
             alt="Vista previa"
             className={previewImageClasses}
             onClick={openPreview}
@@ -160,6 +179,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
           <input
             type="file"
             accept={accept}
+            multiple={multiple}
             ref={inputRef}
             onChange={(e) => {
               handleChange(e);
@@ -192,13 +212,60 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
           if (preview) setIsChanging(false);
         }}
         defaultFacingMode={defaultFacingMode}
-        captureButtonLabel={captureLabel ?? 'Capturar'}
-        switchButtonLabel={switchCamera ?? 'Cambiar camara'}
-        closeButtonLabel={close ?? 'Cerrar'}
+        captureButtonLabel={captureLabel ?? "Capturar"}
+        switchButtonLabel={switchCamera ?? "Cambiar camara"}
+        closeButtonLabel={close ?? "Cerrar"}
       />
+
+      {multiple && images && (
+        <div className={galleryWrapper}>
+          <div className={galleryGrid}>
+            {images.map((img) => (
+              <label
+                key={img.id}
+                className={galleryItem(
+                  img.selected !== false,
+                  draggingId === img.id,
+                )}
+                draggable={!disabled}
+                onDragStart={() => handleImageDragStart?.(img.id)}
+                onDragOver={(event) =>
+                  handleImageDragOverGallery?.(event, img.id)
+                }
+                onDrop={(event) => handleImageDropGallery?.(event, img.id)}
+                onDragEnd={handleImageDragEnd}
+              >
+                <input
+                  type="checkbox"
+                  checked={img.selected !== false}
+                  onChange={() => toggleImage?.(img.id)}
+                  className="sr-only"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={img.url ?? ""}
+                  alt={img.name}
+                  className={galleryImage}
+                />
+              </label>
+            ))}
+          </div>
+          {images.length > 0 && (
+            <div className="flex justify-end mt-8">
+              <Button
+                variant="outline"
+                size="small"
+                onClick={clearImages}
+                disabled={disabled}
+              >
+                Quitar imágenes
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
 export default ImageUploaderExpanded;
-

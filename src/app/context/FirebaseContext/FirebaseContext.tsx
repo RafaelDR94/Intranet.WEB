@@ -204,6 +204,8 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (auth && user?.userName && !hasFirebaseauth.current) {
+      console.log(user?.userName);
+      
       // authenticateWithEmailAndPassword(user?.userName, atob(firebaseConfiguration.paswordFirebase));
       authenticateWithEmailAndPasswordCb(user?.userName, "Dr123qwe");
       hasFirebaseauth.current = true;

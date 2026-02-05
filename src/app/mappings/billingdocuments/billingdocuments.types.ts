@@ -87,6 +87,7 @@ export type BillingDocumentDetailsTable = {
   "xmlUrl"?: string;
   "pdfUrl"?: string;
   "imageUrl"?: string;
+  "billingimages_id"?: string | null;
   "invoiceNumber"?: string;
 };
 

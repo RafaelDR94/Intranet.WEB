@@ -5,7 +5,7 @@ import { AxiosResponse } from 'axios'
 
 import { Get, Set } from '../types'
 
-import { BillingRequisitionByDate} from '@/app/configurations/Axios/urls'
+import { BillingRequisition } from '@/app/configurations/Axios/urls'
 import { RequisitionsMap } from '@/app/mappings/requisitions/requisitions.mapp'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
@@ -18,7 +18,7 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
  * @param get Función `get` de Zustand
  * @param force Forza la recarga ignorando cache
  */
-export const fetchRequisitionsByDate = async (startDate: string, endDate: string, set: Set, get: Get, force = false) => {
+export const fetchRequisitionsByDate = async (_startDate: string, _endDate: string, set: Set, get: Get, force = false) => {
   // cache básica
   if (get().requisitions.length > 0 && !force) return
 
@@ -33,7 +33,7 @@ export const fetchRequisitionsByDate = async (startDate: string, endDate: string
     const getReq = pGet(GetFn)
 
     // 3) llamada
-    const res: AxiosResponse = await getReq(`${BillingRequisitionByDate}?startDate=${startDate}&endDate=${endDate}`)
+    const res: AxiosResponse = await getReq(`${BillingRequisition}?active=true`)
     
     // 4) mapear y guardar
     const mapped = RequisitionsMap(res.data?.data ?? [])

@@ -177,7 +177,7 @@ describe("useReportsTable", () => {
   });
 
   it("descarga el reporte fotografico mostrando mensajes en el flujo feliz", async () => {
-    makePictureDocumentMock.mockReturnValue({ pages: [] });
+    makePictureDocumentMock.mockResolvedValue({ pages: [] });
     createPDFMock.mockImplementation((_, resolve) => resolve("blob:report"));
 
     const { result } = renderHook(() => useReportsTable());

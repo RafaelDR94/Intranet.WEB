@@ -1,4 +1,5 @@
 import type { Authorized } from '@/app/components/SignaturePopUp/types';
+import type { SelectedImage } from '@/app/components/ImageUploaderExpanded/types';
 import type { VehicleImageSlot } from '@/app/stores/useVehicleRegistryImagesStore/types';
 
 export type ImagesComponentProps = {
@@ -28,6 +29,6 @@ export type UseImagesComponentReturn = {
   handleSignatureAuthorization: (authorized: Authorized) => void;
   handleImageSelect: (
     slotId: string
-  ) => (file: File | null) => Promise<void>;
+  ) => (file: File | SelectedImage[] | null) => Promise<void>;
   handleRemoveImage: (slotId: string) => void;
 };

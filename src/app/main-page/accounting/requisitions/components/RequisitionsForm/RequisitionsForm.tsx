@@ -29,6 +29,7 @@ type Props = {
   enableCollaps?: boolean;
   /**Inicia la tabla colapsada */
   startCollaps?: boolean;
+  showEditForm?: boolean;
 };
 
 /**
@@ -44,6 +45,7 @@ const RequisitionsForm: React.FC<Props> = ({
   onClose,
   responsiveLayoutMatrix,
   startDisabled,
+  showEditForm,
 }) => {
   const {
     fields,
@@ -100,7 +102,7 @@ const RequisitionsForm: React.FC<Props> = ({
             onPrimaryClick={onSubmit}
             primaryDisabled={buttonDisabled || (startDisabled && disableForm)}
             enableCollapse={enableCollaps}
-            showSecondaryButton={mode === "edit" || startDisabled}
+            showSecondaryButton={showEditForm ?? (mode === "edit" || startDisabled)}
             secondaryLabel={disableForm ? "Editar información" : "Cancelar"}
             onSecondaryClick={() => {
               onClose?.();
