@@ -19,17 +19,20 @@ vi.mock('./hooks/useRequisitionDetailsDocument', () => ({
   }),
 }))
 
+type DataTableRow = { description: string }
+type DataTableProps = { tables: Array<{ data: DataTableRow[] }> }
+
 vi.mock('@/app/components/DataTable/DataTable', () => ({
-  DataTable: ({ tables }: any) => <div>{tables[0].data[0].description}</div>,
+  DataTable: ({ tables }: DataTableProps) => <div>{tables[0].data[0].description}</div>,
 }))
 
 vi.mock('@/app/components/LoadingOverLay/LoadingOverlay', () => ({ default: () => null }))
 vi.mock('@/app/main-page/accounting/invoices/validateinvoices/components/DetailsPanel/DetailsPanel', () => ({ __esModule: true, default: () => null }))
-vi.mock('@/app/components/Button/Button', () => ({ Button: (props: any) => <button {...props} /> }))
+vi.mock('@/app/components/Button/Button', () => ({ Button: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} /> }))
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({ useAuth: () => ({ currentPagePermissions: { downloadDocuments: true } }) }))
 
 const meta: Meta<typeof RequisitionDetailsDocument> = {
-  title: 'MainPage/Accounting/Requisitions/RequisitionsList/RequisitionDetails/RequisitionDetailsDocument',
+  title: 'MainPage/Accounting/PersonalInvoices/Requisitions/RequisitionDetails/RequisitionDetailsDocument',
   component: RequisitionDetailsDocument,
   tags: ['autodocs'],
 }
