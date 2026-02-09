@@ -51,10 +51,10 @@ export const sidebarRoutes = [
     path: '/main-page/accounting',
     icon: ServerIcon,
     subroutes: [
-      // { label: 'Facturación', path: '/main-page/accounting/invoices' },
+      { label: 'Facturación', path: '/main-page/accounting/invoices' },
       { label: 'Requisiciones', path: '/main-page/accounting/personalInvoices' },
-      // { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
-      // { label: 'Archivos Facturables', path: '/main-page/accounting/billablefiles' },
+      { label: 'Lista de Requisiciones', path: '/main-page/accounting/requisitions' },
+      { label: 'Archivos Facturables', path: '/main-page/accounting/billablefiles' },
       { label: 'SAP', path: '/main-page/accounting/sap' },
     ],
   },
