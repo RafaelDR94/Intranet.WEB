@@ -1,28 +1,28 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import React from 'react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react'
+import React from 'react'
 
-import PerDiemBalanceCard from './PerDiemBalanceCard';
+import PerDiemBalanceCard from './PerDiemBalanceCard'
 
 const meta: Meta<typeof PerDiemBalanceCard> = {
-  title: 'Components/PerDiemBalanceCard',
+  title: 'MainPage/Accounting/PersonalInvoices/Requisitions/RequisitionDetails/PerDiemBalanceCard',
   component: PerDiemBalanceCard,
   tags: ['autodocs'],
-};
-export default meta;
+}
+export default meta
 
-type Story = StoryObj<typeof PerDiemBalanceCard>;
+type Story = StoryObj<typeof PerDiemBalanceCard>
 
-const withLightTheme = (Story: any) => (
+const withLightTheme: Decorator = Story => (
   <div data-theme="light" style={{ padding: '2rem', backgroundColor: 'var(--color-gray-10)' }}>
     <Story />
   </div>
-);
+)
 
-const withDarkTheme = (Story: any) => (
+const withDarkTheme: Decorator = Story => (
   <div data-theme="dark" style={{ padding: '2rem', backgroundColor: 'var(--color-gray-10)' }}>
     <Story />
   </div>
-);
+)
 
 const baseArgs = {
   startDate: '2025-01-01',
@@ -34,14 +34,14 @@ const baseArgs = {
   elapsedDays: 3,
   totalDays: 5,
   percentage: 60,
-};
+}
 
 export const Light: Story = {
   args: baseArgs,
   decorators: [withLightTheme],
-};
+}
 
 export const Dark: Story = {
   args: baseArgs,
   decorators: [withDarkTheme],
-};
+}

@@ -100,10 +100,10 @@ export const getTabsFromPath = (
     ],
 
     "accounting/requisitions": [
-      {
-        label: "Requisiciones",
-        path: "/main-page/accounting/requisitions/requisitions",
-      },
+      // {
+      //   label: "Requisiciones",
+      //   path: "/main-page/accounting/requisitions/requisitions",
+      // },
       {
         label: "Listado de Requisiciones",
         path: "/main-page/accounting/requisitions/requisitionsList",
