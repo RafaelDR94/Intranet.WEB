@@ -1,27 +1,48 @@
 import type { Meta, StoryObj } from '@storybook/react'
+import type { useRequisitionTable as UseRequisitionTable } from './hooks/useRequisitionsTable'
+import type { RequisitionRow } from './types'
+import { vi } from 'vitest'
 
-import * as hook from './hooks/useRequisitionsTable'
-
-// Provide static data for Storybook rendering
-;
 import RequisitionsTable from './RequisitionsTable'
-(hook as any).useRequisitionTable = () => ({
-  rows: [
-    { id: '1', snCode: 'REQ-1', debtorName: 'John Doe', projectCode: 'PRJ-1', date_created: '2025-01-01' },
-  ],
+
+const baseRows: RequisitionRow[] = [
+  {
+    id: '1',
+    snCode: 'REQ-1',
+    requisitionkey: 'REQ-1',
+    debtorName: 'John Doe',
+    employeeName: 'John Doe',
+    projectCode: 'PRJ-1',
+    projectname: 'PRJ-1',
+    date_created: '2025-01-01',
+  },
+]
+
+const mockState: ReturnType<typeof UseRequisitionTable> = {
+  rows: baseRows,
   setQuery: () => {},
   confirmOpen: false,
   rowToDelete: null,
   removing: false,
-  handleConfirmDelete: () => {},
+  handleConfirmDelete: async () => {},
   setConfirmOpen: () => {},
   onEdit: () => {},
   onDelete: () => {},
   refresh: () => {},
-})
+  activeRows: [],
+  query: '',
+  columns: [],
+  handleOpenDetails: () => {},
+  hasIdParam: false,
+}
+
+vi.mock('./hooks/useRequisitionsTable', () => ({
+  __esModule: true,
+  useRequisitionTable: () => mockState,
+}))
 
 const meta: Meta<typeof RequisitionsTable> = {
-  title: 'MAINPAGE/Accounting/Requisitions/RequisitionsList/RequisitionsTable/RequisitionsTable',
+  title: 'MainPage/Accounting/PersonalInvoices/Requisitions/RequisitionsTable/RequisitionsTable',
   component: RequisitionsTable,
   tags: ['autodocs'],
 }

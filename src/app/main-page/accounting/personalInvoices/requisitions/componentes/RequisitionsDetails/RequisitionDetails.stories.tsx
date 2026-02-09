@@ -37,7 +37,7 @@ vi.mock('@/app/context/AuthContext/AuthContext', () => ({
 }))
 
 const meta: Meta<typeof RequisitionDetails> = {
-  title: 'MainPage/Accounting/Requisitions/RequisitionsList/RequisitionDetails/RequisitionDetails',
+  title: 'MainPage/Accounting/PersonalInvoices/Requisitions/RequisitionDetails/RequisitionDetails',
   component: RequisitionDetails,
   tags: ['autodocs'],
 }
