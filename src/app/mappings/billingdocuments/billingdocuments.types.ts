@@ -89,6 +89,8 @@ export type BillingDocumentDetailsTable = {
   "imageUrl"?: string;
   "billingimages_id"?: string | null;
   "invoiceNumber"?: string;
+  "comments"?: string;
+  "user_comments"?: string;
 };
 
 export type BillingDocumentsSatTable = {

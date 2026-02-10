@@ -238,6 +238,8 @@ const useRequisitionDetailsDocument = () => {
           xmlUrl: undefined,
           pdfUrl: undefined,
           imageUrl: imageUrls[0],
+          comments: item.comments ?? "",
+          user_comments: item.user_comments ?? item.comments ?? "",
         }
       })
 

@@ -16,7 +16,6 @@ import type { BillingDocumentDetailsTable } from "@/app/mappings/billingdocument
 import DowloadIcon from "@/assets/icons/acciones/download.svg";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 /**
  * Tabla de comprobantes asociados a una requisición. Permite descargar el
  * reporte y ver detalles individuales de cada documento.
@@ -99,16 +98,6 @@ const RequisitionDetailsDocument: React.FC = () => {
                 aria-label="Abrir PDF"
               />
             )}
-            <Button
-              size="xsmall"
-              variant="ghost"
-              icon={ImageIcon}
-              disabled={!row.imageUrl}
-              onClick={() => {
-                if (row.imageUrl) window.open(row.imageUrl, "_blank")
-              }}
-              aria-label="Abrir imagen"
-            />
           </div>
         ),
       },
