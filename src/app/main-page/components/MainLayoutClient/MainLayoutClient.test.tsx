@@ -21,6 +21,7 @@ vi.mock('@/assets/icons/System/System/darkmode.svg', () => ({ default: () => <sv
 vi.mock('@/assets/icons/acciones/help-circle.svg', () => ({ default: () => <svg data-testid="help" /> }))
 vi.mock('@/assets/icons/acciones/open-in-window.svg', () => ({ default: () => <svg data-testid="logout" /> }))
 vi.mock('@/assets/icons/Comunicacion/bell.svg', () => ({ default: () => <svg data-testid="bell" /> }))
+vi.mock('@/assets/icons/Comunicacion/bell-notification.svg', () => ({ default: () => <svg data-testid="bell-notification" /> }))
 vi.mock('@/assets/icons/acciones/menu.svg', () => ({ default: () => <svg data-testid="menu" /> }))
 vi.mock('./components/MainSidebar/MainSidebar', () => ({
   __esModule: true,
@@ -38,6 +39,7 @@ vi.mock('./components/MainSidebar/MainSidebar', () => ({
 vi.mock('@/app/components/PersonalAvatar/PersonalAvatar', () => ({ default: () => <div>Avatar</div> }))
 vi.mock('@/app/components/ToogleButton/ToogleButton', () => ({ ToggleButton: ({ onChange }: any) => <input type="checkbox" onChange={e => onChange(e.target.checked)} /> }))
 vi.mock('@/app/components/Alert/Alert', () => ({ Alert: () => <div>Alert</div> }))
+vi.mock('./components/Notification/Notification', () => ({ default: () => <div>Notification</div> }))
 vi.mock('@/app/components/PopUp/PopUp', () => ({ PopUp: () => <div>Popup</div> }))
 vi.mock('@/app/components/PermissionsAgent/PermissionsAgent', () => ({
   PermissionAgent: ({ children }: any) => <>{children}</>,
@@ -89,6 +91,9 @@ vi.mock('./hooks/useMainPage', () => ({
       },
       hideImage: vi.fn(),
     },
+    pendingNotifications: [],
+    handleOpenPending: vi.fn(),
+    handleRemovePending: vi.fn(),
   }),
 }))
 

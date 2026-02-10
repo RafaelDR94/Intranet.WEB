@@ -165,7 +165,7 @@ Fix:
 Fix:
 
 - Agrega la columna de acciones con menú contextual en la tabla de historial de Archivos para mantener las mismas opciones que la
-tabla principal. (Agente IA) [#]()
+  tabla principal. (Agente IA) [#]()
 
 ### 1.47.59 Requisition history files table 06-12-2025
 
@@ -200,161 +200,193 @@ Fix:
 ### 1.47.54 Billing requisitions active endpoint 01-12-2025
 
 Fix:
+
 - Ajusta la tabla de requisiciones para consumir el endpoint `Billings/BillingRequisition?active=true`, asegurando que se muestren las requisiciones activas desde el backend. (Agente IA) [#]()
 
 ### 1.47.53 Personal requisitions by employee 02-11-2025
 
 Fix:
+
 - Muestra en la tabla de requisiciones personales la información obtenida desde el endpoint `fetchRequisitionsByIdEmployee`, incluyendo alertas cuando no hay resultados. (Agente IA) [#]()
 
 ### 1.47.52 Vehicles form error persistence 31-10-2025
 
 Fix:
+
 - Mantiene los datos capturados en el formulario de vehículos cuando ocurre un error al registrar o actualizar, permitiendo corregir la información sin volver a llenarla. (Agente IA) [#]()
 
 ### 1.47.51 Tools form stable editing 30-10-2025
 
 Fix:
+
 - Evita que el formulario de herramientas se reinicie al teclear o borrar varias letras al usar teclas rápidas, manteniendo una clave estable por fila. (Agente IA) [#]()
 
 ### 1.47.50 Tools form partial updates 30-10-2025
 
 Fix:
+
 - Evita que los campos de herramientas se vacíen al editar, mezclando los cambios parciales con el valor original para permitir escribir o borrar sin reinicios inesperados. (Agente IA) [#]()
 
 ### 1.47.49 Tools template resilience 29-10-2025
 
 Fix:
+
 - Refuerza la generación de la plantilla de herramientas para que funcione en entornos parciales y evita errores de tipado al procesar valores de Excel. (Agente IA) [#]()
 
 ### 1.47.48 External persons alert flow 29-10-2025
 
 Fix:
+
 - Habilita el botón de agregar solo tras elegir una persona y asegura el autocierre de alertas al registrar o actualizar datos de personas externas. (Agente IA) [#]()
 
 ### 1.47.47 Tools template single header 28-10-2025
 
 Fix:
+
 - Ajusta la plantilla de herramientas para mostrar una sola tabla con encabezado azul #002a41, aumenta el tamaño del logo y mantiene la limpieza del formato al regenerar el archivo. (Agente IA) [#]()
 
 ### 1.47.46 Tools template branding 28-10-2025
 
 Feat:
+
 - Añade branding en azul, título y logo de DR a la plantilla de herramientas para descarga y carga masiva, manteniendo columnas consistentes. (Agente IA) [#]()
 
 ### 1.47.45 Tools template header alignment 27-10-2025
 
 Fix:
+
 - Quita la columna de consecutivo de la plantilla de herramientas y permite importar archivos con encabezados en cualquier fila sin errores. (Agente IA) [#]()
 
 ### 1.47.44 Tools template without sample rows 27-10-2025
 
 Fix:
+
 - Descarga la plantilla de herramientas sin filas de ejemplo y permite cargar los datos capturados en Excel para mostrarlos en el formulario. (Agente IA) [#]()
 
 ### 1.47.43 Tools serial number import 27-10-2025
 
 Feat:
+
 - Agrega el número de serie a herramientas y habilita la descarga/carga masiva mediante plantilla de Excel para poblar el formulario. (Agente IA) [#]()
 
 ### 1.47.42 External person picture persistence 26-10-2025
 
 Fix:
+
 - Guarda el archivo de la foto de la persona en el primer envío del formulario de personal externo para que no vuelva a marcarse como requerido y se suba junto con las otras imágenes. (Agente IA) [#]()
 
 ### 1.47.41 External person images mapping 26-10-2025
 
 Fix:
+
 - Alinea los nombres de los campos de imágenes en el registro de personal externo para que la foto, INE y licencia se validen y carguen correctamente desde el primer envío. (Agente IA) [#]()
 
 ### 1.47.40 Vehicle insurance fields 25-10-2025
 
 Feat:
+
 - Añade campos de aseguradora, expedición de póliza, tipo de pago, cobertura y color en el registro de vehículos para enviarlos en las peticiones correspondientes. (Agente IA) [#]()
 
 ### 1.47.39 Acces history vehicles table 25-10-2025
 
 Fix:
+
 - Muestra los vehículos asociados en el panel de historial cargando el detalle del acceso seleccionado y presentando la tabla con acciones para editar la solicitud. (Agente IA) [#]()
 
 ### 1.47.38 User NIP persistence sync 25-10-2025
 
 Fix:
+
 - Sincroniza el NIP actualizado con el estado de autenticación y el almacenamiento local para reflejar el cambio tras recargar la configuración de usuario. (Agente IA) [#]()
 
 ### 1.47.37 Request documents operational tab 25-10-2025
 
 Feat:
+
 - Agrega una pestaña de Documentos Operativos en solicitudes para consultar y descargar los archivos con la misma tabla que Documentos Gerenciales. (Agente IA) [#]()
 
 ### 1.47.36 Document registry storage naming 25-10-2025
 
 Fix:
+
 - Genera nombres de archivo con sello de tiempo antes de la extensión y desactiva el sufijo automático de Firebase para conservar rutas válidas al previsualizar documentos de Office en las tablas gerenciales y operativas. (Agente IA) [#]()
 
 ### 1.47.35 User password display sync 25-10-2025
 
 Fix:
+
 - Sincroniza el campo de contraseña mostrada con el valor actualizado en el store inmediatamente después de guardar la nueva contraseña. (Agente IA) [#]()
 
 ### 1.47.34 User signature pad popup bypass 25-10-2025
 
 Fix:
+
 - Evita que el flujo de actualización de firma en configuración de usuario vuelva a mostrar el popup de autorización y asegura que el SignaturePad se muestre inmediatamente en modo de pantalla completa. (Agente IA) [#]()
 
 ### 1.47.33 User configuration signature pad 25-10-2025
 
 Fix:
+
 - Permite actualizar la firma del usuario sin solicitar autorización previa y muestra el SignaturePad en pantalla completa para facilitar la captura. (Agente IA) [#]()
 
 ### 1.47.32 Human resources hook stories canvas 25-10-2025
 
 Fix:
+
 - Ajusta las historias de hooks de documentos de Recursos Humanos para usar solo vistas Canvas de Storybook sin autodocs. (Agente IA) [#]()
 
 ### 1.47.31 Human resources document hooks 25-10-2025
 
 Feature:
+
 - Documenta los hooks de documentos operativos, gerenciales y registro en Storybook con estados controlables y proveedores simulados. (Agente IA) [#]()
 
 ### 1.47.30 Human resources documents coverage 25-10-2025
 
 Feature:
+
 - Refuerza los hooks de documentos operativos, gerenciales y registro con pruebas que validan refresco y estados, y agrega historias de Storybook junto con tests de página para los flujos de Recursos Humanos. (Agente IA) [#]()
 
 ### 1.47.29 Human resources document actions 25-10-2025
 
 Feature:
+
 - DocumentActionsMenuCell cuenta con historias de Storybook, pruebas unitarias para el componente, hook y utilidades de permisos. (Agente IA) [#]()
 
 ### 1.47.28 Document registry edit flow 25-10-2025
 
 Fix:
+
 - Use PUT when editing existing documents, preserve the stored file, and keep the form valid with preloaded attachments. (Agente IA) [#]()
 
 ### 1.47.27 Document registry department arrays 25-10-2025
 
 Feature:
+
 - Allow document registry to submit department identifiers as arrays and populate the checklist from Enterprises/Departments. (Agente IA) [#]()
 
 ### 1.47.26 Document registry submission 25-10-2025
 
 Feature:
+
 - Trigger Documents endpoint POST from document registry form submission with payload mapping and alerts. (Agente IA) [#]()
 
 ### 1.47.25 Operational documents listing 24-10-2025
 
 Feature:
+
 - Create OperationalDocuments page leveraging management documents table data. (Agente IA) [#]()
 
 ### 1.47.24 Management documents listing 24-10-2025
 
 Feature:
+
 - Add /Documents mapping, store, and management documents page with DataTable integration. (Agente IA) [#]()
 
 ### 1.47.23 SAT invoices SAP redirect 23-10-2025
 
 Feature:
+
 - Update SAT invoice submission to use BillingDocumentsSendToSAP and redirect to administración SAP after confirmation. (Agente IA) [#]()
 
 ### First Commit 25-07-2025
@@ -729,15 +761,15 @@ Feature:
 ### 1.46.0 Responsive design added 2025-09-04
 
 Feature:
+
 - To display information seamlessly on mobile devices.
-(Katherine Negrete A) [#100](https://github.com/DR-Mexico/dr.intranet.web/pull/100)
+  (Katherine Negrete A) [#100](https://github.com/DR-Mexico/dr.intranet.web/pull/100)
 
 ### 1.46.1 Accounting redirects by permissions 2025-09-05
 
 Fix:
 
 - Added client-side permission checks to accounting and invoices pages for secure redirects. (Agente IA) [#]()
-
 
 ### 1.46.2 Reusable permission redirect component 2025-09-05
 
@@ -750,17 +782,18 @@ Fix:
 Fix:
 
 - To show the Excel download button. (Katherine Negrete) [#109](https://github.com/DR-Mexico/dr.intranet.web/pull/109)
+
 ### 1.46.4 Style Fixes 2025-09-09
 
 Fix:
 
 - To display designs according to Figma (Katherine Negrete) [#113](https://github.com/DR-Mexico/dr.intranet.web/pull/113)
+
 ### 1.47.4 Add data-testid support to DynamicForm and components 2025-09-10
 
 Fix:
 
 - Enabled data-testid prop across DynamicForm, FieldRenderer, and related controls to improve Playwright testing. (Agente IA) [#]()
-
 
 ### 1.47.5 Billing petty cash store implementation 2025-09-10
 
@@ -869,31 +902,45 @@ Fix:
 Fix:
 
 - Add unit coverage for SAP administration and operations panels, extract shared logic into a reusable hook, and validate their supporting hooks. (Agente IA) [#]()
+
 ### 1.47.23 Report Activities 2025-12-08
 
 Fix:
+
 - Because activities had lost when changes tabs fastly.
   (Bruno Mendoza) [#](https://github.com/DR-Mexico/dr.intranet.web/pull/)
 
 ### 1.47.24 Report Activities 2026-12-01
 
 Fix:
+
 - Because in acces, it has some troubles.
   (Bruno Mendoza) [327#](https://github.com/DR-Mexico/dr.intranet.web/pull/327)
 
 ### 1.47.25 Menu visible in report activites 2026-02-05
 
 Fix:
+
 - Because it didn´t open when you click it.
   (Bruno Mendoza) [330#](https://github.com/DR-Mexico/dr.intranet.web/pull/330)
+
 ### 1.47.24 Report Activities 2026-12-01
 
 Fix:
+
 - Because in acces, it has some troubles.
   (Bruno Mendoza) [334#](https://github.com/DR-Mexico/dr.intranet.web/pull/335)
 
 ### 1.48.24 Report Images Optimization 2026-12-01
 
 Fix:
+
 - Because this module could be improved.
   (Bruno Mendoza) [335#](https://github.com/DR-Mexico/dr.intranet.web/pull/335)
+
+ ### 1.49.24 Notifications 2026-12-02
+
+Feature:
+
+- Because we need to improve notifications.
+  (Bruno Mendoza) [337#](https://github.com/DR-Mexico/dr.intranet.web/pull/337#)
