@@ -13,7 +13,7 @@ const variantMap: Record<LabelType, string> = {
   rechazado: 'bg-alert-red-10 text-alert-red-100 border border-alert-red-100 text-[11px]',
   restringido: 'bg-gray-20 text-gray-100 border border-gray-100 text-[11px]',
   purple: 'bg-alert-purple-10 text-alert-purple-100 border border-alert-purple-100 text-[11px]',
-  "validado-op":"bg-alert-yellow-10 text-alert-yellow-100 border border-alert-yellow-100 text-[11px]",
+  "validado-op":"bg-alert-green-10 text-alert-green-100 border border-alert-green-100 text-[11px]",
   "sin-factura": "bg-alert-orange-10 text-alert-orange-100 border border-alert-orange-100 text-[11px]",
   "factura-rechazada": 'bg-gray-20 text-gray-100 border border-gray-100 text-c3',
   /**

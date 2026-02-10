@@ -146,16 +146,18 @@ const RequisitionDetailsDocument: React.FC = () => {
         ),
       },
       {
-        key: "fecha",
+        key: "comments" as unknown as keyof BillingDocumentDetailsTable,
         render: (row) => (
-          <Button
-            size="small"
-            onClick={() => handleOpenDetails(row)}
-            variant="ghost"
-            hideIcon
-          >
-            <ChatIcon className="h-6 w-6" />
-          </Button>
+          (row.user_comments?.trim() || row.comments?.trim()) ? (
+            <Button
+              size="small"
+              onClick={() => handleOpenDetails(row)}
+              variant="ghost"
+              hideIcon
+            >
+              <ChatIcon className="h-6 w-6" />
+            </Button>
+          ) : null
         ),
         label: "COMENTARIOS",
         cellClass: "w-2/15 text-center",
