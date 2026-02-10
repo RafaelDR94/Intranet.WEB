@@ -120,6 +120,8 @@ export const BillingDocumentDetailsTableMap = (raw: BillingDocuments): BillingDo
   pdfUrl: raw?.pdf,
   imageUrl: raw?.image,
   billingimages_id: raw?.billingimages_id ?? null,
+  comments: raw?.comments,
+  user_comments: raw?.user_comments,
 });
 
 export const BillingDocumentDetailsTableListMap = (list: any[]): BillingDocumentDetailsTable[] =>
