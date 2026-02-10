@@ -1,6 +1,6 @@
 {
   "name": "intranet.web",
-  "version": "1.48.25",
+  "version": "1.49.25",
   "private": true,
   "scripts": {
     "dev": "next dev",

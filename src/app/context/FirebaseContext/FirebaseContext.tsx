@@ -17,8 +17,8 @@ import useAxios from "../../hooks/useIntranetCRUD/useIntranetCRUD";
 import { useAuth } from "../AuthContext/AuthContext";
 import {
   getDeviceId,
-  saveFirebaseToken,
-  readFirebaseToken,
+  // saveFirebaseToken,
+  // readFirebaseToken,
 } from "../AuthContext/utilities/AuthService";
 
 import useFirebaseMessagingHelper from "./hooks/useFirebaseMessaginHelper";
@@ -37,6 +37,7 @@ export const FirebaseContext = createContext<UseFirebasereturn | undefined>(
 
 export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   const hasFirebaseauth = useRef(false);
+  const hasRegisteredToken = useRef(false);
   const [app, setApp] = useState<FirebaseApp | null>(null);
   const [auth, setAuth] = useState<Auth | null>(null);
   const [storage, setStorage] = useState<FirebaseStorage | null>(null);
@@ -62,25 +63,31 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   }, [permissionsChanged, state]);
 
   useEffect(() => {
+    if (hasRegisteredToken.current) return;
     if (!auth || !user?.idUser || !firebaserealtime || !firebaseMessaging)
       return;
 
+    hasRegisteredToken.current = true;
     const unsubscribe = onAuthStateChanged(
       auth,
       async (firebaseUser: User | null) => {
         const deviceId = await getDeviceId();
         if (firebaseUser) {
           try {
-            const existingToken = await readFirebaseToken();
-
-            if (!existingToken) {
+            // const existingToken = await readFirebaseToken();
+            // console.log("Existing Token", existingToken);
+            // if (!existingToken) {
               if (Notification.permission !== "granted") {
                 const permission = await Notification.requestPermission();
                 if (permission !== "granted") {
+
                   console.warn("Permiso de notificaciones denegado");
                 } else {
+                  console.log("Generando token");
+
                   const token = await firebaseMessaging.getMessagingToken();
-                  saveFirebaseToken(token);
+                  // console.log("Token generado:", token);
+                  // saveFirebaseToken(token);
                   await firebaserealtime.setData(
                     `Notifications/${user.idUser}/` + deviceId,
                     token
@@ -88,13 +95,14 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                 }
               } else {
                 const token = await firebaseMessaging.getMessagingToken();
-                saveFirebaseToken(token);
+                // console.log("Token generado:", token);
+                // saveFirebaseToken(token);
                 await firebaserealtime.setData(
                   `Notifications/${user.idUser}/` + deviceId,
                   token
                 );
               }
-            }
+            //}
           } catch (err) {
             console.error("❌ Error manejando el token de notificación:", err);
           }
@@ -143,7 +151,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
           measurementId: "G-SMY838399L"
         };
 
-        setFirebaseConfiguration({firebaseConfig});
+        setFirebaseConfiguration({ firebaseConfig });
       }, 2000)
 
     }
@@ -205,7 +213,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (auth && user?.userName && !hasFirebaseauth.current) {
       console.log(user?.userName);
-      
+
       // authenticateWithEmailAndPassword(user?.userName, atob(firebaseConfiguration.paswordFirebase));
       authenticateWithEmailAndPasswordCb(user?.userName, "Dr123qwe");
       hasFirebaseauth.current = true;
