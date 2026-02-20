@@ -33,7 +33,7 @@ export type BillingImagesTable = {
     "descriptionName":string,
 }
 export type BillingPost = {
-    "requisition_id": string,
+    "requisition_id"?: string,
     "category_id": string,
     "images": string[]
     "description": string,

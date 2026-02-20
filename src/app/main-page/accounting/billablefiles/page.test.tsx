@@ -20,7 +20,7 @@ describe('BillableFilesPage', () => {
 
     expect(PermissionRedirect).toHaveBeenCalledWith(
       expect.objectContaining({
-        routes: ['/main-page/billablefiles/billablefiles'],
+        routes: ['/main-page/accounting/billablefiles/billablefiles'],
       }),
       undefined,
     );
