@@ -7,6 +7,7 @@ import { LabelType } from "@/app/components/Label/types";
 import type { BillingDocumentRequisition, Requisition } from "@/app/mappings/requisitions/requisitions.types";
 import { Select } from "@/app/components/Select/Select";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { BillingRequisition as BillingRequisitionUrl } from "@/app/configurations/Axios/urls";
 import { pPut } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
@@ -121,6 +122,7 @@ const useInvoicesFiles = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert, hideAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
+  const { user } = useAuth();
   const { documents, requisitions, requisitionId } = useRequisitionDocuments();
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailRow, setDetailRow] = useState<InvoiceRow | null>(null);
@@ -168,13 +170,21 @@ const useInvoicesFiles = () => {
       shallow,
     );
 
+  const filteredRequisitions = useMemo(() => {
+    const employeeId = user?.idEmployee;
+    if (!employeeId) return requisitions;
+    return requisitions.filter(
+      (item) => String(item.id_Employee) === String(employeeId),
+    );
+  }, [requisitions, user?.idEmployee]);
+
   const requisitionOptions = useMemo(
     () =>
-      requisitions.map((item) => ({
+      filteredRequisitions.map((item) => ({
         label: `${item.requisitionkey} - ${item.projectname}`.trim(),
         value: item.billingrequisition_id,
       })),
-    [requisitions],
+    [filteredRequisitions],
   );
 
   useEffect(() => {
@@ -197,7 +207,7 @@ const useInvoicesFiles = () => {
         [invoiceId]: billingrequisition_id,
       }));
 
-      const requisition = requisitions.find(
+      const requisition = filteredRequisitions.find(
         (item) => item.billingrequisition_id === billingrequisition_id,
       );
 
@@ -265,7 +275,7 @@ const useInvoicesFiles = () => {
         setLinkingId(null);
       }
     },
-    [hideAlert, hideSpinner, requisitions, showAlert, showSpinner],
+    [hideAlert, hideSpinner, filteredRequisitions, showAlert, showSpinner],
   );
 
   const rows = useMemo(

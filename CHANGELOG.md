@@ -944,3 +944,10 @@ Feature:
 
 - Because we need to improve notifications.
   (Bruno Mendoza) [337#](https://github.com/DR-Mexico/dr.intranet.web/pull/337#)
+
+  ### 1.50.24  2026-19-02
+
+Feature:
+
+- Adjustments to the Invoices Form.
+  (Katherine Negrete) [347#](https://github.com/DR-Mexico/dr.intranet.web/pull/347#)

@@ -65,10 +65,6 @@ export const getTabsFromPath = (
     ],
     "accounting/invoices": [
       {
-        label: "Subir Archivos",
-        path: "/main-page/accounting/invoices/addFiles",
-      },
-      {
         label: "Validación de Facturas",
         path: "/main-page/accounting/invoices/validateinvoices",
       },

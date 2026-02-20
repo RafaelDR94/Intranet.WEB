@@ -119,7 +119,7 @@ const useTicketForm = ({
 
   const uploadIfNeeded = async (
     files: SelectedImage[] | File[] | File | null | undefined,
-    requisition: string
+    requisition?: string
   ): Promise<string[]> => {
     const fileList: SelectedImage[] = Array.isArray(files)
       ? (files as SelectedImage[])
@@ -136,9 +136,10 @@ const useTicketForm = ({
         .map(async (item, index) => {
           if (item.url && !item.file) return item.url
           if (!item.file) throw new Error('Imagen inválida')
+          const requisitionFolder = requisition?.trim() ? requisition : 'no-requisition'
           const url = await firebasestorage.uploadImage(
             item.file,
-            `Billings/BillingTickets/${requisition}/${index}`
+            `Billings/BillingTickets/${requisitionFolder}/${index}`
           )
           if (!url) throw new Error('Hubo un problema al subir la imagen')
           return url
@@ -151,11 +152,7 @@ const useTicketForm = ({
     showSpinner({ message: isEdit ? 'Actualizando ticket...' : 'Subiendo ticket...' })
     try {
       const requisition =
-        values?.requisition || dataEdit?.billingrequisition_id || requisitionIdFromQuery
-
-      if (!requisition) {
-        throw new Error('No se encontró la requisición para asociar el ticket')
-      }
+        values?.requisition || dataEdit?.billingrequisition_id || requisitionIdFromQuery || ''
 
       const imgUrl = await uploadIfNeeded(values.ticket, requisition)
       lastUploadedRef.current = imgUrl.map((url, index) => ({
@@ -180,7 +177,7 @@ const useTicketForm = ({
       } else {
         // CREATE
         const payload = {
-          requisition_id: requisition,
+          requisition_id: requisition || undefined,
           images: imgUrl,
           description: values?.description,
           numpersons: values?.numpersons,

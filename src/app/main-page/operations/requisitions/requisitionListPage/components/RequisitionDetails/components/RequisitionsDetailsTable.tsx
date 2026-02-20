@@ -1,6 +1,6 @@
 "use client";
 import React, { useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+// import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import useRequisitionDetailsDocument from "@/app/main-page/accounting/personalInvoices/requisitions/componentes/RequisitionsDetails/components/RequisitionDetailsDocuments/hooks/useRequisitionDetailsDocument";
 
@@ -36,28 +36,28 @@ const RequisitionDetailsTable: React.FC = () => {
     downloadingDocument, // NEW: lo traemos del hook
   } = useRequisitionDetailsDocument();
   const isMobile = useIsMobile();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
+  // const router = useRouter();
+  // const searchParams = useSearchParams();
+  // const pathname = usePathname();
   const sapprofile = currentPagePermissions?.sapprofile;
 
   console.log("rows ", rows);
   console.log("selected ", selected);
   
 
-  const handleUploadBillableFiles = () => {
-    if (!requisitionId) return;
+  // const handleUploadBillableFiles = () => {
+  //   if (!requisitionId) return;
 
-    const query = new URLSearchParams(searchParams.toString());
-    query.set("id", requisitionId);
-    const label = searchParams.get("label");
-    if (label) {
-      query.set("label", label);
-    }
-    query.set("view", "billablefiles");
+  //   const query = new URLSearchParams(searchParams.toString());
+  //   query.set("id", requisitionId);
+  //   const label = searchParams.get("label");
+  //   if (label) {
+  //     query.set("label", label);
+  //   }
+  //   query.set("view", "billablefiles");
 
-    router.push(`${pathname}?${query.toString()}`);
-  };
+  //   router.push(`${pathname}?${query.toString()}`);
+  // };
 
   const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] =
     useMemo(
@@ -255,16 +255,6 @@ const RequisitionDetailsTable: React.FC = () => {
         )}
         showButton={false}
         enablePagination={false}
-        rightContent={
-          <Button
-            variant="solid"
-            size="medium"
-            hideIcon
-            onClick={handleUploadBillableFiles}
-          >
-            Subir Archivos
-          </Button>
-        }
         tables={[
           {
             data: filteredRows,

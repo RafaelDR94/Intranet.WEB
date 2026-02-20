@@ -52,7 +52,7 @@ export const BillingImagesMap = (list: any[]): BillingImages[] =>
  * Construye el payload para crear un registro de imagen de facturación (POST).
  */
 export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => ({
-  requisition_id: src?.requisition_id ?? '',
+  ...(src?.requisition_id ? { requisition_id: String(src.requisition_id) } : {}),
   images: Array.isArray(src?.images) ? src.images : src?.images ? [src.images] : [],
   description: String(src?.description ?? ''),
   numpersons: String(src?.numpersons ?? 0),

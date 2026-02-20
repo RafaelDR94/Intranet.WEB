@@ -51,6 +51,13 @@ const useInitInvoicesForms = ({
   const lastPrefillKeyRef = useRef<string | null>(null);
   const [formReady, setFormReady] = useState(false);
   const fieldsReady = field.length > 0;
+  const filteredRequisitions = useMemo(() => {
+    const employeeId = user?.idEmployee;
+    if (!employeeId) return requisitions;
+    return requisitions.filter(
+      (r) => String(r.id_Employee) === String(employeeId),
+    );
+  }, [requisitions, user?.idEmployee]);
 
   const ResetForm = () => {
     const initialFields: FieldModel[] = initialformFields;
@@ -96,15 +103,15 @@ const useInitInvoicesForms = ({
   };
   const SetInitRequisitions = () => {
     updateField(formId, "requisition", {
-      options: requisitions.map((r: Requisition) => ({
+      options: filteredRequisitions.map((r: Requisition) => ({
         label: r.requisitionkey + " - " + r.projectname,
         value: r.billingrequisition_id,
       })),
       onChange: (value) => {
-        const employeeName = requisitions.find(
+        const employeeName = filteredRequisitions.find(
           (r) => r.billingrequisition_id === value,
         )?.employeename;
-        const proyect = requisitions.find(
+        const proyect = filteredRequisitions.find(
           (r) => r.billingrequisition_id === value,
         )?.projectname;
         const debtorName = field.find((f) => f.name === "personName");
@@ -131,7 +138,7 @@ const useInitInvoicesForms = ({
   };
 
   const prefillFromRequisition = (requisitionId: string) => {
-    const requisition = requisitions.find(
+    const requisition = filteredRequisitions.find(
       (r) => r.billingrequisition_id === requisitionId,
     );
     if (!requisition) return;
@@ -203,7 +210,7 @@ const useInitInvoicesForms = ({
   useEffect(() => {
     SetInitRequisitions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [requisitions]);
+  }, [filteredRequisitions]);
 
   useEffect(() => {
     if (!lockRequisitionFields) {
@@ -243,7 +250,9 @@ const useInitInvoicesForms = ({
 
   useEffect(() => {
     const requisitionId = dataEdit
-      ? requisitions.find((r) => r.requisitionkey === dataEdit?.requisitionkey)
+      ? filteredRequisitions.find(
+          (r) => r.requisitionkey === dataEdit?.requisitionkey,
+        )
           ?.billingrequisition_id
       : billingImages?.requisition_id;
     const categoryId = dataEdit
@@ -257,7 +266,7 @@ const useInitInvoicesForms = ({
     const prefillSourceChanged = prefillKey !== lastPrefillKeyRef.current;
     const currentDescriptionValue = field.find((f) => f.name === "description")
       ?.value as string | undefined;
-    if (requisitions.length > 0)
+    if (filteredRequisitions.length > 0)
       updateField(formId, "requisition", {
         value: requisitionId,
       });
@@ -303,7 +312,7 @@ const useInitInvoicesForms = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dataEdit,
-    requisitions,
+    filteredRequisitions,
     billingImages,
     billingCategories,
     billingDocumentDescription,
