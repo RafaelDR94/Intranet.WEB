@@ -20,7 +20,7 @@ const useMainTab = ({ pathname, tabs, validPermissionsbyroute }: useMainTabsProp
   const isMobile = useIsMobile();
   const searchParams = useSearchParams();
   const currentBase = basePath(pathname);
-  const currentId = searchParams.get("id");
+  const currentId = searchParams.get("id") ?? searchParams.get("authorization_id");
 
   const isActive = (tabPath: string) => {
     const tabBase = basePath(tabPath);

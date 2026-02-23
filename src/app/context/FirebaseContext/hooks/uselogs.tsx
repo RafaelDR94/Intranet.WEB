@@ -15,6 +15,20 @@ interface Uselogsprops {
     offlineMode: boolean
     setHasExpired: any
 }
+
+const sanitizeFirebasePayload = (value: any): any => {
+    if (Array.isArray(value)) return value.map(sanitizeFirebasePayload);
+    if (value && typeof value === "object") {
+        const next: Record<string, any> = {};
+        Object.entries(value).forEach(([key, val]) => {
+            const sanitized = sanitizeFirebasePayload(val);
+            next[key] = sanitized === undefined ? null : sanitized;
+        });
+        return next;
+    }
+    return value === undefined ? null : value;
+};
+
 const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode }: Uselogsprops) => {
     const path = isProduction() ? "Production" : "Sandbox"
     const errorQueueRef = useRef<any[]>([]);
@@ -36,25 +50,28 @@ const Uselogs = ({ firebaserealtime, database, user, setHasExpired, offlineMode 
 
     const logError = useCallback(async (service: string, error: any) => {
 
-        const errorDetails = {
+        const errorDetails = sanitizeFirebasePayload({
             advisor: user?.userName,
-            message: error?.message ?? error?.data?.error_Message,
-            status: error?.response?.status ?? error?.status,
+            message: error?.message ?? error?.data?.error_Message ?? "Sin mensaje",
+            status: error?.response?.status ?? error?.status ?? null,
             url: error?.config?.url || "N/A",
             method: error?.config?.method || "N/A",
-            data: error.response?.data || "Sin datos",
+            data: error?.response?.data || "Sin datos",
             timestamp: new Date().toISOString(),
-        };
+        });
         if (!user) return;
 
         try {
             if (firebaserealtime) {
-                await firebaserealtime.pushData("Logs/" + path + "/Front/" + currentDateDataBase() + "/" + getTime(), { service, ...errorDetails });
+                await firebaserealtime.pushData(
+                    "Logs/" + path + "/Front/" + currentDateDataBase() + "/" + getTime(),
+                    sanitizeFirebasePayload({ service, ...errorDetails }),
+                );
             } else {
-                errorQueueRef.current.push({ service, ...errorDetails });
+                errorQueueRef.current.push(sanitizeFirebasePayload({ service, ...errorDetails }));
             }
         } catch (firebaseError) {
-            errorQueueRef.current.push({ service, ...errorDetails });
+            errorQueueRef.current.push(sanitizeFirebasePayload({ service, ...errorDetails }));
             console.error("Error al registrar en Firebase:", firebaseError);
         }
     }, [firebaserealtime, path, user]);

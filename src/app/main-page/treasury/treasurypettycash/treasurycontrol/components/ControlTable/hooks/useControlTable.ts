@@ -7,10 +7,15 @@ import { useRouter } from 'next/navigation';
 import type { ControlDetail, ControlRow } from '../types';
 
 import type { LabelType } from "@/app/components/Label/types";
+import type { SelectOption } from "@/app/components/Select/types";
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type { PettyCashVoucherData } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
+import type { PostAuthorization } from "@/app/mappings/authorizations/authorizations.types";
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore';
+import { useAuthorizationsStore } from "@/app/stores/useAuthorizationsStore/useAuthorizationsStore";
 import { useBillingPettyCash } from '@/app/stores/useBillingPettyCash/useBillingPettyCash';
+import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { formatDateES } from '@/app/utilities/DatesHelper/Dateshelper';
 import {
   parseDateFlexible,
@@ -103,6 +108,19 @@ const isVoucherValid = (status?: string): boolean => {
   return normalized.includes("valido");
 };
 
+const resolveAuthorizationKind = (voucherType?: string): string => {
+  const normalized = (voucherType ?? "")
+    .trim()
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (!normalized) return "Vale";
+  if (normalized.includes("azul")) return "Vale azul";
+  if (normalized.includes("rosa")) return "Vale rosa";
+  return voucherType ?? "Vale";
+};
+
 /**
  * Handles data loading, filtering and row actions for the petty cash control table.
  */
@@ -111,6 +129,7 @@ export const useControlTable = () => {
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
+  const { user } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -125,6 +144,10 @@ export const useControlTable = () => {
   const [isFetchingDetail, setIsFetchingDetail] = useState(false);
   const [selectedRow, setSelectedRow] = useState<ControlRow | null>(null);
   const [isEditingAmount, setIsEditingAmount] = useState(false);
+  const [authorizationRequestOpen, setAuthorizationRequestOpen] = useState(false);
+  const [authorizationRequestSelected, setAuthorizationRequestSelected] = useState("");
+  const [authorizationRequestError, setAuthorizationRequestError] = useState<string | null>(null);
+  const [isRequestingAuthorization, setIsRequestingAuthorization] = useState(false);
   const skipErrorAlertRef = useRef(false);
   const suppressedErrorRef = useRef<string | undefined>(undefined);
 
@@ -177,10 +200,43 @@ export const useControlTable = () => {
     shallow
   );
 
+  const { employees, employeesError, fetchEmployees } = useEmployeesStore(
+    (state) => ({
+      employees: state.employees,
+      employeesError: state.error,
+      fetchEmployees: state.fetchEmployees,
+    }),
+    shallow,
+  );
+
+  const { createAuthorization } = useAuthorizationsStore(
+    (state) => ({
+      createAuthorization: state.createAuthorization,
+    }),
+    shallow,
+  );
+
   useEffect(() => {
     if (!isGatewayReady) return;
     fetchPettyCashVouchers();
   }, [isGatewayReady, fetchPettyCashVouchers]);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
+
+  useEffect(() => {
+    if (!employeesError) return;
+    showAlert({
+      type: 'error',
+      variant: 'filled',
+      title: 'No se pudo cargar la lista de empleados',
+      description: String(employeesError) || 'Intenta refrescar.',
+      showPrimaryButton: true,
+      primaryLabel: 'Entendido',
+      onPrimaryClick: hideAlert,
+    });
+  }, [employeesError, hideAlert, showAlert]);
 
   useEffect(() => {
     if (loading && !isFetchingDetail) {
@@ -337,6 +393,21 @@ export const useControlTable = () => {
     void fetchPettyCashVoucherAmountHistory(detailId);
   }, [detailData?.id, detailData?.status, selectedRow?.status, fetchPettyCashVoucherAmountHistory]);
 
+  const authorizerOptions = useMemo<SelectOption[]>(() => {
+    if (!Array.isArray(employees)) return [];
+    return employees.map((employee) => ({
+      label: employee.fullname,
+      value: employee.employee_id,
+    }));
+  }, [employees]);
+
+  useEffect(() => {
+    if (!authorizationRequestOpen) return;
+    if (authorizationRequestSelected) return;
+    if (!authorizerOptions.length) return;
+    setAuthorizationRequestSelected(authorizerOptions[0].value);
+  }, [authorizationRequestOpen, authorizationRequestSelected, authorizerOptions]);
+
   const openDetail = async (row: ControlRow, mode: "detail" | "edit") => {
     setIsFetchingDetail(true);
     setSelectedRow(row);
@@ -381,6 +452,129 @@ export const useControlTable = () => {
 
   const handleEditModeChange = (editing: boolean) => {
     setIsEditingAmount(editing);
+  };
+
+  const handleOpenAuthorizationRequest = (row: ControlRow | null) => {
+    const target = row ?? selectedRow;
+    const detail = detailData;
+    if (!target || !detail?.employee_id) {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'InformaciÃ³n incompleta',
+        description:
+          'No se encontrÃ³ el colaborador asociado para solicitar la autorización.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      return;
+    }
+
+    setAuthorizationRequestError(null);
+    setAuthorizationRequestOpen(true);
+  };
+
+  const handleCancelAuthorizationRequest = () => {
+    setAuthorizationRequestOpen(false);
+    setAuthorizationRequestError(null);
+  };
+
+  const handleAuthorizationRequestChange = (value: string) => {
+    setAuthorizationRequestSelected(value);
+    if (authorizationRequestError) setAuthorizationRequestError(null);
+  };
+
+  const handleConfirmAuthorizationRequest = async () => {
+    if (!detailData?.id || !detailData?.employee_id) {
+      setAuthorizationRequestOpen(false);
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'InformaciÃ³n incompleta',
+        description:
+          'No se encontrÃ³ la informaciÃ³n necesaria para solicitar la autorización.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+      return;
+    }
+
+    if (!authorizationRequestSelected) {
+      setAuthorizationRequestError('Selecciona un autorizador.');
+      return;
+    }
+
+    setIsRequestingAuthorization(true);
+    showSpinner({ message: 'Enviando solicitud de autorizaciónâ€¦' });
+    try {
+      const applicantId = detailData.employee_id;
+      const applicant = (employees ?? []).find(
+        (employee) => employee.employee_id === applicantId,
+      );
+
+      const payload: PostAuthorization = {
+        authorization_id: '',
+        applicant_id: applicantId,
+        authorizer_id: authorizationRequestSelected,
+        enterprise_id:
+          applicant?.department?.enterprise_id ?? user?.idEnterprise ?? '',
+        department_id:
+          applicant?.department?.department_id ?? user?.idDepartment ?? '',
+        kind: resolveAuthorizationKind(detailData.voucher_type),
+        proyect_id: detailData.project?.id ?? undefined,
+        event_id: detailData.id,
+      };
+
+      const created = await createAuthorization(payload);
+      if (!created) {
+        throw new Error(
+          useAuthorizationsStore.getState().error ||
+            'No se pudo crear la autorización.',
+        );
+      }
+
+      showAlert({
+        type: 'success',
+        variant: 'filled',
+        title: 'Solicitud enviada',
+        description: 'La autorización fue enviada correctamente.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+        onClose: hideAlert,
+      });
+
+      setAuthorizationRequestOpen(false);
+      setAuthorizationRequestError(null);
+      setAuthorizationRequestSelected('');
+
+      setDetailLoading(true);
+      try {
+        const refreshed = await fetchPettyCashVoucherById(detailData.id, true);
+        if (refreshed) {
+          setDetailData(refreshed);
+        }
+      } finally {
+        setDetailLoading(false);
+      }
+
+      await fetchPettyCashVouchers(true);
+    } catch (error) {
+      showAlert({
+        type: 'error',
+        variant: 'filled',
+        title: 'No se pudo enviar la solicitud',
+        description: String(error) || 'OcurriÃ³ un error al crear la autorización.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      });
+    } finally {
+      hideSpinner();
+      setIsRequestingAuthorization(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -854,5 +1048,14 @@ export const useControlTable = () => {
     updatingAmount: updating,
     amountHistory: pettyCashVoucherAmountHistory,
     isAmountHistoryLoading: loadingAmountHistory,
+    authorizerOptions,
+    authorizationRequestOpen,
+    authorizationRequestSelected,
+    authorizationRequestError,
+    isRequestingAuthorization,
+    handleOpenAuthorizationRequest,
+    handleCancelAuthorizationRequest,
+    handleConfirmAuthorizationRequest,
+    handleAuthorizationRequestChange,
   };
 };

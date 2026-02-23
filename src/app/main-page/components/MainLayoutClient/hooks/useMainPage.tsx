@@ -91,6 +91,14 @@ export const sidebarRoutes = [
       { label: 'Administracion de usuarios', path: '/main-page/administration/usersmanagment' },
     ],
   },
+    {
+    label: 'Autorizaciones',
+    path: '/main-page/authorizations',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Lista de autorizaciones', path: '/main-page/authorizations/authorizationslist' },
+    ],
+  },
 ];
 
 /**

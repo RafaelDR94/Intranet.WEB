@@ -4,18 +4,15 @@ import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanel
 import CancelIcon from "@/assets/icons/acciones/cancel.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import useTicketsFiles from "./useTicketsFiles";
-import type { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
 import Label from "@/app/components/Label/Label";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 import { DownloadFile } from "@/app/utilities/FilesHelper/FilesHelper";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 
-type TicketsFilesProps = {
-  onSelectTicket?: (ticket: BillingImagesTable | null) => void;
-};
 
-const TicketsFiles = ({ onSelectTicket }: TicketsFilesProps) => {
+
+const TicketsFiles = () => {
   const {
     columns,
     rows,
@@ -34,21 +31,15 @@ const TicketsFiles = ({ onSelectTicket }: TicketsFilesProps) => {
     setOpenRejectTicket,
     handleSubmitReject,
     rejecting,
-    toBillingImagesTable,
   } = useTicketsFiles();
 
   return (
     <div>
       <DataTable
         showCalendar={true}
-        showDownloadTable={true}
+        showDownloadTable={false}
         showButton={false}
         textSize={{ mobile: "text-c3", desktop: "text-c2" }}
-        onSelectedChange={(_index, selectedRows) => {
-          if (!onSelectTicket) return;
-          const first = selectedRows[0];
-          onSelectTicket(first ? toBillingImagesTable(first) : null);
-        }}
         tables={[
           {
             data: rows,
@@ -62,7 +53,6 @@ const TicketsFiles = ({ onSelectTicket }: TicketsFilesProps) => {
       />
       <DetailsPanelLayout
         open={detailOpen}
-        leftLabel={`Nombre: ${detailRow?.source.employee?.fullname ?? ""}`}
         onClose={closeDetails}
         actionButton={
           <Button

@@ -76,6 +76,25 @@ vi.mock('@/app/components/PopUp/PopUp', () => ({
     ) : null,
 }));
 
+vi.mock(
+  '@/app/main-page/treasury/treasurypettycash/treasurycontrol/components/ControlCards/components/CollapsibleSection/CollapsibleSection',
+  () => ({
+    __esModule: true,
+    default: ({
+      children,
+      title,
+    }: {
+      children: React.ReactNode;
+      title: string;
+    }) => (
+      <div>
+        <div>{title}</div>
+        {children}
+      </div>
+    ),
+  }),
+);
+
 describe('Treasury Control SideMenu', () => {
   const formatDate = (date?: string) => date ?? '';
   const formatMoney = (value?: number) =>
@@ -114,6 +133,12 @@ describe('Treasury Control SideMenu', () => {
     isHistoryLoading: false,
   } as const;
 
+  const approvedAuthorization = {
+    authorization_id: 'auth-1',
+    status: 'Aprobada',
+    authorizer: { fullname: 'Autoriza' },
+  };
+
   it('opens the voucher rejection modal and validates the comment before submitting', () => {
     const onReject = vi.fn();
     render(
@@ -121,6 +146,28 @@ describe('Treasury Control SideMenu', () => {
         {...baseProps}
         onReject={onReject}
         setPanelOpen={vi.fn()}
+        detail={{
+          id: '1',
+          employeename: 'Colaborador',
+          status: 'Pendiente',
+          voucher_type: 'Vale rosa',
+          application_date: '2025-09-30',
+          concept: 'Concepto',
+          amount: 150,
+          total: 150,
+          petty_cash_funds: {
+            id: 'fund-1',
+            year_month: '2025-09',
+            assigned_amount: 0,
+            verified_amount: 0,
+            cash_on_hand: 0,
+            unverified_amount: 0,
+            pending_verification: 0,
+            available_amount: 0,
+          },
+          project: { id: 'project-1', name: 'Proyecto', proyectkey: 'PRJ' },
+          authorization: approvedAuthorization,
+        } as any}
       />,
     );
 
@@ -146,7 +193,7 @@ describe('Treasury Control SideMenu', () => {
     expect(screen.queryByText('Rechazar Vale')).not.toBeInTheDocument();
   });
 
-  it('opens the rejection modal from the evidence section and trims the submitted comment', async () => {
+  it('opens the rejection modal from the voucher action and trims the submitted comment', async () => {
     const onReject = vi.fn();
     const onRejectAuthorizationEvidence = vi.fn();
     render(
@@ -175,11 +222,12 @@ describe('Treasury Control SideMenu', () => {
             available_amount: 0,
           },
           project: { id: 'project-1', name: 'Proyecto', proyectkey: 'PRJ' },
+          authorization: approvedAuthorization,
         } as any}
       />,
     );
 
-    fireEvent.click(screen.getByTestId('reject-evidence-button'));
+    fireEvent.click(screen.getByTestId('reject-voucher-button'));
 
     await screen.findByText('Rechazar Vale');
 

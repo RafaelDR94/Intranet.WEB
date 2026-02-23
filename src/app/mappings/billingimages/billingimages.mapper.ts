@@ -17,6 +17,8 @@ const normalizeImageUrls = (rawImages: unknown): string[] => {
       .map((img) => {
         if (typeof img === 'string') return img
         if (img && typeof (img as any).image === 'string') return String((img as any).image)
+        if (img && typeof (img as any).url === 'string') return String((img as any).url)
+        if (img && typeof (img as any).imageUrl === 'string') return String((img as any).imageUrl)
         return ''
       })
       .filter((img) => Boolean(img))
@@ -75,14 +77,21 @@ export const BillingImagesByEmployeeMap = (list: any[]): BillingImagesByEmployee
  */
 export const BillingImageMap = (raw: any): BillingImages => ({
   billing_image_id: String(raw?.billing_image_id ?? ''),
-  requisition: RequisitionMap(raw?.requisition),
+  requisition: RequisitionMap(raw?.requisition ?? raw?.Requisition),
   status: String(raw?.status ?? ''),
-  images: normalizeImageUrls(raw?.images),
+  images: normalizeImageUrls(
+    raw?.images ??
+      raw?.Images ??
+      raw?.imageUrls ??
+      raw?.imageUrl ??
+      raw?.image ??
+      raw?.Image,
+  ),
   comments: String(raw?.comments ?? ''),
   user_comments: String(raw?.user_comments ?? ''),
-  dateCreate: String(raw?.date_created ?? ''),
-  category: BillingDocumentCategoryMap(raw?.Category),
-  description: BillingDocumentDescriptionMap(raw?.description),
+  dateCreate: String(raw?.date_created ?? raw?.dateCreate ?? raw?.created_at ?? raw?.dateCreated ?? ''),
+  category: BillingDocumentCategoryMap(raw?.Category ?? raw?.category),
+  description: BillingDocumentDescriptionMap(raw?.description ?? raw?.Description),
   numpersons: Number(raw?.numpersons),
   numnights: Number(raw?.numnights)
 })

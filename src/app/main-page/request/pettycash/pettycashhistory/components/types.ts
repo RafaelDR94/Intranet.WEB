@@ -12,4 +12,22 @@ export interface SideMenuProps {
   detail: PettyCashHistoryDetail | null;
   /** Whether the detail is loading. */
   isDetailLoading: boolean;
+  /** Authorization request modal state. */
+  authorizationRequestOpen?: boolean;
+  /** Authorization request options. */
+  authorizationRequestOptions?: Array<{ label: string; value: string }>;
+  /** Selected authorizer id. */
+  authorizationRequestSelected?: string;
+  /** Validation error for authorization request. */
+  authorizationRequestError?: string | null;
+  /** Whether the authorization request is being sent. */
+  isRequestingAuthorization?: boolean;
+  /** Open the authorization request flow. */
+  onRequestAuthorization?: (row: PettyCashHistoryRow | null) => void;
+  /** Close the authorization request modal. */
+  onCancelAuthorizationRequest?: () => void;
+  /** Confirm the authorization request. */
+  onConfirmAuthorizationRequest?: () => void;
+  /** Update selected authorizer. */
+  onAuthorizationRequestChange?: (value: string) => void;
 }

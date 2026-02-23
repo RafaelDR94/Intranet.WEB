@@ -1,3 +1,4 @@
+import { Authorization } from "../authorizations/authorizations.types"
 export type BillingDocumentRequisition = {
   billingdocument_id: string
   billingimages_id: string | null
@@ -30,6 +31,7 @@ export type BillingDocumentRequisition = {
   user_comments: string
   validatedbyoperations: boolean
   employeename: string
+  authorization: Authorization | null
 }
 
 export type Requisition = {
@@ -81,4 +83,11 @@ export type RequitionPut = {
   provenamount: number
   amountdifference: number
   gts_type: string
+}
+
+export type Benefit ={
+  id_employee: string,
+  fullname: string,
+  email: string,
+  phone_number: string,
 }

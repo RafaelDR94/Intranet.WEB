@@ -138,7 +138,9 @@ export const getTabsFromPath = (
       { label: 'Crear Empleado', path: '/main-page/administration/usersmanagment/createemployee' },
       { label: 'Lista de Empleados', path: '/main-page/administration/usersmanagment/employeesList' },
     ],
-
+     'authorizations': [
+      { label: 'Lista de autorizaciones', path: '/main-page/authorizations/authorizationslist' },
+    ],
     'configuration': [
       { label: 'Configuración', path: '/main-page/configuration/userconfiguration' },
     ],
@@ -163,6 +165,9 @@ export const getTabsFromPath = (
   let labelparam: string | null = null;
   let requisitionsLabel: string | null = null;
   let view: string | null = null;
+  let authorizationId: string | null = null;
+  let authorizationEventId: string | null = null;
+  let authorizationKind: string | null = null;
   if (search) {
     const sp = typeof search === 'string' ? new URLSearchParams(search) : search;
     id = sp.get('id');
@@ -170,6 +175,9 @@ export const getTabsFromPath = (
     labelparam = normalizePersonLabel(sp.get('label'));
     requisitionsLabel = normalizePersonLabel(sp.get('requisitionsLabel'));
     view = sp.get('view');
+    authorizationId = sp.get('authorization_id');
+    authorizationEventId = sp.get('event_id');
+    authorizationKind = sp.get('kind');
   }
 
   // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id
@@ -268,6 +276,28 @@ export const getTabsFromPath = (
 
       if (!tabs.some(t => t.path === billablePath || t.label === billableLabel)) {
         tabs = [...tabs, { label: billableLabel, path: billablePath }];
+      }
+    }
+  }
+
+  if (first === 'authorizations' && second === 'authorizationslist') {
+    const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+    const resolvedAuthorizationId = authorizationId || id;
+    const detailLabel =
+      labelparam || (authorizationKind ? `Solicitud de ${authorizationKind}` : 'Solicitud de autorización');
+
+    if (resolvedAuthorizationId) {
+      const detailQs = new URLSearchParams();
+      detailQs.set('id', resolvedAuthorizationId);
+      detailQs.set('authorization_id', resolvedAuthorizationId);
+      if (authorizationEventId) detailQs.set('event_id', authorizationEventId);
+      if (authorizationKind) detailQs.set('kind', authorizationKind);
+      if (detailLabel) detailQs.set('label', detailLabel);
+
+      const detailPath = `${clean}?${detailQs.toString()}`;
+
+      if (!tabs.some((tab) => tab.path === detailPath)) {
+        tabs = [...tabs, { label: detailLabel, path: detailPath }];
       }
     }
   }

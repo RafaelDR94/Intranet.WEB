@@ -23,7 +23,13 @@ export const deleteBillingRequisitionWithEmployees = async (
     const _res: AxiosResponse = await del(`${BillingRequisition}/${id}`)
 
     set((s) => ({
-      requisitions: s.requisitions.filter((r) => r.billingrequisition_id !== id),
+      requisitions: s.requisitions.filter((r) => {
+        const record = r as Record<string, unknown>
+        const requisitionId = String(record.billingrequisition_id ?? '')
+        const employeeId = String(record.id_employee ?? record.id_Employee ?? '')
+        const resolvedId = requisitionId || employeeId
+        return resolvedId !== id
+      }),
       removing: false,
       successDelete: true,
     }))

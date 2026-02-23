@@ -8,11 +8,15 @@ import { useBillingPettyCash } from "../../../../../stores/useBillingPettyCash/u
 import { PettyCashHistoryRow } from "../types";
 
 import type { LabelType } from "@/app/components/Label/types";
+import type { SelectOption } from "@/app/components/Select/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import type { PostAuthorization } from "@/app/mappings/authorizations/authorizations.types";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
+import { useAuthorizationsStore } from "@/app/stores/useAuthorizationsStore/useAuthorizationsStore";
+import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 
 /** Mapea el texto de voucher a un LabelType mostrado por <Label /> */
 function voucherTypeToLabelType(voucher?: string): LabelType {
@@ -34,6 +38,37 @@ function statusToLabelType(status?: string): LabelType {
   if (normalized.includes("factura enviada")) return "purple";
   return normalized ? "actualizado" : "pendiente";
 }
+
+const resolveAuthorizationKind = (voucherType?: string): string => {
+  const normalized = (voucherType ?? "")
+    .trim()
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (!normalized) return "Vale";
+  if (normalized.includes("azul")) return "Vale azul";
+  if (normalized.includes("rosa")) return "Vale rosa";
+  return voucherType ?? "Vale";
+};
+
+const parseDateToTimestamp = (value?: string): number => {
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  if (!Number.isNaN(parsed)) return parsed;
+
+  const match = value.match(
+    /(\d{1,2})[/-\s]+(\d{1,2})[/-\s]+(\d{2,4})/,
+  );
+  if (!match) return 0;
+
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3].length === 2 ? `20${match[3]}` : match[3]);
+
+  if (!day || !month || !year) return 0;
+  return new Date(year, month - 1, day).getTime();
+};
 
 const usePettyCashHistory = () => {
   const { user } = useAuth();
@@ -92,6 +127,22 @@ const usePettyCashHistory = () => {
     shallow,
   );
 
+  const { employees, employeesError, fetchEmployees } = useEmployeesStore(
+    (state) => ({
+      employees: state.employees,
+      employeesError: state.error,
+      fetchEmployees: state.fetchEmployees,
+    }),
+    shallow,
+  );
+
+  const { createAuthorization } = useAuthorizationsStore(
+    (state) => ({
+      createAuthorization: state.createAuthorization,
+    }),
+    shallow,
+  );
+
   function formatDate(dateString?: string): string {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -135,6 +186,15 @@ const usePettyCashHistory = () => {
   );
   const [rowPendingDelete, setRowPendingDelete] =
     useState<PettyCashHistoryRow | null>(null);
+  const [authorizationRequestOpen, setAuthorizationRequestOpen] =
+    useState(false);
+  const [authorizationRequestSelected, setAuthorizationRequestSelected] =
+    useState("");
+  const [authorizationRequestError, setAuthorizationRequestError] = useState<
+    string | null
+  >(null);
+  const [isRequestingAuthorization, setIsRequestingAuthorization] =
+    useState(false);
 
   useEffect(() => {
     if (!user?.idEmployee) return;
@@ -149,6 +209,23 @@ const usePettyCashHistory = () => {
     forceFetchBillingHistory,
     fetchPettyCashVouchersByIdEmployee,
   ]);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
+
+  useEffect(() => {
+    if (!employeesError) return;
+    showAlert({
+      type: "error",
+      variant: "filled",
+      title: "No se pudo cargar la lista de empleados",
+      description: String(employeesError) || "Intenta refrescar.",
+      showPrimaryButton: true,
+      primaryLabel: "Entendido",
+      onPrimaryClick: hideAlert,
+    });
+  }, [employeesError, hideAlert, showAlert]);
 
   useEffect(() => {
     if (!selectedVoucherId) return;
@@ -299,6 +376,7 @@ const usePettyCashHistory = () => {
           voucherLabelType: voucherTypeToLabelType(voucherType),
           date: formatDate(v.application_date),
           dateValue: v.application_date ?? "",
+          dateSort: parseDateToTimestamp(v.application_date ?? ""),
           total,
           subtotal:
             typeof v.subtotal === "number" && !Number.isNaN(v.subtotal)
@@ -401,6 +479,142 @@ const usePettyCashHistory = () => {
     setRowPendingDelete(null);
   };
 
+  const authorizerOptions = useMemo<SelectOption[]>(() => {
+    if (!Array.isArray(employees)) return [];
+    return employees.map((employee) => ({
+      label: employee.fullname,
+      value: employee.employee_id,
+    }));
+  }, [employees]);
+
+  useEffect(() => {
+    if (!authorizationRequestOpen) return;
+    if (authorizationRequestSelected) return;
+    if (!authorizerOptions.length) return;
+    setAuthorizationRequestSelected(authorizerOptions[0].value);
+  }, [
+    authorizationRequestOpen,
+    authorizationRequestSelected,
+    authorizerOptions,
+  ]);
+
+  const handleOpenAuthorizationRequest = (row: PettyCashHistoryRow | null) => {
+    const target = row ?? selected;
+    const detail = pettyCashVoucherFull;
+    if (!target || !detail?.employee_id) {
+      showAlert({
+        type: "error",
+        variant: "filled",
+        title: "Información incompleta",
+        description:
+          "No se encontró el colaborador asociado para solicitar la autorización.",
+        showPrimaryButton: true,
+        primaryLabel: "Entendido",
+        onPrimaryClick: hideAlert,
+      });
+      return;
+    }
+
+    setAuthorizationRequestError(null);
+    setAuthorizationRequestOpen(true);
+  };
+
+  const handleCancelAuthorizationRequest = () => {
+    setAuthorizationRequestOpen(false);
+    setAuthorizationRequestError(null);
+  };
+
+  const handleAuthorizationRequestChange = (value: string) => {
+    setAuthorizationRequestSelected(value);
+    if (authorizationRequestError) setAuthorizationRequestError(null);
+  };
+
+  const handleConfirmAuthorizationRequest = async () => {
+    if (!pettyCashVoucherFull?.id || !pettyCashVoucherFull?.employee_id) {
+      setAuthorizationRequestOpen(false);
+      showAlert({
+        type: "error",
+        variant: "filled",
+        title: "Información incompleta",
+        description:
+          "No se encontró la información necesaria para solicitar la autorización.",
+        showPrimaryButton: true,
+        primaryLabel: "Entendido",
+        onPrimaryClick: hideAlert,
+      });
+      return;
+    }
+
+    if (!authorizationRequestSelected) {
+      setAuthorizationRequestError("Selecciona un autorizador.");
+      return;
+    }
+
+    setIsRequestingAuthorization(true);
+    showSpinner({ message: "Enviando solicitud de autorización..." });
+    try {
+      const applicantId = pettyCashVoucherFull.employee_id;
+      const applicant = (employees ?? []).find(
+        (employee) => employee.employee_id === applicantId,
+      );
+
+      const payload: PostAuthorization = {
+        authorization_id: "",
+        applicant_id: applicantId,
+        authorizer_id: authorizationRequestSelected,
+        enterprise_id:
+          applicant?.department?.enterprise_id ?? user?.idEnterprise ?? "",
+        department_id:
+          applicant?.department?.department_id ?? user?.idDepartment ?? "",
+        kind: resolveAuthorizationKind(pettyCashVoucherFull.voucher_type),
+        proyect_id: pettyCashVoucherFull.project?.id ?? undefined,
+        event_id: pettyCashVoucherFull.id,
+      };
+
+      const created = await createAuthorization(payload);
+      if (!created) {
+        throw new Error(
+          useAuthorizationsStore.getState().error ||
+            "No se pudo crear la autorización.",
+        );
+      }
+
+      showAlert({
+        type: "success",
+        variant: "filled",
+        title: "Solicitud enviada",
+        description: "La autorización fue enviada correctamente.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+        onClose: hideAlert,
+      });
+
+      setAuthorizationRequestOpen(false);
+      setAuthorizationRequestError(null);
+      setAuthorizationRequestSelected("");
+
+      await fetchPettyCashVoucherById(pettyCashVoucherFull.id);
+      if (user?.idEmployee) {
+        await fetchPettyCashVouchersByIdEmployee(user.idEmployee);
+      }
+    } catch (error) {
+      showAlert({
+        type: "error",
+        variant: "filled",
+        title: "No se pudo enviar la solicitud",
+        description:
+          String(error) || "Ocurrió un error al crear la autorización.",
+        showPrimaryButton: true,
+        primaryLabel: "Entendido",
+        onPrimaryClick: hideAlert,
+      });
+    } finally {
+      hideSpinner();
+      setIsRequestingAuthorization(false);
+    }
+  };
+
   const refresh = () => {
     if (!user?.idEmployee) return;
     fetchPettyCashVouchersByIdEmployee(user.idEmployee);
@@ -436,6 +650,15 @@ const usePettyCashHistory = () => {
     pettyError,
     loading,
     hasIdParam,
+    authorizerOptions,
+    authorizationRequestOpen,
+    authorizationRequestSelected,
+    authorizationRequestError,
+    isRequestingAuthorization,
+    handleOpenAuthorizationRequest,
+    handleCancelAuthorizationRequest,
+    handleConfirmAuthorizationRequest,
+    handleAuthorizationRequestChange,
   };
 };
 
