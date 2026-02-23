@@ -62,7 +62,7 @@ const TicketsFiles = ({ onSelectTicket }: TicketsFilesProps) => {
       />
       <DetailsPanelLayout
         open={detailOpen}
-        leftLabel={`Nombre: ${detailRow?.source.requisition.employeename}`}
+        leftLabel={`Nombre: ${detailRow?.source.employee?.fullname ?? ""}`}
         onClose={closeDetails}
         actionButton={
           <Button

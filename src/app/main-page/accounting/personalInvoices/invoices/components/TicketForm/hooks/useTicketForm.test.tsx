@@ -11,6 +11,9 @@ vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
     usePrincipalAlert: { showAlert: vi.fn(), hideAlert: vi.fn() },
   }),
 }));
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({ user: { idEmployee: '1' } }),
+}));
 vi.mock('../../../context/InvoicesContext', () => ({
   useInvoices: () => ({ field2: [], formId2: 'form2', user: { idEmployee: '1' } }),
 }));
@@ -66,7 +69,7 @@ describe('useTicketForm', () => {
     });
 
     expect(createBillingImageMock).toHaveBeenCalledWith(
-      expect.objectContaining({ requisition_id: 'REQ-123' })
+      expect.objectContaining({ requisition_id: 'REQ-123', employee_id: '1' })
     );
   });
 });

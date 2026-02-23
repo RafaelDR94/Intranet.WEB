@@ -127,6 +127,7 @@ export const BillingRequisitionByIdEmployee = process.env.NEXT_PUBLIC_BILLINGS_R
 export const BillingRequisitionByDate = process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONBYDATE ?? "/Billings/BillingRequisitionByDate";
 export const BillingImages = process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGES ?? "/Billings/BillingImages";
 export const BillingImagesById = process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGESBYID ?? "/Billings/BillingImages/ById";
+export const BillingImagesByIdEmployee = process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGESBYIDEMPLOYEE ?? "/Billings/BillingImages/ByIdEmployee";
 export const BillingDocument = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENT ?? "/Billings/BillingDocument";
 export const BillingDocumentById = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTBYID ?? "/Billings/BillingDocument/ById";
 export const BillingDocumentByIdIdRequisition = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTBYIDREQUISITION||"/Billings/BillingDocument/ByIdRequisition"

@@ -11,6 +11,7 @@ import { ticketFormDropzoneClasses } from '../styles'
 import { UseTicketFormReturn, UseInvoicesFormProps } from './types'
 
 import { FieldModel } from '@/app/components/DynamicForm/types'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useBillingHistoryStore } from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
@@ -53,6 +54,7 @@ const useTicketForm = ({
     shallow
   );
 
+  const { user: authUser } = useAuth()
 
   // 🔁 Campos iniciales del formulario (condicional por modo)
   const initialformFields: FieldModel[] = useMemo(() => {
@@ -176,8 +178,17 @@ const useTicketForm = ({
         updateBillingImage(payload)
       } else {
         // CREATE
+        const employeeId =
+          authUser?.idEmployee ??
+          user?.idEmployee ??
+          (user as { employee_id?: string | null } | null)?.employee_id ??
+          ''
+        if (!employeeId) {
+          throw new Error('No se pudo identificar el empleado logueado')
+        }
         const payload = {
           requisition_id: requisition || undefined,
+          employee_id: employeeId,
           images: imgUrl,
           description: values?.description,
           numpersons: values?.numpersons,
