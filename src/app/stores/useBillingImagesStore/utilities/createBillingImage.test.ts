@@ -16,7 +16,15 @@ describe('createBillingImage util', () => {
     const set: Set = (partial) => Object.assign(state, typeof partial === 'function' ? partial(state as BillingImagesState) : partial)
     const get: Get = () => state as BillingImagesState
 
-    const payload: BillingPost = { requisition_id: 'a', status_id: 'b', downloaded: false }
+    const payload: BillingPost = {
+      employee_id: 'emp-1',
+      requisition_id: 'a',
+      category_id: 'cat-1',
+      images: [],
+      description: '',
+      numpersons: '0',
+      numnights: '0',
+    }
     const res = await createBillingImage(set, get, payload)
 
     expect(res?.billing_image_id).toBe('2')

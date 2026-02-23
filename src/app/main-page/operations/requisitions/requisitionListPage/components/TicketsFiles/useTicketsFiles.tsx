@@ -9,7 +9,8 @@ import DownloadIcon from "@/assets/icons/acciones/download.svg";
 
 import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
-import type { BillingImages } from "@/app/mappings/billingimages/billingimages.types";
+import type { BillingImagesByEmployee } from "@/app/mappings/billingimages/billingimages.types";
+import { useBillingImagesByEmployeeStore } from "@/app/stores/useBillingImagesByEmployeeStore/useBillingImagesByEmployeeStore";
 import { shallow } from "zustand/shallow";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 
@@ -21,11 +22,11 @@ type TicketRow = {
   comments: string;
   detail: string;
   imageUrls: string[];
-  source: BillingImages;
+  source: BillingImagesByEmployee;
   attachments?: string[];
 };
 
-const normalizeImages = (images: BillingImages["images"] | { image?: string }[]): string[] => {
+const normalizeImages = (images: BillingImagesByEmployee["images"] | { image?: string }[]): string[] => {
   if (Array.isArray(images)) {
     return images
       .map((item) => (typeof item === "string" ? item : item?.image ?? ""))
@@ -34,9 +35,8 @@ const normalizeImages = (images: BillingImages["images"] | { image?: string }[])
   return [];
 };
 
-const mapTickets = (images: BillingImages[], requisitionId?: string): TicketRow[] =>
+const mapTickets = (images: BillingImagesByEmployee[]): TicketRow[] =>
   images
-    .filter((item) => (requisitionId ? item?.requisition?.billingrequisition_id === requisitionId : true))
     .map((item) => ({
       id: item.billing_image_id,
       date: item.dateCreate,
@@ -64,7 +64,7 @@ const useTicketsFiles = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
-  const { requisitionId } = useRequisitionDocuments();
+  const { requisitionId, requisition } = useRequisitionDocuments();
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [previewIndex, setPreviewIndex] = useState<number>(0);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -73,10 +73,10 @@ const useTicketsFiles = () => {
     state: boolean;
     row: TicketRow | null;
   }>({ state: false, row: null });
-  const { billingImages, fetchBillingImages } = useBillingImagesStore(
+  const { billingImagesByEmployee, fetchBillingImagesByEmployee } = useBillingImagesByEmployeeStore(
     (state) => ({
-      billingImages: state.billingImages,
-      fetchBillingImages: state.fetchBillingImages,
+      billingImagesByEmployee: state.billingImagesByEmployee,
+      fetchBillingImagesByEmployee: state.fetchBillingImagesByEmployee,
     }),
     shallow,
   );
@@ -93,8 +93,9 @@ const useTicketsFiles = () => {
     );
 
   useEffect(() => {
-    fetchBillingImages(true);
-  }, [fetchBillingImages]);
+    if (!requisition?.id_Employee) return;
+    fetchBillingImagesByEmployee(requisition.id_Employee, true);
+  }, [fetchBillingImagesByEmployee, requisition?.id_Employee]);
 
   useEffect(() => {
     if (rejecting) {
@@ -131,8 +132,8 @@ const useTicketsFiles = () => {
   }, [error, rejecting]);
 
   const rows = useMemo(
-    () => mapTickets(billingImages, requisitionId),
-    [billingImages, requisitionId],
+    () => mapTickets(billingImagesByEmployee),
+    [billingImagesByEmployee],
   );
 
   const openPreview = useCallback((images: string[], index = 0) => {
@@ -265,18 +266,18 @@ const useTicketsFiles = () => {
     toBillingImagesTable: (row: TicketRow) => ({
       id: row.source.billing_image_id,
       billing_image_id: row.source.billing_image_id,
-      deudor: row.source.requisition?.employeename ?? "",
-      proyect: row.source.requisition?.projectname ?? "",
+      deudor: row.source.employee?.fullname ?? "",
+      proyect: requisition?.projectname ?? "",
       images: row.source.images,
       Image: row.source.images?.[0] ?? "",
       comments: row.source.comments ?? "",
       dateCreate: row.source.dateCreate,
-      requisition_id: row.source.requisition?.billingrequisition_id ?? "",
+      requisition_id: requisition?.billingrequisition_id ?? requisitionId ?? "",
       category: row.source.category,
       description: row.source.description,
       numpersons: row.source.numpersons,
       numnights: row.source.numnights,
-      requisitionkey: row.source.requisition?.requisitionkey ?? "",
+      requisitionkey: requisition?.requisitionkey ?? "",
       categoryName: row.source.category?.name ?? "",
       descriptionName: row.source.description?.name ?? "",
     }),

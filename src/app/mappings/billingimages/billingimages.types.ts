@@ -33,6 +33,7 @@ export type BillingImagesTable = {
     "descriptionName":string,
 }
 export type BillingPost = {
+    "employee_id": string,
     "requisition_id"?: string,
     "category_id": string,
     "images": string[]
@@ -55,4 +56,38 @@ export type BillingPut = {
 export type BillinReject = {
     "billing_image_id": string,
     "comments": string
+}
+
+export type BillingImageEmployee = {
+    "employee_id": string,
+    "employee_number": string,
+    "firstname": string,
+    "secondname": string,
+    "lastname": string,
+    "motherlast_name": string,
+    "gender": string,
+    "email": string,
+    "phone_number": string,
+    "extension": string,
+    "image_url": string,
+    "user_id": string,
+    "workposition_id": string,
+    "manager_id": string,
+    "department_id": string,
+    "role_id": string | null,
+    "fullname": string,
+}
+
+export type BillingImagesByEmployee = {
+    "billing_image_id": string,
+    "employee": BillingImageEmployee,
+    "category": BillingDocumentCategory,
+    "description": BillingDocumentDescription,
+    "numpersons": number,
+    "numnights": number,
+    "status": string,
+    "images": string[],
+    "comments": string,
+    "user_comments"?: string,
+    "dateCreate": string,
 }
