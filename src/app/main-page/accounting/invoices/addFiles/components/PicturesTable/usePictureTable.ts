@@ -15,7 +15,7 @@ const usePictureTable = () => {
     const { showImage, hideImage } = usePrincipalImage;
     const [openRejectPicture, setOpenRejectPicture] = useState<{ state: boolean, row: BillingImagesTable | null }>({ state: false, row: null });
     const isMobile = useIsMobile();
-    const { currentPagePermissions } = useAuth();
+    const { currentPagePermissions, user } = useAuth();
     const {
         loading,
         billingImages,
@@ -48,16 +48,19 @@ const usePictureTable = () => {
         shallow
     )
     useEffect(() => {
-        fetchBillingImages(true)
-    }, [fetchBillingImages])
+        if (!user?.idEmployee) return
+        fetchBillingImages(user.idEmployee, true)
+    }, [fetchBillingImages, user?.idEmployee])
     useEffect(() => {
         fetchBillingDocuments(true)
     }, [fetchBillingDocuments])
     useEffect(() => {
         if (!successPost && !successPut) return
         fetchBillingDocuments(true)
-        fetchBillingImages(true)
-    }, [fetchBillingDocuments, fetchBillingImages, successPost, successPut])
+        if (user?.idEmployee) {
+            fetchBillingImages(user.idEmployee, true)
+        }
+    }, [fetchBillingDocuments, fetchBillingImages, successPost, successPut, user?.idEmployee])
 
     const filteredBillingImages = useMemo(() => {
         const linkedImageIds = new Set(

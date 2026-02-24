@@ -22,6 +22,7 @@ import type { SelectOption } from "@/app/components/Select/types";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { PostAuthorization } from "@/app/mappings/authorizations/authorizations.types";
 import { useAuthorizationsStore } from "@/app/stores/useAuthorizationsStore/useAuthorizationsStore";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingRequisitionImageUrlStore } from "@/app/stores/useBillingRequisitionImageUrlStore/useBillingRequisitionImageUrlStore";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 /**
@@ -77,6 +78,13 @@ const RequisitionDetails: React.FC = () => {
   const { createAuthorization } = useAuthorizationsStore(
     (s) => ({
       createAuthorization: s.createAuthorization,
+    }),
+    shallow,
+  );
+
+  const { billingDocuments } = useBillingDocumentsStore(
+    (s) => ({
+      billingDocuments: s.billingDocuments,
     }),
     shallow,
   );
@@ -197,6 +205,11 @@ const RequisitionDetails: React.FC = () => {
     });
     return sorted[0] ?? null;
   }, [authorizations, currentRequisition?.billingrequisition_id]);
+
+  const hasPendingAuthorization = useMemo(
+    () => (billingDocuments ?? []).some((doc) => !doc.authorization),
+    [billingDocuments],
+  );
 
   const authorizerName = useMemo(() => {
     if (!requisitionAuthorization) return "";
@@ -508,7 +521,7 @@ const RequisitionDetails: React.FC = () => {
                         onChange={handleFileChange}
                       />
                       <div className="flex flex-wrap items-center gap-2">
-                        {!requisitionAuthorization ? (
+                        {hasPendingAuthorization ? (
                           <Button variant="outline" onClick={handleOpenAuthorizer}>
                             Solicitar autorizacion
                           </Button>

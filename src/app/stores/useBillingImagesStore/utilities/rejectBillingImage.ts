@@ -34,7 +34,8 @@ export const rejectBillingImage = async (
     const raw = res.data?.data
     const created = raw ? (raw as BillingImages) : null
 
-    await fetchBillingImages(set, get, true)
+    const employeeId = get().billingImagesEmployeeId
+    if (employeeId) await fetchBillingImages(set, get, employeeId, true)
 
     set({ rejecting: false, succesReject: true, error: undefined })
     return created

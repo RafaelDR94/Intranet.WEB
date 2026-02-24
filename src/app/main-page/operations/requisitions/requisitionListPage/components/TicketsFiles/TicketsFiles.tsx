@@ -3,7 +3,9 @@ import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import CancelIcon from "@/assets/icons/acciones/cancel.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
-import useTicketsFiles from "./useTicketsFiles";
+import useTicketsFiles, { type TicketRow } from "./useTicketsFiles";
+import { BillingImagesTableMap } from "@/app/mappings/billingimages/billingimages.mapper";
+import type { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
 import Label from "@/app/components/Label/Label";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 import { DownloadFile } from "@/app/utilities/FilesHelper/FilesHelper";
@@ -12,7 +14,12 @@ import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 
 
 
-const TicketsFiles = () => {
+type TicketsFilesProps = {
+  onSelectedTicketChange?: (ticket: BillingImagesTable | null) => void;
+  selectedTicketId?: string | null;
+};
+
+const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFilesProps) => {
   const {
     columns,
     rows,
@@ -33,6 +40,17 @@ const TicketsFiles = () => {
     rejecting,
   } = useTicketsFiles();
 
+  const handleSelectedChange = (_index: number, selectedRows: TicketRow[]) => {
+    if (!onSelectedTicketChange) return;
+    const selected = selectedRows[0];
+    if (!selected) {
+      onSelectedTicketChange(null);
+      return;
+    }
+    const mapped = BillingImagesTableMap([selected.source])[0] ?? null;
+    onSelectedTicketChange(mapped);
+  };
+
   return (
     <div>
       <DataTable
@@ -48,8 +66,10 @@ const TicketsFiles = () => {
             enableCollaps: true,
             enableSelection: true,
             selectionMode: "single",
+            initialSelectedRowIds: selectedTicketId ? [selectedTicketId] : [],
           },
         ]}
+        onSelectedChange={handleSelectedChange}
       />
       <DetailsPanelLayout
         open={detailOpen}

@@ -606,11 +606,6 @@ const useInvoicesFiles = () => {
               }
             }}
             size="md"
-            disabled={
-              linkingId === row.id ||
-              requisitionOptions.length === 0 ||
-              row.status?.toLowerCase().includes("valid")
-            }
           />
         ),
         cellClass: "w-2/14",

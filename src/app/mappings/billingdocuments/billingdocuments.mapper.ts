@@ -1,4 +1,5 @@
 // src/app/mappings/billing/billingdocuments.mapper.ts
+import { mapAuthorization } from '../authorizations/authorizations.mapper';
 import { RequisitionMap } from '../requisitions/requisitions.mapp';
 import {
   BillingDocuments,
@@ -114,7 +115,8 @@ export const BillingDocumentMap = (raw: any): BillingDocuments => ({
   iva: Number(raw?.iva),
   otherinvoices: Number(raw?.otherinvoices),
   category: BillingDocumentCategoryMap(raw?.category ?? raw?.Category),
-  validatedbyoperations: Boolean(raw?.validatedbyoperations)
+  validatedbyoperations: Boolean(raw?.validatedbyoperations),
+  authorization: raw?.authorization ? mapAuthorization(raw.authorization) : null,
 });
 
 /** ---------------------- BillingDocumentDetails ---------------------- */
@@ -138,6 +140,7 @@ export const BillingDocumentDetailsTableMap = (raw: BillingDocuments): BillingDo
   billingimages_id: raw?.billingimages_id ?? null,
   comments: raw?.comments,
   user_comments: raw?.user_comments,
+  authorization: raw?.authorization ?? null,
 });
 
 export const BillingDocumentDetailsTableListMap = (list: any[]): BillingDocumentDetailsTable[] =>
@@ -187,7 +190,17 @@ export const BillingDocumentsSatTableListMap = (list: any[]): BillingDocumentsSa
 
 /** ---------------------- Otros mappers ---------------------- */
 export const BillingDocumentsMap = (list: any[]): BillingDocuments[] =>
-  Array.isArray(list) ? list.map((data)=>BillingDocumentMap(data.document?data.document:data)) : [];
+  Array.isArray(list)
+    ? list.map((data) => {
+        if (data?.document) {
+          return BillingDocumentMap({
+            ...data.document,
+            authorization: data.authorization ?? data.document?.authorization ?? null,
+          })
+        }
+        return BillingDocumentMap(data)
+      })
+    : [];
 
 export const BillingDocumentsPostMap = (src: Partial<BillingDocumentsPost> | any): BillingDocumentsPost => ({
   requisition_id: String(src?.requisition_id ?? ''),

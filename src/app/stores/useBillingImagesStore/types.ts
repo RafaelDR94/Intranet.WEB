@@ -29,7 +29,8 @@ export type BillingImagesState = {
   /** Advertencias retornadas por API */
   warning?: string
 
-  fetchBillingImages: (force?: boolean) => Promise<void> | void
+  billingImagesEmployeeId?: string
+  fetchBillingImages: (employeeId: string, force?: boolean) => Promise<void> | void
   fetchBillingImageById: (id: string, force?: boolean) => Promise<BillingImages | null>
   createBillingImage: (payload: BillingPost) => Promise<BillingImages | null>
   updateBillingImage: (payload: BillingPut) => Promise<BillingImages | null>
