@@ -13,6 +13,7 @@ import {
 } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { Requisition } from "@/app/mappings/requisitions/requisitions.types";
 import { useRequisitionsStore } from "@/app/stores/useRequisitionStore/useRequisitionStore";
+import { useBillingRequisitionWithEmployeesStore } from "@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore";
 
 const useInitInvoicesForms = ({
   initialformFields,
@@ -36,6 +37,14 @@ const useInitInvoicesForms = ({
     }),
     shallow,
   );
+  const { pendingBillingDocuments, fetchBillingDocumentsPendingByEmployee } =
+    useBillingRequisitionWithEmployeesStore(
+    (s) => ({
+      pendingBillingDocuments: s.pendingBillingDocuments,
+      fetchBillingDocumentsPendingByEmployee: s.fetchBillingDocumentsPendingByEmployee,
+    }),
+    shallow,
+  );
   const pathname = usePathname();
   const normalizedPath = pathname.endsWith("/")
     ? pathname.slice(0, -1)
@@ -43,6 +52,7 @@ const useInitInvoicesForms = ({
   const searchParams = useSearchParams();
   const urlRequisitionId = searchParams.get("id");
   const urlView = searchParams.get("view");
+  const urlEmployeeId = searchParams.get("idEmployee");
   const lockRequisitionFields =
     urlView === "billablefiles" &&
     normalizedPath === "/main-page/accounting/personalInvoices/requisitions";
@@ -52,12 +62,41 @@ const useInitInvoicesForms = ({
   const [formReady, setFormReady] = useState(false);
   const fieldsReady = field.length > 0;
   const filteredRequisitions = useMemo(() => {
-    const employeeId = user?.idEmployee;
+    const employeeId = urlEmployeeId ?? user?.idEmployee;
     if (!employeeId) return requisitions;
     return requisitions.filter(
       (r) => String(r.id_Employee) === String(employeeId),
     );
-  }, [requisitions, user?.idEmployee]);
+  }, [requisitions, urlEmployeeId, user?.idEmployee]);
+
+  const requisitionOptions = useMemo(() => {
+    const map = new Map<string, { label: string; value: string }>();
+
+    filteredRequisitions.forEach((item) => {
+      const value = item.billingrequisition_id;
+      if (!value) return;
+      const label = `${item.requisitionkey} - ${item.projectname}`.trim();
+      if (!map.has(value)) map.set(value, { label, value });
+    });
+
+    pendingBillingDocuments.forEach((doc) => {
+      const value =
+        doc.requisition?.billingrequisition_id ??
+        (doc as any)?.billingrequisition_id ??
+        (doc as any)?.requisition_id ??
+        (doc as any)?.requisitionId ??
+        "";
+      if (!value || map.has(value)) return;
+      const requisitionKey =
+        doc.requisition?.requisitionkey ?? (doc as any)?.requisitionkey ?? "";
+      const projectName =
+        doc.requisition?.projectname ?? (doc as any)?.projectname ?? "";
+      const label = `${requisitionKey || value} - ${projectName}`.trim();
+      map.set(value, { label, value });
+    });
+
+    return Array.from(map.values());
+  }, [filteredRequisitions, pendingBillingDocuments]);
 
   const ResetForm = () => {
     const initialFields: FieldModel[] = initialformFields;
@@ -103,17 +142,13 @@ const useInitInvoicesForms = ({
   };
   const SetInitRequisitions = () => {
     updateField(formId, "requisition", {
-      options: filteredRequisitions.map((r: Requisition) => ({
-        label: r.requisitionkey + " - " + r.projectname,
-        value: r.billingrequisition_id,
-      })),
+      options: requisitionOptions,
       onChange: (value) => {
-        const employeeName = filteredRequisitions.find(
+        const requisition = filteredRequisitions.find(
           (r) => r.billingrequisition_id === value,
-        )?.employeename;
-        const proyect = filteredRequisitions.find(
-          (r) => r.billingrequisition_id === value,
-        )?.projectname;
+        );
+        const employeeName = requisition?.employeename;
+        const proyect = requisition?.projectname;
         const debtorName = field.find((f) => f.name === "personName");
         updateField(formId, "proyect", {
           value: proyect,
@@ -210,7 +245,7 @@ const useInitInvoicesForms = ({
   useEffect(() => {
     SetInitRequisitions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredRequisitions]);
+  }, [filteredRequisitions, requisitionOptions.length]);
 
   useEffect(() => {
     if (!lockRequisitionFields) {
@@ -238,6 +273,11 @@ const useInitInvoicesForms = ({
     field,
     currentRequisition,
   ]);
+
+  useEffect(() => {
+    if (!urlEmployeeId) return;
+    fetchBillingDocumentsPendingByEmployee(urlEmployeeId, true);
+  }, [fetchBillingDocumentsPendingByEmployee, urlEmployeeId]);
 
   useEffect(() => {
     SetDescriptions();

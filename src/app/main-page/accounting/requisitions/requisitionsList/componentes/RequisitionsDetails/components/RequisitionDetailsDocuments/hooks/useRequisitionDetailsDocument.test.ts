@@ -7,6 +7,7 @@ const fetchBilling = vi.fn()
 const downloadRequistionResume = vi.fn()
 
 vi.mock('next/navigation', () => ({
+  usePathname: () => '/main-page/accounting/requisitions',
   useSearchParams: () => new URLSearchParams('id=1'),
 }))
 

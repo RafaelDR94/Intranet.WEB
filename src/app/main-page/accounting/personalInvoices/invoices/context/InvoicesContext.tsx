@@ -1,5 +1,5 @@
 "use client";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import React, {
   createContext,
   useContext,
@@ -39,6 +39,8 @@ const InvoicesContext = createContext<InvoicesContextType>(initialValue);
 // 4️⃣ Provider
 export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlEmployeeId = searchParams.get("idEmployee") ?? "";
   const { user } = useAuth();
   const formId1 = "invoices-form";
   const formId2 = "ticket-form";
@@ -94,11 +96,15 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
   const field1 = f1 ?? EMPTY_ARRAY; // coalesce fuera del selector
   const field2 = f2 ?? EMPTY_ARRAY;
 
+  const targetEmployeeId = urlEmployeeId || user?.idEmployee || "";
+
   useEffect(() => {
     if (pathname == "/main-page/accounting/invoices/addFiles/") {
       fetchRequisitions(true);
-    } else if (user) fetchRequisitionsByIdEmployee(user.idEmployee, true);
-  }, [user, pathname, fetchRequisitions, fetchRequisitionsByIdEmployee]);
+      return;
+    }
+    if (targetEmployeeId) fetchRequisitionsByIdEmployee(targetEmployeeId, true);
+  }, [targetEmployeeId, pathname, fetchRequisitions, fetchRequisitionsByIdEmployee]);
   useEffect(() => {
     fetchBillingDocumentCategories();
     fetchBillingDocumentDescriptions("");
@@ -118,7 +124,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
       secondaryLabel: "Refrescar",
       onSecondaryClick: () => {
         hideAlert();
-        if (user) fetchRequisitionsByIdEmployee(user?.idEmployee, true);
+        if (targetEmployeeId) fetchRequisitionsByIdEmployee(targetEmployeeId, true);
       },
     });
     resetFlags();
@@ -127,7 +133,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
     requisitionsError,
     hideAlert,
     showAlert,
-    user,
+    targetEmployeeId,
     fetchRequisitionsByIdEmployee,
     resetFlags,
     resetBillingFlags,
@@ -177,13 +183,13 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
       secondaryLabel: "Refrescar",
       onSecondaryClick: () => {
         hideAlert();
-        if (user) fetchRequisitionsByIdEmployee(user?.idEmployee, true);
+        if (targetEmployeeId) fetchRequisitionsByIdEmployee(targetEmployeeId, true);
       },
     });
     resetFlags();
   }, [
     warning,
-    user,
+    targetEmployeeId,
     hideAlert,
     showAlert,
     fetchRequisitionsByIdEmployee,

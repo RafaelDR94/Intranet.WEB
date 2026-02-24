@@ -44,6 +44,15 @@ const RequisitionDetailsTable: React.FC = () => {
   console.log("rows ", rows);
   console.log("selected ", selected);
   
+  const renderValidationStatus = (row: BillingDocumentDetailsTable) => {
+    const isApproved = Boolean(row.authorization);
+    return (
+      <Label
+        type={isApproved ? "valido" : "pendiente"}
+        text={isApproved ? "Aprobado" : "Pendiente"}
+      />
+    );
+  };
 
   // const handleUploadBillableFiles = () => {
   //   if (!requisitionId) return;
@@ -73,6 +82,11 @@ const RequisitionDetailsTable: React.FC = () => {
               text={row.status}
             />
           ),
+        },
+        {
+          key: "authorization" as unknown as keyof BillingDocumentDetailsTable,
+          label: "Estatus validación",
+          render: (row) => renderValidationStatus(row),
         },
         {
           key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
@@ -173,6 +187,13 @@ const RequisitionDetailsTable: React.FC = () => {
         label: "TOTAL.",
         cellClass: "w-2/15 text-left",
         headerClass: "w-2/15 text-left",
+      },
+      {
+        key: "authorization" as unknown as keyof BillingDocumentDetailsTable,
+        label: "Estatus validación",
+        cellClass: "w-2/15 text-left",
+        headerClass: "w-2/15 text-left",
+        render: (row) => renderValidationStatus(row),
       },
       {
         key: "acciones" as unknown as keyof BillingDocumentDetailsTable,

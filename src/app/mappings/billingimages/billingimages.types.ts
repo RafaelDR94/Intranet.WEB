@@ -1,11 +1,16 @@
 
 import { BillingDocumentCategory, BillingDocumentDescription } from "../billingdocuments/billingdocuments.types"
 import { Requisition } from "../requisitions/requisitions.types"
+
+export type BillingImageItem = {
+    "image": string,
+    "status_id"?: string,
+}
 export type BillingImages = {
     "billing_image_id": string,
     "requisition": Requisition,
     "status": string,
-    "images": string[],
+    "images": BillingImageItem[],
     "comments": string,
     "user_comments"?: string,
     "dateCreate": string,
@@ -86,7 +91,7 @@ export type BillingImagesByEmployee = {
     "numpersons": number,
     "numnights": number,
     "status": string,
-    "images": string[],
+    "images": BillingImageItem[],
     "comments": string,
     "user_comments"?: string,
     "dateCreate": string,

@@ -35,7 +35,8 @@ export const updateBillingImage = async (
     const raw = res.data?.data
     const updated = raw ? (raw as BillingImages) : null
 
-    await fetchBillingImages(set, get, true)
+    const employeeId = get().billingImagesEmployeeId
+    if (employeeId) await fetchBillingImages(set, get, employeeId, true)
 
     set({ updating: false, successPut: true })
     return updated

@@ -15,7 +15,7 @@ import type { BillingImages } from "@/app/mappings/billingimages/billingimages.t
 import { shallow } from "zustand/shallow";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 
-type TicketRow = {
+export type TicketRow = {
   id: string;
   date: string;
   category: string;
@@ -39,7 +39,7 @@ const normalizeImages = (images: BillingImages["images"] | { image?: string }[])
 const mapTickets = (images: BillingImages[]): TicketRow[] =>
   images
     .map((item) => ({
-      id: item.billing_image_id,
+      id: item.billing_image_id || item.images?.[0]?.image || "",
       date: item.dateCreate,
       category: item.category?.name ?? "",
       detail: item.description?.name ?? "",
@@ -105,7 +105,8 @@ const useTicketsFiles = () => {
 
   useEffect(() => {
     if (isBillableFilesView) {
-      fetchBillingImages(true);
+      if (!employeeId) return;
+      fetchBillingImages(employeeId, true);
       return;
     }
     if (!employeeId) return;

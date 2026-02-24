@@ -32,7 +32,7 @@ export const fetchRequisitionsByIdEmployee = async (idEmployee: string, set: Set
     const getReq = pGet(GetFn)
 
     // 3) llamada
-    const res: AxiosResponse = await getReq(`${BillingRequisitionByIdEmployee}/${idEmployee}?active=true`)
+    const res: AxiosResponse = await getReq(`${BillingRequisitionByIdEmployee}/${idEmployee}?isactive=true`)
 
     if (res?.data?.data === undefined || res.data?.data.length === 0) {
       set({ requisitions: [], loading: false, warning: "No se encontraron requisiciones para este usuario" });

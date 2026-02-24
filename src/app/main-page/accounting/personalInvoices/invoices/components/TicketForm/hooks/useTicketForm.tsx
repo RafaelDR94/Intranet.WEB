@@ -113,11 +113,19 @@ const useTicketForm = ({
     useInitInvoicesForms({ initialformFields, field: field2, formId: formId2, dataEdit, })
   const lastUploadedRef = useRef<SelectedImage[] | null>(null)
   const [formKey, setFormKey] = useState(0)
+  const hasInitializedRef = useRef(false)
 
   // Loading + Alerts (desde PrincipalContext)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
   const { showSpinner, hideSpinner } = usePrincipalLoading
   const { showAlert, hideAlert } = usePrincipalAlert
+
+  useEffect(() => {
+    if (hasInitializedRef.current) return
+    if (field2.length === 0) return
+    setFormKey((prev) => prev + 1)
+    hasInitializedRef.current = true
+  }, [field2.length])
 
   const uploadIfNeeded = async (
     files: SelectedImage[] | File[] | File | null | undefined,

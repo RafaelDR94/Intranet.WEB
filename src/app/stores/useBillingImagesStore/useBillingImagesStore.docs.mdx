@@ -16,7 +16,7 @@ Store de **Zustand** para manejar imágenes de facturas y sus operaciones CRUD.
 - `removing: boolean`
 - `error?: string`
 - `warning?: string`
-- `fetchBillingImages(force?: boolean): Promise<void>`
+- `fetchBillingImages(employeeId: string, force?: boolean): Promise<void>`
 - `fetchBillingImageById(id: string, force?: boolean): Promise<BillingImages | null>`
 - `createBillingImage(payload: BillingPost): Promise<BillingImages | null>`
 - `updateBillingImage(payload: BillingPut): Promise<BillingImages | null>`
@@ -33,7 +33,7 @@ export const Example = () => {
   const { fetchBillingImages, billingImages } = useBillingImagesStore();
   return (
     <div>
-      <button onClick={() => fetchBillingImages()}>cargar</button>
+      <button onClick={() => fetchBillingImages('employee-id')}>cargar</button>
       <pre>{JSON.stringify(billingImages)}</pre>
     </div>
   );
