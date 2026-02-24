@@ -28,8 +28,9 @@ export const fetchPettyCashVoucherById = async (
     const getReq = pGet(getFn)
     const res: AxiosResponse = await getReq(`${BillingPettyCashVoucherById}/${id}`)
     const raw = res.data?.data ?? {}
-    const mappedFull = PettyCashVoucherFullMap(raw)
-    const mappedLight = PettyCashVoucherMap(raw)
+    const mappedFull = PettyCashVoucherFullMap(raw);
+    const mappedLight = PettyCashVoucherMap(raw);
+  
     set({
       pettyCashVoucher: mappedLight,
       pettyCashVoucherFull: mappedFull,

@@ -45,7 +45,7 @@ const RequisitionListPage: React.FC = () => {
           billingImages={selectedTicket}
           onCloseImage={() => setSelectedTicket(null)}
         />
-        <TicketsFiles onSelectTicket={setSelectedTicket} />
+        <TicketsFiles  />
       </InvoicesProvider>
     );
   }

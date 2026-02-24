@@ -1,11 +1,13 @@
 // src/app/mappings/requisitions/requisitions.mapper.ts
 import {
   BillingDocumentRequisition,
+  Benefit,
   Requisition,
   RequitionPost,
   RequitionPut,
-} from './requisitions.types'
 
+} from './requisitions.types'
+import { mapAuthorization } from '../authorizations/authorizations.mapper'
 import { toInputDateString } from '@/app/utilities/FormatHelpers/FormatHelpets'
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -17,7 +19,54 @@ const extractName = (value: unknown): string => {
   return ''
 }
 
+const toStringSafe = (value: unknown, fallback = ''): string =>
+  value == null ? fallback : String(value)
+
+const buildFullname = (raw: Record<string, unknown>): string => {
+  const direct = toStringSafe(
+    raw.fullname ?? raw.employeename ?? raw.employee_name ?? raw.name ?? '',
+  )
+  if (direct.trim()) return direct.trim()
+  return [
+    raw.firstname,
+    raw.secondname,
+    raw.lastname,
+    raw.motherlast_name,
+  ]
+    .map((part) => toStringSafe(part).trim())
+    .filter((part) => part)
+    .join(' ')
+}
+
+/**
+ * BenefitMap
+ * Mapea un registro crudo de la API a un objeto tipado Benefit.
+ */
+export const BenefitMap = (raw: unknown): Benefit => {
+ 
+  const record = isRecord(raw) ? raw : {}
+  const idEmployee = toStringSafe(
+    record.id_employee ?? record.employee_id ?? record.idEmployee ?? record.employeeId ?? record.id,
+  )
+  const fullname = buildFullname(record)
+
+  return {
+    id_employee: idEmployee,
+    fullname,
+    email: toStringSafe(record.email ?? record.mail),
+    phone_number: toStringSafe(record.phone_number ?? record.phoneNumber ?? record.phone),
+  }
+}
+
+/**
+ * BenefitsMap
+ * Mapea una colecciÃ³n cruda de la API a un arreglo tipado Benefit.
+ */
+export const BenefitsMap = (list: unknown[]): Benefit[] =>
+  Array.isArray(list) ? list.map(BenefitMap) : []
+
 const getBillingData = (raw: unknown): Record<string, unknown> => {
+;
   if (!isRecord(raw)) return {}
   if (isRecord(raw.billingRequisition)) return raw.billingRequisition
   if (isRecord(raw.billing_requisition)) return raw.billing_requisition
@@ -68,6 +117,7 @@ const mapBillingDocumentRequisition = (
     user_comments: String(document.user_comments ?? ''),
     validatedbyoperations: Boolean(document.validatedbyoperations),
     employeename: extractName(document.employeename) || '',
+    authorization: mapAuthorization(document.authorization ?? null),
   }
 }
 
@@ -86,10 +136,11 @@ export const RequisitionMap = (raw: unknown): Requisition => {
   const endDate = (billingData as any)?.enddate ?? (billingData as any)?.endDate
   const projectId = (billingData as any)?.idproject ?? (billingData as any)?.idProject
   const currentDays = (billingData as any)?.current_days ?? (billingData as any)?.currentDays
-
+  const requisitionskey = (billingData as any)?.requisitionkey ?? (billingData as any)?.requisition_key
+  const billingrequisitionId = (billingData as any)?.billingrequisition_id ?? (billingData as any)?.requisition_id
   return {
-    billingrequisition_id: String((billingData as any)?.billingrequisition_id ?? ''),
-    requisitionkey: String((billingData as any)?.requisitionkey ?? ''),
+    billingrequisition_id: String(billingrequisitionId??''),
+    requisitionkey: String(requisitionskey ?? ''),
     id_Employee: String((billingData as any)?.employee_id ?? ''),
     employeename: String((billingData as any)?.employeename ?? ''),
     idProject: String(projectId ?? ''),

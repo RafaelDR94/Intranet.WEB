@@ -6,6 +6,7 @@ import { shallow } from 'zustand/shallow'
 import type { RequisitionRow } from '../types'
 
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
+import type { Requisition } from '@/app/mappings/requisitions/requisitions.types'
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
 import { useBillingRequisitionWithEmployeesStore } from '@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore'
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper'
@@ -95,25 +96,34 @@ export const useRequisitionTable = () => {
 
 
   const rows: RequisitionRow[] = useMemo(() => {
-    const base = requisitions.map(r => {
-      const employeename = r?.employeename ?? ''
+    const base = requisitions.map((r) => {
+      const requisition = r as Partial<Requisition>
+      const benefit = r as {
+        id_employee?: string
+        fullname?: string
+        email?: string
+        phone_number?: string
+      }
+      const employeename = requisition.employeename ?? benefit.fullname ?? ''
+      const employeeId = requisition.id_Employee ?? benefit.id_employee ?? ''
+      const requisitionId = requisition.billingrequisition_id ?? employeeId
 
       return {
-        id: r?.billingrequisition_id ?? '',
-        employeeId: r?.id_Employee ?? '',
-        snCode: r?.requisitionkey ?? '',
+        id: requisitionId ?? '',
+        employeeId,
+        snCode: requisition.requisitionkey ?? '',
         employeename,
         debtorName: employeename,
         // Prefer project ID/code to match visual sample
-        projectCode: r?.projectname ?? '',
-        assignmentDate: r?.assignmentdate,
-        dueDate: r?.endDate,
-        amount: Number(r?.amountdeposited),
-        status: r?.status,
-        state: r?.state,
-        phone_number: r?.phone_number ?? '',
-        email: r?.email ?? '',
-        date_created: r?.date_created,
+        projectCode: requisition.projectname ?? '',
+        assignmentDate: requisition.assignmentdate,
+        dueDate: requisition.endDate,
+        amount: requisition.amountdeposited ? Number(requisition.amountdeposited) : undefined,
+        status: requisition.status,
+        state: requisition.state,
+        phone_number: requisition.phone_number ?? benefit.phone_number ?? '',
+        email: requisition.email ?? benefit.email ?? '',
+        date_created: requisition.date_created,
       }
     })
     if (!query) return base
@@ -149,6 +159,9 @@ export const useRequisitionTable = () => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path;
     const qs = new URLSearchParams(searchParams.toString());
     qs.set('id', row.id);
+    if (row.employeeId) {
+      qs.set('idEmployee', row.employeeId);
+    }
     qs.set('label', buildLabel('Archivos', row.debtorName));
     router.push(`${clean}?${qs.toString()}`);
   };

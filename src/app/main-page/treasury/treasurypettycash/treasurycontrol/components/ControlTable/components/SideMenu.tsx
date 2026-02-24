@@ -8,12 +8,12 @@ import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import { Input } from "@/app/components/Input/Input";
 import Label from "@/app/components/Label/Label";
+import type { LabelType } from "@/app/components/Label/types";
 import { PopUp } from "@/app/components/PopUp/PopUp";
+import { Select } from "@/app/components/Select/Select";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
-import CollapsibleSection from "../../ControlCards/components/CollapsibleSection/CollapsibleSection";
-import Image from "next/image";
 
 const toValidNumber = (value: unknown): number | undefined =>
   typeof value === "number" && !Number.isNaN(value) ? value : undefined;
@@ -60,6 +60,22 @@ const isVoucherValid = (status?: string): boolean => {
   return normalized.includes("valid");
 };
 
+const isAuthorizationApproved = (status?: string): boolean => {
+  if (!status) return false;
+
+  const normalized = normalizeStatus(status);
+
+  return normalized.includes("aprob");
+};
+
+const isAuthorizationPending = (status?: string): boolean => {
+  if (!status) return false;
+
+  const normalized = normalizeStatus(status);
+
+  return normalized.includes("pend");
+};
+
 const isInvoiceRejected = (status?: string): boolean => {
   if (!status) return false;
 
@@ -89,6 +105,17 @@ const isPendingOrInvoiceSent = (status?: string): boolean => {
   return n.includes("pendiente") || n.includes("factura enviada");
 };
 
+const authorizationStatusToLabelType = (status?: string): LabelType => {
+  const normalized = (status ?? "").toLowerCase();
+  if (normalized.includes("aprob")) return "valido";
+  if (normalized.includes("rechaz")) return "rechazado";
+  if (normalized.includes("cancel")) return "restringido";
+  if (normalized.includes("pend")) return "pendiente";
+  return "actualizado";
+};
+
+
+
 const SideMenu: React.FC<ControlSideMenuProps> = ({
   panelOpen,
   setPanelOpen,
@@ -108,6 +135,15 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   isSavingAmount = false,
   amountHistory = [],
   isHistoryLoading = false,
+  onRequestAuthorization,
+  authorizationRequestOpen = false,
+  authorizationRequestOptions = [],
+  authorizationRequestSelected = "",
+  authorizationRequestError = null,
+  isRequestingAuthorization = false,
+  onCancelAuthorizationRequest,
+  onConfirmAuthorizationRequest,
+  onAuthorizationRequestChange,
 }) => {
   const [voucherRejectModalOpen, setVoucherRejectModalOpen] =
     React.useState(false);
@@ -137,6 +173,8 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
     });
   }, [amountHistory]);
 
+
+  console.log("datail",detail);
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
     detail?.project?.proyectkey || detail?.petty_cash_funds?.year_month || "";
@@ -154,6 +192,16 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const pdfUrl = detail?.pdf || "";
   const amount = detail?.amount ?? selected?.amount;
   const authorizationEvidenceUrl = detail?.authorization_evidence || "";
+  const authorization = detail?.authorization ?? null;
+
+  const authorizationId = authorization?.authorization_id?.trim() ?? "";
+  const hasAuthorization = Boolean(authorizationId);
+  const authorizationStatus =
+    (typeof authorization?.status === "string"
+      ? authorization?.status
+      : authorization?.status?.name) ?? "Pendiente";
+  const authorizationComment = authorization?.comment ?? "";
+  const authorizerName =authorization?.authorizer.fullname??""
   // const isAuthorizationRejected = detail?.isauthorization_evidence_rejected;
 
   const isEvidenceRejection = rejectTarget === "evidence";
@@ -171,6 +219,10 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const invoiceRejected = isInvoiceRejected(status);
   const voucherTypeLabel =
     voucherType === "Vale rosa" ? "vale-rosa" : "vale-azul";
+  const authorizationApproved = isAuthorizationApproved(authorizationStatus);
+  const authorizationPending = isAuthorizationPending(authorizationStatus);
+  const disableAmountEdit =
+    isBlueVoucher(voucherType) && !authorizationPending;
 
   const requestedAmount = React.useMemo(() => {
     return pickFirstNumber(
@@ -280,7 +332,8 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   };
 
   const handleStartEditing = () => {
-    if (!selected || isDetailLoading || invoiceRejected) return;
+    if (!selected || isDetailLoading || invoiceRejected || disableAmountEdit)
+      return;
     setAmountTouched(false);
     setAmountError(null);
     onEditModeChange?.(true);
@@ -352,6 +405,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
   const disableActions =
     !enableByBusinessStatus || // no es pendiente / factura enviada
     disableByBusinessStatus || // validado / rechazado
+    !authorizationApproved || // autorización no aprobada
     isDetailLoading || // estados de carga
     isValidating ||
     isRejecting || // en proceso
@@ -399,6 +453,37 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
         primaryButtonText={isSavingAmount ? "Guardando…" : "Guardar"}
         onPrimaryButtonClick={handleConfirmSaveAmount}
       />
+
+      <PopUp
+        open={authorizationRequestOpen}
+        onClose={onCancelAuthorizationRequest}
+        title="Solicitud de autorización"
+        content="Selecciona al responsable de la aprobación del vale."
+        showSecondaryButton
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={onCancelAuthorizationRequest}
+        showPrimaryButton
+        primaryButtonText={
+          isRequestingAuthorization ? "Enviando…" : "Enviar solicitud"
+        }
+        onPrimaryButtonClick={onConfirmAuthorizationRequest}
+      >
+        <Select
+          label="Autorizador"
+          placeholder="Selecciona una opción"
+          options={authorizationRequestOptions}
+          selected={authorizationRequestSelected ? [authorizationRequestSelected] : []}
+          onChange={(values) => {
+            const next = Array.isArray(values) ? values[0] ?? "" : "";
+            onAuthorizationRequestChange?.(next);
+          }}
+        />
+        {authorizationRequestError ? (
+          <p className="mt-2 text-b4 text-alert-red-100">
+            {authorizationRequestError}
+          </p>
+        ) : null}
+      </PopUp>
 
       <DetailsPanelLayout
         open={panelOpen}
@@ -487,7 +572,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
             {/* VISTA MÍNIMA CUANDO EL ESTATUS ES "SIN FACTURA" */}
             {showMinimalSinFactura ? (
               <div className="space-y-3" data-testid="minimal-sin-factura">
-                <CollapsibleSection
+                {/* <CollapsibleSection
                   title="Evidencia de autorización de vale"
                   titleWidth="600px"
                   defaultOpen={false}
@@ -516,7 +601,49 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                       </Button>
                     </div>
                   </>
-                </CollapsibleSection>
+                </CollapsibleSection> */}
+                {hasAuthorization ? (
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2 text-gray-90 text-b4 font-medium">
+                      <span>RESPONSABLE:</span>
+                      <span className="text-gray-90 text-b3 font-regular">
+                        {authorizerName || "—"}
+                      </span>
+                      <span className="ml-2 text-gray-90 text-b4 font-medium">
+                        ESTATUS:
+                      </span>
+                      <Label
+                        type={authorizationStatusToLabelType(
+                          authorizationStatus,
+                        )}
+                        text={authorizationStatus}
+                      />
+                    </div>
+                    <div className="text-gray-90 text-b4 font-medium">
+                      COMENTARIO:&nbsp;
+                      <span className="text-gray-90 text-b3 font-regular">
+                        {authorizationComment || "—"}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <Button
+                      size="medium"
+                      variant="outline"
+                      hideIcon
+                      disabled={isDetailLoading}
+                      data-testid="request-authorization-button"
+                      onClick={() => {
+                        if (onRequestAuthorization && selected) {
+                          onRequestAuthorization(selected);
+                        }
+                      }}
+                    >
+                      Solicitar autorización
+                    </Button>
+                  </div>
+                )}
                 <div className="text-gray-90 text-b4 font-medium">
                   Fecha:&nbsp;
                   <span className="text-gray-90 text-b3 font-regular">
@@ -539,7 +666,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
             ) : (
               // VISTA COMPLETA (estatus distinto de "sin factura")
               <>
-                <CollapsibleSection
+                {/* <CollapsibleSection
                   title="Evidencia de autorización de vale"
                   titleWidth="600px"
                   defaultOpen={false}
@@ -568,7 +695,49 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                       </Button>
                     </div>
                   </>
-                </CollapsibleSection>
+                </CollapsibleSection> */}
+                {hasAuthorization ? (
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2 text-gray-90 text-b4 font-medium">
+                      <span>RESPONSABLE:</span>
+                      <span className="text-gray-90 text-b3 font-regular">
+                        {authorizerName || "—"}
+                      </span>
+                      <span className="ml-2 text-gray-90 text-b4 font-medium">
+                        ESTATUS:
+                      </span>
+                      <Label
+                        type={authorizationStatusToLabelType(
+                          authorizationStatus,
+                        )}
+                        text={authorizationStatus}
+                      />
+                    </div>
+                    <div className="text-gray-90 text-b4 font-medium">
+                      COMENTARIO:&nbsp;
+                      <span className="text-gray-90 text-b3 font-regular">
+                        {authorizationComment || "—"}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <Button
+                      size="medium"
+                      variant="outline"
+                      hideIcon
+                      disabled={isDetailLoading}
+                      data-testid="request-authorization-button"
+                      onClick={() => {
+                        if (onRequestAuthorization && selected) {
+                          onRequestAuthorization(selected);
+                        }
+                      }}
+                    >
+                      Solicitar autorización
+                    </Button>
+                  </div>
+                )}
                 {uuid ? (
                   <div className="text-gray-90 text-s1 font-semibold">
                     {uuid}
@@ -641,7 +810,12 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                       size="medium"
                       variant={isEditingAmount ? "outline" : "outline"}
                       hideIcon
-                      disabled={disableActions}
+                      disabled={
+                        disableAmountEdit ||
+                        isDetailLoading ||
+                        isSavingAmount ||
+                        invoiceRejected
+                      }
                       onClick={
                         isEditingAmount
                           ? handleCancelEditing

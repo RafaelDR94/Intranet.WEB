@@ -78,8 +78,9 @@ export default function MainLayoutClient({
 
   // NEW: estado del drawer mobile
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const hasNotification =
-    pendingNotifications.length > 0 || alert?.type === "notification";
+  const hasPendingNotifications = pendingNotifications.length > 0;
+  const showNotificationAlert = alert?.type === "notification";
+  const hasNotification = hasPendingNotifications || showNotificationAlert;
 
   // Props compartidas para ambos sidebars
   const sidebarSharedProps = {
@@ -101,7 +102,7 @@ export default function MainLayoutClient({
         <div className={mainLayoutStyles.container}>
           {alert && (
             <div className={mainLayoutStyles.alertContainer}>
-              {hasNotification ? (
+              {showNotificationAlert ? (
                 <Notification
                   title={alert.title}
                   description={alert.description}
