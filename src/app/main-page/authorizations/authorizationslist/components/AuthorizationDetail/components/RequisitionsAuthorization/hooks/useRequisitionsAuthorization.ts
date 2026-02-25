@@ -68,6 +68,7 @@ const useRequisitionsAuthorization = () => {
   const authorizationId =
     searchParams.get('authorization_id') || searchParams.get('id') || undefined
   const requisitionId = searchParams.get('event_id') ?? undefined
+  const useAuthorizationDocuments = searchParams.get('documents') === 'authorization'
   const attemptedRef = useRef<string | null>(null)
   const billingAttemptedRef = useRef<string | null>(null)
   const redirectedRef = useRef(false)
@@ -84,6 +85,9 @@ const useRequisitionsAuthorization = () => {
 
   const {
     authorizations,
+    authorizationBillingDocuments,
+    loadingBillingDocuments,
+    getAuthorizationBillingDocuments,
     getAuthorizations,
     approveAuthorization,
     rejectAuthorization,
@@ -91,6 +95,9 @@ const useRequisitionsAuthorization = () => {
   } = useAuthorizationsStore(
     (state) => ({
       authorizations: state.authorizations,
+      authorizationBillingDocuments: state.authorizationBillingDocuments,
+      loadingBillingDocuments: state.loadingBillingDocuments,
+      getAuthorizationBillingDocuments: state.getAuthorizationBillingDocuments,
       getAuthorizations: state.getAuthorizations,
       approveAuthorization: state.approveAuthorization,
       rejectAuthorization: state.rejectAuthorization,
@@ -176,7 +183,7 @@ const useRequisitionsAuthorization = () => {
   const authorizationComment = authorization?.comment ?? ''
 
   useEffect(() => {
-    if (gettincurrentReq || downloadingDocument || billingLoading) {
+    if (gettincurrentReq || downloadingDocument || billingLoading || loadingBillingDocuments) {
       showSpinner({ message: 'Obteniendo detalle de requisicion...' })
       return
     }
@@ -214,7 +221,12 @@ const useRequisitionsAuthorization = () => {
       resetFlags()
     }
 
-    if (billingError && requisitionId && billingErrorShownRef.current !== requisitionId) {
+    if (
+      billingError &&
+      !useAuthorizationDocuments &&
+      requisitionId &&
+      billingErrorShownRef.current !== requisitionId
+    ) {
       billingErrorShownRef.current = requisitionId
       showAlert({
         type: 'error',
@@ -249,6 +261,7 @@ const useRequisitionsAuthorization = () => {
   }, [
     billingError,
     billingLoading,
+    loadingBillingDocuments,
     downloadingDocument,
     error,
     fetchBillingDocumentByIdRequisition,
@@ -258,6 +271,7 @@ const useRequisitionsAuthorization = () => {
     hideSpinner,
     pathname,
     requisitionId,
+    useAuthorizationDocuments,
     resetBillingFlags,
     resetFlags,
     router,
@@ -281,12 +295,22 @@ const useRequisitionsAuthorization = () => {
   }, [fetchCurrentRequisition, requisitionId, resetCurrentReq])
 
   useEffect(() => {
+    if (useAuthorizationDocuments) return
     if (!requisitionId) return
     if (billingAttemptedRef.current === requisitionId) return
 
     billingAttemptedRef.current = requisitionId
     fetchBillingDocumentByIdRequisition(requisitionId, true)
-  }, [fetchBillingDocumentByIdRequisition, requisitionId])
+  }, [fetchBillingDocumentByIdRequisition, requisitionId, useAuthorizationDocuments])
+
+  useEffect(() => {
+    if (!useAuthorizationDocuments) return
+    if (!authorizationId) return
+    if (billingAttemptedRef.current === authorizationId) return
+
+    billingAttemptedRef.current = authorizationId
+    getAuthorizationBillingDocuments(authorizationId, true)
+  }, [authorizationId, getAuthorizationBillingDocuments, useAuthorizationDocuments])
 
   useEffect(() => {
     if (!authorizationId) return
@@ -542,7 +566,10 @@ const useRequisitionsAuthorization = () => {
   ])
 
   const rows: RequisitionAuthorizationRow[] = useMemo(() => {
-    const mapped = BillingDocumentDetailsTableListMap(billingDocuments ?? [])
+    const source = useAuthorizationDocuments
+      ? authorizationBillingDocuments ?? []
+      : billingDocuments ?? []
+    const mapped = BillingDocumentDetailsTableListMap(source)
     return mapped.map((doc: BillingDocumentDetailsTable, index: number) => ({
       id: doc.billingdocument_id || `row-${index + 1}`,
       displayId: String(index + 1),
@@ -557,21 +584,21 @@ const useRequisitionsAuthorization = () => {
       others: formatCurrency(doc.otherinvoices ?? 0),
       total: formatCurrency(doc.total ?? 0),
     }))
-  }, [billingDocuments])
+  }, [authorizationBillingDocuments, billingDocuments, useAuthorizationDocuments])
 
   const columns: ColumnDefinition<RequisitionAuthorizationRow>[] = useMemo(
     () => [
-      { key: 'displayId', label: 'ID', cellClass: 'w-10', headerClass: 'w-10' },
-      { key: 'consumptionDate', label: 'FECHA CONSUMO', cellClass: 'w-28', headerClass: 'w-28' },
-      { key: 'provider', label: 'PROVEEDOR', cellClass: 'w-32', headerClass: 'w-32' },
-      { key: 'description', label: 'DESCRIPCION', cellClass: 'w-40', headerClass: 'w-40' },
-      { key: 'persons', label: 'No. PERS.', cellClass: 'w-20 text-center', headerClass: 'w-20 text-center' },
-      { key: 'nights', label: 'No. NOCHES', cellClass: 'w-20 text-center', headerClass: 'w-20 text-center' },
-      { key: 'invoice', label: 'No. FACTURA/TICKET/REMISION', cellClass: 'w-48 truncate', headerClass: 'w-48 truncate' },
-      { key: 'subtotal', label: 'SUBTOTAL', cellClass: 'w-24 text-right', headerClass: 'w-24 text-right' },
-      { key: 'iva', label: 'IVA', cellClass: 'w-20 text-right', headerClass: 'w-20 text-right' },
-      { key: 'others', label: 'OTROS IMP.', cellClass: 'w-24 text-right', headerClass: 'w-24 text-right' },
-      { key: 'total', label: 'TOTAL', cellClass: 'w-24 text-right', headerClass: 'w-24 text-right' },
+      { key: 'displayId', label: 'ID', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
+      { key: 'consumptionDate', label: 'FECHA CONSUMO', cellClass: 'w-2/15 text-center', headerClass: 'w-2/15 text-center' },
+      { key: 'provider', label: 'PROVEEDOR', cellClass: 'w-2/15 text-center', headerClass: 'w-2/15 text-center' },
+      { key: 'description', label: 'DESCRIPCION', cellClass: 'w-2/15 text-center', headerClass: 'w-2/15 text-center' },
+      { key: 'persons', label: 'No. PERS.', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
+      { key: 'nights', label: 'No. NOCHES', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
+      { key: 'invoice', label: 'No. FACTURA/TICKET/REMISION', cellClass: 'w-3/15  text-center truncate', headerClass: 'w-3/15 text-center truncate' },
+      { key: 'subtotal', label: 'SUBTOTAL', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
+      { key: 'iva', label: 'IVA', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
+      { key: 'others', label: 'OTROS IMP.', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
+      { key: 'total', label: 'TOTAL', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
     ],
     [],
   )

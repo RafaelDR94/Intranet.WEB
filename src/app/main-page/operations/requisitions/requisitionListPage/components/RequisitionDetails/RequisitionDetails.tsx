@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import RequisitionsForm from "@/app/main-page/accounting/requisitions/components/RequisitionsForm/RequisitionsForm";
 
@@ -12,8 +13,6 @@ import CollapsibleSection from "@/app/components/CollapsibleSection/CollapsibleS
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { Button } from "@/app/components/Button/Button";
-import Label from "@/app/components/Label/Label";
-import type { LabelType } from "@/app/components/Label/types";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { Select } from "@/app/components/Select/Select";
 import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
@@ -34,6 +33,9 @@ const RequisitionDetails: React.FC = () => {
   const { currentRequisition } = useRequisitionsDetails();
   const { currentPagePermissions, user } = useAuth();
   const isMobile = useIsMobile();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const shouldNotifyImageErrorRef = useRef(false);
   const { firebasestorage } = useFirebase();
@@ -89,10 +91,16 @@ const RequisitionDetails: React.FC = () => {
     shallow,
   );
 
-  const { authorizations, getAuthorizations } = useAuthorizationsStore(
+  const {
+    getAuthorizations,
+    authorizationHistory,
+    getRequisitionAuthorizationsHistory,
+  } = useAuthorizationsStore(
     (s) => ({
       authorizations: s.authorizations,
       getAuthorizations: s.getAuthorizations,
+      authorizationHistory: s.authorizationHistory,
+      getRequisitionAuthorizationsHistory: s.getRequisitionAuthorizationsHistory,
     }),
     shallow,
   );
@@ -105,6 +113,11 @@ const RequisitionDetails: React.FC = () => {
     if (!currentRequisition?.billingrequisition_id) return;
     getAuthorizations();
   }, [currentRequisition?.billingrequisition_id, getAuthorizations]);
+
+  useEffect(() => {
+    if (!currentRequisition?.billingrequisition_id) return;
+    getRequisitionAuthorizationsHistory(currentRequisition.billingrequisition_id);
+  }, [currentRequisition?.billingrequisition_id, getRequisitionAuthorizationsHistory]);
 
   useEffect(() => {
     if (!employeesError) return;
@@ -145,86 +158,40 @@ const RequisitionDetails: React.FC = () => {
     setAuthorizerPopUpOpen(true);
   }, []);
 
-  const normalizeText = (value: string) =>
-    value
-      .toLocaleLowerCase("es-MX")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-
-  const coerceStatusText = (status?: unknown): string => {
-    if (typeof status === "string") return status;
-    if (status && typeof status === "object") {
-      const s = status as { name?: string; status?: string };
-      if (typeof s.name === "string") return s.name;
-      if (typeof s.status === "string") return s.status;
+  const handleOpenHistory = useCallback(() => {
+    if (!currentRequisition?.billingrequisition_id) return;
+    const query = new URLSearchParams(searchParams.toString());
+    query.set("id", currentRequisition.billingrequisition_id);
+    if (!query.get("label")) {
+      query.set("label", "Detalle Requisicion");
     }
-    return "";
-  };
+    query.set("view", "history");
+    query.set("historyLabel", "Historial Aprobaciones");
+    router.push(`${pathname}?${query.toString()}`);
+  }, [currentRequisition?.billingrequisition_id, pathname, router, searchParams]);
 
-  const statusToLabelType = (status?: unknown): LabelType => {
-    const normalized = coerceStatusText(status).toLowerCase();
-    if (normalized.includes("aprob")) return "valido";
-    if (normalized.includes("rechaz")) return "rechazado";
-    if (normalized.includes("cancel")) return "restringido";
-    if (normalized.includes("pend")) return "pendiente";
-    return "actualizado";
-  };
 
-  const buildEmployeeName = (employee?: EmployeeType | null): string => {
-    if (!employee) return "";
-    if (employee.fullname?.trim()) return employee.fullname;
-    return [
-      employee.firstname,
-      employee.secondname,
-      employee.lastname,
-      employee.motherlast_name,
-    ]
-      .filter((part) => part && String(part).trim() !== "")
-      .join(" ");
-  };
 
-  const requisitionAuthorization = useMemo(() => {
-    const eventId = currentRequisition?.billingrequisition_id;
-    if (!eventId) return null;
 
-    const matches = (authorizations ?? []).filter(
-      (authorization) => String(authorization.event_id ?? "") === String(eventId),
-    );
-    if (!matches.length) return null;
 
-    const requisitionMatches = matches.filter((authorization) =>
-      normalizeText(authorization.kind?.name ?? "").includes("requis"),
-    );
-    const candidates = requisitionMatches.length ? requisitionMatches : matches;
-
-    const sorted = [...candidates].sort((a, b) => {
-      const aTime = new Date(a.dateCreated ?? "").getTime();
-      const bTime = new Date(b.dateCreated ?? "").getTime();
-      if (Number.isNaN(aTime) || Number.isNaN(bTime)) return 0;
-      return bTime - aTime;
-    });
-    return sorted[0] ?? null;
-  }, [authorizations, currentRequisition?.billingrequisition_id]);
 
   const hasPendingAuthorization = useMemo(
     () => (billingDocuments ?? []).some((doc) => !doc.authorization),
     [billingDocuments],
   );
 
-  const authorizerName = useMemo(() => {
-    if (!requisitionAuthorization) return "";
-    const byAuthorization = buildEmployeeName(requisitionAuthorization.authorizer);
-    if (byAuthorization) return byAuthorization;
-    const authorizerId =
-      requisitionAuthorization.authorizer?.employee_id ??
-      requisitionAuthorization.authorizer?.id ??
-      "";
-    if (!authorizerId) return "";
-    return (
-      (employees ?? []).find((employee) => employee.employee_id === authorizerId)
-        ?.fullname ?? ""
-    );
-  }, [employees, requisitionAuthorization]);
+  const allPendingAuthorizations = useMemo(() => {
+    if (!billingDocuments || billingDocuments.length === 0) return false;
+    return billingDocuments.every((doc) => !doc.authorization);
+  }, [billingDocuments]);
+
+  const hasHistory = Boolean(authorizationHistory?.length);
+
+  const shouldShowRequestButton =
+    !hasHistory || (hasPendingAuthorization && !allPendingAuthorizations);
+
+  const shouldShowHistoryButton = hasHistory;
+
 
   const handleCancelAuthorizer = useCallback(() => {
     setAuthorizerPopUpOpen(false);
@@ -265,7 +232,7 @@ const RequisitionDetails: React.FC = () => {
       if (!created) {
         throw new Error(
           useAuthorizationsStore.getState().error ||
-            "No se pudo crear la autorizacion.",
+          "No se pudo crear la autorizacion.",
         );
       }
 
@@ -333,14 +300,14 @@ const RequisitionDetails: React.FC = () => {
       }
       showImage({
         src: evidence.imageUrl,
-        alt: "Evidencia de aprobaciÃ³n",
+        alt: "Evidencia de aprobación",
       });
     } catch (error) {
       showAlert({
         type: "error",
         variant: "filled",
         title: "No se pudo cargar la evidencia",
-        description: String(error) || "OcurriÃ³ un error al obtener la evidencia.",
+        description: String(error) || "Ocurrió un error al obtener la evidencia.",
         showPrimaryButton: true,
         primaryLabel: "Entendido",
         onPrimaryClick: hideAlert,
@@ -443,7 +410,7 @@ const RequisitionDetails: React.FC = () => {
       <>
         <div className="flex w-full gap-6">
           <div className={clsx(isMobile ? "basis-3/3" : "basis-2/3")}>
-            {currentPagePermissions?.showDetails  && (
+            {currentPagePermissions?.showDetails && (
               <RequisitionsForm
                 mode="edit"
                 startDisabled
@@ -472,41 +439,21 @@ const RequisitionDetails: React.FC = () => {
             <div className="basis-1/3">
               <div>
                 {currentPagePermissions?.showBalance && (
-                <PerDiemBalanceCard
-                  startDate={currentRequisition.assignmentdate}
-                  endDate={currentRequisition.endDate}
-                  requestedAmount={Number(currentRequisition.amountdeposited)}
-                  verifiedAmount={Number(currentRequisition.provenamount)}
-                  bodyClassName="flex justify-between"
-                  donutSize={130}
-                  cardClassName="!py-[18px]"
-                />
-              )}
+                  <PerDiemBalanceCard
+                    startDate={currentRequisition.assignmentdate}
+                    endDate={currentRequisition.endDate}
+                    requestedAmount={Number(currentRequisition.amountdeposited)}
+                    verifiedAmount={Number(currentRequisition.provenamount)}
+                    bodyClassName="flex justify-between"
+                    donutSize={130}
+                    cardClassName="!py-[18px]"
+                  />
+                )}
               </div>
               <div>
                 <div className="w-full rounded-lg bg-white-70 p-6 shadow-md h-auto mt-3">
-                  <p className="text-label text-gray-70 mb-1">Aprobación</p>
-                  {requisitionAuthorization ? (
-                    <div className="mb-3 bg-white p-3">
-                      <p className="text-label text-gray-70">Autorizador</p>
-                      <p className="text-b4 text-gray-100">
-                        {authorizerName || "Sin autorizador"}
-                      </p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="text-label text-gray-70">Estatus</span>
-                        <Label
-                          type={statusToLabelType(
-                            requisitionAuthorization.status ?? "Pendiente",
-                          )}
-                          text={
-                            coerceStatusText(
-                              requisitionAuthorization.status ?? "Pendiente",
-                            ) || "Pendiente"
-                          }
-                        />
-                      </div>
-                    </div>
-                  ) : null}
+                  <p className="text-label text-gray-70 mb-1">Solicitar aprobación de las facturas generadas en
+                    el balance de viáticos.</p>
                   {requisitionImage?.imageUrl ? (
                     <Button onClick={handleViewEvidence}>
                       Ver evidencia
@@ -521,9 +468,24 @@ const RequisitionDetails: React.FC = () => {
                         onChange={handleFileChange}
                       />
                       <div className="flex flex-wrap items-center gap-2">
-                        {hasPendingAuthorization ? (
-                          <Button variant="outline" onClick={handleOpenAuthorizer}>
+                        {shouldShowRequestButton ? (
+                          <Button variant="solid" className={clsx(
+                            "border-teal-70 text-teal-70",
+                            !shouldShowHistoryButton && "w-full justify-center",
+                          )} onClick={handleOpenAuthorizer}>
                             Solicitar autorizacion
+                          </Button>
+                        ) : null}
+                        {shouldShowHistoryButton ? (
+                          <Button
+                            variant="outline"
+                            className={clsx(
+                              "border-teal-70 text-teal-70",
+                              !shouldShowRequestButton && "w-full justify-center",
+                            )}
+                            onClick={handleOpenHistory}
+                          >
+                            Historial
                           </Button>
                         ) : null}
                       </div>

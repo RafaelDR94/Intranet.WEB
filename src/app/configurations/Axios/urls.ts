@@ -19,6 +19,12 @@ export const AuthorizationReject =
   process.env.NEXT_PUBLIC_AUTHORIZATION_REJECT ?? "/Auth/AuthorizationReject";
 export const AuthorizationChangeAuthorizer =
   process.env.NEXT_PUBLIC_AUTHORIZATION_CHANGE_AUTHORIZER ?? "/Auth/changeAuthorizer";
+export const AuthorizationRequisitionHistory =
+  process.env.NEXT_PUBLIC_AUTH_REQUISITION_AUTHORIZATIONS_HISTORY ??
+  "/Auth/RequisitionAuthorizationsHistory";
+export const AuthorizationBillingDocuments =
+  process.env.NEXT_PUBLIC_AUTHORIZATION_BILLING_DOCUMENTS ??
+  "/Auth/AuthorizationBillingDocuments";
 
 export const Enterprises = process.env.NEXT_PUBLIC_ENTERPRISES ?? "/Enterprises";
 export const EnterprisesExternal = process.env.NEXT_PUBLIC_ENTERPRISESEXTERNAL ?? "/Enterprises/External";

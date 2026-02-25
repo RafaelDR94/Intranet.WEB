@@ -215,6 +215,10 @@ const RequisitionsAuthorization = () => {
           },
         ]}
       />
+      {/*
+        Tabla alternativa (se mantiene comentada por si se decide usarla nuevamente).
+        <RequisitionsDetailsTable requisitionIdOverride={requisitionId ?? undefined} />
+      */}
 
       <SignaturePopUp
         open={signatureOpen}
