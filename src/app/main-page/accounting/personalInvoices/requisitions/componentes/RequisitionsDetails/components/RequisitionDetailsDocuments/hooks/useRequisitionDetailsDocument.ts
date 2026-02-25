@@ -18,11 +18,11 @@ import { useAuth } from '@/app/context/AuthContext/AuthContext'
  * Hook para cargar y exponer los documentos de facturas asociados a una requisición.
  * Toma el `id` de la requisición desde los query params y realiza el fetch en el store.
  */
-const useRequisitionDetailsDocument = () => {
+const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
   const { usePrincipalAlert } = usePrincipal();
   const { showAlert } = usePrincipalAlert
   const searchParams = useSearchParams()
-  const requisitionId = searchParams.get('id') ?? undefined
+  const requisitionId = overrideRequisitionId ?? searchParams.get('id') ?? undefined
   const [panelOpen, setPanelOpen] = useState(false)
   const [selected, setSelected] = useState<BillingDocuments | null>(null)
   const [documentImages, setDocumentImages] = useState<Record<string, string>>({})

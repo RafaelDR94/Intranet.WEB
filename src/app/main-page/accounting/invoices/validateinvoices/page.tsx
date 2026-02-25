@@ -32,7 +32,7 @@ const ValidateInvoices = () => {
   } = useValidateInvoices();
 
   const isMobile = useIsMobile();
-  const {currentPagePermissions} = useAuth();
+  const { currentPagePermissions } = useAuth();
   const columnasDesktop: ColumnDefinition<BillingDocuments>[] = [
     {
       key: "xml",
@@ -59,18 +59,22 @@ const ValidateInvoices = () => {
           icon={PDFIcon}
         />
       ),
-      cellClass: "w-12 text-center",
-      headerClass: "w-12 text-center",
+      cellClass: "w-1/12 text-center",
+      headerClass: "w-1/12 text-center",
     },
     // rfc_emisor es boolean según BillingDocuments
     {
       key: "rfc_emisor",
       label: "RFC EMISOR",
+      cellClass: "w-2/12 truncate text-center",
+      headerClass: "w-2/12 truncate text-center",
     },
     // conceptos es un arreglo; mostramos las claves SAT concatenadas
     {
       key: "conceptos",
       label: "CLAVE SAT",
+      cellClass: "w-2/12 truncate text-center",
+      headerClass: "w-2/12 truncate text-center",
       render: (row) =>
         row.conceptos?.length
           ? row.conceptos
@@ -79,20 +83,24 @@ const ValidateInvoices = () => {
             .join(", ")
           : "—",
     },
-    { key: "uuid", label: "UUID" },
+    { key: "uuid", label: "UUID", cellClass: "w-3/12 truncate text-center", headerClass: "w-3/12 truncate text-center " },
     {
       key: "fecha",
       label: "FECHA",
+      cellClass: "w-2/12 truncate text-right",
+      headerClass: "w-2/12 truncate text-right",
     },
     {
       key: "total",
       label: "IMPORTE",
-      cellClass: "text-right",
-      headerClass: "text-right",
+      cellClass: "w-1/12 truncate text-right",
+      headerClass: "w-1/12 truncate text-right",
     },
     {
       // columna de acciones: tipamos la key para satisfacer keyof<BillingDocuments>
       key: "acciones" as unknown as keyof BillingDocuments,
+      cellClass: "w-1/12 truncate text-right",
+      headerClass: "w-1/12 truncate text-right",
       headerRender: () => <span className="text-lg">⋯</span>,
       render: (row) => (
         <>
@@ -107,8 +115,6 @@ const ValidateInvoices = () => {
         </>
 
       ),
-      cellClass: "w-28 text-right",
-      headerClass: "w-28 text-right",
     },
   ];
 
@@ -118,6 +124,7 @@ const ValidateInvoices = () => {
     {
       key: "rfc_emisor",
       label: "RFC EMISOR",
+      cellClass: "truncate",
     },
     {
       // columna de acciones: tipamos la key para satisfacer keyof<BillingDocuments>

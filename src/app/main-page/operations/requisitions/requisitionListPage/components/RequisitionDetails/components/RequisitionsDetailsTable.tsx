@@ -21,7 +21,13 @@ import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
  * Tabla de comprobantes asociados a una requisición. Permite descargar el
  * reporte y ver detalles individuales de cada documento.
  */
-const RequisitionDetailsTable: React.FC = () => {
+type RequisitionDetailsTableProps = {
+  requisitionIdOverride?: string;
+};
+
+const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
+  requisitionIdOverride,
+}) => {
   const { currentPagePermissions } = useAuth();
 
   const {
@@ -34,7 +40,7 @@ const RequisitionDetailsTable: React.FC = () => {
     requisitionId,
     loading,
     downloadingDocument, // NEW: lo traemos del hook
-  } = useRequisitionDetailsDocument();
+  } = useRequisitionDetailsDocument(requisitionIdOverride);
   const isMobile = useIsMobile();
   // const router = useRouter();
   // const searchParams = useSearchParams();
