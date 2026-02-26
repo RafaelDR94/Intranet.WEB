@@ -52,7 +52,6 @@ export const DataTableBody = <T extends { id: string | number }>({
   enableSelection,
   selected,
   disableSelection,
-  selectionMode,
   onToggleSelect,
   textSize,
 }: DataTableBodyProps<T>) => {
@@ -61,7 +60,6 @@ export const DataTableBody = <T extends { id: string | number }>({
     () => new Set(selected.map((item) => String(item.id))),
     [selected],
   );
-  const isSingleSelection = selectionMode === "single";
 
   const mobileText = DataTableBodyStyles.tableTextMobile(textSize?.mobile);
   const tabletText = DataTableBodyStyles.tableTextTablet(textSize?.tablet);
@@ -80,10 +78,10 @@ export const DataTableBody = <T extends { id: string | number }>({
               <div className={DataTableBodyStyles.checkBoxContainer}>
                 <Checkbox
                   checked={isSelected}
-                  disabled={Boolean(disableSelection || (isSingleSelection && selectedIds.size > 0 && !isSelected))}
+                  disabled={Boolean(disableSelection)}
                   onChange={() => {
-                    if (disableSelection || (isSingleSelection && selectedIds.size > 0 && !isSelected)) return;
-                    else onToggleSelect(row);
+                    if (disableSelection) return;
+                    onToggleSelect(row);
                   }}
                 />
               </div>

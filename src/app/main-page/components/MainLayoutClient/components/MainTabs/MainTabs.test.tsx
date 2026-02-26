@@ -5,6 +5,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // Static assets
 vi.mock('@/assets/icons/acciones/menu.svg', () => ({ default: () => <svg data-testid="menu" /> }));
 vi.mock('@/assets/icons/Comunicacion/bell.svg', () => ({ default: () => <svg data-testid="bell" /> }));
+vi.mock('@/assets/icons/Comunicacion/bell-notification.svg', () => ({ default: () => <svg data-testid="bell-notification" /> }));
+vi.mock('../Notification/Notification', () => ({ __esModule: true, default: () => <div>Notification</div> }));
 vi.mock('@/app/components/PersonalAvatar/PersonalAvatar', () => ({ default: () => <div>Avatar</div> }));
 
 // Next mocks

@@ -59,6 +59,7 @@ const useFirebaseMessagingHelper = (messaging: Messaging | null): FirebaseMessag
       return;
     }
     onMessageReceived((payload) => {
+      console.log("payload", payload );
       setNotification(payload);
     });
   }, [messaging, onMessageReceived]);  

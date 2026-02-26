@@ -1,14 +1,15 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { shallow } from 'zustand/shallow'
 
 import type { BillingDocumentRequisition, Requisition } from '@/app/mappings/requisitions/requisitions.types'
-import { useBillingRequisitionWithEmployeesStore } from '@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore'
+import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
 
 type UseRequisitionDocumentsResult = {
   requisitionId?: string
+  employeeId?: string
   requisition?: Requisition
   requisitions: Requisition[]
   documents: BillingDocumentRequisition[]
@@ -21,47 +22,63 @@ type UseRequisitionDocumentsResult = {
 export const useRequisitionDocuments = (): UseRequisitionDocumentsResult => {
   const searchParams = useSearchParams()
   const requisitionId = searchParams.get('id') ?? undefined
+  const employeeIdParam = searchParams.get('idEmployee') ?? undefined
+  const fetchedEmployeeIdRef = useRef<string | null>(null)
+  const fetchedRequisitionIdRef = useRef<string | null>(null)
+  const fetchedEmployeeFromRequisitionRef = useRef<string | null>(null)
 
   const {
     requisitions,
-    fetchRequisitionsWithEmployees,
-    loading,
-  } = useBillingRequisitionWithEmployeesStore(
+    currentRequisition,
+    fetchCurrentRequisition,
+    fetchRequisitionsByIdEmployee,
+  } = useRequisitionsStore(
     (state) => ({
       requisitions: state.requisitions,
-      fetchRequisitionsWithEmployees: state.fetchRequisitionsWithEmployees,
-      loading: state.loading,
+      currentRequisition: state.currentRequisition,
+      fetchCurrentRequisition: state.fetchCurrentRequisition,
+      fetchRequisitionsByIdEmployee: state.fetchRequisitionsByIdEmployee,
     }),
     shallow,
   )
 
   useEffect(() => {
-    if (!requisitionId || loading) return
+    if (!employeeIdParam) return
+    if (fetchedEmployeeIdRef.current === employeeIdParam) return
+    fetchedEmployeeIdRef.current = employeeIdParam
+    fetchRequisitionsByIdEmployee(employeeIdParam, true)
+  }, [employeeIdParam, fetchRequisitionsByIdEmployee])
 
-    const hasRequisition = requisitions.some(
-      (item) => item.billingrequisition_id === requisitionId,
-    )
+  useEffect(() => {
+    if (employeeIdParam || !requisitionId) return
+    if (fetchedRequisitionIdRef.current === requisitionId) return
+    fetchedRequisitionIdRef.current = requisitionId
+    fetchCurrentRequisition(requisitionId, true)
+  }, [employeeIdParam, fetchCurrentRequisition, requisitionId])
 
-    if (!hasRequisition) {
-      fetchRequisitionsWithEmployees(undefined, undefined, true)
-    }
+  useEffect(() => {
+    if (employeeIdParam || !currentRequisition?.id_Employee) return
+    if (fetchedEmployeeFromRequisitionRef.current === currentRequisition.id_Employee) return
+    fetchedEmployeeFromRequisitionRef.current = currentRequisition.id_Employee
+    fetchRequisitionsByIdEmployee(currentRequisition.id_Employee, true)
   }, [
-    requisitionId,
-    loading,
-    requisitions,
-    fetchRequisitionsWithEmployees,
+    currentRequisition?.id_Employee,
+    employeeIdParam,
+    fetchRequisitionsByIdEmployee,
   ])
 
   const requisition = useMemo(
     () =>
+      currentRequisition ??
       requisitions.find(
         (item) => item.billingrequisition_id === requisitionId,
       ),
-    [requisitionId, requisitions],
+    [currentRequisition, requisitionId, requisitions],
   )
 
   return {
     requisitionId,
+    employeeId: employeeIdParam ?? requisition?.id_Employee ?? currentRequisition?.id_Employee,
     requisition,
     requisitions,
     documents: requisition?.billingDocumentRquisition ?? [],

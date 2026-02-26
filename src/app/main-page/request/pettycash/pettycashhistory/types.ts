@@ -59,6 +59,9 @@ export type PettyCashHistoryRow = {
   /** Fecha cruda utilizada para filtros de rango. */
   dateValue?: string;
 
+  /** Timestamp para ordenar por fecha. */
+  dateSort?: number;
+
   /** Total del vale. */
   total: number;
 

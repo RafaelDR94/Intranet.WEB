@@ -6,6 +6,7 @@ import React, { ReactNode } from "react";
 import MainSidebar from "./components/MainSidebar/MainSidebar";
 import MainTabs from "./components/MainTabs/MainTabs";
 import MobileSidebar from "./components/MobileSidebar/MobileSidebar";
+import Notification from "./components/Notification/Notification";
 import useMainPage from "./hooks/useMainPage";
 import { mainLayoutStyles } from "./styles";
 
@@ -55,6 +56,9 @@ export default function MainLayoutClient({
     handleAlertClose,
     sidebarRoutes,
     usePrincipalImage,
+    pendingNotifications,
+    handleOpenPending,
+    handleRemovePending,
   } = useMainPage();
 
   const { usePrincipalLoading } = usePrincipal();
@@ -74,6 +78,9 @@ export default function MainLayoutClient({
 
   // NEW: estado del drawer mobile
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const hasPendingNotifications = pendingNotifications.length > 0;
+  const showNotificationAlert = alert?.type === "notification";
+  const hasNotification = hasPendingNotifications || showNotificationAlert;
 
   // Props compartidas para ambos sidebars
   const sidebarSharedProps = {
@@ -95,14 +102,26 @@ export default function MainLayoutClient({
         <div className={mainLayoutStyles.container}>
           {alert && (
             <div className={mainLayoutStyles.alertContainer}>
-              <Alert
-                {...alert}
-                onClose={handleAlertClose}
-                closeOnClick
-                onPrimaryClick={alert.onPrimaryClick ?? handleAlertClose}
-                onSecondaryClick={alert.onSecondaryClick ?? handleAlertClose}
-                variant="subtle"
-              />
+              {showNotificationAlert ? (
+                <Notification
+                  title={alert.title}
+                  description={alert.description}
+                  createdAt={alert.createdAt}
+                  avatarSrc={alert.avatarSrc}
+                  actionLabel={alert.primaryLabel ?? "Ir a evento"}
+                  onAction={alert.onPrimaryClick}
+                  onClose={handleAlertClose}
+                />
+              ) : (
+                <Alert
+                  {...alert}
+                  onClose={handleAlertClose}
+                  closeOnClick
+                  onPrimaryClick={alert.onPrimaryClick ?? handleAlertClose}
+                  onSecondaryClick={alert.onSecondaryClick ?? handleAlertClose}
+                  variant="subtle"
+                />
+              )}
             </div>
           )}
 
@@ -146,6 +165,10 @@ export default function MainLayoutClient({
               tabs={tabs}
               pathname={pathname}
               validPermissionsbyroute={validPermissionsbyroute}
+              hasNotification={hasNotification}
+              pendingNotifications={pendingNotifications}
+              onOpenPending={handleOpenPending}
+              onDismissPending={handleRemovePending}
               onOpenMobileMenu={() => setMobileOpen(true)} // << abre el drawer
             />
             <main className={mainLayoutStyles.main}>{offlineLoggin&&!getOfflineModeSuport(pathname)?"El modo offline no tiene soporte en este módulo":children}</main>

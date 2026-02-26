@@ -1,3 +1,4 @@
+import { mapAuthorization } from '../authorizations/authorizations.mapper';
 import {
   PettyCashFundData,
   PettyCashVoucherData,
@@ -79,7 +80,7 @@ export const PettyCashVoucherMap = (raw: any): PettyCashVoucherData => ({
       raw?.petty_cash_funds?.dateCreated ??
       raw?.date_created_fund
   ),
-
+  authorization: mapAuthorization(raw?.authorization),
   // Campos adicionales expuestos en algunas respuestas del endpoint general
   employeename: toString(raw?.employeename ?? raw?.employee_name),
   provider: toString(
@@ -95,6 +96,7 @@ export const PettyCashVoucherMap = (raw: any): PettyCashVoucherData => ({
   iva: toNumber(raw?.iva),
   total: toNumber(raw?.total ?? raw?.amount),
   status: toString(raw?.status),
+  
 });
 
 export const PettyCashVouchersMap = (list: any[]): PettyCashVoucherData[] =>
@@ -150,6 +152,7 @@ export const PettyCashVoucherFullMap = (raw: any): PettyCashVoucherFull => ({
   conceptos: Array.isArray(raw?.conceptos)
     ? raw.conceptos.map(PettyCashVoucherConceptMap)
     : [],
+  authorization: mapAuthorization(raw?.authorization),
 });
 
 export const PettyCashVoucherFullsMap = (list: any[]): PettyCashVoucherFull[] =>

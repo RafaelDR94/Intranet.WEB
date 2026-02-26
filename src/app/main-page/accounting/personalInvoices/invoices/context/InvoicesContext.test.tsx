@@ -5,7 +5,10 @@ import { describe, it, expect, vi } from 'vitest';
 import { InvoicesProvider, useInvoices } from './InvoicesContext';
 
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({ useAuth: () => ({ user: null, currentPagePermissions: {} }) }));
-vi.mock('next/navigation', () => ({ usePathname: () => '/' }));
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+  useSearchParams: () => ({ get: () => null }),
+}));
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({ usePrincipal: () => ({ usePrincipalAlert: { showAlert: vi.fn(), hideAlert: vi.fn() } }) }));
 vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
   useRequisitionsStore: (sel: any) =>

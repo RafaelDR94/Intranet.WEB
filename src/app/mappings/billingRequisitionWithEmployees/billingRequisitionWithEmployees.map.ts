@@ -1,4 +1,4 @@
-import { RequisitionMap } from '@/app/mappings/requisitions/requisitions.mapp'
+import { BenefitMap } from '@/app/mappings/requisitions/requisitions.mapp'
 import type { BillingRequisitionWithEmployees } from './billingRequisitionWithEmployees.types'
 
 /**
@@ -6,7 +6,7 @@ import type { BillingRequisitionWithEmployees } from './billingRequisitionWithEm
  */
 export const BillingRequisitionWithEmployeesMap = (
   raw: unknown,
-): BillingRequisitionWithEmployees => RequisitionMap(raw)
+): BillingRequisitionWithEmployees => BenefitMap(raw)
 
 /**
  * Mapea una colección cruda a una lista tipada de requisiciones con empleados.

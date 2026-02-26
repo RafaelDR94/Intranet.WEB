@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/app/components/Button/Button";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
@@ -9,11 +10,12 @@ import DownloadIcon from "@/assets/icons/acciones/download.svg";
 
 import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
+import { useBillingRequisitionWithEmployeesStore } from "@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore";
 import type { BillingImages } from "@/app/mappings/billingimages/billingimages.types";
 import { shallow } from "zustand/shallow";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 
-type TicketRow = {
+export type TicketRow = {
   id: string;
   date: string;
   category: string;
@@ -34,11 +36,10 @@ const normalizeImages = (images: BillingImages["images"] | { image?: string }[])
   return [];
 };
 
-const mapTickets = (images: BillingImages[], requisitionId?: string): TicketRow[] =>
+const mapTickets = (images: BillingImages[]): TicketRow[] =>
   images
-    .filter((item) => (requisitionId ? item?.requisition?.billingrequisition_id === requisitionId : true))
     .map((item) => ({
-      id: item.billing_image_id,
+      id: item.billing_image_id || item.images?.[0]?.image || "",
       date: item.dateCreate,
       category: item.category?.name ?? "",
       detail: item.description?.name ?? "",
@@ -47,7 +48,7 @@ const mapTickets = (images: BillingImages[], requisitionId?: string): TicketRow[
       imageUrls: normalizeImages(item.images),
       source: item,
     }))
-    .filter((item) => item.imageUrls.length > 0);
+  
 
 const statusToType = (status?: string): LabelType => {
   const normalized = (status ?? "").toLowerCase();
@@ -64,7 +65,9 @@ const useTicketsFiles = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
-  const { requisitionId } = useRequisitionDocuments();
+  const searchParams = useSearchParams();
+  const isBillableFilesView = searchParams.get("view") === "billablefiles";
+  const {  employeeId } = useRequisitionDocuments();
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [previewIndex, setPreviewIndex] = useState<number>(0);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -73,13 +76,14 @@ const useTicketsFiles = () => {
     state: boolean;
     row: TicketRow | null;
   }>({ state: false, row: null });
-  const { billingImages, fetchBillingImages } = useBillingImagesStore(
-    (state) => ({
-      billingImages: state.billingImages,
-      fetchBillingImages: state.fetchBillingImages,
-    }),
-    shallow,
-  );
+  const { pendingBillingImages, fetchBillingImagesPendingByEmployee } =
+    useBillingRequisitionWithEmployeesStore(
+      (state) => ({
+        pendingBillingImages: state.pendingBillingImages,
+        fetchBillingImagesPendingByEmployee: state.fetchBillingImagesPendingByEmployee,
+      }),
+      shallow,
+    );
   const { rejectBillingImage, rejecting, succesReject, error, resetFlags } =
     useBillingImagesStore(
       (state) => ({
@@ -91,10 +95,28 @@ const useTicketsFiles = () => {
       }),
       shallow,
     );
+  const { billingImages, fetchBillingImages } = useBillingImagesStore(
+    (state) => ({
+      billingImages: state.billingImages,
+      fetchBillingImages: state.fetchBillingImages,
+    }),
+    shallow,
+  );
 
   useEffect(() => {
-    fetchBillingImages(true);
-  }, [fetchBillingImages]);
+    if (isBillableFilesView) {
+      if (!employeeId) return;
+      fetchBillingImages(employeeId, true);
+      return;
+    }
+    if (!employeeId) return;
+    fetchBillingImagesPendingByEmployee(employeeId, true);
+  }, [
+    employeeId,
+    fetchBillingImages,
+    fetchBillingImagesPendingByEmployee,
+    isBillableFilesView,
+  ]);
 
   useEffect(() => {
     if (rejecting) {
@@ -130,10 +152,13 @@ const useTicketsFiles = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error, rejecting]);
 
-  const rows = useMemo(
-    () => mapTickets(billingImages, requisitionId),
-    [billingImages, requisitionId],
-  );
+  const rows = useMemo(() => {
+    const sourceImages = isBillableFilesView ? billingImages : pendingBillingImages;
+    console.log("sourceImages", sourceImages);
+    const newrows= mapTickets(sourceImages);
+    console.log("rows", newrows);
+    return newrows;
+  }, [pendingBillingImages, billingImages]);
 
   const openPreview = useCallback((images: string[], index = 0) => {
     setPreviewImages(images);
@@ -262,24 +287,7 @@ const useTicketsFiles = () => {
     setOpenRejectTicket,
     handleSubmitReject,
     rejecting,
-    toBillingImagesTable: (row: TicketRow) => ({
-      id: row.source.billing_image_id,
-      billing_image_id: row.source.billing_image_id,
-      deudor: row.source.requisition?.employeename ?? "",
-      proyect: row.source.requisition?.projectname ?? "",
-      images: row.source.images,
-      Image: row.source.images?.[0] ?? "",
-      comments: row.source.comments ?? "",
-      dateCreate: row.source.dateCreate,
-      requisition_id: row.source.requisition?.billingrequisition_id ?? "",
-      category: row.source.category,
-      description: row.source.description,
-      numpersons: row.source.numpersons,
-      numnights: row.source.numnights,
-      requisitionkey: row.source.requisition?.requisitionkey ?? "",
-      categoryName: row.source.category?.name ?? "",
-      descriptionName: row.source.description?.name ?? "",
-    }),
+
   };
 };
 

@@ -11,6 +11,7 @@ import type { BillingImages } from '@/app/mappings/billingimages/billingimages.t
 import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore'
 import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 
 
 /**
@@ -48,6 +49,7 @@ const useRequisitionDetailsDocument = () => {
     }),
     shallow
   )
+  const { user } = useAuth()
 
   const {
     downloadingDocument,
@@ -109,8 +111,9 @@ const useRequisitionDetailsDocument = () => {
   }, [requisitionId, fetchBillingDocumentByIdRequisition])
 
   useEffect(() => {
-    fetchBillingImages()
-  }, [fetchBillingImages])
+    if (!user?.idEmployee) return
+    fetchBillingImages(user.idEmployee)
+  }, [fetchBillingImages, user?.idEmployee])
 
   useEffect(() => {
     if (!selected) return
@@ -145,8 +148,10 @@ const useRequisitionDetailsDocument = () => {
   }, [fetchBillingImageById, selected])
 
   const normalizeImages = (images: BillingImages["images"]): string[] => {
-    if (Array.isArray(images)) return images.filter((item) => Boolean(item))
-    return []
+    if (!Array.isArray(images)) return []
+    return images
+      .map((item) => (typeof item === 'string' ? item : item?.image ?? ''))
+      .filter((item) => Boolean(item))
   }
 
   const mapTicketsToRows = (
@@ -178,6 +183,7 @@ const useRequisitionDetailsDocument = () => {
           xmlUrl: undefined,
           pdfUrl: undefined,
           imageUrl: imageUrls[0],
+          authorization: null,
         }
       })
 
@@ -233,6 +239,7 @@ const useRequisitionDetailsDocument = () => {
     otherinvoices: 0,
     category: image.category,
     validatedbyoperations: false,
+    authorization: null,
   })
 
   const handleOpenDetails = (row: BillingDocumentDetailsTable) => {

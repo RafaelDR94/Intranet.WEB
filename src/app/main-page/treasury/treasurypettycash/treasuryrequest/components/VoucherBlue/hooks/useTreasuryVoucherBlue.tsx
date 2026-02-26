@@ -1,8 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
-
 
 import {
   computeLoadingFormInfo,
@@ -12,6 +11,7 @@ import {
 } from "../utilities/treasuryVoucherBlue";
 
 import type { FieldModel } from "@/app/components/DynamicForm/types";
+import type { SelectOption } from "@/app/components/Select/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { SubmitFn } from "@/app/main-page/accounting/requisitions/requisitions/components/ExcelLoader/hooks/types";
@@ -20,22 +20,36 @@ import {
   UseVoucherFormReturn,
 } from "@/app/main-page/request/pettycash/pettycashrequest/components/VoucherBlue/hooks/types";
 import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type { PostAuthorization } from "@/app/mappings/authorizations/authorizations.types";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
+import { useAuthorizationsStore } from "@/app/stores/useAuthorizationsStore/useAuthorizationsStore";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
 
 /**
- * Hook de lógica para el formulario azul de Tesorería.
- * Maneja catálogos, envío y selección de empleados.
+ * Hook de logica para el formulario azul de Tesoreria.
+ * Maneja catalogos, envio y seleccion de empleados.
  */
+
+type TreasuryVoucherFormReturn = UseVoucherFormReturn & {
+  authorizerOptions: SelectOption[];
+  authorizerSelected: string;
+  setAuthorizerSelected: (value: string) => void;
+  authorizerPopUpOpen: boolean;
+  setAuthorizerPopUpOpen: (value: boolean) => void;
+  authorizerError: string | null;
+  handleAuthorizerConfirm: () => void;
+  handleAuthorizerCancel: () => void;
+};
+
 export const useTreasuryVoucherBlue = ({
   mode,
   dataEdit,
   startDisabled,
-}: UseVoucherFormProps): UseVoucherFormReturn => {
+}: UseVoucherFormProps): TreasuryVoucherFormReturn => {
   const formId = `treasury-petty-cash-voucher-blue-form-${mode}`;
   const isEdit = mode === "edit";
   const { currentPagePermissions, user } = useAuth();
@@ -46,6 +60,10 @@ export const useTreasuryVoucherBlue = ({
   const submitRef = useRef<SubmitFn | null>(null);
   const [formReady, setFormReady] = useState(false);
   const [disableForm, setDisableForm] = useState(startDisabled);
+  const [authorizerPopUpOpen, setAuthorizerPopUpOpen] = useState(false);
+  const [authorizerSelected, setAuthorizerSelected] = useState("");
+  const [authorizerError, setAuthorizerError] = useState<string | null>(null);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
 
   const emptyRef = useRef<FieldModel[]>([]);
   const fields = useFormFieldsStore(
@@ -177,6 +195,13 @@ export const useTreasuryVoucherBlue = ({
     shallow,
   );
 
+  const { createAuthorization } = useAuthorizationsStore(
+    (state) => ({
+      createAuthorization: state.createAuthorization,
+    }),
+    shallow,
+  );
+
   useEffect(() => {
     fetchPettyCashFunds();
   }, [fetchPettyCashFunds]);
@@ -283,7 +308,7 @@ export const useTreasuryVoucherBlue = ({
   useEffect(() => {
     if (opRunning) {
       showSpinner({
-        message: "Espera un momento, tu información se está guardando",
+        message: "Espera un momento, tu informacion se esta guardando",
       });
       return;
     }
@@ -309,7 +334,7 @@ export const useTreasuryVoucherBlue = ({
       description:
         mode === "create"
           ? "Tu vale se ha enviado exitosamente."
-          : "Tu vale se actualizó exitosamente.",
+          : "Tu vale se actualizo exitosamente.",
       autoCloseMs: 1500,
       showPrimaryButton: false,
       showSecondaryButton: false,
@@ -340,7 +365,7 @@ export const useTreasuryVoucherBlue = ({
         mode === "create"
           ? "No se pudo crear el vale"
           : "No se pudo actualizar el vale",
-      description: opError || "Ocurrió un error. Intenta de nuevo.",
+      description: opError || "Ocurrio un error. Intenta de nuevo.",
       showPrimaryButton: true,
       primaryLabel: "Entendido",
       onPrimaryClick: () => {
@@ -357,10 +382,37 @@ export const useTreasuryVoucherBlue = ({
     });
   }, [opError, mode, showAlert, hideAlert, resetFlags]);
 
+  const authorizerOptions = useMemo<SelectOption[]>(
+    () =>
+      (employees ?? []).map((employee) => ({
+        label: employee.fullname,
+        value: employee.employee_id,
+      })),
+    [employees],
+  );
+
+  useEffect(() => {
+    if (authorizerSelected) return;
+    if (!authorizerOptions.length) return;
+    setAuthorizerSelected(authorizerOptions[0].value);
+  }, [authorizerOptions, authorizerSelected]);
+
+  useEffect(() => {
+    if (authorizerSelected && authorizerError) {
+      setAuthorizerError(null);
+    }
+  }, [authorizerError, authorizerSelected]);
+
   const handleSubmit = useCallback(
     async (values: Record<string, any>) => {
       setOpRunning(true);
       try {
+        if (!isEdit && !authorizerSelected) {
+          setOpRunning(false);
+          setAuthorizerError("Selecciona un autorizador.");
+          return;
+        }
+
         const employeeId = String(values.personName ?? "");
 
         const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
@@ -378,14 +430,48 @@ export const useTreasuryVoucherBlue = ({
             ? await updatePettyCashVoucher({ ...payload, id: dataEdit.id })
             : await createPettyCashVoucher(payload);
 
-        setOpRunning(false);
         if (res) {
+          if (!isEdit) {
+            const applicant = employees?.find(
+              (employee) => employee.employee_id === employeeId,
+            );
+            const authPayload: PostAuthorization = {
+              authorization_id: "",
+              applicant_id: employeeId,
+              authorizer_id: authorizerSelected,
+              enterprise_id:
+                applicant?.department?.enterprise_id ??
+                user?.idEnterprise ??
+                "",
+              department_id:
+                applicant?.department?.department_id ??
+                user?.idDepartment ??
+                "",
+              kind: "Vale azul",
+              proyect_id: payload.project_id,
+              event_id: res.id,
+            };
+
+            const createdAuthorization = await createAuthorization(authPayload);
+            if (!createdAuthorization) {
+              setOpRunning(false);
+              setOpError(
+                useAuthorizationsStore.getState().error ||
+                  "No se pudo crear la autorizacion.",
+              );
+              return;
+            }
+          }
+
+          setOpRunning(false);
           setOpSuccess(true);
           return;
         }
+
+        setOpRunning(false);
         setOpError(
           useBillingPettyCash.getState().error ||
-            "Ocurrió un error. Intenta de nuevo.",
+            "Ocurrio un error. Intenta de nuevo.",
         );
       } catch (err) {
         setOpRunning(false);
@@ -400,8 +486,35 @@ export const useTreasuryVoucherBlue = ({
       pettyCashFunds,
       createPettyCashVoucher,
       updatePettyCashVoucher,
+      authorizerSelected,
+      isEdit,
+      employees,
+      user?.idEnterprise,
+      user?.idDepartment,
+      createAuthorization,
     ],
   );
+
+  const handleAuthorizerConfirm = useCallback(() => {
+    if (!authorizerSelected) {
+      setAuthorizerError("Selecciona un autorizador.");
+      return;
+    }
+    setAuthorizerError(null);
+    setAuthorizerPopUpOpen(false);
+    setPendingSubmit(true);
+  }, [authorizerSelected]);
+
+  const handleAuthorizerCancel = useCallback(() => {
+    setAuthorizerPopUpOpen(false);
+    setAuthorizerError(null);
+  }, []);
+
+  useEffect(() => {
+    if (!pendingSubmit) return;
+    setPendingSubmit(false);
+    submitRef.current?.();
+  }, [pendingSubmit]);
 
   return {
     fields,
@@ -410,10 +523,24 @@ export const useTreasuryVoucherBlue = ({
     setFormReady,
     submitRef,
     handleSubmit,
-    onSubmit: () => submitRef.current?.(),
+    onSubmit: () => {
+      if (isEdit) {
+        submitRef.current?.();
+        return;
+      }
+      setAuthorizerPopUpOpen(true);
+    },
     buttonDisabled: !formReady,
     currentPagePermissions,
     disableForm,
     setDisableForm,
+    authorizerOptions,
+    authorizerSelected,
+    setAuthorizerSelected,
+    authorizerPopUpOpen,
+    setAuthorizerPopUpOpen,
+    authorizerError,
+    handleAuthorizerConfirm,
+    handleAuthorizerCancel,
   };
 };

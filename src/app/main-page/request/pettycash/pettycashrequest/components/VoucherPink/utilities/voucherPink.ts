@@ -65,13 +65,6 @@ export const buildPettyCashVoucherPayload = ({
 
   const xmlValue = values.xml as { url: string } | undefined;
   const pdfValue = values.pdf as { url: string } | undefined;
-  const authorizationEvidenceValue =
-    values.authorization_evidence as { url?: string } | string | undefined;
-  const authorizationEvidenceUrl =
-    typeof authorizationEvidenceValue === "string"
-      ? authorizationEvidenceValue
-      : authorizationEvidenceValue?.url ?? "";
-
   return {
     petty_cash_funds_id: pettyCashFundId ?? "",
     employee_id: employeeId,
@@ -83,7 +76,7 @@ export const buildPettyCashVoucherPayload = ({
     project_id: projectId,
     xml: xmlValue?.url ?? "",
     pdf: pdfValue?.url ?? "",
-    authorization_evidence: authorizationEvidenceUrl,
+    authorization_evidence: "",
   };
 };
 
@@ -173,19 +166,5 @@ export const createInitialFields = (
     accept: ".pdf",
     className: "max-w-[300px]",
     validations: [],
-  },
-  {
-    type: "file",
-    name: "authorization_evidence",
-    label: "Evidencia de autorización",
-    value: dataEdit?.authorization_evidence
-      ? { name: "Evidencia de autorización", url: dataEdit.authorization_evidence }
-      : null,
-    initialFile: dataEdit?.authorization_evidence
-      ? { name: dataEdit.authorization_evidence, url: dataEdit.authorization_evidence }
-      : undefined,
-    accept: ".png,.jpg,.jpeg",
-    className: "max-w-[300px]",
-    validations: [{ type: "required" }],
   },
 ];

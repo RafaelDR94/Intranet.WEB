@@ -184,6 +184,15 @@ const ControlTable = () => {
     updatingAmount,
     amountHistory,
     isAmountHistoryLoading,
+    authorizerOptions,
+    authorizationRequestOpen,
+    authorizationRequestSelected,
+    authorizationRequestError,
+    isRequestingAuthorization,
+    handleOpenAuthorizationRequest,
+    handleCancelAuthorizationRequest,
+    handleConfirmAuthorizationRequest,
+    handleAuthorizationRequestChange,
   } = useControlTable();
 
   const isMobile = useIsMobile();
@@ -321,6 +330,15 @@ const ControlTable = () => {
         isSavingAmount={updatingAmount}
         amountHistory={amountHistory}
         isHistoryLoading={isAmountHistoryLoading}
+        onRequestAuthorization={handleOpenAuthorizationRequest}
+        authorizationRequestOpen={authorizationRequestOpen}
+        authorizationRequestOptions={authorizerOptions}
+        authorizationRequestSelected={authorizationRequestSelected}
+        authorizationRequestError={authorizationRequestError}
+        isRequestingAuthorization={isRequestingAuthorization}
+        onCancelAuthorizationRequest={handleCancelAuthorizationRequest}
+        onConfirmAuthorizationRequest={handleConfirmAuthorizationRequest}
+        onAuthorizationRequestChange={handleAuthorizationRequestChange}
       />
 
       {currentPagePermissions?.read && (

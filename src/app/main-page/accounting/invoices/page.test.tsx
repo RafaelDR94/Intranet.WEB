@@ -21,7 +21,6 @@ describe('InvoicesPage', () => {
     expect(PermissionRedirect).toHaveBeenCalledWith(
       expect.objectContaining({
         routes: [
-          '/main-page/accounting/invoices/addFiles',
           '/main-page/accounting/invoices/sat',
           '/main-page/accounting/invoices/validateinvoices',
         ],

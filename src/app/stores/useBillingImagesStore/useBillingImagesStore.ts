@@ -38,9 +38,11 @@ export const useBillingImagesStore = createWithEqualityFn<BillingImagesState>()(
     error: undefined,
     /** Mensaje de advertencia */
     warning: undefined,
+    billingImagesEmployeeId: undefined,
 
     /** Obtiene imágenes */
-    fetchBillingImages: (force = false) => fetchBillingImages(set, get, force),
+    fetchBillingImages: (employeeId, force = false) =>
+      fetchBillingImages(set, get, employeeId, force),
     /** Obtiene imagen por ID */
     fetchBillingImageById: (id, force = false) => fetchBillingImageById(id, set, get, force),
     /** Crea una imagen */
@@ -57,6 +59,7 @@ export const useBillingImagesStore = createWithEqualityFn<BillingImagesState>()(
       billingImage: undefined,
       error: undefined,
       warning: undefined,
+      billingImagesEmployeeId: undefined,
       successGet: false,
       successGetById: false,
       successPost: false,
@@ -70,6 +73,7 @@ export const useBillingImagesStore = createWithEqualityFn<BillingImagesState>()(
     resetFlags: () => set({
       loading: false, creating: false, updating: false, removing: false,
       warning: undefined,
+      billingImagesEmployeeId: undefined,
       succesReject: false,
       rejecting: false,
       successGet: false, successGetById: false, successPost: false, successPut: false, successDelete: false,

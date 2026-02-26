@@ -13,13 +13,17 @@ import {
 import { UseVoucherFormProps, UseVoucherFormReturn } from "./types";
 
 import type { FieldModel } from "@/app/components/DynamicForm/types";
+import type { SelectOption } from "@/app/components/Select/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { SubmitFn } from "@/app/main-page/accounting/requisitions/requisitions/components/ExcelLoader/hooks/types";
 import type { PostPettyCashVoucher } from "@/app/mappings/billingPettyCash/BillingPettyCash.types";
+import type { PostAuthorization } from "@/app/mappings/authorizations/authorizations.types";
 import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import { useBillingPettyCash } from "@/app/stores/useBillingPettyCash/useBillingPettyCash";
+import { useAuthorizationsStore } from "@/app/stores/useAuthorizationsStore/useAuthorizationsStore";
+import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
 /**
@@ -48,6 +52,10 @@ export const useVoucherPink = ({
   const submitRef = useRef<SubmitFn | null>(null);
   const [formReady, setFormReady] = useState(false);
   const [disableForm, setDisableForm] = useState(startDisabled);
+  const [authorizerPopUpOpen, setAuthorizerPopUpOpen] = useState(false);
+  const [authorizerSelected, setAuthorizerSelected] = useState("");
+  const [authorizerError, setAuthorizerError] = useState<string | null>(null);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
 
   useEffect(() => {
     setDisableForm(startDisabled);
@@ -93,6 +101,21 @@ export const useVoucherPink = ({
     fetchProyects();
   }, [fetchProyects]);
 
+  const { employees, employeesError, fetchEmployees, reset: resetEmployees } =
+    useEmployeesStore(
+      (s) => ({
+        employees: s.employees,
+        employeesError: s.error,
+        fetchEmployees: s.fetchEmployees,
+        reset: s.reset,
+      }),
+      shallow,
+    );
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
+
   const UpdateProyects = useCallback(() => {
     if (proyects?.length) {
       updateField(formId, "project", {
@@ -137,6 +160,13 @@ export const useVoucherPink = ({
     shallow,
   );
 
+  const { createAuthorization } = useAuthorizationsStore(
+    (state) => ({
+      createAuthorization: state.createAuthorization,
+    }),
+    shallow,
+  );
+
   useEffect(() => {
     fetchPettyCashFunds();
   }, [fetchPettyCashFunds]);
@@ -151,11 +181,7 @@ export const useVoucherPink = ({
 
     const hasXmlField = fields.some((field) => field.name === "xml");
     const hasPdfField = fields.some((field) => field.name === "pdf");
-    const hasAuthorizationField = fields.some(
-      (field) => field.name === "authorization_evidence",
-    );
-
-    if (hasXmlField && hasPdfField && hasAuthorizationField) {
+    if (hasXmlField && hasPdfField) {
       return;
     }
 
@@ -163,9 +189,7 @@ export const useVoucherPink = ({
     const nextFields = [...fields];
     const initialLength = nextFields.length;
 
-    const ensureField = (
-      fieldName: "xml" | "pdf" | "authorization_evidence",
-    ) => {
+    const ensureField = (fieldName: "xml" | "pdf") => {
       if (nextFields.some((field) => field.name === fieldName)) {
         return;
       }
@@ -184,8 +208,6 @@ export const useVoucherPink = ({
 
     ensureField("xml");
     ensureField("pdf");
-    ensureField("authorization_evidence");
-
     if (nextFields.length !== initialLength) {
       setFields(formId, nextFields);
     }
@@ -271,6 +293,28 @@ export const useVoucherPink = ({
   }, [proyectsError, fetchProyects, hideAlert, showAlert]);
 
   useEffect(() => {
+    if (!employeesError) return;
+    showAlert({
+      type: "error",
+      variant: "filled",
+      title: "No se pudo cargar la lista de empleados",
+      description: String(employeesError) || "Intenta refrescar.",
+      showPrimaryButton: true,
+      primaryLabel: "Entendido",
+      onPrimaryClick: () => {
+        hideAlert();
+        resetEmployees();
+      },
+      showSecondaryButton: true,
+      secondaryLabel: "Refrescar",
+      onSecondaryClick: () => {
+        hideAlert();
+        fetchEmployees(true);
+      },
+    });
+  }, [employeesError, fetchEmployees, hideAlert, resetEmployees, showAlert]);
+
+  useEffect(() => {
     if (opRunning) {
       showSpinner({
         message: "Espera un momento, tu información se está guardando",
@@ -347,36 +391,26 @@ export const useVoucherPink = ({
     });
   }, [opError, mode, showAlert, hideAlert, resetFlags]);
 
-  const uploadAuthorizationEvidenceIfNeeded = useCallback(
-    async (file: unknown): Promise<string | undefined> => {
-      const maybeFile = file instanceof File ? file : null;
-      if (maybeFile && firebasestorage?.uploadFile) {
-        const extension = maybeFile.name.split(".").pop()?.toLowerCase() ?? "png";
-        const unique = `${user?.idEmployee}-${Date.now()}`;
-        const url = await firebasestorage.uploadFile(
-          maybeFile,
-          `Billings/PettyCashVouchers/${unique}-authorization.${extension}`,
-        );
-        if (!url) {
-          throw new Error("Hubo un problema al subir la evidencia de autorización");
-        }
-        return url;
-      }
-
-      const urlObj = (file as { url?: string } | null | undefined)?.url;
-      if (urlObj) return urlObj;
-      if (isEdit && dataEdit?.authorization_evidence) {
-        return dataEdit.authorization_evidence;
-      }
-      return undefined;
-    },
-    [
-      firebasestorage,
-      isEdit,
-      dataEdit?.authorization_evidence,
-      user?.idEmployee,
-    ],
+  const authorizerOptions = useMemo<SelectOption[]>(
+    () =>
+      (employees ?? []).map((employee) => ({
+        label: employee.fullname,
+        value: employee.employee_id,
+      })),
+    [employees],
   );
+
+  useEffect(() => {
+    if (authorizerSelected) return;
+    if (!authorizerOptions.length) return;
+    setAuthorizerSelected(authorizerOptions[0].value);
+  }, [authorizerOptions, authorizerSelected]);
+
+  useEffect(() => {
+    if (authorizerSelected && authorizerError) {
+      setAuthorizerError(null);
+    }
+  }, [authorizerError, authorizerSelected]);
 
   const uploadXmlIfNeeded = async (
     file: unknown,
@@ -420,20 +454,19 @@ export const useVoucherPink = ({
     async (values: Record<string, any>) => {
       setOpRunning(true);
       try {
+        if (!isEdit && !authorizerSelected) {
+          setOpRunning(false);
+          setAuthorizerError("Selecciona un autorizador.");
+          return;
+        }
+
         const xmlUrl = await uploadXmlIfNeeded(values.xml);
         const pdfUrl = await uploadPdfIfNeeded(values.pdf);
-        const authorizationEvidenceUrl =
-          await uploadAuthorizationEvidenceIfNeeded(
-            values.authorization_evidence,
-          );
 
         const payloadValues = {
           ...values,
           xml: xmlUrl ? { url: xmlUrl } : undefined,
           pdf: pdfUrl ? { url: pdfUrl } : undefined,
-          authorization_evidence: authorizationEvidenceUrl
-            ? { url: authorizationEvidenceUrl }
-            : undefined,
         };
 
         const payload: PostPettyCashVoucher = buildPettyCashVoucherPayload({
@@ -451,8 +484,41 @@ export const useVoucherPink = ({
             ? await updatePettyCashVoucher({ ...payload, id: dataEdit.id })
             : await createPettyCashVoucher(payload);
 
-        setOpRunning(false);
         if (res) {
+          if (!isEdit) {
+            const applicantId = user?.idEmployee ?? "";
+            const applicant = employees?.find(
+              (employee) => employee.employee_id === applicantId,
+            );
+            const authPayload: PostAuthorization = {
+              authorization_id: "",
+              applicant_id: applicantId,
+              authorizer_id: authorizerSelected,
+              enterprise_id:
+                applicant?.department?.enterprise_id ??
+                user?.idEnterprise ??
+                "",
+              department_id:
+                applicant?.department?.department_id ??
+                user?.idDepartment ??
+                "",
+              kind: "Vale rosa",
+              proyect_id: payload.project_id,
+              event_id: res.id,
+            };
+
+            const createdAuthorization = await createAuthorization(authPayload);
+            if (!createdAuthorization) {
+              setOpRunning(false);
+              setOpError(
+                useAuthorizationsStore.getState().error ||
+                  "No se pudo crear la autorizacion.",
+              );
+              return;
+            }
+          }
+
+          setOpRunning(false);
           setOpSuccess(true);
           return;
         }
@@ -476,9 +542,35 @@ export const useVoucherPink = ({
       user?.idEmployee,
       uploadXmlIfNeeded,
       uploadPdfIfNeeded,
-      uploadAuthorizationEvidenceIfNeeded,
+      isEdit,
+      authorizerSelected,
+      employees,
+      user?.idEnterprise,
+      user?.idDepartment,
+      createAuthorization,
     ],
   );
+
+  const handleAuthorizerConfirm = useCallback(() => {
+    if (!authorizerSelected) {
+      setAuthorizerError("Selecciona un autorizador.");
+      return;
+    }
+    setAuthorizerError(null);
+    setAuthorizerPopUpOpen(false);
+    setPendingSubmit(true);
+  }, [authorizerSelected]);
+
+  const handleAuthorizerCancel = useCallback(() => {
+    setAuthorizerPopUpOpen(false);
+    setAuthorizerError(null);
+  }, []);
+
+  useEffect(() => {
+    if (!pendingSubmit) return;
+    setPendingSubmit(false);
+    submitRef.current?.();
+  }, [pendingSubmit]);
 
   return {
     // para el componente
@@ -488,10 +580,24 @@ export const useVoucherPink = ({
     setFormReady,
     submitRef,
     handleSubmit,
-    onSubmit: () => submitRef.current?.(),
+    onSubmit: () => {
+      if (isEdit) {
+        submitRef.current?.();
+        return;
+      }
+      setAuthorizerPopUpOpen(true);
+    },
     buttonDisabled: !formReady,
     currentPagePermissions,
     disableForm,
     setDisableForm,
+    authorizerOptions,
+    authorizerSelected,
+    setAuthorizerSelected,
+    authorizerPopUpOpen,
+    setAuthorizerPopUpOpen,
+    authorizerError,
+    handleAuthorizerConfirm,
+    handleAuthorizerCancel,
   };
 };

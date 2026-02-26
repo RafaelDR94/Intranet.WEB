@@ -7,6 +7,24 @@ export const AuthRecoverPassword = process.env.NEXT_PUBLIC_AUTHRECOVERPASSWORD ?
 export const AuthChangeNIPStatusByIdUser = process.env.NEXT_PUBLIC_AUTHCHANGENIPSTATUSBYIDUSER ?? "/Auth/ChangeNIPStatusByIdUser";
 export const AuthCreateNIP = process.env.NEXT_PUBLIC_AUTHCREATENIP ?? "/Auth/CreateNIP";
 export const VerifyOTP = process.env.NEXT_PUBLIC_VERIFY_OTP ?? "/VerifyOTP";
+export const AuthorizationTypes =
+  process.env.NEXT_PUBLIC_AUTHORIZATION_TYPES ?? "/Auth/AuthorizationTypes";
+export const Authorizations =
+  process.env.NEXT_PUBLIC_AUTHORIZATIONS ?? "/Auth/Authorizations";
+export const AuthorizationByIdAuthorizer =
+  process.env.NEXT_PUBLIC_AUTHORIZATION_BY_ID_AUTHORIZER ?? "/Auth/GetAuthorizationByIdAuthorizer";
+export const AuthorizationApprove =
+  process.env.NEXT_PUBLIC_AUTHORIZATION_APPROVE ?? "/Auth/AuthorizationApprove";
+export const AuthorizationReject =
+  process.env.NEXT_PUBLIC_AUTHORIZATION_REJECT ?? "/Auth/AuthorizationReject";
+export const AuthorizationChangeAuthorizer =
+  process.env.NEXT_PUBLIC_AUTHORIZATION_CHANGE_AUTHORIZER ?? "/Auth/changeAuthorizer";
+export const AuthorizationRequisitionHistory =
+  process.env.NEXT_PUBLIC_AUTH_REQUISITION_AUTHORIZATIONS_HISTORY ??
+  "/Auth/RequisitionAuthorizationsHistory";
+export const AuthorizationBillingDocuments =
+  process.env.NEXT_PUBLIC_AUTHORIZATION_BILLING_DOCUMENTS ??
+  "/Auth/AuthorizationBillingDocuments";
 
 export const Enterprises = process.env.NEXT_PUBLIC_ENTERPRISES ?? "/Enterprises";
 export const EnterprisesExternal = process.env.NEXT_PUBLIC_ENTERPRISESEXTERNAL ?? "/Enterprises/External";
@@ -127,8 +145,15 @@ export const BillingRequisitionByIdEmployee = process.env.NEXT_PUBLIC_BILLINGS_R
 export const BillingRequisitionByDate = process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONBYDATE ?? "/Billings/BillingRequisitionByDate";
 export const BillingImages = process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGES ?? "/Billings/BillingImages";
 export const BillingImagesById = process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGESBYID ?? "/Billings/BillingImages/ById";
+export const BillingImagesByIdEmployee = process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGESBYIDEMPLOYEE ?? "/Billings/BillingImages/ByIdEmployee";
 export const BillingDocument = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENT ?? "/Billings/BillingDocument";
 export const BillingDocumentById = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTBYID ?? "/Billings/BillingDocument/ById";
+export const BillingDocumentsPendingByEmployee =
+  process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTS_PENDING_BY_EMPLOYEE ??
+  "/Billings/BillingDocumentsPendingByEmployee";
+export const BillingImagesPendingByEmployee =
+  process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGES_PENDING_BY_EMPLOYEE ??
+  "/Billings/BillingImagesPendingByEmployee";
 export const BillingDocumentByIdIdRequisition = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTBYIDREQUISITION||"/Billings/BillingDocument/ByIdRequisition"
 export const BillingHistory = process.env.NEXT_PUBLIC_BILLINGS_BILLINGHISTORY ?? "/Billings/UserDocumentsHistory/ByIdEmployee";
 export const BillingValidateBillingDocumentOperations = process.env.NEXT_PUBLIC_BILLINGS_VALIDATEBILLINGDOCUMENTOPERATIONS||"/Billings/ValidateBillingDocumentOperations"

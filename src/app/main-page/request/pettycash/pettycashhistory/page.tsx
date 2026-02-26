@@ -3,7 +3,7 @@ import React from "react";
 
 import { PettyCashProvider } from "../pettycashrequest/context/PettyCashContext";
 
-import SideMenu from "./components/SideMenu";
+import SideMenu from "./components/SideMenu/SideMenu";
 import usePettyCashHistory from "./hooks/usePettyCashHistory";
 import { PettyCashHistoryRow } from "./types";
 
@@ -156,6 +156,15 @@ const PettyCashHistory = () => {
     handleConfirmDelete,
     removing,
     refresh,
+    authorizerOptions,
+    authorizationRequestOpen,
+    authorizationRequestSelected,
+    authorizationRequestError,
+    isRequestingAuthorization,
+    handleOpenAuthorizationRequest,
+    handleCancelAuthorizationRequest,
+    handleConfirmAuthorizationRequest,
+    handleAuthorizationRequestChange,
   } = usePettyCashHistory();
 
   const isMobile = useIsMobile();
@@ -164,7 +173,7 @@ const PettyCashHistory = () => {
   // Columnas de escritorio
   const columnsDesktop: ColumnDefinition<PettyCashHistoryRow>[] = React.useMemo( () => [
     {
-      key: "date",
+      key: "dateSort",
       label: "FECHA",
       render: (row) => <span>{row.date}</span>,
     },
@@ -235,7 +244,7 @@ const PettyCashHistory = () => {
       ),
     },
     {
-      key: "date",
+      key: "dateSort",
       label: "FECHA",
       render: (row) => <span>{row.date}</span>,
     },
@@ -303,7 +312,7 @@ const PettyCashHistory = () => {
               enableSelection: true,
               title: "Historial Vales",
               enableCollaps: true,
-              defaultSortKey: "date",
+              defaultSortKey: "dateSort",
               defaultSortDirection: "desc",
             },
           ]}
@@ -318,6 +327,15 @@ const PettyCashHistory = () => {
           selected={selected}
           detail={selectedDetail}
           isDetailLoading={detailLoading}
+          authorizationRequestOpen={authorizationRequestOpen}
+          authorizationRequestOptions={authorizerOptions}
+          authorizationRequestSelected={authorizationRequestSelected}
+          authorizationRequestError={authorizationRequestError}
+          isRequestingAuthorization={isRequestingAuthorization}
+          onRequestAuthorization={handleOpenAuthorizationRequest}
+          onCancelAuthorizationRequest={handleCancelAuthorizationRequest}
+          onConfirmAuthorizationRequest={handleConfirmAuthorizationRequest}
+          onAuthorizationRequestChange={handleAuthorizationRequestChange}
         />
       </PettyCashProvider>
     </>

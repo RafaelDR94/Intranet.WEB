@@ -4,7 +4,7 @@ export default function BillableFilesPage() {
   return (
     <PermissionRedirect
       routes={[
-        '/main-page/billablefiles/billablefiles',
+        '/main-page/accounting/billablefiles/billablefiles',
       ]}
     />
   );

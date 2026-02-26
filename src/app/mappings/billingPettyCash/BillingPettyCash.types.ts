@@ -1,4 +1,5 @@
 // ---- Fondos de Caja Chica ----
+import { Authorization } from "../authorizations/authorizations.types";
 export type PettyCashFundData = {
   id: string;
   year_month: string;
@@ -90,6 +91,7 @@ export type PettyCashVoucherData = {
   /** Estatus del vale (pendiente, válido, rechazado, etc.). */
   status?: string;
   amount?: string | number;
+  authorization:Authorization | null;
 };
 
 export type GetPettyCashVoucherById = {
@@ -191,6 +193,7 @@ export type PettyCashVoucherFull = {
   total: number;
   conceptos: PettyCashVoucherConcept[];
   isauthorization_evidence_rejected: boolean;
+  authorization?: Authorization | null;
 };
 
 export type GetPettyCashVoucherFullById = {

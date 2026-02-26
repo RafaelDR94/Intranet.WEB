@@ -1,3 +1,4 @@
+import { Authorization } from "../authorizations/authorizations.types"
 import { Requisition } from "../requisitions/requisitions.types"
 export type Concepto = {
   "clave_sat": string,
@@ -67,6 +68,7 @@ export type BillingDocuments = {
   "otherinvoices": number,
   "category": BillingDocumentCategory,
   "validatedbyoperations":boolean
+  "authorization"?: Authorization | null
 
 
 }
@@ -91,6 +93,7 @@ export type BillingDocumentDetailsTable = {
   "invoiceNumber"?: string;
   "comments"?: string;
   "user_comments"?: string;
+  "authorization"?: Authorization | null;
 };
 
 export type BillingDocumentsSatTable = {

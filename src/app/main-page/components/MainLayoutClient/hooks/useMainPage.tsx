@@ -1,17 +1,17 @@
-import { usePathname, useSearchParams } from 'next/navigation';
+﻿import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 
 import { useAuth } from '../../../../context/AuthContext/AuthContext';
 import { useFirebase } from '../../../../context/FirebaseContext/FirebaseContext';
 import { usePrincipal } from '../../../../context/PrincipalContext/PrincipalContext';
 import { getTabsFromPath } from '../utilities/getTabsFromPath';
-import { OfflineMessage } from './types';
+import { OfflineMessage, PendingNotification } from './types';
 
 import ServerIcon from '@/assets/icons/Connectivity/server.svg';
 import FileIcon from '@/assets/icons/Docs/archive.svg';
 import HomeIcon from '@/assets/icons/navegacion/home.svg';
 /**
- * Rutas visibles en el sidebar principal de la página /main-page.
+ * Rutas visibles en el sidebar principal de la pagina /main-page.
  */
 export const sidebarRoutes = [
   {
@@ -20,7 +20,7 @@ export const sidebarRoutes = [
     icon: HomeIcon,
   },
   {
-    label: 'Tesorería',
+    label: 'Tesoreria',
     path: '/main-page/treasury',
     icon: ServerIcon,
     subroutes: [
@@ -42,7 +42,7 @@ export const sidebarRoutes = [
     subroutes: [
       { label: 'Caja Chica', path: '/main-page/request/pettycash' },
       { label: 'Documentos', path: '/main-page/request/documents' },
-      { label: 'Facturación', path: '/main-page/request/invoices' },
+      { label: 'Facturacion', path: '/main-page/request/invoices' },
       { label: 'Accesos', path: '/main-page/request/acces' }
     ],
   },
@@ -51,9 +51,8 @@ export const sidebarRoutes = [
     path: '/main-page/accounting',
     icon: ServerIcon,
     subroutes: [
-      { label: 'Facturación', path: '/main-page/accounting/invoices' },
+      { label: 'Facturacion', path: '/main-page/accounting/invoices' },
       { label: 'Requisiciones', path: '/main-page/accounting/personalInvoices' },
-      { label: 'Lista de Requisiciones', path: '/main-page/accounting/requisitions' },
       { label: 'Archivos Facturables', path: '/main-page/accounting/billablefiles' },
       { label: 'SAP', path: '/main-page/accounting/sap' },
     ],
@@ -84,22 +83,30 @@ export const sidebarRoutes = [
     ],
   },
   {
-    label: 'Administración',
+    label: 'Administracion',
     path: '/main-page/usersmanagment',
     icon: ServerIcon,
     subroutes: [
       { label: 'Administracion de usuarios', path: '/main-page/administration/usersmanagment' },
     ],
   },
+    {
+    label: 'Autorizaciones',
+    path: '/main-page/authorizations',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Lista de autorizaciones', path: '/main-page/authorizations/authorizationslist' },
+    ],
+  },
 ];
 
 /**
- * Estado del mensaje modal de confirmación para activar/desactivar el modo offline.
+ * Estado del mensaje modal de confirmacion para activar/desactivar el modo offline.
  */
 
 
 /**
- * Hook principal para manejar lógica y estado de la página `MainPage`.
+ * Hook principal para manejar logica y estado de la pagina `MainPage`.
  * Incluye control de tema, alertas, notificaciones, tabs, logout, permisos y modo offline.
  *
  * @returns {object} props y funciones listas para usar en el layout y sidebar principal.
@@ -111,11 +118,32 @@ export const useMainPage = () => {
   const { theme, toggleTheme } = usePrincipalTheme;
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const handleAlertClose = useCallback(() => {
     alert?.onClose?.();
     hideAlert();
   }, [alert, hideAlert]);
+
+  const navigateToEventUrl = useCallback(
+    (eventUrl?: string) => {
+      if (!eventUrl) return;
+      if (eventUrl.startsWith('http')) {
+        try {
+          const url = new URL(eventUrl);
+          if (url.origin === window.location.origin) {
+            const relative = `${url.pathname}${url.search}${url.hash}`;
+            router.push(relative);
+          }
+        } catch {
+          // ignore invalid URLs
+        }
+        return;
+      }
+      router.push(eventUrl);
+    },
+    [router]
+  );
 
   const tabs = useMemo(
     () => getTabsFromPath(pathname, searchParams),
@@ -123,9 +151,10 @@ export const useMainPage = () => {
   );
 
   const { user, offlineMode, handleOfflineMode, logout, validPermissionsbyroute } = useAuth();
-  const { firebaseMessaging } = useFirebase();
+  const { firebaseMessaging, firebaserealtime } = useFirebase();
 
   const [offlineLoggin, setOfflineLoggin] = useState(offlineMode);
+  const [pendingNotifications, setPendingNotifications] = useState<PendingNotification[]>([]);
 
   const [offlineMeMessage, setOfflineMeMessage] = useState<OfflineMessage>({
     open: false,
@@ -139,9 +168,9 @@ export const useMainPage = () => {
    */
   const handleOfflineChange = (checked: boolean) => {
     const message1 =
-      'Al activar el modo offline la funcionalidad puede estar limitada y los datos que se mostrarán pueden no ser los más actuales.';
+      'Al activar el modo offline la funcionalidad puede estar limitada y los datos que se mostraran pueden no ser los mas actuales.';
     const message2 =
-      'Al activar el modo online se trabajará con la información más actual de la nube.';
+      'Al activar el modo online se trabajara con la informacion mas actual de la nube.';
 
     setOfflineMeMessage({
       open: true,
@@ -171,21 +200,112 @@ export const useMainPage = () => {
     setOfflineMeMessage({ open: false, offlineMode: false, messsage: '' });
   };
 
-  // Muestra una alerta si hay una notificación de Firebase
+  const handleRemovePending = useCallback(
+    async (notificationId: string) => {
+      if (!user?.idUser || !firebaserealtime) return;
+      try {
+        await firebaserealtime.deleteData(
+          `Notifications/${user.idUser}/Pending/${notificationId}`
+        );
+      } catch (err) {
+        console.error('Error removing pending notification', err);
+      }
+    },
+    [firebaserealtime, user?.idUser]
+  );
+
+  const handleOpenPending = useCallback(
+    async (notification: PendingNotification) => {
+      const eventUrl = notification.data?.event_url;
+      await handleRemovePending(notification.id);
+      navigateToEventUrl(eventUrl);
+    },
+    [handleRemovePending, navigateToEventUrl]
+  );
+
+  // Muestra una alerta si hay una notificacion de Firebase
   useEffect(() => {
     if (firebaseMessaging?.notification) {
+      const eventUrl = firebaseMessaging.notification?.data?.event_url as
+        | string
+        | undefined;
+      const imageUrl = firebaseMessaging.notification?.data?.image_url as
+        | string
+        | undefined;
+      const payloadData = firebaseMessaging.notification?.data ?? {};
+      const pendingId =
+        (payloadData.notification_id as string | undefined) ??
+        (payloadData.notificationId as string | undefined) ??
+        (payloadData.pending_id as string | undefined) ??
+        (payloadData.pendingId as string | undefined) ??
+        pendingNotifications.find(
+          (notification) =>
+            notification.data?.event_url === eventUrl &&
+            notification.title ===
+              (firebaseMessaging.notification.notification?.title ?? 'Notificacion') &&
+            notification.body ===
+              (firebaseMessaging.notification.notification?.body ?? '')
+        )?.id;
+
       showAlert({
-        title: firebaseMessaging.notification.notification?.title ?? 'Notificación',
+        title: firebaseMessaging.notification.notification?.title ?? 'Notificacion',
         description: firebaseMessaging.notification.notification?.body ?? '',
         type: 'notification',
+        showPrimaryButton: false,
         showSecondaryButton: false,
-        primaryLabel: 'Cerrar',
-        onPrimaryClick: firebaseMessaging.closeNotificacion,
-        onClose: firebaseMessaging.closeNotificacion
+        primaryLabel: 'Ir a evento',
+        createdAt: new Date().toISOString(),
+        avatarSrc: imageUrl,
+        onPrimaryClick: async () => {
+          if (pendingId) {
+            await handleRemovePending(pendingId);
+          }
+          handleAlertClose();
+          navigateToEventUrl(eventUrl);
+        },
+        onClose: firebaseMessaging.closeNotificacion,
       });
     }
-  }, [firebaseMessaging, showAlert]);
+  }, [
+    firebaseMessaging,
+    showAlert,
+    navigateToEventUrl,
+    pendingNotifications,
+    handleRemovePending,
+    handleAlertClose,
+  ]);
 
+  useEffect(() => {
+    if (!user?.idUser || !firebaserealtime) return;
+    const path = `Notifications/${user.idUser}/Pending`;
+    let unsubscribe: (() => void) | undefined;
+    try {
+      unsubscribe = firebaserealtime.subscribe(path, (data) => {
+        if (!data) {
+          setPendingNotifications([]);
+          return;
+        }
+        const next = Object.entries(data as Record<string, any>).map(([id, value]) => ({
+          id,
+          title: value?.title ?? 'Notificacion',
+          body: value?.body ?? '',
+          data: value?.data ?? {},
+          createdAt: value?.createdAt,
+          avatarSrc: value?.data?.image_url,
+        }));
+        next.sort((a, b) => {
+          const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return bTime - aTime;
+        });
+        setPendingNotifications(next);
+      });
+    } catch (err) {
+      console.warn('Firebase realtime not ready for pending notifications', err);
+      return;
+    }
+    return () => unsubscribe?.();
+  }, [firebaserealtime, user?.idUser]);
 
   return {
     alert,
@@ -204,7 +324,10 @@ export const useMainPage = () => {
     handleCancelMessageOffline,
     handleAlertClose,
     sidebarRoutes,
-    usePrincipalImage
+    usePrincipalImage,
+    pendingNotifications,
+    handleOpenPending,
+    handleRemovePending
   };
 };
 

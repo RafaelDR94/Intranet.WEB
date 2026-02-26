@@ -11,17 +11,18 @@ import type { BillingImages } from '@/app/mappings/billingimages/billingimages.t
 import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore'
 import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 
 
 /**
  * Hook para cargar y exponer los documentos de facturas asociados a una requisición.
  * Toma el `id` de la requisición desde los query params y realiza el fetch en el store.
  */
-const useRequisitionDetailsDocument = () => {
+const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
   const { usePrincipalAlert } = usePrincipal();
   const { showAlert } = usePrincipalAlert
   const searchParams = useSearchParams()
-  const requisitionId = searchParams.get('id') ?? undefined
+  const requisitionId = overrideRequisitionId ?? searchParams.get('id') ?? undefined
   const [panelOpen, setPanelOpen] = useState(false)
   const [selected, setSelected] = useState<BillingDocuments | null>(null)
   const [documentImages, setDocumentImages] = useState<Record<string, string>>({})
@@ -49,6 +50,7 @@ const useRequisitionDetailsDocument = () => {
     }),
     shallow
   )
+  const { user } = useAuth()
 
   const {
     downloadingDocument,
@@ -161,8 +163,9 @@ const useRequisitionDetailsDocument = () => {
   }, [fetchBillingImageById, selected])
 
   useEffect(() => {
-    fetchBillingImages()
-  }, [fetchBillingImages])
+    if (!user?.idEmployee) return
+    fetchBillingImages(user.idEmployee)
+  }, [fetchBillingImages, user?.idEmployee])
 
   useEffect(() => {
     if (!billingDocuments?.length) return
@@ -204,8 +207,10 @@ const useRequisitionDetailsDocument = () => {
   }, [billingDocuments, documentImages, fetchBillingImageById])
 
   const normalizeImages = (images: BillingImages["images"]): string[] => {
-    if (Array.isArray(images)) return images.filter((item) => Boolean(item))
-    return []
+    if (!Array.isArray(images)) return []
+    return images
+      .map((item) => (typeof item === 'string' ? item : item?.image ?? ''))
+      .filter((item) => Boolean(item))
   }
 
   const mapTicketsToRows = (
@@ -240,6 +245,7 @@ const useRequisitionDetailsDocument = () => {
           imageUrl: imageUrls[0],
           comments: item.comments ?? "",
           user_comments: item.user_comments ?? item.comments ?? "",
+          authorization: null,
         }
       })
 
@@ -330,6 +336,7 @@ const useRequisitionDetailsDocument = () => {
     otherinvoices: 0,
     category: image.category,
     validatedbyoperations: false,
+    authorization: null,
   })
 
   const handleOpenDetails = (row: BillingDocumentDetailsTable) => {
