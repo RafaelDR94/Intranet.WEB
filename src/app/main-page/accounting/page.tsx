@@ -8,7 +8,6 @@ export default function AccountingPage() {
         '/main-page/accounting/personalInvoices',
         '/main-page/accounting/requisitions',
         '/main-page/accounting/sap',
-        '/main-page/accounting/billablefiles',
       ]}
     />
   );

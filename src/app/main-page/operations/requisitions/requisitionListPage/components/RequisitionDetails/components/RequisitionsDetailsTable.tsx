@@ -1,6 +1,6 @@
 "use client";
 import React, { useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+// import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import useRequisitionDetailsDocument from "@/app/main-page/accounting/personalInvoices/requisitions/componentes/RequisitionsDetails/components/RequisitionDetailsDocuments/hooks/useRequisitionDetailsDocument";
 
@@ -21,7 +21,13 @@ import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
  * Tabla de comprobantes asociados a una requisición. Permite descargar el
  * reporte y ver detalles individuales de cada documento.
  */
-const RequisitionDetailsTable: React.FC = () => {
+type RequisitionDetailsTableProps = {
+  requisitionIdOverride?: string;
+};
+
+const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
+  requisitionIdOverride,
+}) => {
   const { currentPagePermissions } = useAuth();
 
   const {
@@ -34,30 +40,39 @@ const RequisitionDetailsTable: React.FC = () => {
     requisitionId,
     loading,
     downloadingDocument, // NEW: lo traemos del hook
-  } = useRequisitionDetailsDocument();
+  } = useRequisitionDetailsDocument(requisitionIdOverride);
   const isMobile = useIsMobile();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
+  // const router = useRouter();
+  // const searchParams = useSearchParams();
+  // const pathname = usePathname();
   const sapprofile = currentPagePermissions?.sapprofile;
 
   console.log("rows ", rows);
   console.log("selected ", selected);
   
-
-  const handleUploadBillableFiles = () => {
-    if (!requisitionId) return;
-
-    const query = new URLSearchParams(searchParams.toString());
-    query.set("id", requisitionId);
-    const label = searchParams.get("label");
-    if (label) {
-      query.set("label", label);
-    }
-    query.set("view", "billablefiles");
-
-    router.push(`${pathname}?${query.toString()}`);
+  const renderValidationStatus = (row: BillingDocumentDetailsTable) => {
+    const isApproved = Boolean(row.authorization);
+    return (
+      <Label
+        type={isApproved ? "valido" : "pendiente"}
+        text={isApproved ? "Aprobado" : "Pendiente"}
+      />
+    );
   };
+
+  // const handleUploadBillableFiles = () => {
+  //   if (!requisitionId) return;
+
+  //   const query = new URLSearchParams(searchParams.toString());
+  //   query.set("id", requisitionId);
+  //   const label = searchParams.get("label");
+  //   if (label) {
+  //     query.set("label", label);
+  //   }
+  //   query.set("view", "billablefiles");
+
+  //   router.push(`${pathname}?${query.toString()}`);
+  // };
 
   const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] =
     useMemo(
@@ -73,6 +88,11 @@ const RequisitionDetailsTable: React.FC = () => {
               text={row.status}
             />
           ),
+        },
+        {
+          key: "authorization" as unknown as keyof BillingDocumentDetailsTable,
+          label: "Estatus validación",
+          render: (row) => renderValidationStatus(row),
         },
         {
           key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
@@ -175,6 +195,13 @@ const RequisitionDetailsTable: React.FC = () => {
         headerClass: "w-2/15 text-left",
       },
       {
+        key: "authorization" as unknown as keyof BillingDocumentDetailsTable,
+        label: "Estatus validación",
+        cellClass: "w-2/15 text-left",
+        headerClass: "w-2/15 text-left",
+        render: (row) => renderValidationStatus(row),
+      },
+      {
         key: "acciones" as unknown as keyof BillingDocumentDetailsTable,
         headerRender: () => <span className="text-lg"></span>,
         render: (row) => (
@@ -255,16 +282,6 @@ const RequisitionDetailsTable: React.FC = () => {
         )}
         showButton={false}
         enablePagination={false}
-        rightContent={
-          <Button
-            variant="solid"
-            size="medium"
-            hideIcon
-            onClick={handleUploadBillableFiles}
-          >
-            Subir Archivos
-          </Button>
-        }
         tables={[
           {
             data: filteredRows,

@@ -164,19 +164,46 @@ messaging.onBackgroundMessage((payload: any) => {
 
 
   const notification = payload.notification ?? {};
-  const title = notification.title ?? 'Notificación';
+  const title = notification.title ?? 'Notificaci??n';
 
   const options = {
-    body: notification.body ?? 'Tienes una nueva notificación',
-    icon:  '/DRUso2.png', // ✅ tu ícono personalizado
-    badge: '/DRUso2.png',                             // opcional: ícono pequeño
+    body: notification.body ?? 'Tienes una nueva notificaci??n',
+    icon:  '/images/DR_Logo.svg', // ??? tu ??cono personalizado
+    badge: '/images/DR_Logo.svg',                             // opcional: ??cono peque??o
     image: notification.image ?? undefined,                     // opcional: imagen visible
     data: {
-      url: payload?.data?.click_action ?? '/',                  // para redirigir al hacer clic
+      url: payload?.data?.event_url ?? payload?.data?.click_action ?? '/', // para redirigir al hacer clic
       ...payload.data,
     },
   };
 
   self.registration.showNotification(title, options);
+});
+
+self.addEventListener('notificationclick', (event: NotificationEvent) => {
+  event.notification.close();
+  const targetUrl = (event.notification.data?.url as string | undefined) ?? '/';
+
+  event.waitUntil(
+    (async () => {
+      const windowClients = await self.clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true,
+      });
+
+      for (const client of windowClients) {
+        const url = new URL(client.url);
+        const desired = new URL(targetUrl, self.location.origin);
+        if (url.origin === desired.origin) {
+          await client.focus();
+          await client.navigate(desired.href);
+          await client.focus();
+          return;
+        }
+      }
+
+      await self.clients.openWindow(targetUrl);
+    })()
+  );
 });
 

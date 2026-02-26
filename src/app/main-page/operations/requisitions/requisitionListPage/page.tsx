@@ -7,6 +7,8 @@ import TicketsFiles from "./components/TicketsFiles/TicketsFiles";
 import InvoicesFiles from "./components/InvoicesFiles/InvoicesFiles";
 import RequisitionsFiles from "./components/RequisitionsFiles/RequisitionsFiles";
 import RequisitionDetails from "./components/RequisitionDetails/RequisitionDetails";
+import HistoryTable from "./components/RequisitionDetails/components/HistoryTable/HistoryTable";
+import RequisitionsAuthorization from "@/app/main-page/authorizations/authorizationslist/components/AuthorizationDetail/components/RequisitionsAuthorization/RequisitionsAuthorization";
 import InvoicesForm from "@/app/main-page/accounting/personalInvoices/invoices/components/InvoicesForm/InvoicesForm";
 import { InvoicesProvider } from "@/app/main-page/accounting/personalInvoices/invoices/context/InvoicesContext";
 import type { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
@@ -22,6 +24,8 @@ const RequisitionListPage: React.FC = () => {
   const isFilesView = normalizedLabel?.startsWith("archivos");
   const isRequisitionsView = normalizedLabel?.startsWith("requisiciones");
   const isBillableFilesView = view === "billablefiles";
+  const isHistoryView = view === "history";
+  const isAuthorizationDetailView = view === "authorizationDetail";
 
   if (isBillableFilesView) {
     return (
@@ -45,9 +49,20 @@ const RequisitionListPage: React.FC = () => {
           billingImages={selectedTicket}
           onCloseImage={() => setSelectedTicket(null)}
         />
-        <TicketsFiles onSelectTicket={setSelectedTicket} />
+        <TicketsFiles
+          onSelectedTicketChange={setSelectedTicket}
+          selectedTicketId={selectedTicket?.billing_image_id ?? null}
+        />
       </InvoicesProvider>
     );
+  }
+
+  if (isHistoryView) {
+    return <HistoryTable />;
+  }
+
+  if (isAuthorizationDetailView) {
+    return <RequisitionsAuthorization />;
   }
 
   if (isFilesView) {

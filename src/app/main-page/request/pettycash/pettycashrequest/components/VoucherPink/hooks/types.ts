@@ -1,6 +1,7 @@
 import { Dispatch, RefObject, SetStateAction } from 'react';
 
 import { FieldModel } from '@/app/components/DynamicForm/types';
+import type { SelectOption } from '@/app/components/Select/types';
 import { SubmitFn } from '@/app/main-page/accounting/requisitions/requisitions/components/ExcelLoader/hooks/types';
 import { PettyCashVoucherData } from '@/app/mappings/billingPettyCash/BillingPettyCash.types';
 
@@ -43,4 +44,20 @@ export type UseVoucherFormReturn = {
   disableForm: boolean | undefined;
   /** Setter for disableForm. */
   setDisableForm: Dispatch<SetStateAction<boolean | undefined>>;
+  /** Opciones de autorizadores (cuando aplica). */
+  authorizerOptions?: SelectOption[];
+  /** Autorizador seleccionado (cuando aplica). */
+  authorizerSelected?: string;
+  /** Setter del autorizador seleccionado (cuando aplica). */
+  setAuthorizerSelected?: (value: string) => void;
+  /** Indica si el popup de autorizador estÃƒÂ¡ abierto. */
+  authorizerPopUpOpen?: boolean;
+  /** Setter del popup de autorizador. */
+  setAuthorizerPopUpOpen?: (value: boolean) => void;
+  /** Error del autorizador. */
+  authorizerError?: string | null;
+  /** Confirmar autorizador. */
+  handleAuthorizerConfirm?: () => void;
+  /** Cancelar autorizador. */
+  handleAuthorizerCancel?: () => void;
 };

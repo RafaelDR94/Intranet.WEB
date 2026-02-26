@@ -105,4 +105,22 @@ export type ControlSideMenuProps = {
   amountHistory?: PettyCashVoucherHistoryAmountItem[];
   /** Indicates whether the history information is still loading. */
   isHistoryLoading?: boolean;
+  /** Callback executed when the user wants to request a new authorization. */
+  onRequestAuthorization?: (row: ControlRow | null) => void;
+  /** Authorization request modal state. */
+  authorizationRequestOpen?: boolean;
+  /** Authorization request modal options. */
+  authorizationRequestOptions?: Array<{ label: string; value: string }>;
+  /** Selected authorizer id. */
+  authorizationRequestSelected?: string;
+  /** Error message for authorization request. */
+  authorizationRequestError?: string | null;
+  /** Indicates whether an authorization request is being sent. */
+  isRequestingAuthorization?: boolean;
+  /** Closes the authorization request modal. */
+  onCancelAuthorizationRequest?: () => void;
+  /** Confirms the authorization request. */
+  onConfirmAuthorizationRequest?: () => void;
+  /** Updates selected authorizer. */
+  onAuthorizationRequestChange?: (value: string) => void;
 };

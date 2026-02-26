@@ -11,6 +11,7 @@ import { ticketFormDropzoneClasses } from '../styles'
 import { UseTicketFormReturn, UseInvoicesFormProps } from './types'
 
 import { FieldModel } from '@/app/components/DynamicForm/types'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useBillingHistoryStore } from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
@@ -53,6 +54,7 @@ const useTicketForm = ({
     shallow
   );
 
+  const { user: authUser } = useAuth()
 
   // 🔁 Campos iniciales del formulario (condicional por modo)
   const initialformFields: FieldModel[] = useMemo(() => {
@@ -111,15 +113,23 @@ const useTicketForm = ({
     useInitInvoicesForms({ initialformFields, field: field2, formId: formId2, dataEdit, })
   const lastUploadedRef = useRef<SelectedImage[] | null>(null)
   const [formKey, setFormKey] = useState(0)
+  const hasInitializedRef = useRef(false)
 
   // Loading + Alerts (desde PrincipalContext)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
   const { showSpinner, hideSpinner } = usePrincipalLoading
   const { showAlert, hideAlert } = usePrincipalAlert
 
+  useEffect(() => {
+    if (hasInitializedRef.current) return
+    if (field2.length === 0) return
+    setFormKey((prev) => prev + 1)
+    hasInitializedRef.current = true
+  }, [field2.length])
+
   const uploadIfNeeded = async (
     files: SelectedImage[] | File[] | File | null | undefined,
-    requisition: string
+    requisition?: string
   ): Promise<string[]> => {
     const fileList: SelectedImage[] = Array.isArray(files)
       ? (files as SelectedImage[])
@@ -136,9 +146,10 @@ const useTicketForm = ({
         .map(async (item, index) => {
           if (item.url && !item.file) return item.url
           if (!item.file) throw new Error('Imagen inválida')
+          const requisitionFolder = requisition?.trim() ? requisition : 'no-requisition'
           const url = await firebasestorage.uploadImage(
             item.file,
-            `Billings/BillingTickets/${requisition}/${index}`
+            `Billings/BillingTickets/${requisitionFolder}/${index}`
           )
           if (!url) throw new Error('Hubo un problema al subir la imagen')
           return url
@@ -151,11 +162,7 @@ const useTicketForm = ({
     showSpinner({ message: isEdit ? 'Actualizando ticket...' : 'Subiendo ticket...' })
     try {
       const requisition =
-        values?.requisition || dataEdit?.billingrequisition_id || requisitionIdFromQuery
-
-      if (!requisition) {
-        throw new Error('No se encontró la requisición para asociar el ticket')
-      }
+        values?.requisition || dataEdit?.billingrequisition_id || requisitionIdFromQuery || ''
 
       const imgUrl = await uploadIfNeeded(values.ticket, requisition)
       lastUploadedRef.current = imgUrl.map((url, index) => ({
@@ -179,8 +186,17 @@ const useTicketForm = ({
         updateBillingImage(payload)
       } else {
         // CREATE
+        const employeeId =
+          authUser?.idEmployee ??
+          user?.idEmployee ??
+          (user as { employee_id?: string | null } | null)?.employee_id ??
+          ''
+        if (!employeeId) {
+          throw new Error('No se pudo identificar el empleado logueado')
+        }
         const payload = {
-          requisition_id: requisition,
+          requisition_id: requisition || undefined,
+          employee_id: employeeId,
           images: imgUrl,
           description: values?.description,
           numpersons: values?.numpersons,

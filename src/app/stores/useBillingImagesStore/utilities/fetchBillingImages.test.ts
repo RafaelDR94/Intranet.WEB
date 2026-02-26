@@ -13,7 +13,7 @@ describe('fetchBillingImages util', () => {
     const set: Set = (partial) => Object.assign(state, typeof partial === 'function' ? partial(state as BillingImagesState) : partial)
     const get: Get = () => state as BillingImagesState
 
-    await fetchBillingImages(set, get)
+    await fetchBillingImages(set, get, 'emp-1')
 
     expect(state.billingImages).toHaveLength(1)
     expect(state.loading).toBe(false)

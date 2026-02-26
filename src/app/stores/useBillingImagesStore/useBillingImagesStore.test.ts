@@ -38,7 +38,7 @@ describe('useBillingImagesStore', () => {
   })
 
   it('fetchBillingImages carga datos', async () => {
-    await useBillingImagesStore.getState().fetchBillingImages()
+    await useBillingImagesStore.getState().fetchBillingImages('emp-1')
     expect(useBillingImagesStore.getState().billingImages).toHaveLength(1)
   })
 })

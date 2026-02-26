@@ -119,15 +119,6 @@ export const useTableContent = <T extends { id: string | number }>({
     });
   }, [data, sortKey, sortDirection]);
 
-  const orderedData = useMemo(() => {
-    if (!selected.length) return sortedData;
-    const selectedIds = new Set(selected.map((item) => String(item.id)));
-    if (selectedIds.size === 0) return sortedData;
-    const selectedRows = sortedData.filter((row) => selectedIds.has(String(row.id)));
-    const remainingRows = sortedData.filter((row) => !selectedIds.has(String(row.id)));
-    return [...selectedRows, ...remainingRows];
-  }, [sortedData, selected]);
-
   return {
     selected,
     allSelected,
@@ -136,7 +127,7 @@ export const useTableContent = <T extends { id: string | number }>({
     sortKey,
     sortDirection,
     handleSort,
-    sortedData: orderedData,
+    sortedData,
   };
 };
 

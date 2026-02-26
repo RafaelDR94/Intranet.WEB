@@ -36,6 +36,8 @@ const TicketForm: React.FC<InvoicesFormProps> = ({
         submitLabel="Enviar solicitud"
         onSubmit={handleSubmit}
         onValidChange={setFormReady}
+        valuesVersion={formKey}
+        valuesVersionActive
         externalSubmitRef={externalSubmitRef}
         showSubmitIf={() => false}
       />
@@ -59,6 +61,8 @@ const TicketForm: React.FC<InvoicesFormProps> = ({
           submitLabel="Enviar solicitud"
           onSubmit={handleSubmit}
           onValidChange={setFormReady}
+          valuesVersion={formKey}
+          valuesVersionActive
             externalSubmitRef={submitRef}
             showSubmitIf={() => false}
           />
