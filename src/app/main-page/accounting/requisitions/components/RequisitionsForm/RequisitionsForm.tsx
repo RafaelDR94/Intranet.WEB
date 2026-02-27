@@ -104,6 +104,7 @@ const RequisitionsForm: React.FC<Props> = ({
             primaryLabel="Guardar"
             onPrimaryClick={onSubmit}
             primaryDisabled={buttonDisabled || (startDisabled && disableForm)}
+            primaryButtonDataTour="requisitions-form-submit"
             enableCollapse={enableCollaps}
             showSecondaryButton={showEditForm ?? (mode === "edit" || startDisabled)}
             secondaryLabel={disableForm ? "Editar información" : "Cancelar"}
@@ -111,6 +112,7 @@ const RequisitionsForm: React.FC<Props> = ({
               onClose?.();
               setDisableForm((prev) => !prev);
             }}
+            secondaryButtonDataTour="requisitions-form-secondary"
             startCollaps={startCollaps}
           >
             <DynamicForm

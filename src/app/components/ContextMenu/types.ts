@@ -15,6 +15,7 @@ export interface ContextMenuItem {
   onClick?: () => void;
   disabled?: boolean;
   danger?: boolean;
+  dataTour?: string;
   controlType?: ControlType;
   controlSide?: ControlSide;
   controlProps?: Record<string, any>;

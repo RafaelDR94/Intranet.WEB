@@ -16,11 +16,13 @@ export const logout = async (set: Set): Promise<void> => {
   const rememberedPassLS = localStorage.getItem(REMEMBER_PASS_KEY)
   const firebaseToken = localStorage.getItem('firebaseTokenDoc')
   const deviceId = localStorage.getItem('deviceIdDoc')
+  const tutorialProgress = localStorage.getItem('tutorialProgress:v1')
   set({ user: null, token: null })
   setInterceptor(null)
   localStorage.clear()
   if (firebaseToken) localStorage.setItem('firebaseTokenDoc', firebaseToken)
   if (deviceId) localStorage.setItem('deviceIdDoc', deviceId)
+  if (tutorialProgress) localStorage.setItem('tutorialProgress:v1', tutorialProgress)
   if (rememberFlag === '1' && rememberedEmailLS) {
     localStorage.setItem(REMEMBER_FLAG_KEY, '1')
     localStorage.setItem(REMEMBER_EMAIL_KEY, rememberedEmailLS)

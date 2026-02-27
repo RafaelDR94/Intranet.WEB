@@ -21,4 +21,6 @@ export interface LabelProps {
   type: LabelType;
   /** Text to display */
   text: any;
+  /** Custom classes */
+  className?: string;
 }

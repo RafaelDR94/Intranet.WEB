@@ -18,6 +18,7 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
   expanded,
   onClose,
   onExpandedChange,
+  closeButtonDataTour,
   actionButton,
   renderActions,
   leftLabel,
@@ -101,6 +102,7 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
                 <CloseIcon className={detailsPanelStyles.iconButtons} />
               )}
               onClick={onClose}
+              data-tour={closeButtonDataTour}
             />
           </div>
         </header>

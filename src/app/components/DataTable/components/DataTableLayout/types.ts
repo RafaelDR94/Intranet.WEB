@@ -55,4 +55,14 @@ export interface TableLayoutProps {
   showRefresh?: boolean
   /** Función para refrescar la página */
   onRefreshPage?: () => void
+  /** Data-tour para input de bÃºsqueda */
+  searchDataTour?: string
+  /** Data-tour para calendario */
+  calendarDataTour?: string
+  /** Data-tour para filtros */
+  filterDataTour?: string
+  /** Data-tour para botÃ³n refrescar */
+  refreshDataTour?: string
+  /** Data-tour para botÃ³n de acciÃ³n principal */
+  actionButtonDataTour?: string
 }

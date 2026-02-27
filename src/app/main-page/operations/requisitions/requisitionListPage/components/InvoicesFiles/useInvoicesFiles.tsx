@@ -16,6 +16,8 @@ import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
 import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
+import { useTutorials } from "@/tutorials/engine/TutorialProvider";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 type InvoiceRow = {
   id: string;
@@ -146,6 +148,11 @@ const useInvoicesFiles = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert, hideAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
+  const { activeTutorialId } = useTutorials();
+  const isMobile = useIsMobile();
+  const isTutorialActive =
+    activeTutorialId === "operations-requisitions:files" ||
+    activeTutorialId === "operations-requisitions:billablefiles";
   const { requisitions, requisitionId, employeeId } = useRequisitionDocuments();
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailRow, setDetailRow] = useState<InvoiceRow | null>(null);
@@ -253,9 +260,10 @@ const useInvoicesFiles = () => {
   }, [pendingBillingDocuments, requisitionId, requisitionOptions.length]);
 
   useEffect(() => {
+    if (isTutorialActive) return;
     if (!employeeId) return;
     fetchBillingDocumentsPendingByEmployee(employeeId, true);
-  }, [employeeId, fetchBillingDocumentsPendingByEmployee]);
+  }, [employeeId, fetchBillingDocumentsPendingByEmployee, isTutorialActive]);
 
   const handleLinkRequisition = useCallback(
     async (invoiceId: string, billingrequisition_id: string) => {
@@ -369,16 +377,51 @@ const useInvoicesFiles = () => {
   );
 
 
-  const rows = useMemo(
-    () =>
-      mapInvoices(
-        pendingBillingDocuments,
-        requisitions,
-        requisitionId,
-        statusOverrides,
-      ),
-    [pendingBillingDocuments, requisitions, requisitionId, statusOverrides],
+  const mockRows = useMemo<InvoiceRow[]>(() => {
+    return [
+      {
+        id: "mock-invoice-001",
+        uuid: "UUID-2026-001",
+        date: "26/02/2026",
+        certificationDate: "2026-02-26T10:30:00Z",
+        category: "Hospedaje",
+        description: "Hotel",
+        status: "Pendiente",
+        comments: "En revision",
+        xmlUrl: "data:text/xml;base64,PHhtbD5kZW1vPC94bWw+",
+        pdfUrl: "data:application/pdf;base64,JVBERi0xLjQKJQ==",
+        requisitionId: "mock-req-001",
+        requisitionKey: "REQ-2026-001",
+        employeeName: "Maria Gonzalez",
+        rfcEmisor: "AAA010101AAA",
+        rfcReceptor: "BBB010101BBB",
+        claveSat: "01010101",
+        subtotal: 1000,
+        iva: 160,
+        total: 1160,
+      },
+    ];
+  }, []);
+
+  const rows = useMemo(() => {
+    const invoices = mapInvoices(
+      pendingBillingDocuments,
+      requisitions,
+      requisitionId,
+      statusOverrides,
+    );
+    if (isTutorialActive && invoices.length === 0) return mockRows;
+    return invoices;
+  }, [pendingBillingDocuments, requisitions, requisitionId, statusOverrides, isTutorialActive, mockRows]);
+
+  const mockRequisitionOptions = useMemo(
+    () => [{ label: "REQ-2026-001 - Proyecto Atlas", value: "mock-req-001" }],
+    [],
   );
+  const effectiveRequisitionOptions =
+    isTutorialActive && requisitionOptions.length === 0
+      ? mockRequisitionOptions
+      : requisitionOptions;
 
   const filterOptions = useMemo(
     () => [
@@ -552,7 +595,7 @@ const useInvoicesFiles = () => {
     fetchRequisitionsWithEmployees,
   ]);
 
-  const columns: ColumnDefinition<InvoiceRow>[] = useMemo(
+  const desktopColumns: ColumnDefinition<InvoiceRow>[] = useMemo(
     () => [
       {
         key: "attachments",
@@ -566,6 +609,7 @@ const useInvoicesFiles = () => {
                 icon={XMLIcon}
                 onClick={() => window.open(row.xmlUrl ?? undefined, "_blank")}
                 aria-label="Abrir XML"
+                data-tour="requisitions-invoice-xml"
               />
             )}
             {row.pdfUrl && (
@@ -575,6 +619,7 @@ const useInvoicesFiles = () => {
                 icon={PDFIcon}
                 onClick={() => window.open(row.pdfUrl ?? undefined, "_blank")}
                 aria-label="Abrir PDF"
+                data-tour="requisitions-invoice-pdf"
               />
             )}
           </div>
@@ -633,6 +678,7 @@ const useInvoicesFiles = () => {
             onClick={() => openDetails(row)}
             variant="ghost"
             hideIcon
+            data-tour="requisitions-invoice-details"
           >
             Ver Detalles
           </Button>
@@ -644,8 +690,9 @@ const useInvoicesFiles = () => {
         key: "acciones" as unknown as keyof InvoiceRow,
         label: "VINCULAR",
         render: (row) => (
-          <Select
-            options={requisitionOptions}
+          <div data-tour="requisitions-invoice-link">
+            <Select
+            options={effectiveRequisitionOptions}
             selected={[
               selectedRequisitions[row.id] ?? row.requisitionId ?? "",
             ].filter(Boolean)}
@@ -658,13 +705,89 @@ const useInvoicesFiles = () => {
             }}
             size="md"
           />
+          </div>
         ),
         cellClass: "w-2/14",
         headerClass: "w-2/14",
       },
     ],
-    [handleLinkRequisition, linkingId, openDetails, requisitionOptions, selectedRequisitions],
+    [
+      handleLinkRequisition,
+      linkingId,
+      openDetails,
+      effectiveRequisitionOptions,
+      selectedRequisitions,
+    ],
   );
+
+  const mobileColumns: ColumnDefinition<InvoiceRow>[] = useMemo(
+    () => [
+     
+      {
+        key: "status",
+        label: "Estatus",
+        render: (row) => (
+          <Label
+            type={statusToType(row.status)}
+            text={row.status || ""}
+            className="m-0 text-[8px]"
+          />
+        ),
+        cellClass: "w-4/12",
+        headerClass: "w-4/12",
+      },
+      {
+        key: "acciones" as unknown as keyof InvoiceRow,
+        label: "Vincular",
+        render: (row) => (
+          <div data-tour="requisitions-invoice-link">
+            <Select
+              options={effectiveRequisitionOptions}
+              selected={[
+                selectedRequisitions[row.id] ?? row.requisitionId ?? "",
+              ].filter(Boolean)}
+              placeholder="Requisicion"
+              onChange={(values) => {
+                const selectedValue = values[0];
+                if (selectedValue) {
+                  handleLinkRequisition(row.id, selectedValue);
+                }
+              }}
+              size="md"
+              className="min-w-[120px] max-w-[140px] text-[12px]"
+            />
+          </div>
+        ),
+        cellClass: "w-6/12",
+        headerClass: "w-6/12",
+      },
+      {
+        key: "acciones" as unknown as keyof InvoiceRow,
+        label: "Detalle",
+        render: (row) => (
+          <Button
+            size="xsmall"
+            onClick={() => openDetails(row)}
+            variant="ghost"
+            hideIcon
+            data-tour="requisitions-invoice-details"
+          >
+            Ver
+          </Button>
+        ),
+        cellClass: "w-1/12",
+        headerClass: "w-1/12",
+      },
+    ],
+    [
+      handleLinkRequisition,
+      openDetails,
+      effectiveRequisitionOptions,
+      selectedRequisitions,
+    ],
+  );
+
+  const columns = isMobile ? mobileColumns : desktopColumns;
 
   return {
     columns,

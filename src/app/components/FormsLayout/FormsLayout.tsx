@@ -23,6 +23,10 @@ type FormsLayoutProps = {
   /** Deshabilita el boton secundario */
   secondaryDisabled?: boolean;
   showPrimaryButton?: boolean;
+  /** Data-tour para boton primario */
+  primaryButtonDataTour?: string;
+  /** Data-tour para boton secundario */
+  secondaryButtonDataTour?: string;
   children: ReactNode;
   enableCollapse?: boolean;
   showDivider?: boolean;
@@ -46,6 +50,8 @@ const FormsLayout = ({
   startCollaps = false,
   enableCollapse = true,
   showDivider = true,
+  primaryButtonDataTour,
+  secondaryButtonDataTour,
   children,
 }: FormsLayoutProps) => {
   const isMobile = useIsMobile();
@@ -74,6 +80,7 @@ const FormsLayout = ({
                 onClick={onSecondaryClick}
                 disabled={secondaryDisabled}
                 className={clsx(isMobile && "w-full")}
+                data-tour={secondaryButtonDataTour}
               >
                 {secondaryLabel}
               </Button>
@@ -84,6 +91,7 @@ const FormsLayout = ({
                 onClick={onPrimaryClick}
                 disabled={primaryDisabled}
                 className={clsx(isMobile && "mt-5 w-full")}
+                data-tour={primaryButtonDataTour}
               >
                 {primaryLabel}
               </Button>

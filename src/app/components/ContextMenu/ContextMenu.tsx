@@ -214,6 +214,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
                 role="menuitem"
                 tabIndex={item.disabled ? -1 : 0}
                 aria-disabled={item.disabled || undefined}
+                data-tour={item.dataTour}
                 onClick={() => handleItemActivate(index, items)}
                 className={itemClass}
               >

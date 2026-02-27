@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { useSearchParams } from "next/navigation";
 
 import useMainTab from "./hooks/useMainTab";
 import { container, tabsWrapper } from "./styles";
@@ -10,6 +11,8 @@ import { MainTabsProps } from "./types";
 
 import Notification from "../Notification/Notification";
 import PersonalAvatar from "@/app/components/PersonalAvatar/PersonalAvatar";
+import HelpButton from "@/components/help/HelpButton";
+import TutorialCenterModal from "@/components/help/TutorialCenterModal";
 import MenuIcon from "@/assets/icons/acciones/menu.svg";
 import Bell from "@/assets/icons/Comunicacion/bell.svg";
 import BellNotification from "@/assets/icons/Comunicacion/bell-notification.svg";
@@ -29,9 +32,29 @@ export const MainTabs: React.FC<MainTabsProps> = ({
   onOpenMobileMenu,
 }) => {
   const { filtered, isMobile, isActive } = useMainTab({ tabs, pathname, validPermissionsbyroute });
+  const searchParams = useSearchParams();
   const BellIcon = hasNotification ? BellNotification : Bell;
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [helpOpen, setHelpOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
+  const tutorialModuleId = React.useMemo(() => {
+    if (!pathname) return "main-page";
+    const view = searchParams.get("view");
+    const label = searchParams.get("label")?.toLowerCase();
+    const isFilesView = label?.startsWith("archivos");
+    const isBillableFilesView = view === "billablefiles";
+    const isDetailView = view === "detail";
+    if (pathname.includes("/main-page/operations/requisitions/requisitionListPage")) {
+      if (isBillableFilesView) return "operations-requisitions-billablefiles";
+      if (isFilesView) return "operations-requisitions-files";
+      if (isDetailView) return "operations-requisitions-detail";
+      return "operations-requisitions-list";
+    }
+    if (pathname.includes("/main-page/operations/requisitions/requisitionsPage")) {
+      return "operations-requisitions-form";
+    }
+    return "main-page";
+  }, [pathname, searchParams]);
 
   React.useEffect(() => {
     if (!menuOpen) return;
@@ -58,6 +81,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
       <button
         type="button"
         data-testid="top-bar-notifications"
+        data-tour="notifications-bell"
         aria-label="Notificaciones"
         onClick={() => setMenuOpen(prev => !prev)}
         className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-gray-10 focus:outline-none focus:ring-2 focus:ring-blue-40"
@@ -89,6 +113,16 @@ export const MainTabs: React.FC<MainTabsProps> = ({
       )}
     </div>
   );
+  const HelpAction = (
+    <HelpButton onClick={() => setHelpOpen(true)} />
+  );
+
+  const HeaderActions = (
+    <div className="flex items-center gap-2">
+      {HelpAction}
+      {NotificationBell}
+    </div>
+  );
 
   // Topbar movil (logo + hamburguesa). Se muestra siempre en <lg
   const MobileTopbar = (
@@ -97,12 +131,11 @@ export const MainTabs: React.FC<MainTabsProps> = ({
         <Image src={LogoDr} alt="DR Security TopBar" width={90} height={55} />
       </div>
       <div className="flex items-center">
-        <div className="mr-3">
-          {isMobile ? NotificationBell : null}
-        </div>
+        <div className="mr-3">{isMobile ? HeaderActions : null}</div>
         <PersonalAvatar size="tiny" dataTestId="top-bar-Avatar" />
         <button
           data-testid="open-mobile-menu"
+          data-tour="mobile-menu-button"
           onClick={onOpenMobileMenu}
           className="h-10 w-10 ml-2 flex items-center justify-center rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
           aria-label="Abrir menu"
@@ -121,7 +154,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
     <>
       {MobileTopbar}
 
-      <nav data-testid="main-tabs" className={container}>
+      <nav data-testid="main-tabs" data-tour="main-tabs" className={container}>
         <div className={tabsWrapper}>
           {filtered.map((tab, index) => (
             <React.Fragment key={tab.path}>
@@ -142,10 +175,17 @@ export const MainTabs: React.FC<MainTabsProps> = ({
           ))}
         </div>
         <div className="flex items-center">
-          {!isMobile ? NotificationBell : null}
+          {!isMobile ? HeaderActions : null}
         </div>
       </nav>
       <div className="h-px bg-gray-20 mt-3 mx-6" />
+      {helpOpen ? (
+        <TutorialCenterModal
+          open={helpOpen}
+          onClose={() => setHelpOpen(false)}
+          moduleId={tutorialModuleId}
+        />
+      ) : null}
     </>
   );
 };

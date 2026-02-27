@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
-import RequisitionsFiles from './RequisitionsFiles'
+import UserRequisitionsList from './UserRequisitionsList'
 
 const fetchMock = vi.fn()
 const resetMock = vi.fn()
@@ -77,13 +77,13 @@ vi.mock('@/app/components/DataTable/DataTable', () => ({
   ),
 }))
 
-describe('RequisitionsFiles', () => {
+describe('UserRequisitionsList', () => {
   beforeEach(() => {
     pushMock.mockClear()
   })
 
   it('renders requisitions history table with rows and fetches by user id', async () => {
-    render(<RequisitionsFiles />)
+    render(<UserRequisitionsList />)
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith('99', true)

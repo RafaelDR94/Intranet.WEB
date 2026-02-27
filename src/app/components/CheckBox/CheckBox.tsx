@@ -61,6 +61,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   name,
   className,
   dataTestId,
+  dataTour,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null)
   useIndeterminate(inputRef, indeterminate)
@@ -90,6 +91,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   return (
     <label
       data-testid={dataTestId}
+      data-tour={dataTour}
       className={clsx(
         baseLabel,
         layoutMap[labelPosition],

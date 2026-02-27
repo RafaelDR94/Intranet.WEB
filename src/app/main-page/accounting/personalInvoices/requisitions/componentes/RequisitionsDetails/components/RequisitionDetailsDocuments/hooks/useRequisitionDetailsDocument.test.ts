@@ -3,6 +3,11 @@ import { describe, it, expect, vi } from 'vitest'
 
 import useRequisitionDetailsDocument from './useRequisitionDetailsDocument'
 
+vi.mock('@/tutorials/engine/TutorialProvider', () => ({
+  __esModule: true,
+  useTutorials: () => ({ activeTutorialId: null }),
+}))
+
 const fetchBilling = vi.fn()
 const downloadRequistionResume = vi.fn()
 

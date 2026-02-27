@@ -74,11 +74,12 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
 
   return (
     <div>
-      <DataTable
-        showCalendar={true}
-        showDownloadTable={false}
-        actionLabel="Subir Factura"
-        showFilter
+      <div data-tour="requisitions-invoices-table">
+        <DataTable
+          showCalendar={true}
+          showDownloadTable={false}
+          actionLabel="Subir Factura"
+          showFilter
         showRefresh
         filterOptions={filterOptions}
         filterValue={filterValue}
@@ -86,20 +87,23 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
         onFilterChange={(value) => setFilterValue(value)}
         onRefreshPage={refresh}
         onTableActionClick={handleUploadBillableFiles}
-        textSize={{ mobile: "text-c3", desktop: "text-c2" }}
-        tables={[
-          {
-            data: rows,
-            columns: columns,
-            title: "Facturas",
-            enableCollaps: true,
-            enableSelection: false,
-          },
-        ]}
-      />
+          actionButtonDataTour="requisitions-upload-invoice"
+          textSize={{ mobile: "text-c3", desktop: "text-c2" }}
+          tables={[
+            {
+              data: rows,
+              columns: columns,
+              title: "Facturas",
+              enableCollaps: true,
+              enableSelection: false,
+            },
+          ]}
+        />
+      </div>
       <DetailsPanelLayout
         open={detailOpen}
         onClose={closeDetails}
+        closeButtonDataTour="requisitions-invoice-close"
         leftLabel={
           detailRow?.employeeName
             ? `Nombre: ${detailRow.employeeName}`
@@ -119,6 +123,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
               className="mr-2"
               onClick={() => setOpenValidInvoice(true)}
               disabled={isStatusLocked}
+              data-tour="requisitions-invoice-validate"
             >
               Validar
             </Button>
@@ -128,6 +133,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
               hideIcon={true}
               onClick={() => setOpenRejectInvoice(true)}
               disabled={isStatusLocked}
+              data-tour="requisitions-invoice-reject"
             >
               Rechazar
             </Button>
