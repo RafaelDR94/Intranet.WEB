@@ -58,6 +58,7 @@ const RequisitionsForm: React.FC<Props> = ({
     currentPagePermissions,
     disableForm,
     setDisableForm,
+    valuesVersion,
   } = useRequisitionForm(mode, initialValues, startDisabled);
 
   if (currentPagePermissions?.requisitionForm)
@@ -89,6 +90,8 @@ const RequisitionsForm: React.FC<Props> = ({
               externalSubmitRef={submitRef}
               showSubmitIf={() => false}
               disabled={disableForm}
+              valuesVersion={valuesVersion}
+              valuesVersionActive
             />
           </div>
         ) : (
@@ -134,6 +137,8 @@ const RequisitionsForm: React.FC<Props> = ({
               externalSubmitRef={submitRef}
               showSubmitIf={() => false}
               disabled={disableForm}
+              valuesVersion={valuesVersion}
+              valuesVersionActive
             />
           </FormsLayout>
         )}

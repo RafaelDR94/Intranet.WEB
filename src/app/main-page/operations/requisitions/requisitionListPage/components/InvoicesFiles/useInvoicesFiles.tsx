@@ -26,6 +26,7 @@ type InvoiceRow = {
   description: string;
   status: string;
   comments: string;
+  userComments?: string;
   xmlUrl?: string | null;
   pdfUrl?: string | null;
   attachments?: string;
@@ -100,6 +101,7 @@ const mapInvoices = (
         description: doc.description?.name ?? "",
         status: doc.status ?? "",
         comments: doc.comments ?? "",
+        userComments: doc.user_comments ?? "",
         xmlUrl: doc.xml || null,
         pdfUrl: doc.pdf || null,
         requisitionId: requisitionFromDoc ?? requisitionId,
@@ -161,6 +163,7 @@ const useInvoicesFiles = () => {
   const [selectedRequisitions, setSelectedRequisitions] = useState<
     Record<string, string>
   >({});
+  const [filterValue, setFilterValue] = useState<string>("all");
   const {
     validateBillingDocumentOperations,
     rejectBillingDocument,
@@ -367,19 +370,37 @@ const useInvoicesFiles = () => {
 
 
   const rows = useMemo(
-    () =>{
-      const invoices=mapInvoices(
+    () =>
+      mapInvoices(
         pendingBillingDocuments,
         requisitions,
         requisitionId,
         statusOverrides,
-      );
-      console.log("pendingBillingDocuments", pendingBillingDocuments);
-      console.log("mapped invoices", invoices);
-      return invoices;
-    },
+      ),
     [pendingBillingDocuments, requisitions, requisitionId, statusOverrides],
   );
+
+  const filterOptions = useMemo(
+    () => [
+      { label: "Todos", value: "all" },
+      { label: "Pendiente", value: "pendiente" },
+      { label: "Rechazado", value: "rechazado" },
+      { label: "Validado", value: "validado" },
+    ],
+    [],
+  );
+
+  const resolveFilterStatus = useCallback((status?: string) => {
+    const normalized = (status ?? "").toLowerCase();
+    if (normalized.includes("valid")) return "validado";
+    if (normalized.includes("rechaz")) return "rechazado";
+    return "pendiente";
+  }, []);
+
+  const filteredRows = useMemo(() => {
+    if (filterValue === "all") return rows;
+    return rows.filter((row) => resolveFilterStatus(row.status) === filterValue);
+  }, [filterValue, resolveFilterStatus, rows]);
 
   useEffect(() => {
     if (!detailRow) return;
@@ -409,6 +430,14 @@ const useInvoicesFiles = () => {
     (values: Record<string, any>) => {
       if (!detailRow) return;
       setOpenRejectInvoice(false);
+      setStatusOverrides((prev) => ({
+        ...prev,
+        [detailRow.id]: {
+          ...prev[detailRow.id],
+          status: "Rechazado",
+          comments: values.comments ?? "",
+        },
+      }));
       setLastAction({
         id: detailRow.id,
         status: "Rechazado",
@@ -446,6 +475,9 @@ const useInvoicesFiles = () => {
           },
         }));
         fetchRequisitionsWithEmployees(undefined, undefined, true);
+        if (employeeId) {
+          fetchBillingDocumentsPendingByEmployee(employeeId, true);
+        }
         setLastAction(null);
       }
       showAlert({
@@ -469,6 +501,9 @@ const useInvoicesFiles = () => {
           },
         }));
         fetchRequisitionsWithEmployees(undefined, undefined, true);
+        if (employeeId) {
+          fetchBillingDocumentsPendingByEmployee(employeeId, true);
+        }
         setLastAction(null);
       }
       showAlert({
@@ -500,8 +535,21 @@ const useInvoicesFiles = () => {
     succesValidate,
     succesReject,
     error,
+    employeeId,
+    fetchBillingDocumentsPendingByEmployee,
     fetchRequisitionsWithEmployees,
     lastAction,
+  ]);
+
+  const refresh = useCallback(() => {
+    if (!employeeId) return;
+    setStatusOverrides({});
+    fetchBillingDocumentsPendingByEmployee(employeeId, true);
+    fetchRequisitionsWithEmployees(undefined, undefined, true);
+  }, [
+    employeeId,
+    fetchBillingDocumentsPendingByEmployee,
+    fetchRequisitionsWithEmployees,
   ]);
 
   const columns: ColumnDefinition<InvoiceRow>[] = useMemo(
@@ -558,20 +606,23 @@ const useInvoicesFiles = () => {
       {
         key: "comments",
         label: "Comentario",
-        render: (_row) => (<>
-           {_row.comments &&(   <Button
-            size="small"
-            // onClick={() => handleOpenDetails(row)}
-            variant="ghost"
-            hideIcon
-          >
-            <ChatIcon className="h-6 w-6" />
-          </Button>)}
-        </>
-    
-        ),
-        cellClass: "w-2/14",
-        headerClass: "w-2/14",
+        render: (row) => {
+          const hasComment =
+            Boolean(row.comments?.trim()) || Boolean(row.userComments?.trim());
+          if (!hasComment) return null;
+          return (
+            <Button
+              size="small"
+              onClick={() => openDetails(row)}
+              variant="ghost"
+              hideIcon
+            >
+              <ChatIcon className="h-6 w-6" />
+            </Button>
+          );
+        },
+        cellClass: "w-2/14 flex justify-center",
+        headerClass: "w-2/14 flex justify-center",
       },
       {
         key: "acciones" as unknown as keyof InvoiceRow,
@@ -617,7 +668,11 @@ const useInvoicesFiles = () => {
 
   return {
     columns,
-    rows,
+    rows: filteredRows,
+    filterOptions,
+    filterValue,
+    setFilterValue,
+    refresh,
     detailOpen,
     detailRow,
     closeDetails,

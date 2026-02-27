@@ -118,6 +118,7 @@ export const FileUploaderExpanded: React.FC<FileUploaderProps> = ({
           type="button"
           onClick={handleButtonClick}
           disabled={disabled}
+          hideIcon
           className={buttonWrapper}
           variant="outline"
         >

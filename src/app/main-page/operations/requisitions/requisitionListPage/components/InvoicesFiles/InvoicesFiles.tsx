@@ -12,6 +12,10 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
   const {
     columns,
     rows,
+    filterOptions,
+    filterValue,
+    setFilterValue,
+    refresh,
     detailOpen,
     detailRow,
     closeDetails,
@@ -27,6 +31,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const requisitionId = searchParams.get("id");
+  const employeeId = searchParams.get("idEmployee");
   const currency = new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "MXN",
@@ -52,6 +57,12 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
 
     const query = new URLSearchParams(searchParams.toString());
     query.set("id", requisitionId);
+    if (employeeId) {
+      query.set("idEmployee", employeeId);
+    }
+    if (employeeId) {
+      query.set("idEmployee", employeeId);
+    }
     const label = searchParams.get("label");
     if (label) {
       query.set("label", label);
@@ -67,6 +78,13 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
         showCalendar={true}
         showDownloadTable={false}
         actionLabel="Subir Factura"
+        showFilter
+        showRefresh
+        filterOptions={filterOptions}
+        filterValue={filterValue}
+        filterTitle="Estatus"
+        onFilterChange={(value) => setFilterValue(value)}
+        onRefreshPage={refresh}
         onTableActionClick={handleUploadBillableFiles}
         textSize={{ mobile: "text-c3", desktop: "text-c2" }}
         tables={[
@@ -175,13 +193,13 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
                   {detailRow.description || "-"}
                 </span>
               </div>
-              {detailRow.comments && (
+              {(detailRow.comments || detailRow.userComments) && (
                 <div className="space-y-1">
                   <div className="text-gray-90 text-b4 font-medium">
                     Comentarios:
                   </div>
                   <p className="text-b4 p-2 font-medium text-gray-50">
-                    {detailRow.comments}
+                    {detailRow.comments?.trim() || detailRow.userComments?.trim()}
                   </p>
                 </div>
               )}

@@ -161,6 +161,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         </div>
       )}
       <Formik
+        key={valuesVersionActive ? `v-${valuesVersion}` : undefined}
         initialValues={initialValues}
         validationSchema={validationSchema}
         enableReinitialize

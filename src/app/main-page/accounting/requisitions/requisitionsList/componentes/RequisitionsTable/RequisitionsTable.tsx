@@ -77,8 +77,8 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
   const computedColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
       {
-        key: "employeename",
-        label: "Nombre",
+        key: "image_url",
+        label: "",
         render: (row) => {
           const initials = row.employeename
             ?.split(" ")
@@ -86,17 +86,24 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
             .map((n) => n[0].toUpperCase())
             .slice(0, 2)
             .join("");
-
           return (
             <div className="flex items-center gap-2">
-              <Avatar size="xxs" initials={initials} className="mr-1" />
-              <span>{row.employeename}</span>
+              {row.image_url ? (
+                <Avatar size="xs" src={row.image_url} className="mr-1" />
+              ) : (
+                <Avatar size="xs" initials={initials} className="mr-1" />
+              )}
             </div>
           );
         },
-
-        cellClass: "w-80",
-        headerClass: "w-80",
+        cellClass: "w-15",
+        headerClass: "w-15",
+      },
+      {
+        key: "employeename",
+        label: "Nombre",
+        cellClass: "w-65",
+        headerClass: "w-65",
       },
       {
         key: "phone_number",
@@ -107,14 +114,19 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
       {
         key: "email",
         label: "Correo eléctronico",
-        cellClass: "w-70",
-        headerClass: "w-72",
+        cellClass: "w-67",
+        headerClass: "w-73",
       },
       {
         key: "projectCode",
         label: "Archivos",
         render: (row) => (
-          <Button variant="ghost" size="small" hideIcon onClick={() => onViewFiles(row)}>
+          <Button
+            variant="ghost"
+            size="small"
+            hideIcon
+            onClick={() => onViewFiles(row)}
+          >
             Ver Archivos
           </Button>
         ),
@@ -221,6 +233,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
           onCalendarClick={(start, end) => refresh(start, end)}
           onFilterClick={refresh}
           showRefresh={true}
+          onRefreshPage={() => refresh()}
           showButton={showActionButton && !currentPagePermissions?.create}
           actionLabel={actionLabel}
           onTableActionClick={onActionClick}
@@ -229,7 +242,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
               data: rows,
               columns: columns,
               enableSelection: false,
-              title: "Requisiciones",
+              title: "Requisiciones aqui",
               enableCollaps: true,
               defaultSortKey: "date_created",
               defaultSortDirection: "desc",
