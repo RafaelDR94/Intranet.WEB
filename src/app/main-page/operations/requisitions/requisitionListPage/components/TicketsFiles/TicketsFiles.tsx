@@ -23,6 +23,10 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
   const {
     columns,
     rows,
+    filterOptions,
+    filterValue,
+    setFilterValue,
+    refresh,
     previewSrc,
     previewIndex,
     previewTotal,
@@ -57,6 +61,13 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
         showCalendar={true}
         showDownloadTable={false}
         showButton={false}
+        showFilter
+        showRefresh
+        filterOptions={filterOptions}
+        filterValue={filterValue}
+        filterTitle="Estatus"
+        onFilterChange={(value) => setFilterValue(value)}
+        onRefreshPage={refresh}
         textSize={{ mobile: "text-c3", desktop: "text-c2" }}
         tables={[
           {
@@ -81,7 +92,9 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
             hideIcon
             onClick={openReject}
             disabled={
-              detailRow?.status.toLocaleLowerCase() == "validado" || rejecting
+              detailRow?.status.toLocaleLowerCase() == "validado" ||
+              detailRow?.status.toLocaleLowerCase() == "rechazado" ||
+              rejecting
             }
           >
             Rechazar
@@ -138,13 +151,13 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
                 {detailRow.category}
               </span>
             </div>
-            {detailRow.comments && (
+            {(detailRow.comments || detailRow.userComments) && (
               <div className="space-y-1">
                 <div className="text-gray-90 text-b4 font-medium">
                   Comentarios:
                 </div>
                 <p className="text-b4 p-2 font-medium text-gray-50">
-                  {detailRow.comments}
+                  {detailRow.comments?.trim() || detailRow.userComments?.trim()}
                 </p>
               </div>
             )}

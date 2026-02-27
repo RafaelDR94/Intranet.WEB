@@ -14,21 +14,21 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
 export const deleteBillingRequisitionWithEmployees = async (
   set: Set,
   get: Get,
-  id: string,
+  idRequisition: string,
 ): Promise<boolean> => {
   set({ removing: true, error: undefined, successDelete: false })
 
   try {
     const del = pDelete(requireGateway('del'), [200, 204])
-    const _res: AxiosResponse = await del(`${BillingRequisition}/${id}`)
+    const _res: AxiosResponse = await del(`${BillingRequisition}/${idRequisition}`)
 
     set((s) => ({
       requisitions: s.requisitions.filter((r) => {
         const record = r as Record<string, unknown>
-        const requisitionId = String(record.billingrequisition_id ?? '')
-        const employeeId = String(record.id_employee ?? record.id_Employee ?? '')
-        const resolvedId = requisitionId || employeeId
-        return resolvedId !== id
+        const requisitionId = String(
+          record.id_requisition ?? record.billingrequisition_id ?? '',
+        )
+        return requisitionId !== idRequisition
       }),
       removing: false,
       successDelete: true,

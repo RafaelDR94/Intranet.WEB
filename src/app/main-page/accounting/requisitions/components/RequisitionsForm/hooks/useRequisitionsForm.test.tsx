@@ -22,12 +22,24 @@ vi.mock('@/app/stores/useFormFieldsStore/useFormFieldsStore', () => {
 
 vi.mock('@/app/stores/useEmployeesStore/useEmployeesStore', () => ({
   useEmployeesStore: (selector: any) =>
-    selector({ employees: [], error: undefined, fetchEmployees: vi.fn() }),
+    selector({
+      employees: [],
+      error: undefined,
+      fetchEmployees: vi.fn(),
+      loading: false,
+      successGet: true,
+    }),
 }));
 
 vi.mock('@/app/stores/useProyectsStore/useProyectsStore', () => ({
   useProyectsStore: (selector: any) =>
-    selector({ proyects: [], error: undefined, fetchProyects: vi.fn() }),
+    selector({
+      proyects: [],
+      error: undefined,
+      fetchProyects: vi.fn(),
+      loading: false,
+      successGet: true,
+    }),
 }));
 
 const createRequisition = vi.fn();

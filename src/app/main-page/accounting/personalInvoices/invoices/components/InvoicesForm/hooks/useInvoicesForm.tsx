@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { shallow } from "zustand/shallow";
 
 import { useInvoices } from "../../../context/InvoicesContext";
@@ -16,6 +17,7 @@ import type {
 } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
+import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 
 const useInvoicesForm = ({
   dataEdit,
@@ -173,6 +175,14 @@ const useInvoicesForm = ({
   }, [dataEdit, isEdit, withoutName]);
 
   const { field1, formId1, user } = useInvoices();
+  const searchParams = useSearchParams();
+  const employeeIdParam = searchParams.get("idEmployee") ?? undefined;
+  const { fetchBillingImages } = useBillingImagesStore(
+    (s) => ({
+      fetchBillingImages: s.fetchBillingImages,
+    }),
+    shallow,
+  );
   const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm } =
     useInitInvoicesForms({
       initialformFields,
@@ -317,6 +327,10 @@ const useInvoicesForm = ({
       onCloseImage?.();
       if (postOk) ResetForm();
       if (putOk && user) forceFetchBillingHistory(user?.idEmployee);
+      const employeeId = employeeIdParam ?? user?.idEmployee;
+      if (employeeId) {
+        fetchBillingImages(employeeId, true);
+      }
       showAlert({
         type: "success",
         variant: "filled",
@@ -341,6 +355,8 @@ const useInvoicesForm = ({
     submitRef,
     isEdit,
     user,
+    employeeIdParam,
+    fetchBillingImages,
   ]);
 
   const resolvedFields = useMemo(
