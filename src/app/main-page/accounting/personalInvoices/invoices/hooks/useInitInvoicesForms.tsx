@@ -370,6 +370,9 @@ const useInitInvoicesForms = ({
     const rawName = String(category?.name ?? fallbackLabel).trim().toLowerCase();
     const name = rawName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const isHospedaje = name.includes("hospedaje");
+    const isTransport =
+      name.includes("traslado") ||
+      name.includes("autobuses");
     const isFood =
       name.includes("alimento") ||
       name.includes("alimentacion") ||
@@ -382,7 +385,7 @@ const useInitInvoicesForms = ({
     const hasRequired = currentField?.validations?.some((v) => v.type === "required");
 
     const currentPersons = field.find((item) => item.name === "numpersons");
-    const shouldRequirePersons = isHospedaje || isFood;
+    const shouldRequirePersons = isHospedaje || isFood || isTransport;
     const shouldDisablePersons = !shouldRequirePersons;
     const personsHasRequired = currentPersons?.validations?.some(
       (v) => v.type === "required",

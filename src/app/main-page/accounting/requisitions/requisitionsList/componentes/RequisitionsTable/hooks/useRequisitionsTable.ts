@@ -100,13 +100,16 @@ export const useRequisitionTable = () => {
       const requisition = r as Partial<Requisition>
       const benefit = r as {
         id_employee?: string
+        id_requisition?: string
         fullname?: string
         email?: string
         phone_number?: string
+        image_url?: string
       }
       const employeename = requisition.employeename ?? benefit.fullname ?? ''
       const employeeId = requisition.id_Employee ?? benefit.id_employee ?? ''
-      const requisitionId = requisition.billingrequisition_id ?? employeeId
+      const requisitionId =
+        requisition.billingrequisition_id ?? benefit.id_requisition ?? employeeId
 
       return {
         id: requisitionId ?? '',
@@ -123,6 +126,7 @@ export const useRequisitionTable = () => {
         state: requisition.state,
         phone_number: requisition.phone_number ?? benefit.phone_number ?? '',
         email: requisition.email ?? benefit.email ?? '',
+        image_url: requisition.image_url ?? benefit.image_url ?? '',
         date_created: requisition.date_created,
       }
     })
@@ -158,7 +162,8 @@ export const useRequisitionTable = () => {
   const onViewFiles = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path;
     const qs = new URLSearchParams(searchParams.toString());
-    qs.set('id', row.id);
+    const resolvedId = row.id || row.employeeId || '';
+    qs.set('id', resolvedId);
     if (row.employeeId) {
       qs.set('idEmployee', row.employeeId);
     }
@@ -220,9 +225,11 @@ export const useRequisitionTable = () => {
   }
 
   const refresh = (start?: Date, end?: Date) => {
-    const startDate = start ? currentDate(start) : currentDate();
-    const endDate = end ? currentDate(end) : currentDate();
-    setLastDates({ startDate: startDate, endDate: endDate })
+    const startDate = start ? currentDate(start) : lastDates.startDate
+    const endDate = end ? currentDate(end) : lastDates.endDate
+    if (start || end) {
+      setLastDates({ startDate, endDate })
+    }
     fetchRequisitionsWithEmployees(startDate, endDate, true)
   }
 

@@ -7,6 +7,7 @@ import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
+import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
 
 import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
@@ -21,13 +22,21 @@ export type TicketRow = {
   category: string;
   status: string;
   comments: string;
+  userComments?: string;
   detail: string;
   imageUrls: string[];
   source: BillingImages;
   attachments?: string[];
 };
 
-const normalizeImages = (images: BillingImages["images"] | { image?: string }[]): string[] => {
+type TicketOverride = {
+  status?: string;
+  comments?: string;
+};
+
+const normalizeImages = (
+  images: BillingImages["images"] | { image?: string }[],
+): string[] => {
   if (Array.isArray(images)) {
     return images
       .map((item) => (typeof item === "string" ? item : item?.image ?? ""))
@@ -36,18 +45,32 @@ const normalizeImages = (images: BillingImages["images"] | { image?: string }[])
   return [];
 };
 
-const mapTickets = (images: BillingImages[]): TicketRow[] =>
+const mapTickets = (
+  images: BillingImages[],
+  overrides?: Record<string, TicketOverride>,
+): TicketRow[] =>
   images
-    .map((item) => ({
-      id: item.billing_image_id || item.images?.[0]?.image || "",
-      date: item.dateCreate,
-      category: item.category?.name ?? "",
-      detail: item.description?.name ?? "",
-      status: item.status ?? "",
-      comments: item.comments ?? "",
-      imageUrls: normalizeImages(item.images),
-      source: item,
-    }))
+    .map((item) => {
+      const id = item.billing_image_id || item.images?.[0]?.image || "";
+      const baseRow = {
+        id,
+        date: item.dateCreate,
+        category: item.category?.name ?? "",
+        detail: item.description?.name ?? "",
+        status: item.status ?? "",
+        comments: item.comments ?? "",
+        userComments: item.user_comments ?? "",
+        imageUrls: normalizeImages(item.images),
+        source: item,
+      };
+      const override = overrides?.[id];
+      if (!override) return baseRow;
+      return {
+        ...baseRow,
+        status: override.status ?? baseRow.status,
+        comments: override.comments ?? baseRow.comments,
+      };
+    })
   
 
 const statusToType = (status?: string): LabelType => {
@@ -72,6 +95,9 @@ const useTicketsFiles = () => {
   const [previewIndex, setPreviewIndex] = useState<number>(0);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailRow, setDetailRow] = useState<TicketRow | null>(null);
+  const [statusOverrides, setStatusOverrides] = useState<
+    Record<string, TicketOverride>
+  >({});
   const [openRejectTicket, setOpenRejectTicket] = useState<{
     state: boolean;
     row: TicketRow | null;
@@ -102,6 +128,7 @@ const useTicketsFiles = () => {
     }),
     shallow,
   );
+  const [filterValue, setFilterValue] = useState<string>("all");
 
   useEffect(() => {
     if (isBillableFilesView) {
@@ -135,6 +162,13 @@ const useTicketsFiles = () => {
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
+      if (employeeId) {
+        if (isBillableFilesView) {
+          fetchBillingImages(employeeId, true);
+        } else {
+          fetchBillingImagesPendingByEmployee(employeeId, true);
+        }
+      }
     }
 
     if (error) {
@@ -154,11 +188,52 @@ const useTicketsFiles = () => {
 
   const rows = useMemo(() => {
     const sourceImages = isBillableFilesView ? billingImages : pendingBillingImages;
-    console.log("sourceImages", sourceImages);
-    const newrows= mapTickets(sourceImages);
-    console.log("rows", newrows);
-    return newrows;
-  }, [pendingBillingImages, billingImages]);
+    return mapTickets(sourceImages, statusOverrides);
+  }, [pendingBillingImages, billingImages, isBillableFilesView, statusOverrides]);
+
+  useEffect(() => {
+    if (!detailRow) return;
+    const updatedRow = rows.find((row) => row.id === detailRow.id);
+    if (updatedRow) {
+      setDetailRow(updatedRow);
+    }
+  }, [rows, detailRow]);
+
+  const filterOptions = useMemo(
+    () => [
+      { label: "Todos", value: "all" },
+      { label: "Pendiente", value: "pendiente" },
+      { label: "Rechazado", value: "rechazado" },
+      { label: "Validado", value: "validado" },
+    ],
+    [],
+  );
+
+  const resolveFilterStatus = useCallback((status?: string) => {
+    const normalized = (status ?? "").toLowerCase();
+    if (normalized.includes("valid")) return "validado";
+    if (normalized.includes("rechaz")) return "rechazado";
+    return "pendiente";
+  }, []);
+
+  const filteredRows = useMemo(() => {
+    if (filterValue === "all") return rows;
+    return rows.filter((row) => resolveFilterStatus(row.status) === filterValue);
+  }, [filterValue, resolveFilterStatus, rows]);
+
+  const refresh = useCallback(() => {
+    if (!employeeId) return;
+    if (isBillableFilesView) {
+      fetchBillingImages(employeeId, true);
+    } else {
+      fetchBillingImagesPendingByEmployee(employeeId, true);
+    }
+  }, [
+    employeeId,
+    fetchBillingImages,
+    fetchBillingImagesPendingByEmployee,
+    isBillableFilesView,
+  ]);
 
   const openPreview = useCallback((images: string[], index = 0) => {
     setPreviewImages(images);
@@ -200,12 +275,32 @@ const useTicketsFiles = () => {
 
   const handleSubmitReject = useCallback(
     (values: Record<string, unknown>) => {
-      const payload = {
-        billing_image_id: openRejectTicket.row?.source.billing_image_id ?? "",
-        comments: String(values.comments ?? ""),
-      };
+      const comments = String(values.comments ?? "");
+      const row = openRejectTicket.row;
+      const rowId = row?.id ?? "";
+      if (rowId) {
+        setStatusOverrides((prev) => ({
+          ...prev,
+          [rowId]: {
+            ...prev[rowId],
+            status: "Rechazado",
+            comments,
+          },
+        }));
+      }
 
       setOpenRejectTicket({ state: false, row: null });
+      if (row) {
+        setDetailRow({
+          ...row,
+          status: "Rechazado",
+          comments: comments || row.comments,
+        });
+      }
+      const payload = {
+        billing_image_id: row?.source.billing_image_id ?? "",
+        comments,
+      };
       rejectBillingImage(payload);
     },
     [openRejectTicket.row, rejectBillingImage],
@@ -253,7 +348,27 @@ const useTicketsFiles = () => {
           <Label type={statusToType(row.status)} text={row.status || ""} />
         ),
       },
-      { key: "comments", label: "Comentario", cellClass: "w-2/15 text-right", headerClass: "w-2/15 text-right" },
+      {
+        key: "comments",
+        label: "Comentario",
+        cellClass: "w-2/15 text-right",
+        headerClass: "w-2/15 text-right",
+        render: (row) => {
+          const hasComment =
+            Boolean(row.comments?.trim()) || Boolean(row.userComments?.trim());
+          if (!hasComment) return null;
+          return (
+            <Button
+              size="small"
+              variant="ghost"
+              hideIcon
+              onClick={() => openDetails(row)}
+            >
+              <ChatIcon className="h-6 w-6" />
+            </Button>
+          );
+        },
+      },
       {
         key: "detail",
         label: "Detalle",
@@ -271,7 +386,11 @@ const useTicketsFiles = () => {
 
   return {
     columns,
-    rows,
+    rows: filteredRows,
+    filterOptions,
+    filterValue,
+    setFilterValue,
+    refresh,
     previewSrc: previewImages[previewIndex] ?? null,
     previewIndex,
     previewTotal: previewImages.length,

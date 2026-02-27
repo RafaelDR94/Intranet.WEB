@@ -55,6 +55,9 @@ export const BenefitMap = (raw: unknown): Benefit => {
     fullname,
     email: toStringSafe(record.email ?? record.mail),
     phone_number: toStringSafe(record.phone_number ?? record.phoneNumber ?? record.phone),
+    image_url: toStringSafe(
+      record.image_url ?? record.imageUrl ?? record.profile_image ?? record.profileImage,
+    ),
   }
 }
 
@@ -157,6 +160,7 @@ export const RequisitionMap = (raw: unknown): Requisition => {
     gts_type: String((billingData as any)?.gts_type ?? ''),
     email: String((billingData as any)?.email ?? ''),
     phone_number: String((billingData as any)?.phone_number ?? ''),
+    image_url: String((billingData as any)?.image_url ?? ''),
     period: String((billingData as any)?.period ?? ''),
     current_days: Number(currentDays ?? 0),
     billingDocumentRquisition: mapBillingDocuments(documents),
