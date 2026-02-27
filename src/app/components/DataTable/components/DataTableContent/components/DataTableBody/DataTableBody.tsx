@@ -31,6 +31,8 @@ export type DataTableBodyProps<T extends { id: string | number }> = {
   onToggleSelect: (row: T) => void;
   /** Nuevo: controla tamaños de texto por breakpoint */
   textSize?: TextSize;
+  /** Data-tour para checkbox de seleccion por fila */
+  selectionDataTour?: (row: T, index: number) => string | undefined;
 };
 
 const cx = (...c: Array<string | false | null | undefined>) =>
@@ -54,6 +56,7 @@ export const DataTableBody = <T extends { id: string | number }>({
   disableSelection,
   onToggleSelect,
   textSize,
+  selectionDataTour,
 }: DataTableBodyProps<T>) => {
   const {isMobile, isTablet} = useBreakpoint();
   const selectedIds = React.useMemo(
@@ -79,6 +82,7 @@ export const DataTableBody = <T extends { id: string | number }>({
                 <Checkbox
                   checked={isSelected}
                   disabled={Boolean(disableSelection)}
+                  dataTour={selectionDataTour?.(row, index)}
                   onChange={() => {
                     if (disableSelection) return;
                     onToggleSelect(row);

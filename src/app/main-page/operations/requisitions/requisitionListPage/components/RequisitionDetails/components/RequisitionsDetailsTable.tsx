@@ -103,6 +103,7 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
               onClick={() => handleOpenDetails(row)}
               variant="ghost"
               hideIcon
+              data-tour="requisitions-detail-docs-actions"
             >
               ...
             </Button>
@@ -131,6 +132,7 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
                   icon={XMLIcon}
                   onClick={() => window.open(row.xmlUrl, "_blank")}
                   aria-label="Abrir XML"
+                  data-tour="requisitions-detail-docs-xml"
                 />
               )}
               {row.pdfUrl && (
@@ -140,6 +142,7 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
                   icon={PDFIcon}
                   onClick={() => window.open(row.pdfUrl, "_blank")}
                   aria-label="Abrir PDF"
+                  data-tour="requisitions-detail-docs-pdf"
                 />
               )}
             </div>
@@ -210,6 +213,7 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
             onClick={() => handleOpenDetails(row)}
             variant="ghost"
             hideIcon
+            data-tour="requisitions-detail-docs-view"
           >
             Ver Detalles
           </Button>
@@ -249,37 +253,41 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
         <LoadingOverlay open={isBusy} scope="container" message={busyMessage} />
       </div>
 
-      <DataTable
-        showCalendar={true}
-        textSize={{ mobile: "c2", desktop: "text-b3" }}
-        startCollpas={false}
-        actionsRender={() => (
-          <>
-            {currentPagePermissions?.downloadDocuments && (
-              <>
-                <Button
-                  hideIcon
-                  variant="ghost"
-                  onClick={() => {
-                    if (requisitionId) downloadRequistionResume(requisitionId);
-                  }}
-                >
-                  {sapprofile
-                    ? "Descargar tabla completa"
-                    : "Descargar reporte"}
-                </Button>
-                <Button
-                  icon={DowloadIcon}
-                  variant="outline"
-                  size="small"
-                  onClick={() => {
-                    if (requisitionId) downloadRequistionResume(requisitionId);
-                  }}
-                />
-              </>
-            )}
-          </>
-        )}
+        <DataTable
+          showCalendar={true}
+          textSize={{ mobile: "c2", desktop: "text-b3" }}
+          startCollpas={false}
+          searchDataTour="requisitions-detail-docs-search"
+          calendarDataTour="requisitions-detail-docs-calendar"
+          actionsRender={() => (
+            <>
+              {currentPagePermissions?.downloadDocuments && (
+                <>
+                  <Button
+                    hideIcon
+                    variant="ghost"
+                    onClick={() => {
+                      if (requisitionId) downloadRequistionResume(requisitionId);
+                    }}
+                    data-tour="requisitions-detail-docs-download"
+                  >
+                    {sapprofile
+                      ? "Descargar tabla completa"
+                      : "Descargar reporte"}
+                  </Button>
+                  <Button
+                    icon={DowloadIcon}
+                    variant="outline"
+                    size="small"
+                    onClick={() => {
+                      if (requisitionId) downloadRequistionResume(requisitionId);
+                    }}
+                    data-tour="requisitions-detail-docs-download-icon"
+                  />
+                </>
+              )}
+            </>
+          )}
         showButton={false}
         enablePagination={false}
         tables={[
@@ -301,6 +309,7 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
         selected={selected}
         operations
         reqisition={requisitionId}
+        closeButtonDataTour="requisitions-detail-panel-close"
       />
     </div>
   );

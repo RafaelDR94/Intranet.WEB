@@ -22,6 +22,7 @@ const ExcelLoader = () => {
       onPrimaryClick={onSubmit}
       primaryDisabled={buttonDisabled}
       enableCollapse={true}
+      primaryButtonDataTour="requisitions-upload-submit"
     >
       <FileUploaderExpanded
         accept=".xlsx,.xls"

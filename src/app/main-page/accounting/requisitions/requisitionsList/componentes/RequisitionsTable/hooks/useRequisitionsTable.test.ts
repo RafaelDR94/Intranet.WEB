@@ -3,6 +3,11 @@ import { describe, it, expect, vi } from 'vitest'
 
 import { useRequisitionTable } from './useRequisitionsTable'
 
+vi.mock('@/tutorials/engine/TutorialProvider', () => ({
+  __esModule: true,
+  useTutorials: () => ({ activeTutorialId: null }),
+}))
+
 // Mocks necesarios para evitar undefined en path y searchParams
 const push = vi.fn()
 

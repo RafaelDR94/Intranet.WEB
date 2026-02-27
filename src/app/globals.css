@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
+@import "driver.js/dist/driver.css";
 
 :root {
   --font-montserrat: 'Montserrat', sans-serif;
@@ -249,4 +250,168 @@ body {
   font-family: var(--font-montserrat), sans-serif;
   height: 100vh;
   /* overflow: hidden; */
+}
+
+/* Driver.js responsive popover tweaks */
+.driver-popover {
+  max-width: min(92vw, 420px);
+}
+
+.driver-popover.driver-popover--dr {
+  background-color: var(--color-white-100);
+  color: var(--color-foreground);
+  border: 1px solid var(--color-gray-20);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  padding: 16px;
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+.driver-popover.driver-popover--dr * {
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+.driver-popover.driver-popover--dr .driver-popover-title {
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--color-black-100);
+}
+
+.driver-popover.driver-popover--dr .driver-popover-description {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-gray-70);
+}
+
+.driver-popover.driver-popover--dr .driver-popover-progress-text {
+  color: var(--color-gray-60);
+}
+
+.driver-popover.driver-popover--dr .driver-footer--dr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.driver-popover.driver-popover--dr .driver-popover-navigation-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.driver-popover.driver-popover--dr .driver-close--dr {
+  width: 32px;
+  height: 28px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gray-60);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.driver-popover.driver-popover--dr .driver-close--dr:hover,
+.driver-popover.driver-popover--dr .driver-close--dr:focus {
+  color: var(--color-gray-100);
+  background-color: var(--color-gray-10);
+}
+
+.driver-popover.driver-popover--dr .driver-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.2;
+  cursor: pointer;
+  text-shadow: none;
+  background-image: none;
+  border: none;
+}
+
+.driver-popover.driver-popover--dr .driver-btn-outline {
+  border: 1px solid var(--color-green-80);
+  color: var(--color-green-80);
+  background: transparent;
+}
+
+.driver-popover.driver-popover--dr .driver-btn-outline:hover,
+.driver-popover.driver-popover--dr .driver-btn-outline:focus {
+  background-color: var(--color-green-10);
+}
+
+.driver-popover.driver-popover--dr .driver-btn-solid {
+  background-color: var(--color-green-80);
+  color: var(--color-white-100);
+}
+
+.driver-popover.driver-popover--dr .driver-btn-solid:hover,
+.driver-popover.driver-popover--dr .driver-btn-solid:focus {
+  background-color: var(--color-green-90);
+}
+
+.driver-popover.driver-popover--dr .driver-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-green-60);
+}
+
+.driver-active .driver-skip-btn {
+  pointer-events: auto;
+}
+
+.driver-skip-btn {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 1000000001;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  background-color: var(--color-white-100);
+  color: var(--color-green-80);
+  border: 1px solid var(--color-green-80);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.driver-skip-btn:hover,
+.driver-skip-btn:focus {
+  background-color: var(--color-green-10);
+}
+
+.driver-skip-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-green-60);
+}
+
+.driver-popover.driver-popover--mobile {
+  width: min(92vw, 360px);
+  max-width: min(92vw, 360px);
+  font-size: 14px;
+}
+
+.driver-popover.driver-popover--mobile .driver-popover-title {
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.driver-popover.driver-popover--mobile .driver-popover-description {
+  font-size: 14px;
+}
+
+.driver-popover.driver-popover--mobile .driver-popover-footer {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.driver-popover.driver-popover--mobile .driver-popover-footer button {
+  flex: 1 1 auto;
+  min-width: 110px;
 }

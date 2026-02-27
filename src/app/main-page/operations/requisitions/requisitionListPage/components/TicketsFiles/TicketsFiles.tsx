@@ -3,9 +3,9 @@ import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import CancelIcon from "@/assets/icons/acciones/cancel.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
-import useTicketsFiles, { type TicketRow } from "./useTicketsFiles";
+import useTicketsFiles from "./hooks/useTicketsFiles";
 import { BillingImagesTableMap } from "@/app/mappings/billingimages/billingimages.mapper";
-import type { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
+import { TicketsFilesProps,TicketRow } from "./types";
 import Label from "@/app/components/Label/Label";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 import { DownloadFile } from "@/app/utilities/FilesHelper/FilesHelper";
@@ -14,15 +14,14 @@ import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 
 
 
-type TicketsFilesProps = {
-  onSelectedTicketChange?: (ticket: BillingImagesTable | null) => void;
-  selectedTicketId?: string | null;
-};
+
 
 const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFilesProps) => {
   const {
     columns,
     rows,
+    isTutorialActive,
+    tutorialMockRow,
     filterOptions,
     filterValue,
     setFilterValue,
@@ -57,11 +56,13 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
 
   return (
     <div>
-      <DataTable
-        showCalendar={true}
-        showDownloadTable={false}
-        showButton={false}
-        showFilter
+      <div data-tour="requisitions-tickets-table">
+        <DataTable
+          showCalendar={true}
+          showDownloadTable={false}
+          showButton={false}
+          
+          showFilter
         showRefresh
         filterOptions={filterOptions}
         filterValue={filterValue}
@@ -69,22 +70,31 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
         onFilterChange={(value) => setFilterValue(value)}
         onRefreshPage={refresh}
         textSize={{ mobile: "text-c3", desktop: "text-c2" }}
-        tables={[
-          {
-            data: rows,
-            columns: columns,
-            title: "Tickets",
-            enableCollaps: true,
-            enableSelection: true,
-            selectionMode: "single",
-            initialSelectedRowIds: selectedTicketId ? [selectedTicketId] : [],
-          },
-        ]}
-        onSelectedChange={handleSelectedChange}
-      />
+          tables={[
+            {
+              data: rows,
+              columns: columns,
+              title: "Tickets",
+              enableCollaps: true,
+              enableSelection: false,
+              selectionMode: "single",
+              initialSelectedRowIds: selectedTicketId ? [selectedTicketId] : [],
+              selectionDataTour: (row, index) =>
+                isTutorialActive &&
+                tutorialMockRow &&
+                row.id === tutorialMockRow.id &&
+                index === 0
+                  ? "requisitions-ticket-select"
+                  : undefined,
+            },
+          ]}
+          onSelectedChange={handleSelectedChange}
+        />
+      </div>
       <DetailsPanelLayout
         open={detailOpen}
         onClose={closeDetails}
+        closeButtonDataTour="requisitions-ticket-close"
         actionButton={
           <Button
             size="large"
@@ -96,6 +106,7 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
               detailRow?.status.toLocaleLowerCase() == "rechazado" ||
               rejecting
             }
+            data-tour="requisitions-ticket-reject"
           >
             Rechazar
           </Button>
@@ -117,6 +128,7 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
                   icon={ImageIcon}
                   onClick={() => window.open(imageUrl, "_blank")}
                   aria-label="Abrir imagen"
+                  data-tour="requisitions-ticket-open-image"
                 />
               )}
               {imageUrl && (
@@ -129,6 +141,7 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
                     DownloadFile(imageUrl, `ticket-${detailRow.id}.jpg`)
                   }
                   aria-label="Descargar imagen"
+                  data-tour="requisitions-ticket-download-image"
                 />
               )}
             </div>

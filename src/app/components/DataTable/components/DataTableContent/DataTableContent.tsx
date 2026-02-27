@@ -48,6 +48,7 @@ const DataTableContent = <T extends { id: string | number }>(
     textSize, // <-- NUEVO
     disableSelection,
     selectionMode,
+    selectionDataTour,
   } = props;
 
   const {
@@ -108,9 +109,10 @@ const DataTableContent = <T extends { id: string | number }>(
           columns={columns}
           enableSelection={enableSelection}
           disableSelection={disableSelection}
-        selectionMode={selectionMode}
+          selectionMode={selectionMode}
           selected={selected}
           onToggleSelect={toggleSelect}
+          selectionDataTour={selectionDataTour}
           textSize={textSize}   // <-- pasa la prop
         />
       </div>

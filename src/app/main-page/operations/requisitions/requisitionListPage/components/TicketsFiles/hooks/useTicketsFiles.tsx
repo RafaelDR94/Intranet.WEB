@@ -9,25 +9,16 @@ import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
 
-import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
+import { useRequisitionDocuments } from "../../hooks/useRequisitionDocuments";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 import { useBillingRequisitionWithEmployeesStore } from "@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore";
 import type { BillingImages } from "@/app/mappings/billingimages/billingimages.types";
 import { shallow } from "zustand/shallow";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { useTutorials } from "@/tutorials/engine/TutorialProvider";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { TicketRow } from "../types";
 
-export type TicketRow = {
-  id: string;
-  date: string;
-  category: string;
-  status: string;
-  comments: string;
-  userComments?: string;
-  detail: string;
-  imageUrls: string[];
-  source: BillingImages;
-  attachments?: string[];
-};
 
 type TicketOverride = {
   status?: string;
@@ -88,6 +79,11 @@ const useTicketsFiles = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
+  const { activeTutorialId } = useTutorials();
+  const isMobile = useIsMobile();
+  const isTutorialActive =
+    activeTutorialId === "operations-requisitions:files" ||
+    activeTutorialId === "operations-requisitions:billablefiles";
   const searchParams = useSearchParams();
   const isBillableFilesView = searchParams.get("view") === "billablefiles";
   const {  employeeId } = useRequisitionDocuments();
@@ -131,6 +127,7 @@ const useTicketsFiles = () => {
   const [filterValue, setFilterValue] = useState<string>("all");
 
   useEffect(() => {
+    if (isTutorialActive) return;
     if (isBillableFilesView) {
       if (!employeeId) return;
       fetchBillingImages(employeeId, true);
@@ -186,9 +183,50 @@ const useTicketsFiles = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error, rejecting]);
 
+  const mockRows = useMemo<TicketRow[]>(() => {
+    const demoImage =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2P4z8DwHwAFgwJ/lm8X3wAAAABJRU5ErkJggg==";
+    return [
+      {
+        id: "mock-ticket-001",
+        date: "2026-02-26",
+        category: "Hospedaje",
+        detail: "Hotel",
+        status: "Pendiente",
+        comments: "Evidencia pendiente",
+        imageUrls: [demoImage],
+        source: {
+          billing_image_id: "mock-ticket-001",
+          dateCreate: "2026-02-26",
+          images: [{ image: demoImage }],
+          status: "Pendiente",
+          comments: "Evidencia pendiente",
+        } as BillingImages,
+      },
+      {
+        id: "mock-ticket-002",
+        date: "2026-02-25",
+        category: "Transporte",
+        detail: "Taxi",
+        status: "Validado",
+        comments: "OK",
+        imageUrls: [demoImage],
+        source: {
+          billing_image_id: "mock-ticket-002",
+          dateCreate: "2026-02-25",
+          images: [{ image: demoImage }],
+          status: "Validado",
+          comments: "OK",
+        } as BillingImages,
+      },
+    ];
+  }, []);
+
   const rows = useMemo(() => {
     const sourceImages = isBillableFilesView ? billingImages : pendingBillingImages;
-    return mapTickets(sourceImages, statusOverrides);
+    const newRows = mapTickets(sourceImages);
+    if (isTutorialActive) return mockRows;
+    return newRows;
   }, [pendingBillingImages, billingImages, isBillableFilesView, statusOverrides]);
 
   useEffect(() => {
@@ -306,7 +344,7 @@ const useTicketsFiles = () => {
     [openRejectTicket.row, rejectBillingImage],
   );
 
-  const columns: ColumnDefinition<TicketRow>[] = useMemo(
+  const desktopColumns: ColumnDefinition<TicketRow>[] = useMemo(
     () => [
       // { key: "id", label: "Id", cellClass: "w-1/15 text-left", headerClass: "w-1/15 text-left" },
       {
@@ -323,6 +361,7 @@ const useTicketsFiles = () => {
                 icon={DownloadIcon}
                 onClick={() => window.open(row.imageUrls[0], "_blank")}
                 aria-label="Descargar"
+                data-tour="requisitions-ticket-download"
               />
             )}
             {row.imageUrls.length > 0 && (
@@ -332,6 +371,7 @@ const useTicketsFiles = () => {
                 icon={ImageIcon}
                 onClick={() => openPreview(row.imageUrls, 0)}
                 aria-label="Abrir ticket"
+                data-tour="requisitions-ticket-preview"
               />
             )}
           </div>
@@ -375,7 +415,13 @@ const useTicketsFiles = () => {
         cellClass: "w-2/15 text-right",
         headerClass: "w-2/15 text-right",
         render: (row) => (
-          <Button size="small" variant="ghost" hideIcon onClick={() => openDetails(row)}>
+          <Button
+            size="small"
+            variant="ghost"
+            hideIcon
+            onClick={() => openDetails(row)}
+            data-tour="requisitions-ticket-details"
+          >
             Ver Detalles
           </Button>
         ),
@@ -384,6 +430,70 @@ const useTicketsFiles = () => {
     [openDetails, openPreview],
   );
 
+  const mobileColumns: ColumnDefinition<TicketRow>[] = useMemo(
+    () => [
+      {
+        key: "attachments",
+        label: "Archivos",
+        cellClass: "w-3/12 text-left",
+        headerClass: "w-3/12 text-left",
+        render: (row) => (
+          <div className="flex items-center gap-1">
+            {row.imageUrls.length > 0 && (
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={DownloadIcon}
+                onClick={() => window.open(row.imageUrls[0], "_blank")}
+                aria-label="Descargar"
+                data-tour="requisitions-ticket-download"
+              />
+            )}
+          </div>
+        ),
+      },
+      {
+        key: "date",
+        label: "Fecha",
+        cellClass: "w-3/12 text-left",
+        headerClass: "w-3/12 text-left",
+      },
+      {
+        key: "status",
+        label: "Estatus",
+        cellClass: "w-3/12 text-right",
+        headerClass: "w-3/12 text-right",
+        render: (row) => (
+          <Label
+            type={statusToType(row.status)}
+            text={row.status || ""}
+            className="m-0 px-2 py-0.5 text-[10px]"
+          />
+        ),
+      },
+      {
+        key: "detail",
+        label: "Detalle",
+        cellClass: "w-3/12 text-right",
+        headerClass: "w-3/12 text-right",
+        render: (row) => (
+          <Button
+            size="xsmall"
+            variant="ghost"
+            hideIcon
+            onClick={() => openDetails(row)}
+            data-tour="requisitions-ticket-details"
+          >
+            Ver
+          </Button>
+        ),
+      },
+    ],
+    [openDetails],
+  );
+
+  const columns = isMobile ? mobileColumns : desktopColumns;
+
   return {
     columns,
     rows: filteredRows,
@@ -391,6 +501,8 @@ const useTicketsFiles = () => {
     filterValue,
     setFilterValue,
     refresh,
+    isTutorialActive,
+    tutorialMockRow: isTutorialActive ? mockRows[0] ?? null : null,
     previewSrc: previewImages[previewIndex] ?? null,
     previewIndex,
     previewTotal: previewImages.length,

@@ -53,6 +53,11 @@ export const DataTable = <T extends { id: string | number }>({
   showViewSwitcher = false,
   textSize, 
   rightContent,
+  searchDataTour,
+  calendarDataTour,
+  filterDataTour,
+  refreshDataTour,
+  actionButtonDataTour,
 }: DataTableProps<T>) => {
 
   const {
@@ -107,6 +112,11 @@ export const DataTable = <T extends { id: string | number }>({
           showButton={showButton}
           showRefresh={showRefresh}
           onRefreshPage={onRefreshPage}
+          searchDataTour={searchDataTour}
+          calendarDataTour={calendarDataTour}
+          filterDataTour={filterDataTour}
+          refreshDataTour={refreshDataTour}
+          actionButtonDataTour={actionButtonDataTour}
           actionsRender={actionsRender}
           onTableActionClick={onTableActionClick}
           showDownloadTable={showDownloadTable}
@@ -149,6 +159,11 @@ export const DataTable = <T extends { id: string | number }>({
                 showButton={showButton}
                 showRefresh={showRefresh}
                 onRefreshPage={onRefreshPage}
+                searchDataTour={searchDataTour}
+                calendarDataTour={calendarDataTour}
+                filterDataTour={filterDataTour}
+                refreshDataTour={refreshDataTour}
+                actionButtonDataTour={actionButtonDataTour}
                 showDownloadTable={showDownloadTable}
                 actionsRender={actionsRender}
                 onTableActionClick={onTableActionClick}
@@ -202,6 +217,7 @@ export const DataTable = <T extends { id: string | number }>({
                 onTableActionClick={onTableActionClick}
                 actionLabel={actionLabel}
                 disableSelection={table.disableSelection}
+                selectionDataTour={table.selectionDataTour}
                 textSize={effectiveTextSize} // <-- aplica aquí
               />
             )}

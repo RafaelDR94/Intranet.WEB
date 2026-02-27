@@ -24,6 +24,7 @@ import { useAuthorizationsStore } from "@/app/stores/useAuthorizationsStore/useA
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingRequisitionImageUrlStore } from "@/app/stores/useBillingRequisitionImageUrlStore/useBillingRequisitionImageUrlStore";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
+import { useTutorials } from "@/tutorials/engine/TutorialProvider";
 /**
  * Muestra el formulario de requisición junto con información adicional como
  * el balance de viáticos y los documentos relacionados. Renderiza secciones
@@ -33,6 +34,8 @@ const RequisitionDetails: React.FC = () => {
   const { currentRequisition } = useRequisitionsDetails();
   const { currentPagePermissions, user } = useAuth();
   const isMobile = useIsMobile();
+  const { activeTutorialId } = useTutorials();
+  const isTutorialActive = activeTutorialId === "operations-requisitions:detail";
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -187,10 +190,11 @@ const RequisitionDetails: React.FC = () => {
 
   const hasHistory = Boolean(authorizationHistory?.length);
 
-  const shouldShowRequestButton =
-    !hasHistory || (hasPendingAuthorization && !allPendingAuthorizations);
+  const shouldShowRequestButton = isTutorialActive
+    ? true
+    : !hasHistory || (hasPendingAuthorization && !allPendingAuthorizations);
 
-  const shouldShowHistoryButton = hasHistory;
+  const shouldShowHistoryButton = isTutorialActive ? true : hasHistory;
 
 
   const handleCancelAuthorizer = useCallback(() => {
@@ -411,35 +415,38 @@ const RequisitionDetails: React.FC = () => {
         <div className="flex w-full gap-6">
           <div className={clsx(isMobile ? "basis-3/3" : "basis-2/3")}>
             {currentPagePermissions?.showDetails && (
-              <RequisitionsForm
-                mode="edit"
-                startDisabled
-                startCollaps={isMobile}
-                enableCollaps
-                responsiveLayoutMatrix={{
-                  sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                  md: [
-                    [5, 5],
-                    [5, 5],
-                    [5, 5],
-                    [5, 5],
-                  ],
-                  lg: [
-                    [5, 5],
-                    [5, 5],
-                    [5, 5],
-                    [5, 5],
-                  ],
-                }}
-                initialValues={currentRequisition}
-              />
+              <div data-tour="requisitions-detail-form">
+                <RequisitionsForm
+                  mode="edit"
+                  startDisabled
+                  startCollaps={isMobile}
+                  enableCollaps
+                  responsiveLayoutMatrix={{
+                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    md: [
+                      [5, 5],
+                      [5, 5],
+                      [5, 5],
+                      [5, 5],
+                    ],
+                    lg: [
+                      [5, 5],
+                      [5, 5],
+                      [5, 5],
+                      [5, 5],
+                    ],
+                  }}
+                  initialValues={currentRequisition}
+                />
+              </div>
             )}
           </div>
           {!isMobile && (
             <div className="basis-1/3">
               <div>
-                {currentPagePermissions?.showBalance && (
+                {(currentPagePermissions?.showBalance || isTutorialActive) && (
                   <PerDiemBalanceCard
+                    data-tour="requisitions-detail-balance"
                     startDate={currentRequisition.assignmentdate}
                     endDate={currentRequisition.endDate}
                     requestedAmount={Number(currentRequisition.amountdeposited)}
@@ -451,11 +458,14 @@ const RequisitionDetails: React.FC = () => {
                 )}
               </div>
               <div>
-                <div className="w-full rounded-lg bg-white-70 p-6 shadow-md h-auto mt-3">
+                <div
+                  className="w-full rounded-lg bg-white-70 p-6 shadow-md h-auto mt-3"
+                  data-tour="requisitions-detail-approval-card"
+                >
                   <p className="text-label text-gray-70 mb-1">Solicitar aprobación de las facturas generadas en
                     el balance de viáticos.</p>
-                  {requisitionImage?.imageUrl ? (
-                    <Button onClick={handleViewEvidence}>
+                  {requisitionImage?.imageUrl && !isTutorialActive ? (
+                    <Button onClick={handleViewEvidence} data-tour="requisitions-detail-evidence">
                       Ver evidencia
                     </Button>
                   ) : (
@@ -469,10 +479,15 @@ const RequisitionDetails: React.FC = () => {
                       />
                       <div className="flex flex-wrap items-center gap-2">
                         {shouldShowRequestButton ? (
-                          <Button variant="solid" className={clsx(
-                            "border-teal-70 text-teal-70",
-                            !shouldShowHistoryButton && "w-full justify-center",
-                          )} onClick={handleOpenAuthorizer}>
+                          <Button
+                            variant="solid"
+                            className={clsx(
+                              "border-teal-70 text-teal-70",
+                              !shouldShowHistoryButton && "w-full justify-center",
+                            )}
+                            onClick={handleOpenAuthorizer}
+                            data-tour="requisitions-detail-request"
+                          >
                             Solicitar autorizacion
                           </Button>
                         ) : null}
@@ -484,6 +499,7 @@ const RequisitionDetails: React.FC = () => {
                               !shouldShowRequestButton && "w-full justify-center",
                             )}
                             onClick={handleOpenHistory}
+                            data-tour="requisitions-detail-history"
                           >
                             Historial
                           </Button>
@@ -503,8 +519,9 @@ const RequisitionDetails: React.FC = () => {
             defaultOpen={true}
             title="Balance de viaticos"
           >
-            {currentPagePermissions?.showBalance && (
+            {(currentPagePermissions?.showBalance || isTutorialActive) && (
               <PerDiemBalanceCard
+                data-tour="requisitions-detail-balance"
                 startDate={currentRequisition.assignmentdate}
                 endDate={currentRequisition.endDate}
                 requestedAmount={Number(currentRequisition.amountdeposited)}
@@ -514,7 +531,9 @@ const RequisitionDetails: React.FC = () => {
           </CollapsibleSection>
         )}
         {currentPagePermissions?.showDocuments && (
-          <RequisitionDetailsTable />
+          <div data-tour="requisitions-detail-documents">
+            <RequisitionDetailsTable />
+          </div>
         )}
 
         <PopUp

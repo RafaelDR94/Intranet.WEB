@@ -12,6 +12,10 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => useSearchParamsMock(),
   useRouter: () => useRouterMock(),
 }));
+vi.mock('@/tutorials/engine/useTutorialAutoRun', () => ({
+  __esModule: true,
+  default: () => null,
+}));
 
 vi.mock('./components/RequisitionDetails/RequisitionDetails', () => ({
   __esModule: true,
@@ -26,7 +30,7 @@ vi.mock(
   }),
 );
 
-vi.mock('./components/RequisitionsFiles/RequisitionsFiles', () => ({
+vi.mock('./components/UserRequisitionsList/UserRequisitionsList', () => ({
   __esModule: true,
   default: (props: unknown) => {
     requisitionsFilesMock(props);

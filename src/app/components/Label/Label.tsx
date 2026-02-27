@@ -32,8 +32,8 @@ import type { LabelProps } from './types'
  * <Label type="vale-rosa" text="Vale Rosa" />
  * ```
  */
-export const Label: React.FC<LabelProps> = ({ type, text }) => (
-    <span className={getLabelClasses(type)}>{text}</span>
+export const Label: React.FC<LabelProps> = ({ type, text, className }) => (
+  <span className={`${getLabelClasses(type)} ${className ?? ""}`}>{text}</span>
 );
 
 export default Label

@@ -23,6 +23,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   operations = false,
   rejectType = true,
   reqisition,
+  closeButtonDataTour,
 }) => {
   const {
     labels,
@@ -47,6 +48,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       open={panelOpen}
       withinContainer
       onClose={() => setPanelOpen(false)}
+      closeButtonDataTour={closeButtonDataTour}
       leftLabel={isMobile ? "" : labels?.left}
       rightLabel={isMobile ? "" : labels?.right}
       actionButton={
@@ -77,6 +79,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               icon={XMLIcon}
               disabled={!selected.xml}
               onClick={() => window.open(selected.xml!, "_blank")}
+              data-tour="requisitions-detail-panel-xml"
             />
           )}
           {selected?.pdf && (
@@ -86,6 +89,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               icon={PDFIcon}
               disabled={!selected.pdf}
               onClick={() => window.open(selected.pdf!, "_blank")}
+              data-tour="requisitions-detail-panel-pdf"
             />
           )}
           {selected?.image && (
@@ -95,6 +99,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               icon={ImageIcon}
               disabled={!selected.image}
               onClick={() => window.open(selected.image!, "_blank")}
+              data-tour="requisitions-detail-panel-image"
             />
           )}
         </div>

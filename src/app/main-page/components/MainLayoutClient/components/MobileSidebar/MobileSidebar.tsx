@@ -16,16 +16,17 @@ import LogoutIcon from '@/assets/icons/acciones/open-in-window.svg';
 import SubArrowIcon from '@/assets/icons/navegacion/long-arrow-down-right.svg';
 import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';
 import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
-// import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
+import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
 import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
 import LogoDr from '@/assets/images/LogosDR/DReDIT.png';
+import ConfigurationLogo from '@/assets/icons/System/System/settings.svg';
 
 
 const MobileSidebar: React.FC<MobileSidebarProps> = ({
   isOpen,
   onClose,
-  // offlineMode,
-  // onToggleOffline,
+  offlineMode,
+  onToggleOffline,
   theme,
   toggleTheme,
   userFullName,
@@ -78,7 +79,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
         </div>
 
         {/* Navegación */}
-        <nav className="px-2 overflow-y-auto flex-1">
+        <nav className="px-2 overflow-y-auto flex-1" data-tour="sidebar-nav">
           {routes
             .filter(r => (!r.subroutes ? validPermissionsbyroute(r.path) : r.subroutes!.some(s => validPermissionsbyroute(s.path))))
             .map(route => {
@@ -150,24 +151,44 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              {/* <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <WifiIcon aria-hidden />
-                <ToggleButton checked={!offlineMode} onChange={c => onToggleOffline(!c)} label="" />
-              </div> */}
+                <ToggleButton
+                  checked={!offlineMode}
+                  onChange={(checked) => onToggleOffline(!checked)}
+                  label=""
+                  dataTour="offline-toggle"
+                />
+              </div>
               <div className="flex items-center gap-2">
                 <ThemeIcon aria-hidden />
-                <ToggleButton checked={theme === 'dark'} onChange={toggleTheme} label="" dataTestId='theme-toggle-mobile' />
+                <ToggleButton
+                  checked={theme === 'dark'}
+                  onChange={toggleTheme}
+                  label=""
+                  dataTestId="theme-toggle-mobile"
+                  dataTour="theme-toggle"
+                />
               </div>
             </div>
           </div>
 
           <div className="mt-4 space-y-2">
             <Link
+              href="/main-page/configuration"
+              onClick={onClose}
+              className="flex items-center gap-2 h-10 px-2 rounded hover:bg-white/5"
+              data-tour="configuration-button"
+            >
+              <ConfigurationLogo /> <span>Configuración</span>
+            </Link>
+            <Link
               href="https://drsecurity.atlassian.net/servicedesk/customer/portals"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 h-10 px-2 rounded hover:bg-white/5"
               data-testid="help-link"
+              data-tour="sidebar-help-link"
             >
               <HelpIcon /> <span>Ayuda</span>
             </Link>
@@ -179,6 +200,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
               }}
               className="flex items-center gap-2 h-10 px-2 rounded hover:bg-white/5 w-full text-left"
               type="button"
+              data-tour="logout-button"
             >
               <LogoutIcon /> <span>Cerrar Sesión</span>
             </button>
