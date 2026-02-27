@@ -12,6 +12,10 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
   const {
     columns,
     rows,
+    filterOptions,
+    filterValue,
+    setFilterValue,
+    refresh,
     detailOpen,
     detailRow,
     closeDetails,
@@ -27,6 +31,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const requisitionId = searchParams.get("id");
+  const employeeId = searchParams.get("idEmployee");
   const currency = new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "MXN",
@@ -52,6 +57,12 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
 
     const query = new URLSearchParams(searchParams.toString());
     query.set("id", requisitionId);
+    if (employeeId) {
+      query.set("idEmployee", employeeId);
+    }
+    if (employeeId) {
+      query.set("idEmployee", employeeId);
+    }
     const label = searchParams.get("label");
     if (label) {
       query.set("label", label);
@@ -63,25 +74,36 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
 
   return (
     <div>
-      <DataTable
-        showCalendar={true}
-        showDownloadTable={false}
-        actionLabel="Subir Factura"
+      <div data-tour="requisitions-invoices-table">
+        <DataTable
+          showCalendar={true}
+          showDownloadTable={false}
+          actionLabel="Subir Factura"
+          showFilter
+        showRefresh
+        filterOptions={filterOptions}
+        filterValue={filterValue}
+        filterTitle="Estatus"
+        onFilterChange={(value) => setFilterValue(value)}
+        onRefreshPage={refresh}
         onTableActionClick={handleUploadBillableFiles}
-        textSize={{ mobile: "text-c3", desktop: "text-c2" }}
-        tables={[
-          {
-            data: rows,
-            columns: columns,
-            title: "Facturas",
-            enableCollaps: true,
-            enableSelection: false,
-          },
-        ]}
-      />
+          actionButtonDataTour="requisitions-upload-invoice"
+          textSize={{ mobile: "text-c3", desktop: "text-c2" }}
+          tables={[
+            {
+              data: rows,
+              columns: columns,
+              title: "Facturas",
+              enableCollaps: true,
+              enableSelection: false,
+            },
+          ]}
+        />
+      </div>
       <DetailsPanelLayout
         open={detailOpen}
         onClose={closeDetails}
+        closeButtonDataTour="requisitions-invoice-close"
         leftLabel={
           detailRow?.employeeName
             ? `Nombre: ${detailRow.employeeName}`
@@ -101,6 +123,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
               className="mr-2"
               onClick={() => setOpenValidInvoice(true)}
               disabled={isStatusLocked}
+              data-tour="requisitions-invoice-validate"
             >
               Validar
             </Button>
@@ -110,6 +133,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
               hideIcon={true}
               onClick={() => setOpenRejectInvoice(true)}
               disabled={isStatusLocked}
+              data-tour="requisitions-invoice-reject"
             >
               Rechazar
             </Button>
@@ -175,13 +199,13 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
                   {detailRow.description || "-"}
                 </span>
               </div>
-              {detailRow.comments && (
+              {(detailRow.comments || detailRow.userComments) && (
                 <div className="space-y-1">
                   <div className="text-gray-90 text-b4 font-medium">
                     Comentarios:
                   </div>
                   <p className="text-b4 p-2 font-medium text-gray-50">
-                    {detailRow.comments}
+                    {detailRow.comments?.trim() || detailRow.userComments?.trim()}
                   </p>
                 </div>
               )}

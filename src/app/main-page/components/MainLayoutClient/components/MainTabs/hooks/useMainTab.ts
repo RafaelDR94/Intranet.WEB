@@ -20,7 +20,15 @@ const useMainTab = ({ pathname, tabs, validPermissionsbyroute }: useMainTabsProp
   const isMobile = useIsMobile();
   const searchParams = useSearchParams();
   const currentBase = basePath(pathname);
-  const currentId = searchParams.get("id") ?? searchParams.get("authorization_id");
+  const normalizeParam = (value: string | null) => {
+    if (!value) return null;
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  };
+  const currentId =
+    normalizeParam(searchParams.get("id")) ??
+    normalizeParam(searchParams.get("authorization_id"));
+  const currentEmployeeId = normalizeParam(searchParams.get("idEmployee"));
 
   const isActive = (tabPath: string) => {
     const tabBase = basePath(tabPath);
@@ -28,12 +36,26 @@ const useMainTab = ({ pathname, tabs, validPermissionsbyroute }: useMainTabsProp
 
     const tabQS = getQS(tabPath);
     const tabHasId = tabQS.has("id");
+    const tabHasEmployeeId = tabQS.has("idEmployee");
 
-    if (tabHasId) {
-      const expectedId = tabQS.get("id");
-      return expectedId ? currentId === expectedId : Boolean(currentId);
+    if (tabHasId || tabHasEmployeeId) {
+      const expectedId = normalizeParam(tabQS.get("id"));
+      const expectedEmployeeId = normalizeParam(tabQS.get("idEmployee"));
+
+      if (expectedId || expectedEmployeeId) {
+        return Boolean(
+          (expectedId &&
+            (expectedId === currentId || expectedId === currentEmployeeId)) ||
+            (expectedEmployeeId &&
+              (expectedEmployeeId === currentEmployeeId ||
+                expectedEmployeeId === currentId))
+        );
+      }
+
+      return Boolean(currentId || currentEmployeeId);
     }
-    return !currentId;
+
+    return !currentId && !currentEmployeeId;
   };
 
   // Filter using base path only so query params don't affect permissions.

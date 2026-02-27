@@ -9,12 +9,13 @@ import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
-import Label from "@/app/components/Label/Label";
-import { LabelType } from "@/app/components/Label/types";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import Avatar from "@/app/components/Avatar/Avatar";
 import { Button } from "@/app/components/Button/Button";
+import ContextMenu from "@/app/components/ContextMenu/ContextMenu";
+import type { ContextMenuItem } from "@/app/components/ContextMenu/types";
+import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
 
 type RequisitionsTableProps = {
   /**
@@ -60,25 +61,12 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
 
-  const StatusBadge = ({ status }: { status?: string }) => {
-    const s = (status || "").toLowerCase();
-    let type: LabelType = "pendiente";
-    if (s.includes("cierre de periodo")) type = "actualizado";
-    if (s.includes("viaticando")) type = "purple";
-    if (s.includes("folio adicional")) type = "prohibido";
-    if (s.includes("cerrado")) type = "restringido";
-    if (s.includes("valid")) type = "valido";
-    if (s.includes("rechaz")) type = "rechazado";
-
-    return <Label type={type} text={status || "En espera"} />;
-  };
-
   // Desktop columns (leave mobileColumns intact as requested)
   const computedColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
       {
-        key: "employeename",
-        label: "Nombre",
+        key: "image_url",
+        label: "",
         render: (row) => {
           const initials = row.employeename
             ?.split(" ")
@@ -86,17 +74,24 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
             .map((n) => n[0].toUpperCase())
             .slice(0, 2)
             .join("");
-
           return (
             <div className="flex items-center gap-2">
-              <Avatar size="xxs" initials={initials} className="mr-1" />
-              <span>{row.employeename}</span>
+              {row.image_url ? (
+                <Avatar size="xs" src={row.image_url} className="mr-1" />
+              ) : (
+                <Avatar size="xs" initials={initials} className="mr-1" />
+              )}
             </div>
           );
         },
-
-        cellClass: "w-80",
-        headerClass: "w-80",
+        cellClass: "w-15",
+        headerClass: "w-15",
+      },
+      {
+        key: "employeename",
+        label: "Nombre",
+        cellClass: "w-65",
+        headerClass: "w-65",
       },
       {
         key: "phone_number",
@@ -107,14 +102,20 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
       {
         key: "email",
         label: "Correo eléctronico",
-        cellClass: "w-70",
-        headerClass: "w-72",
+        cellClass: "w-67",
+        headerClass: "w-73",
       },
       {
         key: "projectCode",
         label: "Archivos",
         render: (row) => (
-          <Button variant="ghost" size="small" hideIcon onClick={() => onViewFiles(row)}>
+          <Button
+            variant="ghost"
+            size="small"
+            hideIcon
+            onClick={() => onViewFiles(row)}
+            data-tour="requisitions-view-files"
+          >
             Ver Archivos
           </Button>
         ),
@@ -130,6 +131,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
             hideIcon
             size="small"
             onClick={() => onViewRequisitions(row)}
+            data-tour="requisitions-view-requisitions"
           >
             Ver Requisiciones
           </Button>
@@ -141,7 +143,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
         key: "actions" as unknown as keyof RequisitionRow,
         label: "",
         render: (row) => (
-          <div className={actionCell}>
+          <div className={actionCell} data-tour="requisitions-row-actions">
             <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
           </div>
         ),
@@ -153,26 +155,70 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
-      { key: "snCode", label: "CÓDIGO SN" },
       {
-        key: "status",
+        key: "employeename",
+        label: "Beneficiario",
+        render: (row) => (
+          <div className="flex items-center gap-3">
+            <Avatar
+              size="xs"
+              src={row.image_url}
+              initials={row.employeename
+                ?.split(" ")
+                .filter(Boolean)
+                .map((n) => n[0].toUpperCase())
+                .slice(0, 2)
+                .join("")}
+            />
+            <span className="text-c2 text-gray-90 font-semibold">
+              {row.employeename}
+            </span>
+          </div>
+        ),
+      },
+      {
+        key: "mobileActions" as unknown as keyof RequisitionRow,
         label: "",
-        render: (row) => <StatusBadge status={row.status} />,
+        render: (row) => (
+          <ContextMenu
+            alignRight
+            autoFlip
+            items={
+              [
+                {
+                  label: "Ver Archivos",
+                  onClick: () => onViewFiles(row),
+                  dataTour: "requisitions-view-files",
+                },
+                {
+                  label: "Ver Requisiciones",
+                  onClick: () => onViewRequisitions(row),
+                  dataTour: "requisitions-view-requisitions",
+                },
+              ] as ContextMenuItem[]
+            }
+            trigger={
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={DotsIcon}
+                aria-label="Abrir menu de acciones"
+                data-tour="requisitions-row-actions"
+              />
+            }
+          />
+        ),
+        cellClass: "w-12 text-right",
+        headerClass: "w-12 text-right",
       },
       {
         key: "actions" as unknown as keyof RequisitionRow,
         label: "",
-        render: (row) => (
-          <div className="flex justify-end pr-2">
-            <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
-          </div>
-        ),
-        cellClass: "w-12 text-right",
-        headerClass: "w-12",
-        invisible: false,
+        render: () => null,
+        invisible: true,
       },
     ],
-    [onEdit, onDelete],
+    [onDelete, onEdit, onViewFiles, onViewRequisitions],
   );
 
   // Filtra columnas si currentPagePermissions.sapprofile es true
@@ -194,7 +240,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
 
   if (hasIdParam && !forceVisible) return <></>;
   return (
-    <div className={container}>
+    <div className={container} data-tour="requisitions-table">
       <PopUp
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
@@ -221,6 +267,10 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
           onCalendarClick={(start, end) => refresh(start, end)}
           onFilterClick={refresh}
           showRefresh={true}
+          searchDataTour="requisitions-search"
+          calendarDataTour="requisitions-calendar"
+          refreshDataTour="requisitions-refresh"
+          actionButtonDataTour="requisitions-add"
           showButton={showActionButton && !currentPagePermissions?.create}
           actionLabel={actionLabel}
           onTableActionClick={onActionClick}
@@ -229,7 +279,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
               data: rows,
               columns: columns,
               enableSelection: false,
-              title: "Requisiciones",
+              title: "Requisiciones aqui",
               enableCollaps: true,
               defaultSortKey: "date_created",
               defaultSortDirection: "desc",

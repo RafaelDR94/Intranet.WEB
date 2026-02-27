@@ -21,4 +21,6 @@ export interface CheckboxProps {
   className?: string
   /** Identificador de pruebas */
   dataTestId?: string
+  /** Data-tour para tutoriales */
+  dataTour?: string
 }

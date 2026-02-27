@@ -58,6 +58,7 @@ const RequisitionsForm: React.FC<Props> = ({
     currentPagePermissions,
     disableForm,
     setDisableForm,
+    valuesVersion,
   } = useRequisitionForm(mode, initialValues, startDisabled);
 
   if (currentPagePermissions?.requisitionForm)
@@ -89,6 +90,8 @@ const RequisitionsForm: React.FC<Props> = ({
               externalSubmitRef={submitRef}
               showSubmitIf={() => false}
               disabled={disableForm}
+              valuesVersion={valuesVersion}
+              valuesVersionActive
             />
           </div>
         ) : (
@@ -101,6 +104,7 @@ const RequisitionsForm: React.FC<Props> = ({
             primaryLabel="Guardar"
             onPrimaryClick={onSubmit}
             primaryDisabled={buttonDisabled || (startDisabled && disableForm)}
+            primaryButtonDataTour="requisitions-form-submit"
             enableCollapse={enableCollaps}
             showSecondaryButton={showEditForm ?? (mode === "edit" || startDisabled)}
             secondaryLabel={disableForm ? "Editar información" : "Cancelar"}
@@ -108,6 +112,7 @@ const RequisitionsForm: React.FC<Props> = ({
               onClose?.();
               setDisableForm((prev) => !prev);
             }}
+            secondaryButtonDataTour="requisitions-form-secondary"
             startCollaps={startCollaps}
           >
             <DynamicForm
@@ -134,6 +139,8 @@ const RequisitionsForm: React.FC<Props> = ({
               externalSubmitRef={submitRef}
               showSubmitIf={() => false}
               disabled={disableForm}
+              valuesVersion={valuesVersion}
+              valuesVersionActive
             />
           </FormsLayout>
         )}

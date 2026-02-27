@@ -55,12 +55,14 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
   }
 
   return (
-    <FormsLayout
+    <div data-tour="requisitions-invoice-form">
+      <FormsLayout
       title="Si ya cuentas con la factura, sube aquí tus archivos XML y PDF"
       primaryLabel="Subir Archivos"
       onPrimaryClick={() => submitRef.current?.()}
       primaryDisabled={!formReady}
       enableCollapse={true}
+      primaryButtonDataTour="requisitions-invoice-submit"
     >
       {/* En movil se apilan; desde md son columnas 3/4 y 1/4 */}
       <div
@@ -92,7 +94,10 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
 
         {/* Vista previa (1/4) */}
         {billingImages?.Image && (
-          <div className="w-full md:w-[190px] md:pl-2 md:shrink-0 md:ml-auto md:self-start">
+          <div
+            className="w-full md:w-[190px] md:pl-2 md:shrink-0 md:ml-auto md:self-start"
+            data-tour="requisitions-invoice-preview"
+          >
             <figure
               className="relative mx-auto flex items-center justify-center overflow-hidden rounded-md bg-white-40 shadow-400"
               style={{ width: 172, height: 250 }}
@@ -124,7 +129,8 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
           </div>
         )}
       </div>
-    </FormsLayout>
+      </FormsLayout>
+    </div>
   );
 };
 

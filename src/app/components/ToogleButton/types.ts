@@ -19,5 +19,7 @@ export interface ToggleButtonProps {
   className?: string;
   /** Identificador de pruebas */
   dataTestId?: string;
+  /** Selector estable para tutoriales */
+  dataTour?: string;
 }
 

@@ -23,6 +23,10 @@ vi.mock('@/assets/icons/acciones/open-in-window.svg', () => ({ default: () => <s
 vi.mock('@/assets/icons/Comunicacion/bell.svg', () => ({ default: () => <svg data-testid="bell" /> }))
 vi.mock('@/assets/icons/Comunicacion/bell-notification.svg', () => ({ default: () => <svg data-testid="bell-notification" /> }))
 vi.mock('@/assets/icons/acciones/menu.svg', () => ({ default: () => <svg data-testid="menu" /> }))
+vi.mock('./components/MobileSidebar/MobileSidebar', () => ({
+  __esModule: true,
+  default: () => <div>MobileSidebar</div>,
+}))
 vi.mock('./components/MainSidebar/MainSidebar', () => ({
   __esModule: true,
   default: () => {
