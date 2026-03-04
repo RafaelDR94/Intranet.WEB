@@ -6,6 +6,7 @@ export default function RequestPage() {
       routes={[
         '/main-page/request/pettycash',
         '/main-page/request/documents',
+        '/main-page/request/ownrequisitions',
       ]}
     />
   );

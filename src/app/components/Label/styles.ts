@@ -5,6 +5,7 @@ import type { LabelType } from './types'
 const base = 'inline-block text-center font-semibold text-label px-3 py-1 rounded-full w-auto m-1 text-[11px]'
 const variantMap: Record<LabelType, string> = {
   valido: 'bg-alert-green-10 text-alert-green-100 border border-alert-green-100 text-[11px]',
+  validado: 'bg-alert-green-10 text-alert-green-100 border border-alert-green-100 text-[11px]',
   invalido: 'bg-alert-yellow-10 text-alert-yellow-100 border border-alert-yellow-100 text-[11px]',
   prohibido: 'bg-alert-red-10 text-alert-red-100 border border-alert-red-100 text-[11px]',
   actualizado: 'bg-alert-blue-10 text-alert-blue-100 border border-alert-blue-100 text-[11px]',

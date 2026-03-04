@@ -63,6 +63,16 @@ export const getTabsFromPath = (
         path: "/main-page/request/acces/registerenterprise",
       }
     ],
+    "request/ownrequisitions": [
+      {
+        label: "Requisiciones",
+        path: "/main-page/request/ownrequisitions/requisitions",
+      },
+      {
+        label: "Archivos Facturables",
+        path: "/main-page/request/ownrequisitions/billablefiles",
+      },
+    ],
     "accounting/invoices": [
       {
         label: "Validación de Facturas",
@@ -79,10 +89,10 @@ export const getTabsFromPath = (
       //   label: "Historial",
       //   path: "/main-page/accounting/personalInvoices/history",
       // },
-      {
-        label: "Requisiciones",
-        path: "/main-page/accounting/personalInvoices/requisitions",
-      },
+      // {
+      //   label: "Requisiciones",
+      //   path: "/main-page/accounting/personalInvoices/requisitions",
+      // },
     ],
     "operations/requisitions": [
       {
@@ -193,6 +203,20 @@ export const getTabsFromPath = (
     const detailPath = `${clean}?${qs.toString()}`;
     if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
       tabs = [...tabs, { label: labelparam || 'Detalle de Requisición', path: detailPath }];
+    }
+  }
+
+  // agrega la Tab de detalle para requisiciones personales en request/ownrequisitions
+  if (first === 'request' && second === 'ownrequisitions' && third === 'requisitions' && id) {
+    const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+    const qs = new URLSearchParams();
+    qs.set('id', id);
+    if (labelparam) qs.set('label', labelparam);
+    const detailLabel = labelparam || 'Detalle Requisición';
+    const detailPath = `${clean}?${qs.toString()}`;
+
+    if (!tabs.some(t => t.path === detailPath || t.label === detailLabel)) {
+      tabs = [...tabs, { label: detailLabel, path: detailPath }];
     }
   }
 
