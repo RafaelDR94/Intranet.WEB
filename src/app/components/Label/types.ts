@@ -1,6 +1,7 @@
 /** Label visual variants */
 export type LabelType =
   | "valido"
+  | "validado"
   | "invalido"
   | "prohibido"
   | "actualizado"

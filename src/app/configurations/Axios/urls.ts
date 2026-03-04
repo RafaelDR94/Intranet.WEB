@@ -151,6 +151,12 @@ export const BillingDocumentById = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUM
 export const BillingDocumentsPendingByEmployee =
   process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTS_PENDING_BY_EMPLOYEE ??
   "/Billings/BillingDocumentsPendingByEmployee";
+export const BillingAllDocumentByIdEmployee =
+  process.env.NEXT_PUBLIC_BILLINGS_BILLING_ALL_DOCUMENT_BY_ID_EMPLOYEE ??
+  "/Billings/BillingAllDocumentByIdEmployee";
+export const BillingAllDocumentByIdRequisition =
+  process.env.NEXT_PUBLIC_BILLINGS_BILLING_ALL_DOCUMENT_BY_ID_REQUISITION ??
+  "/Billings/BillingAllDocumentByIdRequisition";
 export const BillingImagesPendingByEmployee =
   process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGES_PENDING_BY_EMPLOYEE ??
   "/Billings/BillingImagesPendingByEmployee";
