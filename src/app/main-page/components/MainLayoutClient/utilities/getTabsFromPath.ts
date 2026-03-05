@@ -240,8 +240,8 @@ export const getTabsFromPath = (
     if (pathname === internalDevicesAssignPath && view === 'new') {
       return [
         { label: 'Dispositivos', path: internalDevicesListPath },
-        { label: 'AsignaciÃ³n de Dispositivos', path: internalDevicesAssignPath },
-        { label: 'Nueva AsignaciÃ³n', path: `${internalDevicesAssignPath}?view=new` },
+        { label: 'Asignación de Dispositivos', path: internalDevicesAssignPath },
+        { label: 'Nueva Asignación', path: `${internalDevicesAssignPath}?view=new` },
       ];
     }
   }
