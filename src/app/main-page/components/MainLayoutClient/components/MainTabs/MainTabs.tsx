@@ -1,5 +1,5 @@
-﻿// app/layouts/components/MainTabs/MainTabs.tsx
-"use client";
+"use client"
+
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -44,6 +44,10 @@ export const MainTabs: React.FC<MainTabsProps> = ({
     const isFilesView = label?.startsWith("archivos");
     const isBillableFilesView = view === "billablefiles";
     const isDetailView = view === "detail";
+    const hasAuthorizationId =
+      Boolean(searchParams.get("authorization_id")) || Boolean(searchParams.get("id"));
+    const authorizationKind = searchParams.get("kind")?.toLowerCase() ?? "";
+    const hasOwnRequisitionId = Boolean(searchParams.get("id"));
     if (pathname.includes("/main-page/operations/requisitions/requisitionListPage")) {
       if (isBillableFilesView) return "operations-requisitions-billablefiles";
       if (isFilesView) return "operations-requisitions-files";
@@ -52,6 +56,76 @@ export const MainTabs: React.FC<MainTabsProps> = ({
     }
     if (pathname.includes("/main-page/operations/requisitions/requisitionsPage")) {
       return "operations-requisitions-form";
+    }
+    if (pathname.includes("/main-page/request/ownrequisitions/requisitions")) {
+      return hasOwnRequisitionId
+        ? "request-ownrequisitions-detail"
+        : "request-ownrequisitions-list";
+    }
+    if (pathname.includes("/main-page/request/ownrequisitions/billablefiles")) {
+      return "request-ownrequisitions-billablefiles";
+    }
+    if (pathname.includes("/main-page/authorizations/authorizationslist")) {
+      if (!hasAuthorizationId) return "authorizations-list";
+      if (authorizationKind.includes("requis")) return "authorizations-requisition-detail";
+      return "authorizations-vale-detail";
+    }
+    if (pathname.includes("/main-page/treasury/treasurypettycash/treasurycontrol")) {
+      return "treasury-pettycash-control";
+    }
+    if (pathname.includes("/main-page/treasury/treasurypettycash/treasuryrequest")) {
+      return "treasury-pettycash-request";
+    }
+    if (pathname.includes("/main-page/request/pettycash/pettycashrequest")) {
+      return "request-pettycash-request";
+    }
+    if (pathname.includes("/main-page/request/pettycash/pettycashhistory")) {
+      return "request-pettycash-history";
+    }
+    if (pathname.includes("/main-page/request/documents/managementdocuments")) {
+      return "request-documents-management";
+    }
+    if (pathname.includes("/main-page/request/documents/operationaldocuments")) {
+      return "request-documents-operational";
+    }
+    if (pathname.includes("/main-page/request/acces/generateacces")) {
+      return "request-acces-generate";
+    }
+    if (pathname.includes("/main-page/request/acces/acceshistory")) {
+      return "request-acces-history";
+    }
+    if (pathname.includes("/main-page/request/acces/registerenterprise")) {
+      return "request-acces-register";
+    }
+    if (pathname.includes("/main-page/accounting/invoices/validateinvoices")) {
+      return "accounting-validateinvoices";
+    }
+    if (pathname.includes("/main-page/accounting/invoices/sat")) {
+      return "accounting-invoices-sat";
+    }
+    if (pathname.includes("/main-page/sip/proyects/newproyect")) {
+      return "sip-newproyect";
+    }
+    if (pathname.includes("/main-page/generalservices/vehicleregist/vehicleregistry")) {
+      return "generalservices-vehicleregistry";
+    }
+    if (pathname.includes("/main-page/generalservices/vehicleregist/vehicleregistrylist")) {
+      return "generalservices-vehicleregistrylist";
+    }
+    if (pathname.includes("/main-page/humanresources/documents/documentregistry")) {
+      return "humanresources-documentregistry";
+    }
+    if (pathname.includes("/main-page/humanresources/documents/managementdocuments")) {
+      return "humanresources-managementdocuments";
+    }
+    if (pathname.includes("/main-page/humanresources/documents/operationaldocuments")) {
+      return "humanresources-operationaldocuments";
+    }
+    if (pathname.includes("/main-page/administration/usersmanagment/createemployee")) {
+      return "administration-createemployee";
+    }
+    if (pathname.includes("/main-page/administration/usersmanagment/employeesList")) {
+      return "administration-employeeslist";
     }
     return "main-page";
   }, [pathname, searchParams]);

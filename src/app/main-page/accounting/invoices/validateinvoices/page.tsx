@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React from "react";
 
 import DetailsPanel from "./components/DetailsPanel/DetailsPanel";
@@ -10,6 +10,7 @@ import { DataTable } from "@/app/components/DataTable/DataTable";
 import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 import { BillingDocuments } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
@@ -33,6 +34,10 @@ const ValidateInvoices = () => {
 
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
+  useTutorialAutoRun({
+    moduleId: "accounting-validateinvoices",
+    tutorialId: "accounting-validateinvoices:table",
+  });
   const columnasDesktop: ColumnDefinition<BillingDocuments>[] = [
     {
       key: "xml",
@@ -43,6 +48,7 @@ const ValidateInvoices = () => {
           onClick={() => window.open(row.xml, "_blank")}
           variant="ghost"
           icon={XMLIcon}
+          data-tour="accounting-validateinvoices-xml"
         />
       ),
       cellClass: "w-12 text-center",
@@ -57,6 +63,7 @@ const ValidateInvoices = () => {
           onClick={() => window.open(row.pdf, "_blank")}
           variant="ghost"
           icon={PDFIcon}
+          data-tour="accounting-validateinvoices-pdf"
         />
       ),
       cellClass: "w-1/12 text-center",
@@ -109,6 +116,7 @@ const ValidateInvoices = () => {
             onClick={() => handleOpenDetails(row)}
             variant="ghost"
             hideIcon
+            data-tour="accounting-validateinvoices-details"
           >
             Ver Detalles
           </Button>}
@@ -150,6 +158,7 @@ const ValidateInvoices = () => {
   return (
     <>
       <div className="space-y-8 overflow-auto">
+        <div data-tour="accounting-validateinvoices-table-new">
         <DataTable
           showButton={false}
           actionsRender={() => (
@@ -158,6 +167,7 @@ const ValidateInvoices = () => {
               hideIcon
               onClick={handleActionClick}
               className="flex items-center gap-2 shrink-0 text-left w-full"
+              data-tour="accounting-validateinvoices-validate"
             >
               Validar Facturas
             </Button>
@@ -176,7 +186,9 @@ const ValidateInvoices = () => {
             },
           ]}
         />
+        </div>
 
+        <div data-tour="accounting-validateinvoices-table-pending">
         <DataTable
           showButton={false}
           actionsRender={() => (
@@ -185,6 +197,7 @@ const ValidateInvoices = () => {
               hideIcon
               onClick={handleActionClick}
               className="flex items-center gap-2 shrink-0 text-left w-full"
+              data-tour="accounting-validateinvoices-validate"
             >
               Validar Facturas
             </Button>
@@ -203,6 +216,7 @@ const ValidateInvoices = () => {
             },
           ]}
         />
+        </div>
       </div>
       <PopUp
         open={openValidInvoice}

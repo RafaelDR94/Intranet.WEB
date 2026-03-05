@@ -98,6 +98,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       onClose={() => setPanelOpen(false)}
       leftLabel={isMobile ? "" : labels?.left}
       rightLabel={isMobile ? "" : labels?.right}
+      closeButtonDataTour="ownrequisitions-billablefiles-panel-close"
+      className={clsx(isMobile ? "w-full" : '')}
       actionButton={
         isTicket ? (
           <div
@@ -155,6 +157,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                   icon={ImageIcon}
                   disabled={!selected.image}
                   onClick={() => window.open(selected?.image, "_blank")}
+                  data-tour="ownrequisitions-billablefiles-panel-image"
                 />
               )}
               {selected?.image && (
@@ -169,6 +172,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                     )
                   }
                   aria-label="Descargar imagen"
+                  data-tour="ownrequisitions-billablefiles-panel-download"
                 />
               )}
             </>
@@ -181,6 +185,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                   icon={XMLIcon}
                   disabled={!selected.xml}
                   onClick={() => window.open(selected.xml!, "_blank")}
+                  data-tour="ownrequisitions-billablefiles-panel-xml"
                 />
               )}
               {selected?.pdf && (
@@ -190,6 +195,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                   icon={PDFIcon}
                   disabled={!selected.pdf}
                   onClick={() => window.open(selected.pdf!, "_blank")}
+                  data-tour="ownrequisitions-billablefiles-panel-pdf"
                 />
               )}
               {selected?.image && (
@@ -199,6 +205,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                   icon={ImageIcon}
                   disabled={!selected.pdf}
                   onClick={() => window.open(selected?.image, "_blank")}
+                  data-tour="ownrequisitions-billablefiles-panel-image"
                 />
               )}
             </>

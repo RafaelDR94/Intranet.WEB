@@ -1,4 +1,4 @@
-﻿'use client'
+"use client"
 
 import React from 'react'
 
@@ -83,7 +83,7 @@ const ValesAuthorization = () => {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4" data-tour="authorizations-vale-header">
         <div className="flex min-w-[240px] flex-1 items-center gap-3">
           <p className="text-b3 text-blue-80">{title}</p>
           <div className="hidden h-px flex-1 bg-blue-40 md:block" />
@@ -97,17 +97,24 @@ const ValesAuthorization = () => {
               hideIcon
               className="border-alert-red-100 text-alert-red-100 hover:bg-alert-red-10 focus:ring-alert-red-50"
               onClick={handleStartRejection}
+              data-tour="authorizations-vale-reject"
             >
               Rechazar
             </Button>
-            <Button variant="solid" size="medium" hideIcon onClick={handleStartApproval}>
+            <Button
+              variant="solid"
+              size="medium"
+              hideIcon
+              onClick={handleStartApproval}
+              data-tour="authorizations-vale-approve"
+            >
               Aprobar
             </Button>
           </div>
         )}
       </div>
 
-      <div className="rounded-lg bg-white-100 p-6 shadow-200">
+      <div className="rounded-lg bg-white-100 p-6 shadow-200" data-tour="authorizations-vale-summary">
         <div className="grid gap-6 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1.05fr)_minmax(0,0.7fr)]">
           <div className="space-y-3 text-b3 text-gray-80">
             <p className="text-b3 text-blue-80">Colaborador: {collaborator}</p>
@@ -130,7 +137,7 @@ const ValesAuthorization = () => {
           <div className="flex h-full flex-col items-end gap-3 text-b3 text-gray-80">
             <div className="flex flex-wrap items-center justify-end gap-3">
               <Label type={statusLabelType} text={authorizationStatus ?? voucher?.status ?? 'Pendiente'} />
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" data-tour="authorizations-vale-attachments">
                 {attachments.evidence && (
                   <Button
                     variant="ghost"
@@ -183,36 +190,47 @@ const ValesAuthorization = () => {
 
         {isPendingStatus && (
           <div className="mt-4 flex justify-end">
-            <Button variant="outline" size="medium" hideIcon onClick={handleOpenEscalate}>
+            <Button
+              variant="outline"
+              size="medium"
+              hideIcon
+              onClick={handleOpenEscalate}
+              data-tour="authorizations-vale-escalate"
+            >
               Escalar
             </Button>
           </div>
         )}
       </div>
 
-      <DataTable
-        showCalendar
-        showFilter
-        showRefresh={false}
-        showButton={false}
-        showDownloadTable={false}
-        enableInternalSearch
-        filterTitle="Filtrar vales"
-        filterOptions={filterOptions}
-        filterValue={activeFilter}
-        onFilterChange={(value) => setActiveFilter(value)}
-        searchableKeys={['collaborator', 'concept', 'voucherType', 'status']}
-        dateKey={(row) => row.applicationDate}
-        tables={[
-          {
-            data: rows,
-            columns,
-            title: 'Historial de solicitudes caja chica',
-            enableSelection: false,
-            enableCollaps: false,
-          },
-        ]}
-      />
+      <div data-tour="authorizations-vale-history-table">
+        <DataTable
+          showCalendar
+          showFilter
+          showRefresh={false}
+          showButton={false}
+          showDownloadTable={false}
+          enableInternalSearch
+          filterTitle="Filtrar vales"
+          filterOptions={filterOptions}
+          filterValue={activeFilter}
+          onFilterChange={(value) => setActiveFilter(value)}
+          searchableKeys={['collaborator', 'concept', 'voucherType', 'status']}
+          dateKey={(row) => row.applicationDate}
+          searchDataTour="authorizations-vale-search"
+          calendarDataTour="authorizations-vale-calendar"
+          filterDataTour="authorizations-vale-filter"
+          tables={[
+            {
+              data: rows,
+              columns,
+              title: 'Historial de solicitudes caja chica',
+              enableSelection: false,
+              enableCollaps: false,
+            },
+          ]}
+        />
+      </div>
 
       <SignaturePopUp
         open={signatureOpen}

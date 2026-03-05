@@ -18,11 +18,13 @@ const GenerateAccesForm = () => {
 
   
   return (
-    <FormsLayout
+    <div data-tour="acces-generate-form">
+      <FormsLayout
       title={titleText()}
       primaryLabel={submitText()}
       onPrimaryClick={() => submitRef.current?.()}
       primaryDisabled={!formCompleted}
+      primaryButtonDataTour="acces-generate-submit"
     >
       <DynamicForm
         responsiveLayoutMatrix={{
@@ -43,6 +45,7 @@ const GenerateAccesForm = () => {
         onValidChange={handleValidChange}
       />
     </FormsLayout>
+    </div>
   );
 };
 export default GenerateAccesForm;

@@ -1,8 +1,9 @@
-"use client";
+"use client"
 
 import { useState } from "react";
 
 import useNewProyect from "./hooks/useNewProyect";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
@@ -11,14 +12,20 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 
 const NewProyectPage = () => {
   const { responsiveLayout, submitRef, formReady, setFormReady, fields, handleSubmit, loadingFormInfo, creating } = useNewProyect();
+  useTutorialAutoRun({
+    moduleId: "sip-newproyect",
+    tutorialId: "sip-newproyect:form",
+  });
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
+    <div data-tour="sip-newproyect-form">
     <FormsLayout
       title="Registra aquí un nuevo proyecto"
       primaryLabel="Registrar Proyecto"
       onPrimaryClick={() => setConfirmOpen(true)}
       primaryDisabled={!formReady}
+      primaryButtonDataTour="sip-newproyect-submit"
     >
       <>
         <div className="w-full">
@@ -48,6 +55,7 @@ const NewProyectPage = () => {
         />
       </>
     </FormsLayout>
+    </div>
   );
 };
 

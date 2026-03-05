@@ -1,25 +1,49 @@
-﻿### 1.50.26 Documentos completos por requisición 03-03-2026
+### 1.50.30 Tutoriales en pettycash request e history 03-04-2026
+
+Feature:
+
+- Agrega tutoriales para formularios de caja chica y su historial. (Agente IA) [#]()
+
+### 1.50.29 Tutoriales en treasury request 03-04-2026
+
+Feature:
+
+- Agrega tutoriales para formularios de vales en tesoreria. (Agente IA) [#]()
+
+### 1.50.28 Tutoriales en treasury control 03-04-2026
+
+Feature:
+
+- Agrega tutorial para Control de Caja Chica en tesorer�a. (Agente IA) [#]()
+
+### 1.50.27 Tutoriales en ownrequisitions y authorizations 03-04-2026
+
+Feature:
+
+- Agrega tutoriales con data-tour y auto-run para requisiciones personales y autorizaciones. (Agente IA) [#]()
+
+### 1.50.26 Documentos completos por requisici�n 03-03-2026
 
 Feature:
 
 - Agrega store, mapeo y tipos para Billings/BillingAllDocumentByIdRequisition. (Agente IA) [#]()
-### 1.47.87 Evidencia de aprobaciÃ³n en requisiciones 02-03-2026
+### 1.47.87 Evidencia de aprobación en requisiciones 02-03-2026
 
 Feature:
 
-- Agrega el endpoint BillingRequisition/ImageUrl con store, mapeo y carga de evidencia desde el detalle de requisiciÃ³n. (Agente IA) [#]()
+- Agrega el endpoint BillingRequisition/ImageUrl con store, mapeo y carga de evidencia desde el detalle de requisición. (Agente IA) [#]()
 
-### 1.47.86 Payload completo de vinculaciÃ³n 12-29-2025
+### 1.47.86 Payload completo de vinculación 12-29-2025
 
 Fix:
 
-- Ajusta el PUT de vinculaciÃ³n de facturas para enviar todos los campos requeridos de la requisiciÃ³n junto con el identificador del documento. (Agente IA) [#]()
+- Ajusta el PUT de vinculación de facturas para enviar todos los campos requeridos de la requisición junto con el identificador del documento. (Agente IA) [#]()
 
 ### 1.47.85 Vincular facturas con requisiciones 12-28-2025
 
 Fix:
 
-- Agrega un selector de cÃ³digos de requisiciÃ³n en la tabla de facturas para vincular facturas existentes mediante un `PUT` a `Billings/BillingRequisition`, mostrando confirmaciones y errores al usuario. (Agente IA) [#]()
+- Agrega un selector de códigos de requisición en la tabla de facturas para vincular facturas existentes mediante un `PUT` a `Billings/BillingRequisition`, mostrando confirmaciones y errores al usuario. (Agente IA) [#]()
 
 ### 1.47.84 Nombres visibles en requisiciones 12-27-2025
 
@@ -31,31 +55,31 @@ Fix:
 
 Fix:
 
-- Normaliza respuestas `BillingRequisitionWithEmployees` y `BillingRequisitionByIdEmployee` en snake_case para que las tablas de requisiciones generales y personales muestren proyectos, periodos, dÃ­as corrientes y documentos adjuntos. (Agente IA) [#]()
+- Normaliza respuestas `BillingRequisitionWithEmployees` y `BillingRequisitionByIdEmployee` en snake_case para que las tablas de requisiciones generales y personales muestren proyectos, periodos, días corrientes y documentos adjuntos. (Agente IA) [#]()
 
 ### 1.47.82 Historial de requisiciones personales visible 12-24-2025
 
 Fix:
 
-- Mapea los campos de BillingRequisitionByIdEmployee (proyecto, estado, periodo y dÃ­as corrientes) para que la tabla muestre la informaciÃ³n real del historial. (Agente IA) [#]()
+- Mapea los campos de BillingRequisitionByIdEmployee (proyecto, estado, periodo y días corrientes) para que la tabla muestre la información real del historial. (Agente IA) [#]()
 
-### 1.47.81 Icono de tickets en archivos de requisiciÃ³n 12-23-2025
+### 1.47.81 Icono de tickets en archivos de requisición 12-23-2025
 
 Fix:
 
-- Corrige la ruta del icono de tickets para que la vista "Ver Archivos" cargue sin errores de mÃ³dulo y abra las imÃ¡genes adjuntas. (Agente IA) [#]()
+- Corrige la ruta del icono de tickets para que la vista "Ver Archivos" cargue sin errores de módulo y abra las imágenes adjuntas. (Agente IA) [#]()
 
 ### 1.47.80 Archivos de requisiciones activas 12-23-2025
 
 Fix:
 
-- Muestra los documentos de BillingRequisitionWithEmployees en las tablas de facturas y tickets al usar "Ver Archivos", separando XML/PDF de imÃ¡genes. (Agente IA) [#]()
+- Muestra los documentos de BillingRequisitionWithEmployees en las tablas de facturas y tickets al usar "Ver Archivos", separando XML/PDF de imágenes. (Agente IA) [#]()
 
 ### 1.47.79 Requisiciones con empleados 12-23-2025
 
 Fix:
 
-- AÃ±ade el endpoint BillingRequisitionWithEmployees con su store, tipos y mapeo y actualiza la tabla de operaciones para usar los nuevos datos. (Agente IA) [#]()
+- Añade el endpoint BillingRequisitionWithEmployees con su store, tipos y mapeo y actualiza la tabla de operaciones para usar los nuevos datos. (Agente IA) [#]()
 
 ### 1.47.78 Campos extra en requisiciones por empleado 12-21-2025
 
@@ -69,71 +93,71 @@ Fix:
 
 - Separa las requisiciones activas para la tabla "Activas" y mantiene el historial con todas las requisiciones. (Agente IA) [#]()
 
-### 1.47.76 BotÃ³n de detalles en requisiciones 12-09-2025
+### 1.47.76 Botón de detalles en requisiciones 12-09-2025
 
 Fix:
 
-- Activa el botÃ³n de "Ver Detalles" en RequisitionsTable de facturas personales para abrir el panel de detalle. (Agente IA) [#]()
+- Activa el botón de "Ver Detalles" en RequisitionsTable de facturas personales para abrir el panel de detalle. (Agente IA) [#]()
 
-### 1.47.75 GalerÃ­a de tickets con arrastre 12-19-2025
+### 1.47.75 Galería de tickets con arrastre 12-19-2025
 
 Feature:
 
-- Permite arrastrar y reordenar las miniaturas de tickets mientras se mantiene la selecciÃ³n mÃºltiple para subirlas. (Agente IA) [#]()
+- Permite arrastrar y reordenar las miniaturas de tickets mientras se mantiene la selección múltiple para subirlas. (Agente IA) [#]()
 
-### 1.47.74 GalerÃ­a de tickets sin vista grande 12-18-2025
+### 1.47.74 Galería de tickets sin vista grande 12-18-2025
 
 Fix:
 
-- Oculta la vista previa principal en TicketForm y usa solo la galerÃ­a de miniaturas con selecciÃ³n mÃºltiple para editar o crear tickets. (Agente IA) [#]()
+- Oculta la vista previa principal en TicketForm y usa solo la galería de miniaturas con selección múltiple para editar o crear tickets. (Agente IA) [#]()
 
 ### 1.47.73 Multi image ticket upload 12-15-2025
 
 Feature:
 
-- Permite seleccionar mÃºltiples imÃ¡genes en TicketForm, marcarlas con checkbox y enviarlas al backend como arreglo de URLs. (Agente IA) [#]()
+- Permite seleccionar múltiples imágenes en TicketForm, marcarlas con checkbox y enviarlas al backend como arreglo de URLs. (Agente IA) [#]()
 
 ### 1.47.72 Ticket form layout polish 12-14-2025
 
 Fix:
 
-- Ajusta TicketForm con estilos aislados para replicar el nuevo diseÃ±o de dropzone y mantener sin cambios otros formularios. (Agente IA) [#]()
+- Ajusta TicketForm con estilos aislados para replicar el nuevo diseño de dropzone y mantener sin cambios otros formularios. (Agente IA) [#]()
 
 ### 1.47.71 Requisition id for billable tickets 12-12-2025
 
 Fix:
 
-- EnvÃ­a el `requisition_id` en las peticiones de carga de tickets cuando se abre el flujo desde el detalle de requisiciÃ³n. (Agente IA) [#]()
+- Envía el `requisition_id` en las peticiones de carga de tickets cuando se abre el flujo desde el detalle de requisición. (Agente IA) [#]()
 
 ### 1.47.70 Ticket form spinner fix 12-11-2025
 
 Fix:
 
-- Evita el spinner permanente en TicketForm cuando solo se muestran categorÃ­a y carga de imagen, permitiendo subir tickets sin esperar datos faltantes. (Agente IA) [#]()
+- Evita el spinner permanente en TicketForm cuando solo se muestran categoría y carga de imagen, permitiendo subir tickets sin esperar datos faltantes. (Agente IA) [#]()
 
 ### 1.47.69 Billable files tab on demand 12-10-2025
 
 Fix:
 
-- Muestra la pestaÃ±a de carga de archivos facturables solo al activarla desde el detalle de requisiciÃ³n y abre el formulario en la misma vista sin redirecciones externas. (Agente IA) [#]()
+- Muestra la pestaña de carga de archivos facturables solo al activarla desde el detalle de requisición y abre el formulario en la misma vista sin redirecciones externas. (Agente IA) [#]()
 
 ### 1.47.68 Billable files tab from requisition detail 12-09-2025
 
 Fix:
 
-- Abre la pestaÃ±a de carga de archivos facturables desde el detalle de requisiciÃ³n y mantiene el retorno al detalle desde la nueva vista. (Agente IA) [#]()
+- Abre la pestaña de carga de archivos facturables desde el detalle de requisición y mantiene el retorno al detalle desde la nueva vista. (Agente IA) [#]()
 
 ### 1.47.67 Ticket uploader redesign 12-06-2025
 
 Fix:
 
-- Refresca el formulario de tickets con dropzone de cÃ¡mara y vista previa para alinearlo con el nuevo diseÃ±o de carga de imÃ¡genes. (Agente IA) [#]()
+- Refresca el formulario de tickets con dropzone de cámara y vista previa para alinearlo con el nuevo diseño de carga de imágenes. (Agente IA) [#]()
 
 ### 1.47.66 Billable ticket upload form 12-05-2025
 
 Fix:
 
-- Reemplaza la tabla de tickets por el formulario de subida de imÃ¡genes reutilizando TicketForm dentro de billablefiles. (Agente IA) [#]()
+- Reemplaza la tabla de tickets por el formulario de subida de imágenes reutilizando TicketForm dentro de billablefiles. (Agente IA) [#]()
 
 ### 1.47.65 Billable files upload location 12-05-2025
 
@@ -145,7 +169,7 @@ Fix:
 
 Fix:
 
-- Agrega columna de acciones con acceso a detalle o eliminaciÃ³n en la vista de requisiciones filtradas y crea la tab "Detalle RequisiciÃ³n" en la navegaciÃ³n de operaciones. (Agente IA) [#]()
+- Agrega columna de acciones con acceso a detalle o eliminación en la vista de requisiciones filtradas y crea la tab "Detalle Requisición" en la navegación de operaciones. (Agente IA) [#]()
 
 ### 1.47.63 Requisition files by user 10-12-2025
 
@@ -157,50 +181,50 @@ Fix:
 
 Fix:
 
-- Fuerza que la acciÃ³n de "Ver detalle" abra la pestaÃ±a correcta agregando la etiqueta de detalle al navegar desde el historial de requisiciones. (Agente IA) [#]()
+- Fuerza que la acción de "Ver detalle" abra la pestaña correcta agregando la etiqueta de detalle al navegar desde el historial de requisiciones. (Agente IA) [#]()
 
 ### 1.47.61 Requisition detail tab 08-12-2025
 
 Fix:
 
-- Muestra la pestaÃ±a de Detalle al abrir una requisiciÃ³n desde el listado para que la acciÃ³n de "Ver detalle" cargue la vista correcta. (Agente IA) [#]()
+- Muestra la pestaña de Detalle al abrir una requisición desde el listado para que la acción de "Ver detalle" cargue la vista correcta. (Agente IA) [#]()
 
 ### 1.47.60 Requisition files actions column 07-12-2025
 
 Fix:
 
-- Agrega la columna de acciones con menÃº contextual en la tabla de historial de Archivos para mantener las mismas opciones que la
+- Agrega la columna de acciones con menú contextual en la tabla de historial de Archivos para mantener las mismas opciones que la
   tabla principal. (Agente IA) [#]()
 
 ### 1.47.59 Requisition history files table 06-12-2025
 
 Fix:
 
-- Conecta la vista de archivos de requisiciones con el historial para mostrar las filas existentes cuando se abre la pestaÃ±a de Requisiciones. (Agente IA) [#]()
+- Conecta la vista de archivos de requisiciones con el historial para mostrar las filas existentes cuando se abre la pestaña de Requisiciones. (Agente IA) [#]()
 
 ### 1.47.58 Requisition files view tables 05-12-2025
 
 Fix:
 
-- Muestra la pestaÃ±a de Archivos con la tabla de comprobantes y mantiene visible el listado de requisiciones aun cuando se abra un beneficiario. (Agente IA) [#]()
+- Muestra la pestaña de Archivos con la tabla de comprobantes y mantiene visible el listado de requisiciones aun cuando se abra un beneficiario. (Agente IA) [#]()
 
 ### 1.47.57 First-name requisition tabs 04-12-2025
 
 Fix:
 
-- Ajusta las pestaÃ±as dinÃ¡micas de Archivos/Requisiciones para mostrar solo el primer nombre del beneficiario y limpiar la vista al abrirlas para personalizar el contenido. (Agente IA) [#]()
+- Ajusta las pestañas dinámicas de Archivos/Requisiciones para mostrar solo el primer nombre del beneficiario y limpiar la vista al abrirlas para personalizar el contenido. (Agente IA) [#]()
 
 ### 1.47.56 Named requisition tabs 03-12-2025
 
 Fix:
 
-- Permite abrir pestaÃ±as de Archivos o Requisiciones con el nombre del beneficiario para identificar los contenidos por persona y mantener la etiqueta en la navegaciÃ³n. (Agente IA) [#]()
+- Permite abrir pestañas de Archivos o Requisiciones con el nombre del beneficiario para identificar los contenidos por persona y mantener la etiqueta en la navegación. (Agente IA) [#]()
 
 ### 1.47.55 Operations requisition files tab 02-12-2025
 
 Fix:
 
-- Muestra una pestaÃ±a dinÃ¡mica de Archivos en operaciones > requisiciones > listado cuando se consulta un beneficiario especÃ­fico por id. (Agente IA) [#]()
+- Muestra una pestaña dinámica de Archivos en operaciones > requisiciones > listado cuando se consulta un beneficiario específico por id. (Agente IA) [#]()
 
 ### 1.47.54 Billing requisitions active endpoint 01-12-2025
 
@@ -212,49 +236,49 @@ Fix:
 
 Fix:
 
-- Muestra en la tabla de requisiciones personales la informaciÃ³n obtenida desde el endpoint `fetchRequisitionsByIdEmployee`, incluyendo alertas cuando no hay resultados. (Agente IA) [#]()
+- Muestra en la tabla de requisiciones personales la información obtenida desde el endpoint `fetchRequisitionsByIdEmployee`, incluyendo alertas cuando no hay resultados. (Agente IA) [#]()
 
 ### 1.47.52 Vehicles form error persistence 31-10-2025
 
 Fix:
 
-- Mantiene los datos capturados en el formulario de vehÃ­culos cuando ocurre un error al registrar o actualizar, permitiendo corregir la informaciÃ³n sin volver a llenarla. (Agente IA) [#]()
+- Mantiene los datos capturados en el formulario de vehículos cuando ocurre un error al registrar o actualizar, permitiendo corregir la información sin volver a llenarla. (Agente IA) [#]()
 
 ### 1.47.51 Tools form stable editing 30-10-2025
 
 Fix:
 
-- Evita que el formulario de herramientas se reinicie al teclear o borrar varias letras al usar teclas rÃ¡pidas, manteniendo una clave estable por fila. (Agente IA) [#]()
+- Evita que el formulario de herramientas se reinicie al teclear o borrar varias letras al usar teclas rápidas, manteniendo una clave estable por fila. (Agente IA) [#]()
 
 ### 1.47.50 Tools form partial updates 30-10-2025
 
 Fix:
 
-- Evita que los campos de herramientas se vacÃ­en al editar, mezclando los cambios parciales con el valor original para permitir escribir o borrar sin reinicios inesperados. (Agente IA) [#]()
+- Evita que los campos de herramientas se vacíen al editar, mezclando los cambios parciales con el valor original para permitir escribir o borrar sin reinicios inesperados. (Agente IA) [#]()
 
 ### 1.47.49 Tools template resilience 29-10-2025
 
 Fix:
 
-- Refuerza la generaciÃ³n de la plantilla de herramientas para que funcione en entornos parciales y evita errores de tipado al procesar valores de Excel. (Agente IA) [#]()
+- Refuerza la generación de la plantilla de herramientas para que funcione en entornos parciales y evita errores de tipado al procesar valores de Excel. (Agente IA) [#]()
 
 ### 1.47.48 External persons alert flow 29-10-2025
 
 Fix:
 
-- Habilita el botÃ³n de agregar solo tras elegir una persona y asegura el autocierre de alertas al registrar o actualizar datos de personas externas. (Agente IA) [#]()
+- Habilita el botón de agregar solo tras elegir una persona y asegura el autocierre de alertas al registrar o actualizar datos de personas externas. (Agente IA) [#]()
 
 ### 1.47.47 Tools template single header 28-10-2025
 
 Fix:
 
-- Ajusta la plantilla de herramientas para mostrar una sola tabla con encabezado azul #002a41, aumenta el tamaÃ±o del logo y mantiene la limpieza del formato al regenerar el archivo. (Agente IA) [#]()
+- Ajusta la plantilla de herramientas para mostrar una sola tabla con encabezado azul #002a41, aumenta el tamaño del logo y mantiene la limpieza del formato al regenerar el archivo. (Agente IA) [#]()
 
 ### 1.47.46 Tools template branding 28-10-2025
 
 Feat:
 
-- AÃ±ade branding en azul, tÃ­tulo y logo de DR a la plantilla de herramientas para descarga y carga masiva, manteniendo columnas consistentes. (Agente IA) [#]()
+- Añade branding en azul, título y logo de DR a la plantilla de herramientas para descarga y carga masiva, manteniendo columnas consistentes. (Agente IA) [#]()
 
 ### 1.47.45 Tools template header alignment 27-10-2025
 
@@ -272,67 +296,67 @@ Fix:
 
 Feat:
 
-- Agrega el nÃºmero de serie a herramientas y habilita la descarga/carga masiva mediante plantilla de Excel para poblar el formulario. (Agente IA) [#]()
+- Agrega el número de serie a herramientas y habilita la descarga/carga masiva mediante plantilla de Excel para poblar el formulario. (Agente IA) [#]()
 
 ### 1.47.42 External person picture persistence 26-10-2025
 
 Fix:
 
-- Guarda el archivo de la foto de la persona en el primer envÃ­o del formulario de personal externo para que no vuelva a marcarse como requerido y se suba junto con las otras imÃ¡genes. (Agente IA) [#]()
+- Guarda el archivo de la foto de la persona en el primer envío del formulario de personal externo para que no vuelva a marcarse como requerido y se suba junto con las otras imágenes. (Agente IA) [#]()
 
 ### 1.47.41 External person images mapping 26-10-2025
 
 Fix:
 
-- Alinea los nombres de los campos de imÃ¡genes en el registro de personal externo para que la foto, INE y licencia se validen y carguen correctamente desde el primer envÃ­o. (Agente IA) [#]()
+- Alinea los nombres de los campos de imágenes en el registro de personal externo para que la foto, INE y licencia se validen y carguen correctamente desde el primer envío. (Agente IA) [#]()
 
 ### 1.47.40 Vehicle insurance fields 25-10-2025
 
 Feat:
 
-- AÃ±ade campos de aseguradora, expediciÃ³n de pÃ³liza, tipo de pago, cobertura y color en el registro de vehÃ­culos para enviarlos en las peticiones correspondientes. (Agente IA) [#]()
+- Añade campos de aseguradora, expedición de póliza, tipo de pago, cobertura y color en el registro de vehículos para enviarlos en las peticiones correspondientes. (Agente IA) [#]()
 
 ### 1.47.39 Acces history vehicles table 25-10-2025
 
 Fix:
 
-- Muestra los vehÃ­culos asociados en el panel de historial cargando el detalle del acceso seleccionado y presentando la tabla con acciones para editar la solicitud. (Agente IA) [#]()
+- Muestra los vehículos asociados en el panel de historial cargando el detalle del acceso seleccionado y presentando la tabla con acciones para editar la solicitud. (Agente IA) [#]()
 
 ### 1.47.38 User NIP persistence sync 25-10-2025
 
 Fix:
 
-- Sincroniza el NIP actualizado con el estado de autenticaciÃ³n y el almacenamiento local para reflejar el cambio tras recargar la configuraciÃ³n de usuario. (Agente IA) [#]()
+- Sincroniza el NIP actualizado con el estado de autenticación y el almacenamiento local para reflejar el cambio tras recargar la configuración de usuario. (Agente IA) [#]()
 
 ### 1.47.37 Request documents operational tab 25-10-2025
 
 Feat:
 
-- Agrega una pestaÃ±a de Documentos Operativos en solicitudes para consultar y descargar los archivos con la misma tabla que Documentos Gerenciales. (Agente IA) [#]()
+- Agrega una pestaña de Documentos Operativos en solicitudes para consultar y descargar los archivos con la misma tabla que Documentos Gerenciales. (Agente IA) [#]()
 
 ### 1.47.36 Document registry storage naming 25-10-2025
 
 Fix:
 
-- Genera nombres de archivo con sello de tiempo antes de la extensiÃ³n y desactiva el sufijo automÃ¡tico de Firebase para conservar rutas vÃ¡lidas al previsualizar documentos de Office en las tablas gerenciales y operativas. (Agente IA) [#]()
+- Genera nombres de archivo con sello de tiempo antes de la extensión y desactiva el sufijo automático de Firebase para conservar rutas válidas al previsualizar documentos de Office en las tablas gerenciales y operativas. (Agente IA) [#]()
 
 ### 1.47.35 User password display sync 25-10-2025
 
 Fix:
 
-- Sincroniza el campo de contraseÃ±a mostrada con el valor actualizado en el store inmediatamente despuÃ©s de guardar la nueva contraseÃ±a. (Agente IA) [#]()
+- Sincroniza el campo de contraseña mostrada con el valor actualizado en el store inmediatamente después de guardar la nueva contraseña. (Agente IA) [#]()
 
 ### 1.47.34 User signature pad popup bypass 25-10-2025
 
 Fix:
 
-- Evita que el flujo de actualizaciÃ³n de firma en configuraciÃ³n de usuario vuelva a mostrar el popup de autorizaciÃ³n y asegura que el SignaturePad se muestre inmediatamente en modo de pantalla completa. (Agente IA) [#]()
+- Evita que el flujo de actualización de firma en configuración de usuario vuelva a mostrar el popup de autorización y asegura que el SignaturePad se muestre inmediatamente en modo de pantalla completa. (Agente IA) [#]()
 
 ### 1.47.33 User configuration signature pad 25-10-2025
 
 Fix:
 
-- Permite actualizar la firma del usuario sin solicitar autorizaciÃ³n previa y muestra el SignaturePad en pantalla completa para facilitar la captura. (Agente IA) [#]()
+- Permite actualizar la firma del usuario sin solicitar autorización previa y muestra el SignaturePad en pantalla completa para facilitar la captura. (Agente IA) [#]()
 
 ### 1.47.32 Human resources hook stories canvas 25-10-2025
 
@@ -350,7 +374,7 @@ Feature:
 
 Feature:
 
-- Refuerza los hooks de documentos operativos, gerenciales y registro con pruebas que validan refresco y estados, y agrega historias de Storybook junto con tests de pÃ¡gina para los flujos de Recursos Humanos. (Agente IA) [#]()
+- Refuerza los hooks de documentos operativos, gerenciales y registro con pruebas que validan refresco y estados, y agrega historias de Storybook junto con tests de página para los flujos de Recursos Humanos. (Agente IA) [#]()
 
 ### 1.47.29 Human resources document actions 25-10-2025
 
@@ -392,7 +416,7 @@ Feature:
 
 Feature:
 
-- Update SAT invoice submission to use BillingDocumentsSendToSAP and redirect to administraciÃ³n SAP after confirmation. (Agente IA) [#]()
+- Update SAT invoice submission to use BillingDocumentsSendToSAP and redirect to administración SAP after confirmation. (Agente IA) [#]()
 
 ### First Commit 25-07-2025
 
@@ -926,7 +950,7 @@ Fix:
 
 Fix:
 
-- Because it didnÂ´t open when you click it.
+- Because it didn´t open when you click it.
   (Bruno Mendoza) [330#](https://github.com/DR-Mexico/dr.intranet.web/pull/330)
 
 ### 1.47.24 Report Activities 2026-12-01
@@ -956,4 +980,8 @@ Feature:
 
 - Adjustments to the Invoices Form.
   (Katherine Negrete) [347#](https://github.com/DR-Mexico/dr.intranet.web/pull/347#)
+
+
+
+
 

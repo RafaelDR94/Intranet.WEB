@@ -1,5 +1,5 @@
+"use client"
 // SAT.tsx
-"use client";
 import React from "react";
 
 import DetailsPanel from "../validateinvoices/components/DetailsPanel/DetailsPanel";
@@ -11,6 +11,7 @@ import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayo
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 import { BillingDocumentsSatTableListMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
 import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import CrossIcon from "@/assets/icons/acciones/cancel.svg";
@@ -32,6 +33,10 @@ const SAT = () => {
     handleMultiSelect,
   } = useSAT();
   const { currentPagePermissions } = useAuth();
+  useTutorialAutoRun({
+    moduleId: "accounting-invoices-sat",
+    tutorialId: "accounting-invoices-sat:table",
+  });
 
   const isMobile = useIsMobile();
   /** Columnas base sin ícono forzado */
@@ -86,6 +91,7 @@ const SAT = () => {
                 }
                 variant="ghost"
                 hideIcon
+                data-tour="accounting-sat-details"
               >
                 Ver Detalles
               </Button>}
@@ -98,6 +104,7 @@ const SAT = () => {
                 }
                 variant="ghost"
                 hideIcon
+                data-tour="accounting-sat-comment"
               >
                 Comentar
               </Button>
@@ -112,6 +119,7 @@ const SAT = () => {
 
   return (
     <>
+      <div data-tour="accounting-sat-table-valid">
       <DataTable
         tables={[
           {
@@ -139,6 +147,7 @@ const SAT = () => {
               size="large"
               hideIcon
               className="w-full"
+              data-tour="accounting-sat-send"
             >
               Enviar a SAP
             </Button>}
@@ -150,8 +159,9 @@ const SAT = () => {
           handleMultiSelect(rows);
         }}
       />
+      </div>
 
-      <div className="mt-5">
+      <div className="mt-5" data-tour="accounting-sat-table-others">
         <DataTable
           enableInternalSearch
           showDownloadTable

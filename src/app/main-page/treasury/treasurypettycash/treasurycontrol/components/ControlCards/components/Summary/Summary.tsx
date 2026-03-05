@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React from "react";
 import { shallow } from "zustand/shallow";
@@ -228,6 +228,7 @@ export default function Summary({
                 size="small"
                 onClick={handleCreateClick}
                 disabled={headerDisabled}
+                data-tour="treasury-control-summary-create"
               >
                 Crear
               </Button>
@@ -236,6 +237,7 @@ export default function Summary({
                 variant="solid"
                 onClick={handleSaveRequest}
                 disabled={!canSave || creating}
+                data-tour="treasury-control-summary-save"
               >
                 Guardar Ajustes
               </Button>
@@ -249,6 +251,7 @@ export default function Summary({
                 variant="outline"
                 size="small"
                 onClick={handleCancel}
+                data-tour="treasury-control-summary-cancel"
               >
                 Cancelar
               </Button>
@@ -258,6 +261,7 @@ export default function Summary({
                   hideIcon
                   variant="solid"
                   onClick={handleSaveRequest}
+                  data-tour="treasury-control-summary-save"
                 >
                   Guardar Ajustes
                 </Button>

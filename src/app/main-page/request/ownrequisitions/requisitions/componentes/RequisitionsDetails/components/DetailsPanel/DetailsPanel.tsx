@@ -71,6 +71,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       onClose={() => setPanelOpen(false)}
       leftLabel={labels?.left}
       rightLabel={labels?.right}
+      closeButtonDataTour="ownrequisitions-detail-panel-close"
       renderActions={() => (
         <div className={s.actionsRow}>
           {selected?.xml && (
@@ -81,6 +82,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               iconOnly
               aria-label="Abrir XML"
               onClick={() => window.open(selected.xml!, "_blank")}
+              data-tour="ownrequisitions-detail-panel-xml"
             />
           )}
           {selected?.pdf && (
@@ -91,6 +93,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               iconOnly
               aria-label="Abrir PDF"
               onClick={() => window.open(selected.pdf!, "_blank")}
+              data-tour="ownrequisitions-detail-panel-pdf"
             />
           )}
           {selected?.image && (
@@ -101,6 +104,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               iconOnly
               aria-label="Abrir imagen"
               onClick={() => window.open(selected?.image, "_blank")}
+              data-tour="ownrequisitions-detail-panel-image"
             />
           )}
           {downloadTarget && (
@@ -111,6 +115,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               iconOnly
               aria-label="Descargar archivo"
               onClick={() => DownloadFile(downloadTarget, downloadName)}
+              data-tour="ownrequisitions-detail-panel-download"
             />
           )}
         </div>

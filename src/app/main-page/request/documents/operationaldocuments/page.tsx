@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React from "react";
 
@@ -10,11 +10,18 @@ import type { ManagementDocumentTableRow } from "@/app/mappings/documents/docume
 import DocIcon from "@/assets/icons/Docs/page.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import { useOperationalDocuments } from "@/app/main-page/humanresources/documents/operationaldocuments/hooks/useOperationalDocuments";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
 const OperationalDocuments = () => {
   const { rows } = useOperationalDocuments();
   const [open, setOpen] = React.useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = React.useState<string | null>(null);
+  const isMobile = useIsMobile();
+  useTutorialAutoRun({
+    moduleId: "request-documents-operational",
+    tutorialId: "request-documents-operational:table",
+  });
 
   const handleOpen = (fileUrl: string) => {
     setSelectedFileUrl(fileUrl);
@@ -50,7 +57,7 @@ const OperationalDocuments = () => {
     }
   };
 
-  const columns: ColumnDefinition<ManagementDocumentTableRow>[] = [
+  const desktopColumns: ColumnDefinition<ManagementDocumentTableRow>[] = [
     {
       key: "files" as unknown as keyof ManagementDocumentTableRow,
       label: "FORMATO",
@@ -62,6 +69,7 @@ const OperationalDocuments = () => {
               variant="ghost"
               icon={DocIcon}
               onClick={() => handleOpen(row.route!)}
+              data-tour="request-documents-operational-open"
             />
           )}
         </div>
@@ -88,6 +96,7 @@ const OperationalDocuments = () => {
             variant="ghost"
             icon={DownloadIcon}
             onClick={() => handleDownload(row.route!, row.description)}
+            data-tour="request-documents-operational-download"
           />
         </div>
       ),
@@ -95,28 +104,59 @@ const OperationalDocuments = () => {
     },
   ];
 
+  const mobileColumns: ColumnDefinition<ManagementDocumentTableRow>[] = [
+    {
+      key: "description",
+      label: "DESCRIPCIÓN",
+      cellClass: "truncate w-[180px]",
+    },
+    { key: "documentType", label: "TIPO", headerClass: "w-[100px] flex-none", cellClass: "w-[140px] flex-none" },
+    {
+      key: "actions" as unknown as keyof ManagementDocumentTableRow,
+      label: "",
+      render: (row) => (
+        <div className="flex justify-end pr-2">
+          <Button
+            size="xsmall"
+            variant="ghost"
+            icon={DownloadIcon}
+            onClick={() => handleDownload(row.route!, row.description)}
+            data-tour="request-documents-operational-download"
+          />
+        </div>
+      ),
+      invisible: false,
+    },
+  ];
+
+  const columns = isMobile ? mobileColumns : desktopColumns;
+
   return (
     <section className="space-y-8">
-      <DataTable<ManagementDocumentTableRow>
-        tables={[
-          {
-            title: "",
-            enableCollaps: false,
-            data: rows,
-            columns,
-            defaultSortKey: "name",
-          },
-        ]}
-        textSize={{ mobile: "c2", desktop: "text-c2" }}
-        enableInternalSearch
-        searchableKeys={["name", "code", "description", "documentType", "department"]}
-        showCalendar={false}
-        showRefresh={true}
-        showFilter={false}
-        showButton={false}
-        dateKey={(row) => row.rawDate ?? row.date}
-        actionsRender={() => ""}
-      />
+      <div data-tour="request-documents-operational-table">
+        <DataTable<ManagementDocumentTableRow>
+          tables={[
+            {
+              title: "",
+              enableCollaps: false,
+              data: rows,
+              columns,
+              defaultSortKey: "name",
+            },
+          ]}
+          textSize={{ mobile: "c2", desktop: "text-c2" }}
+          enableInternalSearch
+          searchableKeys={["name", "code", "description", "documentType", "department"]}
+          showCalendar={false}
+          showRefresh={true}
+          showFilter={false}
+          showButton={false}
+          dateKey={(row) => row.rawDate ?? row.date}
+          searchDataTour="request-documents-operational-search"
+          refreshDataTour="request-documents-operational-refresh"
+          actionsRender={() => ""}
+        />
+      </div>
 
       {open && selectedFileUrl && (
         <DocumentViewer

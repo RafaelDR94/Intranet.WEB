@@ -1,5 +1,5 @@
+"use client"
 
-"use client";
 import { useSearchParams } from "next/dist/client/components/navigation";
 
 import ProyectDetail from "./Components/ProyectDetail/ProyectDetail";

@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
@@ -6,6 +6,7 @@ import type { User } from "@/app/context/AuthContext/types";
 import React from "react";
 
 import useCreateEemployee from "./hooks/useCreatEmployee";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
 export type CreateEmployeeProps = {
   /**
@@ -20,6 +21,11 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({
   loggedUser,
   onConfigurations,
 }) => {
+  useTutorialAutoRun({
+    moduleId: "administration-createemployee",
+    tutorialId: "administration-createemployee:form",
+  });
+
   const {
     loadingForm,
     fields,
@@ -36,6 +42,7 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({
   }
 
   return (
+    <div data-tour="createemployee-form">
     <FormsLayout
       title={onConfigurations ? "Ajustes de Usuario" : "Registro de empleado"}
       primaryLabel="Registrar empleado"
@@ -43,6 +50,7 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({
       showPrimaryButton={!onConfigurations}
       onPrimaryClick={() => submitRef.current?.()}
       primaryDisabled={isReadOnly || !formCompleted}
+      primaryButtonDataTour="createemployee-submit"
     >
       {fields && (
         <DynamicForm
@@ -82,6 +90,7 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({
         />
       )}
     </FormsLayout>
+    </div>
   );
 };
 

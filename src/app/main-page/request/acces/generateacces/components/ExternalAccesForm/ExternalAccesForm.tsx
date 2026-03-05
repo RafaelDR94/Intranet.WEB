@@ -18,12 +18,14 @@ const ExternalAcccesForm = () => {
     }
     if (currentAcces) return (
 
+        <div data-tour="acces-external-form">
         <FormsLayout
             title={mode ? "Detalle de acceso" : "Registra Informción de Acceso"}
             primaryLabel="Registrar Acceso"
             onPrimaryClick={UpdateAcces}
             showPrimaryButton={!mode}
-            primaryDisabled={!canSubmit || !canUpdateForm}>
+            primaryDisabled={!canSubmit || !canUpdateForm}
+            primaryButtonDataTour="acces-external-submit">
 
 
             {!mode &&
@@ -42,7 +44,7 @@ const ExternalAcccesForm = () => {
             }
 
 
-            <div className="space-y-6 p-2 sm:p-4 w-full">
+            <div className="space-y-6 p-2 sm:p-4 w-full" data-tour="acces-external-sections">
                 {/* Breadcrumbs con contenido controlado por el componente */}
                 <Breadcrumbs dataTestId="proyectdetail-breadcrumbs" ariaLabel="Secciones del proyecto">
                     <Breadcrumbs.Item id="personsform" label="Personal" renderContent={<PersonsForm canUpdateForm={canUpdateForm} />} />
@@ -51,6 +53,7 @@ const ExternalAcccesForm = () => {
                 </Breadcrumbs>
             </div>
         </FormsLayout>
+        </div>
 
     );
 };
