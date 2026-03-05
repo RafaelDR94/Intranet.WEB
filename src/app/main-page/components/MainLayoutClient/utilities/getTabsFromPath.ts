@@ -73,6 +73,16 @@ export const getTabsFromPath = (
         path: "/main-page/request/ownrequisitions/billablefiles",
       },
     ],
+    "it/internaldevices": [
+      {
+        label: "Dispositivos",
+        path: "/main-page/it/internaldevices/internaldeviceslist",
+      },
+      {
+        label: "Asignación de Dispositivos",
+        path: "/main-page/it/internaldevices/internaldevicesasignation",
+      },
+    ],
     "accounting/invoices": [
       {
         label: "Validación de Facturas",
@@ -148,7 +158,7 @@ export const getTabsFromPath = (
       { label: 'Crear Empleado', path: '/main-page/administration/usersmanagment/createemployee' },
       { label: 'Lista de Empleados', path: '/main-page/administration/usersmanagment/employeesList' },
     ],
-     'authorizations': [
+    'authorizations': [
       { label: 'Lista de autorizaciones', path: '/main-page/authorizations/authorizationslist' },
     ],
     'configuration': [
@@ -192,6 +202,31 @@ export const getTabsFromPath = (
     authorizationId = sp.get('authorization_id');
     authorizationEventId = sp.get('event_id');
     authorizationKind = sp.get('kind');
+  }
+
+  const internalDevicesListPath = '/main-page/it/internaldevices/internaldeviceslist';
+
+  if (first === 'it' && second === 'internaldevices') {
+    if (view === 'edit' && id) {
+      return [
+        { label: 'Dispositivos', path: internalDevicesListPath },
+        { label: 'Editar dispositivo', path: `${internalDevicesListPath}?id=${id}&view=edit` },
+      ];
+    }
+    if (view === 'review' && id) {
+      return [
+        { label: 'Dispositivos', path: internalDevicesListPath },
+        { label: 'Revision de Dispositivo', path: `${internalDevicesListPath}?id=${id}&view=review` },
+      ];
+    }
+
+    if (id) {
+      tabs = tabs.map((tab) =>
+        tab.path === internalDevicesListPath
+          ? { ...tab, path: `${internalDevicesListPath}?id=${id}` }
+          : tab
+      );
+    }
   }
 
   // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id

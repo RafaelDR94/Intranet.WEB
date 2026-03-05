@@ -51,26 +51,33 @@ export const CollapsibleSection = ({
 }: CollapsibleSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const isMobile = useIsMobile();
+  const headerContent = (
+    <div className={styles.headerContent}>
+      {enableCollapse &&
+        (isOpen ? <ArrowDown className={styles.icon} /> : <ArrowUp className={styles.icon} />)}
+      <span className={styles.title}>{title}</span>
+    </div>
+  );
+
   return (
     <section className={cn(styles.wrapper, className)}>
       <div className={styles.header}>
-        <button
-          type="button"
-          className={isMobile ? styles.toogleButtonMobile : styles.toggleButton}
-          aria-expanded={isOpen}
-          onClick={() => {
-            if (enableCollapse) setIsOpen(!isOpen);
-          }}
-        >
-          <div className={styles.headerContent}>
-            {enableCollapse &&
-              (isOpen
-                ? <ArrowDown className={styles.icon} />
-                : <ArrowUp className={styles.icon} />)}
-            <span className={styles.title}>{title}</span>
+        {enableCollapse ? (
+          <button
+            type="button"
+            className={isMobile ? styles.toogleButtonMobile : styles.toggleButton}
+            aria-expanded={isOpen}
+            onClick={() => {
+              if (enableCollapse) setIsOpen(!isOpen);
+            }}
+          >
+            {headerContent}
+          </button>
+        ) : (
+          <div className={isMobile ? styles.toogleButtonMobile : styles.toggleButton}>
+            {headerContent}
           </div>
-
-        </button>
+        )}
         {showDivider && <div className={styles.divider} />}
         {rightContent && !isMobile && (
           <div className="flex items-center ml-auto">{rightContent}</div>
