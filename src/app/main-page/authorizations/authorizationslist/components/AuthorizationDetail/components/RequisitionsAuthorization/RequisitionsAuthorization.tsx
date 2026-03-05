@@ -1,4 +1,4 @@
-﻿'use client'
+"use client"
 
 import React from 'react'
 import Image from 'next/image'
@@ -95,7 +95,7 @@ const RequisitionsAuthorization = () => {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4" data-tour="authorizations-requisition-header">
         <div className="flex min-w-[240px] flex-1 items-center gap-3">
           <p className="text-b3 text-blue-80">
             Reporte de gastos{' '}
@@ -114,17 +114,27 @@ const RequisitionsAuthorization = () => {
               hideIcon
               className="border-alert-red-100 text-alert-red-100 hover:bg-alert-red-10 focus:ring-alert-red-50"
               onClick={handleStartRejection}
+              data-tour="authorizations-requisition-reject"
             >
               Rechazar
             </Button>
-            <Button variant="solid" size="medium" hideIcon onClick={handleStartApproval}>
+            <Button
+              variant="solid"
+              size="medium"
+              hideIcon
+              onClick={handleStartApproval}
+              data-tour="authorizations-requisition-approve"
+            >
               Aprobar
             </Button>
           </div>
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-[200px_minmax(0,1fr)_minmax(0,280px)]">
+      <div
+        className="grid gap-4 md:grid-cols-[200px_minmax(0,1fr)_minmax(0,280px)]"
+        data-tour="authorizations-requisition-summary"
+      >
         <div className="rounded-lg bg-white-100 p-4 shadow-200">
           <div className="flex h-16 items-center justify-center rounded-md bg-gray-10 px-4">
             <Image
@@ -160,7 +170,13 @@ const RequisitionsAuthorization = () => {
 
       {isPendingStatus ? (
         <div className="flex justify-end">
-          <Button variant="outline" size="medium" hideIcon onClick={handleOpenEscalate}>
+          <Button
+            variant="outline"
+            size="medium"
+            hideIcon
+            onClick={handleOpenEscalate}
+            data-tour="authorizations-requisition-escalate"
+          >
             Escalar
           </Button>
         </div>
@@ -172,49 +188,52 @@ const RequisitionsAuthorization = () => {
         </div>
       ) : null}
 
-      <DataTable
-        showCalendar={false}
-        showFilter={false}
-        showRefresh={false}
-        showButton={false}
-        showDownloadTable={false}
-        enableInternalSearch={false}
-        enablePagination
-        actionLabel=""
-        actionsRender={() => (
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              hideIcon
-              onClick={() => {
-                if (requisitionId) downloadRequistionResume(requisitionId)
-              }}
-            >
-              Descargar tabla completa
-            </Button>
-            <Button
-              variant="outline"
-              size="small"
-              icon={DownloadIcon}
-              iconOnly
-              onClick={() => {
-                if (requisitionId) downloadRequistionResume(requisitionId)
-              }}
-              aria-label="Descargar tabla completa"
-            />
-          </div>
-        )}
-        tables={[
-          {
-            data: rows,
-            columns,
-            title: 'Reporte de gastos',
-            hidetitle: true,
-            enableSelection: false,
-            enableCollaps: false,
-          },
-        ]}
-      />
+      <div data-tour="authorizations-requisition-report-table">
+        <DataTable
+          showCalendar={false}
+          showFilter={false}
+          showRefresh={false}
+          showButton={false}
+          showDownloadTable={false}
+          enableInternalSearch={false}
+          enablePagination
+          actionLabel=""
+          actionsRender={() => (
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                hideIcon
+                onClick={() => {
+                  if (requisitionId) downloadRequistionResume(requisitionId)
+                }}
+                data-tour="authorizations-requisition-download"
+              >
+                Descargar tabla completa
+              </Button>
+              <Button
+                variant="outline"
+                size="small"
+                icon={DownloadIcon}
+                iconOnly
+                onClick={() => {
+                  if (requisitionId) downloadRequistionResume(requisitionId)
+                }}
+                aria-label="Descargar tabla completa"
+              />
+            </div>
+          )}
+          tables={[
+            {
+              data: rows,
+              columns,
+              title: 'Reporte de gastos',
+              hidetitle: true,
+              enableSelection: false,
+              enableCollaps: false,
+            },
+          ]}
+        />
+      </div>
       {/*
         Tabla alternativa (se mantiene comentada por si se decide usarla nuevamente).
         <RequisitionsDetailsTable requisitionIdOverride={requisitionId ?? undefined} />

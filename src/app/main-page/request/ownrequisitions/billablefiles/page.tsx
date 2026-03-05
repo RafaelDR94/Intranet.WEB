@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,8 @@ import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type { BillingDocuments } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { useIntranetGatewayStore } from "@/app/stores/system/useIntranetGatewayStore";
 import { useBillingAllDocumentsByEmployeeStore } from "@/app/stores/useBillingAllDocumentsByEmployeeStore/useBillingAllDocumentsByEmployeeStore";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 
 type BillableFileRow = {
   id: string;
@@ -54,12 +56,18 @@ const BillableFilesPage: React.FC = () => {
   const [panelOpen, setPanelOpen] = useState(false);
   const [selected, setSelected] = useState<BillingDocuments | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const isMobile = useIsMobile();
   const { billingDocumentsByEmployee, loading, fetchBillingAllDocumentsByEmployee } =
     useBillingAllDocumentsByEmployeeStore((s) => ({
       billingDocumentsByEmployee: s.billingDocumentsByEmployee,
       loading: s.loading,
       fetchBillingAllDocumentsByEmployee: s.fetchBillingAllDocumentsByEmployee,
     }));
+
+  useTutorialAutoRun({
+    moduleId: "request-ownrequisitions-billablefiles",
+    tutorialId: "request-ownrequisitions:billablefiles",
+  });
 
   useEffect(() => {
     if (isGatewayReady && user?.idEmployee) {
@@ -104,7 +112,43 @@ const BillableFilesPage: React.FC = () => {
     setPanelOpen(true);
   };
 
-  const columns = useMemo<ColumnDefinition<BillableFileRow>[]>(
+  const mobileColumns = useMemo<ColumnDefinition<BillableFileRow>[]>(
+    () => [
+      {
+        key: "project",
+        label: "PROYECTO",
+        render: (row) => (
+          <span className="block truncate" title={row.project}>
+            {row.project}
+          </span>
+        ),
+        headerClass: "basis-[180px] flex-none",
+        cellClass: "basis-[180px] flex-none whitespace-nowrap",
+      },
+      {
+        key: "details" as unknown as keyof BillableFileRow,
+        label: "DETALLES",
+        render: (row) => (
+          <div className="flex justify-center">
+            <Button
+              size="small"
+              variant="ghost"
+              hideIcon
+              onClick={() => handleOpenDetails(row)}
+              data-tour="ownrequisitions-billablefiles-details"
+            >
+              Ver Detalle
+            </Button>
+          </div>
+        ),
+        headerClass: "basis-[140px] flex-none text-end",
+        cellClass: "basis-[140px] flex-none text-center",
+      },
+    ],
+    [],
+  );
+
+  const desktopColumns = useMemo<ColumnDefinition<BillableFileRow>[]>(
     () => [
       {
         key: "files",
@@ -112,13 +156,31 @@ const BillableFilesPage: React.FC = () => {
         render: (row) => (
           <div className="flex items-center justify-center gap-2">
             {row.files.xml && (
-              <Button size="xsmall" variant="ghost" icon={XMLIcon} iconOnly />
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={XMLIcon}
+                iconOnly
+                data-tour="ownrequisitions-billablefiles-xml"
+              />
             )}
             {row.files.pdf && (
-              <Button size="xsmall" variant="ghost" icon={PDFIcon} iconOnly />
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={PDFIcon}
+                iconOnly
+                data-tour="ownrequisitions-billablefiles-pdf"
+              />
             )}
             {row.files.image && (
-              <Button size="xsmall" variant="ghost" icon={ImageIcon} iconOnly />
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={ImageIcon}
+                iconOnly
+                data-tour="ownrequisitions-billablefiles-image"
+              />
             )}
           </div>
         ),
@@ -177,6 +239,7 @@ const BillableFilesPage: React.FC = () => {
               onClick={() => handleOpenDetails(row)}
               variant="ghost"
               hideIcon
+              data-tour="ownrequisitions-billablefiles-comments"
             >
               <ChatIcon className="h-6 w-6" />
             </Button>
@@ -194,6 +257,7 @@ const BillableFilesPage: React.FC = () => {
               variant="ghost"
               hideIcon
               onClick={() => handleOpenDetails(row)}
+              data-tour="ownrequisitions-billablefiles-details"
             >
               Ver Detalle
             </Button>
@@ -205,6 +269,8 @@ const BillableFilesPage: React.FC = () => {
     ],
     [],
   );
+
+  const columns = isMobile ? mobileColumns : desktopColumns;
 
   const statusFilterOptions = useMemo(
     () => [
@@ -218,71 +284,80 @@ const BillableFilesPage: React.FC = () => {
 
   return (
     <div className="space-y-8 overflow-auto">
-      <DataTable
-        dataTableTitle="Archivos Recientes"
-        showCalendar
-        textSize={{ mobile: "c2", desktop: "text-b3" }}
-        showFilter
-        filterTitle="Filtrar estatus"
-        filterOptions={statusFilterOptions}
-        filterValue={statusFilter}
-        onFilterChange={(value) => setStatusFilter(value)}
-        showRefresh
-        showButton
-        actionLabel="Subir Archivos"
-        onTableActionClick={() =>
-          router.push("/main-page/accounting/billablefiles/billablefiles/")
-        }
-        onCalendarClick={() => undefined}
-        onFilterClick={() => undefined}
-        onRefreshPage={() => {
-          if (user?.idEmployee) fetchBillingAllDocumentsByEmployee(user.idEmployee, true);
-        }}
-        searchableKeys={["id", "date", "category", "project", "status"]}
-        tables={[
-          {
-            data: recentRows,
-            columns,
-            enableSelection: false,
-            title: "Archivos Recientes",
-            enableCollaps: true,
-            defaultSortKey: "date",
-            defaultSortDirection: "desc",
-          },
-        ]}
-        dateKey="date"
-      />
+      <div data-tour="ownrequisitions-billablefiles-recent-table">
+        <DataTable
+          dataTableTitle="Archivos Recientes"
+          showCalendar
+          textSize={{ mobile: "c2", desktop: "text-b3" }}
+          showFilter
+          filterTitle="Filtrar estatus"
+          filterOptions={statusFilterOptions}
+          filterValue={statusFilter}
+          onFilterChange={(value) => setStatusFilter(value)}
+          showRefresh
+          showButton
+          actionLabel="Subir Archivos"
+          onTableActionClick={() =>
+            router.push("/main-page/accounting/billablefiles/billablefiles/")
+          }
+          onCalendarClick={() => undefined}
+          onFilterClick={() => undefined}
+          onRefreshPage={() => {
+            if (user?.idEmployee) fetchBillingAllDocumentsByEmployee(user.idEmployee, true);
+          }}
+          searchableKeys={["id", "date", "category", "project", "status"]}
+          searchDataTour="ownrequisitions-billablefiles-search"
+          calendarDataTour="ownrequisitions-billablefiles-calendar"
+          filterDataTour="ownrequisitions-billablefiles-filter"
+          refreshDataTour="ownrequisitions-billablefiles-refresh"
+          actionButtonDataTour="ownrequisitions-billablefiles-upload"
+          tables={[
+            {
+              data: recentRows,
+              columns,
+              enableSelection: false,
+              title: "Archivos Recientes",
+              enableCollaps: true,
+              defaultSortKey: "date",
+              defaultSortDirection: "desc",
+            },
+          ]}
+          dateKey="date"
+        />
+      </div>
 
-      <DataTable
-        dataTableTitle="Historial"
-        showCalendar
-        showFilter
-        filterTitle="Filtrar estatus"
-        filterOptions={statusFilterOptions}
-        filterValue={statusFilter}
-        onFilterChange={(value) => setStatusFilter(value)}
-        showRefresh
-        showButton={false}
-        textSize={{ mobile: "c2", desktop: "text-b3" }}
-        onCalendarClick={() => undefined}
-        onFilterClick={() => undefined}
-        onRefreshPage={() => {
-          if (user?.idEmployee) fetchBillingAllDocumentsByEmployee(user.idEmployee, true);
-        }}
-        searchableKeys={["id", "date", "category", "project", "status"]}
-        tables={[
-          {
-            data: historyRows,
-            columns,
-            enableSelection: false,
-            title: "Historial",
-            enableCollaps: true,
-            defaultSortKey: "date",
-            defaultSortDirection: "desc",
-          },
-        ]}
-        dateKey="date"
-      />
+      <div data-tour="ownrequisitions-billablefiles-history-table">
+        <DataTable
+          dataTableTitle="Historial"
+          showCalendar
+          showFilter
+          filterTitle="Filtrar estatus"
+          filterOptions={statusFilterOptions}
+          filterValue={statusFilter}
+          onFilterChange={(value) => setStatusFilter(value)}
+          showRefresh
+          showButton={false}
+          textSize={{ mobile: "c2", desktop: "text-b3" }}
+          onCalendarClick={() => undefined}
+          onFilterClick={() => undefined}
+          onRefreshPage={() => {
+            if (user?.idEmployee) fetchBillingAllDocumentsByEmployee(user.idEmployee, true);
+          }}
+          searchableKeys={["id", "date", "category", "project", "status"]}
+          tables={[
+            {
+              data: historyRows,
+              columns,
+              enableSelection: false,
+              title: "Historial",
+              enableCollaps: true,
+              defaultSortKey: "date",
+              defaultSortDirection: "desc",
+            },
+          ]}
+          dateKey="date"
+        />
+      </div>
       {loading && null}
       <DetailsPanel
         panelOpen={panelOpen}

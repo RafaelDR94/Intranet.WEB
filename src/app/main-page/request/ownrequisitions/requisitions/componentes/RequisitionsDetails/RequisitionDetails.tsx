@@ -29,7 +29,7 @@ const RequisitionDetails: React.FC = () => {
           >
             <div className="flex w-full">
               {!isMobile && (
-                <div className="mr-4 basis-2/4">
+                <div className="mr-4 basis-2/4" data-tour="ownrequisitions-detail-balance">
                   {currentPagePermissions?.showBalance && (
                     <PerDiemBalanceCard
                       startDate={currentRequisition.assignmentdate}
@@ -42,7 +42,10 @@ const RequisitionDetails: React.FC = () => {
                   )}
                 </div>
               )}
-              <div className={clsx(isMobile ? "basis-3/3" : "basis-2/4")}>
+              <div
+                className={clsx(isMobile ? "basis-3/3" : "basis-2/4")}
+                data-tour="ownrequisitions-detail-form"
+              >
                 {currentPagePermissions?.showDetails && (
                   <RequisitionsForm
                     mode="edit"
@@ -83,7 +86,10 @@ const RequisitionDetails: React.FC = () => {
           </CollapsibleSection>
         ) : (
           <div className="flex w-full gap-6">
-            <div className={clsx(isMobile ? "basis-3/3" : "basis-2/4")}>
+            <div
+              className={clsx(isMobile ? "basis-3/3" : "basis-2/4")}
+              data-tour="ownrequisitions-detail-form"
+            >
               {currentPagePermissions?.showDetails && (
                 <RequisitionsForm
                   mode="edit"
@@ -110,7 +116,7 @@ const RequisitionDetails: React.FC = () => {
               )}
             </div>
             {!isMobile && (
-              <div className="basis-2/4">
+              <div className="basis-2/4" data-tour="ownrequisitions-detail-balance">
                 {currentPagePermissions?.showBalance && (
                   <PerDiemBalanceCard
                     startDate={currentRequisition.assignmentdate}
@@ -129,18 +135,22 @@ const RequisitionDetails: React.FC = () => {
             defaultOpen={true}
             title="Balance de viaticos"
           >
-            {currentPagePermissions?.showBalance && (
-              <PerDiemBalanceCard
-                startDate={currentRequisition.assignmentdate}
-                endDate={currentRequisition.endDate}
-                requestedAmount={Number(currentRequisition.amountdeposited)}
-                verifiedAmount={Number(currentRequisition.provenamount)}
-              />
-            )}
+            <div data-tour="ownrequisitions-detail-balance">
+              {currentPagePermissions?.showBalance && (
+                <PerDiemBalanceCard
+                  startDate={currentRequisition.assignmentdate}
+                  endDate={currentRequisition.endDate}
+                  requestedAmount={Number(currentRequisition.amountdeposited)}
+                  verifiedAmount={Number(currentRequisition.provenamount)}
+                />
+              )}
+            </div>
           </CollapsibleSection>
         )}
         {currentPagePermissions?.showDocuments && (
-          <DocumentsByRequisition />
+          <div data-tour="ownrequisitions-detail-documents">
+            <DocumentsByRequisition />
+          </div>
         )}
       </>
     );

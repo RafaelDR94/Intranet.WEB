@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useEffect } from "react";
 
@@ -82,7 +82,8 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
 
   return (
     <>
-      <FormsLayout
+      <div data-tour="pettycash-request-blue-form">
+        <FormsLayout
         title="GASTOS NO DEDUCIBLES (Vale Azul)"
         primaryLabel="Enviar Vale"
         onPrimaryClick={onSubmit}
@@ -98,6 +99,8 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
           setDisableForm((prev) => !prev);
         }}
         startCollaps={startCollaps}
+        primaryButtonDataTour="pettycash-request-blue-submit"
+        secondaryButtonDataTour="pettycash-request-blue-secondary"
       >
         <DynamicForm
           loadingFormInfo={loadingFormInfo}
@@ -116,6 +119,7 @@ const VoucherBlue: React.FC<VoucherFormProps> = ({
           showSubmitIf={() => false}
         />
       </FormsLayout>
+      </div>
 
       <PopUp
         open={Boolean(authorizerPopUpOpen)}

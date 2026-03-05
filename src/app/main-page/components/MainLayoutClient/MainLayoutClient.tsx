@@ -1,5 +1,5 @@
+"use client"
 // app/layouts/MainLayoutClient.tsx
-"use client";
 
 import React, { ReactNode } from "react";
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client"
 
 import React, { useEffect } from "react";
 
@@ -74,48 +74,52 @@ const TreasuryVoucherBlue: React.FC<VoucherFormProps> = ({
 
   return (
     <>
-      <FormsLayout
-        title="GASTOS NO DEDUCIBLES (Vale Azul)"
-        primaryLabel="Enviar Vale"
-        onPrimaryClick={onSubmit}
-        primaryDisabled={buttonDisabled || (startDisabled && disableForm)}
-        enableCollapse={enableCollaps}
-        showSecondaryButton={
-          currentPagePermissions?.updaterequisitionForm &&
-          (mode === "edit" || startDisabled)
-        }
-        secondaryLabel={disableForm ? "Editar informacion" : "Cancelar"}
-        onSecondaryClick={() => {
-          onClose?.();
-          setDisableForm((prev) => !prev);
-        }}
-        startCollaps={startCollaps}
-      >
-        <DynamicForm
-          loadingFormInfo={loadingFormInfo}
-          fields={fields}
-          responsiveLayoutMatrix={
-            responsiveLayoutMatrix ?? {
-              sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-              md: [
-                [5, 5],
-                [5, 5],
-                [5],
-                [5, 5],
-              ],
-              lg: [
-                [3, 3],
-                [3, 3, 3],
-                [3, 3.3, 3.3],
-              ],
-            }
+      <div data-tour="treasury-request-blue-form">
+        <FormsLayout
+          title="GASTOS NO DEDUCIBLES (Vale Azul)"
+          primaryLabel="Enviar Vale"
+          onPrimaryClick={onSubmit}
+          primaryDisabled={buttonDisabled || (startDisabled && disableForm)}
+          enableCollapse={enableCollaps}
+          showSecondaryButton={
+            currentPagePermissions?.updaterequisitionForm &&
+            (mode === "edit" || startDisabled)
           }
-          onSubmit={handleSubmit}
-          onValidChange={setFormReady}
-          externalSubmitRef={submitRef}
-          showSubmitIf={() => false}
-        />
-      </FormsLayout>
+          secondaryLabel={disableForm ? "Editar informacion" : "Cancelar"}
+          onSecondaryClick={() => {
+            onClose?.();
+            setDisableForm((prev) => !prev);
+          }}
+          startCollaps={startCollaps}
+          primaryButtonDataTour="treasury-request-blue-submit"
+          secondaryButtonDataTour="treasury-request-blue-secondary"
+        >
+          <DynamicForm
+            loadingFormInfo={loadingFormInfo}
+            fields={fields}
+            responsiveLayoutMatrix={
+              responsiveLayoutMatrix ?? {
+                sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                md: [
+                  [5, 5],
+                  [5, 5],
+                  [5],
+                  [5, 5],
+                ],
+                lg: [
+                  [3, 3],
+                  [3, 3, 3],
+                  [3, 3.3, 3.3],
+                ],
+              }
+            }
+            onSubmit={handleSubmit}
+            onValidChange={setFormReady}
+            externalSubmitRef={submitRef}
+            showSubmitIf={() => false}
+          />
+        </FormsLayout>
+      </div>
 
       <PopUp
         open={authorizerPopUpOpen}

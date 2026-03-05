@@ -1,3 +1,4 @@
+"use client"
 'use client';
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { shallow } from 'zustand/shallow';

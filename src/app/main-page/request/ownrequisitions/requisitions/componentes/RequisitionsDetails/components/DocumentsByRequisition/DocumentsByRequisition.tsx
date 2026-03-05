@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -132,6 +132,7 @@ const DocumentsByRequisition: React.FC = () => {
                 icon={XMLIcon}
                 onClick={() => window.open(row.xml, '_blank')}
                 aria-label="Abrir XML"
+                data-tour="ownrequisitions-detail-docs-xml"
               />
             )}
             {row.pdf && (
@@ -141,6 +142,7 @@ const DocumentsByRequisition: React.FC = () => {
                 icon={PDFIcon}
                 onClick={() => window.open(row.pdf, '_blank')}
                 aria-label="Abrir PDF"
+                data-tour="ownrequisitions-detail-docs-pdf"
               />
             )}
             {row.image && (
@@ -150,6 +152,7 @@ const DocumentsByRequisition: React.FC = () => {
                 icon={ImageIcon}
                 onClick={() => window.open(row.image, '_blank')}
                 aria-label="Abrir imagen"
+                data-tour="ownrequisitions-detail-docs-image"
               />
             )}
           </div>
@@ -218,6 +221,7 @@ const DocumentsByRequisition: React.FC = () => {
               onClick={() => handleOpenDetails(row)}
               variant="ghost"
               hideIcon
+              data-tour="ownrequisitions-detail-docs-view"
             >
               Ver detalle
             </Button>
@@ -238,24 +242,26 @@ const DocumentsByRequisition: React.FC = () => {
         />
       </div>
 
-      <DataTable
-        showCalendar={false}
-        showFilter={false}
-        showButton={false}
-        enablePagination={false}
-        textSize={{ mobile: "c2", desktop: "text-b3" }}
-        tables={[
-          {
-            data: rows,
-            columns,
-            enableSelection: false,
-            title: 'Reporte de gastos',
-            enableCollaps: true,
-            defaultSortKey: 'fecha',
-            defaultSortDirection: 'desc',
-          },
-        ]}
-      />
+      <div data-tour="ownrequisitions-detail-documents-table">
+        <DataTable
+          showCalendar={false}
+          showFilter={false}
+          showButton={false}
+          enablePagination={false}
+          textSize={{ mobile: "c2", desktop: "text-b3" }}
+          tables={[
+            {
+              data: rows,
+              columns,
+              enableSelection: false,
+              title: 'Reporte de gastos',
+              enableCollaps: true,
+              defaultSortKey: 'fecha',
+              defaultSortDirection: 'desc',
+            },
+          ]}
+        />
+      </div>
 
       <DetailsPanel
         panelOpen={panelOpen}

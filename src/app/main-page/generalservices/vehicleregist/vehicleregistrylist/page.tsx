@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { useMemo } from "react";
 
@@ -13,6 +13,7 @@ import { useBreakpoint } from "@/app/components/DataTable/components/DataTableLa
 import logInIcon from "@/assets/icons/System/System/log-in.svg";
 import moreIcons from "@/assets/icons/navegacion/more-vert.svg";
 import moreMenu from "@/assets/icons/navegacion/more-horiz.svg";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
 const VehicleRegistryList = () => {
   const {
@@ -28,6 +29,11 @@ const VehicleRegistryList = () => {
   } = useVehicleRegistryList();
 
   const { isMobile, isTablet } = useBreakpoint();
+
+  useTutorialAutoRun({
+    moduleId: "generalservices-vehicleregistrylist",
+    tutorialId: "generalservices-vehicleregistrylist:table",
+  });
 
   /**
    * 🔹 Columnas base para tránsito
@@ -71,6 +77,7 @@ const VehicleRegistryList = () => {
             variant="solid"
             hideIcon
             onClick={() => handleArrive(row.assignment)}
+            data-tour="vehicleregistrylist-arrive"
           >
             Llegada
           </Button>
@@ -181,6 +188,7 @@ const VehicleRegistryList = () => {
                     variant="ghost"
                     icon={logInIcon}
                     onClick={() => handleArrive(row.assignment)}
+            data-tour="vehicleregistrylist-arrive"
                   ></Button>
                 )
               : c.key as string === "more"
@@ -190,6 +198,7 @@ const VehicleRegistryList = () => {
                       variant="ghost"
                       icon={moreIcons}
                       onClick={() => handleOpenDetails(row.assignment)}
+                      data-tour="vehicleregistrylist-details"
                     ></Button>
                   )
                 : c.render,
@@ -264,6 +273,7 @@ const VehicleRegistryList = () => {
 
   return (
     <div className="flex flex-col gap-10">
+      <div data-tour="vehicleregistrylist-table-transit">
       <DataTable<VehicleRegistryRow>
         tables={[
           {
@@ -287,8 +297,13 @@ const VehicleRegistryList = () => {
         onRefreshPage={handleRefresh}
         rowsPerPage={5}
         dataTableTitle="Registro Vehicular en Transito"
+        searchDataTour="vehicleregistrylist-search"
+        calendarDataTour="vehicleregistrylist-calendar"
+        refreshDataTour="vehicleregistrylist-refresh"
       />
+      </div>
 
+      <div data-tour="vehicleregistrylist-table-history">
       <DataTable<VehicleRegistryRow>
         tables={[
           {
@@ -313,7 +328,13 @@ const VehicleRegistryList = () => {
         onTableActionClick={handleCreate}
         rowsPerPage={5}
         dataTableTitle="Registro Vehicular"
+        searchDataTour="vehicleregistrylist-search"
+        calendarDataTour="vehicleregistrylist-calendar"
+        refreshDataTour="vehicleregistrylist-refresh"
+        actionButtonDataTour="vehicleregistrylist-create"
       />
+
+      </div>
 
       <RegistDetails onClose={handleCloseDetails} open={openDetailsPanel} />
     </div>

@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React from "react";
 
 import { useRequisitionTable } from "./hooks/useRequisitionsTable";
@@ -69,6 +69,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
             onClick={() => handleOpenDetails(row)}
             variant="ghost"
             hideIcon
+            data-tour="ownrequisitions-row-details"
           >
             Ver Detalles
           </Button>
@@ -92,7 +93,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
         key: "actions" as unknown as keyof RequisitionRow,
         label: "",
         render: (row) => (
-          <div className="flex justify-end">
+          <div className="flex justify-end" data-tour="ownrequisitions-row-actions">
             <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
           </div>
         ),
@@ -137,50 +138,57 @@ const RequisitionsTable = ({ forceVisible = false }) => {
 
       {canRead && (
         <>
-          <DataTable
-            showCalendar={true}
-            textSize={{ mobile: "c2", desktop: "text-c2" }}
-            dataTableTitle="Listado de Requisiciones"
-            onSearchChange={setQuery}
-            showRefresh={true}
-            onCalendarClick={(start, end) => refresh(start, end)}
-            onFilterClick={refresh}
-            tables={[
-              {
-                data: activeRows,
-                columns: columns,
-                enableSelection: false,
-                title: "Activas",
-                enableCollaps: true,
-                defaultSortKey: "date_created",
-                defaultSortDirection: "desc",
-              },
-            ]}
-            showButton={false}
-            dateKey={"date_created"}
-          />
+          <div data-tour="ownrequisitions-table">
+            <DataTable
+              showCalendar={true}
+              textSize={{ mobile: "c2", desktop: "text-c2" }}
+              dataTableTitle="Listado de Requisiciones"
+              onSearchChange={setQuery}
+              showRefresh={true}
+              onCalendarClick={(start, end) => refresh(start, end)}
+              onFilterClick={refresh}
+              searchDataTour="ownrequisitions-search"
+              calendarDataTour="ownrequisitions-calendar"
+              refreshDataTour="ownrequisitions-refresh"
+              tables={[
+                {
+                  data: activeRows,
+                  columns: columns,
+                  enableSelection: false,
+                  title: "Activas",
+                  enableCollaps: true,
+                  defaultSortKey: "date_created",
+                  defaultSortDirection: "desc",
+                },
+              ]}
+              showButton={false}
+              dateKey={"date_created"}
+            />
+          </div>
 
-          <DataTable
-            showCalendar={true}
-            textSize={{ mobile: "c2", desktop: "text-c2" }}
-            dataTableTitle="Listado de Requisiciones"
-            onSearchChange={setQuery}
-            onCalendarClick={(start, end) => refresh(start, end)}
-            onFilterClick={refresh}
-            tables={[
-              {
-                data: rows,
-                columns: columns,
-                enableSelection: false,
-                title: "Historial",
-                enableCollaps: true,
-                defaultSortKey: "date_created",
-                defaultSortDirection: "desc",
-              },
-            ]}
-            showButton={false}
-            dateKey={"date_created"}
-          />
+          <div data-tour="ownrequisitions-history-table">
+            <DataTable
+              showCalendar={true}
+              textSize={{ mobile: "c2", desktop: "text-c2" }}
+              dataTableTitle="Listado de Requisiciones"
+              onSearchChange={setQuery}
+              onCalendarClick={(start, end) => refresh(start, end)}
+              onFilterClick={refresh}
+              tables={[
+                {
+                  data: rows,
+                  columns: columns,
+                  enableSelection: false,
+                  title: "Historial",
+                  enableCollaps: true,
+                  defaultSortKey: "date_created",
+                  defaultSortDirection: "desc",
+                },
+              ]}
+              showButton={false}
+              dateKey={"date_created"}
+            />
+          </div>
         </>
       )}
     </div>
