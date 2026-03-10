@@ -79,7 +79,7 @@ const ReviewsAssignment: React.FC<ReviewsAssignmentProps> = ({
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-20 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-gray-20 bg-white-70 shadow-sm">
         <table className="w-full text-left">
           <thead className="border-b border-gray-20">
             <tr className="text-gray-90">
