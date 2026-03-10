@@ -5,6 +5,7 @@ import { shallow } from 'zustand/shallow'
 
 import { Button } from '@/app/components/Button/Button'
 import useQuery from '@/app/hooks/useQuery/useQuery'
+import type { EmployeeType } from '@/app/mappings/employees/employee.types'
 import type { InternalDeviceAssignmentHistory } from '@/app/mappings/internaldevices/internaldevices.types'
 import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore'
 import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
@@ -60,11 +61,15 @@ const HistoryAssignment: React.FC<HistoryAssignmentProps> = ({
   ])
 
   const employeeById = useMemo(() => {
-    const entries = activeEmployees.map((employee) => [
-      employee.employee_id || employee.id,
-      employee,
-    ])
-    return new Map(entries)
+    const entries = activeEmployees
+      .map((employee) => {
+        const key = employee.employee_id || employee.id
+        return key ? ([key, employee] as const) : null
+      })
+      .filter(
+        (entry): entry is readonly [string, EmployeeType] => entry !== null,
+      )
+    return new Map<string, EmployeeType>(entries)
   }, [activeEmployees])
 
   const rows = useMemo<InternalDeviceAssignmentHistory[]>(

@@ -28,14 +28,12 @@ const ReviewsAssignment: React.FC<ReviewsAssignmentProps> = ({
 }) => {
   const { updateQuery } = useQuery()
   const {
-    device,
     deviceReviewsByDevice,
     loadingDeviceReviewsByDevice,
     fetchDeviceById,
     fetchDeviceReviewsByDeviceId,
   } = useInternalDevicesStore(
     (state) => ({
-      device: state.device,
       deviceReviewsByDevice: state.deviceReviewsByDevice,
       loadingDeviceReviewsByDevice: state.loadingDeviceReviewsByDevice,
       fetchDeviceById: state.fetchDeviceById,

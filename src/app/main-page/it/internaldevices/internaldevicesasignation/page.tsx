@@ -26,7 +26,6 @@ import useQuery from '@/app/hooks/useQuery/useQuery'
 import type { InternalDevice } from '@/app/mappings/internaldevices/internaldevices.types'
 import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore'
 import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
-import ArrowLeftIcon from '@/assets/icons/navegacion/long-arrow-up-left.svg'
 import useTutorialAutoRun from '@/tutorials/engine/useTutorialAutoRun'
 
 import AssignmentDetail from './components/AssignmentDetail/AssignmentDetail'
