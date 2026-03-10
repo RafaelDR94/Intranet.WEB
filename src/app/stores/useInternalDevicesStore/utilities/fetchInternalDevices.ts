@@ -25,7 +25,7 @@ export const fetchInternalDevices = async (
 
   try {
     const getFn = requireGateway('get')
-    const res: AxiosResponse = await pGet(getFn)(AllDevices)
+    const res: AxiosResponse = await pGet(getFn)(`${AllDevices}?isActive=true`)
     const payload = res.data?.data ?? res.data ?? []
     const list = InternalDevicesMap(Array.isArray(payload) ? payload : [])
 
