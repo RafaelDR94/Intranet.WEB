@@ -23,8 +23,8 @@ export const deleteInternalDevice = async (
 
   try {
     const params = new URLSearchParams({ id })
-    if (lowMotive) params.set('lowMotive', lowMotive)
-    if (idUser) params.set('idUser', idUser)
+    if (lowMotive != null) params.set('lowMotive', String(lowMotive))
+    if (idUser != null) params.set('idUser', String(idUser))
 
     const url = `${Devices}?${params.toString()}`
     const del = pDelete(requireGateway('del'), [200, 204])

@@ -1,6 +1,7 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
+import { shallow } from 'zustand/shallow'
 
 import ButtonsNavigation from '@/app/components/ButtonsNavigation/ButtonsNavigation'
 import DetailsPanelLayout from '@/app/components/DetailsPanelLayout/DetailsPanelLayout'
@@ -14,6 +15,7 @@ import InformationAssignment from '../InformationAssignment/InformationAssignmen
 import ReviewsAssignment from '../ReviewsAssignment/ReviewsAssignment'
 import HistoryAssignment from '../HistoryAssignment/HistoryAssignment'
 import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
+import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
 
 export interface AssignmentDetailProps {
   open: boolean
@@ -45,8 +47,39 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({
   onEditInformation,
   onCreateReview,
 }) => {
+  console.log('assignment ', assignment);
+  console.log('assignmentDevice ', assignmentDevice);
+  
   const assignmentStatusLabel = assignmentDevice?.device_status?.name ?? 'SIN ESTATUS'
   const isMobile = useIsMobile()
+  const resolvedDeviceId = assignmentDevice?.device_id ?? assignment?.device_id ?? null
+  const { devices, device, fetchDeviceById } = useInternalDevicesStore(
+    (state) => ({
+      devices: state.devices,
+      device: state.device,
+      fetchDeviceById: state.fetchDeviceById,
+    }),
+    shallow,
+  )
+
+  const storeDevice = useMemo(
+    () => {
+      if (!resolvedDeviceId) return null
+      const fromList =
+        devices.find((item) => item.device_id === resolvedDeviceId) ?? null
+      if (fromList) return fromList
+      return device?.device_id === resolvedDeviceId ? device : null
+    },
+    [device, devices, resolvedDeviceId],
+  )
+
+  const resolvedDevice = assignmentDevice ?? storeDevice
+
+  useEffect(() => {
+    if (!open || !resolvedDeviceId) return
+    if (assignmentDevice || storeDevice) return
+    void fetchDeviceById(resolvedDeviceId, true)
+  }, [assignmentDevice, fetchDeviceById, open, resolvedDeviceId, storeDevice])
 
   return (
     <DetailsPanelLayout
@@ -69,7 +102,7 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({
         <div className="space-y-4">
           <>
             <div className="flex flex-col gap-2">
-              <h2 className="text-h3 text-blue-100">
+              <h2 className="text-h3 text-green-100">
                 {assignmentDevice?.name || assignmentDevice?.serial_number || 'Asignacion'}
               </h2>
               <p className="text-b3 text-gray-70">
@@ -89,7 +122,8 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({
                 label="Informacion"
                 renderContent={
                   <InformationAssignment
-                    device={assignmentDevice}
+                    device={resolvedDevice}
+                    deviceId={resolvedDeviceId}
                     onEdit={onEditInformation}
                   />
                 }
@@ -99,9 +133,9 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({
                 label="Revisiones"
                 renderContent={
                   <ReviewsAssignment
-                    deviceId={assignmentDevice?.device_id}
-                    deviceName={assignmentDevice?.name || assignmentDevice?.serial_number}
-                    deviceStatus={assignmentDevice?.device_status?.name}
+                    deviceId={resolvedDeviceId}
+                    deviceName={resolvedDevice?.name || resolvedDevice?.serial_number}
+                    deviceStatus={resolvedDevice?.device_status?.name}
                     onCreateReview={onCreateReview}
                   />
                 }
@@ -109,7 +143,7 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({
               <ButtonsNavigation.Item
                 id="history"
                 label="Historial"
-                renderContent={<HistoryAssignment deviceId={assignmentDevice?.device_id} />}
+                renderContent={<HistoryAssignment deviceId={resolvedDeviceId} />}
               />
             </ButtonsNavigation>
           </>

@@ -170,11 +170,20 @@ export type InternalDeviceAssignment = {
 
 export type InternalDeviceAssignmentHistory = {
   device_assigment_id: string
+  devicename?: string
+  model?: string
+  typedevice?: string
+  devicebrand?: string
+  description?: string
   observations: string
   delivery_condition: string
   device_id: string
   employee_id: string
+  employeename?: string
   assigned_to?: string
+  datecreated?: string
+  createdBy?: string
+  assigned?: boolean
   date?: string
   created_at?: string
 }

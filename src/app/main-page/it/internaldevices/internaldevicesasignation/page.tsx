@@ -125,6 +125,15 @@ const InternalDevicesAsignationPage = () => {
   const isEditView = normalizedView === 'edit'
   const isReviewView = normalizedView === 'review'
   const isDefaultView = !isCreateView && !isEditView && !isReviewView
+  const normalizedAssignmentId = useMemo(() => {
+    const raw = all.assignmentId
+    if (Array.isArray(raw)) return raw[0] ?? null
+    if (typeof raw === 'string' && raw.trim()) return raw
+    return null
+  }, [all.assignmentId])
+  const openDetails = Boolean(
+    normalizedId && !isCreateView && !isEditView && !isReviewView,
+  )
   const [statusFilter, setStatusFilter] = useState('all')
 
   useTutorialAutoRun({
@@ -154,6 +163,7 @@ const InternalDevicesAsignationPage = () => {
     loadingDeviceStatuses,
     loadingDeviceAssignment,
     deviceAssignment,
+    device,
     error,
     resetFlags,
   } = useInternalDevicesStore(
@@ -171,6 +181,7 @@ const InternalDevicesAsignationPage = () => {
       loadingDeviceStatuses: state.loadingDeviceStatuses,
       loadingDeviceAssignment: state.loadingDeviceAssignment,
       deviceAssignment: state.deviceAssignment,
+      device: state.device,
       error: state.error,
       resetFlags: state.resetFlags,
     }),
@@ -207,7 +218,6 @@ const InternalDevicesAsignationPage = () => {
   })
   const [signatureOpen, setSignatureOpen] = useState(false)
   const [userSignature, setUserSignature] = useState('')
-  const [openDetails, setOpenDetails] = useState(false)
   const [assignmentEmployeeName, setAssignmentEmployeeName] = useState('')
   const prevCreateView = useRef(false)
   const prevDeviceId = useRef<string | null>(null)
@@ -355,6 +365,11 @@ const InternalDevicesAsignationPage = () => {
     if (devices.some((item) => item.device_id === normalizedId)) return
     void fetchDeviceById(normalizedId, true)
   }, [devices, fetchDeviceById, normalizedId])
+
+  useEffect(() => {
+    if (!normalizedAssignmentId) return
+    void fetchDeviceAssignmentById(normalizedAssignmentId, true)
+  }, [fetchDeviceAssignmentById, normalizedAssignmentId])
 
   const deviceFields = useMemo<FieldModel[]>(
     () => [
@@ -637,8 +652,13 @@ const InternalDevicesAsignationPage = () => {
             <ActionMenuCell
               row={row}
               onDetails={() => {
-                setOpenDetails(true)
-                if (row.device_id) updateQuery({ id: row.device_id, view: null })
+                if (row.device_id) {
+                  updateQuery({
+                    id: row.device_id,
+                    assignmentId: row.assignment_id,
+                    view: null,
+                  })
+                }
                 void fetchDeviceAssignmentById(row.assignment_id, true)
               }}
               permissions={{ details: true, delete: false, update: false }}
@@ -647,7 +667,7 @@ const InternalDevicesAsignationPage = () => {
         ),
       },
     ],
-    [fetchDeviceAssignmentById],
+    [fetchDeviceAssignmentById, updateQuery],
   )
 
   const columnsMobile = useMemo<ColumnDefinition<InternalDeviceAssignmentRow>[]>(
@@ -681,8 +701,13 @@ const InternalDevicesAsignationPage = () => {
             <ActionMenuCell
               row={row}
               onDetails={() => {
-                setOpenDetails(true)
-                if (row.device_id) updateQuery({ id: row.device_id, view: null })
+                if (row.device_id) {
+                  updateQuery({
+                    id: row.device_id,
+                    assignmentId: row.assignment_id,
+                    view: null,
+                  })
+                }
                 void fetchDeviceAssignmentById(row.assignment_id, true)
               }}
               permissions={{ details: true, delete: false, update: false }}
@@ -691,7 +716,7 @@ const InternalDevicesAsignationPage = () => {
         ),
       },
     ],
-    [fetchDeviceAssignmentById],
+    [fetchDeviceAssignmentById, updateQuery],
   )
 
   const columns = isMobile ? columnsMobile : columnsDesktop
@@ -723,7 +748,8 @@ const InternalDevicesAsignationPage = () => {
   }, [deviceAssignment, employeeById, fetchEmployeeById])
 
   const assignmentDevice = deviceAssignment
-    ? deviceById.get(deviceAssignment.device_id) ?? null
+    ? deviceById.get(deviceAssignment.device_id) ??
+      (device?.device_id === deviceAssignment.device_id ? device : null)
     : null
 
   const handleEditInformation = useCallback(() => {
@@ -941,8 +967,7 @@ const InternalDevicesAsignationPage = () => {
       <AssignmentDetail
         open={openDetails}
         onClose={() => {
-          setOpenDetails(false)
-          updateQuery({ id: null, view: null })
+          updateQuery({ id: null, assignmentId: null, view: null })
         }}
         loading={loadingDeviceAssignment}
         assignment={deviceAssignment ?? null}

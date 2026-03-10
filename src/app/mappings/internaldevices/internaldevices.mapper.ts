@@ -498,12 +498,24 @@ export const InternalDeviceAssignmentMap = (
   raw: unknown,
 ): InternalDeviceAssignment => {
   const record = toRecord(raw)
+  const deviceRaw = record.device
+  const employeeRaw = record.employee
   return {
     device_assigment_id: toString(record.device_assigment_id ?? record.id),
     observations: toString(record.observations),
     delivery_condition: toString(record.delivery_condition),
-    device_id: toString(record.device_id ?? record.deviceId),
-    employee_id: toString(record.employee_id ?? record.employeeId),
+    device_id: toString(
+      record.device_id ??
+        record.deviceId ??
+        readNestedId(deviceRaw, 'device_id') ??
+        readNestedId(deviceRaw, 'id'),
+    ),
+    employee_id: toString(
+      record.employee_id ??
+        record.employeeId ??
+        readNestedId(employeeRaw, 'employee_id') ??
+        readNestedId(employeeRaw, 'id'),
+    ),
     id_user: record.id_user ? toString(record.id_user) : undefined,
     date: toNullableString(
       record.date ??
@@ -526,12 +538,31 @@ export const InternalDeviceAssignmentHistoryMap = (
   raw: unknown,
 ): InternalDeviceAssignmentHistory => {
   const record = toRecord(raw)
+  const dateCreated = toNullableString(
+    record.datecreated ??
+      record.date_created ??
+      record.dateCreated ??
+      record.created_at ??
+      record.createdAt,
+  )
   return {
     device_assigment_id: toString(record.device_assigment_id ?? record.id),
+    devicename: toNullableString(record.devicename ?? record.device_name ?? record.deviceName) ?? undefined,
+    model: toNullableString(record.model) ?? undefined,
+    typedevice: toNullableString(
+      record.typedevice ?? record.device_type ?? record.deviceType,
+    ) ?? undefined,
+    devicebrand: toNullableString(
+      record.devicebrand ?? record.device_brand ?? record.deviceBrand,
+    ) ?? undefined,
+    description: toNullableString(record.description) ?? undefined,
     observations: toString(record.observations),
     delivery_condition: toString(record.delivery_condition),
     device_id: toString(record.device_id ?? record.deviceId),
     employee_id: toString(record.employee_id ?? record.employeeId),
+    employeename: toNullableString(
+      record.employeename ?? record.employee_name ?? record.employeeName,
+    ) ?? undefined,
     assigned_to: toNullableString(
       record.assigned_to ??
         record.assignedTo ??
@@ -542,15 +573,20 @@ export const InternalDeviceAssignmentHistoryMap = (
         record.userName ??
         record.username,
     ) ?? undefined,
-    date: toNullableString(
-      record.date ??
-        record.created_at ??
-        record.createdAt ??
-        record.assigned_at ??
-        record.assignedAt,
+    datecreated: dateCreated ?? undefined,
+    createdBy: toNullableString(
+      record.createdBy ?? record.created_by ?? record.createdby ?? record.createdByUser,
     ) ?? undefined,
-    created_at:
-      toNullableString(record.created_at ?? record.createdAt) ?? undefined,
+    assigned: record.assigned == null ? undefined : toBoolean(record.assigned),
+    date:
+      toNullableString(
+        record.date ??
+          record.assigned_at ??
+          record.assignedAt,
+      ) ??
+      dateCreated ??
+      undefined,
+    created_at: dateCreated ?? undefined,
   }
 }
 
