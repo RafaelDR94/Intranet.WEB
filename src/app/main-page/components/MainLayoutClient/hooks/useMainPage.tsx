@@ -67,6 +67,14 @@ export const sidebarRoutes = [
     ],
   },
   {
+    label: 'IT',
+    path: '/main-page/it',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Dispositivos', path: '/main-page/it/internaldevices' },
+    ],
+  },
+  {
     label: 'Servicios Generales',
     path: '/main-page/generalservices',
     icon: ServerIcon,

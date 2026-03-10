@@ -105,9 +105,21 @@ export const Brands = process.env.NEXT_PUBLIC_DEVICES_BRAND ?? "/Assets/DeviceBr
 export const Status = process.env.NEXT_PUBLIC_DEVICES_STATUS ?? "/Assets/DeviceStatus";
 export const Types = process.env.NEXT_PUBLIC_DEVICES_TYPE ?? "/Assets/DeviceType";
 export const Reviews = process.env.NEXT_PUBLIC_DEVICE_REVIEW ?? "/Assets/DeviceReview";
-export const Assigment = process.env.NEXT_PUBLIC_DEVICES_ASSIGMENT ?? "/Assets/DeviceAssigment";
+export const Assigment = process.env.NEXT_PUBLIC_DEVICES_ASSIGMENT ?? "/Assets/DeviceAssignment";
 export const AllDevices = process.env.NEXT_PUBLIC_ALL_DEVICES ?? "/Assets/AllDevices";
 export const DeviceById = process.env.NEXT_PUBLIC_ASSETS_DEVICES_BYID ?? "/Assets/Device/ById";
+export const DeviceByIdProyect = process.env.NEXT_PUBLIC_ASSETS_DEVICES_BYIDPROYECT ?? "/Assets/Device/ByIdProyect";
+export const ReviewDevices = process.env.NEXT_PUBLIC_REVIEW_DEVICES ?? "/Assets/RevieWDevices";
+export const DeviceTypeById = process.env.NEXT_PUBLIC_DEVICE_TYPE_BYID ?? "/Assets/DeviceType/ById";
+export const DeviceStatusById = process.env.NEXT_PUBLIC_DEVICE_STATUS_BYID ?? "/Assets/DeviceStatus/ById";
+export const DeviceBrandById = process.env.NEXT_PUBLIC_DEVICE_BRAND_BYID ?? "/Assets/DeviceBrand/ById";
+export const DeviceReviewByDeviceId =
+  process.env.NEXT_PUBLIC_DEVICE_REVIEW_BY_DEVICE_ID ?? "/Assets/DeviceReview/ByDeviceId";
+export const DeviceAssigmentById =
+  process.env.NEXT_PUBLIC_DEVICE_ASSIGMENT_BYID ?? "/Assets/DeviceAssignment/ById";
+export const DeviceAssignmentHistoryByDeviceId =
+  process.env.NEXT_PUBLIC_DEVICE_ASSIGNMENT_HISTORY_BY_DEVICE_ID ??
+  "/Assets/DeviceAssignment/History";
 
 export const DocumentType = process.env.NEXT_PUBLIC_DOCUMENT_TYPE ?? "/Documents/DocumentType";
 export const Documents = process.env.NEXT_PUBLIC_DOCUMENTS ?? "/Documents";
@@ -117,7 +129,7 @@ export const ReleasesReaction = process.env.NEXT_PUBLIC_RELEASES_REACTION ?? "/R
 export const ReleasesReactionPerson = process.env.NEXT_PUBLIC_RELEASES_REACTIONPERSON ?? "/Releases/ReactionPerson";
 
 export const ActiveBrand = process.env.NEXT_PUBLIC_ACTIVATE_BRAND ?? "/Assets/ActivateBrand";
-export const ActivateStatus = process.env.NEXT_PUBLIC_ACTIVATE_BRAND ?? "/Assets/ActivateStatus"; // <-- PodrÃ­a ser error
+export const ActivateStatus = process.env.NEXT_PUBLIC_ACTIVATE_STATUS ?? "/Assets/ActivateStatus";
 export const ActivateType = process.env.NEXT_PUBLIC_ACTIVATE_TYPE ?? "/Assets/ActivateType";
 export const ActivateDevice = process.env.NEXT_PUBLIC_ACTIVATE_DEVICE ?? "/Assets/ActivateDevice";
 

@@ -1,0 +1,51 @@
+'use client'
+
+import type { AxiosResponse } from 'axios'
+
+import type { Get, Set } from '../types'
+
+import { Brands } from '@/app/configurations/Axios/urls'
+import {
+  InternalDeviceBrandMap,
+  InternalDeviceBrandPostMap,
+} from '@/app/mappings/internaldevices/internaldevices.mapper'
+import type {
+  InternalDeviceBrand,
+  InternalDeviceBrandPost,
+} from '@/app/mappings/internaldevices/internaldevices.types'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
+import { pPost } from '@/app/utilities/Http/promisifyIntranet'
+import { requireGateway } from '@/app/utilities/Http/requireGateway'
+
+import { fetchDeviceBrands } from './fetchDeviceBrands'
+
+/**
+ * Create device brand.
+ */
+export const createDeviceBrand = async (
+  set: Set,
+  get: Get,
+  payload: InternalDeviceBrandPost,
+): Promise<InternalDeviceBrand | null> => {
+  set({ creatingDeviceBrand: true, error: undefined, successCreateDeviceBrand: false })
+
+  try {
+    const post = pPost(requireGateway('post'), [200, 201])
+    const res: AxiosResponse = await post(Brands, InternalDeviceBrandPostMap(payload))
+    const raw = res.data?.data ?? res.data ?? null
+    const created = raw && typeof raw === 'object' ? InternalDeviceBrandMap(raw) : null
+
+    await fetchDeviceBrands(undefined, set, get, true)
+
+    set({ creatingDeviceBrand: false, successCreateDeviceBrand: true })
+    return created
+  } catch (error) {
+    const err = normalizeApiError(error)
+    set({
+      creatingDeviceBrand: false,
+      successCreateDeviceBrand: false,
+      error: err.message,
+    })
+    return null
+  }
+}

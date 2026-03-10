@@ -14,7 +14,7 @@ Feature:
 
 Feature:
 
-- Agrega tutorial para Control de Caja Chica en tesorería. (Agente IA) [#]()
+- Agrega tutorial para Control de Caja Chica en tesorerï¿½a. (Agente IA) [#]()
 
 ### 1.50.27 Tutoriales en ownrequisitions y authorizations 03-04-2026
 
@@ -22,7 +22,7 @@ Feature:
 
 - Agrega tutoriales con data-tour y auto-run para requisiciones personales y autorizaciones. (Agente IA) [#]()
 
-### 1.50.26 Documentos completos por requisición 03-03-2026
+### 1.50.26 Documentos completos por requisiciï¿½n 03-03-2026
 
 Feature:
 

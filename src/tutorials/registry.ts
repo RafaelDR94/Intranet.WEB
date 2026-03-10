@@ -12,6 +12,7 @@ import { sipProjectsTutorials } from './modules/sipProjects';
 import { generalServicesVehiclesTutorials } from './modules/generalServicesVehicles';
 import { humanResourcesDocumentsTutorials } from './modules/humanResourcesDocuments';
 import { administrationUsersTutorials } from './modules/administrationUsers';
+import { internalDevicesTutorials } from './modules/internalDevices';
 
 export const tutorialRegistry: TutorialDefinition[] = [
   ...mainPageTutorials,
@@ -27,6 +28,7 @@ export const tutorialRegistry: TutorialDefinition[] = [
   ...generalServicesVehiclesTutorials,
   ...humanResourcesDocumentsTutorials,
   ...administrationUsersTutorials,
+  ...internalDevicesTutorials,
 ];
 
 export const getTutorialById = (tutorialId: string) =>
