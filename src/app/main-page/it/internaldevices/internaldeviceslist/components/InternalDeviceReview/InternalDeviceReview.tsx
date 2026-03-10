@@ -15,7 +15,7 @@ import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import type { InternalDevice } from '@/app/mappings/internaldevices/internaldevices.types'
 import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
-import ArrowLeftIcon from '@/assets/icons/navegacion/nav-arrow-left.svg'
+import ArrowLeftIcon from '@/assets/icons/navegacion/long-arrow-up-left.svg'
 
 type InternalDeviceReviewProps = {
   device: InternalDevice | null
@@ -23,9 +23,9 @@ type InternalDeviceReviewProps = {
 }
 
 const formLayout: ResponsiveLayoutMatrix = {
-  sm: [[10], [10], [10]],
-  md: [[5, 5], [10]],
-  lg: [[4, 6], [10]],
+  sm: [[10], [10]],
+  md: [[3], [10]],
+  lg: [[3], [10]],
 }
 
 const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
@@ -160,11 +160,11 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
           title={
             <button
               type="button"
-              className="flex items-center gap-2 text-blue-100 text-b2"
+              className="flex items-center gap-2"
               onClick={onBack}
             >
               <ArrowLeftIcon className="h-5 w-5" />
-              <span>Nueva Revision de Dispositivo</span>
+              <span className='text-b4 text-blue-60'>Nueva Revision de Dispositivo</span>
             </button>
           }
           enableCollapse={false}
@@ -192,7 +192,7 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
             onClick={onBack}
           >
             <ArrowLeftIcon className="h-5 w-5" />
-            <span>Nueva Revision de Dispositivo</span>
+            <span className='text-b4 text-blue-60'>Nueva Revision de Dispositivo</span>
           </button>
         }
         enableCollapse={false}
@@ -222,7 +222,7 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
             disabled={!device}
           />
           <div className="h-6" />
-          <div className="rounded-xl border border-blue-100/40 bg-white-100 p-6 text-gray-60" />
+          {/* <div className="rounded-xl border border-blue-100/40 bg-white-100 p-6 text-gray-60" /> */}
         </div>
       </CollapsibleSection>
     </div>

@@ -1,13 +1,18 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
+import { shallow } from 'zustand/shallow'
 
 import { Button } from '@/app/components/Button/Button'
+import useQuery from '@/app/hooks/useQuery/useQuery'
 import type { InternalDeviceReview } from '@/app/mappings/internaldevices/internaldevices.types'
+import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
 import HammerIcon from '@/assets/icons/tools/tools/hammer.svg'
 
-export interface InternalDeviceReviewsProps {
-  reviews: InternalDeviceReview[]
+export interface ReviewsAssignmentProps {
+  deviceId?: string | null
+  deviceName?: string | null
+  deviceStatus?: string | null
   onCreateReview?: () => void
 }
 
@@ -17,22 +22,62 @@ const getReviewDate = (review: InternalDeviceReview): string =>
 const getReviewResponsible = (review: InternalDeviceReview): string =>
   review.responsible ?? review.user_name ?? review.user_id ?? '-'
 
-const Revisiones: React.FC<InternalDeviceReviewsProps> = ({
-  reviews,
+const ReviewsAssignment: React.FC<ReviewsAssignmentProps> = ({
+  deviceId,
   onCreateReview,
 }) => {
+  const { updateQuery } = useQuery()
+  const {
+    device,
+    deviceReviewsByDevice,
+    loadingDeviceReviewsByDevice,
+    fetchDeviceById,
+    fetchDeviceReviewsByDeviceId,
+  } = useInternalDevicesStore(
+    (state) => ({
+      device: state.device,
+      deviceReviewsByDevice: state.deviceReviewsByDevice,
+      loadingDeviceReviewsByDevice: state.loadingDeviceReviewsByDevice,
+      fetchDeviceById: state.fetchDeviceById,
+      fetchDeviceReviewsByDeviceId: state.fetchDeviceReviewsByDeviceId,
+    }),
+    shallow,
+  )
+
+  useEffect(() => {
+    if (!deviceId) return
+    void fetchDeviceById(deviceId, true)
+    void fetchDeviceReviewsByDeviceId(deviceId, true)
+  }, [deviceId, fetchDeviceById, fetchDeviceReviewsByDeviceId])
+
+  const rows = useMemo<InternalDeviceReview[]>(
+    () => deviceReviewsByDevice ?? [],
+    [deviceReviewsByDevice],
+  )
+
+  const handleCreateReview = () => {
+    if (onCreateReview) {
+      onCreateReview()
+      return
+    }
+    if (!deviceId) return
+    updateQuery({ id: deviceId, view: 'review' })
+  }
+
+  if (loadingDeviceReviewsByDevice) {
+    return <div className="text-center text-gray-70">Cargando revisiones...</div>
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h3 className="text-label text-blue-60 uppercase tracking-wide">Historial</h3>
+      <div className="flex items-end justify-end">
         <Button
           size="small"
           variant="ghost"
           icon={HammerIcon}
-          className="gap-2"
-          onClick={onCreateReview}
+          onClick={handleCreateReview}
         >
-          Nueva revision
+          Nueva Revision
         </Button>
       </div>
 
@@ -46,14 +91,14 @@ const Revisiones: React.FC<InternalDeviceReviewsProps> = ({
             </tr>
           </thead>
           <tbody className="text-gray-70">
-            {reviews.length === 0 && (
+            {rows.length === 0 && (
               <tr>
                 <td className="px-6 py-5 text-center text-c2" colSpan={3}>
                   Sin revisiones registradas.
                 </td>
               </tr>
             )}
-            {reviews.map((review) => (
+            {rows.map((review) => (
               <tr
                 key={review.device_review_id}
                 className="border-b border-gray-10 last:border-b-0"
@@ -74,4 +119,4 @@ const Revisiones: React.FC<InternalDeviceReviewsProps> = ({
   )
 }
 
-export default Revisiones
+export default ReviewsAssignment

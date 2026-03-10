@@ -31,7 +31,8 @@ export const createInternalDevice = async (
 
   try {
     const post = pPost(requireGateway('post'), [200, 201])
-    const res: AxiosResponse = await post(Devices, InternalDevicePostMap(payload))
+    const mapped = InternalDevicePostMap(payload)
+    const res: AxiosResponse = await post(Devices, mapped)
     const raw = res.data?.data ?? res.data ?? null
     const created =
       raw && typeof raw === 'object' ? InternalDeviceMap(raw) : null

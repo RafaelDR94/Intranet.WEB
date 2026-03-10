@@ -13,6 +13,7 @@ import type {
 
 import Information from './components/Information/Information'
 import Revisiones from './components/Revisiones/Revisiones'
+import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
 
 export interface InternalDeviceDetailProps {
   open: boolean
@@ -41,11 +42,14 @@ const InternalDeviceDetail: React.FC<InternalDeviceDetailProps> = ({
   onCreateReview,
 }) => {
   const statusLabel = device?.device_status?.name ?? 'SIN ESTATUS'
+  const isMobile = useIsMobile()
 
   return (
     <DetailsPanelLayout
       open={open}
       onClose={onClose}
+      className={isMobile ? 'w-full' : ''}
+      zIndex={10000}
       label={() =>
         device ? <Label type={statusToLabelType(statusLabel)} text={statusLabel} /> : null
       }

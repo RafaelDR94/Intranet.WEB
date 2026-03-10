@@ -23,6 +23,7 @@ import {
   deleteInternalDevice,
   fetchDeviceAssignmentById,
   fetchDeviceAssignments,
+  fetchDeviceAssignmentHistoryByDeviceId,
   fetchDeviceBrandById,
   fetchDeviceBrands,
   fetchDeviceReviews,
@@ -63,6 +64,8 @@ const initialCollections: Pick<
   | 'lastReviewDeviceId'
   | 'deviceAssignments'
   | 'deviceAssignment'
+  | 'deviceAssignmentHistory'
+  | 'lastAssignmentHistoryDeviceId'
 > = {
   devices: [],
   device: undefined,
@@ -81,6 +84,8 @@ const initialCollections: Pick<
   lastReviewDeviceId: null,
   deviceAssignments: [],
   deviceAssignment: undefined,
+  deviceAssignmentHistory: [],
+  lastAssignmentHistoryDeviceId: null,
 }
 
 const initialFlags: Pick<
@@ -151,11 +156,13 @@ const initialFlags: Pick<
   | 'successDeleteDeviceReview'
   | 'loadingDeviceAssignments'
   | 'loadingDeviceAssignment'
+  | 'loadingDeviceAssignmentHistory'
   | 'creatingDeviceAssignment'
   | 'updatingDeviceAssignment'
   | 'deletingDeviceAssignment'
   | 'successGetDeviceAssignments'
   | 'successGetDeviceAssignment'
+  | 'successGetDeviceAssignmentHistory'
   | 'successCreateDeviceAssignment'
   | 'successUpdateDeviceAssignment'
   | 'successDeleteDeviceAssignment'
@@ -228,11 +235,13 @@ const initialFlags: Pick<
   successDeleteDeviceReview: false,
   loadingDeviceAssignments: false,
   loadingDeviceAssignment: false,
+  loadingDeviceAssignmentHistory: false,
   creatingDeviceAssignment: false,
   updatingDeviceAssignment: false,
   deletingDeviceAssignment: false,
   successGetDeviceAssignments: false,
   successGetDeviceAssignment: false,
+  successGetDeviceAssignmentHistory: false,
   successCreateDeviceAssignment: false,
   successUpdateDeviceAssignment: false,
   successDeleteDeviceAssignment: false,
@@ -299,6 +308,8 @@ export const useInternalDevicesStore = createWithEqualityFn<InternalDevicesState
       fetchDeviceAssignments(set, get, force),
     fetchDeviceAssignmentById: (id, force = false) =>
       fetchDeviceAssignmentById(id, set, get, force),
+    fetchDeviceAssignmentHistoryByDeviceId: (deviceId, force = false) =>
+      fetchDeviceAssignmentHistoryByDeviceId(deviceId, set, get, force),
     createDeviceAssignment: (payload) =>
       createDeviceAssignment(set, get, payload),
     updateDeviceAssignment: (payload) =>

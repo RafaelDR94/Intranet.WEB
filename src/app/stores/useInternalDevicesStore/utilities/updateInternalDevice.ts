@@ -31,7 +31,8 @@ export const updateInternalDevice = async (
 
   try {
     const put = pPut(requireGateway('put'), [200, 204])
-    const res: AxiosResponse = await put(Devices, InternalDevicePutMap(payload))
+    const mapped = InternalDevicePutMap(payload)
+    const res: AxiosResponse = await put(Devices, mapped)
     const raw = res.data?.data ?? res.data ?? null
     const updated =
       raw && typeof raw === 'object' ? InternalDeviceMap(raw) : null

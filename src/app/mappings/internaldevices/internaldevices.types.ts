@@ -41,6 +41,7 @@ export type InternalDevice = {
   description: string
   low_motive: string
   assigned: boolean
+  assigned_to?: string | null
   device_type: InternalDeviceType | null
   device_brand: InternalDeviceBrand | null
   device_status: InternalDeviceStatus | null
@@ -70,7 +71,7 @@ export type InternalDevicePost = {
   device_brand_id: string
   assurance: string
   id_enterprise: string
-  proyect_id: string
+  proyect_id: string | null
 }
 
 export type InternalDevicePut = {
@@ -93,7 +94,7 @@ export type InternalDevicePut = {
   is_active: boolean
   assurance: string
   id_enterprise: string
-  proyect_id: string
+  proyect_id: string | null
 }
 
 export type InternalDeviceTypePost = {
@@ -163,6 +164,19 @@ export type InternalDeviceAssignment = {
   device_id: string
   employee_id: string
   id_user?: string
+  date?: string
+  created_at?: string
+}
+
+export type InternalDeviceAssignmentHistory = {
+  device_assigment_id: string
+  observations: string
+  delivery_condition: string
+  device_id: string
+  employee_id: string
+  assigned_to?: string
+  date?: string
+  created_at?: string
 }
 
 export type InternalDeviceAssignmentPost = {

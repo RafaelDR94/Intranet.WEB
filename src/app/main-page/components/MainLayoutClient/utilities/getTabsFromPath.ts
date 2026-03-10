@@ -205,27 +205,44 @@ export const getTabsFromPath = (
   }
 
   const internalDevicesListPath = '/main-page/it/internaldevices/internaldeviceslist';
+  const internalDevicesAssignPath = '/main-page/it/internaldevices/internaldevicesasignation';
 
   if (first === 'it' && second === 'internaldevices') {
-    if (view === 'edit' && id) {
-      return [
-        { label: 'Dispositivos', path: internalDevicesListPath },
-        { label: 'Editar dispositivo', path: `${internalDevicesListPath}?id=${id}&view=edit` },
-      ];
-    }
-    if (view === 'review' && id) {
-      return [
-        { label: 'Dispositivos', path: internalDevicesListPath },
-        { label: 'Revision de Dispositivo', path: `${internalDevicesListPath}?id=${id}&view=review` },
-      ];
+    if (pathname === internalDevicesListPath) {
+      if (view === 'new') {
+        return [
+          { label: 'Dispositivos', path: internalDevicesListPath },
+          { label: 'Nuevo Dispositivo', path: `${internalDevicesListPath}?view=new` },
+        ];
+      }
+      if (view === 'edit' && id) {
+        return [
+          { label: 'Dispositivos', path: internalDevicesListPath },
+          { label: 'Editar dispositivo', path: `${internalDevicesListPath}?id=${id}&view=edit` },
+        ];
+      }
+      if (view === 'review' && id) {
+        return [
+          { label: 'Dispositivos', path: internalDevicesListPath },
+          { label: 'Revision de Dispositivo', path: `${internalDevicesListPath}?id=${id}&view=review` },
+        ];
+      }
+
+      if (id) {
+        tabs = tabs.map((tab) =>
+          tab.path === internalDevicesListPath
+            ? { ...tab, path: `${internalDevicesListPath}?id=${id}` }
+            : tab
+        );
+      }
     }
 
-    if (id) {
-      tabs = tabs.map((tab) =>
-        tab.path === internalDevicesListPath
-          ? { ...tab, path: `${internalDevicesListPath}?id=${id}` }
-          : tab
-      );
+    if (pathname === internalDevicesAssignPath && view === 'new') {
+      return [
+        { label: 'Dispositivos', path: internalDevicesListPath },
+        { label: 'AsignaciÃ³n de Dispositivos', path: internalDevicesAssignPath },
+        { label: 'Nueva AsignaciÃ³n', path: `${internalDevicesAssignPath}?view=new` },
+      ];
     }
   }
 

@@ -10,9 +10,10 @@ import DynamicForm from '@/app/components/DynamicForm/DynamicForm'
 import type { FieldModel, ResponsiveLayoutMatrix } from '@/app/components/DynamicForm/types'
 import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import type { InternalDevice, InternalDevicePut } from '@/app/mappings/internaldevices/internaldevices.types'
 import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
-import ArrowLeftIcon from '@/assets/icons/navegacion/nav-arrow-left.svg'
+import ArrowLeftIcon from '@/assets/icons/navegacion/long-arrow-up-left.svg'
 
 const steps = [
   { id: 'device', label: 'Dispositivo' },
@@ -25,6 +26,7 @@ type StepId = (typeof steps)[number]['id']
 type InternalDeviceEditProps = {
   device: InternalDevice | null
   onBack: () => void
+  mode?: 'edit' | 'create'
 }
 
 const stepLayouts: Record<StepId, ResponsiveLayoutMatrix> = {
@@ -45,10 +47,16 @@ const stepLayouts: Record<StepId, ResponsiveLayoutMatrix> = {
   },
 }
 
-const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack }) => {
+const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
+  device,
+  onBack,
+  mode = 'edit',
+}) => {
   const isMobile = useIsMobile()
   const { usePrincipalAlert } = usePrincipal()
   const { showAlert } = usePrincipalAlert
+  const { user } = useAuth()
+  const isCreate = mode === 'create'
 
   const {
     deviceTypes,
@@ -57,7 +65,9 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
     fetchDeviceTypes,
     fetchDeviceBrands,
     fetchDeviceStatuses,
+    createDevice,
     updateDevice,
+    creatingDevice,
     updatingDevice,
   } = useInternalDevicesStore(
     (state) => ({
@@ -67,7 +77,9 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
       fetchDeviceTypes: state.fetchDeviceTypes,
       fetchDeviceBrands: state.fetchDeviceBrands,
       fetchDeviceStatuses: state.fetchDeviceStatuses,
+      createDevice: state.createDevice,
       updateDevice: state.updateDevice,
+      creatingDevice: state.creatingDevice,
       updatingDevice: state.updatingDevice,
     }),
     shallow,
@@ -89,6 +101,27 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
   }, [fetchDeviceBrands, fetchDeviceStatuses, fetchDeviceTypes])
 
   useEffect(() => {
+    if (isCreate) {
+      setFormValues({
+        device_type_id: '',
+        device_brand_id: '',
+        device_status_id: '',
+        model: '',
+        name: '',
+        serial_number: '',
+        ip_address: '',
+        mac_address: '',
+        operating_system: '',
+        charge_sn: '',
+        description: '',
+        additional_features: '',
+      })
+      setCurrentStep('device')
+      setStepValidity({ device: false, hardware: false, features: false })
+      setFormVersion((prev) => prev + 1)
+      return
+    }
+
     if (!device) return
     setFormValues({
       device_type_id: device.device_type?.device_type_id ?? '',
@@ -107,7 +140,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
     setCurrentStep('device')
     setStepValidity({ device: false, hardware: false, features: false })
     setFormVersion((prev) => prev + 1)
-  }, [device])
+  }, [device, isCreate])
 
   const typeOptions = useMemo(() => {
     const options = deviceTypes.map((item) => ({
@@ -173,13 +206,13 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
       {
         type: 'select',
         name: 'device_status_id',
-        label: 'Estatus del dispositivo*',
+        label: isCreate ? 'Estatus del dispositivo' : 'Estatus del dispositivo*',
         value: formValues.device_status_id ?? '',
         options: statusOptions,
-        validations: [{ type: 'required' }],
+        validations: isCreate ? [] : [{ type: 'required' }],
       },
     ],
-    [brandOptions, formValues, statusOptions, typeOptions],
+    [brandOptions, formValues, isCreate, statusOptions, typeOptions],
   )
 
   const hardwareFields = useMemo<FieldModel[]>(
@@ -228,14 +261,16 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
       {
         type: 'input',
         name: 'charge_sn',
-        label: 'Numero de serie de cargador',
+        label: 'Numero de serie de cargador*',
         value: formValues.charge_sn ?? '',
+        validations: [{ type: 'required' }],
       },
       {
         type: 'input',
         name: 'description',
-        label: 'Otros accesorios',
+        label: 'Otros accesorios*',
         value: formValues.description ?? '',
+        validations: [{ type: 'required' }],
       },
       {
         type: 'textarea',
@@ -278,7 +313,79 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
     setFormVersion((prev) => prev + 1)
   }, [])
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
+    if (isCreate) {
+      if (!user?.idEnterprise) {
+        showAlert({
+          type: 'warning',
+          title: 'Empresa no disponible',
+          description: 'No se encontro la empresa activa del usuario.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500,
+        })
+        return
+      }
+
+      if (!formValues.device_type_id || !formValues.device_brand_id) {
+        showAlert({
+          type: 'warning',
+          title: 'Datos incompletos',
+          description: 'Completa tipo y marca para registrar el dispositivo.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500,
+        })
+        return
+      }
+
+      if (
+        !formValues.name ||
+        !formValues.model ||
+        !formValues.serial_number ||
+        !formValues.ip_address ||
+        !formValues.mac_address ||
+        !formValues.operating_system ||
+        !formValues.charge_sn ||
+        !formValues.description
+      ) {
+        showAlert({
+          type: 'warning',
+          title: 'Datos incompletos',
+          description: 'Completa los campos obligatorios del dispositivo.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500,
+        })
+        return
+      }
+
+      const created = await createDevice({
+        name: formValues.name ?? '',
+        model: formValues.model ?? '',
+        serial_number: formValues.serial_number ?? '',
+        ip_address: formValues.ip_address ?? '',
+        mac_address: formValues.mac_address ?? '',
+        mac_wifi_address: '',
+        operating_system: formValues.operating_system ?? '',
+        charge_sn: formValues.charge_sn ?? '',
+        description: formValues.description ?? '',
+        low_motive: '',
+        assigned: false,
+        reviewed: false,
+        device_type_id: formValues.device_type_id ?? '',
+        device_brand_id: formValues.device_brand_id ?? '',
+        assurance: new Date().toISOString(),
+        id_enterprise: user.idEnterprise ?? '',
+        proyect_id: '',
+      })
+
+      if (created) {
+        onBack()
+      }
+      return
+    }
+
     if (!device) {
       showAlert({
         type: 'error',
@@ -317,7 +424,11 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
       proyect_id: device.device_proyect?.id ?? '',
     }
 
-    if (!payload.device_type_id || !payload.device_brand_id || !payload.device_status_id) {
+    if (
+      !payload.device_type_id ||
+      !payload.device_brand_id ||
+      !payload.device_status_id
+    ) {
       showAlert({
         type: 'warning',
         title: 'Datos incompletos',
@@ -329,21 +440,42 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
       return
     }
 
-    void updateDevice(payload)
-  }, [device, formValues, showAlert, updateDevice])
+    if (
+      !payload.name ||
+      !payload.model ||
+      !payload.serial_number ||
+      !payload.ip_address ||
+      !payload.mac_address ||
+      !payload.operating_system ||
+      !payload.charge_sn ||
+      !payload.description
+    ) {
+      showAlert({
+        type: 'warning',
+        title: 'Datos incompletos',
+        description: 'Completa los campos obligatorios del dispositivo.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      })
+      return
+    }
 
-  if (!device) {
+    void updateDevice(payload)
+  }, [createDevice, device, formValues, isCreate, onBack, showAlert, updateDevice, user?.idEnterprise])
+
+  if (!device && !isCreate) {
     return (
       <div className="space-y-4">
         <CollapsibleSection
           title={
             <button
               type="button"
-              className="flex items-center gap-2 text-blue-100 text-b2"
+              className="flex items-center gap-2"
               onClick={onBack}
             >
-              <ArrowLeftIcon className="h-5 w-5" />
-              <span>Detalle de dispositivo</span>
+              <ArrowLeftIcon className="h-5 w-5 text-blue-60" />
+              <span className='text-b4 text-blue-60'>Detalle de dispositivo</span>
             </button>
           }
           enableCollapse={false}
@@ -368,7 +500,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
       valuesVersion: formVersion,
       valuesVersionActive: true,
       showSubmitIf: () => false,
-      disabled: !device,
+      disabled: !device && !isCreate,
     }
 
     if (stepId === 'device') {
@@ -416,7 +548,9 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
             onClick={onBack}
           >
             <ArrowLeftIcon className="h-5 w-5" />
-            <span>Detalle de dispositivo</span>
+            <span className='text-b4 text-blue-60'>
+              {isCreate ? 'Lista de dispositivos' : 'Detalle de dispositivo'}
+            </span>
           </button>
         }
         enableCollapse={false}
@@ -424,10 +558,10 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({ device, onBack 
           <Button
             hideIcon
             onClick={handleSave}
-            disabled={!device || updatingDevice}
+            disabled={isCreate ? creatingDevice : !device || updatingDevice}
             className={isMobile ? 'w-full mt-3' : ''}
           >
-            Guardar informacion
+            {isCreate ? 'Crear dispositivo' : 'Guardar informacion'}
           </Button>
         }
       >

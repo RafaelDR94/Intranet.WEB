@@ -4,6 +4,7 @@ import type {
   InternalDeviceAssignment,
   InternalDeviceAssignmentPost,
   InternalDeviceAssignmentPut,
+  InternalDeviceAssignmentHistory,
   InternalDeviceBrand,
   InternalDeviceBrandPost,
   InternalDeviceBrandPut,
@@ -43,6 +44,8 @@ export type InternalDevicesState = {
 
   deviceAssignments: InternalDeviceAssignment[]
   deviceAssignment?: InternalDeviceAssignment
+  deviceAssignmentHistory: InternalDeviceAssignmentHistory[]
+  lastAssignmentHistoryDeviceId: string | null
 
   loadingDevices: boolean
   loadingDevice: boolean
@@ -120,12 +123,14 @@ export type InternalDevicesState = {
 
   loadingDeviceAssignments: boolean
   loadingDeviceAssignment: boolean
+  loadingDeviceAssignmentHistory: boolean
   creatingDeviceAssignment: boolean
   updatingDeviceAssignment: boolean
   deletingDeviceAssignment: boolean
 
   successGetDeviceAssignments: boolean
   successGetDeviceAssignment: boolean
+  successGetDeviceAssignmentHistory: boolean
   successCreateDeviceAssignment: boolean
   successUpdateDeviceAssignment: boolean
   successDeleteDeviceAssignment: boolean
@@ -235,6 +240,11 @@ export type InternalDevicesState = {
     lowMotive?: string,
     idUser?: string,
   ) => Promise<boolean>
+
+  fetchDeviceAssignmentHistoryByDeviceId: (
+    deviceId: string,
+    force?: boolean,
+  ) => Promise<InternalDeviceAssignmentHistory[] | null>
 
   reset: () => void
   resetFlags: () => void

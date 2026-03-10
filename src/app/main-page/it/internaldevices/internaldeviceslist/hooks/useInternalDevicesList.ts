@@ -25,7 +25,8 @@ const useInternalDevicesList = () => {
   }, [all.view])
   const isEditView = normalizedView === 'edit'
   const isReviewView = normalizedView === 'review'
-  const openDetails = Boolean(normalizedId && !isEditView && !isReviewView)
+  const isCreateView = normalizedView === 'new'
+  const openDetails = Boolean(normalizedId && !isEditView && !isReviewView && !isCreateView)
 
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal()
   const { showSpinner, hideSpinner } = usePrincipalLoading
@@ -37,15 +38,20 @@ const useInternalDevicesList = () => {
     fetchDevices,
     fetchDeviceById,
     activateDevice,
+    deleteDevice,
     fetchDeviceReviewsByDeviceId,
     deviceReviewsByDevice,
     loadingDevices,
     loadingDevice,
     loadingDeviceReviewsByDevice,
     creatingDeviceReview,
+    creatingDevice,
+    deletingDevice,
     activatingDevice,
     updatingDevice,
     error,
+    successCreateDevice,
+    successDeleteDevice,
     successActivateDevice,
     successUpdateDevice,
     successCreateDeviceReview,
@@ -57,15 +63,20 @@ const useInternalDevicesList = () => {
       fetchDevices: state.fetchDevices,
       fetchDeviceById: state.fetchDeviceById,
       activateDevice: state.activateDevice,
+      deleteDevice: state.deleteDevice,
       fetchDeviceReviewsByDeviceId: state.fetchDeviceReviewsByDeviceId,
       deviceReviewsByDevice: state.deviceReviewsByDevice,
       loadingDevices: state.loadingDevices,
       loadingDevice: state.loadingDevice,
       loadingDeviceReviewsByDevice: state.loadingDeviceReviewsByDevice,
       creatingDeviceReview: state.creatingDeviceReview,
+      creatingDevice: state.creatingDevice,
+      deletingDevice: state.deletingDevice,
       activatingDevice: state.activatingDevice,
       updatingDevice: state.updatingDevice,
       error: state.error,
+      successCreateDevice: state.successCreateDevice,
+      successDeleteDevice: state.successDeleteDevice,
       successActivateDevice: state.successActivateDevice,
       successUpdateDevice: state.successUpdateDevice,
       successCreateDeviceReview: state.successCreateDeviceReview,
@@ -97,6 +108,14 @@ const useInternalDevicesList = () => {
     }
     if (creatingDeviceReview) {
       showSpinner({ message: 'Guardando revision...' })
+      return
+    }
+    if (creatingDevice) {
+      showSpinner({ message: 'Guardando dispositivo...' })
+      return
+    }
+    if (deletingDevice) {
+      showSpinner({ message: 'Eliminando dispositivo...' })
       return
     }
     if (loadingDeviceReviewsByDevice) {
@@ -148,12 +167,43 @@ const useInternalDevicesList = () => {
       })
     }
 
+    if (successCreateDevice) {
+      showAlert({
+        type: 'info',
+        title: 'Dispositivo creado',
+        description: 'El dispositivo fue creado correctamente.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1200,
+      })
+    }
+
+    if (successDeleteDevice) {
+      showAlert({
+        type: 'info',
+        title: 'Dispositivo eliminado',
+        description: 'El dispositivo fue eliminado correctamente.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1200,
+      })
+    }
+
     hideSpinner()
-    if (error || successActivateDevice || successUpdateDevice || successCreateDeviceReview) {
+    if (
+      error ||
+      successActivateDevice ||
+      successUpdateDevice ||
+      successCreateDeviceReview ||
+      successCreateDevice ||
+      successDeleteDevice
+    ) {
       resetFlags()
     }
   }, [
+    creatingDevice,
     creatingDeviceReview,
+    deletingDevice,
     activatingDevice,
     error,
     hideSpinner,
@@ -164,7 +214,9 @@ const useInternalDevicesList = () => {
     showAlert,
     showSpinner,
     successActivateDevice,
+    successCreateDevice,
     successCreateDeviceReview,
+    successDeleteDevice,
     successUpdateDevice,
     updatingDevice,
   ])
@@ -200,11 +252,11 @@ const useInternalDevicesList = () => {
     updateQuery({ id: null, view: null })
   }, [updateQuery])
 
-  const handleToggleActive = useCallback(
+  const handleDeleteDevice = useCallback(
     async (deviceRow: InternalDevice) => {
-      await activateDevice(deviceRow.device_id)
+      await deleteDevice(deviceRow.device_id)
     },
-    [activateDevice],
+    [deleteDevice],
   )
 
   const handleRefresh = useCallback(() => {
@@ -223,10 +275,18 @@ const useInternalDevicesList = () => {
     updateQuery({ id: targetId, view: 'review' })
   }, [normalizedId, selectedDevice, updateQuery])
 
+  const handleCreateDevice = useCallback(() => {
+    updateQuery({ id: null, view: 'new' })
+  }, [updateQuery])
+
   const handleBackToDetails = useCallback(() => {
+    if (isCreateView) {
+      updateQuery({ id: null, view: null })
+      return
+    }
     if (!normalizedId) return
     updateQuery({ view: null })
-  }, [normalizedId, updateQuery])
+  }, [isCreateView, normalizedId, updateQuery])
 
   return {
     devices,
@@ -235,12 +295,14 @@ const useInternalDevicesList = () => {
     deviceReviewsByDevice,
     isEditView,
     isReviewView,
+    isCreateView,
     handleOpenDetails,
     handleCloseDetails,
-    handleToggleActive,
+    handleDeleteDevice,
     handleRefresh,
     handleEditInformation,
     handleCreateReview,
+    handleCreateDevice,
     handleBackToDetails,
   }
 }

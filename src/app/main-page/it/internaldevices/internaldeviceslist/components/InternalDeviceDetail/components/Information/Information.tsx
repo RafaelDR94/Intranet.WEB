@@ -51,12 +51,12 @@ const Information: React.FC<InternalDeviceInformationProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <span className="text-b2 text-blue-100">
+        <span className="text-label text-blue-60">
           Asignado a: {device.assigned ? 'Asignado' : 'Sin asignar'}
         </span>
         <Button
           size="small"
-          variant="solid"
+          variant="ghost"
           icon={EditIcon}
           className="gap-2"
           onClick={onEdit}

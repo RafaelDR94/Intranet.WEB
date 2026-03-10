@@ -6,6 +6,7 @@ import type {
   InternalDeviceAssignment,
   InternalDeviceAssignmentPost,
   InternalDeviceAssignmentPut,
+  InternalDeviceAssignmentHistory,
   InternalDeviceBrand,
   InternalDeviceBrandPost,
   InternalDeviceBrandPut,
@@ -37,6 +38,12 @@ const toNullableString = (value: unknown): string | null =>
 
 const toBoolean = (value: unknown, fallback = false): boolean =>
   value == null ? fallback : Boolean(value)
+
+const toNullableId = (value: unknown): string | null => {
+  if (value == null) return null
+  const str = String(value).trim()
+  return str ? str : null
+}
 
 const mapEnterpriseDepartment = (raw: unknown): Department => {
   const record = toRecord(raw)
@@ -142,6 +149,17 @@ export const InternalDeviceMap = (raw: unknown): InternalDevice => {
     description: toString(record.description),
     low_motive: toString(record.low_motive ?? record.lowMotive),
     assigned: toBoolean(record.assigned),
+    assigned_to: toNullableString(
+      record.assigned_to ??
+        record.assignedTo ??
+        record.assigned_employee ??
+        record.assignedEmployee ??
+        record.employee_name ??
+        record.employeeName ??
+        record.employeename ??
+        record.user_name ??
+        record.userName,
+    ),
     device_type: isRecord(typeRaw) ? InternalDeviceTypeMap(typeRaw) : null,
     device_brand: isRecord(brandRaw) ? InternalDeviceBrandMap(brandRaw) : null,
     device_status: isRecord(statusRaw)
@@ -182,6 +200,9 @@ export const InternalDevicePostMap = (
   const deviceBrandRaw = record.device_brand ?? record.deviceBrand
   const enterpriseRaw = record.enterprise
   const proyectRaw = record.device_proyect ?? record.deviceProyect
+  const resolvedProyectId =
+    record.proyect_id ?? record.proyectId ?? readNestedId(proyectRaw, 'id')
+  const normalizedProyectId = toNullableId(resolvedProyectId)
 
   return {
     name: toString(record.name),
@@ -220,8 +241,67 @@ export const InternalDevicePostMap = (
         readNestedId(enterpriseRaw, 'enterprise_id') ??
         readNestedId(enterpriseRaw, 'id'),
     ),
-    proyect_id: toString(
-      record.proyect_id ?? record.proyectId ?? readNestedId(proyectRaw, 'id'),
+    proyect_id: normalizedProyectId,
+  }
+}
+
+export const InternalDeviceViewPayloadMap = (
+  payload:
+    | Partial<InternalDevicePost>
+    | Partial<InternalDevicePut>
+    | Partial<InternalDevice>
+    | Record<string, unknown>,
+): Record<string, unknown> => {
+  const record = toRecord(payload)
+  const deviceTypeRaw = record.device_type ?? record.deviceType
+  const deviceBrandRaw = record.device_brand ?? record.deviceBrand
+  const deviceStatusRaw = record.device_status ?? record.deviceStatus
+  const enterpriseRaw = record.enterprise
+
+  return {
+    DeviceId: toString(record.device_id ?? record.id),
+    Name: toString(record.name),
+    Model: toString(record.model),
+    SerialNumber: toString(record.serial_number ?? record.serialNumber),
+    IpAddress: toString(record.ip_address ?? record.ipAddress),
+    MacAddress: toString(record.mac_address ?? record.macAddress),
+    MacWifiAddress: toString(
+      record.mac_wifi_address ?? record.macWifiAddress,
+    ),
+    OperatingSystem: toString(
+      record.operating_system ?? record.operatingSystem,
+    ),
+    ChargeSN: toString(record.charge_sn ?? record.chargeSn),
+    Description: toString(record.description),
+    LowMotive: toString(record.low_motive ?? record.lowMotive),
+    Assigned: toBoolean(record.assigned),
+    Reviewed: toBoolean(record.reviewed),
+    DeviceTypeId: toNullableId(
+      record.device_type_id ??
+        record.deviceTypeId ??
+        readNestedId(deviceTypeRaw, 'device_type_id') ??
+        readNestedId(deviceTypeRaw, 'id'),
+    ),
+    DeviceBrandId: toNullableId(
+      record.device_brand_id ??
+        record.deviceBrandId ??
+        readNestedId(deviceBrandRaw, 'device_brand_id') ??
+        readNestedId(deviceBrandRaw, 'id'),
+    ),
+    DeviceStatusId: toNullableId(
+      record.device_status_id ??
+        record.deviceStatusId ??
+        readNestedId(deviceStatusRaw, 'device_status_id') ??
+        readNestedId(deviceStatusRaw, 'id'),
+    ),
+    IsActive: toBoolean(record.is_active),
+    Assurance: toString(record.assurance),
+    IdEnterprise: toNullableId(
+      record.id_enterprise ??
+        record.enterprise_id ??
+        record.idEnterprise ??
+        readNestedId(enterpriseRaw, 'enterprise_id') ??
+        readNestedId(enterpriseRaw, 'id'),
     ),
   }
 }
@@ -238,6 +318,10 @@ export const InternalDevicePutMap = (
   const deviceStatusRaw = record.device_status ?? record.deviceStatus
   const enterpriseRaw = record.enterprise
   const proyectRaw = record.device_proyect ?? record.deviceProyect
+
+  const resolvedProyectId =
+    record.proyect_id ?? record.proyectId ?? readNestedId(proyectRaw, 'id')
+  const normalizedProyectId = toNullableId(resolvedProyectId)
 
   return {
     device_id: toString(record.device_id ?? record.id),
@@ -284,9 +368,7 @@ export const InternalDevicePutMap = (
         readNestedId(enterpriseRaw, 'enterprise_id') ??
         readNestedId(enterpriseRaw, 'id'),
     ),
-    proyect_id: toString(
-      record.proyect_id ?? record.proyectId ?? readNestedId(proyectRaw, 'id'),
-    ),
+    proyect_id: normalizedProyectId,
   }
 }
 
@@ -423,6 +505,15 @@ export const InternalDeviceAssignmentMap = (
     device_id: toString(record.device_id ?? record.deviceId),
     employee_id: toString(record.employee_id ?? record.employeeId),
     id_user: record.id_user ? toString(record.id_user) : undefined,
+    date: toNullableString(
+      record.date ??
+        record.created_at ??
+        record.createdAt ??
+        record.assigned_at ??
+        record.assignedAt,
+    ) ?? undefined,
+    created_at:
+      toNullableString(record.created_at ?? record.createdAt) ?? undefined,
   }
 }
 
@@ -430,6 +521,43 @@ export const InternalDeviceAssignmentsMap = (
   list: unknown[],
 ): InternalDeviceAssignment[] =>
   Array.isArray(list) ? list.map(InternalDeviceAssignmentMap) : []
+
+export const InternalDeviceAssignmentHistoryMap = (
+  raw: unknown,
+): InternalDeviceAssignmentHistory => {
+  const record = toRecord(raw)
+  return {
+    device_assigment_id: toString(record.device_assigment_id ?? record.id),
+    observations: toString(record.observations),
+    delivery_condition: toString(record.delivery_condition),
+    device_id: toString(record.device_id ?? record.deviceId),
+    employee_id: toString(record.employee_id ?? record.employeeId),
+    assigned_to: toNullableString(
+      record.assigned_to ??
+        record.assignedTo ??
+        record.employee_name ??
+        record.employeeName ??
+        record.employeename ??
+        record.user_name ??
+        record.userName ??
+        record.username,
+    ) ?? undefined,
+    date: toNullableString(
+      record.date ??
+        record.created_at ??
+        record.createdAt ??
+        record.assigned_at ??
+        record.assignedAt,
+    ) ?? undefined,
+    created_at:
+      toNullableString(record.created_at ?? record.createdAt) ?? undefined,
+  }
+}
+
+export const InternalDeviceAssignmentsHistoryMap = (
+  list: unknown[],
+): InternalDeviceAssignmentHistory[] =>
+  Array.isArray(list) ? list.map(InternalDeviceAssignmentHistoryMap) : []
 
 export const InternalDeviceAssignmentPostMap = (
   payload: Partial<InternalDeviceAssignmentPost> | Record<string, unknown>,

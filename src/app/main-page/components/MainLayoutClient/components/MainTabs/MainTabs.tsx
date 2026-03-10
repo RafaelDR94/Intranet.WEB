@@ -125,7 +125,15 @@ export const MainTabs: React.FC<MainTabsProps> = ({
       return "administration-createemployee";
     }
     if (pathname.includes("/main-page/administration/usersmanagment/employeesList")) {
+
       return "administration-employeeslist";
+    }
+    if (pathname.includes("/main-page/it/internaldevices/internaldeviceslist")) {
+      return "it-internaldevices-list";
+    }
+    if (pathname.includes("/main-page/it/internaldevices/internaldevicesasignation")) {
+      if (view === "new") return "it-internaldevices-asignation-create";
+      return "it-internaldevices-asignation-list";
     }
     return "main-page";
   }, [pathname, searchParams]);
