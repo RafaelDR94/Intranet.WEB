@@ -56,6 +56,9 @@ const useInitInvoicesForms = ({
   const lockRequisitionFields =
     urlView === "billablefiles" &&
     normalizedPath === "/main-page/accounting/personalInvoices/requisitions";
+  const lockEmployeeFields =
+    lockRequisitionFields ||
+    normalizedPath === "/main-page/request/ownrequisitions/uploadbillablefiles";
   const submitRef = useRef<() => void | Promise<void>>(null);
   const prefilledRequisitionIdRef = useRef<string | null>(null);
   const lastPrefillKeyRef = useRef<string | null>(null);
@@ -119,7 +122,7 @@ const useInitInvoicesForms = ({
         options: billingDocumentDescription.map(
           (r: BillingDocumentDescription) => ({
             label: r.name,
-            value: r.id_billingdescription,
+            value: String(r.id_billingdescription),
           }),
         ),
         onChange: (value) => {
@@ -132,7 +135,7 @@ const useInitInvoicesForms = ({
       updateField(formId, "category", {
         options: billingCategories.map((r: BillingDocumentCategory) => ({
           label: r.name,
-          value: r.id_billingcategory,
+          value: String(r.id_billingcategory),
         })),
         onChange: (value) => {
           updateField(formId, "category", { value });
@@ -152,20 +155,20 @@ const useInitInvoicesForms = ({
         const debtorName = field.find((f) => f.name === "personName");
         updateField(formId, "proyect", {
           value: proyect,
-          onlyText: lockRequisitionFields,
+          onlyText: lockEmployeeFields,
         });
         updateField(formId, "requisition", { value: value });
         if (debtorName) {
           updateField(formId, "personName", {
             value: employeeName,
-            onlyText: lockRequisitionFields,
+            onlyText: lockEmployeeFields,
           });
         }
         const debtorNameAlt = field.find((f) => f.name === "debtorName");
         if (debtorNameAlt) {
           updateField(formId, "debtorName", {
             value: employeeName,
-            onlyText: lockRequisitionFields,
+            onlyText: lockEmployeeFields,
           });
         }
       },
@@ -310,9 +313,9 @@ const useInitInvoicesForms = ({
       updateField(formId, "requisition", {
         value: requisitionId,
       });
-    if (billingCategories.length > 0)
+    if (billingCategories.length > 0 && categoryId)
       updateField(formId, "category", {
-        value: categoryId,
+        value: String(categoryId),
       });
     if (
       billingDocumentDescription.length > 0 &&
@@ -322,7 +325,7 @@ const useInitInvoicesForms = ({
         currentDescriptionValue === "")
     )
       updateField(formId, "description", {
-        value: descriptionId,
+        value: String(descriptionId),
       });
     syncFieldsWithCategory(categoryId ?? null);
     if (billingImages?.proyect)

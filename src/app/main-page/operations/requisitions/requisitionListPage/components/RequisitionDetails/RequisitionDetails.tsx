@@ -24,6 +24,7 @@ import { useAuthorizationsStore } from "@/app/stores/useAuthorizationsStore/useA
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingRequisitionImageUrlStore } from "@/app/stores/useBillingRequisitionImageUrlStore/useBillingRequisitionImageUrlStore";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
+import { useRequisitionsStore } from "@/app/stores/useRequisitionStore/useRequisitionStore";
 import { useTutorials } from "@/tutorials/engine/TutorialProvider";
 /**
  * Muestra el formulario de requisición junto con información adicional como
@@ -87,9 +88,17 @@ const RequisitionDetails: React.FC = () => {
     shallow,
   );
 
-  const { billingDocuments } = useBillingDocumentsStore(
+  const { billingDocuments, fetchBillingDocumentByIdRequisition } = useBillingDocumentsStore(
     (s) => ({
       billingDocuments: s.billingDocuments,
+      fetchBillingDocumentByIdRequisition: s.fetchBillingDocumentByIdRequisition,
+    }),
+    shallow,
+  );
+
+  const { fetchCurrentRequisition } = useRequisitionsStore(
+    (s) => ({
+      fetchCurrentRequisition: s.fetchCurrentRequisition,
     }),
     shallow,
   );
@@ -202,6 +211,24 @@ const RequisitionDetails: React.FC = () => {
     setAuthorizerError(null);
   }, []);
 
+  const refreshAuthorizationState = useCallback(async () => {
+    const requisitionId = currentRequisition?.billingrequisition_id;
+    if (!requisitionId) return;
+
+    await Promise.all([
+      fetchCurrentRequisition(requisitionId, true),
+      fetchBillingDocumentByIdRequisition(requisitionId, true),
+      getRequisitionAuthorizationsHistory(requisitionId, true),
+      getAuthorizations(true),
+    ]);
+  }, [
+    currentRequisition?.billingrequisition_id,
+    fetchBillingDocumentByIdRequisition,
+    fetchCurrentRequisition,
+    getAuthorizations,
+    getRequisitionAuthorizationsHistory,
+  ]);
+
   const handleConfirmAuthorizer = useCallback(async () => {
     if (!currentRequisition?.billingrequisition_id) {
       setAuthorizerPopUpOpen(false);
@@ -249,7 +276,7 @@ const RequisitionDetails: React.FC = () => {
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
-      getAuthorizations(true);
+      await refreshAuthorizationState();
       setAuthorizerPopUpOpen(false);
     } catch (error) {
       showAlert({
@@ -277,7 +304,7 @@ const RequisitionDetails: React.FC = () => {
     showSpinner,
     user?.idDepartment,
     user?.idEnterprise,
-    getAuthorizations,
+    refreshAuthorizationState,
   ]);
 
   const handleViewEvidence = async () => {
@@ -294,7 +321,7 @@ const RequisitionDetails: React.FC = () => {
           type: "info",
           variant: "filled",
           title: "Sin evidencia",
-          description: "No se encontrÃ³ evidencia para esta requisiciÃ³n.",
+          description: "No se encontró³ evidencia para esta requisición.",
           showPrimaryButton: true,
           primaryLabel: "Entendido",
           onPrimaryClick: hideAlert,
@@ -352,7 +379,7 @@ const RequisitionDetails: React.FC = () => {
         type: "error",
         variant: "filled",
         title: "No se pudo subir la evidencia",
-        description: String(error) || "OcurriÃ³ un error al subir la imagen.",
+        description: String(error) || "Ocurrió³ un error al subir la imagen.",
         showPrimaryButton: true,
         primaryLabel: "Entendido",
         onPrimaryClick: hideAlert,
@@ -391,7 +418,7 @@ const RequisitionDetails: React.FC = () => {
         type: "success",
         variant: "filled",
         title: "Evidencia guardada",
-        description: "La evidencia se guardÃ³ correctamente.",
+        description: "La evidencia se guardó³ correctamente.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,

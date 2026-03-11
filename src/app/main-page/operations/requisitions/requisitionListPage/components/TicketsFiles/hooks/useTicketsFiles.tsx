@@ -1,28 +1,41 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { shallow } from "zustand/shallow";
 
 import { Button } from "@/app/components/Button/Button";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
+import type { FieldModel } from "@/app/components/DynamicForm/types";
 import Label from "@/app/components/Label/Label";
 import { LabelType } from "@/app/components/Label/types";
-import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
-import DownloadIcon from "@/assets/icons/acciones/download.svg";
-import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
-
-import { useRequisitionDocuments } from "../../hooks/useRequisitionDocuments";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import type { BillingImages } from "@/app/mappings/billingimages/billingimages.types";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 import { useBillingRequisitionWithEmployeesStore } from "@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore";
-import type { BillingImages } from "@/app/mappings/billingimages/billingimages.types";
-import { shallow } from "zustand/shallow";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { useTutorials } from "@/tutorials/engine/TutorialProvider";
+import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
+import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
+import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
-import { TicketRow } from "../types";
 
+import { useRequisitionDocuments } from "../../hooks/useRequisitionDocuments";
+import { TicketRow } from "../types";
 
 type TicketOverride = {
   status?: string;
   comments?: string;
+};
+
+type ValidationFormValues = {
+  requisition_id: string;
+  numpersons: number;
+  total: number;
+};
+
+const DEFAULT_VALIDATION_VALUES: ValidationFormValues = {
+  requisition_id: "",
+  numpersons: 0,
+  total: 0,
 };
 
 const normalizeImages = (
@@ -31,7 +44,7 @@ const normalizeImages = (
   if (Array.isArray(images)) {
     return images
       .map((item) => (typeof item === "string" ? item : item?.image ?? ""))
-      .filter((item) => Boolean(item));
+      .filter((item) => !!item);
   }
   return [];
 };
@@ -40,29 +53,27 @@ const mapTickets = (
   images: BillingImages[],
   overrides?: Record<string, TicketOverride>,
 ): TicketRow[] =>
-  images
-    .map((item) => {
-      const id = item.billing_image_id || item.images?.[0]?.image || "";
-      const baseRow = {
-        id,
-        date: item.dateCreate,
-        category: item.category?.name ?? "",
-        detail: item.description?.name ?? "",
-        status: item.status ?? "",
-        comments: item.comments ?? "",
-        userComments: item.user_comments ?? "",
-        imageUrls: normalizeImages(item.images),
-        source: item,
-      };
-      const override = overrides?.[id];
-      if (!override) return baseRow;
-      return {
-        ...baseRow,
-        status: override.status ?? baseRow.status,
-        comments: override.comments ?? baseRow.comments,
-      };
-    })
-  
+  images.map((item) => {
+    const id = item.billing_image_id || item.images?.[0]?.image || "";
+    const baseRow = {
+      id,
+      date: item.dateCreate,
+      category: item.category?.name ?? "",
+      detail: item.description?.name ?? "",
+      status: item.status ?? "",
+      comments: item.comments ?? "",
+      userComments: item.user_comments ?? "",
+      imageUrls: normalizeImages(item.images),
+      source: item,
+    };
+    const override = overrides?.[id];
+    if (!override) return baseRow;
+    return {
+      ...baseRow,
+      status: override.status ?? baseRow.status,
+      comments: override.comments ?? baseRow.comments,
+    };
+  });
 
 const statusToType = (status?: string): LabelType => {
   const normalized = (status ?? "").toLowerCase();
@@ -75,6 +86,9 @@ const statusToType = (status?: string): LabelType => {
   return "pendiente";
 };
 
+const isPendingStatus = (status?: string): boolean =>
+  (status ?? "").trim().toLowerCase().includes("pend");
+
 const useTicketsFiles = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
@@ -86,7 +100,7 @@ const useTicketsFiles = () => {
     activeTutorialId === "operations-requisitions:billablefiles";
   const searchParams = useSearchParams();
   const isBillableFilesView = searchParams.get("view") === "billablefiles";
-  const {  employeeId } = useRequisitionDocuments();
+  const { employeeId, requisitions } = useRequisitionDocuments();
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [previewIndex, setPreviewIndex] = useState<number>(0);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -98,25 +112,51 @@ const useTicketsFiles = () => {
     state: boolean;
     row: TicketRow | null;
   }>({ state: false, row: null });
-  const { pendingBillingImages, fetchBillingImagesPendingByEmployee } =
+  const [openValidateTicket, setOpenValidateTicket] = useState(false);
+  const [markAsNotDeductible, setMarkAsNotDeductible] = useState(false);
+  const [showValidationForm, setShowValidationForm] = useState(false);
+  const [validationValues, setValidationValues] = useState<ValidationFormValues>(
+    DEFAULT_VALIDATION_VALUES,
+  );
+  const [validationFormVersion, setValidationFormVersion] = useState(0);
+  const [lastValidatedTicketId, setLastValidatedTicketId] = useState<
+    string | null
+  >(null);
+  const [filterValue, setFilterValue] = useState<string>("all");
+
+  const {
+    pendingBillingImages,
+    fetchBillingImagesPendingByEmployee,
+    fetchBillingDocumentsPendingByEmployee,
+  } =
     useBillingRequisitionWithEmployeesStore(
       (state) => ({
         pendingBillingImages: state.pendingBillingImages,
-        fetchBillingImagesPendingByEmployee: state.fetchBillingImagesPendingByEmployee,
+        fetchBillingImagesPendingByEmployee:
+          state.fetchBillingImagesPendingByEmployee,
+        fetchBillingDocumentsPendingByEmployee:
+          state.fetchBillingDocumentsPendingByEmployee,
       }),
       shallow,
     );
-  const { rejectBillingImage, rejecting, succesReject, error, resetFlags } =
-    useBillingImagesStore(
-      (state) => ({
-        rejectBillingImage: state.rejectBillingImage,
-        rejecting: state.rejecting,
-        succesReject: state.succesReject,
-        error: state.error,
-        resetFlags: state.resetFlags,
-      }),
-      shallow,
-    );
+
+  const {
+    rejectBillingImage,
+    rejecting,
+    succesReject,
+    error: billingImagesError,
+    resetFlags: resetBillingImagesFlags,
+  } = useBillingImagesStore(
+    (state) => ({
+      rejectBillingImage: state.rejectBillingImage,
+      rejecting: state.rejecting,
+      succesReject: state.succesReject,
+      error: state.error,
+      resetFlags: state.resetFlags,
+    }),
+    shallow,
+  );
+
   const { billingImages, fetchBillingImages } = useBillingImagesStore(
     (state) => ({
       billingImages: state.billingImages,
@@ -124,22 +164,43 @@ const useTicketsFiles = () => {
     }),
     shallow,
   );
-  const [filterValue, setFilterValue] = useState<string>("all");
+
+  const {
+    billingDocumentNotDeductible,
+    notDeducting,
+    successNotDeductible,
+    error: billingDocumentsError,
+    resetFlags: resetBillingDocumentsFlags,
+  } = useBillingDocumentsStore(
+    (state) => ({
+      billingDocumentNotDeductible: state.billingDocumentNotDeductible,
+      notDeducting: state.notDeducting,
+      successNotDeductible: state.successNotDeductible,
+      error: state.error,
+      resetFlags: state.resetFlags,
+    }),
+    shallow,
+  );
+
+  const resetValidationForm = useCallback(() => {
+    setValidationValues(DEFAULT_VALIDATION_VALUES);
+    setValidationFormVersion((current) => current + 1);
+  }, []);
 
   useEffect(() => {
     if (isTutorialActive) return;
+    if (!employeeId) return;
     if (isBillableFilesView) {
-      if (!employeeId) return;
       fetchBillingImages(employeeId, true);
       return;
     }
-    if (!employeeId) return;
     fetchBillingImagesPendingByEmployee(employeeId, true);
   }, [
     employeeId,
     fetchBillingImages,
     fetchBillingImagesPendingByEmployee,
     isBillableFilesView,
+    isTutorialActive,
   ]);
 
   useEffect(() => {
@@ -168,20 +229,95 @@ const useTicketsFiles = () => {
       }
     }
 
-    if (error) {
+    if (billingImagesError) {
       showAlert({
         type: "error",
         title: "Ocurrio un error",
-        description: String(error) || "Hubo un problema desconocido",
+        description:
+          String(billingImagesError) || "Hubo un problema desconocido",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
     }
 
-    resetFlags();
+    resetBillingImagesFlags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error, rejecting]);
+  }, [billingImagesError, rejecting, succesReject]);
+
+  useEffect(() => {
+    if (notDeducting) {
+      showSpinner({
+        message:
+          "Espera un momento, se esta registrando el ticket como no deducible.",
+      });
+      return;
+    }
+
+    hideSpinner();
+
+    if (successNotDeductible && lastValidatedTicketId) {
+      setStatusOverrides((prev) => ({
+        ...prev,
+        [lastValidatedTicketId]: {
+          ...prev[lastValidatedTicketId],
+          status: "Validado",
+        },
+      }));
+      setDetailRow((prev) =>
+        prev && prev.id === lastValidatedTicketId
+          ? { ...prev, status: "Validado" }
+          : prev,
+      );
+      setLastValidatedTicketId(null);
+      setMarkAsNotDeductible(false);
+      setShowValidationForm(false);
+      setOpenValidateTicket(false);
+      resetValidationForm();
+
+      if (employeeId) {
+        if (isBillableFilesView) {
+          fetchBillingImages(employeeId, true);
+        } else {
+          fetchBillingImagesPendingByEmployee(employeeId, true);
+        }
+        fetchBillingDocumentsPendingByEmployee(employeeId, true);
+      }
+
+      showAlert({
+        type: "info",
+        title: "Ticket validado",
+        description: "Se ha marcado correctamente como no deducible.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+    }
+
+    if (billingDocumentsError) {
+      showAlert({
+        type: "error",
+        title: "Ocurrio un error",
+        description:
+          String(billingDocumentsError) || "Hubo un problema desconocido",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      });
+    }
+
+    resetBillingDocumentsFlags();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    billingDocumentsError,
+    fetchBillingDocumentsPendingByEmployee,
+    fetchBillingImages,
+    fetchBillingImagesPendingByEmployee,
+    employeeId,
+    isBillableFilesView,
+    notDeducting,
+    successNotDeductible,
+  ]);
 
   const mockRows = useMemo<TicketRow[]>(() => {
     const demoImage =
@@ -224,10 +360,17 @@ const useTicketsFiles = () => {
 
   const rows = useMemo(() => {
     const sourceImages = isBillableFilesView ? billingImages : pendingBillingImages;
-    const newRows = mapTickets(sourceImages);
+    const newRows = mapTickets(sourceImages, statusOverrides);
     if (isTutorialActive) return mockRows;
     return newRows;
-  }, [pendingBillingImages, billingImages, isBillableFilesView, statusOverrides]);
+  }, [
+    billingImages,
+    isBillableFilesView,
+    isTutorialActive,
+    mockRows,
+    pendingBillingImages,
+    statusOverrides,
+  ]);
 
   useEffect(() => {
     if (!detailRow) return;
@@ -245,6 +388,59 @@ const useTicketsFiles = () => {
       { label: "Validado", value: "validado" },
     ],
     [],
+  );
+
+  const requisitionOptions = useMemo(() => {
+    const map = new Map<string, { label: string; value: string }>();
+
+    requisitions.forEach((item) => {
+      if (!item.billingrequisition_id) return;
+      map.set(item.billingrequisition_id, {
+        label: `${item.requisitionkey} - ${item.projectname}`.trim(),
+        value: item.billingrequisition_id,
+      });
+    });
+
+    const currentRequisition = detailRow?.source?.requisition;
+    if (currentRequisition?.billingrequisition_id) {
+      map.set(currentRequisition.billingrequisition_id, {
+        label: `${currentRequisition.requisitionkey} - ${currentRequisition.projectname}`.trim(),
+        value: currentRequisition.billingrequisition_id,
+      });
+    }
+
+    return Array.from(map.values());
+  }, [detailRow?.source?.requisition, requisitions]);
+
+  const validationFields = useMemo<FieldModel[]>(
+    () => [
+      {
+        type: "select",
+        name: "requisition_id",
+        label: "Codigo de Solicitud",
+        placeholder: "Selecciona una requisicion",
+        value: DEFAULT_VALIDATION_VALUES.requisition_id,
+        options: requisitionOptions,
+        validations: [{ type: "required" }],
+        className: "max-w-[420px]",
+      },
+      {
+        type: "numberControl",
+        name: "numpersons",
+        label: "No. de Personas",
+        value: DEFAULT_VALIDATION_VALUES.numpersons,
+        min: 0,
+        className: "max-w-[220px]",
+      },
+      {
+        type: "input",
+        name: "total",
+        label: "Total",
+        value: String(DEFAULT_VALIDATION_VALUES.total),
+        className: "max-w-[220px]",
+      },
+    ],
+    [requisitionOptions],
   );
 
   const resolveFilterStatus = useCallback((status?: string) => {
@@ -297,14 +493,25 @@ const useTicketsFiles = () => {
     });
   }, [previewImages]);
 
-  const openDetails = useCallback((row: TicketRow) => {
-    setDetailRow(row);
-    setDetailOpen(true);
-  }, []);
+  const openDetails = useCallback(
+    (row: TicketRow) => {
+      setDetailRow(row);
+      setDetailOpen(true);
+      setMarkAsNotDeductible(false);
+      setShowValidationForm(false);
+      setOpenValidateTicket(false);
+      resetValidationForm();
+    },
+    [resetValidationForm],
+  );
 
   const closeDetails = useCallback(() => {
     setDetailOpen(false);
-  }, []);
+    setMarkAsNotDeductible(false);
+    setShowValidationForm(false);
+    setOpenValidateTicket(false);
+    resetValidationForm();
+  }, [resetValidationForm]);
 
   const openReject = useCallback(() => {
     if (!detailRow) return;
@@ -344,9 +551,61 @@ const useTicketsFiles = () => {
     [openRejectTicket.row, rejectBillingImage],
   );
 
+  const handleToggleNotDeductible = useCallback(
+    (checked: boolean) => {
+      setMarkAsNotDeductible(checked);
+      setShowValidationForm(checked);
+      setOpenValidateTicket(false);
+      resetValidationForm();
+    },
+    [resetValidationForm],
+  );
+
+  const handleValidateClick = useCallback(() => {
+    if (!detailRow || !markAsNotDeductible || !isPendingStatus(detailRow.status)) {
+      return;
+    }
+    if (!validationValues.requisition_id) return;
+    setOpenValidateTicket(true);
+  }, [
+    detailRow,
+    markAsNotDeductible,
+    validationValues.requisition_id,
+  ]);
+
+  const handleConfirmValidate = useCallback(() => {
+    if (!detailRow || !validationValues.requisition_id) return;
+
+    setOpenValidateTicket(false);
+    setLastValidatedTicketId(detailRow.id);
+    billingDocumentNotDeductible({
+      requisition_id: validationValues.requisition_id,
+      billingimages_id: detailRow.source.billing_image_id ?? detailRow.id,
+      numpersons: Number(validationValues.numpersons ?? 0),
+      total: Number(validationValues.total ?? 0),
+    });
+  }, [billingDocumentNotDeductible, detailRow, validationValues]);
+
+  const isValidateLocked = useMemo(() => {
+    if (!detailRow) return true;
+    if (!isPendingStatus(detailRow.status)) return true;
+    if (!markAsNotDeductible) return true;
+    if (notDeducting) return true;
+    return !validationValues.requisition_id;
+  }, [
+    detailRow,
+    markAsNotDeductible,
+    notDeducting,
+    validationValues.requisition_id,
+  ]);
+
+  const isToggleLocked = useMemo(
+    () => !detailRow || !isPendingStatus(detailRow.status) || notDeducting,
+    [detailRow, notDeducting],
+  );
+
   const desktopColumns: ColumnDefinition<TicketRow>[] = useMemo(
     () => [
-      // { key: "id", label: "Id", cellClass: "w-1/15 text-left", headerClass: "w-1/15 text-left" },
       {
         key: "attachments",
         label: "Archivos",
@@ -377,15 +636,25 @@ const useTicketsFiles = () => {
           </div>
         ),
       },
-      { key: "date", label: "Fecha", cellClass: "w-2/15 text-left", headerClass: "w-2/15 text-left" },
-      { key: "category", label: "Categoría", cellClass: "w-4/15 text-left", headerClass: "w-4/15 text-left" },
+      {
+        key: "date",
+        label: "Fecha",
+        cellClass: "w-2/15 text-left",
+        headerClass: "w-2/15 text-left",
+      },
+      {
+        key: "category",
+        label: "Categoría",
+        cellClass: "w-4/15 text-left",
+        headerClass: "w-4/15 text-left",
+      },
       {
         key: "status",
         label: "Estatus",
         cellClass: "w-3/15 text-right",
         headerClass: "w-3/15 text-right",
         render: (row) => (
-          <Label type={statusToType(row.status)} text={row.status || ""} />
+          <Label type={statusToType(row.status)} text={row.status?.toUpperCase() ?? ""} />
         ),
       },
       {
@@ -514,11 +783,24 @@ const useTicketsFiles = () => {
     closeDetails,
     openPreview,
     openReject,
+    openValidateTicket,
+    setOpenValidateTicket,
     openRejectTicket,
     setOpenRejectTicket,
     handleSubmitReject,
+    handleValidateClick,
+    handleConfirmValidate,
+    validationFields,
+    validationFormVersion,
+    validationValues,
+    setValidationValues,
+    showValidationForm,
+    markAsNotDeductible,
+    handleToggleNotDeductible,
+    isValidateLocked,
+    isToggleLocked,
     rejecting,
-
+    notDeducting,
   };
 };
 

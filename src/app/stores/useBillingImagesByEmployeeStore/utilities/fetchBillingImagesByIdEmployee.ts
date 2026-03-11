@@ -11,11 +11,11 @@ import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 
 /**
- * Obtiene las imÃ¡genes de facturaciÃ³n por empleado.
+ * Obtiene las imó¡genes de facturación por empleado.
  *
  * @param idEmployee Identificador del empleado
- * @param set FunciÃ³n `set` de Zustand
- * @param get FunciÃ³n `get` de Zustand
+ * @param set Función `set` de Zustand
+ * @param get Función `get` de Zustand
  * @param force Forza la recarga ignorando cache
  */
 export const fetchBillingImagesByIdEmployee = async (

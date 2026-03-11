@@ -6,6 +6,7 @@ export default function PettyCash() {
       routes={[
         '/main-page/request/ownrequisitions/requisitions',
         '/main-page/request/ownrequisitions/billablefiles',
+        '/main-page/request/ownrequisitions/uploadbillablefiles'
       ]}
     />
   );

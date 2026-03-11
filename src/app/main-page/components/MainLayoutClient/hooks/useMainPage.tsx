@@ -36,13 +36,12 @@ export const sidebarRoutes = [
     ],
   },
   {
-    label: 'Solicitudes',
+    label: 'Portal de Servicios',
     path: '/main-page/request',
     icon: FileIcon,
     subroutes: [
       { label: 'Caja Chica', path: '/main-page/request/pettycash' },
       { label: 'Documentos', path: '/main-page/request/documents' },
-      { label: 'Facturacion', path: '/main-page/request/invoices' },
       { label: 'Accesos', path: '/main-page/request/acces' },
       { label: 'Requisiciones', path: '/main-page/request/ownrequisitions' }
     ],
@@ -54,7 +53,6 @@ export const sidebarRoutes = [
     subroutes: [
       { label: 'Facturacion', path: '/main-page/accounting/invoices' },
       // { label: 'Requisiciones', path: '/main-page/accounting/personalInvoices' },
-      { label: 'Archivos Facturables', path: '/main-page/accounting/billablefiles' },
       { label: 'SAP', path: '/main-page/accounting/sap' },
     ],
   },

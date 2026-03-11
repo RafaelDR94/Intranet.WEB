@@ -1,6 +1,17 @@
 // utils/getTabsFromPath.ts
 export type Tab = { label: string; path: string };
 
+const withOptionalNonDeductibleFlag = (
+  path: string,
+  hasNonDeductible: boolean,
+): string => {
+  if (!hasNonDeductible) return path;
+  const [base, query = ""] = path.split("?");
+  const params = new URLSearchParams(query);
+  params.set("hasNonDeductible", "1");
+  return `${base}?${params.toString()}`;
+};
+
 export const getTabsFromPath = (
   pathname: string,
   search?: string | URLSearchParams,
@@ -72,6 +83,10 @@ export const getTabsFromPath = (
         label: "Archivos Facturables",
         path: "/main-page/request/ownrequisitions/billablefiles",
       },
+            {
+        label: "Subir Archivos Facturables",
+        path: "/main-page/request/ownrequisitions/uploadbillablefiles",
+      },
     ],
     "it/internaldevices": [
       {
@@ -89,20 +104,6 @@ export const getTabsFromPath = (
         path: "/main-page/accounting/invoices/validateinvoices",
       },
       { label: "SAT", path: "/main-page/accounting/invoices/sat" },
-    ],
-    "accounting/personalInvoices": [
-      // {
-      //   label: "Facturas",
-      //   path: "/main-page/accounting/personalInvoices/invoices",
-      // },
-      // {
-      //   label: "Historial",
-      //   path: "/main-page/accounting/personalInvoices/history",
-      // },
-      // {
-      //   label: "Requisiciones",
-      //   path: "/main-page/accounting/personalInvoices/requisitions",
-      // },
     ],
     "operations/requisitions": [
       {
@@ -133,12 +134,6 @@ export const getTabsFromPath = (
       {
         label: "Operaciones",
         path: "/main-page/accounting/sap/operations",
-      },
-    ],
-    "accounting/billablefiles": [
-      {
-        label: "Carga de Archivos Facturables",
-        path: "/main-page/accounting/billablefiles/billablefiles",
       },
     ],
     'sip/proyects': [
@@ -190,6 +185,7 @@ export const getTabsFromPath = (
   let authorizationId: string | null = null;
   let authorizationEventId: string | null = null;
   let authorizationKind: string | null = null;
+  let hasNonDeductible = false;
   if (search) {
     const sp = typeof search === 'string' ? new URLSearchParams(search) : search;
     id = sp.get('id');
@@ -202,6 +198,39 @@ export const getTabsFromPath = (
     authorizationId = sp.get('authorization_id');
     authorizationEventId = sp.get('event_id');
     authorizationKind = sp.get('kind');
+    hasNonDeductible = sp.get('hasNonDeductible') === '1';
+  }
+
+  if (first === "accounting" && second === "invoices") {
+    const invoiceTabs = [
+      {
+        label: "Validación de Facturas",
+        path: withOptionalNonDeductibleFlag(
+          "/main-page/accounting/invoices/validateinvoices",
+          hasNonDeductible,
+        ),
+      },
+      ...(hasNonDeductible || third === "nondeductibles"
+        ? [
+            {
+              label: "No deducibles",
+              path: withOptionalNonDeductibleFlag(
+                "/main-page/accounting/invoices/nondeductibles",
+                true,
+              ),
+            },
+          ]
+        : []),
+      {
+        label: "SAT",
+        path: withOptionalNonDeductibleFlag(
+          "/main-page/accounting/invoices/sat",
+          hasNonDeductible,
+        ),
+      },
+    ];
+
+    tabs = invoiceTabs;
   }
 
   const internalDevicesListPath = '/main-page/it/internaldevices/internaldeviceslist';

@@ -461,9 +461,9 @@ export const useControlTable = () => {
       showAlert({
         type: 'error',
         variant: 'filled',
-        title: 'InformaciÃ³n incompleta',
+        title: 'Información incompleta',
         description:
-          'No se encontrÃ³ el colaborador asociado para solicitar la autorización.',
+          'No se encontró³ el colaborador asociado para solicitar la autorización.',
         showPrimaryButton: true,
         primaryLabel: 'Entendido',
         onPrimaryClick: hideAlert,
@@ -491,9 +491,9 @@ export const useControlTable = () => {
       showAlert({
         type: 'error',
         variant: 'filled',
-        title: 'InformaciÃ³n incompleta',
+        title: 'Información incompleta',
         description:
-          'No se encontrÃ³ la informaciÃ³n necesaria para solicitar la autorización.',
+          'No se encontró³ la información necesaria para solicitar la autorización.',
         showPrimaryButton: true,
         primaryLabel: 'Entendido',
         onPrimaryClick: hideAlert,
@@ -566,7 +566,7 @@ export const useControlTable = () => {
         type: 'error',
         variant: 'filled',
         title: 'No se pudo enviar la solicitud',
-        description: String(error) || 'OcurriÃ³ un error al crear la autorización.',
+        description: String(error) || 'Ocurrió³ un error al crear la autorización.',
         showPrimaryButton: true,
         primaryLabel: 'Entendido',
         onPrimaryClick: hideAlert,

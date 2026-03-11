@@ -11,7 +11,7 @@ export const calendarStyles = {
   wrapper: "w-[140px]",
   inputWrapper: "flex items-center mt-3",
   inputLabel: "text-gray-70 text-label w-[40px] mr-2",
-  input: "border rounded px-2 py-1 w-[90px] bg-gray-10 border-none",
+  input: "border rounded px-2 py-1 w-[90px] bg-gray-10 border-none text-black-80 text-label ",
   buttonWrapper: "flex justify-center",
   button: "bg-green-80 text-white rounded px-4 py-1 mt-2 w-full",
   modalOverlay: "fixed inset-0 bg-[#002A4133] bg-opacity-50 z-40 flex items-center justify-center",

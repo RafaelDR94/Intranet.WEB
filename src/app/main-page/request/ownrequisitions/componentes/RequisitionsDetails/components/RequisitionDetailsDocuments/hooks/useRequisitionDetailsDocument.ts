@@ -373,7 +373,7 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
     showAlert({
       type: "warning",
       title: "Imagen no disponible",
-      description: "No se encontrÃ³ una imagen para este registro.",
+      description: "No se encontró³ una imagen para este registro.",
       showPrimaryButton: false,
       showSecondaryButton: false,
       autoCloseMs: 1500,

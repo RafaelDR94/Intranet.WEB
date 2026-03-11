@@ -1,28 +1,33 @@
-import { BillingDocuments ,BillingDocumentsSatTable} from "@/app/mappings/billingdocuments/billingdocuments.types";
+import { BillingDocuments, BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
+import { BillingImages } from "@/app/mappings/billingimages/billingimages.types";
+
+export type DetailsPanelSelected =
+  | BillingDocuments
+  | BillingDocumentsSatTable
+  | BillingImages
+  | null;
 
 /**
  * Props para el componente {@link DetailsPanel}.
  */
 export interface DetailsPanelProps {
-  /** Indica si el panel está abierto. */
   panelOpen: boolean;
-  /** Controla el estado abierto/cerrado del panel. */
   setPanelOpen: (open: boolean) => void;
-  /** Documento de factura seleccionado. */
-  selected: BillingDocuments |BillingDocumentsSatTable | null;
-  /** Modo solo texto. */
-  onlyText?:boolean
-  /** Indica si la factura es válida. */
-  validInvoice?:boolean
-  /** Indica si la factura está rechazada. */
-  rejectInvoice?:boolean
-  /** Indica si se enviará la factura a SAP. */
-  sendInvoiceToSap?:boolean
-  /** true: rechazado false: restringido  */
-  rejectType?:boolean
-  /** Indica si se usa en operaciones. */
-  operations?:boolean
-  /** Identificador de requisición asociado. */
-  reqisition?:string
-  onSendToSap?: any
+  selected: DetailsPanelSelected;
+  onlyText?: boolean;
+  validInvoice?: boolean;
+  rejectInvoice?: boolean;
+  sendInvoiceToSap?: boolean;
+  rejectType?: boolean;
+  operations?: boolean;
+  reqisition?: string;
+  onSendToSap?: any;
+}
+
+export interface DocumentsPanelProps extends DetailsPanelProps {
+  selected: BillingDocuments | BillingDocumentsSatTable | null;
+}
+
+export interface ImagesPanelProps extends DetailsPanelProps {
+  selected: BillingImages;
 }

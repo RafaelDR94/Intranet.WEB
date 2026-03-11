@@ -18,7 +18,7 @@ function useCardsGrid<T>({ rowsPerPage, adapt, data }: CardsGridProps<T>) {
         return typeof k === 'function' ? String(k(row) ?? fallback) : String((row as any)[k] ?? fallback)
     }
 
-    const { current, width } = useMediaBreakpoints() // tÃ­picamente: 'sm' | 'md' | 'lg'
+    const { current, width } = useMediaBreakpoints() // tó­picamente: 'sm' | 'md' | 'lg'
 
     const [viewportHeight, setViewportHeight] = useState<number>(typeof window !== "undefined" ? window.innerHeight : 1080);
     useEffect(() => {
@@ -45,7 +45,7 @@ function useCardsGrid<T>({ rowsPerPage, adapt, data }: CardsGridProps<T>) {
     const rowsThatFit = Math.max(1, Math.floor(usableHeight / CARD_HEIGHT));
 
 
-    // como mÃ¡ximo 2 filas => pageSize = cols * 2; respeta un valor menor si lo envÃ­an
+    // como mó¡ximo 2 filas => pageSize = cols * 2; respeta un valor menor si lo envó­an
     const desired = cols * rowsThatFit;
     const requested = adapt.cardsPerPage ?? rowsPerPage ?? desired
     const pageSize = Math.max(1, Math.min(desired, requested)) // nunca excede 2 filas, nunca < 1

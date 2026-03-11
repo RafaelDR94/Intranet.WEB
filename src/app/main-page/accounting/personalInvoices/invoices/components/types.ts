@@ -20,6 +20,8 @@ export interface InvoicesFormProps {
   disabled?: boolean;
   /** Avoid preloading the ticket image when editing. */
   suppressInitialTicketImage?: boolean;
+  /** Optional callback for DynamicForm validity changes. */
+  onValidChange?: (isValid: boolean) => void;
   /** Optional requisition id to refresh requisition documents after updates. */
   refreshRequisitionId?: string;
 }

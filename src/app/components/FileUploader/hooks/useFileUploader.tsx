@@ -15,7 +15,8 @@ export const useFileUploader = (
   onFile: (file: File) => void,
   accept: string = '',
   disabled = false,
-  initialFile?: InitialFile
+  initialFile?: InitialFile,
+  value?: File | null
 ) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -29,6 +30,16 @@ export const useFileUploader = (
   useEffect(() => {
     setFileName(initialFile?.name ?? null);
   }, [initialFile?.name]);
+
+  useEffect(() => {
+    if (value instanceof File) {
+      setFileName(value.name);
+      return;
+    }
+    if (value == null) {
+      setFileName(initialFile?.name ?? null);
+    }
+  }, [value, initialFile?.name]);
 
   useEffect(() => {
     const loadInitial = async () => {

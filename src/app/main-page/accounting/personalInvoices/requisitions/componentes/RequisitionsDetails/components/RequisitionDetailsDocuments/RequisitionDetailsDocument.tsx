@@ -263,7 +263,7 @@ const RequisitionDetailsDocument: React.FC = () => {
             data: rows,
             columns: isMobile ? filteredMobileColumns : filteredColumns,
             enableSelection: false,
-            title: "Reporte de gastos",
+            title: "Reporte de gastss",
             enableCollaps: true,
             defaultSortKey: "fecha",
             defaultSortDirection: "desc",

@@ -76,6 +76,7 @@ const RequisitionListPage: React.FC = () => {
           onCloseImage={() => setSelectedTicket(null)}
         />
         <TicketsFiles
+          eneableSelection={true}
           onSelectedTicketChange={setSelectedTicket}
           selectedTicketId={selectedTicket?.billing_image_id ?? null}
         />

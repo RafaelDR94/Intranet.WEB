@@ -97,9 +97,9 @@ const RequisitionsAuthorization = () => {
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4" data-tour="authorizations-requisition-header">
         <div className="flex min-w-[240px] flex-1 items-center gap-3">
-          <p className="text-b3 text-blue-80">
+          <p className="text-b3 text-blue-60">
             Reporte de gastos{' '}
-            <span className="font-semibold text-blue-100">
+            <span className="font-semibold text-blue-60">
               {requisition?.requisitionkey ?? '—'}
             </span>
           </p>

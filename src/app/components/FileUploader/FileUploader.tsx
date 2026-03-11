@@ -69,6 +69,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   accept,
   label,
   placeholder,
+  value,
   onFile,
   disabled = false,
   className,
@@ -81,7 +82,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     fileName,
     handleButtonClick,
     handleChange,
-  } = useFileUploader(onFile, accept, disabled, initialFile);
+  } = useFileUploader(onFile, accept, disabled, initialFile, value);
 
   const IconToUse: React.FC<SVGProps<SVGSVGElement>> = icon ?? UploadIcon;
 

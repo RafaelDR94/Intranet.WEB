@@ -60,13 +60,13 @@ const RequisitionsForm: React.FC<Props> = ({
     setDisableForm,
     valuesVersion,
   } = useRequisitionForm(mode, initialValues, startDisabled);
-
   if (currentPagePermissions?.requisitionForm)
     return (
       <>
         {currentPagePermissions?.sapprofile ? (
           <div className="bg-white-100 flex gap-6 rounded-lg p-6 shadow-md h-[100%]">
             <DynamicForm
+              key={`requisitions-dynamicform-${mode}-${valuesVersion}`}
               loadingFormInfo={loadingFormInfo}
               fields={fields}
               responsiveLayoutMatrix={
@@ -90,8 +90,6 @@ const RequisitionsForm: React.FC<Props> = ({
               externalSubmitRef={submitRef}
               showSubmitIf={() => false}
               disabled={disableForm}
-              valuesVersion={valuesVersion}
-              valuesVersionActive
             />
           </div>
         ) : (
@@ -116,6 +114,7 @@ const RequisitionsForm: React.FC<Props> = ({
             startCollaps={startCollaps}
           >
             <DynamicForm
+              key={`requisitions-dynamicform-${mode}-${valuesVersion}`}
               loadingFormInfo={loadingFormInfo}
               fields={fields}
               responsiveLayoutMatrix={
@@ -139,8 +138,6 @@ const RequisitionsForm: React.FC<Props> = ({
               externalSubmitRef={submitRef}
               showSubmitIf={() => false}
               disabled={disableForm}
-              valuesVersion={valuesVersion}
-              valuesVersionActive
             />
           </FormsLayout>
         )}

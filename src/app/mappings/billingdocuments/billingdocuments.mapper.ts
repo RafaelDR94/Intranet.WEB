@@ -12,11 +12,12 @@ import {
   BillingDocumentCategory,
   BillingDocumentDescription,
   BillingDocumentFull,
+  BillingDocumentNotDeductible,
   CompleteProcessToSAPRequest,
   BillingDocumentCategoryFull,
   BillingDocumentDescriptionFull
 } from './billingdocuments.types';
-import { toInputDateString, toInputDateTimeString } from '@/app/utilities/FormatHelpers/FormatHelpets';
+import {  toInputDateTimeString } from '@/app/utilities/FormatHelpers/FormatHelpets';
 
 /** ---------------------- Helpers ---------------------- */
 const toString = (v: unknown, fallback = "") => (v == null ? fallback : String(v));
@@ -42,8 +43,15 @@ export const BillingDocumentCategoryMap = (raw: any): BillingDocumentCategory =>
   if (typeof raw === 'string') {
     return { id_billingcategory: '', name: toString(raw) };
   }
+  const id =
+    raw?.id_billingcategory ??
+    raw?.billingcategory_id ??
+    raw?.billingCategoryId ??
+    raw?.category_id ??
+    raw?.categoryId ??
+    raw?.id;
   return {
-    id_billingcategory: toString(raw?.id),
+    id_billingcategory: toString(id),
     name: toString(raw?.name)
   };
 };
@@ -52,8 +60,15 @@ export const BillingDocumentDescriptionMap = (raw: any): BillingDocumentDescript
   if (typeof raw === 'string') {
     return { id_billingdescription: '', name: toString(raw) };
   }
+  const id =
+    raw?.id_billingdescription ??
+    raw?.billingdescription_id ??
+    raw?.billingDescriptionId ??
+    raw?.description_id ??
+    raw?.descriptionId ??
+    raw?.id;
   return {
-    id_billingdescription: toString(raw?.id),
+    id_billingdescription: toString(id),
     name: toString(raw?.name)
   };
 };
@@ -102,7 +117,7 @@ export const BillingDocumentMap = (raw: any): BillingDocuments => ({
       raw?.dateCreated,
   ),
   xmlinformation: toString(raw?.xmlinformation),
-  date_created: toInputDateString(raw?.date_created ?? raw?.created_at ?? raw?.dateCreated),
+  date_created: raw?.date_created,
   forbidden_code: Boolean(raw?.forbidden_code),
   user_comments: toString(raw?.user_comments),
   sat_validation: Boolean(raw?.sat_validation),
@@ -225,6 +240,15 @@ export const BillingDocumentsPutMap = (src: Partial<BillingDocumentsPut> | any):
   numnights: Number(src?.numnights ?? 0),
   category_id: String(src?.category_id),
   user_comments: src?.user_comments,
+});
+
+export const BillingDocumentNotDeductibleMap = (
+  src: Partial<BillingDocumentNotDeductible> | any,
+): BillingDocumentNotDeductible => ({
+  requisition_id: String(src?.requisition_id ?? ''),
+  billingimages_id: String(src?.billingimages_id ?? ''),
+  numpersons: Number(src?.numpersons ?? 0),
+  total: Number(src?.total ?? 0),
 });
 
 /** ---------------------- Full mapper ---------------------- */

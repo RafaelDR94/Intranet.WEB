@@ -93,10 +93,6 @@ describe('getTabsFromPath utility', () => {
 
     expect(result).toEqual([
       {
-        label: 'Carga de Archivos Facturables',
-        path: '/main-page/accounting/billablefiles/billablefiles',
-      },
-      {
         label: 'Requisición Juan',
         path: '/main-page/accounting/personalInvoices/requisitions?id=456&label=Requisici%C3%B3n+Juan',
       },

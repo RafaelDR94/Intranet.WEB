@@ -17,6 +17,8 @@ import type { BillingDocumentDetailsTable } from "@/app/mappings/billingdocument
 import DowloadIcon from "@/assets/icons/acciones/download.svg";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
+
 /**
  * Tabla de comprobantes asociados a una requisición. Permite descargar el
  * reporte y ver detalles individuales de cada documento.
@@ -42,13 +44,9 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
     downloadingDocument, // NEW: lo traemos del hook
   } = useRequisitionDetailsDocument(requisitionIdOverride);
   const isMobile = useIsMobile();
-  // const router = useRouter();
-  // const searchParams = useSearchParams();
-  // const pathname = usePathname();
+
   const sapprofile = currentPagePermissions?.sapprofile;
 
-  console.log("rows ", rows);
-  console.log("selected ", selected);
   
   const renderValidationStatus = (row: BillingDocumentDetailsTable) => {
     const isApproved = Boolean(row.authorization);
@@ -60,19 +58,7 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
     );
   };
 
-  // const handleUploadBillableFiles = () => {
-  //   if (!requisitionId) return;
 
-  //   const query = new URLSearchParams(searchParams.toString());
-  //   query.set("id", requisitionId);
-  //   const label = searchParams.get("label");
-  //   if (label) {
-  //     query.set("label", label);
-  //   }
-  //   query.set("view", "billablefiles");
-
-  //   router.push(`${pathname}?${query.toString()}`);
-  // };
 
   const mobileColumns: ColumnDefinition<BillingDocumentDetailsTable>[] =
     useMemo(
@@ -143,6 +129,16 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
                   onClick={() => window.open(row.pdfUrl, "_blank")}
                   aria-label="Abrir PDF"
                   data-tour="requisitions-detail-docs-pdf"
+                />
+              )}
+            {row.imageUrl && (
+                <Button
+                  size="xsmall"
+                  variant="ghost"
+                  icon={ImageIcon}
+                  onClick={() => window.open(row.imageUrl, "_blank")}
+                  aria-label="Abrir Imagen"
+                  data-tour="requisitions-detail-docs-image"
                 />
               )}
             </div>
@@ -237,7 +233,7 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
   }, [columns, sapprofile]);
 
   const filteredRows = useMemo(() => {
-    return rows.filter((row) => Boolean(row.xmlUrl || row.pdfUrl));
+    return rows.filter((row) => Boolean(row.xmlUrl || row.pdfUrl  || row.imageUrl));
   }, [rows]);
 
   const isBusy = Boolean(loading || downloadingDocument);

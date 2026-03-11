@@ -29,7 +29,7 @@ vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   usePrincipal: () => usePrincipal(),
 }));
 
-vi.mock('@/app/main-page/accounting/billablefiles/billablefiles/page', () => ({
+vi.mock('@/app/main-page/request/ownrequisitions/uploadbillablefiles/page', () => ({
   __esModule: true,
   default: BillableFilesPage,
 }));

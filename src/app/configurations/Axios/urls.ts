@@ -186,6 +186,7 @@ export const BillingRequisitionsByID= process.env.NEXT_PUBLIC_BILLINGS_REQUISITI
 export const BillingCategories= process.env.NEXT_PUBLIC_BILLINGS_BILLINGCATEGORIES??"/Billings/BillingCategory"
 export const BillingDescription= process.env.NEXT_PUBLIC_BILLINGS_BILLINGDESCRITION??"/Billings/BillingDescription"
 export const BillingDocuments= process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTS??"/Billings/BillingDocuments"
+export const BillingDocumentNotDeductible = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTNOTDEDUCTIBLE ?? "/Billings/BillingDocumentNotDeductible"
 export const BillingReport= process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONREPORT??"/Billings/BillingReport"
 export const BillingPettyCashFund = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHFUND ?? "/Billings/PettyCashFund";
 export const BillingPettyCashFundById = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHFUND_BYID ?? "/Billings/PettyCashFund/ById";

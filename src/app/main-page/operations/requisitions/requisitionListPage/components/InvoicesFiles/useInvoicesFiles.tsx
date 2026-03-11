@@ -14,6 +14,7 @@ import { useBillingRequisitionWithEmployeesStore } from "@/app/stores/useBilling
 import { shallow } from "zustand/shallow";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
 import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
 import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
 import { useTutorials } from "@/tutorials/engine/TutorialProvider";
@@ -31,6 +32,7 @@ type InvoiceRow = {
   userComments?: string;
   xmlUrl?: string | null;
   pdfUrl?: string | null;
+  imageUrl?: string | null;
   attachments?: string;
   requisitionId?: string;
   requisitionKey?: string;
@@ -87,7 +89,7 @@ const mapInvoices = (
               (item) => item.billingrequisition_id === requisitionId,
             )
           : undefined);
-      const certificationDate = doc.fecha || doc.date_created;
+      const certificationDate = doc.fecha.includes("NaN") ? doc.date_created : doc.fecha;
       const claveSat = Array.isArray(doc.conceptos)
         ? doc.conceptos
             .map((item) => item.clave_sat || item.clavesat_description || "")
@@ -97,7 +99,7 @@ const mapInvoices = (
       const baseRow = {
         id: doc.billingdocument_id,
         uuid: doc.uuid ?? doc.billingdocument_id,
-        date: formatDate(certificationDate),
+        date: formatDate(certificationDate)||certificationDate,
         certificationDate,
         category: doc.category?.name ?? "",
         description: doc.description?.name ?? "",
@@ -106,6 +108,7 @@ const mapInvoices = (
         userComments: doc.user_comments ?? "",
         xmlUrl: doc.xml || null,
         pdfUrl: doc.pdf || null,
+        imageUrl: doc.image || null,
         requisitionId: requisitionFromDoc ?? requisitionId,
         requisitionKey:
           doc.requisition?.requisitionkey ??
@@ -410,6 +413,9 @@ const useInvoicesFiles = () => {
       requisitionId,
       statusOverrides,
     );
+
+
+
     if (isTutorialActive && invoices.length === 0) return mockRows;
     return invoices;
   }, [pendingBillingDocuments, requisitions, requisitionId, statusOverrides, isTutorialActive, mockRows]);
@@ -622,6 +628,18 @@ const useInvoicesFiles = () => {
                 data-tour="requisitions-invoice-pdf"
               />
             )}
+                        {row.imageUrl && (
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={ImageIcon}
+                onClick={() => window.open(row.imageUrl ?? undefined, "_blank")}
+                aria-label="Abrir Imagen"
+                data-tour="requisitions-invoice-image"
+              />
+            )}
+
+
           </div>
         ),
         cellClass: "w-2/14",
@@ -643,7 +661,7 @@ const useInvoicesFiles = () => {
         key: "status",
         label: "Estatus",
         render: (row) => (
-          <Label type={statusToType(row.status)} text={row.status || ""} />
+          <Label type={statusToType(row.status)} text={row.status?.toUpperCase() ?? ""} />
         ),
         cellClass: "w-1/14",
         headerClass: "w-1/14",
@@ -729,7 +747,7 @@ const useInvoicesFiles = () => {
         render: (row) => (
           <Label
             type={statusToType(row.status)}
-            text={row.status || ""}
+            text={row.status?.toUpperCase() ?? ""}
             className="m-0 text-[8px]"
           />
         ),
