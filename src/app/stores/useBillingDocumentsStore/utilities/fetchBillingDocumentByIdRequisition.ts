@@ -35,7 +35,9 @@ export const fetchBillingDocumentByIdRequisition = async (
     const getReq = pGet(getFn)
     const res: AxiosResponse = await getReq(`${BillingDocumentByIdIdRequisition}/${id}`)
     const list = res.data?.data ?? []
+    console.log("LIST", list);
     const mapped = BillingDocumentsMap(list);
+    console.log("mapped", mapped);
     set({ billingDocuments: mapped, loading: false, successGet: true, successGetById: true })
 
     return mapped[0] ?? null

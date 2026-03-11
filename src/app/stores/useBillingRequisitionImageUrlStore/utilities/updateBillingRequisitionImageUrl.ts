@@ -17,7 +17,7 @@ import { pPut } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
 
 /**
- * Actualiza la evidencia de aprobaciÃ³n de una requisiciÃ³n.
+ * Actualiza la evidencia de aprobación de una requisición.
  *
  * @param set Setter de Zustand.
  * @param get Getter de Zustand.

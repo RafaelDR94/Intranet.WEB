@@ -1,4 +1,4 @@
-import { BillingDocumentDescription, BillingDocuments, BillingDocumentCategory, BillingDocumentsPost, BillingDocumentsPut, BillingDocumentReject } from '@/app/mappings/billingdocuments/billingdocuments.types'
+import { BillingDocumentDescription, BillingDocuments, BillingDocumentCategory, BillingDocumentsPost, BillingDocumentsPut, BillingDocumentReject, BillingDocumentNotDeductible } from '@/app/mappings/billingdocuments/billingdocuments.types'
 
 
 // src/app/stores/useBillingDocumentsStore/types.ts
@@ -27,6 +27,7 @@ export type BillingDocumentsState = {
   validating: boolean
   rejecting: boolean
   sending: boolean
+  notDeducting: boolean
   gettingDescriptions: boolean,
   gettingCategories: boolean,
   /** Flags de éxito por operación */
@@ -39,6 +40,7 @@ export type BillingDocumentsState = {
   succesValidate: boolean
   succesReject: boolean
   succesSend: boolean
+  successNotDeductible: boolean
   succesDescriptions: boolean,
   succesCategories: boolean,
   /** Mensaje de error general */
@@ -59,6 +61,7 @@ export type BillingDocumentsState = {
   validateBillingDocumentOperations: (ids: string[],idReq?:string) => Promise<BillingDocuments | null>
   sendToSapBillingDocument: (ids: string[]) => Promise<BillingDocuments | null>
   rejectBillingDocument: (payload: BillingDocumentReject,idReq?:string) => Promise<boolean>
+  billingDocumentNotDeductible: (payload: BillingDocumentNotDeductible) => Promise<BillingDocuments | null>
   reset: () => void
   resetFlags: () => void
 }

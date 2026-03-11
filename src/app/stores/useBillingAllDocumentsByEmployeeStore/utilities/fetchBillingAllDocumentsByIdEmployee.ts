@@ -39,7 +39,9 @@ export const fetchBillingAllDocumentsByIdEmployee = async (
     const res: AxiosResponse = await getReq(
       `${BillingAllDocumentByIdEmployee}/${idEmployee}`,
     )
-    const mapped = BillingAllDocumentsByEmployeeListMap(res.data?.data ?? [])
+    console.log("object", res.data?.data);
+    const mapped = BillingAllDocumentsByEmployeeListMap(res.data?.data ?? []);
+    console.log("mapped", mapped);
     set({ billingDocumentsByEmployee: mapped, loading: false, successGet: true })
   } catch (e) {
     const err = normalizeApiError(e)

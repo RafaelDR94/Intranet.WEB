@@ -141,7 +141,7 @@ const useRequisitionsFiles = ({ forceVisible = false, userId }: UseRequisitionsF
     if (row.employeeId || effectiveUserId) {
       qs.set("idEmployee", row.employeeId ?? effectiveUserId ?? "");
     }
-    qs.set("label", "Detalle Requisici�n");
+    qs.set("label", "Detalle Requisición");
     qs.set("view", "detail");
     qs.set("requisitionsLabel", buildLabel("Requisiciones", row.debtorName));
 
@@ -170,7 +170,7 @@ const useRequisitionsFiles = ({ forceVisible = false, userId }: UseRequisitionsF
       showAlert({
         type: "warning",
         variant: "filled",
-        title: "Requisici�n eliminada",
+        title: "Requisición eliminada",
         description: `${current.snCode} fue eliminada correctamente.`,
         showPrimaryButton: false,
         showSecondaryButton: false,
@@ -202,7 +202,7 @@ const useRequisitionsFiles = ({ forceVisible = false, userId }: UseRequisitionsF
     { label: "Cancelada", value: "all" },
     { label: "Cierre Periodo", value: "all" },
     { label: "Folio Adicional", value: "all" },
-    { label: "Validaci�n", value: "all" },
+    { label: "Validación", value: "all" },
     { label: "Viaticando", value: "all" },
   ];
 

@@ -34,6 +34,8 @@ export const MainTabs: React.FC<MainTabsProps> = ({
   const { filtered, isMobile, isActive } = useMainTab({ tabs, pathname, validPermissionsbyroute });
   const searchParams = useSearchParams();
   const BellIcon = hasNotification ? BellNotification : Bell;
+  const iconToneClass = "text-black-100";
+  const notificationToneClass = hasNotification ? "text-alert-red-100" : iconToneClass;
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [helpOpen, setHelpOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -166,7 +168,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
         data-tour="notifications-bell"
         aria-label="Notificaciones"
         onClick={() => setMenuOpen(prev => !prev)}
-        className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-gray-10 focus:outline-none focus:ring-2 focus:ring-blue-40"
+        className={`h-9 w-9 flex items-center justify-center rounded-full hover:bg-gray-10 focus:outline-none focus:ring-2 focus:ring-blue-40 ${notificationToneClass}`}
       >
         <BellIcon />
       </button>
@@ -196,7 +198,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
     </div>
   );
   const HelpAction = (
-    <HelpButton onClick={() => setHelpOpen(true)} />
+    <HelpButton onClick={() => setHelpOpen(true)} className={iconToneClass} />
   );
 
   const HeaderActions = (
@@ -219,7 +221,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
           data-testid="open-mobile-menu"
           data-tour="mobile-menu-button"
           onClick={onOpenMobileMenu}
-          className="h-10 w-10 ml-2 flex items-center justify-center rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
+          className={`h-10 w-10 ml-2 flex items-center justify-center rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40 ${iconToneClass}`}
           aria-label="Abrir menu"
         >
           <MenuIcon aria-hidden />

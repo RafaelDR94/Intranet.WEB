@@ -9,7 +9,7 @@ import {
 } from "./utilities";
 
 /**
- * Store global para evidencia de aprobaciÃ³n en requisiciones.
+ * Store global para evidencia de aprobación en requisiciones.
  */
 export const useBillingRequisitionImageUrlStore =
   createWithEqualityFn<BillingRequisitionImageUrlState>()(

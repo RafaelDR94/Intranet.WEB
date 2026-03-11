@@ -69,26 +69,26 @@ const ValidateInvoices = () => {
       cellClass: "w-1/12 text-center",
       headerClass: "w-1/12 text-center",
     },
+    {
+      key: "empleado" as unknown as keyof BillingDocuments,
+      label: "EMPLEADO",
+      cellClass: "w-2/12 truncate text-center",
+      headerClass: "w-2/12 truncate text-center",
+      render: (row) => row?.requisition?.employeename ?? "—",
+    },
+    {
+      key: "requisicion" as unknown as keyof BillingDocuments,
+      label: "REQUISICIÓN",
+      cellClass: "w-2/12 truncate text-center",
+      headerClass: "w-2/12 truncate text-center",
+      render: (row) => row?.requisition?.requisitionkey ?? "—",
+    },
     // rfc_emisor es boolean según BillingDocuments
     {
       key: "rfc_emisor",
       label: "RFC EMISOR",
       cellClass: "w-2/12 truncate text-center",
       headerClass: "w-2/12 truncate text-center",
-    },
-    // conceptos es un arreglo; mostramos las claves SAT concatenadas
-    {
-      key: "conceptos",
-      label: "CLAVE SAT",
-      cellClass: "w-2/12 truncate text-center",
-      headerClass: "w-2/12 truncate text-center",
-      render: (row) =>
-        row.conceptos?.length
-          ? row.conceptos
-            .map((c) => c.clave_sat)
-            .filter(Boolean)
-            .join(", ")
-          : "—",
     },
     { key: "uuid", label: "UUID", cellClass: "w-3/12 truncate text-center", headerClass: "w-3/12 truncate text-center " },
     {
@@ -161,6 +161,7 @@ const ValidateInvoices = () => {
         <div data-tour="accounting-validateinvoices-table-new">
         <DataTable
           showButton={false}
+          enableInternalSearch
           actionsRender={() => (
             <Button
               disabled={multiselectedt1?.length == 0}
@@ -183,6 +184,7 @@ const ValidateInvoices = () => {
               enableCollaps: true,
               defaultSortKey: "fecha",
               defaultSortDirection: "desc",
+              
             },
           ]}
         />

@@ -150,15 +150,15 @@ export interface DataTableProps<T = any> {
   showFilter?: boolean;
   /** Muestra el botón de recarga parcial del contenido. */
   showRefresh?: boolean;
-  /** Data-tour para input de bÃºsqueda */
+  /** Data-tour para input de bóºsqueda */
   searchDataTour?: string;
   /** Data-tour para calendario */
   calendarDataTour?: string;
   /** Data-tour para filtros */
   filterDataTour?: string;
-  /** Data-tour para botÃ³n refrescar */
+  /** Data-tour para botón refrescar */
   refreshDataTour?: string;
-  /** Data-tour para botÃ³n de acciÃ³n principal */
+  /** Data-tour para botón de acción principal */
   actionButtonDataTour?: string;
   /** Opciones mostradas dentro del menú contextual de filtros. */
   filterOptions?: DataTableFilterOption<T>[];

@@ -63,7 +63,7 @@ export const BenefitMap = (raw: unknown): Benefit => {
 
 /**
  * BenefitsMap
- * Mapea una colecciÃ³n cruda de la API a un arreglo tipado Benefit.
+ * Mapea una colección cruda de la API a un arreglo tipado Benefit.
  */
 export const BenefitsMap = (list: unknown[]): Benefit[] =>
   Array.isArray(list) ? list.map(BenefitMap) : []

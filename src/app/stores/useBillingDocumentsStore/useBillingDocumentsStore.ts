@@ -16,7 +16,8 @@ import {
   sendToSapBillingDocument,
   fetchBillingDocumentByIdRequisition,
   fetchBillingDocumentCategories,
-  fetchBillingDocumentDescriptions
+  fetchBillingDocumentDescriptions,
+  billingDocumentNotDeductible,
 } from './utilities'
 
 /**
@@ -46,6 +47,7 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     gettingDescriptions: false,
     gettingCategories: false,
     sending: false,
+    notDeducting: false,
     /** Flags de éxito */
     successGet: false,
     successGetSat: false,
@@ -56,6 +58,7 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     succesValidate: false,
     succesReject: false,
     succesSend: false,
+    successNotDeductible: false,
     succesDescriptions: false,
     succesCategories: false,
     /** Mensaje de error global */
@@ -88,6 +91,8 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     sendToSapBillingDocument: (ids) => sendToSapBillingDocument(set, get, ids),
     /** Rechaza un documento*/
     rejectBillingDocument: (payload,idReq) => rejectBillingDocument(set, get, payload,idReq),
+    /** Marca un ticket como gasto no deducible */
+    billingDocumentNotDeductible: (payload) => billingDocumentNotDeductible(set, get, payload),
     /** Resetea todo el estado */
     reset: () => set({
       billingDocuments: [],
@@ -107,8 +112,10 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
       successDelete: false,
       succesValidate: false,
       succesReject: false,
+      successNotDeductible: false,
       validating: false,
       rejecting: false,
+      notDeducting: false,
       sending: false,
       succesSend: false,
       loading: false,
@@ -126,8 +133,10 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
       warning: undefined,
       succesValidate: false,
       succesReject: false,
+      successNotDeductible: false,
       validating: false,
       rejecting: false,
+      notDeducting: false,
       sending: false,
       succesSend: false,
       gettingDescriptions: false,

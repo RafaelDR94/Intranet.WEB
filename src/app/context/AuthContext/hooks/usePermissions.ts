@@ -17,6 +17,9 @@ const normalizeRoute = (route: string) => {
   }
   // quita slash final excepto root
   if (route.length > 1 && route.endsWith('/')) route = route.slice(0, -1);
+  if (route === "/main-page/accounting/invoices/nondeductibles") {
+    return "/main-page/accounting/invoices/validateinvoices";
+  }
   return route;
 };
 

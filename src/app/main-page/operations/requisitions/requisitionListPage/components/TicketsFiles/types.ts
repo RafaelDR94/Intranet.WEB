@@ -2,6 +2,7 @@ import type { BillingImages, BillingImagesTable } from "@/app/mappings/billingim
 export type TicketsFilesProps = {
   onSelectedTicketChange?: (ticket: BillingImagesTable | null) => void;
   selectedTicketId?: string | null;
+  eneableSelection?: boolean;
 };
 export type TicketRow = {
   id: string;

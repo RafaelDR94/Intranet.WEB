@@ -133,6 +133,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             accept={field.accept || ""}
             label={field.label}
             placeholder={field.placeholder}
+            value={value instanceof File ? value : null}
             onFile={handleChange}
             disabled={field.disabled}
             className={field.className}

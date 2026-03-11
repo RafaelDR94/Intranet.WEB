@@ -15,6 +15,7 @@ const TicketForm: React.FC<InvoicesFormProps> = ({
   dataEdit,
   disabled,
   suppressInitialTicketImage,
+  onValidChange,
 }) => {
   const {
     fields,
@@ -26,6 +27,14 @@ const TicketForm: React.FC<InvoicesFormProps> = ({
     handleSubmit,
   } = useTicketForm({ dataEdit, disabled, suppressInitialTicketImage })
 
+  const handleValidChange = React.useCallback(
+    (isValid: boolean) => {
+      setFormReady(isValid)
+      onValidChange?.(isValid)
+    },
+    [onValidChange, setFormReady],
+  )
+
   if (externalSubmitRef) {
     return (
       <DynamicForm
@@ -35,7 +44,7 @@ const TicketForm: React.FC<InvoicesFormProps> = ({
         responsiveLayoutMatrix={responsiveLayoutMatrix}
         submitLabel="Enviar solicitud"
         onSubmit={handleSubmit}
-        onValidChange={setFormReady}
+        onValidChange={handleValidChange}
         valuesVersion={formKey}
         valuesVersionActive
         externalSubmitRef={externalSubmitRef}
@@ -60,7 +69,7 @@ const TicketForm: React.FC<InvoicesFormProps> = ({
           responsiveLayoutMatrix={responsiveLayoutMatrix}
           submitLabel="Enviar solicitud"
           onSubmit={handleSubmit}
-          onValidChange={setFormReady}
+          onValidChange={handleValidChange}
           valuesVersion={formKey}
           valuesVersionActive
             externalSubmitRef={submitRef}

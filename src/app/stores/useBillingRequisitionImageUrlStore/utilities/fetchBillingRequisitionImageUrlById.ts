@@ -11,9 +11,9 @@ import { pGet } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
 
 /**
- * Obtiene la evidencia de aprobaciÃ³n de una requisiciÃ³n por id.
+ * Obtiene la evidencia de aprobación de una requisición por id.
  *
- * @param id Id de requisiciÃ³n.
+ * @param id Id de requisición.
  * @param set Setter de Zustand.
  * @param get Getter de Zustand.
  * @param force Ignora cache local si `true`.

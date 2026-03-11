@@ -15,6 +15,7 @@ import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useBillingHistoryStore } from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
+import { useBillingAllDocumentsByEmployeeStore } from '@/app/stores/useBillingAllDocumentsByEmployeeStore/useBillingAllDocumentsByEmployeeStore'
 import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
 import { SelectedImage } from '@/app/components/ImageUploaderExpanded/types'
 const useTicketForm = ({
@@ -53,22 +54,21 @@ const useTicketForm = ({
     }),
     shallow
   );
+  const { fetchBillingAllDocumentsByEmployee } = useBillingAllDocumentsByEmployeeStore(
+    (s) => ({
+      fetchBillingAllDocumentsByEmployee: s.fetchBillingAllDocumentsByEmployee,
+    }),
+    shallow,
+  );
 
   const { user: authUser } = useAuth()
 
   // 🔁 Campos iniciales del formulario (condicional por modo)
   const initialformFields: FieldModel[] = useMemo(() => {
     if (isEdit) {
-      const shouldSelectInitial = !suppressInitialTicketImage;
-      const initialTicketFiles =
-        dataEdit?.image
-          ? [{
-              id: 'initial-ticket',
-              name: dataEdit.image,
-              url: dataEdit.image,
-              selected: shouldSelectInitial,
-            }]
-          : [];
+      const initialTicketUrl = !suppressInitialTicketImage
+        ? dataEdit?.image
+        : undefined;
       return [
         {
           type: "select",
@@ -89,15 +89,17 @@ const useTicketForm = ({
           name: 'ticket',
           label: 'Imagen del ticket (JPG o PNG)',
           placeholder: 'Arrastra o selecciona la foto del ticket',
-          value: shouldSelectInitial ? initialTicketFiles : [],
-          initialFiles: initialTicketFiles,
+          value: null,
+          initialFile: initialTicketUrl
+            ? { name: 'ticket', url: initialTicketUrl }
+            : undefined,
           accept: '.jpg,.png',
           validations: [], // en edición es opcional
           className: ticketFormDropzoneClasses,
           buttonLabel: 'Seleccionar imagen',
           cameraButtonAriaLabel: 'Tomar foto del ticket',
-          preview: false,
-          multiple: true,
+          preview: true,
+          multiple: false,
         },
       ]
     }
@@ -175,7 +177,7 @@ const useTicketForm = ({
         const payload = {
           billing_image_id: dataEdit?.billing_image_id,
           requisition_id: requisition,
-          images: imgUrl,
+          image: imgUrl[0],
           comments: dataEdit?.comments,
           user_comments: "",
           numnights: values.numnights,
@@ -263,7 +265,13 @@ const useTicketForm = ({
         ResetForm();
         setFormKey((prev) => prev + 1);
       }
-      if (putOk && user) forceFetchBillingHistory(user?.idEmployee);
+      if (putOk) {
+        const employeeId = authUser?.idEmployee ?? user?.idEmployee ?? "";
+        if (employeeId) {
+          forceFetchBillingHistory(employeeId);
+          fetchBillingAllDocumentsByEmployee(employeeId, true);
+        }
+      }
       showAlert({
         type: 'success',
         variant: 'filled',

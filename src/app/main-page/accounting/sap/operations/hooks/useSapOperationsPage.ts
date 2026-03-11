@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { shallow } from "zustand/shallow";
 
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
@@ -21,12 +21,14 @@ const useSapOperationsPage = () => {
 
   const [selected, setSelected] = useState<BillingDocumentsSatTable | null>(null);
   const [multiSelected, setMultiSelected] = useState<BillingDocumentsSatTable[]>([]);
+  const [multiSelectedNonDeductible, setMultiSelectedNonDeductible] = useState<
+    BillingDocumentsSatTable[]
+  >([]);
 
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert } = usePrincipalAlert;
 
-  // ✅ Nuevo: solo una lista `billingDocuments`
   const {
     billingDocuments,
     fetchBillingDocumentsSAP,
@@ -61,6 +63,16 @@ const useSapOperationsPage = () => {
     shallow,
   );
 
+  const deductibleDocuments = useMemo(
+    () => (billingDocuments ?? []).filter((document) => Boolean(document.uuid?.trim())),
+    [billingDocuments],
+  );
+
+  const nonDeductibleDocuments = useMemo(
+    () => (billingDocuments ?? []).filter((document) => !document.uuid?.trim()),
+    [billingDocuments],
+  );
+
   const handleOpenDetails = (
     row: BillingDocumentsSatTable,
     onlyText: boolean,
@@ -75,8 +87,14 @@ const useSapOperationsPage = () => {
     setMultiSelected(rows);
   };
 
+  const handleMultiSelectNonDeductible = (rows: BillingDocumentsSatTable[]) => {
+    setMultiSelectedNonDeductible(rows);
+  };
+
   const handleSendToSap = () => {
-    const ids = multiSelected.map((d) => d.billingdocument_id);
+    const ids = [...multiSelected, ...multiSelectedNonDeductible].map(
+      (document) => document.billingdocument_id,
+    );
     completeProcessToSAP(ids);
   };
 
@@ -101,7 +119,7 @@ const useSapOperationsPage = () => {
       fetchBillingDocumentsSAP(true);
       showAlert({
         type: "success",
-        title: "Facturas enviadas con éxito",
+        title: "Facturas enviadas con exito",
         description: "Las facturas fueron enviadas correctamente a SAP",
         showPrimaryButton: false,
         showSecondaryButton: false,
@@ -138,12 +156,15 @@ const useSapOperationsPage = () => {
 
   return {
     handleOpenDetails,
-    billingDocuments, // 🔹 reemplaza las 4 listas
+    billingDocuments: deductibleDocuments,
+    nonDeductibleDocuments,
     panelOpen,
     setPanelOpen,
     selected,
     multiSelected,
+    multiSelectedNonDeductible,
     handleMultiSelect,
+    handleMultiSelectNonDeductible,
     handleSendToSap,
   };
 };

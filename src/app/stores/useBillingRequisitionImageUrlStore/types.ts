@@ -12,17 +12,17 @@ export type BillingRequisitionImageUrlState = {
   /** Flags de carga. */
   loading: boolean;
   updating: boolean;
-  /** Flags de Ã©xito. */
+  /** Flags de ó©xito. */
   successGet: boolean;
   successPut: boolean;
   /** Error normalizado. */
   error?: string;
-  /** Obtiene la evidencia por id de requisiciÃ³n. */
+  /** Obtiene la evidencia por id de requisición. */
   fetchRequisitionImageUrlById: (
     id: string,
     force?: boolean,
   ) => Promise<BillingRequisitionImageUrl | null>;
-  /** Actualiza la evidencia de una requisiciÃ³n. */
+  /** Actualiza la evidencia de una requisición. */
   updateRequisitionImageUrl: (
     payload: BillingRequisitionImageUrlPut,
   ) => Promise<BillingRequisitionImageUrl | null>;
