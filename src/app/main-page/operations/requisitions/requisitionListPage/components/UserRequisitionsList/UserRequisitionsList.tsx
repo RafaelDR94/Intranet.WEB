@@ -31,6 +31,7 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
     onViewDetails,
     onDelete,
     shouldShowEmptyState,
+    handleRefreshPage,
   } = useRequisitionsFiles({ forceVisible, userId });
 
   const statusBadge = (status?: string) => {
@@ -55,8 +56,7 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
   const desktopColumns: ColumnDefinition<RequisitionRow>[] = useMemo(
     () => [
       { key: "debtorName", label: "Nombre" },
-      { key: "projectCode", label: "Proyecto" },
-      { key: "snCode", label: "Código SN" },
+      { key: "snCode", label: "Código" },
       {
         key: "status",
         label: "Estatus",
@@ -78,8 +78,7 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = useMemo(
     () => [
-      { key: "projectCode", label: "Proyecto" },
-      { key: "snCode", label: "Código SN" },
+      { key: "snCode", label: "Código" },
       {
         key: "status",
         label: "Estatus",
@@ -131,9 +130,10 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
       />
 
       <DataTable
-        showCalendar={true}
+        showCalendar={false}
         showFilter={true}
         showRefresh={true}
+        onRefreshPage={handleRefreshPage}
         filterOptions={filterOptions}
         textSize={{ mobile: "text-[11px]", desktop: "text-c2" }}
         dataTableTitle="Requisiciones"
@@ -144,13 +144,12 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
             title: "Historial",
             enableCollaps: true,
             enableSelection: false,
-            defaultSortKey: "date_created",
+            defaultSortKey: "snCode",
             defaultSortDirection: "desc",
           },
         ]}
         showDownloadTable={true}
         showButton={false}
-        dateKey={"date_created"}
       />
     </div>
   );

@@ -50,7 +50,8 @@ const useInitInvoicesForms = ({
     ? pathname.slice(0, -1)
     : pathname;
   const searchParams = useSearchParams();
-  const urlRequisitionId = searchParams.get("id");
+  const urlRequisitionId =
+    searchParams.get("idRequisition") ?? searchParams.get("id");
   const urlView = searchParams.get("view");
   const urlEmployeeId = searchParams.get("idEmployee");
   const lockRequisitionFields =

@@ -15,6 +15,12 @@ export type BillingDocumentsState = {
   billingDocumentsEfos: BillingDocuments[]
   billingCategories: BillingDocumentCategory[]
   billingDocumentDescription: BillingDocumentDescription[]
+
+  /** Montos del balance de viáticos (por requisición) */
+  montoComprobado: number
+  montoAFavorEmpresa: number
+  montoAFavorColaborador: number
+  hasPerDiemTotals: boolean
   
   /** Documento obtenido por ID */
   billingDocument: BillingDocuments | undefined

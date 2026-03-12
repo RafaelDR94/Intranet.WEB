@@ -18,6 +18,7 @@ export const useDetailsPanel = ({
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const submitRef = useRef<(() => void | Promise<void>) | null>(null);
+  const activeActionRef = useRef<"comment" | "reject" | "validate" | null>(null);
 
   const {
     sending,
@@ -92,6 +93,7 @@ export const useDetailsPanel = ({
   );
 
   const handleSubmitComment = (values: Record<string, any>) => {
+    activeActionRef.current = "comment";
     const payload = BillingDocumentsPutMap({
       billingdocument_id: selected?.billingdocument_id ?? "",
       requisition_id: selected?.requisition?.billingrequisition_id ?? "",
@@ -112,6 +114,7 @@ export const useDetailsPanel = ({
   };
 
   const handleSubmitReject = (values: Record<string, any>) => {
+    activeActionRef.current = "reject";
     setOpenRejectInvoice(false);
     const payload = {
       id: selected?.billingdocument_id ?? "",
@@ -123,6 +126,7 @@ export const useDetailsPanel = ({
   };
 
   const handleSubmitValid = () => {
+    activeActionRef.current = "validate";
     submitRef.current?.();
     setOpenValidInvoice(false);
     if (operations)
@@ -134,19 +138,21 @@ export const useDetailsPanel = ({
   };
 
   useEffect(() => {
-    if (updating) {
+    const action = activeActionRef.current;
+    if (!action) return;
+    if (action === "comment" && updating) {
       showSpinner({
         message: "Espera un momento, se está enviando el comentario.",
       });
       return;
     }
-    if (rejecting) {
+    if (action === "reject" && rejecting) {
       showSpinner({
         message: "Espera un momento, se está rechazando la factura.",
       });
       return;
     }
-    if (validating) {
+    if (action === "validate" && validating) {
       showSpinner({
         message: "Espera un momento, se está validando la factura.",
       });
@@ -155,9 +161,9 @@ export const useDetailsPanel = ({
     if (sending) return;
     hideSpinner();
 
-    if (successPut) {
+    if (action === "comment" && successPut) {
       if (reqisition) {
-        fetchBillingDocumentByIdRequisition(reqisition, true)
+        fetchBillingDocumentByIdRequisition(reqisition, true);
       }
       setPanelOpen(false);
       showAlert({
@@ -168,9 +174,12 @@ export const useDetailsPanel = ({
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
+      activeActionRef.current = null;
+      resetFlags();
+      return;
     }
 
-    if (succesValidate) {
+    if (action === "validate" && succesValidate) {
       setPanelOpen(false);
       showAlert({
         type: "info",
@@ -180,9 +189,12 @@ export const useDetailsPanel = ({
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
+      activeActionRef.current = null;
+      resetFlags();
+      return;
     }
 
-    if (succesReject) {
+    if (action === "reject" && succesReject) {
       setPanelOpen(false);
       showAlert({
         type: "info",
@@ -192,9 +204,13 @@ export const useDetailsPanel = ({
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
+      activeActionRef.current = null;
+      resetFlags();
+      return;
     }
 
     if (error) {
+      activeActionRef.current = null;
       showAlert({
         type: "error",
         title: "Error al enviar comentario",
@@ -204,9 +220,9 @@ export const useDetailsPanel = ({
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
+      resetFlags();
+      return;
     }
-
-    resetFlags();
   }, [
     fetchBillingDocumentByIdRequisition,
     updating,
@@ -221,6 +237,8 @@ export const useDetailsPanel = ({
     setPanelOpen,
     showAlert,
     showSpinner,
+    sending,
+    reqisition,
   ]);
 
   return {

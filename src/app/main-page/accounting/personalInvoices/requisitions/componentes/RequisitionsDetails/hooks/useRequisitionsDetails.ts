@@ -42,7 +42,7 @@ const useRequisitionsDetails = () => {
   const { showAlert, hideAlert } = usePrincipalAlert;
   const searchParams = useSearchParams();
 
-  const id = searchParams.get("id");
+  const requisitionId = searchParams.get("idRequisition") ?? searchParams.get("id");
   useEffect(() => {
     if (gettincurrentReq) {
       showSpinner({ message: "Obteniendo detalles de requisición" });
@@ -60,22 +60,22 @@ const useRequisitionsDetails = () => {
         description: "No se pudo obtener el detalle de tu requisición",
         onPrimaryClick: hideAlert,
         onSecondaryClick: () => {
-          if (id) fetchCurrentRequisition(id);
+          if (requisitionId) fetchCurrentRequisition(requisitionId, true);
         },
       });
-    if (successPut && id) {
-      fetchCurrentRequisition(id, true);
+    if (successPut && requisitionId) {
+      fetchCurrentRequisition(requisitionId, true);
     }
-  }, [gettincurrentReq, error, successPut, succesReject, hideSpinner, resetFlags, showAlert, showSpinner, fetchCurrentRequisition, id, hideAlert]);
+  }, [gettincurrentReq, error, successPut, succesReject, hideSpinner, resetFlags, showAlert, showSpinner, fetchCurrentRequisition, requisitionId, hideAlert]);
 
   useEffect(() => {
-    if (succesReject && id) fetchCurrentRequisition(id, true);
-  }, [succesReject, id, fetchCurrentRequisition]);
+    if (succesReject && requisitionId) fetchCurrentRequisition(requisitionId, true);
+  }, [succesReject, requisitionId, fetchCurrentRequisition]);
 
   useEffect(() => {
-    if (id) fetchCurrentRequisition(id);
+    if (requisitionId) fetchCurrentRequisition(requisitionId, true);
     else resetCurrentReq();
-  }, [id, fetchCurrentRequisition, resetCurrentReq]);
+  }, [requisitionId, fetchCurrentRequisition, resetCurrentReq]);
 
   return { currentRequisition };
 };

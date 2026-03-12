@@ -110,7 +110,7 @@ const useTicketForm = ({
 
   const { field2, formId2, user } = useInvoices()
   const searchParams = useSearchParams()
-  const requisitionIdFromQuery = searchParams.get('id') ?? ''
+  const requisitionIdFromQuery = searchParams.get('idRequisition') ?? searchParams.get('id') ?? ''
   const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm, updateField } =
     useInitInvoicesForms({ initialformFields, field: field2, formId: formId2, dataEdit, })
   const lastUploadedRef = useRef<SelectedImage[] | null>(null)

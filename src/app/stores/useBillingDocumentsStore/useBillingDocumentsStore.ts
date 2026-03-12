@@ -34,6 +34,10 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     billingDocumentsEfos: [],
     billingCategories: [],
     billingDocumentDescription: [],
+    montoComprobado: 0,
+    montoAFavorEmpresa: 0,
+    montoAFavorColaborador: 0,
+    hasPerDiemTotals: false,
     /** Documento por ID */
     billingDocument: undefined,
     /** Flags de proceso */
@@ -102,6 +106,10 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
       billingDocumentsBadCode: [],
       billingDocumentsEfos: [],
       billingDocument: undefined,
+      montoComprobado: 0,
+      montoAFavorEmpresa: 0,
+      montoAFavorColaborador: 0,
+      hasPerDiemTotals: false,
       error: undefined,
       warning: undefined,
       successGet: false,
