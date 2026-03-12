@@ -167,6 +167,13 @@ export type BillingDocumentReject = {
   "type": boolean
 }
 
+export type BillingDocumentNotDeductible = {
+  "requisition_id": string,
+  "billingimages_id": string,
+  "numpersons": number,
+  "total": number,
+}
+
 export type BillingDocumentFull = {
   billingdocument_id: string
   requisition: Requisition

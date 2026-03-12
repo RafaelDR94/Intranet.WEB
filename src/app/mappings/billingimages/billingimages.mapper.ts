@@ -77,7 +77,7 @@ export const BillingImageByEmployeeMap = (raw: any): BillingImagesByEmployee => 
 
 /**
  * BillingImagesByEmployeeMap
- * Mapea una colecciÃ³n cruda de la API a un arreglo tipado.
+ * Mapea una colección cruda de la API a un arreglo tipado.
  */
 export const BillingImagesByEmployeeMap = (list: any[]): BillingImagesByEmployee[] =>
   Array.isArray(list) ? list.map(BillingImageByEmployeeMap) : []
@@ -146,11 +146,10 @@ export const BillingPostMap = (src: Partial<BillingPost> | any): BillingPost => 
 export const BillingPutMap = (src: Partial<BillingPut> | any): BillingPut => ({
   billing_image_id: src?.billing_image_id ?? '',
   requisition_id: String(src?.requisition_id ?? ''),
-  images: Array.isArray(src?.images)
-    ? getImageUrls(src.images)
-    : src?.images
-      ? [String(src.images)]
-      : [],
+  image: String(
+    src?.image ??
+      (Array.isArray(src?.images) ? getImageUrls(src.images)[0] : src?.images ?? ''),
+  ),
   comments: String(src?.comments ?? ''),
   user_comments: String(src?.user_comments ?? ''),
   description: String(src?.description ?? ''),

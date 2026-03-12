@@ -1,4 +1,4 @@
-'use client'
+"use client"
 import React from "react";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import Avatar from "@/app/components/Avatar/Avatar";
@@ -10,10 +10,15 @@ import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import { Button } from "@/app/components/Button/Button";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 const EmployeesList = () => {
     const { employeesList, handleCloseDetails, handleOpenDeletePopUp, handleEditEmployee, handleOpenDetails, handleDeleteEmployee, handleCloseDeletePopUp, handleOpenNew, openDeletePopUp, currentEmployee, openDetails, currentPagePermissions } = useEmployeesList();
 
     const isMobile = useIsMobile();
+    useTutorialAutoRun({
+        moduleId: "administration-employeeslist",
+        tutorialId: "administration-employeeslist:table",
+    });
     const columnsDesktop: ColumnDefinition<EmployeeType>[] = [
         {
             key: "fullname",
@@ -118,20 +123,24 @@ const EmployeesList = () => {
                 onSecondaryButtonClick={handleCloseDeletePopUp} />
         }
         <EmployeeDetails open={openDetails} onClose={handleCloseDetails} />
-        <DataTable
-            onTableActionClick={handleOpenNew}
-            actionLabel="Nuevo Empleado"
-            showButton={currentPagePermissions?.create}
-            showCalendar={false}
-            textSize={{ mobile: "text-d3", desktop: "text-b3" }}
-            tables={[{
-                data: employeesList,
-                columns: columnas,
-                title: "Lista de empleados"
-            }]}
-        />
-
-
+        <div data-tour="employeeslist-table">
+            <DataTable
+                onTableActionClick={handleOpenNew}
+                actionLabel="Nuevo Empleado"
+                showButton={currentPagePermissions?.create}
+                showCalendar={false}
+                textSize={{ mobile: "text-d3", desktop: "text-b3" }}
+                tables={[
+                    {
+                        data: employeesList,
+                        columns: columnas,
+                        title: "Lista de empleados"
+                    }
+                ]}
+                searchDataTour="employeeslist-search"
+                actionButtonDataTour="employeeslist-create"
+            />
+        </div>
 
     </>)
 }

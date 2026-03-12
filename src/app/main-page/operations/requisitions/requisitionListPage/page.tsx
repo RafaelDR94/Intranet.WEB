@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
@@ -76,6 +76,7 @@ const RequisitionListPage: React.FC = () => {
           onCloseImage={() => setSelectedTicket(null)}
         />
         <TicketsFiles
+          eneableSelection={true}
           onSelectedTicketChange={setSelectedTicket}
           selectedTicketId={selectedTicket?.billing_image_id ?? null}
         />

@@ -1,3 +1,4 @@
+"use client"
 // app/layouts/components/MobileSidebar/MobileSidebar.tsx
 'use client';
 

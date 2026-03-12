@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React from "react";
 
@@ -492,6 +492,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
         onClose={handlePanelClose}
         leftLabel={employeeName ? `Colaborador: ${employeeName}` : undefined}
         rightLabel={projectCode ? `Proyecto: ${projectCode}` : undefined}
+        closeButtonDataTour="treasury-control-panel-close"
         renderActions={() => (
           <div className="flex items-center gap-2">
             {voucherType ? (
@@ -508,6 +509,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                 icon={ImageIcon}
                 disabled={!authorizationEvidenceUrl}
                 onClick={() => window.open(authorizationEvidenceUrl, "_blank")}
+                data-tour="treasury-control-panel-evidence"
               />
             ) : null}
             {xmlUrl ? (
@@ -517,6 +519,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                 icon={XMLIcon}
                 disabled={!xmlUrl}
                 onClick={() => window.open(xmlUrl, "_blank")}
+                data-tour="treasury-control-panel-xml"
               />
             ) : null}
             {pdfUrl ? (
@@ -526,6 +529,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                 icon={PDFIcon}
                 disabled={!pdfUrl}
                 onClick={() => window.open(pdfUrl, "_blank")}
+                data-tour="treasury-control-panel-pdf"
               />
             ) : null}
           </div>
@@ -543,6 +547,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                     onValidate(selected);
                   }
                 }}
+                data-tour="treasury-control-panel-validate"
               >
                 {isValidating ? "Validando…" : "Validar"}
               </Button>
@@ -556,6 +561,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                 onClick={() => {
                   if (!disableActions) handleOpenVoucherRejectModal();
                 }}
+                data-tour="treasury-control-panel-reject"
               >
                 {isRejecting ? "Rechazando…" : "Rechazar"}
               </Button>
@@ -634,6 +640,8 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                       hideIcon
                       disabled={isDetailLoading}
                       data-testid="request-authorization-button"
+                      
+                      data-tour="treasury-control-panel-request-authorization"
                       onClick={() => {
                         if (onRequestAuthorization && selected) {
                           onRequestAuthorization(selected);
@@ -728,6 +736,8 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                       hideIcon
                       disabled={isDetailLoading}
                       data-testid="request-authorization-button"
+                      
+                      data-tour="treasury-control-panel-request-authorization"
                       onClick={() => {
                         if (onRequestAuthorization && selected) {
                           onRequestAuthorization(selected);
@@ -821,6 +831,7 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
                           ? handleCancelEditing
                           : handleStartEditing
                       }
+                      data-tour="treasury-control-panel-edit-amount"
                     >
                       Editar Monto
                     </Button>

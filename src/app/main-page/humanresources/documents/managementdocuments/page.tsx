@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -12,12 +12,17 @@ import type { ManagementDocumentTableRow } from "@/app/mappings/documents/docume
 import DocIcon from "@/assets/icons/Docs/page.svg";
 import { useManagementDocuments } from "./hooks/useManagementDocuments";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
 const ManagementDocuments = () => {
   const router = useRouter();
   const isMobile = useIsMobile();
   const { rows, refresh, deleteDocument, deletingDocument } =
     useManagementDocuments();
+  useTutorialAutoRun({
+    moduleId: "humanresources-managementdocuments",
+    tutorialId: "humanresources-managementdocuments:table",
+  });
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [selectedDocument, setSelectedDocument] =
     React.useState<ManagementDocumentTableRow | null>(null);
@@ -73,6 +78,7 @@ const ManagementDocuments = () => {
               variant="ghost"
               icon={DocIcon}
               onClick={() => window.open(row.route, "_blank")}
+              data-tour="humanresources-managementdocuments-open"
             />
           )}
         </div>
@@ -93,7 +99,7 @@ const ManagementDocuments = () => {
       key: "actions" as unknown as keyof ManagementDocumentTableRow,
       label: "",
       render: (row) => (
-        <div className="flex justify-end pr-2">
+        <div className="flex justify-end pr-2" data-tour="humanresources-managementdocuments-actions">
           <DocumentActionsMenuCell
             row={row}
             onView={handleViewDocument}
@@ -118,6 +124,7 @@ const ManagementDocuments = () => {
               variant="ghost"
               icon={DocIcon}
               onClick={() => window.open(row.route, "_blank")}
+              data-tour="humanresources-managementdocuments-open"
             />
           )}
         </div>
@@ -129,7 +136,7 @@ const ManagementDocuments = () => {
       key: "actions" as unknown as keyof ManagementDocumentTableRow,
       label: "",
       render: (row) => (
-        <div className="flex justify-end pr-2">
+        <div className="flex justify-end pr-2" data-tour="humanresources-managementdocuments-actions">
           <DocumentActionsMenuCell
             row={row}
             onView={handleViewDocument}
@@ -144,6 +151,7 @@ const ManagementDocuments = () => {
 
   return (
     <section className="space-y-8">
+      <div data-tour="humanresources-managementdocuments-table">
       <DataTable<ManagementDocumentTableRow>
         tables={[
           {
@@ -171,6 +179,8 @@ const ManagementDocuments = () => {
         showButton={false}
         showDownloadTable
         dateKey={(row) => row.rawDate ?? row.date}
+        searchDataTour="humanresources-managementdocuments-search"
+        refreshDataTour="humanresources-managementdocuments-refresh"
         actionsRender={() => (
           <div className="flex w-full items-center justify-end gap-3">
             <Button
@@ -183,12 +193,14 @@ const ManagementDocuments = () => {
                   "/main-page/humanresources/documents/documentregistry",
                 )
               }
+              data-tour="humanresources-managementdocuments-create"
             >
               Nuevo Documento
             </Button>
           </div>
         )}
       />
+      </div>
 
       <PopUp
         open={deleteDialogOpen}

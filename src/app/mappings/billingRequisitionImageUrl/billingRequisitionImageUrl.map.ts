@@ -7,7 +7,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
 /**
- * Mapea la respuesta de la API para la evidencia de requisiciÃ³n.
+ * Mapea la respuesta de la API para la evidencia de requisición.
  */
 export const BillingRequisitionImageUrlMap = (
   raw: unknown,
@@ -27,7 +27,7 @@ export const BillingRequisitionImageUrlMap = (
 };
 
 /**
- * Normaliza el payload para actualizar la evidencia de requisiciÃ³n.
+ * Normaliza el payload para actualizar la evidencia de requisición.
  */
 export const BillingRequisitionImageUrlPutMap = (
   payload: BillingRequisitionImageUrlPut,

@@ -52,7 +52,7 @@ export type BillingPut = {
     "requisition_id": string,
     "category_id": string,
     "description": string,
-    "images": string[],
+    "image": string,
     "comments": string
     "user_comments": string
     "numnights": string

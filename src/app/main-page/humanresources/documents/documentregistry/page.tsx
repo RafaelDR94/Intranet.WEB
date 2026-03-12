@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -9,9 +9,14 @@ import useDocumentRegistry from "./hooks/useDocumentRegistry";
 import DocumentViewer from "@/app/components/DocumentViewer/DocumentViewer";
 import { Button } from "@/app/components/Button/Button";
 import DocIcon from "@/assets/icons/Docs/page.svg";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
 const DocumentRegistry = () => {
   const searchParams = useSearchParams();
+  useTutorialAutoRun({
+    moduleId: "humanresources-documentregistry",
+    tutorialId: "humanresources-documentregistry:form",
+  });
   const documentId = searchParams.get("documentId") ?? undefined;
 
   const {
@@ -35,12 +40,14 @@ const DocumentRegistry = () => {
   const handleClose = () => setOpen(false);
 
   return (
+    <div data-tour="documentregistry-form">
     <FormsLayout
       title={title}
       primaryLabel={submitLabel}
       onPrimaryClick={() => submitRef.current?.()}
       primaryDisabled={!formReady}
       enableCollapse={false}
+      primaryButtonDataTour="documentregistry-submit"
     >
       <DynamicForm
         key={`document-registry-form-${formVersion}`}
@@ -66,6 +73,7 @@ const DocumentRegistry = () => {
                 onClick={handleOpen}
                 variant="ghost"
                 hideIcon={true}
+                data-tour="documentregistry-view"
                 className="text-green-80 text-c2 ml-[-10px]"
               >
               <span className="flex items-center">
@@ -86,6 +94,7 @@ const DocumentRegistry = () => {
         )}
       </DynamicForm>
     </FormsLayout>
+    </div>
   );
 };
 

@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 
 export type CollapsibleSectionProps = {
   /** Título visible de la sección */
-  title: string;
+  title: ReactNode;
   /** Contenido interno a mostrar/ocultar */
   children: ReactNode;
   /** Habilita o deshabilita el comportamiento colapsable (por defecto: true) */

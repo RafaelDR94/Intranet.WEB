@@ -16,6 +16,7 @@ let resetFlagsMock = vi.fn();
 let updateBackIdMock = vi.fn();
 let updateQueryMock = vi.fn();
 let base64ToBlobMock: ReturnType<typeof vi.fn>;
+let optimizeDataUrlToBlobMock: ReturnType<typeof vi.fn>;
 let userMock = { idEmployee: "EMP-1", idWorkPosition: "WP-1" };
 let creatingState = false;
 let errorState: string | null = null;
@@ -72,6 +73,7 @@ vi.mock("@/app/context/AuthContext/AuthContext", () => ({
 
 vi.mock("@/app/utilities/PicturesHelper/PictureHelper", () => ({
   base64ToBlob: (...args: unknown[]) => base64ToBlobMock(...args),
+  optimizeDataUrlToBlob: (...args: unknown[]) => optimizeDataUrlToBlobMock(...args),
 }));
 
 vi.mock("@/app/utilities/DatesHelper/Dateshelper", () => ({
@@ -136,6 +138,12 @@ describe("useReportSaver", () => {
     updateBackIdMock = vi.fn();
     updateQueryMock = vi.fn();
     base64ToBlobMock = vi.fn(() => "blob:data");
+    optimizeDataUrlToBlobMock = vi.fn(async () => ({
+      blob: "blob:data",
+      mime: "image/jpeg",
+      width: 100,
+      height: 100,
+    }));
     firebasestorageMock = {
       storage: {},
       uploadFile: vi.fn(async (_, path: string) => `https://cdn.example.com/${path}`),
@@ -162,7 +170,7 @@ describe("useReportSaver", () => {
 
     expect(showSpinnerMock).toHaveBeenCalledWith({ message: "Guardando reporte..." });
     expect(firebasestorageMock.uploadFile).toHaveBeenCalledTimes(4);
-    expect(base64ToBlobMock).toHaveBeenCalled();
+    expect(optimizeDataUrlToBlobMock).toHaveBeenCalled();
 
     await waitFor(() => {
       expect(createReportMock).toHaveBeenCalledTimes(1);

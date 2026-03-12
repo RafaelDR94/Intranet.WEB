@@ -28,6 +28,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   rejectType = true,
   reqisition,
   onSendToSap,
+  documentLabel = "Factura",
 }) => {
   const {
     labels,
@@ -38,7 +39,14 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     handleSubmitComment,
     handleSubmitReject,
     handleSubmitValid,
-  } = useDetailsPanel({ selected, rejectType, setPanelOpen, operations, reqisition });
+  } = useDetailsPanel({
+    selected,
+    rejectType,
+    setPanelOpen,
+    operations,
+    reqisition,
+    documentLabel: documentLabel.toLowerCase(),
+  });
   const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
   return (
@@ -54,13 +62,13 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           isMobile ? "flex-col w-full gap-2 " : "flex-row items-center gap-3"
         )}>
           {(currentPagePermissions?.canValidInvoice && validInvoice) && <Button size="small" variant="solid" hideIcon onClick={() => setOpenValidInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
-            Validar Factura
+            {`Validar ${documentLabel}`}
           </Button>}
           {(currentPagePermissions?.canSendToSap && sendInvoiceToSap) && <Button size="small" variant="solid" hideIcon onClick={() => onSendToSap?.()}>
             Enviar a SAP
           </Button>}
           {currentPagePermissions?.canRejectInvoice && rejectInvoice && <Button size="small" variant="outline" hideIcon onClick={() => setOpenRejectInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
-            Rechazar Factura
+            {`Rechazar ${documentLabel}`}
           </Button>}
         </div>
       }
@@ -214,7 +222,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       {/* PopUp: Validar */}
       <PopUp
         open={openValidInvoice}
-        title={"¿Desea validar la factura seleccionada?"}
+        title={`¿Desea validar el ${documentLabel.toLowerCase()} seleccionado?`}
         content="Esta acción confirmará la validez de los documentos marcados. Una vez validadas, no podrás revertir el cambio."
         onClose={() => setOpenValidInvoice(false)}
         primaryButtonText="Validar"
@@ -227,8 +235,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
 
       {/* PopUp: Rechazar */}
       <PopUp
-        title={"Rechazar Factura"}
-        content={"Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su factura"}
+        title={`Rechazar ${documentLabel}`}
+        content={`Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su ${documentLabel.toLowerCase()}`}
         open={openRejectInvoice}
         onClose={() => setOpenRejectInvoice(false)}
       >

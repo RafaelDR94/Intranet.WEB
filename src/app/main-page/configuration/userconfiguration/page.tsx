@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 import CreateEmployee from "../../administration/usersmanagment/createemployee/CreateEmployee";
 import Password from "./components/Password/Password";

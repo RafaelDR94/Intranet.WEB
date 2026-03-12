@@ -3,6 +3,7 @@ import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useInvoicesFiles from "./useInvoicesFiles";
 import { PopUp } from "@/app/components/PopUp/PopUp";
@@ -165,6 +166,18 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
                 aria-label="Abrir PDF"
               />
             )}
+          {detailRow?.imageUrl && (
+              <Button
+                iconOnly
+                size="small"
+                variant="ghost"
+                icon={ImageIcon}
+                onClick={() =>
+                  window.open(detailRow.imageUrl ?? undefined, "_blank")
+                }
+                aria-label="Abrir Imagen"
+              />
+            )}
           </div>
         )}
       >
@@ -174,12 +187,15 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
               <div className="text-gray-90 text-s1 font-semibold">
                 {detailRow.uuid}
               </div>
-              <div className="text-gray-90 text-b4 font-medium">
+              {!detailRow.certificationDate?.includes("NaN-NaN")&&
+               <div className="text-gray-90 text-b4 font-medium">
                 FECHA Y HORA DE CERTIFICACIÓN:&nbsp;
                 <span className="text-gray-90 text-b3 font-regular">
                   {formatDateTime(detailRow.certificationDate)}
                 </span>
               </div>
+              }
+             
               <div className="text-gray-90 text-b4 font-medium">
                 RFC EMISOR:&nbsp;
                 <span className="text-gray-90 text-b3 font-regular">

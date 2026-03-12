@@ -1,6 +1,17 @@
 // utils/getTabsFromPath.ts
 export type Tab = { label: string; path: string };
 
+const withOptionalNonDeductibleFlag = (
+  path: string,
+  hasNonDeductible: boolean,
+): string => {
+  if (!hasNonDeductible) return path;
+  const [base, query = ""] = path.split("?");
+  const params = new URLSearchParams(query);
+  params.set("hasNonDeductible", "1");
+  return `${base}?${params.toString()}`;
+};
+
 export const getTabsFromPath = (
   pathname: string,
   search?: string | URLSearchParams,
@@ -63,26 +74,36 @@ export const getTabsFromPath = (
         path: "/main-page/request/acces/registerenterprise",
       }
     ],
+    "request/ownrequisitions": [
+      {
+        label: "Requisiciones",
+        path: "/main-page/request/ownrequisitions/requisitions",
+      },
+      {
+        label: "Archivos Facturables",
+        path: "/main-page/request/ownrequisitions/billablefiles",
+      },
+            {
+        label: "Subir Archivos Facturables",
+        path: "/main-page/request/ownrequisitions/uploadbillablefiles",
+      },
+    ],
+    "it/internaldevices": [
+      {
+        label: "Dispositivos",
+        path: "/main-page/it/internaldevices/internaldeviceslist",
+      },
+      {
+        label: "Asignación de Dispositivos",
+        path: "/main-page/it/internaldevices/internaldevicesasignation",
+      },
+    ],
     "accounting/invoices": [
       {
         label: "Validación de Facturas",
         path: "/main-page/accounting/invoices/validateinvoices",
       },
       { label: "SAT", path: "/main-page/accounting/invoices/sat" },
-    ],
-    "accounting/personalInvoices": [
-      // {
-      //   label: "Facturas",
-      //   path: "/main-page/accounting/personalInvoices/invoices",
-      // },
-      // {
-      //   label: "Historial",
-      //   path: "/main-page/accounting/personalInvoices/history",
-      // },
-      {
-        label: "Requisiciones",
-        path: "/main-page/accounting/personalInvoices/requisitions",
-      },
     ],
     "operations/requisitions": [
       {
@@ -115,12 +136,6 @@ export const getTabsFromPath = (
         path: "/main-page/accounting/sap/operations",
       },
     ],
-    "accounting/billablefiles": [
-      {
-        label: "Carga de Archivos Facturables",
-        path: "/main-page/accounting/billablefiles/billablefiles",
-      },
-    ],
     'sip/proyects': [
       { label: 'Nuevo Proyecto', path: '/main-page/sip/proyects/newproyect' },
       { label: 'Proyectos', path: '/main-page/sip/proyects/proyectslist' },
@@ -138,7 +153,7 @@ export const getTabsFromPath = (
       { label: 'Crear Empleado', path: '/main-page/administration/usersmanagment/createemployee' },
       { label: 'Lista de Empleados', path: '/main-page/administration/usersmanagment/employeesList' },
     ],
-     'authorizations': [
+    'authorizations': [
       { label: 'Lista de autorizaciones', path: '/main-page/authorizations/authorizationslist' },
     ],
     'configuration': [
@@ -170,6 +185,7 @@ export const getTabsFromPath = (
   let authorizationId: string | null = null;
   let authorizationEventId: string | null = null;
   let authorizationKind: string | null = null;
+  let hasNonDeductible = false;
   if (search) {
     const sp = typeof search === 'string' ? new URLSearchParams(search) : search;
     id = sp.get('id');
@@ -182,6 +198,81 @@ export const getTabsFromPath = (
     authorizationId = sp.get('authorization_id');
     authorizationEventId = sp.get('event_id');
     authorizationKind = sp.get('kind');
+    hasNonDeductible = sp.get('hasNonDeductible') === '1';
+  }
+
+  if (first === "accounting" && second === "invoices") {
+    const invoiceTabs = [
+      {
+        label: "Validación de Facturas",
+        path: withOptionalNonDeductibleFlag(
+          "/main-page/accounting/invoices/validateinvoices",
+          hasNonDeductible,
+        ),
+      },
+      ...(hasNonDeductible || third === "nondeductibles"
+        ? [
+            {
+              label: "No deducibles",
+              path: withOptionalNonDeductibleFlag(
+                "/main-page/accounting/invoices/nondeductibles",
+                true,
+              ),
+            },
+          ]
+        : []),
+      {
+        label: "SAT",
+        path: withOptionalNonDeductibleFlag(
+          "/main-page/accounting/invoices/sat",
+          hasNonDeductible,
+        ),
+      },
+    ];
+
+    tabs = invoiceTabs;
+  }
+
+  const internalDevicesListPath = '/main-page/it/internaldevices/internaldeviceslist';
+  const internalDevicesAssignPath = '/main-page/it/internaldevices/internaldevicesasignation';
+
+  if (first === 'it' && second === 'internaldevices') {
+    if (pathname === internalDevicesListPath) {
+      if (view === 'new') {
+        return [
+          { label: 'Dispositivos', path: internalDevicesListPath },
+          { label: 'Nuevo Dispositivo', path: `${internalDevicesListPath}?view=new` },
+        ];
+      }
+      if (view === 'edit' && id) {
+        return [
+          { label: 'Dispositivos', path: internalDevicesListPath },
+          { label: 'Editar dispositivo', path: `${internalDevicesListPath}?id=${id}&view=edit` },
+        ];
+      }
+      if (view === 'review' && id) {
+        return [
+          { label: 'Dispositivos', path: internalDevicesListPath },
+          { label: 'Revision de Dispositivo', path: `${internalDevicesListPath}?id=${id}&view=review` },
+        ];
+      }
+
+      if (id) {
+        tabs = tabs.map((tab) =>
+          tab.path === internalDevicesListPath
+            ? { ...tab, path: `${internalDevicesListPath}?id=${id}` }
+            : tab
+        );
+      }
+    }
+
+    if (pathname === internalDevicesAssignPath && view === 'new') {
+      return [
+        { label: 'Dispositivos', path: internalDevicesListPath },
+        { label: 'Asignación de Dispositivos', path: internalDevicesAssignPath },
+        { label: 'Nueva Asignación', path: `${internalDevicesAssignPath}?view=new` },
+      ];
+    }
   }
 
   // agrega la Tab de detalle solo si estás en accounting/requisitions y hay id
@@ -193,6 +284,20 @@ export const getTabsFromPath = (
     const detailPath = `${clean}?${qs.toString()}`;
     if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
       tabs = [...tabs, { label: labelparam || 'Detalle de Requisición', path: detailPath }];
+    }
+  }
+
+  // agrega la Tab de detalle para requisiciones personales en request/ownrequisitions
+  if (first === 'request' && second === 'ownrequisitions' && third === 'requisitions' && id) {
+    const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+    const qs = new URLSearchParams();
+    qs.set('id', id);
+    if (labelparam) qs.set('label', labelparam);
+    const detailLabel = labelparam || 'Detalle Requisición';
+    const detailPath = `${clean}?${qs.toString()}`;
+
+    if (!tabs.some(t => t.path === detailPath || t.label === detailLabel)) {
+      tabs = [...tabs, { label: detailLabel, path: detailPath }];
     }
   }
 

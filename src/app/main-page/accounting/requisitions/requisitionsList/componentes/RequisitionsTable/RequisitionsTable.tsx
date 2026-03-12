@@ -1,11 +1,9 @@
-"use client";
+"use client"
 import React from "react";
 
 import { useRequisitionTable } from "./hooks/useRequisitionsTable";
-import { container, actionCell } from "./styles";
+import { container} from "./styles";
 import { RequisitionRow } from "./types";
-
-import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
@@ -139,16 +137,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
         cellClass: "w-50",
         headerClass: "w-50 pl-4",
       },
-      {
-        key: "actions" as unknown as keyof RequisitionRow,
-        label: "",
-        render: (row) => (
-          <div className={actionCell} data-tour="requisitions-row-actions">
-            <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
-          </div>
-        ),
-        invisible: false,
-      },
+
     ],
     [onEdit, onDelete, onViewFiles, onViewRequisitions],
   );
@@ -210,13 +199,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
         ),
         cellClass: "w-12 text-right",
         headerClass: "w-12 text-right",
-      },
-      {
-        key: "actions" as unknown as keyof RequisitionRow,
-        label: "",
-        render: () => null,
-        invisible: true,
-      },
+      }
     ],
     [onDelete, onEdit, onViewFiles, onViewRequisitions],
   );

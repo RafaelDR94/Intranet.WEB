@@ -34,9 +34,14 @@ export const fetchCurrentRequisition = async (set: Set, get: Get, id: string, fo
         const res: AxiosResponse = await getReq(`${BillingRequisitionsByID}/${id}`)
         // 4) mapear y guardar
  
-        const mapped = res.data?.data?.map((req: any) => RequisitionMap(req))
+        const raw = res.data?.data
+        const mapped = Array.isArray(raw)
+          ? raw.map((req: any) => RequisitionMap(req))
+          : raw
+            ? [RequisitionMap(raw)]
+            : []
 
-        set({ currentRequisition: mapped[0], gettincurrentReq: false, succesgetingCurrent: true })
+        set({ currentRequisition: mapped[0] ?? null, gettincurrentReq: false, succesgetingCurrent: true })
     } catch (e) {
         // 5) error normalizado
         const err = normalizeApiError(e)

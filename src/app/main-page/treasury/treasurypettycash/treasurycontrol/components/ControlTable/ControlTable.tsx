@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React from "react";
 
@@ -143,6 +143,7 @@ const ActionMenuCell: React.FC<ActionMenuCellProps> = ({
           size="xsmall"
           variant="ghost"
           icon={isMobile ? RightArrowIcon : DotsIcon}
+          data-tour="treasury-control-row-actions"
         />
       }
       items={menuItems}
@@ -342,35 +343,41 @@ const ControlTable = () => {
       />
 
       {currentPagePermissions?.read && (
-        <DataTable
-          showCalendar={true}
-          showFilter={true}
-          showRefresh
-          onRefreshPage={refreshPage}
-          filterOptions={controlFilterOptions}
-          filterValue={activeFilter}
-          filterTitle="Filtrar vales"
-          showDownloadTable
-          showButton={false}
-          dateKey={(row) => row.applicationDate}
-          onSearchChange={handleSearchChange}
-          onFilterChange={(value) => {
-            handleFilterChange(value);
-            refreshData();
-          }}
-          textSize={{ mobile: "text-d3", tablet: "text-d3", desktop: "text-d3" }}
-          tables={[
-            {
-              data: rows,
-              columns,
-              enableSelection: true,
-              title: "Reporte de gastos de caja chica",
-              enableCollaps: false,
-              defaultSortKey: "applicationDate",
-              defaultSortDirection: "desc",
-            },
-          ]}
-        />
+        <div data-tour="treasury-control-table">
+          <DataTable
+            showCalendar={true}
+            showFilter={true}
+            showRefresh
+            onRefreshPage={refreshPage}
+            filterOptions={controlFilterOptions}
+            filterValue={activeFilter}
+            filterTitle="Filtrar vales"
+            showDownloadTable
+            showButton={false}
+            dateKey={(row) => row.applicationDate}
+            onSearchChange={handleSearchChange}
+            onFilterChange={(value) => {
+              handleFilterChange(value);
+              refreshData();
+            }}
+            searchDataTour="treasury-control-search"
+            calendarDataTour="treasury-control-calendar"
+            filterDataTour="treasury-control-filter"
+            refreshDataTour="treasury-control-refresh"
+            textSize={{ mobile: "text-d3", tablet: "text-d3", desktop: "text-d3" }}
+            tables={[
+              {
+                data: rows,
+                columns,
+                enableSelection: true,
+                title: "Reporte de gastos de caja chica",
+                enableCollaps: false,
+                defaultSortKey: "applicationDate",
+                defaultSortDirection: "desc",
+              },
+            ]}
+          />
+        </div>
       )}
     </div>
   );

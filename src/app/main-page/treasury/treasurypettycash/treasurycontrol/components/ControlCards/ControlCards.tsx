@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React from "react";
 import { shallow } from "zustand/shallow";
@@ -126,77 +126,90 @@ const ControlCards = () => {
   );
 
   return (
-    <CollapsibleSection
-      title="Control de Fondo"
-      storageKey="pettycash-collapsible"
-      defaultOpen={true}
-      className="mb-4"
-    >
-      <div className={`flex justify-between ${isMobile || isTablet ? "flex-col" : ""}`}>
-        <div className={`w-[36%] h-[250px] ${isMobile || isTablet ? "w-full mb-2" : ""}`}>
-          <Summary
-            date={summaryDate ?? null}
-            assigned={assignedAmount}
-            available={availableAmount}
-            percent={percent}
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <div className="flex">
-            <SummaryCard
-              title="Monto comprobado"
-              subtitle={totalVoucherP}
-              amount={verifiedAmount}
-              statusLabel="Comprobados"
-              SvgIcon={TicketPink}
-              SvgSecondIcon={SecTicketPink}
-              trend="up"
-              accent="green"
-              amountDigits={2}
-            />
-            <SummaryCard
-              title="Efectivo"
-              subtitle={assignedSubtitle}
-              amount={cashAmount}
-              statusLabel=""
-              SvgIcon={TicketGreen}
-              SvgSecondIcon={SecTicketGreen}
-              trend="down"
-              accent="green"
-              amountDigits={2}
-              editable={currentPagePermissions?.editMoney}
-              onEditSubmit={handleCashOnHandSubmit}
+    <div data-tour="treasury-control-summary">
+      <CollapsibleSection
+        title="Control de Fondo"
+        storageKey="pettycash-collapsible"
+        defaultOpen={true}
+        className="mb-4"
+      >
+        <div className={`flex justify-between ${isMobile || isTablet ? "flex-col" : ""}`}>
+          <div
+            className={`w-[36%] h-[250px] ${isMobile || isTablet ? "w-full mb-2" : ""}`}
+            data-tour="treasury-control-summary-main"
+          >
+            <Summary
+              date={summaryDate ?? null}
+              assigned={assignedAmount}
+              available={availableAmount}
+              percent={percent}
             />
           </div>
 
-          <div className="flex">
-            <SummaryCard
-              title="Monto no comprobado"
-              subtitle={totalVoucherB}
-              amount={unverifiedAmount}
-              statusLabel="No deducibles"
-              SvgIcon={TicketBlue}
-              SvgSecondIcon={SecTicketBlue}
-              trend="down"
-              accent="red"
-              amountDigits={2}
-            />
-            <SummaryCard
-              title="Pendientes por comprobar"
-              subtitle={totalVouchersPending}
-              amount={pendingAmount}
-              statusLabel="Pendientes"
-              SvgIcon={TicketYellow}
-              SvgSecondIcon={SecTicketYellow}
-              trend="dot"
-              accent="yellow"
-              amountDigits={2}
-            />
+          <div className="flex flex-col">
+            <div className="flex">
+              <div data-tour="treasury-control-card-verified">
+                <SummaryCard
+                  title="Monto comprobado"
+                  subtitle={totalVoucherP}
+                  amount={verifiedAmount}
+                  statusLabel="Comprobados"
+                  SvgIcon={TicketPink}
+                  SvgSecondIcon={SecTicketPink}
+                  trend="up"
+                  accent="green"
+                  amountDigits={2}
+                />
+              </div>
+              <div data-tour="treasury-control-card-cash">
+                <SummaryCard
+                  title="Efectivo"
+                  subtitle={assignedSubtitle}
+                  amount={cashAmount}
+                  statusLabel=""
+                  SvgIcon={TicketGreen}
+                  SvgSecondIcon={SecTicketGreen}
+                  trend="down"
+                  accent="green"
+                  amountDigits={2}
+                  editable={currentPagePermissions?.editMoney}
+                  onEditSubmit={handleCashOnHandSubmit}
+                />
+              </div>
+            </div>
+
+            <div className="flex">
+              <div data-tour="treasury-control-card-unverified">
+                <SummaryCard
+                  title="Monto no comprobado"
+                  subtitle={totalVoucherB}
+                  amount={unverifiedAmount}
+                  statusLabel="No deducibles"
+                  SvgIcon={TicketBlue}
+                  SvgSecondIcon={SecTicketBlue}
+                  trend="down"
+                  accent="red"
+                  amountDigits={2}
+                />
+              </div>
+              <div data-tour="treasury-control-card-pending">
+                <SummaryCard
+                  title="Pendientes por comprobar"
+                  subtitle={totalVouchersPending}
+                  amount={pendingAmount}
+                  statusLabel="Pendientes"
+                  SvgIcon={TicketYellow}
+                  SvgSecondIcon={SecTicketYellow}
+                  trend="dot"
+                  accent="yellow"
+                  amountDigits={2}
+                />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </CollapsibleSection>
+      </CollapsibleSection>
+    </div>
   );
 };
 

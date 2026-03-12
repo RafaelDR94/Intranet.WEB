@@ -1,19 +1,19 @@
 /**
- * Representa la evidencia de aprobaciÃ³n asociada a una requisiciÃ³n.
+ * Representa la evidencia de aprobación asociada a una requisición.
  */
 export type BillingRequisitionImageUrl = {
-  /** Id de la requisiciÃ³n. */
+  /** Id de la requisición. */
   idRequisition: string
-  /** URL pÃºblica de la imagen. */
+  /** URL póºblica de la imagen. */
   imageUrl: string
 }
 
 /**
- * Payload para actualizar la evidencia de aprobaciÃ³n.
+ * Payload para actualizar la evidencia de aprobación.
  */
 export type BillingRequisitionImageUrlPut = {
-  /** Id de la requisiciÃ³n. */
+  /** Id de la requisición. */
   idRequisition: string
-  /** URL pÃºblica de la imagen. */
+  /** URL póºblica de la imagen. */
   imageUrl: string
 }

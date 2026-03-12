@@ -60,7 +60,6 @@ describe('getTabsFromPath utility', () => {
     );
 
     expect(result).toEqual([
-      { label: 'Requisiciones', path: '/main-page/accounting/personalInvoices/requisitions' },
       {
         label: 'Detalle Requisición',
         path: '/main-page/accounting/personalInvoices/requisitions?id=123&label=Detalle+Requisici%C3%B3n',
@@ -79,7 +78,6 @@ describe('getTabsFromPath utility', () => {
     );
 
     expect(result).toEqual([
-      { label: 'Requisiciones', path: '/main-page/accounting/personalInvoices/requisitions' },
       {
         label: 'Detalle Requisición',
         path: '/main-page/accounting/personalInvoices/requisitions?id=123&label=Detalle+Requisici%C3%B3n',
@@ -94,10 +92,6 @@ describe('getTabsFromPath utility', () => {
     );
 
     expect(result).toEqual([
-      {
-        label: 'Carga de Archivos Facturables',
-        path: '/main-page/accounting/billablefiles/billablefiles',
-      },
       {
         label: 'Requisición Juan',
         path: '/main-page/accounting/personalInvoices/requisitions?id=456&label=Requisici%C3%B3n+Juan',
