@@ -37,12 +37,17 @@ export const fetchInternalDeviceById = async (
     const mapped = InternalDeviceMap(raw)
 
     const devices = get().devices
-    const nextDevices =
-      devices.length > 0
-        ? devices.map((item) =>
-            item.device_id === mapped.device_id ? mapped : item,
-          )
-        : devices
+    let nextDevices = devices
+
+    if (devices.length === 0) {
+      nextDevices = [mapped]
+    } else if (devices.some((item) => item.device_id === mapped.device_id)) {
+      nextDevices = devices.map((item) =>
+        item.device_id === mapped.device_id ? mapped : item,
+      )
+    } else {
+      nextDevices = [...devices, mapped]
+    }
 
     set({
       device: mapped,
