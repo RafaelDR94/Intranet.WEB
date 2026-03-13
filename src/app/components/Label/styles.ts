@@ -17,6 +17,8 @@ const variantMap: Record<LabelType, string> = {
   "validado-op":"bg-alert-green-10 text-alert-green-100 border border-alert-green-100 text-[11px]",
   "sin-factura": "bg-alert-orange-10 text-alert-orange-100 border border-alert-orange-100 text-[11px]",
   "factura-rechazada": 'bg-gray-20 text-gray-100 border border-gray-100 text-c3',
+  "sin-asignar": "bg-gray-20 text-gray-100 border border-gray-100 text-[11px]",
+  "asignado": "bg-alert-blue-10 text-alert-blue-100 border border-alert-blue-100 text-[11px]",
   /**
    * NUEVOS: Tipos de Vale
    * - Vale Azul: chip con borde azul y fondo blanco (según el diseño).

@@ -172,7 +172,7 @@ const InternalDevicesListPage = () => {
         headerClass: 'w-1/12',
         render: (row) => (
           <Label
-            type={row.assigned ? 'valido' : 'pendiente'}
+            type={row.assigned ? 'asignado' : 'sin-asignar'}
             text={row.assigned ? 'ASIGNADO' : 'SIN ASIGNAR'}
           />
         ),
@@ -274,7 +274,7 @@ const InternalDevicesListPage = () => {
               {
                 title: 'Inventario de Dispositivos',
                 columns,
-            data: filteredRows,
+                data: filteredRows,
                 enableCollaps: true,
                 enableSelection: false,
               },
