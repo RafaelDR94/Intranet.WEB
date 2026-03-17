@@ -249,14 +249,14 @@ const useInvoicesForm = ({
     if (maybeFile) {
       if ("size" in maybeFile && maybeFile.size === 0) {
         throw new Error(
-          "El archivo XML se detectÃ³ como vacÃ­o (0 bytes). Vuelve a seleccionarlo e intenta de nuevo.",
+          "El archivo XML se detectó³ como vacó­o (0 bytes). Vuelve a seleccionarlo e intenta de nuevo.",
         );
       }
 
-      // ValidaciÃ³n ligera: evitar subir texto vacÃ­o o no-XML
+      // Validació³n ligera: evitar subir texto vacó­o o no-XML
       const head = String(await readHeadText(maybeFile, 256)).trim();
       if (head && !head.startsWith("<")) {
-        throw new Error("El archivo seleccionado no parece ser un XML vÃ¡lido.");
+        throw new Error("El archivo seleccionado no parece ser un XML vó¡lido.");
       }
       const url = await firebasestorage.uploadFile(
         maybeFile,
@@ -280,7 +280,7 @@ const useInvoicesForm = ({
     if (maybeFile) {
       if ("size" in maybeFile && maybeFile.size === 0) {
         throw new Error(
-          "El archivo PDF se detectÃ³ como vacÃ­o (0 bytes). Vuelve a seleccionarlo e intenta de nuevo.",
+          "El archivo PDF se detectó³ como vacó­o (0 bytes). Vuelve a seleccionarlo e intenta de nuevo.",
         );
       }
       const url = await firebasestorage.uploadFile(
@@ -434,6 +434,7 @@ const useInvoicesForm = ({
         : field1,
     [disabled, field1],
   );
+ 
 
   return {
     fields: resolvedFields,

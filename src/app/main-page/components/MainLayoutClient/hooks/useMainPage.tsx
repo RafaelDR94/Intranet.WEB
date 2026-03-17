@@ -52,7 +52,7 @@ export const sidebarRoutes = [
     icon: ServerIcon,
     subroutes: [
       { label: 'Facturacion', path: '/main-page/accounting/invoices' },
-      // { label: 'Requisiciones', path: '/main-page/accounting/personalInvoices' },
+      { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
       { label: 'SAP', path: '/main-page/accounting/sap' },
     ],
   },

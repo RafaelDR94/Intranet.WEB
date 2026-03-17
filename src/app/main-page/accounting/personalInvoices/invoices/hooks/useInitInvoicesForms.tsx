@@ -39,12 +39,12 @@ const useInitInvoicesForms = ({
   );
   const { pendingBillingDocuments, fetchBillingDocumentsPendingByEmployee } =
     useBillingRequisitionWithEmployeesStore(
-    (s) => ({
-      pendingBillingDocuments: s.pendingBillingDocuments,
-      fetchBillingDocumentsPendingByEmployee: s.fetchBillingDocumentsPendingByEmployee,
-    }),
-    shallow,
-  );
+      (s) => ({
+        pendingBillingDocuments: s.pendingBillingDocuments,
+        fetchBillingDocumentsPendingByEmployee: s.fetchBillingDocumentsPendingByEmployee,
+      }),
+      shallow,
+    );
   const pathname = usePathname();
   const normalizedPath = pathname.endsWith("/")
     ? pathname.slice(0, -1)
@@ -59,24 +59,27 @@ const useInitInvoicesForms = ({
     normalizedPath === "/main-page/accounting/personalInvoices/requisitions";
   const lockEmployeeFields =
     lockRequisitionFields ||
-    normalizedPath === "/main-page/request/ownrequisitions/uploadbillablefiles";
+    normalizedPath === "/main-page/request/ownrequisitions/uploadbillablefiles"||normalizedPath === "/main-page/operations/requisitions/requisitionListPage";
   const submitRef = useRef<() => void | Promise<void>>(null);
   const prefilledRequisitionIdRef = useRef<string | null>(null);
   const lastPrefillKeyRef = useRef<string | null>(null);
   const [formReady, setFormReady] = useState(false);
   const fieldsReady = field.length > 0;
-  const filteredRequisitions = useMemo(() => {
-    const employeeId = urlEmployeeId ?? user?.idEmployee;
-    if (!employeeId) return requisitions;
-    return requisitions.filter(
-      (r) => String(r.id_Employee) === String(employeeId),
-    );
-  }, [requisitions, urlEmployeeId, user?.idEmployee]);
+  // const filteredRequisitions = useMemo(() => {
+  //   console.log("requisitions", requisitions);
+  //   console.log("urlEmployeeId", urlEmployeeId);
+  //   console.log("user.idEmployee", user?.idEmployee);
+  //   const employeeId = urlEmployeeId ?? user?.idEmployee;
+  //   if (!employeeId) return requisitions;
+  //   return requisitions.filter(
+  //     (r) => String(r.id_Employee) === String(employeeId),
+  //   );
+  // }, [requisitions, urlEmployeeId, user?.idEmployee]);
 
   const requisitionOptions = useMemo(() => {
     const map = new Map<string, { label: string; value: string }>();
 
-    filteredRequisitions.forEach((item) => {
+    requisitions.forEach((item) => {
       const value = item.billingrequisition_id;
       if (!value) return;
       const label = `${item.requisitionkey} - ${item.projectname}`.trim();
@@ -100,7 +103,7 @@ const useInitInvoicesForms = ({
     });
 
     return Array.from(map.values());
-  }, [filteredRequisitions, pendingBillingDocuments]);
+  }, [requisitions, pendingBillingDocuments]);
 
   const ResetForm = () => {
     const initialFields: FieldModel[] = initialformFields;
@@ -148,7 +151,7 @@ const useInitInvoicesForms = ({
     updateField(formId, "requisition", {
       options: requisitionOptions,
       onChange: (value) => {
-        const requisition = filteredRequisitions.find(
+        const requisition = requisitions.find(
           (r) => r.billingrequisition_id === value,
         );
         const employeeName = requisition?.employeename;
@@ -177,7 +180,7 @@ const useInitInvoicesForms = ({
   };
 
   const prefillFromRequisition = (requisitionId: string) => {
-    const requisition = filteredRequisitions.find(
+    const requisition = requisitions.find(
       (r) => r.billingrequisition_id === requisitionId,
     );
     if (!requisition) return;
@@ -249,7 +252,7 @@ const useInitInvoicesForms = ({
   useEffect(() => {
     SetInitRequisitions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredRequisitions, requisitionOptions.length]);
+  }, [requisitions, requisitionOptions.length]);
 
   useEffect(() => {
     if (!lockRequisitionFields) {
@@ -294,10 +297,10 @@ const useInitInvoicesForms = ({
 
   useEffect(() => {
     const requisitionId = dataEdit
-      ? filteredRequisitions.find(
-          (r) => r.requisitionkey === dataEdit?.requisitionkey,
-        )
-          ?.billingrequisition_id
+      ? requisitions.find(
+        (r) => r.requisitionkey === dataEdit?.requisitionkey,
+      )
+        ?.billingrequisition_id
       : billingImages?.requisition_id;
     const categoryId = dataEdit
       ? dataEdit.category.id_billingcategory
@@ -310,7 +313,7 @@ const useInitInvoicesForms = ({
     const prefillSourceChanged = prefillKey !== lastPrefillKeyRef.current;
     const currentDescriptionValue = field.find((f) => f.name === "description")
       ?.value as string | undefined;
-    if (filteredRequisitions.length > 0)
+    if (requisitions.length > 0)
       updateField(formId, "requisition", {
         value: requisitionId,
       });
@@ -356,7 +359,7 @@ const useInitInvoicesForms = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dataEdit,
-    filteredRequisitions,
+    requisitions,
     billingImages,
     billingCategories,
     billingDocumentDescription,
@@ -443,6 +446,8 @@ const useInitInvoicesForms = ({
     const catReady =
       !category ||
       (Array.isArray(category?.options) && (category?.options?.length ?? 0) > 0);
+ 
+
     return !(reqReady && descReady && catReady && (debtorName?.value || !hasDebtor));
   };
 

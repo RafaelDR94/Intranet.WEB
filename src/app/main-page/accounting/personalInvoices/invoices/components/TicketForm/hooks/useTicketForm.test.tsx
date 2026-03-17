@@ -87,7 +87,7 @@ describe('useTicketForm', () => {
     );
   });
 
-  it('envÃ­a image (string) en PUT cuando edita', async () => {
+  it('envó­a image (string) en PUT cuando edita', async () => {
     const dataEdit: any = {
       billing_image_id: 'BILL-1',
       billingrequisition_id: 'REQ-EDIT',

@@ -1,5 +1,11 @@
 import { BillingDocumentDescription, BillingDocuments, BillingDocumentCategory, BillingDocumentsPost, BillingDocumentsPut, BillingDocumentReject, BillingDocumentNotDeductible } from '@/app/mappings/billingdocuments/billingdocuments.types'
 
+export type BillingDocumentsFilterOptions = {
+  filterValue?: '3' | '4' | '5'
+  idRequisition?: string
+  idEmployee?: string
+}
+
 
 // src/app/stores/useBillingDocumentsStore/types.ts
 /**
@@ -15,6 +21,7 @@ export type BillingDocumentsState = {
   billingDocumentsEfos: BillingDocuments[]
   billingCategories: BillingDocumentCategory[]
   billingDocumentDescription: BillingDocumentDescription[]
+  activeDocumentsFilter: BillingDocumentsFilterOptions
 
   /** Montos del balance de viáticos (por requisición) */
   montoComprobado: number
@@ -54,7 +61,10 @@ export type BillingDocumentsState = {
   /** Advertencias retornadas por API */
   warning?: string
 
-  fetchBillingDocuments: (force?: boolean) => Promise<void> | void
+  fetchBillingDocuments: (
+    force?: boolean,
+    filterOptions?: BillingDocumentsFilterOptions,
+  ) => Promise<void> | void
   fetchSatBillingDocument: (force?: boolean) => Promise<void>
   fetchBillingDocumentById: (id: string, force?: boolean) => Promise<BillingDocuments | null>
   fetchBillingDocumentDescriptions: (id: string, force?: boolean) => Promise<BillingDocuments | null>

@@ -2,6 +2,7 @@
 import React, { useMemo } from "react";
 
 import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
+import { Button } from "@/app/components/Button/Button";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
@@ -18,6 +19,7 @@ import useRequisitionsFiles from "./hooks/useRequisitionsFiles";
 const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
   forceVisible = false,
   userId,
+  onViewFiles,
 }) => {
   const isMobile = useIsMobile();
   const {
@@ -63,6 +65,22 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
         render: (row) => statusBadge(row.status),
       },
       {
+        key: "files" as unknown as keyof RequisitionRow,
+        label: "Archivos",
+        render: (row) =>
+          onViewFiles ? (
+            <Button
+              variant="ghost"
+              size="small"
+              hideIcon
+              onClick={() => onViewFiles(row)}
+            >
+              Ver Archivos
+            </Button>
+          ) : null,
+        invisible: !onViewFiles,
+      },
+      {
         key: "actions" as unknown as keyof RequisitionRow,
         label: "",
         render: (row) => (
@@ -73,7 +91,7 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
         invisible: false,
       },
     ],
-    [onDelete, onViewDetails],
+    [onDelete, onViewDetails, onViewFiles],
   );
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = useMemo(
@@ -85,6 +103,26 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
         render: (row) => statusBadge(row.status),
         cellClass: "w-4/12 text-right",
         headerClass: "w-4/12 text-right",
+      },
+      {
+        key: "files" as unknown as keyof RequisitionRow,
+        label: "",
+        render: (row) =>
+          onViewFiles ? (
+            <div className="flex justify-end pr-1">
+              <Button
+                variant="ghost"
+                size="xsmall"
+                hideIcon
+                onClick={() => onViewFiles(row)}
+              >
+                Archivos
+              </Button>
+            </div>
+          ) : null,
+        cellClass: "w-3/12 text-right",
+        headerClass: "w-3/12 text-right",
+        invisible: !onViewFiles,
       },
       {
         key: "actions" as unknown as keyof RequisitionRow,
@@ -99,7 +137,7 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
         invisible: false,
       },
     ],
-    [onDelete, onViewDetails],
+    [onDelete, onViewDetails, onViewFiles],
   );
 
   if (shouldShowEmptyState) {
