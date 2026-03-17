@@ -47,8 +47,6 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({
   onEditInformation,
   onCreateReview,
 }) => {
-  console.log('assignment ', assignment);
-  console.log('assignmentDevice ', assignmentDevice);
   
   const assignmentStatusLabel = assignmentDevice?.device_status?.name ?? 'SIN ESTATUS'
   const isMobile = useIsMobile()

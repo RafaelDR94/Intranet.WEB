@@ -106,14 +106,14 @@ const InternalDevicesListPage = () => {
       {
         key: 'display_id',
         label: 'ID',
-        cellClass: 'w-1/12',
-        headerClass: 'w-1/12',
+        cellClass: 'w-[4%]',
+        headerClass: 'w-[5%]',
       },
       {
         key: 'device_status',
         label: 'ESTATUS',
-        cellClass: 'w-1/12',
-        headerClass: 'w-1/12',
+        cellClass: 'w-[10%]',
+        headerClass: 'w-[9%]',
         render: (row) => (
           <Label
             type={statusToLabelType(row.device_status?.name)}
@@ -124,52 +124,52 @@ const InternalDevicesListPage = () => {
       {
         key: 'device_type',
         label: 'DISPOSITIVO',
-        cellClass: 'w-2/12',
-        headerClass: 'w-2/12',
+        cellClass: 'w-[9%]',
+        headerClass: 'w-[9%]',
         render: (row) => row.device_type?.name ?? '-',
       },
       {
         key: 'device_brand',
         label: 'MARCA',
-        cellClass: 'w-1/12',
-        headerClass: 'w-1/12',
+        cellClass: 'w-[7%]',
+        headerClass: 'w-[7%]',
         render: (row) => row.device_brand?.name ?? '-',
       },
       {
         key: 'model',
         label: 'MODELO',
-        cellClass: 'w-2/12',
-        headerClass: 'w-2/12',
+        cellClass: 'w-[8%]',
+        headerClass: 'w-[8%]',
       },
       {
         key: 'serial_number',
         label: 'No. SERIE',
-        cellClass: 'w-2/12',
-        headerClass: 'w-2/12',
+        cellClass: 'w-[11%]',
+        headerClass: 'w-[11%]',
       },
       {
         key: 'name',
         label: 'NOMBRE',
-        cellClass: 'w-2/12',
-        headerClass: 'w-2/12',
+        cellClass: 'w-[11%]',
+        headerClass: 'w-[11%]',
       },
       {
         key: 'ip_address',
         label: 'DIR. IP',
-        cellClass: 'w-1/12',
-        headerClass: 'w-1/12',
+        cellClass: 'w-[8%]',
+        headerClass: 'w-[8%]',
       },
       {
         key: 'mac_address',
         label: 'DIR. MAC',
-        cellClass: 'w-2/12',
-        headerClass: 'w-2/12',
+        cellClass: 'w-[12%]',
+        headerClass: 'w-[12%]',
       },
       {
         key: 'assigned',
         label: 'ASIGNADO',
-        cellClass: 'w-1/12',
-        headerClass: 'w-1/12',
+        cellClass: 'w-[8%]',
+        headerClass: 'w-[8%]',
         render: (row) => (
           <Label
             type={row.assigned ? 'asignado' : 'sin-asignar'}
@@ -178,10 +178,22 @@ const InternalDevicesListPage = () => {
         ),
       },
       {
+        key: 'reviewed',
+        label: 'REVISIÓN',
+        cellClass: 'w-[7%]',
+        headerClass: 'w-[7%]',
+        render: (row) => (
+          <Label
+            type={row.reviewed === false ? 'valido' : 'prohibido'}
+            text={row.reviewed === false ? 'REVISADO' : 'SIN REVISIÓN'}
+          />
+        ),
+      },
+      {
         key: 'actions' as keyof InternalDeviceRow,
         label: '',
-        cellClass: 'w-1/12',
-        headerClass: 'w-1/12',
+        cellClass: 'w-[3%]',
+        headerClass: 'w-[3%]',
         render: (row) => (
           <div data-tour="internaldevices-list-row-actions">
             <ActionMenuCell
@@ -323,3 +335,4 @@ const InternalDevicesListPage = () => {
   )
 }
 export default InternalDevicesListPage;
+
