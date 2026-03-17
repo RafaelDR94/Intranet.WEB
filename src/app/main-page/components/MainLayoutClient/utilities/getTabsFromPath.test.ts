@@ -148,6 +148,30 @@ describe('getTabsFromPath utility', () => {
     ]);
   });
 
+  it('shows the employee name in the validate invoices tab when invoice context exists', () => {
+    const result = getTabsFromPath(
+      '/main-page/accounting/invoices/validateinvoices',
+      '?idEmployee=emp-1&employeeName=Bruno%20Mendoza',
+    );
+
+    expect(result[0]).toEqual({
+      label: 'Validación de Facturas Bruno Mendoza',
+      path: '/main-page/accounting/invoices/validateinvoices?idEmployee=emp-1&employeeName=Bruno+Mendoza',
+    });
+  });
+
+  it('prioritizes requisition code in the validate invoices tab when requisition context exists', () => {
+    const result = getTabsFromPath(
+      '/main-page/accounting/invoices/validateinvoices',
+      '?idEmployee=emp-1&idRequisition=req-1&employeeName=Bruno%20Mendoza&requisitionCode=REQ-2026-001',
+    );
+
+    expect(result[0]).toEqual({
+      label: 'Validación de Facturas REQ-2026-001',
+      path: '/main-page/accounting/invoices/validateinvoices?idEmployee=emp-1&idRequisition=req-1&requisitionCode=REQ-2026-001&employeeName=Bruno+Mendoza',
+    });
+  });
+
   it('adds requisitions and detail tabs when viewing requisition detail', () => {
     const result = getTabsFromPath(
       '/main-page/operations/requisitions/requisitionListPage',

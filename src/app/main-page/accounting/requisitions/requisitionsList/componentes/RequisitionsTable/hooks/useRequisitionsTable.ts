@@ -216,15 +216,15 @@ export const useRequisitionTable = () => {
   };
 
   const onViewFiles = (row: RequisitionRow) => {
-    const clean = path.endsWith('/') ? path.slice(0, -1) : path;
-    const qs = new URLSearchParams(searchParams.toString());
-    const resolvedId = row.id || row.employeeId || '';
-    qs.set('id', resolvedId);
-    if (row.employeeId) {
-      qs.set('idEmployee', row.employeeId);
+    const qs = new URLSearchParams();
+    const employeeId = row.employeeId || row.id;
+    if (employeeId) {
+      qs.set('idEmployee', employeeId);
     }
-    qs.set('label', buildLabel('Archivos', row.debtorName));
-    router.push(`${clean}?${qs.toString()}`);
+    if (row.debtorName) {
+      qs.set('employeeName', row.debtorName);
+    }
+    router.push(`/main-page/accounting/invoices/validateinvoices?${qs.toString()}`);
   };
 
   const onViewRequisitions = (row: RequisitionRow) => {
