@@ -1,9 +1,12 @@
 'use client'
 
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { shallow } from 'zustand/shallow'
 
 import { Button } from '@/app/components/Button/Button'
+import { PopUp } from '@/app/components/PopUp/PopUp'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
+import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import useQuery from '@/app/hooks/useQuery/useQuery'
 import type { EmployeeType } from '@/app/mappings/employees/employee.types'
 import type { InternalDeviceAssignmentHistory } from '@/app/mappings/internaldevices/internaldevices.types'
@@ -24,16 +27,30 @@ const HistoryAssignment: React.FC<HistoryAssignmentProps> = ({
   onCreateAssignment,
 }) => {
   const { updateQuery } = useQuery()
+  const { user } = useAuth()
+  const { usePrincipalAlert, usePrincipalLoading } = usePrincipal()
+  const { showAlert } = usePrincipalAlert
+  const { showSpinner, hideSpinner } = usePrincipalLoading
   const {
     deviceAssignmentHistory,
     loadingDeviceAssignmentHistory,
     fetchDeviceAssignmentHistoryByDeviceId,
+    deleteDeviceAssignment,
+    deletingDeviceAssignment,
+    fetchDeviceAssignments,
+    deviceAssignment,
+    error,
   } = useInternalDevicesStore(
     (state) => ({
       deviceAssignmentHistory: state.deviceAssignmentHistory,
       loadingDeviceAssignmentHistory: state.loadingDeviceAssignmentHistory,
       fetchDeviceAssignmentHistoryByDeviceId:
         state.fetchDeviceAssignmentHistoryByDeviceId,
+      deleteDeviceAssignment: state.deleteDeviceAssignment,
+      deletingDeviceAssignment: state.deletingDeviceAssignment,
+      fetchDeviceAssignments: state.fetchDeviceAssignments,
+      deviceAssignment: state.deviceAssignment,
+      error: state.error,
     }),
     shallow,
   )
@@ -77,9 +94,12 @@ const HistoryAssignment: React.FC<HistoryAssignmentProps> = ({
     [deviceAssignmentHistory],
   )
 
-  if (loadingDeviceAssignmentHistory || loadingActive) {
-    return <div className="text-center text-gray-70">Cargando historial...</div>
-  }
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const hasActiveAssignment = Boolean(
+    deviceAssignment?.device_assigment_id &&
+      deviceAssignment.device_id &&
+      deviceAssignment.device_id === deviceId,
+  )
 
   const handleCreateAssignment = () => {
     if (onCreateAssignment) {
@@ -89,16 +109,94 @@ const HistoryAssignment: React.FC<HistoryAssignmentProps> = ({
     updateQuery({ view: 'new' })
   }
 
+  const handleConfirmUnlink = useCallback(async () => {
+    if (
+      !deviceAssignment?.device_assigment_id ||
+      !deviceAssignment.device_id ||
+      deviceAssignment.device_id !== deviceId
+    ) {
+      return
+    }
+    showSpinner({ message: 'Desvinculando usuario...' })
+    const ok = await deleteDeviceAssignment(
+      deviceAssignment.device_assigment_id,
+      undefined,
+      user?.idEmployee,
+    )
+    hideSpinner()
+
+    if (!ok) {
+      showAlert({
+        type: 'error',
+        title: 'Ocurrio un error',
+        description: error ?? 'No se pudo desvincular al usuario.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1500,
+      })
+      return
+    }
+
+    setConfirmOpen(false)
+    showAlert({
+      type: 'info',
+      title: 'Usuario desvinculado',
+      description: 'El dispositivo quedo disponible para una nueva asignacion.',
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      autoCloseMs: 1200,
+    })
+
+    if (deviceId) {
+      await fetchDeviceAssignmentHistoryByDeviceId(deviceId, true)
+    }
+    await fetchDeviceAssignments(true)
+  }, [
+    deleteDeviceAssignment,
+    deviceAssignment?.device_assigment_id,
+    deviceId,
+    error,
+    fetchDeviceAssignmentHistoryByDeviceId,
+    fetchDeviceAssignments,
+    hideSpinner,
+    showAlert,
+    showSpinner,
+    user?.idEmployee,
+  ])
+
+  if (loadingDeviceAssignmentHistory || loadingActive) {
+    return <div className="text-center text-gray-70">Cargando historial...</div>
+  }
+
   return (
     <div className="space-y-4">
+      <PopUp
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Desvincular usuario"
+        content="¿Desea desvincular el usuario del dispositivo?"
+        showSecondaryButton
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={() => setConfirmOpen(false)}
+        showPrimaryButton
+        primaryButtonText={deletingDeviceAssignment ? 'Desvinculando...' : 'Desvincular'}
+        onPrimaryButtonClick={handleConfirmUnlink}
+      />
+
       <div className="flex items-center justify-end">
         <Button
           size="small"
           variant="ghost"
           icon={UserIcon}
-          onClick={handleCreateAssignment}
+          onClick={() => {
+            if (hasActiveAssignment) {
+              setConfirmOpen(true)
+              return
+            }
+            handleCreateAssignment()
+          }}
         >
-          Nueva Asignacion
+          {hasActiveAssignment ? 'Desvincular usuario' : 'Nueva Asignacion'}
         </Button>
       </div>
 

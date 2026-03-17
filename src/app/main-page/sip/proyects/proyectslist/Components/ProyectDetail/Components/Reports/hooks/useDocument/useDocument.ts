@@ -43,7 +43,11 @@ const useDocument = () => {
             img.src = dataUrl;
         });
 
-    const normalizeImageForPdf = async (dataUrl: string) => {
+    type PdfImageOptions = {
+        preserveAlpha?: boolean;
+    };
+
+    const normalizeImageForPdf = async (dataUrl: string, options: PdfImageOptions = {}) => {
         if (typeof document === "undefined") {
             return dataUrl;
         }
@@ -70,8 +74,20 @@ const useDocument = () => {
         if (!ctx) {
             return dataUrl;
         }
+
+        const outputMime = options.preserveAlpha ? "image/png" : "image/jpeg";
+
+        // Al exportar a JPEG se pierde el canal alpha; si la imagen original es transparente
+        // (por ejemplo firmas), el fondo por defecto queda negro. Pintamos un fondo blanco
+        // para evitar "recuadros" negros en el PDF.
+        if (outputMime === "image/jpeg") {
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, targetWidth, targetHeight);
+        }
         ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-        return canvas.toDataURL("image/jpeg", 0.82);
+        return outputMime === "image/png"
+            ? canvas.toDataURL("image/png")
+            : canvas.toDataURL("image/jpeg", 0.82);
     };
 
     const urlToBase64WithRetry = async (url: string, attempts = 2) => {
@@ -92,9 +108,10 @@ const useDocument = () => {
         return "";
     };
 
-    const ensurePdfImageUrl = async (url: string) => {
+    const ensurePdfImageUrl = async (url: string, options: PdfImageOptions = {}) => {
         if (!url) return "";
-        const cached = imageCacheRef.current.get(url);
+        const cacheKey = `${url}|alpha:${options.preserveAlpha ? 1 : 0}`;
+        const cached = imageCacheRef.current.get(cacheKey);
         if (cached) return cached;
 
         let dataUrl = url;
@@ -107,12 +124,12 @@ const useDocument = () => {
 
         let normalized = dataUrl;
         try {
-            normalized = await normalizeImageForPdf(dataUrl);
+            normalized = await normalizeImageForPdf(dataUrl, options);
         } catch (error) {
             console.warn("No se pudo normalizar la imagen para PDF", error);
         }
 
-        imageCacheRef.current.set(url, normalized);
+        imageCacheRef.current.set(cacheKey, normalized);
         return normalized;
     };
 
@@ -204,7 +221,7 @@ const useDocument = () => {
             title: "Firma de responsable",
             signatures: [
                 {
-                    signature: await ensurePdfImageUrl(currentReport?.employeesignurl || ""),
+                    signature: await ensurePdfImageUrl(currentReport?.employeesignurl || "", { preserveAlpha: true }),
                     name: currentReport?.employe?.fullname || "Nombre del responsable",
                     charge: currentReport?.employe?.workposition?.name || "Cargo del responsable",
                 },
@@ -213,7 +230,7 @@ const useDocument = () => {
         };
         if (currentReport?.model?.clientsign) {
             Signature.signatures.push({
-                signature: await ensurePdfImageUrl(currentReport?.clientsign.url || ""),
+                signature: await ensurePdfImageUrl(currentReport?.clientsign.url || "", { preserveAlpha: true }),
                 name: currentReport?.clientsign.clientname || "Nombre del cliente",
                 charge: currentReport?.clientsign.clientworkposition || "Cargo del cliente",
             })

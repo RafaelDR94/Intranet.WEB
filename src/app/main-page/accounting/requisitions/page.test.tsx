@@ -21,7 +21,6 @@ describe('RequisitionsPage', () => {
     expect(PermissionRedirect).toHaveBeenCalledWith(
       expect.objectContaining({
         routes: [
-          '/main-page/accounting/requisitions/requisitions',
           '/main-page/accounting/requisitions/requisitionsList',
         ],
       }),

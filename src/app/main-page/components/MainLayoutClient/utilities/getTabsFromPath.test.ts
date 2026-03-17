@@ -37,7 +37,7 @@ describe('getTabsFromPath utility', () => {
     ]);
   });
 
-  it('adds detail tab when operations requisition list has an id without label', () => {
+  it('does not add detail tab when operations requisition list only has employee id', () => {
     const result = getTabsFromPath(
       '/main-page/operations/requisitions/requisitionListPage',
       '?id=123',
@@ -46,9 +46,25 @@ describe('getTabsFromPath utility', () => {
     expect(result).toEqual([
       { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
       { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
+    ]);
+  });
+
+  it('adds requisitions and detail tabs when operations detail includes idRequisition', () => {
+    const result = getTabsFromPath(
+      '/main-page/operations/requisitions/requisitionListPage',
+      '?id=777&idEmployee=777&idRequisition=555&label=Detalle%20Requisici%C3%B3n&requisitionsLabel=Requisiciones%20Bruno%20Mendoza&view=detail',
+    );
+
+    expect(result).toEqual([
+      { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
+      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
+      {
+        label: 'Requisiciones Bruno',
+        path: '/main-page/operations/requisitions/requisitionListPage?id=777&label=Requisiciones+Bruno&idEmployee=777&requisitionsLabel=Requisiciones+Bruno',
+      },
       {
         label: 'Detalle Requisición',
-        path: '/main-page/operations/requisitions/requisitionListPage?id=123&label=Detalle+Requisici%C3%B3n&view=detail',
+        path: '/main-page/operations/requisitions/requisitionListPage?id=777&idRequisition=555&label=Detalle+Requisici%C3%B3n&view=detail&idEmployee=777&requisitionsLabel=Requisiciones+Bruno',
       },
     ]);
   });
@@ -132,6 +148,30 @@ describe('getTabsFromPath utility', () => {
     ]);
   });
 
+  it('shows the employee name in the validate invoices tab when invoice context exists', () => {
+    const result = getTabsFromPath(
+      '/main-page/accounting/invoices/validateinvoices',
+      '?idEmployee=emp-1&employeeName=Bruno%20Mendoza',
+    );
+
+    expect(result[0]).toEqual({
+      label: 'Validación de Facturas Bruno Mendoza',
+      path: '/main-page/accounting/invoices/validateinvoices?idEmployee=emp-1&employeeName=Bruno+Mendoza',
+    });
+  });
+
+  it('prioritizes requisition code in the validate invoices tab when requisition context exists', () => {
+    const result = getTabsFromPath(
+      '/main-page/accounting/invoices/validateinvoices',
+      '?idEmployee=emp-1&idRequisition=req-1&employeeName=Bruno%20Mendoza&requisitionCode=REQ-2026-001',
+    );
+
+    expect(result[0]).toEqual({
+      label: 'Validación de Facturas REQ-2026-001',
+      path: '/main-page/accounting/invoices/validateinvoices?idEmployee=emp-1&idRequisition=req-1&requisitionCode=REQ-2026-001&employeeName=Bruno+Mendoza',
+    });
+  });
+
   it('adds requisitions and detail tabs when viewing requisition detail', () => {
     const result = getTabsFromPath(
       '/main-page/operations/requisitions/requisitionListPage',
@@ -147,7 +187,7 @@ describe('getTabsFromPath utility', () => {
       },
       {
         label: 'Detalle Requisición',
-        path: '/main-page/operations/requisitions/requisitionListPage?id=555&label=Detalle+Requisici%C3%B3n&view=detail&idEmployee=777&requisitionsLabel=Requisiciones+Bruno',
+        path: '/main-page/operations/requisitions/requisitionListPage?id=777&idRequisition=555&label=Detalle+Requisici%C3%B3n&view=detail&idEmployee=777&requisitionsLabel=Requisiciones+Bruno',
       },
     ]);
   });

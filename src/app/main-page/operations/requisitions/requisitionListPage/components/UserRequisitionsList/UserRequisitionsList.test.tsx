@@ -92,6 +92,6 @@ describe('UserRequisitionsList', () => {
     expect(screen.getByText('DataTable')).toBeInTheDocument()
     expect(screen.getByText('Historial')).toBeInTheDocument()
     expect(screen.getByText('SN-01')).toBeInTheDocument()
-    expect(screen.getByText('debtorName,projectCode,snCode,status,actions')).toBeInTheDocument()
+    expect(screen.getByText('debtorName,snCode,status,files,actions')).toBeInTheDocument()
   })
 })

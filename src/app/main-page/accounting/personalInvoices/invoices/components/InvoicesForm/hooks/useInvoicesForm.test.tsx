@@ -64,7 +64,7 @@ describe('useInvoicesForm', () => {
     expect(createBillingDocument).toHaveBeenCalled();
   });
 
-  it('muestra error y no envÃ­a si el XML estÃ¡ vacÃ­o', async () => {
+  it('muestra error y no envó­a si el XML estó¡ vacó­o', async () => {
     const { result } = renderHook(() => useInvoicesForm({}));
     showAlert.mockClear();
     createBillingDocument.mockClear();

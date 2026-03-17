@@ -57,7 +57,7 @@ const InternalDeviceDetail: React.FC<InternalDeviceDetailProps> = ({
       {device ? (
         <div className="space-y-4">
           <div className="flex flex-col gap-2">
-            <h2 className="text-h3 text-blue-100">{device.name || device.serial_number}</h2>
+            <h2 className="text-h3 text-green-100">{device.name || device.serial_number}</h2>
           </div>
 
           <ButtonsNavigation

@@ -6,9 +6,17 @@ import { Get, Set } from '../types'
 
 import { BillingRequisitionsByID } from '@/app/configurations/Axios/urls'
 import { RequisitionMap } from '@/app/mappings/requisitions/requisitions.mapp'
+import type { Requisition } from '@/app/mappings/requisitions/requisitions.types'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
+
+const isHydratedRequisition = (req: Requisition): boolean => {
+    const hasAmount = String(req.amountdeposited ?? '').trim() !== ''
+    const hasMotive = String(req.motive ?? '').trim() !== ''
+    const hasState = String(req.state ?? '').trim() !== ''
+    return hasAmount || hasMotive || hasState
+}
 
 /**
  * Obtiene las requisiciones activas del backend y actualiza el estado.
@@ -21,7 +29,14 @@ export const fetchCurrentRequisition = async (set: Set, get: Get, id: string, fo
 
     set({ gettincurrentReq: true, error: undefined, succesgetingCurrent: false })
     const localRequisition = get().requisitions.find((req) => (req.billingrequisition_id == id))
-    if (localRequisition && !force) { set({ currentRequisition: localRequisition, gettincurrentReq: false, succesgetingCurrent: true }); return };
+    if (localRequisition && !force && isHydratedRequisition(localRequisition)) {
+        set({ currentRequisition: localRequisition, gettincurrentReq: false, succesgetingCurrent: true })
+        return
+    }
+
+    if (localRequisition && !force) {
+        set({ currentRequisition: localRequisition })
+    }
 
     try {
         // 1) Obtiene GET del gateway (lanza si no está listo)

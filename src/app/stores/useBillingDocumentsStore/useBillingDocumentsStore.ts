@@ -34,6 +34,11 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     billingDocumentsEfos: [],
     billingCategories: [],
     billingDocumentDescription: [],
+    activeDocumentsFilter: { filterValue: '3' },
+    montoComprobado: 0,
+    montoAFavorEmpresa: 0,
+    montoAFavorColaborador: 0,
+    hasPerDiemTotals: false,
     /** Documento por ID */
     billingDocument: undefined,
     /** Flags de proceso */
@@ -66,7 +71,8 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     /** Mensaje de advertencia */
     warning: undefined,
     /** Obtiene documentos */
-    fetchBillingDocuments: (force = false) => fetchBillingDocuments(set, get, force),
+    fetchBillingDocuments: (force = false, filterOptions) =>
+      fetchBillingDocuments(set, get, force, filterOptions),
     /**Obtiene documentos validados por el SAT */
     fetchSatBillingDocument: (force = false) => fetchSatBillingDocument(set, get, force),
     /** Obtiene documento por ID */
@@ -102,6 +108,11 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
       billingDocumentsBadCode: [],
       billingDocumentsEfos: [],
       billingDocument: undefined,
+      activeDocumentsFilter: { filterValue: '3' },
+      montoComprobado: 0,
+      montoAFavorEmpresa: 0,
+      montoAFavorColaborador: 0,
+      hasPerDiemTotals: false,
       error: undefined,
       warning: undefined,
       successGet: false,

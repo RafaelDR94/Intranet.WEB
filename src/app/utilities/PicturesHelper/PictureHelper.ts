@@ -62,6 +62,11 @@ export type OptimizeImageOptions = {
   maxHeight?: number;
   quality?: number;
   preferWebp?: boolean;
+  /**
+   * Cuando se requiere conservar transparencia (por ejemplo firmas),
+   * evita convertir a JPEG en navegadores sin soporte WebP y usa PNG como fallback.
+   */
+  preserveAlpha?: boolean;
 };
 
 export type OptimizedImageResult = {
@@ -81,6 +86,7 @@ export const optimizeDataUrlToBlob = async (
     maxHeight = 1600,
     quality = 0.72,
     preferWebp = true,
+    preserveAlpha = false,
   } = options;
 
   if (typeof document === 'undefined') {
@@ -110,14 +116,17 @@ export const optimizeDataUrlToBlob = async (
   }
 
   ctx.drawImage(img, 0, 0, target.width, target.height);
+
   const useWebp = preferWebp && isWebpSupported();
-  const mime = useWebp ? 'image/webp' : 'image/jpeg';
+  const mime = preserveAlpha
+    ? (useWebp ? 'image/webp' : 'image/png')
+    : (useWebp ? 'image/webp' : 'image/jpeg');
 
   const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
       (result) => (result ? resolve(result) : reject(new Error('toBlob failed'))),
       mime,
-      quality
+      mime === 'image/png' ? undefined : quality
     );
   });
 

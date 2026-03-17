@@ -2,6 +2,7 @@
 import React, { useMemo } from "react";
 
 import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
+import { Button } from "@/app/components/Button/Button";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
@@ -18,6 +19,7 @@ import useRequisitionsFiles from "./hooks/useRequisitionsFiles";
 const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
   forceVisible = false,
   userId,
+  onViewFiles,
 }) => {
   const isMobile = useIsMobile();
   const {
@@ -31,6 +33,7 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
     onViewDetails,
     onDelete,
     shouldShowEmptyState,
+    handleRefreshPage,
   } = useRequisitionsFiles({ forceVisible, userId });
 
   const statusBadge = (status?: string) => {
@@ -55,12 +58,27 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
   const desktopColumns: ColumnDefinition<RequisitionRow>[] = useMemo(
     () => [
       { key: "debtorName", label: "Nombre" },
-      { key: "projectCode", label: "Proyecto" },
-      { key: "snCode", label: "Código SN" },
+      { key: "snCode", label: "Código" },
       {
         key: "status",
         label: "Estatus",
         render: (row) => statusBadge(row.status),
+      },
+      {
+        key: "files" as unknown as keyof RequisitionRow,
+        label: "Archivos",
+        render: (row) =>
+          onViewFiles ? (
+            <Button
+              variant="ghost"
+              size="small"
+              hideIcon
+              onClick={() => onViewFiles(row)}
+            >
+              Ver Archivos
+            </Button>
+          ) : null,
+        invisible: !onViewFiles,
       },
       {
         key: "actions" as unknown as keyof RequisitionRow,
@@ -73,19 +91,38 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
         invisible: false,
       },
     ],
-    [onDelete, onViewDetails],
+    [onDelete, onViewDetails, onViewFiles],
   );
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = useMemo(
     () => [
-      { key: "projectCode", label: "Proyecto" },
-      { key: "snCode", label: "Código SN" },
+      { key: "snCode", label: "Código" },
       {
         key: "status",
         label: "Estatus",
         render: (row) => statusBadge(row.status),
         cellClass: "w-4/12 text-right",
         headerClass: "w-4/12 text-right",
+      },
+      {
+        key: "files" as unknown as keyof RequisitionRow,
+        label: "",
+        render: (row) =>
+          onViewFiles ? (
+            <div className="flex justify-end pr-1">
+              <Button
+                variant="ghost"
+                size="xsmall"
+                hideIcon
+                onClick={() => onViewFiles(row)}
+              >
+                Archivos
+              </Button>
+            </div>
+          ) : null,
+        cellClass: "w-3/12 text-right",
+        headerClass: "w-3/12 text-right",
+        invisible: !onViewFiles,
       },
       {
         key: "actions" as unknown as keyof RequisitionRow,
@@ -100,7 +137,7 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
         invisible: false,
       },
     ],
-    [onDelete, onViewDetails],
+    [onDelete, onViewDetails, onViewFiles],
   );
 
   if (shouldShowEmptyState) {
@@ -131,9 +168,10 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
       />
 
       <DataTable
-        showCalendar={true}
+        showCalendar={false}
         showFilter={true}
         showRefresh={true}
+        onRefreshPage={handleRefreshPage}
         filterOptions={filterOptions}
         textSize={{ mobile: "text-[11px]", desktop: "text-c2" }}
         dataTableTitle="Requisiciones"
@@ -144,13 +182,12 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
             title: "Historial",
             enableCollaps: true,
             enableSelection: false,
-            defaultSortKey: "date_created",
+            defaultSortKey: "snCode",
             defaultSortDirection: "desc",
           },
         ]}
         showDownloadTable={true}
         showButton={false}
-        dateKey={"date_created"}
       />
     </div>
   );

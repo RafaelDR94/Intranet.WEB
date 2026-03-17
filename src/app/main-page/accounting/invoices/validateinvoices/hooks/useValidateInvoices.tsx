@@ -7,6 +7,7 @@ import { shallow } from "zustand/shallow"
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext"
 import { BillingDocuments } from "@/app/mappings/billingdocuments/billingdocuments.types"
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore"
+import type { BillingDocumentsFilterOptions } from "@/app/stores/useBillingDocumentsStore/types"
 
 export const isNonDeductibleDocument = (document: BillingDocuments): boolean => {
   const uuid = document?.uuid?.trim()
@@ -35,6 +36,19 @@ export const useValidateInvoices = () => {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const idRequisition = searchParams.get("idRequisition") ?? undefined
+  const idEmployee = searchParams.get("idEmployee") ?? undefined
+  const billingDocumentsFilter = useMemo<BillingDocumentsFilterOptions>(() => {
+    if (idRequisition) {
+      return { filterValue: "4", idRequisition }
+    }
+
+    if (idEmployee) {
+      return { filterValue: "5", idEmployee }
+    }
+
+    return { filterValue: "3" }
+  }, [idEmployee, idRequisition])
 
   const {
     validating,
@@ -185,8 +199,8 @@ export const useValidateInvoices = () => {
   }, [hasNonDeductibleDocuments, pathname, router, searchParams])
 
   useEffect(() => {
-    fetchBillingDocuments(true)
-  }, [fetchBillingDocuments])
+    fetchBillingDocuments(true, billingDocumentsFilter)
+  }, [billingDocumentsFilter, fetchBillingDocuments])
 
   useEffect(() => {
     if (!selected) return
