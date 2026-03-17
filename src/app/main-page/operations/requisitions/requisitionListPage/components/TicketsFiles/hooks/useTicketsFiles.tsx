@@ -87,7 +87,7 @@ const statusToType = (status?: string): LabelType => {
 };
 
 const isPendingStatus = (status?: string): boolean =>
-  (status ?? "").trim().toLowerCase().includes("pend");
+  (status ?? "").trim().toLowerCase().includes("pend")|| (status ?? "").trim().toLowerCase().includes("actualizado");
 
 const useTicketsFiles = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();

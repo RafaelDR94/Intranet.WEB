@@ -23,7 +23,11 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
   const { usePrincipalAlert } = usePrincipal();
   const { showAlert } = usePrincipalAlert
   const searchParams = useSearchParams()
-  const requisitionId = overrideRequisitionId ?? searchParams.get('id') ?? undefined
+  const requisitionId =
+    overrideRequisitionId ??
+    searchParams.get('idRequisition') ??
+    searchParams.get('id') ??
+    undefined
   const [panelOpen, setPanelOpen] = useState(false)
   const [selected, setSelected] = useState<BillingDocuments | null>(null)
   const [documentImages, setDocumentImages] = useState<Record<string, string>>({})

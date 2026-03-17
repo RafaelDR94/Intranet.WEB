@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base64ToBlob, optimizeDataUrlToBlob } from '@/app/utilities/PicturesHelper/PictureHelper';
+import { base64ToBlob, optimizeDataUrlToBlob, type OptimizeImageOptions } from '@/app/utilities/PicturesHelper/PictureHelper';
 import { Activities, ReportView } from '@/app/mappings/reports/reports.types';
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper';
 import { isProduction } from '@/app/configurations/Axios/Clients';
@@ -41,7 +41,8 @@ const useReportSaver = () => {
     const SaveImages = async (
         images: Activities[],
         folderPath: string,
-        progresperpicture: number
+        progresperpicture: number,
+        optimizeOverrides: OptimizeImageOptions = {}
     ): Promise<Activities[]> => {
         const updatedImages = [...images]; // Copia segura para no mutar directamente el state
 
@@ -61,6 +62,7 @@ const useReportSaver = () => {
                             maxHeight: 1600,
                             quality: 0.72,
                             preferWebp: true,
+                            ...optimizeOverrides,
                         });
                         blobToUpload = optimized.blob;
                     } catch (optError) {
@@ -149,8 +151,14 @@ const useReportSaver = () => {
         try {
             if (report?.activities.length > 0) reportTosave.activities = await SaveImages(report?.activities, ImagesPath + "Actividades", calculateProgressPerImage(50, report?.activities.length));
             if (report?.maps.length > 0) reportTosave.maps = await SaveImages(report?.maps, ImagesPath + "Mapas de trabajo", calculateProgressPerImage(10, report?.maps.length));
-            if (report?.employeesignurl) { const employeesign = await SaveImages(EmployeeSign, ImagesPath + "Firmas", calculateProgressPerImage(10, 1)); reportTosave.employeesignurl = employeesign[0]?.urlimage ?? "" }
-            if (report?.clientsign?.url) { const clientsign = await SaveImages(ClientSignature, ImagesPath + "Firmas", calculateProgressPerImage(10, 1)); reportTosave.clientsign.url = clientsign[0]?.urlimage ?? "" }
+            if (report?.employeesignurl) {
+                const employeesign = await SaveImages(EmployeeSign, ImagesPath + "Firmas", calculateProgressPerImage(10, 1), { preserveAlpha: true });
+                reportTosave.employeesignurl = employeesign[0]?.urlimage ?? ""
+            }
+            if (report?.clientsign?.url) {
+                const clientsign = await SaveImages(ClientSignature, ImagesPath + "Firmas", calculateProgressPerImage(10, 1), { preserveAlpha: true });
+                reportTosave.clientsign.url = clientsign[0]?.urlimage ?? ""
+            }
             if (!reportTosave?.proyect.id) reportTosave.proyect.id = String(all?.id) || ""
             if (!reportTosave?.employe?.employee_id) reportTosave.employe.employee_id = user?.idEmployee || ""
             if (!reportTosave?.workposition.workposition_id) reportTosave.workposition.workposition_id = user?.idWorkPosition || ""

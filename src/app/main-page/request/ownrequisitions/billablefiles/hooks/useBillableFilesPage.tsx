@@ -106,7 +106,7 @@ const useBillableFilesPage = () => {
   }, [fetchBillingAllDocumentsByEmployee, user?.idEmployee]);
 
   const handleUploadFiles = useCallback(() => {
-    router.push("/main-page/accounting/billablefiles/billablefiles/");
+    router.push("/main-page/request/ownrequisitions/uploadbillablefiles/");
   }, [router]);
 
   const mobileColumns = useMemo<ColumnDefinition<BillableFileRow>[]>(

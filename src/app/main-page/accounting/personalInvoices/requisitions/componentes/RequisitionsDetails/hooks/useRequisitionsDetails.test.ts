@@ -36,6 +36,6 @@ vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
 describe('useRequisitionsDetails', () => {
   it('fetches requisition on mount when id exists', () => {
     renderHook(() => useRequisitionsDetails())
-    expect(fetchCurrentRequisition).toHaveBeenCalledWith('1')
+    expect(fetchCurrentRequisition).toHaveBeenCalledWith('1', true)
   })
 })

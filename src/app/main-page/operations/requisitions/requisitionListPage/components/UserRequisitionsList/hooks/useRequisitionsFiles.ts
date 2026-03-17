@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { shallow } from "zustand/shallow";
 
@@ -37,6 +37,7 @@ const useRequisitionsFiles = ({ forceVisible = false, userId }: UseRequisitionsF
     removing,
     fetchRequisitionsByIdEmployee,
     deleteRequisition,
+    reset,
     resetFlags,
   } = useRequisitionsStore(
     (state) => ({
@@ -47,6 +48,7 @@ const useRequisitionsFiles = ({ forceVisible = false, userId }: UseRequisitionsF
       removing: state.removing,
       fetchRequisitionsByIdEmployee: state.fetchRequisitionsByIdEmployee,
       deleteRequisition: state.deleteRequisition,
+      reset: state.reset,
       resetFlags: state.resetFlags,
     }),
     shallow,
@@ -137,7 +139,10 @@ const useRequisitionsFiles = ({ forceVisible = false, userId }: UseRequisitionsF
   const onViewDetails = (row: RequisitionRow) => {
     const clean = path.endsWith("/") ? path.slice(0, -1) : path;
     const qs = new URLSearchParams(searchParams.toString());
-    qs.set("id", row.id);
+    qs.set("idRequisition", row.id);
+    if (effectiveUserId) {
+      qs.set("id", effectiveUserId);
+    }
     if (row.employeeId || effectiveUserId) {
       qs.set("idEmployee", row.employeeId ?? effectiveUserId ?? "");
     }
@@ -208,6 +213,12 @@ const useRequisitionsFiles = ({ forceVisible = false, userId }: UseRequisitionsF
 
   const shouldShowEmptyState = !effectiveUserId && !forceVisible;
 
+  const handleRefreshPage = useCallback(() => {
+    if (!effectiveUserId) return;
+    reset();
+    fetchRequisitionsByIdEmployee(effectiveUserId, true);
+  }, [effectiveUserId, fetchRequisitionsByIdEmployee, reset]);
+
   return {
     rows,
     filterOptions,
@@ -220,6 +231,7 @@ const useRequisitionsFiles = ({ forceVisible = false, userId }: UseRequisitionsF
     onViewDetails,
     onDelete,
     shouldShowEmptyState,
+    handleRefreshPage,
   };
 };
 

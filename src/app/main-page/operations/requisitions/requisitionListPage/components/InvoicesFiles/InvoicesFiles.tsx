@@ -31,7 +31,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const requisitionId = searchParams.get("id");
+  const requisitionId = searchParams.get("idRequisition") ?? searchParams.get("id");
   const employeeId = searchParams.get("idEmployee");
   const currency = new Intl.NumberFormat("es-MX", {
     style: "currency",
@@ -57,10 +57,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
     if (!requisitionId) return;
 
     const query = new URLSearchParams(searchParams.toString());
-    query.set("id", requisitionId);
-    if (employeeId) {
-      query.set("idEmployee", employeeId);
-    }
+    query.set("idRequisition", requisitionId);
     if (employeeId) {
       query.set("idEmployee", employeeId);
     }

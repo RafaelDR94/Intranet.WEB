@@ -88,9 +88,20 @@ const RequisitionDetails: React.FC = () => {
     shallow,
   );
 
-  const { billingDocuments, fetchBillingDocumentByIdRequisition } = useBillingDocumentsStore(
+  const {
+    billingDocuments,
+    montoComprobado,
+    montoAFavorEmpresa,
+    montoAFavorColaborador,
+    hasPerDiemTotals,
+    fetchBillingDocumentByIdRequisition,
+  } = useBillingDocumentsStore(
     (s) => ({
       billingDocuments: s.billingDocuments,
+      montoComprobado: s.montoComprobado,
+      montoAFavorEmpresa: s.montoAFavorEmpresa,
+      montoAFavorColaborador: s.montoAFavorColaborador,
+      hasPerDiemTotals: s.hasPerDiemTotals,
       fetchBillingDocumentByIdRequisition: s.fetchBillingDocumentByIdRequisition,
     }),
     shallow,
@@ -173,7 +184,13 @@ const RequisitionDetails: React.FC = () => {
   const handleOpenHistory = useCallback(() => {
     if (!currentRequisition?.billingrequisition_id) return;
     const query = new URLSearchParams(searchParams.toString());
-    query.set("id", currentRequisition.billingrequisition_id);
+    const employeeId =
+      query.get("idEmployee") ?? query.get("id") ?? currentRequisition.id_Employee ?? "";
+    if (employeeId) {
+      query.set("id", employeeId);
+      query.set("idEmployee", employeeId);
+    }
+    query.set("idRequisition", currentRequisition.billingrequisition_id);
     if (!query.get("label")) {
       query.set("label", "Detalle Requisicion");
     }
@@ -477,7 +494,13 @@ const RequisitionDetails: React.FC = () => {
                     startDate={currentRequisition.assignmentdate}
                     endDate={currentRequisition.endDate}
                     requestedAmount={Number(currentRequisition.amountdeposited)}
-                    verifiedAmount={Number(currentRequisition.provenamount)}
+                    verifiedAmount={
+                      hasPerDiemTotals
+                        ? montoComprobado
+                        : Number(currentRequisition.provenamount)
+                    }
+                    enterpriseAmount={hasPerDiemTotals ? montoAFavorEmpresa : undefined}
+                    employeeAmount={hasPerDiemTotals ? montoAFavorColaborador : undefined}
                     bodyClassName="flex justify-between"
                     donutSize={130}
                     cardClassName="!py-[18px]"
@@ -552,7 +575,13 @@ const RequisitionDetails: React.FC = () => {
                 startDate={currentRequisition.assignmentdate}
                 endDate={currentRequisition.endDate}
                 requestedAmount={Number(currentRequisition.amountdeposited)}
-                verifiedAmount={Number(currentRequisition.provenamount)}
+                verifiedAmount={
+                  hasPerDiemTotals
+                    ? montoComprobado
+                    : Number(currentRequisition.provenamount)
+                }
+                enterpriseAmount={hasPerDiemTotals ? montoAFavorEmpresa : undefined}
+                employeeAmount={hasPerDiemTotals ? montoAFavorColaborador : undefined}
               />
             )}
           </CollapsibleSection>

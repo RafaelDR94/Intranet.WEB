@@ -262,7 +262,7 @@ const RequisitionsTable: React.FC<RequisitionsTableProps> = ({
               data: rows,
               columns: columns,
               enableSelection: false,
-              title: "Requisiciones aqui",
+              title: "Beneficiarios",
               enableCollaps: true,
               defaultSortKey: "date_created",
               defaultSortDirection: "desc",

@@ -17,6 +17,7 @@ import type {
 } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
+import { useBillingAllDocumentsByEmployeeStore } from "@/app/stores/useBillingAllDocumentsByEmployeeStore/useBillingAllDocumentsByEmployeeStore";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 
 const useInvoicesForm = ({
@@ -70,6 +71,13 @@ const useInvoicesForm = ({
   const { forceFetchBillingHistory } = useBillingHistoryStore(
     (s) => ({
       forceFetchBillingHistory: s.forceFetchBillingHistory,
+    }),
+    shallow,
+  );
+
+  const { fetchBillingAllDocumentsByEmployee } = useBillingAllDocumentsByEmployeeStore(
+    (s) => ({
+      fetchBillingAllDocumentsByEmployee: s.fetchBillingAllDocumentsByEmployee,
     }),
     shallow,
   );
@@ -388,6 +396,7 @@ const useInvoicesForm = ({
       const employeeId = employeeIdParam ?? user?.idEmployee;
       if (employeeId) {
         fetchBillingImages(employeeId, true);
+        fetchBillingAllDocumentsByEmployee(employeeId, true);
       }
       showAlert({
         type: "success",
@@ -415,6 +424,7 @@ const useInvoicesForm = ({
     user,
     employeeIdParam,
     fetchBillingImages,
+    fetchBillingAllDocumentsByEmployee,
   ]);
 
   const resolvedFields = useMemo(

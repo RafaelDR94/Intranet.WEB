@@ -31,6 +31,8 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
   endDate,
   requestedAmount,
   verifiedAmount,
+  enterpriseAmount: enterpriseAmountOverride,
+  employeeAmount: employeeAmountOverride,
   bodyClassName,
   donutSize,
   cardClassName,
@@ -49,10 +51,15 @@ const PerDiemBalanceCard: React.FC<PerDiemBalanceCardProps> = ({
   const pendingPct = 100 - verifiedPct;
 
   // 🔹 calcular saldos
-  const { enterpriseAmount, employeeAmount } = computeBalances(
-    requestedAmount,
-    verifiedAmount,
-  );
+  const computed = computeBalances(requestedAmount, verifiedAmount);
+  const enterpriseAmount =
+    typeof enterpriseAmountOverride === "number"
+      ? enterpriseAmountOverride
+      : computed.enterpriseAmount;
+  const employeeAmount =
+    typeof employeeAmountOverride === "number"
+      ? employeeAmountOverride
+      : computed.employeeAmount;
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
 
