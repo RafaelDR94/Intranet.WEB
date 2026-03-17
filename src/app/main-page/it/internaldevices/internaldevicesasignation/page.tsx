@@ -304,8 +304,9 @@ const InternalDevicesAsignationPage = () => {
   ])
 
   const availableDevices = useMemo(() => {
-    const filtered = devices.filter((device) => device.is_active && !device.assigned)
-    return filtered.length ? filtered : devices
+    const unreviewedDevices = devices.filter((device) => !device.reviewed)
+    const filtered = unreviewedDevices.filter((device) => device.is_active && !device.assigned)
+    return filtered.length ? filtered : unreviewedDevices
   }, [devices])
 
   const deviceOptions = useMemo(
