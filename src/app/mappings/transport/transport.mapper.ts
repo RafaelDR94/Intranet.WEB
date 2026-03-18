@@ -8,6 +8,7 @@ import type {
   TransportPost,
   TransportPut,
   TransportStatus,
+  VehicleReassignmentView,
   VehicleTraking,
   VehicleTrakingPost,
   VehicleTrakingPut,
@@ -16,6 +17,8 @@ import type {
 
 const toString = (value: unknown, fallback = "") =>
   value == null ? fallback : String(value);
+const toNullableString = (value: unknown): string | null =>
+  value == null ? null : String(value);
 const toBoolean = (value: unknown, fallback = false) =>
   value == null ? fallback : Boolean(value);
 const toNumber = (value: unknown, fallback = 0) => {
@@ -98,27 +101,64 @@ export const mapTransportStatus = (raw: any): TransportStatus => ({
 export const mapVehicleTraking = (raw: any): VehicleTraking => ({
   id: toString(raw?.id),
   idVehicleAssigment: toString(
-    raw?.idVehicleAssigment ?? raw?.vehicleAssignmentId
+    raw?.idVehicleAssigment ??
+      raw?.vehicleAssignmentId ??
+      raw?.vehicle_assignment_id ??
+      raw?.vehicle_assignment
   ),
-  vehicleEntryExit: toBoolean(raw?.vehicleEntryExit),
-  fuelLevel: toString(raw?.fuelLevel),
+  vehicleEntryExit: toBoolean(raw?.vehicleEntryExit ?? raw?.vehicle_entry_exit),
+  fuelLevel: toString(raw?.fuelLevel ?? raw?.full_level),
   mileage: toString(raw?.mileage),
-  circulationcard: toBoolean(raw?.circulationcard),
-  fuelCard: toBoolean(raw?.fuelCard),
-  tagOrpas: toBoolean(raw?.tagOrpas),
-  insurancePolicy: toBoolean(raw?.insurancePolicy),
-  platesDelYtra: toBoolean(raw?.platesDelYtra),
-  mechanicalOrhydraulicjack: toBoolean(raw?.mechanicalOrhydraulicjack),
-  keytoRemoveStuds: toBoolean(raw?.keytoRemoveStuds),
-  sparetire: toBoolean(raw?.sparetire),
+  circulationcard: toBoolean(raw?.circulationcard ?? raw?.circulation_card),
+  fuelCard: toBoolean(raw?.fuelCard ?? raw?.fuel_card),
+  tagOrpas: toBoolean(raw?.tagOrpas ?? raw?.tag_orpas),
+  insurancePolicy: toBoolean(raw?.insurancePolicy ?? raw?.insurance_policy),
+  platesDelYtra: toBoolean(raw?.platesDelYtra ?? raw?.plates_del_ytra),
+  mechanicalOrhydraulicjack: toBoolean(
+    raw?.mechanicalOrhydraulicjack ?? raw?.mechanical_orhydraulic_jack
+  ),
+  keytoRemoveStuds: toBoolean(raw?.keytoRemoveStuds ?? raw?.keyto_remove_studs),
+  sparetire: toBoolean(raw?.sparetire ?? raw?.spare_tire),
   remarks: toString(raw?.remarks),
   date: normalizeDate(raw?.date),
+  frontImage: toNullableString(raw?.frontImage ?? raw?.front_image),
+  backImage: toNullableString(raw?.backImage ?? raw?.back_image),
+  rightSideImage: toNullableString(raw?.rightSideImage ?? raw?.right_side_image),
+  leftSideImage: toNullableString(raw?.leftSideImage ?? raw?.left_side_image),
+  circulationCardImage: toNullableString(
+    raw?.circulationCardImage ?? raw?.circulation_card_image
+  ),
+  signature: toNullableString(raw?.signature),
 });
 
 export const mapVehicleTrakingList = (
   list: any[] | undefined
 ): VehicleTraking[] =>
   Array.isArray(list) ? list.map(mapVehicleTraking) : [];
+
+export const mapVehicleReassignment = (raw: any): VehicleReassignmentView => ({
+  id: toString(raw?.id),
+  id_vehicle_assignment: toString(raw?.id_vehicle_assignment ?? raw?.idVehicleAssignment),
+  id_previous_employee: toNullableString(raw?.id_previous_employee ?? raw?.idPreviousEmployee),
+  previous_employee_name: toNullableString(raw?.previous_employee_name ?? raw?.previousEmployeeName),
+  id_new_employee: toString(raw?.id_new_employee ?? raw?.idNewEmployee),
+  new_employee_name: toNullableString(raw?.new_employee_name ?? raw?.newEmployeeName),
+  id_status: toString(raw?.id_status ?? raw?.idStatus),
+  status: toNullableString(raw?.status),
+  comment: toNullableString(raw?.comment),
+  date_created: normalizeDate(raw?.date_created ?? raw?.dateCreated),
+  front_image: toNullableString(raw?.front_image ?? raw?.frontImage),
+  back_image: toNullableString(raw?.back_image ?? raw?.backImage),
+  right_side_image: toNullableString(raw?.right_side_image ?? raw?.rightSideImage),
+  left_side_image: toNullableString(raw?.left_side_image ?? raw?.leftSideImage),
+  circulation_card_image: toNullableString(raw?.circulation_card_image ?? raw?.circulationCardImage),
+  signature: toNullableString(raw?.signature),
+})
+
+export const mapVehicleReassignmentList = (
+  list: any[] | undefined
+): VehicleReassignmentView[] =>
+  Array.isArray(list) ? list.map(mapVehicleReassignment) : []
 
 export const mapTransportAssignament = (
   raw: any
@@ -134,6 +174,7 @@ export const mapTransportAssignament = (
   signature_leader: toString(raw?.signature_leader),
   signature_employee: toString(raw?.signature_employee),
   vehicletrackinglist: mapVehicleTrakingList(raw?.vehicletrackinglist),
+  vehicle_reassignment: mapVehicleReassignmentList(raw?.vehicle_reassignment ?? raw?.vehicleReassignment),
 });
 
 export const mapTransportAssignaments = (
@@ -211,20 +252,32 @@ export const mapTransportPut = (payload: any): TransportPut => ({
 export const mapVehicleTrakingPost = (
   payload: any
 ): VehicleTrakingPost => ({
-  idVehicleAssigment: toString(payload?.idVehicleAssigment),
-  vehicleEntryExit: toBoolean(payload?.vehicleEntryExit),
-  fuelLevel: toString(payload?.fuelLevel),
+  vehicle_assignment_id: toString(
+    payload?.vehicle_assignment_id ?? payload?.idVehicleAssigment
+  ),
+  vehicle_entry_exit: toBoolean(
+    payload?.vehicle_entry_exit ?? payload?.vehicleEntryExit
+  ),
+  full_level: toString(payload?.full_level ?? payload?.fuelLevel),
   mileage: toString(payload?.mileage),
-  circulationcard: toBoolean(payload?.circulationcard),
-  fuelCard: toBoolean(payload?.fuelCard),
-  tagOrpas: toBoolean(payload?.tagOrpas),
-  insurancePolicy: toBoolean(payload?.insurancePolicy),
-  platesDelYtra: toBoolean(payload?.platesDelYtra),
-  mechanicalOrhydraulicjack: toBoolean(payload?.mechanicalOrhydraulicjack),
-  keytoRemoveStuds: toBoolean(payload?.keytoRemoveStuds),
-  sparetire: toBoolean(payload?.sparetire),
+  circulation_card: toBoolean(payload?.circulation_card ?? payload?.circulationcard),
+  fuel_card: toBoolean(payload?.fuel_card ?? payload?.fuelCard),
+  tag_orpas: toBoolean(payload?.tag_orpas ?? payload?.tagOrpas),
+  insurance_policy: toBoolean(payload?.insurance_policy ?? payload?.insurancePolicy),
+  plates_del_ytra: toBoolean(payload?.plates_del_ytra ?? payload?.platesDelYtra),
+  mechanical_orhydraulic_jack: toBoolean(
+    payload?.mechanical_orhydraulic_jack ?? payload?.mechanicalOrhydraulicjack
+  ),
+  keyto_remove_studs: toBoolean(payload?.keyto_remove_studs ?? payload?.keytoRemoveStuds),
+  spare_tire: toBoolean(payload?.spare_tire ?? payload?.sparetire),
   remarks: toString(payload?.remarks),
   date: normalizeDate(payload?.date),
+  front_image: toString(payload?.front_image),
+  back_image: toString(payload?.back_image),
+  right_side_image: toString(payload?.right_side_image),
+  left_side_image: toString(payload?.left_side_image),
+  circulation_card_image: toString(payload?.circulation_card_image),
+  signature: toString(payload?.signature),
 });
 
 export const mapVehicleTrakingPut = (

@@ -20,6 +20,16 @@ vi.mock('@/assets/icons/acciones/cancel.svg', () => ({
   default: () => <span data-testid="close-icon">x</span>,
 }));
 
+vi.mock('@/assets/icons/navegacion/nav-arrow-left.svg', () => ({
+  __esModule: true,
+  default: () => <span data-testid="arrow-left">{"<"}</span>,
+}));
+
+vi.mock('@/assets/icons/navegacion/nav-arrow-right.svg', () => ({
+  __esModule: true,
+  default: () => <span data-testid="arrow-right">{">"}</span>,
+}));
+
 describe('ShowImage', () => {
   const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
   const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
@@ -86,5 +96,27 @@ describe('ShowImage', () => {
 
     fireEvent.click(screen.getByTestId('action-button'));
     expect(handleAction).toHaveBeenCalled();
+  });
+
+  it('renders carousel items and navigates with buttons', () => {
+    render(
+      <ShowImage
+        open
+        items={[
+          { image: 'image-1.png', title: 'Rafael Gómez', description: '20/10/2025' },
+          { image: 'image-2.png', title: 'Bruno Mendoza', description: '21/10/2025' },
+        ]}
+      />
+    );
+
+    screen.getByText('Rafael Gómez');
+    screen.getByText('20/10/2025');
+
+    fireEvent.click(screen.getByRole('button', { name: /Siguiente/i }));
+    screen.getByText('Bruno Mendoza');
+    screen.getByText('21/10/2025');
+
+    fireEvent.click(screen.getByRole('button', { name: /Anterior/i }));
+    screen.getByText('Rafael Gómez');
   });
 });

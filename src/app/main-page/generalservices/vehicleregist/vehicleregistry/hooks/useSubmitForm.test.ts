@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import useSubmitForm from './useSubmitForm';
 
 const { uploadFile } = vi.hoisted(() => ({
-  uploadFile: vi.fn(() => Promise.resolve()),
+  uploadFile: vi.fn(() => Promise.resolve('https://firebase/file')),
 }));
 
 vi.mock('@/app/context/FirebaseContext/FirebaseContext', () => ({
@@ -140,8 +140,11 @@ describe('useSubmitForm', () => {
     expect(createAssignment).not.toHaveBeenCalled();
     expect(createVehicleTracking).toHaveBeenCalledWith(
       expect.objectContaining({
-        idVehicleAssigment: 'ASSIGN-1',
-        vehicleEntryExit: true,
+        vehicle_assignment_id: 'ASSIGN-1',
+        vehicle_entry_exit: true,
+        front_image: 'https://firebase/file',
+        circulation_card_image: '',
+        signature: '',
       })
     );
     expect(uploadFile).toHaveBeenCalledTimes(1);
@@ -170,8 +173,10 @@ describe('useSubmitForm', () => {
     expect(uploadFile).toHaveBeenCalled();
     expect(createVehicleTracking).toHaveBeenCalledWith(
       expect.objectContaining({
-        idVehicleAssigment: 'ASSIGN-2',
-        vehicleEntryExit: false,
+        vehicle_assignment_id: 'ASSIGN-2',
+        vehicle_entry_exit: false,
+        circulation_card_image: 'https://firebase/file',
+        signature: 'https://firebase/file',
       })
     );
   });

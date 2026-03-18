@@ -292,7 +292,9 @@ describe('useImagesComponent', () => {
     });
 
     expect(showSpinner).toHaveBeenCalled();
-    expect(makeResponsive).toHaveBeenCalledWith('driver-1', 'vehicle-1');
+    expect(makeResponsive).toHaveBeenCalledWith(
+      expect.objectContaining({ employeeId: 'driver-1', vehicleId: 'vehicle-1' }),
+    );
     expect(createPdf).toHaveBeenCalled();
     expect(showAlert).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'info' })

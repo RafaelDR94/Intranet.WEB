@@ -7,6 +7,7 @@ export default function RequestPage() {
         '/main-page/request/pettycash',
         '/main-page/request/documents',
         '/main-page/request/ownrequisitions',
+         '/main-page/request/vehicleassignament',
       ]}
     />
   );

@@ -224,7 +224,13 @@ export type VehicleTraking = {
     "keytoRemoveStuds": boolean,
     "sparetire": boolean,
     "remarks": string,
-    "date": string
+    "date": string,
+    frontImage?: string | null,
+    backImage?: string | null,
+    rightSideImage?: string | null,
+    leftSideImage?: string | null,
+    circulationCardImage?: string | null,
+    signature?: string | null,
 }
 
 export type VehicleTrakingPut = {
@@ -246,21 +252,47 @@ export type VehicleTrakingPut = {
 }
 
 export type VehicleTrakingPost = {
-    "idVehicleAssigment": string,
-    "vehicleEntryExit": boolean,
-    "fuelLevel": string,
-    "mileage": string,
-    "circulationcard": boolean,
-    "fuelCard": boolean,
-    "tagOrpas": boolean,
-    "insurancePolicy": boolean,
-    "platesDelYtra": boolean,
-    "mechanicalOrhydraulicjack": boolean,
-    "keytoRemoveStuds": boolean,
-    "sparetire": boolean,
-    "remarks": string,
-    "date": string
+    vehicle_assignment_id: string,
+    vehicle_entry_exit: boolean,
+    full_level: string,
+    mileage: string,
+    circulation_card: boolean,
+    fuel_card: boolean,
+    tag_orpas: boolean,
+    insurance_policy: boolean,
+    plates_del_ytra: boolean,
+    mechanical_orhydraulic_jack: boolean,
+    keyto_remove_studs: boolean,
+    spare_tire: boolean,
+    remarks: string,
+    date: string,
+    front_image: string,
+    back_image: string,
+    right_side_image: string,
+    left_side_image: string,
+    circulation_card_image: string,
+    signature: string,
 }
+
+export type VehicleReassignmentView = {
+    id: string,
+    id_vehicle_assignment: string,
+    id_previous_employee: string | null,
+    previous_employee_name: string | null,
+    id_new_employee: string,
+    new_employee_name: string | null,
+    id_status: string,
+    status: string | null,
+    comment: string | null,
+    date_created: string
+    front_image?: string | null,
+    back_image?: string | null,
+    right_side_image?: string | null,
+    left_side_image?: string | null,
+    circulation_card_image?: string | null,
+    signature?: string | null,
+}
+
 export type TransportAssignament = {
     "vehicleassignments_id": string,
     "employee_id": string,
@@ -271,8 +303,9 @@ export type TransportAssignament = {
     "arrival_date": string,
     "destination": string,
     "signature_leader": string | null,
-    "signature_employee": string | null
-    vehicletrackinglist?: VehicleTraking[]
+    "signature_employee": string | null,
+    vehicletrackinglist?: VehicleTraking[],
+    vehicle_reassignment?: VehicleReassignmentView[]
 }
 
 export type TransportAssignamentPost = {

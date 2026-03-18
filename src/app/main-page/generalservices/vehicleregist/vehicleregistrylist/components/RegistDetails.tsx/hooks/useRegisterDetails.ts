@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { CreatePDF } from "@/app/utilities/PDF/PDF";
 import useVehicleDocuments from "../../../../hooks/useVehicleDocuments";
+import { buildResponsiveSegments } from "@/app/main-page/generalservices/vehicleregist/vehicleregistrylist/utilities/responsiveSegments";
 const useRegisterDetails = () => {
     const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
     const { showAlert } = usePrincipalAlert;
@@ -97,11 +98,11 @@ const useRegisterDetails = () => {
 
     const handleDownloadResponsive = useCallback(async () => {
         if (!currentAssignment || generatingResponsive) return;
-        if (!currentAssignment.employee_id || !currentAssignment.transport?.transport_id) {
+        if (!currentAssignment.transport?.transport_id) {
             showAlert({
                 type: "warning",
                 title: "Informacion incompleta",
-                description: "No se pudo identificar al empleado o al vehiculo asignado.",
+                description: "No se pudo identificar el vehiculo asignado.",
                 showPrimaryButton: false,
                 showSecondaryButton: false,
                 autoCloseMs: 2500,
@@ -110,31 +111,68 @@ const useRegisterDetails = () => {
         }
         try {
             setGeneratingResponsive(true);
-            showSpinner({ message: "Generando responsiva..." });
-            const pdfData = await makeResponsive();
-            if (!pdfData) {
-                throw new Error("No se pudo construir la responsiva");
+
+            const segments = buildResponsiveSegments(currentAssignment);
+            if (segments.length === 0) {
+                throw new Error("No se encontraron periodos para generar la responsiva");
             }
-            const url = await new Promise<string>((resolve, reject) => {
-                try {
-                    CreatePDF(pdfData, resolve);
-                } catch (err) {
-                    reject(err);
+
+            const normalizeFilename = (value: string) =>
+                value
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/[^a-zA-Z0-9]+/g, "-")
+                    .replace(/-+/g, "-")
+                    .replace(/(^-|-$)/g, "")
+                    .toLowerCase();
+
+            for (let i = 0; i < segments.length; i++) {
+                const segment = segments[i]!;
+                showSpinner({
+                    message: `Generando responsiva ${i + 1}/${segments.length}...`,
+                });
+
+                const pdfData = await makeResponsive({
+                    employeeId: segment.employeeId,
+                    vehicleId: currentAssignment.transport.transport_id,
+                    period: segment.period,
+                    signatureUrl:
+                        segments.length > 0 && segment.reassignmentId
+                            ? segment.signatureUrl ?? ""
+                            : undefined,
+                });
+
+                if (!pdfData) {
+                    throw new Error("No se pudo construir la responsiva");
                 }
-                setTimeout(() => reject(new Error("Tiempo de espera excedido al generar el PDF")), 10000);
-            });
-            const filename = `responsiva-vehicular-${currentAssignment.vehicleassignments_id}.pdf`;
-            const anchor = document.createElement("a");
-            anchor.href = url;
-            anchor.download = filename;
-            document.body.appendChild(anchor);
-            anchor.click();
-            document.body.removeChild(anchor);
-            setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+                const url = await new Promise<string>((resolve, reject) => {
+                    try {
+                        CreatePDF(pdfData, resolve);
+                    } catch (err) {
+                        reject(err);
+                    }
+                    setTimeout(
+                        () => reject(new Error("Tiempo de espera excedido al generar el PDF")),
+                        10000
+                    );
+                });
+
+                const driverSlug = normalizeFilename(segment.employeeName ?? `conductor-${i + 1}`);
+                const filename = `responsiva-vehicular-${currentAssignment.vehicleassignments_id}-${i + 1}-${driverSlug}.pdf`;
+                const anchor = document.createElement("a");
+                anchor.href = url;
+                anchor.download = filename;
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+            }
+
             showAlert({
                 type: "info",
                 title: "Documento generado",
-                description: "La responsiva se descargo correctamente.",
+                description: `Se descargaron ${segments.length} responsiva(s) correctamente.`,
                 showPrimaryButton: false,
                 showSecondaryButton: false,
                 autoCloseMs: 2000,
