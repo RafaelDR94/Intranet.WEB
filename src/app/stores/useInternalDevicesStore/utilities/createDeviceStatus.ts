@@ -35,7 +35,7 @@ export const createDeviceStatus = async (
     const raw = res.data?.data ?? res.data ?? null
     const created = raw && typeof raw === 'object' ? InternalDeviceStatusMap(raw) : null
 
-    await fetchDeviceStatuses(undefined, set, get, true)
+    await fetchDeviceStatuses(true, set, get, true)
 
     set({ creatingDeviceStatus: false, successCreateDeviceStatus: true })
     return created

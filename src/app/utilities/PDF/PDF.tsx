@@ -272,3 +272,15 @@ export const CreatePDF = async (data: FullDocument | null, setPDF: (url: string)
   const blob = await pdf(<MyDocument data={data} membret={membret} />).toBlob();
   setPDF(URL.createObjectURL(blob));
 };
+
+/**
+ * Genera un PDF en memoria y retorna el Blob resultante.
+ * @param data Estructura completa del documento.
+ * @param membret Tipo de hoja membretada.
+ */
+export const CreatePDFBlob = async (
+  data: FullDocument | null,
+  membret?: 'DR' | 'DISITREK',
+): Promise<Blob> => {
+  return await pdf(<MyDocument data={data} membret={membret} />).toBlob();
+};

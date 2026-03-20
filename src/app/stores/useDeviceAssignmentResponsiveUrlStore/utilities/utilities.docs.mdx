@@ -1,0 +1,23 @@
+<Meta title="Stores/DeviceAssignmentResponsiveUrl/Utilities" />
+
+# DeviceAssignmentResponsiveUrl utilities
+
+Utilidades para actualizar la URL de la responsiva ligada a una asignacion de dispositivo.
+
+| Utility | Descripcion |
+| --- | --- |
+| `updateDeviceAssignmentResponsiveUrl` | Actualiza la URL de la responsiva en el backend. |
+
+## Ejemplo de uso
+
+```ts
+import { useDeviceAssignmentResponsiveUrlStore } from '../useDeviceAssignmentResponsiveUrlStore'
+
+const { updateDeviceAssignmentResponsiveUrl } =
+  useDeviceAssignmentResponsiveUrlStore.getState()
+
+await updateDeviceAssignmentResponsiveUrl({
+  idDeviceAssignment: 'ASSIGN-123',
+  responsiveUrl: 'https://.../responsiva.pdf',
+})
+```

@@ -39,7 +39,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ fileUrl, title, onClose
         </div>        
 
         {/* Document preview */}
-        <div className="p-4 flex justify-center">
+        <div className="p-4 flex justify-center items-center">
           <iframe
             src={fileUrl}
             className={isMobile ? "w-[90vw] h-[70vh] rounded-lg" : "w-[80vw] h-[80vh] rounded-lg"}

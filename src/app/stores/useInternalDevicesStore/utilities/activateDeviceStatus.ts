@@ -23,7 +23,7 @@ export const activateDeviceStatus = async (
     const put = pPut(requireGateway('put'), [200, 204])
     await put(`${ActivateStatus}/${id}`, {})
 
-    await fetchDeviceStatuses(undefined, set, get, true)
+    await fetchDeviceStatuses(true, set, get, true)
 
     set({ activatingDeviceStatus: false, successActivateDeviceStatus: true })
     return true

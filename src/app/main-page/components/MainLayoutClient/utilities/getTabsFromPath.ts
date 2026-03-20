@@ -106,6 +106,14 @@ export const getTabsFromPath = (
         path: "/main-page/it/internaldevices/internaldeviceslist",
       },
       {
+        label: "Marcas",
+        path: "/main-page/it/internaldevices/devicesBrands",
+      },
+      {
+        label: "Tipos de Dispositivos",
+        path: "/main-page/it/internaldevices/devicesTypes",
+      },
+      {
         label: "Asignación de Dispositivos",
         path: "/main-page/it/internaldevices/internaldevicesasignation",
       },

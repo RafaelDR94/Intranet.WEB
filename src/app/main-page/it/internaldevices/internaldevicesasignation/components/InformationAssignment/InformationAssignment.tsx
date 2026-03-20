@@ -1,78 +1,28 @@
 "use client";
 
-import React, { useMemo } from "react";
-
 import { Button } from "@/app/components/Button/Button";
 import InfoCards from "@/app/components/InfoCards/InfoCards";
-import type { InfoItem } from "@/app/components/InfoCards/types";
-import useQuery from "@/app/hooks/useQuery/useQuery";
-import type { InternalDevice } from "@/app/mappings/internaldevices/internaldevices.types";
 import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 
-export interface InternalDeviceInformationProps {
-  device?: InternalDevice | null;
-  deviceId?: string | null;
-  onEdit?: () => void;
-}
+import useInformationAssignment from "./hooks/useInformationAssignment";
+import type { InternalDeviceInformationProps } from "./types";
 
-const InformationAssignment: React.FC<InternalDeviceInformationProps> = ({
+const InformationAssignment = ({
   device,
   deviceId,
   onEdit,
-}) => {
-  const { updateQuery } = useQuery();
-
-  const cards = useMemo<InfoItem[][]>(
-    () => [
-      [
-        { label: "Dispositivo", value: device?.device_type?.name ?? "-" },
-        { label: "Marca", value: device?.device_brand?.name ?? "-" },
-      ],
-      [
-        { label: "Modelo", value: device?.model ?? "-" },
-        { label: "No. Serie", value: device?.serial_number ?? "-" },
-      ],
-      [{ label: "Nombre del equipo", value: device?.name ?? "-" }],
-      [
-        { label: "Direccion IP", value: device?.ip_address ?? "-" },
-        { label: "MAC", value: device?.mac_address ?? "-" },
-      ],
-      [
-        { label: "MAC WiFi", value: device?.mac_wifi_address ?? "-" },
-        { label: "Sistema operativo", value: device?.operating_system ?? "-" },
-      ],
-      [
-        {
-          label: "Numero de serie de cargador",
-          value: device?.charge_sn ?? "-",
-        },
-      ],
-      [
-        { label: "Proyecto", value: device?.device_proyect?.name ?? "-" },
-        { label: "Cliente", value: device?.device_proyect?.client ?? "-" },
-      ],
-      [{ label: "Empresa", value: device?.enterprise?.name ?? "-" }],
-      [{ label: "Otros accesorios", value: device?.description ?? "-" }],
-      [{ label: "Motivo de baja", value: device?.low_motive || "-" }],
-    ],
-    [device],
-  );
-
-  const handleEdit = () => {
-    if (onEdit) {
-      onEdit();
-      return;
-    }
-    const targetId = device?.device_id ?? deviceId;
-    if (!targetId) return;
-    updateQuery({ id: targetId, view: "edit" });
-  };
+}: InternalDeviceInformationProps) => {
+  const { assignedLabel, cards, handleEdit } = useInformationAssignment({
+    device,
+    deviceId,
+    onEdit,
+  });
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <span className="text-label text-blue-60">
-          Asignado a: {device?.assigned ? "Asignado" : "Sin asignar"}
+          Asignado a: {assignedLabel}
         </span>
         <Button
           size="small"

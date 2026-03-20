@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 
-import { CreatePDF } from './PDF';
+import { CreatePDF, CreatePDFBlob } from './PDF';
 import type { FullDocument } from './types';
 
 vi.stubGlobal('URL', { createObjectURL: vi.fn(() => 'blob:test') } as any);
@@ -23,5 +23,11 @@ describe('CreatePDF utility', () => {
     const data: FullDocument = { pages: [{ title: 'Test', elements: [] }] };
     await CreatePDF(data, setPDF);
     expect(setPDF).toHaveBeenCalledWith('blob:test');
+  });
+
+  it('returns a blob when requested', async () => {
+    const data: FullDocument = { pages: [{ title: 'Test', elements: [] }] };
+    const blob = await CreatePDFBlob(data);
+    expect(blob).toBeInstanceOf(Blob);
   });
 });

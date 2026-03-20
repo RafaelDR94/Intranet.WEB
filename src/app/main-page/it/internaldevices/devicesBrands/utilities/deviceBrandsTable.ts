@@ -1,0 +1,53 @@
+import type { LabelType } from '@/app/components/Label/types'
+
+import type { DeviceBrandRow, StatusFilterOption, StatusFilterValue } from '../types'
+
+const STATUS_FILTER_VALUES = ['all', 'active', 'inactive'] as const
+
+/**
+ * Default filter value for the table status selector.
+ */
+export const DEFAULT_STATUS_FILTER: StatusFilterValue = 'all'
+
+/**
+ * Status filter options shown in the table toolbar.
+ */
+export const STATUS_FILTER_OPTIONS: StatusFilterOption[] = [
+  { label: 'Todos', value: 'all' },
+  { label: 'Activo', value: 'active' },
+  { label: 'Inactivo', value: 'inactive' },
+]
+
+/**
+ * Searchable keys for the device brands table.
+ */
+export const DEVICE_BRANDS_SEARCHABLE_KEYS: (keyof DeviceBrandRow)[] = [
+  'display_id',
+  'name',
+  'description',
+  'extract',
+]
+
+/**
+ * Coerces a boolean status into a label type for the UI.
+ */
+export const statusToLabelType = (isActive: boolean): LabelType =>
+  isActive ? 'valido' : 'restringido'
+
+/**
+ * Evaluates if a device brand matches the selected filter.
+ */
+export const matchesStatusFilter = (
+  isActive: boolean,
+  filter: StatusFilterValue,
+): boolean => {
+  if (filter === 'all') return true
+  if (filter === 'active') return isActive
+  return !isActive
+}
+
+/**
+ * Runtime guard for status filter values.
+ */
+export const isStatusFilterValue = (value: string): value is StatusFilterValue =>
+  (STATUS_FILTER_VALUES as readonly string[]).includes(value)

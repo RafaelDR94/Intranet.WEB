@@ -97,7 +97,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
   useEffect(() => {
     void fetchDeviceTypes(undefined, true)
     void fetchDeviceBrands(undefined, true)
-    void fetchDeviceStatuses(undefined, true)
+    void fetchDeviceStatuses(true)
   }, [fetchDeviceBrands, fetchDeviceStatuses, fetchDeviceTypes])
 
   useEffect(() => {
