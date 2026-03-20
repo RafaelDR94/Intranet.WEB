@@ -51,8 +51,15 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
   };
 
   const handleChange = (newValue: any) => {
-    onChange(newValue);
-    field.onChange?.(newValue, allValues);
+    const nextValue = field.onChange?.(newValue, allValues);
+    onChange(nextValue !== undefined ? nextValue : newValue);
+  };
+
+  const handleFocus = (newValue: any) => {
+    const nextValue = field.onFocus?.(newValue, allValues);
+    if (nextValue !== undefined) {
+      onChange(nextValue);
+    }
   };
 
   if (field.onlyText) {
@@ -271,6 +278,9 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           onChange={(e) =>
             handleChange((e.target as HTMLTextAreaElement).value)
           }
+          onFocus={(e) =>
+            handleFocus((e.target as HTMLTextAreaElement).value)
+          }
           onBlur={onBlur}
           variant={field.disabled ? "disabled" : variant}
           dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
@@ -292,6 +302,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           className={`${baseProps.className ?? ""} ${fieldRendererStyles.noSpinner}`}
           value={inputValue}
           onChange={(e) => handleChange((e.target as HTMLInputElement).value)}
+          onFocus={(e) => handleFocus((e.target as HTMLInputElement).value)}
           onBlur={onBlur}
           type={inputType}
           variant={field.disabled ? "disabled" : variant}
