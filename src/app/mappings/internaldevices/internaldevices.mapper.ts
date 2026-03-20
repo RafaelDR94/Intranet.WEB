@@ -501,7 +501,9 @@ export const InternalDeviceAssignmentMap = (
   const deviceRaw = record.device
   const employeeRaw = record.employee
   return {
-    device_assigment_id: toString(record.device_assigment_id ?? record.id),
+    device_assigment_id: toString(
+      record.device_assigment_id ?? record.device_assignment_id ?? record.id,
+    ),
     observations: toString(record.observations),
     delivery_condition: toString(record.delivery_condition),
     device_id: toString(
@@ -517,6 +519,13 @@ export const InternalDeviceAssignmentMap = (
         readNestedId(employeeRaw, 'id'),
     ),
     id_user: record.id_user ? toString(record.id_user) : undefined,
+    responsive_url: toNullableString(
+      record.responsive_url ??
+        record.responsiveUrl ??
+        record.responsiveURL ??
+        record.document_url ??
+        record.documentUrl,
+    ),
     date: toNullableString(
       record.date ??
         record.created_at ??
@@ -546,7 +555,9 @@ export const InternalDeviceAssignmentHistoryMap = (
       record.createdAt,
   )
   return {
-    device_assigment_id: toString(record.device_assigment_id ?? record.id),
+    device_assigment_id: toString(
+      record.device_assigment_id ?? record.device_assignment_id ?? record.id,
+    ),
     devicename: toNullableString(record.devicename ?? record.device_name ?? record.deviceName) ?? undefined,
     model: toNullableString(record.model) ?? undefined,
     typedevice: toNullableString(

@@ -164,6 +164,7 @@ export type InternalDeviceAssignment = {
   device_id: string
   employee_id: string
   id_user?: string
+  responsive_url?: string | null
   date?: string
   created_at?: string
 }

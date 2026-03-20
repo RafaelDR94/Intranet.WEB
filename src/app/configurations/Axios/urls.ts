@@ -120,6 +120,9 @@ export const DeviceAssigmentById =
 export const DeviceAssignmentHistoryByDeviceId =
   process.env.NEXT_PUBLIC_DEVICE_ASSIGNMENT_HISTORY_BY_DEVICE_ID ??
   "/Assets/DeviceAssignment/History";
+export const DeviceAssignmentResponsiveUrl =
+  process.env.NEXT_PUBLIC_DEVICE_ASSIGNMENT_RESPONSIVE_URL ??
+  "/Assets/DeviceAssignment/ResponsiveUrl";
 
 export const DocumentType = process.env.NEXT_PUBLIC_DOCUMENT_TYPE ?? "/Documents/DocumentType";
 export const Documents = process.env.NEXT_PUBLIC_DOCUMENTS ?? "/Documents";

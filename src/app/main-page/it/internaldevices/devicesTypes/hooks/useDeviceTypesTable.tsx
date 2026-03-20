@@ -1,0 +1,246 @@
+import { useCallback, useMemo, useState } from 'react'
+
+import { Button } from '@/app/components/Button/Button'
+import { ContextMenu } from '@/app/components/ContextMenu/ContextMenu'
+import type { ColumnDefinition } from '@/app/components/DataTable/types'
+import Label from '@/app/components/Label/Label'
+import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
+import type { InternalDeviceType } from '@/app/mappings/internaldevices/internaldevices.types'
+import DeleteIcon from '@/assets/icons/acciones/trash.svg'
+import EditIcon from '@/assets/icons/Editor/edit-pencil.svg'
+import DotsIcon from '@/assets/icons/navegacion/more-horiz.svg'
+
+import type { DeviceTypeRow, StatusFilterOption, StatusFilterValue } from '../types'
+import {
+  DEFAULT_STATUS_FILTER,
+  DEVICE_TYPES_SEARCHABLE_KEYS,
+  STATUS_FILTER_OPTIONS,
+  isStatusFilterValue,
+  matchesStatusFilter,
+  statusToLabelType,
+} from '../utilities/deviceTypesTable'
+
+type UseDeviceTypesTableParams = {
+  deviceTypes: InternalDeviceType[]
+  onEditType: (deviceType: InternalDeviceType) => void
+  onDeleteType: (deviceType: InternalDeviceType) => void
+}
+
+type UseDeviceTypesTableResult = {
+  columns: ColumnDefinition<DeviceTypeRow>[]
+  rows: DeviceTypeRow[]
+  searchableKeys: (keyof DeviceTypeRow)[]
+  statusFilter: StatusFilterValue
+  statusFilterOptions: StatusFilterOption[]
+  handleStatusFilterChange: (value: string) => void
+}
+
+/**
+ * Encapsulates table state, columns, and filtering for device types list.
+ */
+const useDeviceTypesTable = (
+  { deviceTypes, onEditType, onDeleteType }: UseDeviceTypesTableParams,
+): UseDeviceTypesTableResult => {
+  const isMobile = useIsMobile()
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(
+    DEFAULT_STATUS_FILTER,
+  )
+
+  const rows = useMemo<DeviceTypeRow[]>(
+    () =>
+      deviceTypes.map((deviceType, index) => ({
+        id: deviceType.device_type_id || String(index + 1),
+        display_id: String(index + 1).padStart(3, '0'),
+        device_type_id: deviceType.device_type_id,
+        name: deviceType.name ?? '-',
+        description: deviceType.description ?? '-',
+        extract: deviceType.name ?? '-',
+        is_active: deviceType.is_active,
+      })),
+    [deviceTypes],
+  )
+
+  const columnsDesktop = useMemo<ColumnDefinition<DeviceTypeRow>[]>(
+    () => [
+      {
+        key: 'display_id',
+        label: 'ID',
+        cellClass: 'w-[6%]',
+        headerClass: 'w-[6%]',
+      },
+      {
+        key: 'name',
+        label: 'NOMBRE',
+        cellClass: 'w-[18%]',
+        headerClass: 'w-[18%]',
+      },
+      {
+        key: 'description',
+        label: 'DESCRIPCION',
+        cellClass: 'w-[34%]',
+        headerClass: 'w-[34%]',
+      },
+      {
+        key: 'extract',
+        label: 'EXTRACTO',
+        cellClass: 'w-[18%]',
+        headerClass: 'w-[18%]',
+      },
+      {
+        key: 'is_active',
+        label: 'ESTADO',
+        cellClass: 'w-[12%]',
+        headerClass: 'w-[12%]',
+        render: (row) => (
+          <Label
+            type={statusToLabelType(row.is_active)}
+            text={row.is_active ? 'OPTIMO' : 'INACTIVO'}
+          />
+        ),
+      },
+      {
+        key: 'actions' as keyof DeviceTypeRow,
+        label: '',
+        cellClass: 'w-[4%]',
+        headerClass: 'w-[4%]',
+        render: (row) => (
+          <ContextMenu
+            alignRight
+            autoFlip
+            items={[
+              {
+                label: 'Editar',
+                icon: EditIcon,
+                onClick: () =>
+                  onEditType({
+                    device_type_id: row.device_type_id,
+                    name: row.name,
+                    description: row.description,
+                    is_active: row.is_active,
+                  }),
+              },
+              {
+                label: 'Desactivar',
+                icon: DeleteIcon,
+                danger: true,
+                onClick: () =>
+                  onDeleteType({
+                    device_type_id: row.device_type_id,
+                    name: row.name,
+                    description: row.description,
+                    is_active: row.is_active,
+                  }),
+              },
+            ]}
+            trigger={
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={DotsIcon}
+                aria-label="Abrir menu de acciones"
+              />
+            }
+          />
+        ),
+      },
+    ],
+    [onDeleteType, onEditType],
+  )
+
+  const columnsMobile = useMemo<ColumnDefinition<DeviceTypeRow>[]>(
+    () => [
+      {
+        key: 'display_id',
+        label: 'ID',
+        cellClass: 'w-2/12',
+        headerClass: 'w-2/12',
+      },
+      {
+        key: 'name',
+        label: 'TIPO',
+        cellClass: 'w-6/12',
+        headerClass: 'w-6/12',
+      },
+      {
+        key: 'is_active',
+        label: 'ESTADO',
+        cellClass: 'w-4/12',
+        headerClass: 'w-4/12',
+        render: (row) => (
+          <Label
+            type={statusToLabelType(row.is_active)}
+            text={row.is_active ? 'OPTIMO' : 'INACTIVO'}
+          />
+        ),
+      },
+      {
+        key: 'actions' as keyof DeviceTypeRow,
+        label: '',
+        cellClass: 'w-1/12',
+        headerClass: 'w-1/12',
+        render: (row) => (
+          <ContextMenu
+            alignRight
+            autoFlip
+            items={[
+              {
+                label: 'Editar',
+                icon: EditIcon,
+                onClick: () =>
+                  onEditType({
+                    device_type_id: row.device_type_id,
+                    name: row.name,
+                    description: row.description,
+                    is_active: row.is_active,
+                  }),
+              },
+              {
+                label: 'Desactivar',
+                icon: DeleteIcon,
+                danger: true,
+                onClick: () =>
+                  onDeleteType({
+                    device_type_id: row.device_type_id,
+                    name: row.name,
+                    description: row.description,
+                    is_active: row.is_active,
+                  }),
+              },
+            ]}
+            trigger={
+              <Button
+                size="xsmall"
+                variant="ghost"
+                icon={DotsIcon}
+                aria-label="Abrir menu de acciones"
+              />
+            }
+          />
+        ),
+      },
+    ],
+    [onDeleteType, onEditType],
+  )
+
+  const columns = isMobile ? columnsMobile : columnsDesktop
+
+  const filteredRows = useMemo(
+    () => rows.filter((row) => matchesStatusFilter(row.is_active, statusFilter)),
+    [rows, statusFilter],
+  )
+
+  const handleStatusFilterChange = useCallback((value: string) => {
+    setStatusFilter(isStatusFilterValue(value) ? value : DEFAULT_STATUS_FILTER)
+  }, [])
+
+  return {
+    columns,
+    rows: filteredRows,
+    searchableKeys: DEVICE_TYPES_SEARCHABLE_KEYS,
+    statusFilter,
+    statusFilterOptions: STATUS_FILTER_OPTIONS,
+    handleStatusFilterChange,
+  }
+}
+
+export default useDeviceTypesTable

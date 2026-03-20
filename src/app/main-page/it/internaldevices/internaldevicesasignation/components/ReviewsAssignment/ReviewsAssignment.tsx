@@ -1,68 +1,15 @@
 'use client'
 
-import React, { useEffect, useMemo } from 'react'
-import { shallow } from 'zustand/shallow'
-
 import { Button } from '@/app/components/Button/Button'
-import useQuery from '@/app/hooks/useQuery/useQuery'
-import type { InternalDeviceReview } from '@/app/mappings/internaldevices/internaldevices.types'
-import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
 import HammerIcon from '@/assets/icons/tools/tools/hammer.svg'
 
-export interface ReviewsAssignmentProps {
-  deviceId?: string | null
-  deviceName?: string | null
-  deviceStatus?: string | null
-  onCreateReview?: () => void
-}
+import useReviewsAssignment from './hooks/useReviewsAssignment'
+import type { ReviewsAssignmentProps } from './types'
 
-const getReviewDate = (review: InternalDeviceReview): string =>
-  review.date ?? review.created_at ?? '-'
+const ReviewsAssignment = (props: ReviewsAssignmentProps) => {
+  const { handleCreateReview, loading, rows } = useReviewsAssignment(props)
 
-const getReviewResponsible = (review: InternalDeviceReview): string =>
-  review.responsible ?? review.user_name ?? review.user_id ?? '-'
-
-const ReviewsAssignment: React.FC<ReviewsAssignmentProps> = ({
-  deviceId,
-  onCreateReview,
-}) => {
-  const { updateQuery } = useQuery()
-  const {
-    deviceReviewsByDevice,
-    loadingDeviceReviewsByDevice,
-    fetchDeviceById,
-    fetchDeviceReviewsByDeviceId,
-  } = useInternalDevicesStore(
-    (state) => ({
-      deviceReviewsByDevice: state.deviceReviewsByDevice,
-      loadingDeviceReviewsByDevice: state.loadingDeviceReviewsByDevice,
-      fetchDeviceById: state.fetchDeviceById,
-      fetchDeviceReviewsByDeviceId: state.fetchDeviceReviewsByDeviceId,
-    }),
-    shallow,
-  )
-
-  useEffect(() => {
-    if (!deviceId) return
-    void fetchDeviceById(deviceId, true)
-    void fetchDeviceReviewsByDeviceId(deviceId, true)
-  }, [deviceId, fetchDeviceById, fetchDeviceReviewsByDeviceId])
-
-  const rows = useMemo<InternalDeviceReview[]>(
-    () => deviceReviewsByDevice ?? [],
-    [deviceReviewsByDevice],
-  )
-
-  const handleCreateReview = () => {
-    if (onCreateReview) {
-      onCreateReview()
-      return
-    }
-    if (!deviceId) return
-    updateQuery({ id: deviceId, view: 'review' })
-  }
-
-  if (loadingDeviceReviewsByDevice) {
+  if (loading) {
     return <div className="text-center text-gray-70">Cargando revisiones...</div>
   }
 
@@ -98,16 +45,16 @@ const ReviewsAssignment: React.FC<ReviewsAssignmentProps> = ({
             )}
             {rows.map((review) => (
               <tr
-                key={review.device_review_id}
+                key={review.id}
                 className="border-b border-gray-10 last:border-b-0"
               >
-                <td className="px-6 py-4 text-c2">{getReviewDate(review)}</td>
+                <td className="px-6 py-4 text-c2">{review.dateLabel}</td>
                 <td className="px-6 py-4 text-c2">
                   <span className="block max-w-[280px] truncate">
-                    {review.description || 'Sin diagnostico'}
+                    {review.description}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-c2">{getReviewResponsible(review)}</td>
+                <td className="px-6 py-4 text-c2">{review.responsible}</td>
               </tr>
             ))}
           </tbody>

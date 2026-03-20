@@ -1,43 +1,16 @@
 'use client'
 
-import React, { useEffect, useMemo } from 'react'
-import { shallow } from 'zustand/shallow'
-
 import ButtonsNavigation from '@/app/components/ButtonsNavigation/ButtonsNavigation'
 import DetailsPanelLayout from '@/app/components/DetailsPanelLayout/DetailsPanelLayout'
 import Label from '@/app/components/Label/Label'
-import type { LabelType } from '@/app/components/Label/types'
-import type {
-  InternalDevice,
-  InternalDeviceAssignment,
-} from '@/app/mappings/internaldevices/internaldevices.types'
+
+import HistoryAssignment from '../HistoryAssignment/HistoryAssignment'
 import InformationAssignment from '../InformationAssignment/InformationAssignment'
 import ReviewsAssignment from '../ReviewsAssignment/ReviewsAssignment'
-import HistoryAssignment from '../HistoryAssignment/HistoryAssignment'
-import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
-import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
+import useAssignmentDetail from './hooks/useAssignmentDetail'
+import type { AssignmentDetailProps } from './types'
 
-export interface AssignmentDetailProps {
-  open: boolean
-  onClose: () => void
-  loading: boolean
-  assignment: InternalDeviceAssignment | null
-  assignmentDevice: InternalDevice | null
-  assignmentEmployeeName: string
-  onEditInformation?: () => void
-  onCreateReview?: () => void
-}
-
-const statusToLabelType = (status?: string): LabelType => {
-  const normalized = (status ?? '').toUpperCase()
-  if (normalized.includes('OPTIMO') || normalized.includes('EXCELENTE')) return 'valido'
-  if (normalized.includes('BUENO')) return 'validado'
-  if (normalized.includes('REGULAR')) return 'pendiente'
-  if (normalized.includes('MALO') || normalized.includes('DEFECTUOSO')) return 'invalido'
-  return 'pendiente'
-}
-
-const AssignmentDetail: React.FC<AssignmentDetailProps> = ({
+const AssignmentDetail = ({
   open,
   onClose,
   loading,
@@ -46,38 +19,24 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({
   assignmentEmployeeName,
   onEditInformation,
   onCreateReview,
-}) => {
-  
-  const assignmentStatusLabel = assignmentDevice?.device_status?.name ?? 'SIN ESTATUS'
-  const isMobile = useIsMobile()
-  const resolvedDeviceId = assignmentDevice?.device_id ?? assignment?.device_id ?? null
-  const { devices, device, fetchDeviceById } = useInternalDevicesStore(
-    (state) => ({
-      devices: state.devices,
-      device: state.device,
-      fetchDeviceById: state.fetchDeviceById,
-    }),
-    shallow,
-  )
-
-  const storeDevice = useMemo(
-    () => {
-      if (!resolvedDeviceId) return null
-      const fromList =
-        devices.find((item) => item.device_id === resolvedDeviceId) ?? null
-      if (fromList) return fromList
-      return device?.device_id === resolvedDeviceId ? device : null
-    },
-    [device, devices, resolvedDeviceId],
-  )
-
-  const resolvedDevice = assignmentDevice ?? storeDevice
-
-  useEffect(() => {
-    if (!open || !resolvedDeviceId) return
-    if (assignmentDevice || storeDevice) return
-    void fetchDeviceById(resolvedDeviceId, true)
-  }, [assignmentDevice, fetchDeviceById, open, resolvedDeviceId, storeDevice])
+}: AssignmentDetailProps) => {
+  const {
+    assignmentStatusLabel,
+    isMobile,
+    resolvedDevice,
+    resolvedDeviceId,
+    statusLabelType,
+    showStatusLabel,
+  } = useAssignmentDetail({
+    open,
+    onClose,
+    loading,
+    assignment,
+    assignmentDevice,
+    assignmentEmployeeName,
+    onEditInformation,
+    onCreateReview,
+  })
 
   return (
     <DetailsPanelLayout
@@ -86,11 +45,8 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({
       zIndex={10000}
       className={isMobile ? 'w-full' : ''}
       label={() =>
-        assignmentDevice ? (
-          <Label
-            type={statusToLabelType(assignmentStatusLabel)}
-            text={assignmentStatusLabel}
-          />
+        showStatusLabel ? (
+          <Label type={statusLabelType} text={assignmentStatusLabel} />
         ) : null
       }
     >
