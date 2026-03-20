@@ -374,6 +374,8 @@ const useInternalDevicesAsignationPage = () => {
         value: formValues.device_status_id ?? '',
         options: statusOptions,
         validations: [{ type: 'required' }],
+        disabled: true,
+
       },
       {
         type: 'select',

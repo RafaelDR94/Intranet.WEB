@@ -29,6 +29,67 @@ type InternalDeviceEditProps = {
   mode?: 'edit' | 'create'
 }
 
+const MAC_PLACEHOLDER = '00:00:00:00:00:00'
+const MAC_MASK = '__:__:__:__:__:__'
+const IP_PLACEHOLDER = '000.000.000.000'
+const IP_MASK = '___.___.___.___'
+
+const formatMaskedValue = (
+  rawValue: string,
+  previousValue: string,
+  mask: string,
+  allowedChars: RegExp,
+  placeholder?: string,
+) => {
+  const raw = rawValue ?? ''
+  let source = raw
+
+  if (placeholder && previousValue === placeholder && raw.startsWith(previousValue)) {
+    source = raw.slice(previousValue.length)
+  }
+
+  const chars = source
+    .split('')
+    .filter((char) => allowedChars.test(char))
+    .join('')
+    .toUpperCase()
+
+  let index = 0
+  let output = ''
+
+  for (const maskChar of mask) {
+    if (maskChar === '_') {
+      output += index < chars.length ? chars[index] : '_'
+      index += 1
+    } else {
+      output += maskChar
+    }
+  }
+
+  return output
+}
+
+const normalizeMacValue = (value: string) => {
+  if (!value) return ''
+  if (value === MAC_PLACEHOLDER || value === MAC_MASK || value.includes('_')) {
+    return ''
+  }
+  return value
+}
+
+const normalizeIpValue = (value: string) => {
+  if (!value) return ''
+  if (value === IP_PLACEHOLDER || value === IP_MASK || value.includes('_')) {
+    return ''
+  }
+  return value
+}
+
+const maskOnFocus = (value: string, placeholder: string, mask: string) => {
+  if (!value || value === placeholder) return mask
+  return undefined
+}
+
 const stepLayouts: Record<StepId, ResponsiveLayoutMatrix> = {
   device: {
     sm: [[10], [10], [10], [10]],
@@ -36,9 +97,9 @@ const stepLayouts: Record<StepId, ResponsiveLayoutMatrix> = {
     lg: [[3.3, 3.3, 3.3], [3.3]],
   },
   hardware: {
-    sm: [[10], [10], [10], [10]],
-    md: [[5, 5], [5, 5]],
-    lg: [[3.3, 3.3, 3.3], [3.3]],
+    sm: [[10], [10], [10], [10], [10]],
+    md: [[5, 5], [5, 5], [10]],
+    lg: [[3.3, 3.3, 3.3], [3.3, 3.3]],
   },
   features: {
     sm: [[10], [10], [10], [10]],
@@ -109,8 +170,9 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
         model: '',
         name: '',
         serial_number: '',
-        ip_address: '',
-        mac_address: '',
+        ip_address: IP_PLACEHOLDER,
+        mac_address: MAC_PLACEHOLDER,
+        mac_wifi_address: MAC_PLACEHOLDER,
         operating_system: '',
         charge_sn: '',
         description: '',
@@ -130,8 +192,9 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
       model: device.model ?? '',
       name: device.name ?? '',
       serial_number: device.serial_number ?? '',
-      ip_address: device.ip_address ?? '',
-      mac_address: device.mac_address ?? '',
+      ip_address: device.ip_address ?? IP_PLACEHOLDER,
+      mac_address: device.mac_address ?? MAC_PLACEHOLDER,
+      mac_wifi_address: device.mac_wifi_address ?? MAC_PLACEHOLDER,
       operating_system: device.operating_system ?? '',
       charge_sn: device.charge_sn ?? '',
       description: device.description ?? '',
@@ -234,8 +297,17 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
       {
         type: 'input',
         name: 'ip_address',
-        label: 'Direccion*',
+        label: 'Direccion IP*',
         value: formValues.ip_address ?? '',
+        onChange: (value, values) =>
+          formatMaskedValue(
+            String(value ?? ''),
+            String(values.ip_address ?? ''),
+            IP_MASK,
+            /[0-9]/,
+            IP_PLACEHOLDER,
+          ),
+        onFocus: (value) => maskOnFocus(String(value ?? ''), IP_PLACEHOLDER, IP_MASK),
         validations: [{ type: 'required' }],
       },
       {
@@ -243,7 +315,31 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
         name: 'mac_address',
         label: 'Direccion MAC*',
         value: formValues.mac_address ?? '',
+        onChange: (value, values) =>
+          formatMaskedValue(
+            String(value ?? ''),
+            String(values.mac_address ?? ''),
+            MAC_MASK,
+            /[0-9a-fA-F]/,
+            MAC_PLACEHOLDER,
+          ),
+        onFocus: (value) => maskOnFocus(String(value ?? ''), MAC_PLACEHOLDER, MAC_MASK),
         validations: [{ type: 'required' }],
+      },
+      {
+        type: 'input',
+        name: 'mac_wifi_address',
+        label: 'Direccion MAC Wi-Fi',
+        value: formValues.mac_wifi_address ?? '',
+        onChange: (value, values) =>
+          formatMaskedValue(
+            String(value ?? ''),
+            String(values.mac_wifi_address ?? ''),
+            MAC_MASK,
+            /[0-9a-fA-F]/,
+            MAC_PLACEHOLDER,
+          ),
+        onFocus: (value) => maskOnFocus(String(value ?? ''), MAC_PLACEHOLDER, MAC_MASK),
       },
     ],
     [formValues],
@@ -268,9 +364,8 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
       {
         type: 'input',
         name: 'description',
-        label: 'Otros accesorios*',
+        label: 'Otros accesorios',
         value: formValues.description ?? '',
-        validations: [{ type: 'required' }],
       },
       {
         type: 'textarea',
@@ -339,12 +434,15 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
         return
       }
 
+      const ipValue = normalizeIpValue(String(formValues.ip_address ?? ''))
+      const macValue = normalizeMacValue(String(formValues.mac_address ?? ''))
+
       if (
         !formValues.name ||
         !formValues.model ||
         !formValues.serial_number ||
-        !formValues.ip_address ||
-        !formValues.mac_address ||
+        !ipValue ||
+        !macValue ||
         !formValues.operating_system ||
         !formValues.charge_sn ||
         !formValues.description
@@ -364,9 +462,9 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
         name: formValues.name ?? '',
         model: formValues.model ?? '',
         serial_number: formValues.serial_number ?? '',
-        ip_address: formValues.ip_address ?? '',
-        mac_address: formValues.mac_address ?? '',
-        mac_wifi_address: '',
+        ip_address: ipValue,
+        mac_address: macValue,
+        mac_wifi_address: normalizeMacValue(String(formValues.mac_wifi_address ?? '')),
         operating_system: formValues.operating_system ?? '',
         charge_sn: formValues.charge_sn ?? '',
         description: formValues.description ?? '',
@@ -398,14 +496,24 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
       return
     }
 
+    const ipValue = normalizeIpValue(
+      String(formValues.ip_address ?? device.ip_address ?? ''),
+    )
+    const macValue = normalizeMacValue(
+      String(formValues.mac_address ?? device.mac_address ?? ''),
+    )
+    const macWifiValue = normalizeMacValue(
+      String(formValues.mac_wifi_address ?? device.mac_wifi_address ?? ''),
+    )
+
     const payload: InternalDevicePut = {
       device_id: device.device_id,
       name: formValues.name ?? device.name ?? '',
       model: formValues.model ?? device.model ?? '',
       serial_number: formValues.serial_number ?? device.serial_number ?? '',
-      ip_address: formValues.ip_address ?? device.ip_address ?? '',
-      mac_address: formValues.mac_address ?? device.mac_address ?? '',
-      mac_wifi_address: device.mac_wifi_address ?? '',
+      ip_address: (ipValue || device.ip_address) ?? '',
+      mac_address: (macValue || device.mac_address) ?? '',
+      mac_wifi_address: (macWifiValue || device.mac_wifi_address) ?? '',
       operating_system: formValues.operating_system ?? device.operating_system ?? '',
       charge_sn: formValues.charge_sn ?? device.charge_sn ?? '',
       description: formValues.description ?? device.description ?? '',

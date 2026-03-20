@@ -62,7 +62,7 @@ const DeviceTypeForm: React.FC<DeviceTypeFormProps> = ({
       setFormValues({
         name: '',
         extract: '',
-        status: '',
+        status: 'active',
         description: '',
       })
       setFormVersion((prev) => prev + 1)
@@ -94,7 +94,7 @@ const DeviceTypeForm: React.FC<DeviceTypeFormProps> = ({
         name: 'name',
         label: 'Nombre*',
         value: formValues.name ?? '',
-        placeholder: 'Nombre de la marca',
+        placeholder: 'Nombre de tipo de dispositivo',
         validations: [{ type: 'required' }],
       },
       {
@@ -108,18 +108,16 @@ const DeviceTypeForm: React.FC<DeviceTypeFormProps> = ({
       {
         type: 'select',
         name: 'status',
-        label: 'Estatus*',
-        value: formValues.status ?? '',
+        label: 'Estatus',
+        value: formValues.status ?? 'active',
         options: statusOptions,
-        validations: [{ type: 'required' }],
       },
       {
         type: 'textarea',
         name: 'description',
-        label: 'Descripcion*',
+        label: 'Descripcion',
         value: formValues.description ?? '',
         rows: 4,
-        validations: [{ type: 'required' }],
       },
     ],
     [formValues, statusOptions],
