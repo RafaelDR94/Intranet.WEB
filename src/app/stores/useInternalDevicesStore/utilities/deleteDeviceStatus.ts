@@ -23,7 +23,7 @@ export const deleteDeviceStatus = async (
     const del = pDelete(requireGateway('del'), [200, 204])
     await del(`${Status}/${id}`)
 
-    await fetchDeviceStatuses(undefined, set, get, true)
+    await fetchDeviceStatuses(true, set, get, true)
 
     if (get().deviceStatus?.device_status_id === id) {
       set({ deviceStatus: undefined })

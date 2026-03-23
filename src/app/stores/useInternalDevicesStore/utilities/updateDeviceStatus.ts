@@ -35,7 +35,7 @@ export const updateDeviceStatus = async (
     const raw = res.data?.data ?? res.data ?? null
     const updated = raw && typeof raw === 'object' ? InternalDeviceStatusMap(raw) : null
 
-    await fetchDeviceStatuses(undefined, set, get, true)
+    await fetchDeviceStatuses(true, set, get, true)
 
     if (updated && get().deviceStatus?.device_status_id === updated.device_status_id) {
       set({ deviceStatus: updated })

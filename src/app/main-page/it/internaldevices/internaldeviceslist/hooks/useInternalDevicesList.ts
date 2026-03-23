@@ -196,6 +196,7 @@ const useInternalDevicesList = () => {
       successCreateDevice ||
       successDeleteDevice
     ) {
+      fetchDevices(true)
       resetFlags()
     }
   }, [
@@ -204,6 +205,7 @@ const useInternalDevicesList = () => {
     deletingDevice,
     activatingDevice,
     error,
+    fetchDevices,
     hideSpinner,
     loadingDevices,
     loadingDevice,

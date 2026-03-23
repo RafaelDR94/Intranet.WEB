@@ -52,14 +52,10 @@ export const getTabsFromPath = (
         path: "/main-page/treasury/treasurypettycash/treasuryrequest",
       }
     ],
-    "request/pettycash": [
+    "request/vehicleassignament": [
       {
-        label: "Solicitud Caja Chica",
-        path: "/main-page/request/pettycash/pettycashrequest",
-      },
-      {
-        label: "Historial",
-        path: "/main-page/request/pettycash/pettycashhistory",
+        label: "Prestamo Vehicular",
+        path: "/main-page/request/vehicleassignament",
       }
     ],
     "request/documents": [
@@ -104,6 +100,14 @@ export const getTabsFromPath = (
       {
         label: "Dispositivos",
         path: "/main-page/it/internaldevices/internaldeviceslist",
+      },
+      {
+        label: "Marcas",
+        path: "/main-page/it/internaldevices/devicesBrands",
+      },
+      {
+        label: "Tipos de Dispositivos",
+        path: "/main-page/it/internaldevices/devicesTypes",
       },
       {
         label: "Asignación de Dispositivos",

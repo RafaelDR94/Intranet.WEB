@@ -39,6 +39,32 @@ import { EmployeeType } from "@/app/mappings/employees/employee.types";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { formatDateHour } from "@/app/utilities/DatesHelper/Dateshelper";
 
+type ResponsivePeriod = {
+  startIso: string;
+  endIso?: string | null;
+};
+
+type MakeResponsiveParams = {
+  employeeId?: string;
+  vehicleId?: string;
+  period?: ResponsivePeriod;
+  /**
+   * Si se pasa (aunque sea string vacío), se usa tal cual en el PDF.
+   * Si NO se pasa, se intenta obtener la firma desde el assignment actual.
+   */
+  signatureUrl?: string | null;
+};
+
+const buildResponsivePeriodLabel = (period: ResponsivePeriod): string => {
+  const hasStart = Boolean(period.startIso && period.startIso.trim().length > 0);
+  const hasEnd = Boolean(period.endIso && String(period.endIso).trim().length > 0);
+  if (!hasStart && !hasEnd) return "";
+
+  const start = hasStart ? formatDateHour(period.startIso) : "--";
+  const end = hasEnd ? formatDateHour(period.endIso as string) : "--";
+  return `Periodo: ${start} - ${end}`;
+};
+
 const buildChecklist = <Key extends keyof VehicleTraking>(
   tracking: VehicleTraking | undefined,
   options: { label: string; field: Key }[]
@@ -337,39 +363,60 @@ const useVehicleDocuments = () => {
       ensureSignature,
     ]
   );
-  const makeResponsive = useCallback(async (idEmplooye:string="",idVehicle:string="",date:string=""): Promise<FullDocument | null> => {
-    if (!currentAssignment&&(!idEmplooye && !idVehicle)) return null;
-    const employeeId = currentAssignment?currentAssignment.employee_id:idEmplooye;
-    const vehicleId = currentAssignment?currentAssignment.transport?.transport_id:idVehicle;
-    if (!employeeId || !vehicleId) return null;
 
-    const [employee, vehicle, signatureUrl] = await Promise.all([
-      fetchEmployeeById(employeeId, true),
-      fetchTransportById(vehicleId, true),
-      ensureSignature(),
-    ]);
+  const makeResponsive = useCallback(
+    async (params?: MakeResponsiveParams): Promise<FullDocument | null> => {
+      const employeeId = params?.employeeId ?? currentAssignment?.employee_id ?? "";
+      const vehicleId =
+        params?.vehicleId ?? currentAssignment?.transport?.transport_id ?? "";
 
-    if (!employee || !vehicle) {
-      return null;
-    }
+      if (!employeeId || !vehicleId) return null;
 
-    const folioDate =   formatDateHour(currentAssignment?.vehicletrackinglist?currentAssignment?.vehicletrackinglist[0].date : date)
+      const period: ResponsivePeriod =
+        params?.period ??
+        (() => {
+          const trackings = currentAssignment?.vehicletrackinglist ?? [];
+          const { departure, arrival } = findDepartureAndArrival(trackings);
+          return {
+            startIso: departure?.date ?? currentAssignment?.departure_date ?? "",
+            endIso: arrival?.date ?? currentAssignment?.arrival_date ?? null,
+          };
+        })();
 
-    return makeResponsivedocument(
-      employee,
-      vehicle,
-      signatureUrl ?? "",
-      folioDate
-    );
-  }, [
-    currentAssignment,
-    ensureSignature,
-    fetchEmployeeById,
-    fetchTransportById,
-  ]);
+      const signaturePromise =
+        params?.signatureUrl !== undefined
+          ? Promise.resolve(params.signatureUrl ?? "")
+          : ensureSignature();
+
+      const [employee, vehicle, signatureUrl] = await Promise.all([
+        fetchEmployeeById(employeeId, true),
+        fetchTransportById(vehicleId, true),
+        signaturePromise,
+      ]);
+
+      if (!employee || !vehicle) {
+        return null;
+      }
+
+      const periodLabel = buildResponsivePeriodLabel(period);
+
+      return makeResponsivedocument(
+        employee,
+        vehicle,
+        signatureUrl ?? "",
+        periodLabel,
+      );
+    },
+    [currentAssignment, ensureSignature, fetchEmployeeById, fetchTransportById],
+  );
 
 
-  const makeResponsivedocument = async (employe: EmployeeType, vehicle: CompleteTransport, employesignature: string, date: string) => {
+  const makeResponsivedocument = async (
+    employe: EmployeeType,
+    vehicle: CompleteTransport,
+    employesignature: string,
+    periodLabel: string,
+  ) => {
     const introduction = "El que suscribe, con número de empleado " + employe?.employee_number + ", hago constar que el área de Administración de Servicios Generales me hace entrega de un vehículo propiedad de la empresa con las siguientes características:"
     const paragraph1 = `De esta forma, me comprometo a utilizar dicho vehículo para el desarrollo de las funciones que me fueron autorizadas, mantenerlo en condiciones óptimas de funcionamiento y entregarlo al área de Administración de Servicios Generales en las fechas asignadas de acuerdo con el programa de mantenimiento y/o cuando se tenga una necesidad de reparación o ajuste. La empresa se reserva el derecho de verificar el correcto uso del vehículo.`;
     const paragraph2 = `En caso de siniestro, me obligo a dar aviso a la brevedad posible al área de Administración de Servicios Generales y al líder del área de adscripción, así como a proporcionar la ubicación del siniestro y una breve narración de los hechos ocurridos relacionados con el mismo para el deslinde de responsabilidades. Además, me comprometo a proporcionar al área de Administración de Servicios Generales la "Orden de Reparación" gestionada por el ajustador de la aseguradora correspondiente.`;
@@ -490,7 +537,7 @@ const useVehicleDocuments = () => {
     };
 
     const page: newDocument = {
-      folio: date,
+      folio: periodLabel,
       title: "Responsiva vehicular",
       elements: [Introduction, InfoCar, Paragraph1, Paragraph2, Paragraph3, Paragraph4, InfoCar2, Signature]
     };

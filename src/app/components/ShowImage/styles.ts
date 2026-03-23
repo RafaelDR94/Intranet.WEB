@@ -45,6 +45,37 @@ const image = () =>
     'rounded-md shadow-500'
   );
 
+// Stage para carrusel (permite caption/controles sobre la imagen)
+const imageStage = () =>
+  cx(
+    'relative',
+    'w-full',
+    'flex items-center justify-center'
+  );
+
+const navBtn = () =>
+  cx(
+    'absolute top-1/2 -translate-y-1/2',
+    'w-10 h-10',
+    'flex items-center justify-center',
+    'rounded-full',
+    'bg-[rgba(0,0,0,0.35)]',
+    'text-white',
+    'hover:bg-[rgba(0,0,0,0.5)]',
+    'focus:outline-none focus:ring-2 focus:ring-white/60'
+  );
+
+const navLeft = () => cx(navBtn(), 'left-3');
+const navRight = () => cx(navBtn(), 'right-3');
+
+const captionBar = () =>
+  cx(
+    'absolute left-4 right-4 bottom-3',
+    'flex items-center justify-between',
+    'text-white',
+    'text-sm'
+  );
+
 // Contenedor del botón de acción (abajo, centrado)
 const actions = () =>
   cx(
@@ -56,6 +87,10 @@ export const classes = {
   card,
   closeBtn,
   imageWrap,
+  imageStage,
   image,
+  navLeft,
+  navRight,
+  captionBar,
   actions,
 };

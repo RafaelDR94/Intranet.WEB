@@ -15,12 +15,12 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
  * Fetch device statuses.
  */
 export const fetchDeviceStatuses = async (
-  isActive: boolean | undefined,
+  _isActive: boolean | undefined,
   set: Set,
   get: Get,
   force = false,
 ): Promise<InternalDeviceStatus[] | null> => {
-  if (!force && get().deviceStatuses.length > 0 && typeof isActive !== 'boolean') {
+  if (!force && get().deviceStatuses.length > 0) {
     return get().deviceStatuses
   }
 
@@ -31,10 +31,7 @@ export const fetchDeviceStatuses = async (
   })
 
   try {
-    const params = typeof isActive === 'boolean'
-      ? `?isActive=${String(isActive)}`
-      : ''
-    const url = `${Status}${params}`
+    const url = `${Status}?isActive=true`
 
     const getFn = requireGateway('get')
     const res: AxiosResponse = await pGet(getFn)(url)

@@ -70,6 +70,8 @@ export default function MainLayoutClient({
       open: imageOpen,
       src,
       alt,
+      items,
+      initialIndex,
       showAction,
       actionLabel,
       onAction,
@@ -164,6 +166,8 @@ export default function MainLayoutClient({
             open={imageOpen}
             src={src}
             alt={alt}
+            items={items}
+            initialIndex={initialIndex}
             showAction={showAction}
             actionLabel={actionLabel}
             onAction={onAction}

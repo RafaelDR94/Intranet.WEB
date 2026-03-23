@@ -1,170 +1,32 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { shallow } from 'zustand/shallow'
-
 import { Button } from '@/app/components/Button/Button'
+import DocumentViewer from '@/app/components/DocumentViewer/DocumentViewer'
 import { PopUp } from '@/app/components/PopUp/PopUp'
-import { useAuth } from '@/app/context/AuthContext/AuthContext'
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
-import useQuery from '@/app/hooks/useQuery/useQuery'
-import type { EmployeeType } from '@/app/mappings/employees/employee.types'
-import type { InternalDeviceAssignmentHistory } from '@/app/mappings/internaldevices/internaldevices.types'
-import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore'
-import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
 import UserIcon from '@/assets/icons/Users/Users/user.svg'
+import ResponsiveDoc from '@/assets/icons/Docs/page.svg'
 
-export interface HistoryAssignmentProps {
-  deviceId?: string | null
-  onCreateAssignment?: () => void
-}
+import useHistoryAssignment from './hooks/useHistoryAssignment'
+import type { HistoryAssignmentProps } from './types'
 
-const getAssignmentDate = (assignment: InternalDeviceAssignmentHistory): string =>
-  assignment.date ?? assignment.created_at ?? '-'
-
-const HistoryAssignment: React.FC<HistoryAssignmentProps> = ({
-  deviceId,
-  onCreateAssignment,
-}) => {
-  const { updateQuery } = useQuery()
-  const { user } = useAuth()
-  const { usePrincipalAlert, usePrincipalLoading } = usePrincipal()
-  const { showAlert } = usePrincipalAlert
-  const { showSpinner, hideSpinner } = usePrincipalLoading
+const HistoryAssignment = ({ deviceId, onCreateAssignment }: HistoryAssignmentProps) => {
   const {
-    deviceAssignmentHistory,
-    loadingDeviceAssignmentHistory,
-    fetchDeviceAssignmentHistoryByDeviceId,
-    deleteDeviceAssignment,
+    confirmOpen,
     deletingDeviceAssignment,
-    fetchDeviceAssignments,
-    deviceAssignment,
-    error,
-  } = useInternalDevicesStore(
-    (state) => ({
-      deviceAssignmentHistory: state.deviceAssignmentHistory,
-      loadingDeviceAssignmentHistory: state.loadingDeviceAssignmentHistory,
-      fetchDeviceAssignmentHistoryByDeviceId:
-        state.fetchDeviceAssignmentHistoryByDeviceId,
-      deleteDeviceAssignment: state.deleteDeviceAssignment,
-      deletingDeviceAssignment: state.deletingDeviceAssignment,
-      fetchDeviceAssignments: state.fetchDeviceAssignments,
-      deviceAssignment: state.deviceAssignment,
-      error: state.error,
-    }),
-    shallow,
-  )
+    handleCloseResponsive,
+    handleConfirmUnlink,
+    handleCreateAssignment,
+    handleOpenResponsive,
+    hasActiveAssignment,
+    loading,
+    responsiveOpen,
+    responsiveTitle,
+    responsiveUrl,
+    rows,
+    setConfirmOpen,
+  } = useHistoryAssignment({ deviceId, onCreateAssignment })
 
-  const { activeEmployees, loadingActive, fetchActiveEmployees } = useEmployeesStore(
-    (state) => ({
-      activeEmployees: state.activeEmployees,
-      loadingActive: state.loadingActive,
-      fetchActiveEmployees: state.fetchActiveEmployees,
-    }),
-    shallow,
-  )
-
-  useEffect(() => {
-    if (!deviceId) return
-    void fetchDeviceAssignmentHistoryByDeviceId(deviceId, true)
-    if (!activeEmployees.length) {
-      void fetchActiveEmployees(true)
-    }
-  }, [
-    deviceId,
-    activeEmployees.length,
-    fetchActiveEmployees,
-    fetchDeviceAssignmentHistoryByDeviceId,
-  ])
-
-  const employeeById = useMemo(() => {
-    const entries = activeEmployees
-      .map((employee) => {
-        const key = employee.employee_id || employee.id
-        return key ? ([key, employee] as const) : null
-      })
-      .filter(
-        (entry): entry is readonly [string, EmployeeType] => entry !== null,
-      )
-    return new Map<string, EmployeeType>(entries)
-  }, [activeEmployees])
-
-  const rows = useMemo<InternalDeviceAssignmentHistory[]>(
-    () => deviceAssignmentHistory ?? [],
-    [deviceAssignmentHistory],
-  )
-
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const hasActiveAssignment = Boolean(
-    deviceAssignment?.device_assigment_id &&
-      deviceAssignment.device_id &&
-      deviceAssignment.device_id === deviceId,
-  )
-
-  const handleCreateAssignment = () => {
-    if (onCreateAssignment) {
-      onCreateAssignment()
-      return
-    }
-    updateQuery({ view: 'new' })
-  }
-
-  const handleConfirmUnlink = useCallback(async () => {
-    if (
-      !deviceAssignment?.device_assigment_id ||
-      !deviceAssignment.device_id ||
-      deviceAssignment.device_id !== deviceId
-    ) {
-      return
-    }
-    showSpinner({ message: 'Desvinculando usuario...' })
-    const ok = await deleteDeviceAssignment(
-      deviceAssignment.device_assigment_id,
-      undefined,
-      user?.idEmployee,
-    )
-    hideSpinner()
-
-    if (!ok) {
-      showAlert({
-        type: 'error',
-        title: 'Ocurrio un error',
-        description: error ?? 'No se pudo desvincular al usuario.',
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 1500,
-      })
-      return
-    }
-
-    setConfirmOpen(false)
-    showAlert({
-      type: 'info',
-      title: 'Usuario desvinculado',
-      description: 'El dispositivo quedo disponible para una nueva asignacion.',
-      showPrimaryButton: false,
-      showSecondaryButton: false,
-      autoCloseMs: 1200,
-    })
-
-    if (deviceId) {
-      await fetchDeviceAssignmentHistoryByDeviceId(deviceId, true)
-    }
-    await fetchDeviceAssignments(true)
-  }, [
-    deleteDeviceAssignment,
-    deviceAssignment?.device_assigment_id,
-    deviceId,
-    error,
-    fetchDeviceAssignmentHistoryByDeviceId,
-    fetchDeviceAssignments,
-    hideSpinner,
-    showAlert,
-    showSpinner,
-    user?.idEmployee,
-  ])
-
-  if (loadingDeviceAssignmentHistory || loadingActive) {
+  if (loading) {
     return <div className="text-center text-gray-70">Cargando historial...</div>
   }
 
@@ -179,7 +41,9 @@ const HistoryAssignment: React.FC<HistoryAssignmentProps> = ({
         secondaryButtonText="Cancelar"
         onSecondaryButtonClick={() => setConfirmOpen(false)}
         showPrimaryButton
-        primaryButtonText={deletingDeviceAssignment ? 'Desvinculando...' : 'Desvincular'}
+        primaryButtonText={
+          deletingDeviceAssignment ? 'Desvinculando...' : 'Desvincular'
+        }
         onPrimaryButtonClick={handleConfirmUnlink}
       />
 
@@ -219,33 +83,43 @@ const HistoryAssignment: React.FC<HistoryAssignmentProps> = ({
                 </td>
               </tr>
             )}
-            {rows.map((assignment) => {
-              const employee =
-                assignment.assigned_to ??
-                employeeById.get(assignment.employee_id)?.fullname ??
-                assignment.employee_id ??
-                '-'
-
-              return (
-                <tr
-                  key={assignment.device_assigment_id}
-                  className="border-b border-gray-10 last:border-b-0"
-                >
-                  <td className="px-6 py-4 text-c2">
-                    {getAssignmentDate(assignment)}
-                  </td>
-                  <td className="px-6 py-4 text-c2">{employee}</td>
-                  <td className="px-6 py-4 text-c2">
-                    <span className="block max-w-[280px] truncate">
-                      {assignment.delivery_condition || 'Sin condiciones'}
-                    </span>
-                  </td>
-                </tr>
-              )
-            })}
+            {rows.map((assignment) => (
+              <tr
+                key={assignment.assignmentId}
+                className="border-b border-gray-10 last:border-b-0"
+              >
+                <td className="px-6 py-4 text-c2">{assignment.dateLabel}</td>
+                <td className="px-6 py-4 text-c2">{assignment.assignedTo}</td>
+                <td className="px-6 py-4 text-c2">
+                  <span className="block max-w-[280px] truncate">
+                    {assignment.deliveryCondition}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-c2">
+                  <Button
+                    size="small"
+                    variant="ghost"
+                    icon={ResponsiveDoc}
+                    onClick={() => {
+                      handleOpenResponsive(
+                        assignment.responsiveUrl,
+                        `Responsiva ${assignment.dateLabel}`,
+                      )
+                    }}
+                  />
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
+      {responsiveOpen && responsiveUrl && (
+        <DocumentViewer
+          fileUrl={responsiveUrl}
+          title={responsiveTitle}
+          onClose={handleCloseResponsive}
+        />
+      )}
     </div>
   )
 }

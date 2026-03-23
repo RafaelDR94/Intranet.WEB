@@ -113,7 +113,8 @@ export interface FieldModel {
   /** Permite la selección de múltiples imágenes. */
   multiple?: boolean;
 
-  onChange?: (value: any, values: Record<string, any>) => void;
+  onChange?: (value: any, values: Record<string, any>) => any | void;
+  onFocus?: (value: any, values: Record<string, any>) => any | void;
   /**Numero de filas en multilinea*/
   rows?: number
   /** Propiedades para campos numéricos */

@@ -60,7 +60,7 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
   const [isValid, setIsValid] = useState(false)
 
   useEffect(() => {
-    void fetchDeviceStatuses(undefined, true)
+    void fetchDeviceStatuses(true)
   }, [fetchDeviceStatuses])
 
   useEffect(() => {

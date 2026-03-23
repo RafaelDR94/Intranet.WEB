@@ -6,7 +6,10 @@ export default function InternalDevicesPage
     <PermissionRedirect
       routes={[
         '/main-page/it/internaldevices/internaldeviceslist',
-        '/main-page/it/internaldevices/internaldevicesasignation'
+        '/main-page/it/internaldevices/devicesBrands',
+        '/main-page/it/internaldevices/devicesTypes',
+        '/main-page/it/internaldevices/internaldevicesasignation',
+
       ]}
     />
   );

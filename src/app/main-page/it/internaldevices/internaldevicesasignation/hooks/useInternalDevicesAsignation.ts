@@ -18,12 +18,18 @@ const useInternalDevicesAsignation = () => {
     deviceAssignments,
     fetchDeviceAssignments,
     loadingDeviceAssignments,
+    successCreateDeviceAssignment,
+    successUpdateDeviceAssignment,
+    successDeleteDeviceAssignment,
     error,
   } = useInternalDevicesStore(
     (state) => ({
       deviceAssignments: state.deviceAssignments,
       fetchDeviceAssignments: state.fetchDeviceAssignments,
       loadingDeviceAssignments: state.loadingDeviceAssignments,
+      successCreateDeviceAssignment: state.successCreateDeviceAssignment,
+      successUpdateDeviceAssignment: state.successUpdateDeviceAssignment,
+      successDeleteDeviceAssignment: state.successDeleteDeviceAssignment,
       error: state.error,
     }),
     shallow,
@@ -52,6 +58,21 @@ const useInternalDevicesAsignation = () => {
 
     hideSpinner()
   }, [error, hideSpinner, loadingDeviceAssignments, showAlert, showSpinner])
+
+  useEffect(() => {
+    if (
+      successCreateDeviceAssignment ||
+      successUpdateDeviceAssignment ||
+      successDeleteDeviceAssignment
+    ) {
+      fetchDeviceAssignments(true)
+    }
+  }, [
+    fetchDeviceAssignments,
+    successCreateDeviceAssignment,
+    successDeleteDeviceAssignment,
+    successUpdateDeviceAssignment,
+  ])
 
   const handleRefresh = useCallback(() => {
     fetchDeviceAssignments(true)

@@ -53,6 +53,17 @@ export const TransportVehicleTracking = process.env.NEXT_PUBLIC_TRANSPORT_VEHICL
 export const TransportVehicleTrackingById = process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_TRACKING_BYID ?? "/Transport/VehicleTracking/ById";
 export const TransportByEnterprise = process.env.NEXT_PUBLIC_TRANSPORT_BY_ENTERPRISE ?? "/Transport/TransportByIdEnterprise";
 export const TransportExternal = process.env.NEXT_PUBLIC_TRANSPORT_EXTERNAL ?? "/Transport/External";
+export const TransportChangeDriver =
+  process.env.NEXT_PUBLIC_TRANSPORT_CHANGE_DRIVER ?? "/Transport/ChangeDriver";
+export const TransportVehicleReassignmentReject =
+  process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_REASSIGNMENT_REJECT ??
+  "/Transport/VehicleReassignmentReject";
+export const TransportVehicleReassignmentApprove =
+  process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_REASSIGNMENT_APPROVE ??
+  "/Transport/VehicleReassignmentApprove";
+export const TransportVehicleReassignmentByEmployee =
+  process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_REASSIGNMENT_BY_EMPLOYEE ??
+  "/Transport/VehicleReassignment/Employee";
 
 export const Employees = process.env.NEXT_PUBLIC_EMPLOYEES ?? "/Employees";
 export const EmployeesById = process.env.NEXT_PUBLIC_EMPLOYEESBYID ?? "/Employees/ById";
@@ -120,6 +131,9 @@ export const DeviceAssigmentById =
 export const DeviceAssignmentHistoryByDeviceId =
   process.env.NEXT_PUBLIC_DEVICE_ASSIGNMENT_HISTORY_BY_DEVICE_ID ??
   "/Assets/DeviceAssignment/History";
+export const DeviceAssignmentResponsiveUrl =
+  process.env.NEXT_PUBLIC_DEVICE_ASSIGNMENT_RESPONSIVE_URL ??
+  "/Assets/DeviceAssignment/ResponsiveUrl";
 
 export const DocumentType = process.env.NEXT_PUBLIC_DOCUMENT_TYPE ?? "/Documents/DocumentType";
 export const Documents = process.env.NEXT_PUBLIC_DOCUMENTS ?? "/Documents";

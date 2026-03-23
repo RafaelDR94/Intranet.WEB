@@ -43,7 +43,8 @@ export const sidebarRoutes = [
       { label: 'Caja Chica', path: '/main-page/request/pettycash' },
       { label: 'Documentos', path: '/main-page/request/documents' },
       { label: 'Accesos', path: '/main-page/request/acces' },
-      { label: 'Requisiciones', path: '/main-page/request/ownrequisitions' }
+      { label: 'Requisiciones', path: '/main-page/request/ownrequisitions' },
+      { label: 'Prestamo Vehicular', path: '/main-page/request/vehicleassignament' }
     ],
   },
   {
