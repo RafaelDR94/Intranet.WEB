@@ -5,6 +5,14 @@ export type ShowImageProps = {
     src?: string;
     /** Texto alternativo accesible */
     alt?: string;
+
+    /**
+     * Lista de imágenes (modo carrusel).
+     * Si se provee, tiene prioridad sobre `src`.
+     */
+    items?: ShowImageCarouselItem[];
+    /** Índice inicial cuando se abre (solo modo carrusel) */
+    initialIndex?: number;
     /** Cierra el visor (si no lo pasas, el botón de cerrar sólo es visual) */
     onClose?: () => void;
 
@@ -21,4 +29,15 @@ export type ShowImageProps = {
     ariaLabel?: string;
     blur?: boolean;
     backdropOpacity?: number;
+};
+
+export type ShowImageCarouselItem = {
+    /** URL de la imagen */
+    image: string;
+    /** Texto alternativo accesible (fallback a `alt`) */
+    alt?: string;
+    /** Título a mostrar (ej. nombre de conductor) */
+    title?: string;
+    /** Descripción a mostrar (ej. fecha) */
+    description?: string;
 };

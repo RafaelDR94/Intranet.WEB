@@ -22,6 +22,10 @@ const useLoadingOverlay = (): UseLoadingOverlay => {
   const [state, setState] = useState<LoadingState>({ open: false, spinnerSize: 'medium' });
 
   const showSpinner: UseLoadingOverlay['showSpinner'] = useCallback((opts) => {
+    console.log("Mostrando spinner");
+    if (process.env.NODE_ENV !== 'production') {
+      console.trace('[spinner] show');
+    }
     setState((prev) => {
       const next = {
         open: true,
@@ -42,7 +46,10 @@ const useLoadingOverlay = (): UseLoadingOverlay => {
 
   const hideSpinner = useCallback(
     () => {
-      // console.debug('[spinner] hide', new Error().stack);
+  
+      if (process.env.NODE_ENV !== 'production') {
+        console.trace('[spinner] hide');
+      }
       setState((s) => {
         // No-op si ya está oculto
         if (!s.open) return s;

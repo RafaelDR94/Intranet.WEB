@@ -11,6 +11,11 @@ import type {
   CompleteTransport
 } from "@/app/mappings/transport/transport.types";
 
+export type ChangeDriverPayload = {
+  id_vehicleAssignments: string;
+  id_newEmployee: string;
+};
+
 export type TransportStoreState = {
   transports: CompleteTransport[];
   transport?: CompleteTransport;
@@ -20,6 +25,8 @@ export type TransportStoreState = {
 
   vehicleTrackings: VehicleTraking[];
   vehicleTracking?: VehicleTraking;
+
+  vehicleReassignmentsByEmployee: TransportAssignament[];
 
   loadingTransports: boolean;
   loadingAssignments: boolean;
@@ -33,6 +40,10 @@ export type TransportStoreState = {
   creatingVehicleTracking: boolean;
   updatingVehicleTracking: boolean;
   deletingVehicleTracking: boolean;
+  changingDriver: boolean;
+  approvingVehicleReassignment: boolean;
+  rejectingVehicleReassignment: boolean;
+  loadingVehicleReassignmentsByEmployee: boolean;
 
   successGetTransports: boolean;
   successGetTransport: boolean;
@@ -51,6 +62,10 @@ export type TransportStoreState = {
   successCreateVehicleTracking: boolean;
   successUpdateVehicleTracking: boolean;
   successDeleteVehicleTracking: boolean;
+  successChangeDriver: boolean;
+  successApproveVehicleReassignment: boolean;
+  successRejectVehicleReassignment: boolean;
+  successGetVehicleReassignmentsByEmployee: boolean;
 
   error?: string;
   warning?: string;
@@ -75,10 +90,26 @@ export type TransportStoreState = {
   updateVehicleTracking: (payload: VehicleTrakingPut) => Promise<VehicleTraking | null>;
   deleteVehicleTracking: (id: string) => Promise<boolean>;
 
+  changeDriver: (payload: ChangeDriverPayload) => Promise<boolean>;
+  vehicleReassignmentApprove: (payload: VehicleReassignmentApprovePayload) => Promise<boolean>;
+  vehicleReassignmentReject: (vehicleReassignment: string, comment: string) => Promise<boolean>;
+  fetchVehicleReassignmentsByEmployee: (idEmployee: string) => Promise<TransportAssignament[] | null>;
+
   setCurrentAssignment: (assignment?: TransportAssignament) => void;
   reset: () => void;
   resetFlags: () => void;
   resetCurrentAssignment: () => void;
+};
+
+export type VehicleReassignmentApprovePayload = {
+  id: string;
+  comment: string;
+  front_image: string;
+  back_image: string;
+  right_side_image: string;
+  left_side_image: string;
+  circulation_card_image: string;
+  signature: string;
 };
 
 export type SetState = (

@@ -1,10 +1,14 @@
 'use client';
 import { useCallback, useMemo, useState } from 'react';
 
+import { ShowImageCarouselItem } from '@/app/components/ShowImage/types';
+
 export type ImageViewerState = {
   open: boolean;
   src?: string;
   alt?: string;
+  items?: ShowImageCarouselItem[];
+  initialIndex?: number;
   showAction?: boolean;
   actionLabel?: string;
   onAction?: () => void;

@@ -157,11 +157,93 @@ describe('useRegisterDetails', () => {
       await result.current.handleDownloadResponsive();
     });
 
-    expect(makeResponsive).toHaveBeenCalled();
+    expect(makeResponsive).toHaveBeenCalledWith(
+      expect.objectContaining({
+        employeeId: 'E1',
+        vehicleId: 'T1',
+        period: expect.objectContaining({
+          startIso: '2024-01-01T08:00:00Z',
+          endIso: '2024-01-01T20:00:00Z',
+        }),
+      }),
+    );
     expect(createPdf).toHaveBeenCalled();
     expect(showAlert).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'info' })
     );
+  });
+
+  it('generates one responsive per accepted driver segment', async () => {
+    transportStoreState.currentAssignment = {
+      vehicleassignments_id: 'A1',
+      departure_date: '2024-01-01T08:00:00Z',
+      arrival_date: '2024-01-01T20:00:00Z',
+      vehicletrackinglist: [
+        { vehicleEntryExit: false, date: '2024-01-01T08:00:00Z' },
+        { vehicleEntryExit: true, date: '2024-01-01T20:00:00Z' },
+      ],
+      employee_id: 'E1',
+      transport: { transport_id: 'T1' },
+      vehicle_reassignment: [
+        {
+          id: 'R1',
+          id_vehicle_assignment: 'A1',
+          id_previous_employee: null,
+          previous_employee_name: null,
+          id_new_employee: 'E1',
+          new_employee_name: 'Driver 1',
+          id_status: 'S-A',
+          status: 'Aceptado',
+          comment: null,
+          date_created: '2024-01-01T08:00:00Z',
+        },
+        {
+          id: 'R2',
+          id_vehicle_assignment: 'A1',
+          id_previous_employee: 'E1',
+          previous_employee_name: 'Driver 1',
+          id_new_employee: 'E2',
+          new_employee_name: 'Driver 2',
+          id_status: 'S-A',
+          status: 'Aceptado',
+          comment: null,
+          date_created: '2024-01-01T12:00:00Z',
+        },
+      ],
+    } as any;
+
+    makeResponsive.mockResolvedValue({});
+
+    const { result } = renderHook(() => useRegisterDetails());
+
+    await act(async () => {
+      await result.current.handleDownloadResponsive();
+    });
+
+    expect(makeResponsive).toHaveBeenCalledTimes(2);
+    expect(makeResponsive).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        employeeId: 'E1',
+        signatureUrl: '',
+        period: expect.objectContaining({
+          startIso: '2024-01-01T08:00:00Z',
+          endIso: '2024-01-01T12:00:00Z',
+        }),
+      }),
+    );
+    expect(makeResponsive).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        employeeId: 'E2',
+        signatureUrl: '',
+        period: expect.objectContaining({
+          startIso: '2024-01-01T12:00:00Z',
+          endIso: '2024-01-01T20:00:00Z',
+        }),
+      }),
+    );
+    expect(createPdf).toHaveBeenCalledTimes(2);
   });
 
   it('fetches assignment details when tracking missing', () => {

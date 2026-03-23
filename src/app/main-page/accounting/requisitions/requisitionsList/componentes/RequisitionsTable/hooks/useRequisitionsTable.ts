@@ -216,13 +216,33 @@ export const useRequisitionTable = () => {
   };
 
   const onViewFiles = (row: RequisitionRow) => {
+    const isOperationsContext = path.startsWith(
+      "/main-page/operations/requisitions/requisitionListPage",
+    );
+
+    // `RequisitionsTable` is shared by Operations and Accounting.
+    // Keep the original Operations behavior (same-page view switch) when used there.
+    if (isOperationsContext) {
+      const clean = path.endsWith("/") ? path.slice(0, -1) : path;
+      const qs = new URLSearchParams(searchParams.toString());
+      const resolvedId = row.id || row.employeeId || "";
+      qs.set("id", resolvedId);
+      if (row.employeeId) {
+        qs.set("idEmployee", row.employeeId);
+      }
+      qs.set("label", buildLabel("Archivos", row.debtorName));
+      router.push(`${clean}?${qs.toString()}`);
+      return;
+    }
+
+    // Accounting behavior: jump to validate invoices with employee context.
     const qs = new URLSearchParams();
     const employeeId = row.employeeId || row.id;
     if (employeeId) {
-      qs.set('idEmployee', employeeId);
+      qs.set("idEmployee", employeeId);
     }
     if (row.debtorName) {
-      qs.set('employeeName', row.debtorName);
+      qs.set("employeeName", row.debtorName);
     }
     router.push(`/main-page/accounting/invoices/validateinvoices?${qs.toString()}`);
   };
