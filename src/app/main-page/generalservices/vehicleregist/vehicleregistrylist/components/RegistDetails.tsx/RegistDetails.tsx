@@ -9,19 +9,16 @@ import DeparturePictures from "./components/DeparturePictures/DeparturePictures"
 import Signatures from "./components/Signatures/Signatures";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import { Button } from "@/app/components/Button/Button";
-import { formatDateHour } from "@/app/utilities/DatesHelper/Dateshelper";
 export interface RegistDetailsProps {
     onClose: () => void;
     open: boolean;
 }
 const RegistDetails = ({ onClose, open }: RegistDetailsProps) => {
-    const { currentAssignment, departureDate, arrivalDate, hasArrival, hasDeparture, canGenerate, generatingType, generatingResponsive, handleDownloadDocument, handleDownloadResponsive } = useRegisterDetails();
+    const { currentAssignment, arrivalDate, hasArrival, hasDeparture, canGenerate, generatingType, generatingResponsive, handleDownloadDocument, handleDownloadResponsive } = useRegisterDetails();
     return (
 
         <DetailsPanelLayout onClose={onClose} open={open}
             zIndex={80}
-            leftLabel={"Fecha Salida " + formatDateHour(departureDate)}
-            rightLabel={arrivalDate ? "Fecha Llegada " + formatDateHour(arrivalDate) : ""}
 
             actionButton={
                 <h1 className="text-green-100 text-s1 font-semibold ">Registro Vehicular</h1>

@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { usePathname, useSearchParams } from "next/navigation";
 import React, {
   createContext,

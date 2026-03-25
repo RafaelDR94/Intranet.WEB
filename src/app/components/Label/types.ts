@@ -1,6 +1,7 @@
 /** Label visual variants */
 export type LabelType =
   | "valido"
+  | "validado"
   | "invalido"
   | "prohibido"
   | "actualizado"
@@ -13,7 +14,9 @@ export type LabelType =
   | "vale-azul"
   | "vale-rosa"
   | "sin-factura"
-  | "factura-rechazada";
+  | "factura-rechazada"
+  | "sin-asignar"
+  | "asignado"
 
 /** Props for Label component */
 export interface LabelProps {
@@ -21,4 +24,6 @@ export interface LabelProps {
   type: LabelType;
   /** Text to display */
   text: any;
+  /** Custom classes */
+  className?: string;
 }

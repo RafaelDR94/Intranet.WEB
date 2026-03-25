@@ -47,8 +47,7 @@ export const fetchBillingDocumentsPendingByEmployee = async (
       `${BillingDocumentsPendingByEmployeeUrl}/${idEmployee}`,
     )
     const payload = res.data?.data ?? res.data ?? []
-    console.log("payload",payload.map((item: any) => ({...item,document:{...item?.document,requisition:{...item.requisition}}})));
-    const mapped = BillingDocumentsMap(payload.map((item: any) => ({...item,document:{...item?.document,requisition:{...item.requisition}}})))
+    const mapped = BillingDocumentsMap(payload.map((item: any) => ({ ...item, document: { ...item?.document, requisition: { ...item.requisition } } })))
     set({
       pendingBillingDocuments: mapped,
       loadingPendingDocuments: false,

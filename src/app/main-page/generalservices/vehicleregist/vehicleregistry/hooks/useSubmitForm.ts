@@ -9,6 +9,8 @@ import { useTransportStore } from "@/app/stores/useTransportStore/useTransportSt
 import { shallow } from "zustand/shallow";
 import { useEffect } from "react";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import type { VehicleImageSlot } from "@/app/stores/useVehicleRegistryImagesStore/types";
+import type { VehicleTrakingPost } from "@/app/mappings/transport/transport.types";
 
 const useSubmitForm = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
@@ -31,7 +33,7 @@ const useSubmitForm = () => {
     showSpinner({ message: "Registrando salida" });
     try {
       if (currentAssignment) {
-        await submitUpdate(values, currentAssignment.vehicleassignments_id);
+        await submitUpdate(values, currentAssignment.vehicleassignments_id, "");
 
       }
       else {
@@ -52,15 +54,16 @@ const useSubmitForm = () => {
           throw new Error("No se pudo registrar");
         }
 
-        if (!urlsignature) {
-          await firebasestorage?.uploadFile(
+        let signatureUrl = urlsignature;
+        if (!signatureUrl) {
+          signatureUrl = await firebasestorage?.uploadFile(
             base64ToBlob(signature),
             `VehicleRequest/${assignament.vehicleassignments_id}/departure/signature`,
             true
           );
         }
 
-        await submitUpdate(values, assignament.vehicleassignments_id || "");
+        await submitUpdate(values, assignament.vehicleassignments_id || "", signatureUrl || "");
       }
 
 
@@ -70,7 +73,11 @@ const useSubmitForm = () => {
     }
   };
 
-  const submitUpdate = async (values: Record<string, any>, idVehicleAssigment: string) => {
+  const submitUpdate = async (
+    values: Record<string, any>,
+    idVehicleAssigment: string,
+    signatureUrl: string
+  ) => {
     showSpinner({ message: "Registrando información" });
     try {
       const { slots } = useVehicleRegistryImagesStore.getState();
@@ -92,21 +99,55 @@ const useSubmitForm = () => {
       const floatLevel = parseFloat(values.fuelLevel);
       const intlevel = Math.floor(floatLevel);
 
-      const VehicleTrakingPostModel = {
-        idVehicleAssigment,
-        vehicleEntryExit: !!currentAssignment,
-        fuelLevel: intlevel.toString(),
-        mileage: values.mileage,
-        remarks: values.destination,
-        date: values.date,
-        circulationcard,
-        fuelCard,
-        tagOrpas,
-        insurancePolicy,
-        platesDelYtra,
-        mechanicalOrhydraulicjack,
-        keytoRemoveStuds,
-        sparetire
+      if (!firebasestorage) {
+        throw new Error("Firebase no configurado correctamente");
+      }
+
+      const slotsFiltered = currentAssignment
+        ? slots.filter((slot) => slot.title !== "Licencia de conducir")
+        : slots;
+
+      const slotUrls = await Promise.all(
+        slotsFiltered.map(async (picture) => {
+          if (!picture.imageSrc) {
+            return { slotId: picture.id, url: "" };
+          }
+          const url = await firebasestorage.uploadFile(
+            base64ToBlob(picture.imageSrc),
+            `VehicleRequest/${idVehicleAssigment}/${place}/${picture.title}`,
+            true
+          );
+          return { slotId: picture.id, url };
+        })
+      );
+
+      const urlBySlotId = new Map<VehicleImageSlot["id"], string>(
+        slotUrls.map(({ slotId, url }) => [slotId, url])
+      );
+
+      const VehicleTrakingPostModel: VehicleTrakingPost = {
+        vehicle_assignment_id: idVehicleAssigment,
+        vehicle_entry_exit: !!currentAssignment,
+        full_level: intlevel.toString(),
+        mileage: String(values.mileage),
+        remarks: String(values.destination),
+        date: String(values.date),
+        circulation_card: circulationcard,
+        fuel_card: fuelCard,
+        tag_orpas: tagOrpas,
+        insurance_policy: insurancePolicy,
+        plates_del_ytra: platesDelYtra,
+        mechanical_orhydraulic_jack: mechanicalOrhydraulicjack,
+        keyto_remove_studs: keytoRemoveStuds,
+        spare_tire: sparetire,
+        front_image: urlBySlotId.get("front") ?? "",
+        back_image: urlBySlotId.get("rear") ?? "",
+        right_side_image: urlBySlotId.get("right-side") ?? "",
+        left_side_image: urlBySlotId.get("left-side") ?? "",
+        circulation_card_image: currentAssignment
+          ? ""
+          : urlBySlotId.get("license") ?? "",
+        signature: signatureUrl,
       };
 
       const vehicletraking = await createVehicleTracking(VehicleTrakingPostModel);
@@ -114,18 +155,6 @@ const useSubmitForm = () => {
       if (!vehicletraking) {
         throw new Error("No se pudo registrar");
       }
-      const slotsFiltered = currentAssignment?slots.filter(slot=>slot.title!="Licencia de conducir"):slots
-
-      // Sube imágenes correctamente esperando a que terminen todas.
-      await Promise.all(
-        slotsFiltered.map(picture =>
-          firebasestorage?.uploadFile(
-            base64ToBlob(picture.imageSrc),
-            `VehicleRequest/${idVehicleAssigment}/${place}/${picture.title}`,
-            true
-          )
-        )
-      );
     } finally {
       // Cierra spinner siempre.
       hideSpinner();

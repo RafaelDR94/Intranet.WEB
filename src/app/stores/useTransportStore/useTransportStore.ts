@@ -5,6 +5,7 @@ import { createWithEqualityFn } from 'zustand/traditional';
 
 import type { TransportStoreState } from './types';
 import {
+  changeDriver as changeDriverRequest,
   createAssignment as createAssignmentRequest,
   createTransport as createTransportRequest,
   createExternalTransport as createExternalTransportRequest,
@@ -14,6 +15,7 @@ import {
   deleteVehicleTracking as deleteVehicleTrackingRequest,
   fetchAssignmentById as fetchAssignmentByIdRequest,
   fetchAssignments as fetchAssignmentsRequest,
+  fetchVehicleReassignmentsByEmployee as fetchVehicleReassignmentsByEmployeeRequest,
   fetchTransportById as fetchTransportByIdRequest,
   fetchTransports as fetchTransportsRequest,
   fetchTransportsByEnterprise as fetchTransportsByEnterpriseRequest,
@@ -22,6 +24,8 @@ import {
   updateAssignment as updateAssignmentRequest,
   updateTransport as updateTransportRequest,
   updateVehicleTracking as updateVehicleTrackingRequest,
+  vehicleReassignmentApprove as vehicleReassignmentApproveRequest,
+  vehicleReassignmentReject as vehicleReassignmentRejectRequest,
 } from './utilities';
 
 export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
@@ -35,6 +39,8 @@ export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
     vehicleTrackings: [],
     vehicleTracking: undefined,
 
+    vehicleReassignmentsByEmployee: [],
+
     loadingTransports: false,
     loadingAssignments: false,
     loadingVehicleTracking: false,
@@ -47,6 +53,10 @@ export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
     creatingVehicleTracking: false,
     updatingVehicleTracking: false,
     deletingVehicleTracking: false,
+    changingDriver: false,
+    approvingVehicleReassignment: false,
+    rejectingVehicleReassignment: false,
+    loadingVehicleReassignmentsByEmployee: false,
 
     successGetTransports: false,
     successGetTransport: false,
@@ -65,6 +75,10 @@ export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
     successCreateVehicleTracking: false,
     successUpdateVehicleTracking: false,
     successDeleteVehicleTracking: false,
+    successChangeDriver: false,
+    successApproveVehicleReassignment: false,
+    successRejectVehicleReassignment: false,
+    successGetVehicleReassignmentsByEmployee: false,
 
     error: undefined,
     warning: undefined,
@@ -91,6 +105,14 @@ export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
     updateVehicleTracking: (payload) => updateVehicleTrackingRequest(set, get, payload),
     deleteVehicleTracking: (id) => deleteVehicleTrackingRequest(set, get, id),
 
+    changeDriver: (payload) => changeDriverRequest(set, get, payload),
+    vehicleReassignmentApprove: (payload) =>
+      vehicleReassignmentApproveRequest(set, get, payload),
+    vehicleReassignmentReject: (vehicleReassignment, comment) =>
+      vehicleReassignmentRejectRequest(set, get, vehicleReassignment, comment),
+    fetchVehicleReassignmentsByEmployee: (idEmployee) =>
+      fetchVehicleReassignmentsByEmployeeRequest(idEmployee, set),
+
     setCurrentAssignment: (assignment) => set({ currentAssignment: assignment }),
 
     reset: () =>
@@ -101,6 +123,7 @@ export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
         currentAssignment: undefined,
         vehicleTrackings: [],
         vehicleTracking: undefined,
+        vehicleReassignmentsByEmployee: [],
         loadingTransports: false,
         loadingAssignments: false,
         loadingVehicleTracking: false,
@@ -113,6 +136,10 @@ export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
         creatingVehicleTracking: false,
         updatingVehicleTracking: false,
         deletingVehicleTracking: false,
+        changingDriver: false,
+        approvingVehicleReassignment: false,
+        rejectingVehicleReassignment: false,
+        loadingVehicleReassignmentsByEmployee: false,
         successGetTransports: false,
         successGetTransport: false,
         successCreateTransport: false,
@@ -128,6 +155,10 @@ export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
         successCreateVehicleTracking: false,
         successUpdateVehicleTracking: false,
         successDeleteVehicleTracking: false,
+        successChangeDriver: false,
+        successApproveVehicleReassignment: false,
+        successRejectVehicleReassignment: false,
+        successGetVehicleReassignmentsByEmployee: false,
         error: undefined,
         warning: undefined,
       }),
@@ -150,6 +181,10 @@ export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
         creatingVehicleTracking: false,
         updatingVehicleTracking: false,
         deletingVehicleTracking: false,
+        changingDriver: false,
+        approvingVehicleReassignment: false,
+        rejectingVehicleReassignment: false,
+        loadingVehicleReassignmentsByEmployee: false,
         successGetTransports: false,
         successGetTransport: false,
         successCreateTransport: false,
@@ -165,6 +200,10 @@ export const useTransportStore = createWithEqualityFn<TransportStoreState>()(
         successCreateVehicleTracking: false,
         successUpdateVehicleTracking: false,
         successDeleteVehicleTracking: false,
+        successChangeDriver: false,
+        successApproveVehicleReassignment: false,
+        successRejectVehicleReassignment: false,
+        successGetVehicleReassignmentsByEmployee: false,
         error: undefined,
         warning: undefined,
       }),

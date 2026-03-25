@@ -21,8 +21,11 @@ type UseRequisitionDocumentsResult = {
  */
 export const useRequisitionDocuments = (): UseRequisitionDocumentsResult => {
   const searchParams = useSearchParams()
-  const requisitionId = searchParams.get('id') ?? undefined
-  const employeeIdParam = searchParams.get('idEmployee') ?? undefined
+  const requisitionId = searchParams.get('idRequisition') ?? searchParams.get('id') ?? undefined
+  const employeeIdParam =
+    searchParams.get('idEmployee') ??
+    (searchParams.get('idRequisition') ? searchParams.get('id') : null) ??
+    undefined
   const fetchedEmployeeIdRef = useRef<string | null>(null)
   const fetchedRequisitionIdRef = useRef<string | null>(null)
   const fetchedEmployeeFromRequisitionRef = useRef<string | null>(null)

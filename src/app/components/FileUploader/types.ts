@@ -20,6 +20,8 @@ export interface FileUploaderProps {
   label?: string;
   /** Texto que se muestra dentro del botón */
   placeholder?: string;
+  /** Valor controlado (cuando se resetea a null, limpia el nombre mostrado) */
+  value?: File | null;
   /** Callback con el archivo seleccionado */
   onFile: (file: File|null) => void;
   /** Deshabilita el uploader */

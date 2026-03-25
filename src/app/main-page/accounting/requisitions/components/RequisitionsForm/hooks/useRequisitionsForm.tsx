@@ -1,3 +1,4 @@
+"use client"
 'use client';
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
@@ -47,6 +48,7 @@ export const useRequisitionForm = (
   // Submit externo (DynamicForm)
   const submitRef = useRef<SubmitFn | null>(null);
   const [formReady, setFormReady] = useState(false);
+  const [valuesVersion, setValuesVersion] = useState(0);
   const [disableForm, setDisableForm] = useState(startDisabled);
 
   // Form Fields (multi-instancia por formId)
@@ -55,41 +57,42 @@ export const useRequisitionForm = (
   const { setFields, updateField, resetFields } = useFormFieldsStore.getState();
 
   // Employees (prefetch)
-  const { employees, employeesError, fetchEmployees } = useEmployeesStore(
+  const {
+    employees,
+    employeesError,
+    fetchEmployees,
+    employeesLoading,
+    employeesLoaded,
+  } = useEmployeesStore(
     (s) => ({
       employees: s.employees,
       employeesError: s.error,
       fetchEmployees: s.fetchEmployees,
+      employeesLoading: s.loading,
+      employeesLoaded: s.successGet,
     }),
     shallow
   );
   useEffect(() => { fetchEmployees(); }, [fetchEmployees]);
 
   // Proyects (prefetch)
-  const { proyects, proyectsError, fetchProyects } = useProyectsStore(
+  const {
+    proyects,
+    proyectsError,
+    fetchProyects,
+    proyectsLoading,
+    proyectsLoaded,
+  } = useProyectsStore(
     (s) => ({
       proyects: s.proyects,
       proyectsError: s.error,
       fetchProyects: s.fetchProyects,
+      proyectsLoading: s.loading,
+      proyectsLoaded: s.successGet,
     }),
     shallow
   );
   useEffect(() => { fetchProyects(); }, [fetchProyects]);
-
-  const ResetForm = useCallback(() => {
-    resetFields(formId);
-    setTimeout(() => {
-      const initialFields: FieldModel[] = createInitialFields();
-      setFields(formId, initialFields);
-      setTimeout(() => {
-        UpdateProyects();
-        UpdateEmployees();
-      }
-        , 250)
-    }, 500)
-  // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [formId, resetFields, setFields]);
-
 
   const {
     createRequisition,
@@ -143,6 +146,16 @@ export const useRequisitionForm = (
     }
   }, [proyects, formId, updateField]);
 
+  const ResetForm = useCallback(() => {
+    resetFields(formId);
+    const initialFields: FieldModel[] = createInitialFields();
+    setFields(formId, initialFields);
+    UpdateProyects();
+    UpdateEmployees();
+    setFormReady(false);
+    setValuesVersion((prev) => prev + 1);
+  }, [formId, resetFields, setFields, UpdateProyects, UpdateEmployees]);
+
   // Monta iniciales y limpia
   useEffect(() => {
     const initialFields: FieldModel[] = createInitialFields();
@@ -166,8 +179,15 @@ export const useRequisitionForm = (
 
   // Setear valores iniciales cuando existan (modo edit)
   const loadingFormInfo = useMemo(() => computeLoadingFormInfo(fields), [fields]);
+  const loadingFormInfoResolved =
+    employeesLoading ||
+    proyectsLoading ||
+    !employeesLoaded ||
+    !proyectsLoaded ||
+    fields.length === 0 ||
+    loadingFormInfo;
   useEffect(() => {
-    if (!initialValues || loadingFormInfo) return;
+    if (!initialValues || loadingFormInfoResolved) return;
     // Ajusta aquí los names exactos de tus fields (employees, project, requisitionKey)
     if (initialValues.id_Employee !== undefined) {
       updateField(formId, 'employees', { value: initialValues.id_Employee });
@@ -193,7 +213,7 @@ export const useRequisitionForm = (
     if (initialValues.motive !== undefined) {
       updateField(formId, 'motive', { value: initialValues.motive });
     }
-  }, [initialValues, formId, loadingFormInfo, updateField]);
+  }, [initialValues, formId, loadingFormInfoResolved, updateField]);
 
   // Loading de catálogos
 
@@ -232,17 +252,21 @@ export const useRequisitionForm = (
   }, [proyectsError, fetchProyects, hideAlert, showAlert]);
 
   // Spinner + alert según operación (create/update)
+  const handledSuccessRef = useRef(false);
   useEffect(() => {
     if (opRunning) {
+      handledSuccessRef.current = false;
       showSpinner({ message: 'Espera un momento, tu información se está guardando' });
       return;
     }
     hideSpinner();
 
     if (opSuccess) {
+      if (handledSuccessRef.current) return;
+      handledSuccessRef.current = true;
       ResetForm();
-      fetchEmployees();
-      fetchProyects();
+      fetchEmployees(true);
+      fetchProyects(true);
       if (mode === 'edit') {
         setDisableForm(true);
       }
@@ -319,7 +343,7 @@ export const useRequisitionForm = (
   return {
     // para el componente
     fields,
-    loadingFormInfo,
+    loadingFormInfo: loadingFormInfoResolved,
     formReady,
     setFormReady,
     submitRef,
@@ -328,6 +352,7 @@ export const useRequisitionForm = (
     buttonDisabled: !formReady,
     currentPagePermissions,
     disableForm,
-    setDisableForm
+    setDisableForm,
+    valuesVersion,
   };
 };

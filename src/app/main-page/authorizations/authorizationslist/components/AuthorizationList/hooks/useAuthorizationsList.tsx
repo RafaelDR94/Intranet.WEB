@@ -1,9 +1,9 @@
-﻿'use client'
+"use client"
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { shallow } from 'zustand/shallow'
-
+import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
 import { Button } from '@/app/components/Button/Button'
 import Label from '@/app/components/Label/Label'
 import type { LabelType } from '@/app/components/Label/types'
@@ -52,6 +52,7 @@ const useAuthorizationsList = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal()
   const { showAlert, hideAlert } = usePrincipalAlert
   const { showSpinner, hideSpinner } = usePrincipalLoading
+  const isMobile = useIsMobile();
 
   const {
     authorizations,
@@ -164,7 +165,7 @@ const useAuthorizationsList = () => {
     [pathname, router],
   )
 
-  const columns: ColumnDefinition<AuthorizationListRow>[] = useMemo(
+  const desktopColumns: ColumnDefinition<AuthorizationListRow>[] = useMemo(
     () => [
       {
         key: 'enterprise', label: 'EMPRESA',
@@ -207,7 +208,13 @@ const useAuthorizationsList = () => {
         key: 'id',
         label: '',
         render: (row) => (
-          <Button hideIcon variant="ghost" size="small" onClick={() => handleViewRequest(row)}>
+          <Button
+            hideIcon
+            variant="ghost"
+            size="small"
+            onClick={() => handleViewRequest(row)}
+            data-tour="authorizations-row-view"
+          >
             Ver Solicitud
           </Button>
         ),
@@ -217,6 +224,36 @@ const useAuthorizationsList = () => {
     ],
     [handleViewRequest],
   )
+
+  const mobileColumns: ColumnDefinition<AuthorizationListRow>[] = useMemo(
+    () => [
+      {
+        key: 'applicant', label: 'SOLICITANTE',
+        cellClass: 'w-4/16 text-center',
+        headerClass: 'w-[30%]',
+      },
+      {
+        key: 'project', label: 'PROYECTO',
+        cellClass: 'w-2/16 text-left',
+        headerClass: 'w-[25%]', 
+      },
+      {
+        key: 'date', label: 'FECHA',
+        cellClass: 'w-1/16 text-left',
+        headerClass: 'w-[25%]',
+      },
+      {
+        key: 'status',
+        label: 'ESTATUS',
+        render: (row) => <Label type={statusToLabelType(row.status)} text={row.status} />,
+        cellClass: 'w-1/16 text-left',
+        headerClass: 'w-[25%]',
+      },
+    ],
+    [handleViewRequest],
+  )
+
+  const columns = isMobile ? mobileColumns : desktopColumns;
 
   const filterOptions: DataTableFilterOption<AuthorizationListRow>[] = useMemo(
     () => [

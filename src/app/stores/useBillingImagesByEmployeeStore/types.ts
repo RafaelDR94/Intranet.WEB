@@ -1,15 +1,15 @@
 import type { BillingImagesByEmployee } from '@/app/mappings/billingimages/billingimages.types'
 
 /**
- * Estado para el store de imÃ¡genes de facturas por empleado.
+ * Estado para el store de imó¡genes de facturas por empleado.
  */
 export type BillingImagesByEmployeeState = {
-  /** Lista de imÃ¡genes del empleado */
+  /** Lista de imó¡genes del empleado */
   billingImagesByEmployee: BillingImagesByEmployee[]
   /** Flags de proceso */
   loading: boolean
 
-  /** Flags de Ã©xito por operaciÃ³n */
+  /** Flags de ó©xito por operación */
   successGet: boolean
 
   /** Mensaje de error general */

@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React from "react";
 
@@ -58,14 +58,15 @@ const RequisitionsForm: React.FC<Props> = ({
     currentPagePermissions,
     disableForm,
     setDisableForm,
+    valuesVersion,
   } = useRequisitionForm(mode, initialValues, startDisabled);
-
   if (currentPagePermissions?.requisitionForm)
     return (
       <>
         {currentPagePermissions?.sapprofile ? (
           <div className="bg-white-100 flex gap-6 rounded-lg p-6 shadow-md h-[100%]">
             <DynamicForm
+              key={`requisitions-dynamicform-${mode}-${valuesVersion}`}
               loadingFormInfo={loadingFormInfo}
               fields={fields}
               responsiveLayoutMatrix={
@@ -101,6 +102,7 @@ const RequisitionsForm: React.FC<Props> = ({
             primaryLabel="Guardar"
             onPrimaryClick={onSubmit}
             primaryDisabled={buttonDisabled || (startDisabled && disableForm)}
+            primaryButtonDataTour="requisitions-form-submit"
             enableCollapse={enableCollaps}
             showSecondaryButton={showEditForm ?? (mode === "edit" || startDisabled)}
             secondaryLabel={disableForm ? "Editar información" : "Cancelar"}
@@ -108,9 +110,11 @@ const RequisitionsForm: React.FC<Props> = ({
               onClose?.();
               setDisableForm((prev) => !prev);
             }}
+            secondaryButtonDataTour="requisitions-form-secondary"
             startCollaps={startCollaps}
           >
             <DynamicForm
+              key={`requisitions-dynamicform-${mode}-${valuesVersion}`}
               loadingFormInfo={loadingFormInfo}
               fields={fields}
               responsiveLayoutMatrix={

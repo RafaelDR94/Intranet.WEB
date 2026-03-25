@@ -39,40 +39,47 @@ const useInitInvoicesForms = ({
   );
   const { pendingBillingDocuments, fetchBillingDocumentsPendingByEmployee } =
     useBillingRequisitionWithEmployeesStore(
-    (s) => ({
-      pendingBillingDocuments: s.pendingBillingDocuments,
-      fetchBillingDocumentsPendingByEmployee: s.fetchBillingDocumentsPendingByEmployee,
-    }),
-    shallow,
-  );
+      (s) => ({
+        pendingBillingDocuments: s.pendingBillingDocuments,
+        fetchBillingDocumentsPendingByEmployee: s.fetchBillingDocumentsPendingByEmployee,
+      }),
+      shallow,
+    );
   const pathname = usePathname();
   const normalizedPath = pathname.endsWith("/")
     ? pathname.slice(0, -1)
     : pathname;
   const searchParams = useSearchParams();
-  const urlRequisitionId = searchParams.get("id");
+  const urlRequisitionId =
+    searchParams.get("idRequisition") ?? searchParams.get("id");
   const urlView = searchParams.get("view");
   const urlEmployeeId = searchParams.get("idEmployee");
   const lockRequisitionFields =
     urlView === "billablefiles" &&
     normalizedPath === "/main-page/accounting/personalInvoices/requisitions";
+  const lockEmployeeFields =
+    lockRequisitionFields ||
+    normalizedPath === "/main-page/request/ownrequisitions/uploadbillablefiles"||normalizedPath === "/main-page/operations/requisitions/requisitionListPage";
   const submitRef = useRef<() => void | Promise<void>>(null);
   const prefilledRequisitionIdRef = useRef<string | null>(null);
   const lastPrefillKeyRef = useRef<string | null>(null);
   const [formReady, setFormReady] = useState(false);
   const fieldsReady = field.length > 0;
-  const filteredRequisitions = useMemo(() => {
-    const employeeId = urlEmployeeId ?? user?.idEmployee;
-    if (!employeeId) return requisitions;
-    return requisitions.filter(
-      (r) => String(r.id_Employee) === String(employeeId),
-    );
-  }, [requisitions, urlEmployeeId, user?.idEmployee]);
+  // const filteredRequisitions = useMemo(() => {
+  //   console.log("requisitions", requisitions);
+  //   console.log("urlEmployeeId", urlEmployeeId);
+  //   console.log("user.idEmployee", user?.idEmployee);
+  //   const employeeId = urlEmployeeId ?? user?.idEmployee;
+  //   if (!employeeId) return requisitions;
+  //   return requisitions.filter(
+  //     (r) => String(r.id_Employee) === String(employeeId),
+  //   );
+  // }, [requisitions, urlEmployeeId, user?.idEmployee]);
 
   const requisitionOptions = useMemo(() => {
     const map = new Map<string, { label: string; value: string }>();
 
-    filteredRequisitions.forEach((item) => {
+    requisitions.forEach((item) => {
       const value = item.billingrequisition_id;
       if (!value) return;
       const label = `${item.requisitionkey} - ${item.projectname}`.trim();
@@ -96,7 +103,7 @@ const useInitInvoicesForms = ({
     });
 
     return Array.from(map.values());
-  }, [filteredRequisitions, pendingBillingDocuments]);
+  }, [requisitions, pendingBillingDocuments]);
 
   const ResetForm = () => {
     const initialFields: FieldModel[] = initialformFields;
@@ -119,7 +126,7 @@ const useInitInvoicesForms = ({
         options: billingDocumentDescription.map(
           (r: BillingDocumentDescription) => ({
             label: r.name,
-            value: r.id_billingdescription,
+            value: String(r.id_billingdescription),
           }),
         ),
         onChange: (value) => {
@@ -132,7 +139,7 @@ const useInitInvoicesForms = ({
       updateField(formId, "category", {
         options: billingCategories.map((r: BillingDocumentCategory) => ({
           label: r.name,
-          value: r.id_billingcategory,
+          value: String(r.id_billingcategory),
         })),
         onChange: (value) => {
           updateField(formId, "category", { value });
@@ -144,7 +151,7 @@ const useInitInvoicesForms = ({
     updateField(formId, "requisition", {
       options: requisitionOptions,
       onChange: (value) => {
-        const requisition = filteredRequisitions.find(
+        const requisition = requisitions.find(
           (r) => r.billingrequisition_id === value,
         );
         const employeeName = requisition?.employeename;
@@ -152,20 +159,20 @@ const useInitInvoicesForms = ({
         const debtorName = field.find((f) => f.name === "personName");
         updateField(formId, "proyect", {
           value: proyect,
-          onlyText: lockRequisitionFields,
+          onlyText: lockEmployeeFields,
         });
         updateField(formId, "requisition", { value: value });
         if (debtorName) {
           updateField(formId, "personName", {
             value: employeeName,
-            onlyText: lockRequisitionFields,
+            onlyText: lockEmployeeFields,
           });
         }
         const debtorNameAlt = field.find((f) => f.name === "debtorName");
         if (debtorNameAlt) {
           updateField(formId, "debtorName", {
             value: employeeName,
-            onlyText: lockRequisitionFields,
+            onlyText: lockEmployeeFields,
           });
         }
       },
@@ -173,7 +180,7 @@ const useInitInvoicesForms = ({
   };
 
   const prefillFromRequisition = (requisitionId: string) => {
-    const requisition = filteredRequisitions.find(
+    const requisition = requisitions.find(
       (r) => r.billingrequisition_id === requisitionId,
     );
     if (!requisition) return;
@@ -245,7 +252,7 @@ const useInitInvoicesForms = ({
   useEffect(() => {
     SetInitRequisitions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredRequisitions, requisitionOptions.length]);
+  }, [requisitions, requisitionOptions.length]);
 
   useEffect(() => {
     if (!lockRequisitionFields) {
@@ -290,10 +297,10 @@ const useInitInvoicesForms = ({
 
   useEffect(() => {
     const requisitionId = dataEdit
-      ? filteredRequisitions.find(
-          (r) => r.requisitionkey === dataEdit?.requisitionkey,
-        )
-          ?.billingrequisition_id
+      ? requisitions.find(
+        (r) => r.requisitionkey === dataEdit?.requisitionkey,
+      )
+        ?.billingrequisition_id
       : billingImages?.requisition_id;
     const categoryId = dataEdit
       ? dataEdit.category.id_billingcategory
@@ -306,13 +313,13 @@ const useInitInvoicesForms = ({
     const prefillSourceChanged = prefillKey !== lastPrefillKeyRef.current;
     const currentDescriptionValue = field.find((f) => f.name === "description")
       ?.value as string | undefined;
-    if (filteredRequisitions.length > 0)
+    if (requisitions.length > 0)
       updateField(formId, "requisition", {
         value: requisitionId,
       });
-    if (billingCategories.length > 0)
+    if (billingCategories.length > 0 && categoryId)
       updateField(formId, "category", {
-        value: categoryId,
+        value: String(categoryId),
       });
     if (
       billingDocumentDescription.length > 0 &&
@@ -322,7 +329,7 @@ const useInitInvoicesForms = ({
         currentDescriptionValue === "")
     )
       updateField(formId, "description", {
-        value: descriptionId,
+        value: String(descriptionId),
       });
     syncFieldsWithCategory(categoryId ?? null);
     if (billingImages?.proyect)
@@ -352,7 +359,7 @@ const useInitInvoicesForms = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dataEdit,
-    filteredRequisitions,
+    requisitions,
     billingImages,
     billingCategories,
     billingDocumentDescription,
@@ -370,6 +377,9 @@ const useInitInvoicesForms = ({
     const rawName = String(category?.name ?? fallbackLabel).trim().toLowerCase();
     const name = rawName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const isHospedaje = name.includes("hospedaje");
+    const isTransport =
+      name.includes("traslado") ||
+      name.includes("autobuses");
     const isFood =
       name.includes("alimento") ||
       name.includes("alimentacion") ||
@@ -382,7 +392,7 @@ const useInitInvoicesForms = ({
     const hasRequired = currentField?.validations?.some((v) => v.type === "required");
 
     const currentPersons = field.find((item) => item.name === "numpersons");
-    const shouldRequirePersons = isHospedaje || isFood;
+    const shouldRequirePersons = isHospedaje || isFood || isTransport;
     const shouldDisablePersons = !shouldRequirePersons;
     const personsHasRequired = currentPersons?.validations?.some(
       (v) => v.type === "required",
@@ -436,6 +446,8 @@ const useInitInvoicesForms = ({
     const catReady =
       !category ||
       (Array.isArray(category?.options) && (category?.options?.length ?? 0) > 0);
+ 
+
     return !(reqReady && descReady && catReady && (debtorName?.value || !hasDebtor));
   };
 

@@ -55,12 +55,15 @@ export const BenefitMap = (raw: unknown): Benefit => {
     fullname,
     email: toStringSafe(record.email ?? record.mail),
     phone_number: toStringSafe(record.phone_number ?? record.phoneNumber ?? record.phone),
+    image_url: toStringSafe(
+      record.image_url ?? record.imageUrl ?? record.profile_image ?? record.profileImage,
+    ),
   }
 }
 
 /**
  * BenefitsMap
- * Mapea una colecciÃ³n cruda de la API a un arreglo tipado Benefit.
+ * Mapea una colección cruda de la API a un arreglo tipado Benefit.
  */
 export const BenefitsMap = (list: unknown[]): Benefit[] =>
   Array.isArray(list) ? list.map(BenefitMap) : []
@@ -125,6 +128,67 @@ const mapBillingDocuments = (
   documents: unknown[],
 ): BillingDocumentRequisition[] =>
   Array.isArray(documents) ? documents.map(mapBillingDocumentRequisition) : []
+
+const normalizeDateLike = (value: unknown): string | Date | null => {
+  if (!value) return null
+  if (value instanceof Date) return value
+  const raw = String(value).trim()
+  if (!raw) return null
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(raw)) {
+    return raw.replace(' ', 'T')
+  }
+  return raw
+}
+
+const toInputDateStringSafe = (value: unknown): string => {
+  const normalized = normalizeDateLike(value)
+  if (!normalized) return ''
+  const d = new Date(normalized)
+  if (Number.isNaN(d.getTime())) {
+    const datePart = String(normalized).split(' ')[0]
+    if (/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return datePart
+    return ''
+  }
+  return toInputDateString(normalized)
+}
+
+const toLocalYmd = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const dateFromYmd = (ymd: string): Date | null => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd)
+  if (!m) return null
+  const year = Number(m[1])
+  const month = Number(m[2])
+  const day = Number(m[3])
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return null
+  return new Date(year, month - 1, day)
+}
+
+const diffDays = (from: Date, to: Date): number => {
+  const ms = to.getTime() - from.getTime()
+  return Math.floor(ms / 86400000)
+}
+
+const computeCurrentDay = (startYmd: string, endYmd: string): number => {
+  const start = dateFromYmd(startYmd)
+  if (!start) return 0
+
+  const end = dateFromYmd(endYmd) ?? start
+  const totalDays = Math.max(1, diffDays(start, end) + 1)
+
+  const today = dateFromYmd(toLocalYmd(new Date()))
+  if (!today) return 0
+
+  if (today.getTime() < start.getTime()) return 0
+  if (today.getTime() > end.getTime()) return totalDays
+
+  return diffDays(start, today) + 1
+}
 /**
  * RequisitionMap
  * Mapea un registro crudo de la API a un objeto tipado Requisition.
@@ -132,33 +196,71 @@ const mapBillingDocuments = (
 export const RequisitionMap = (raw: unknown): Requisition => {
   const billingData = getBillingData(raw)
   const documents = getBillingDocuments(raw)
-  const assignmentDate = (billingData as any)?.assignmentdate ?? (billingData as any)?.assignmentDate
-  const endDate = (billingData as any)?.enddate ?? (billingData as any)?.endDate
-  const projectId = (billingData as any)?.idproject ?? (billingData as any)?.idProject
+  const assignmentDate =
+    (billingData as any)?.AssignmentDate ??
+    (billingData as any)?.assignmentdate ??
+    (billingData as any)?.assignmentDate
+  const endDate =
+    (billingData as any)?.EndDate ??
+    (billingData as any)?.enddate ??
+    (billingData as any)?.endDate
+  const projectId =
+    (billingData as any)?.idproject ??
+    (billingData as any)?.idProject ??
+    (billingData as any)?.Proyect ??
+    (billingData as any)?.proyect
   const currentDays = (billingData as any)?.current_days ?? (billingData as any)?.currentDays
-  const requisitionskey = (billingData as any)?.requisitionkey ?? (billingData as any)?.requisition_key
-  const billingrequisitionId = (billingData as any)?.billingrequisition_id ?? (billingData as any)?.requisition_id
+  const requisitionskey =
+    (billingData as any)?.Code_Number ??
+    (billingData as any)?.code_number ??
+    (billingData as any)?.requisitionkey ??
+    (billingData as any)?.requisition_key
+  const billingrequisitionId =
+    (billingData as any)?.Id_Requisition ??
+    (billingData as any)?.id_requisition ??
+    (billingData as any)?.billingrequisition_id ??
+    (billingData as any)?.requisition_id
+  const projectName =
+    (billingData as any)?.Proyect ??
+    (billingData as any)?.proyect ??
+    (billingData as any)?.projectname ??
+    ''
+  const createdDate = (billingData as any)?.date_created ?? assignmentDate ?? ''
+  const assignmentYmd = toInputDateStringSafe(assignmentDate)
+  const endYmd = toInputDateStringSafe(endDate)
+  const rawPeriod = (billingData as any)?.period
+  const periodValue =
+    typeof rawPeriod === 'string' && rawPeriod.trim()
+      ? rawPeriod
+      : assignmentYmd && endYmd
+        ? `${assignmentYmd} - ${endYmd}`
+        : ''
+  const currentDaysValueRaw = Number(currentDays)
+  const currentDaysValue = Number.isFinite(currentDaysValueRaw) && currentDaysValueRaw > 0
+    ? currentDaysValueRaw
+    : computeCurrentDay(assignmentYmd, endYmd || assignmentYmd)
   return {
     billingrequisition_id: String(billingrequisitionId??''),
     requisitionkey: String(requisitionskey ?? ''),
-    id_Employee: String((billingData as any)?.employee_id ?? ''),
-    employeename: String((billingData as any)?.employeename ?? ''),
+    id_Employee: String((billingData as any)?.employee_id ?? (billingData as any)?.idEmployee ?? (billingData as any)?.id_Employee ?? ''),
+    employeename: String((billingData as any)?.Employe_Name ?? (billingData as any)?.Employee_Name ?? (billingData as any)?.employeename ?? ''),
     idProject: String(projectId ?? ''),
-    projectname: String((billingData as any)?.projectname ?? ''),
-    assignmentdate: toInputDateString(assignmentDate) ?? '',
-    endDate: toInputDateString(endDate) ?? '',
+    projectname: String(projectName),
+    assignmentdate: assignmentYmd,
+    endDate: endYmd,
     motive: String((billingData as any)?.motive ?? ''),
-    state: String((billingData as any)?.state ?? ''),
+    state: String((billingData as any)?.State ?? ''),
     amountdeposited: String((billingData as any)?.amountdeposited ?? ''),
     provenamount: String((billingData as any)?.provenamount ?? ''),
     amountdifference: String((billingData as any)?.amountdifference ?? ''),
-    date_created: String((billingData as any)?.date_created ?? ''),
-    status: String((billingData as any)?.status ?? ''),
+    date_created: toInputDateStringSafe(createdDate),
+    status: String((billingData as any)?.Requisition_Status ?? (billingData as any)?.requisition_status ?? (billingData as any)?.status ?? ''),
     gts_type: String((billingData as any)?.gts_type ?? ''),
     email: String((billingData as any)?.email ?? ''),
     phone_number: String((billingData as any)?.phone_number ?? ''),
-    period: String((billingData as any)?.period ?? ''),
-    current_days: Number(currentDays ?? 0),
+    image_url: String((billingData as any)?.image_url ?? ''),
+    period: periodValue,
+    current_days: currentDaysValue,
     billingDocumentRquisition: mapBillingDocuments(documents),
   }
 }

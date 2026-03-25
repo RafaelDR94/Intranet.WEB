@@ -1,28 +1,32 @@
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
+import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
+import { PopUp } from "@/app/components/PopUp/PopUp";
+import { ToggleButton } from "@/app/components/ToogleButton/ToogleButton";
+import { DownloadFile } from "@/app/utilities/FilesHelper/FilesHelper";
+import { BillingImagesTableMap } from "@/app/mappings/billingimages/billingimages.mapper";
 import CancelIcon from "@/assets/icons/acciones/cancel.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
-import useTicketsFiles, { type TicketRow } from "./useTicketsFiles";
-import { BillingImagesTableMap } from "@/app/mappings/billingimages/billingimages.mapper";
-import type { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
-import Label from "@/app/components/Label/Label";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
-import { DownloadFile } from "@/app/utilities/FilesHelper/FilesHelper";
-import { PopUp } from "@/app/components/PopUp/PopUp";
-import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 
+import useTicketsFiles from "./hooks/useTicketsFiles";
+import { TicketRow, TicketsFilesProps } from "./types";
 
-
-type TicketsFilesProps = {
-  onSelectedTicketChange?: (ticket: BillingImagesTable | null) => void;
-  selectedTicketId?: string | null;
-};
-
-const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFilesProps) => {
+const TicketsFiles = ({
+  onSelectedTicketChange,
+  selectedTicketId,
+  eneableSelection = false,
+}: TicketsFilesProps) => {
   const {
     columns,
     rows,
+    isTutorialActive,
+    tutorialMockRow,
+    filterOptions,
+    filterValue,
+    setFilterValue,
+    refresh,
     previewSrc,
     previewIndex,
     previewTotal,
@@ -34,10 +38,23 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
     closeDetails,
     openPreview,
     openReject,
+    openValidateTicket,
+    setOpenValidateTicket,
     openRejectTicket,
     setOpenRejectTicket,
     handleSubmitReject,
+    handleValidateClick,
+    handleConfirmValidate,
+    validationFields,
+    validationFormVersion,
+    setValidationValues,
+    showValidationForm,
+    markAsNotDeductible,
+    handleToggleNotDeductible,
+    isValidateLocked,
+    isToggleLocked,
     rejecting,
+    notDeducting,
   } = useTicketsFiles();
 
   const handleSelectedChange = (_index: number, selectedRows: TicketRow[]) => {
@@ -53,49 +70,78 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
 
   return (
     <div>
-      <DataTable
-        showCalendar={true}
-        showDownloadTable={false}
-        showButton={false}
-        textSize={{ mobile: "text-c3", desktop: "text-c2" }}
-        tables={[
-          {
-            data: rows,
-            columns: columns,
-            title: "Tickets",
-            enableCollaps: true,
-            enableSelection: true,
-            selectionMode: "single",
-            initialSelectedRowIds: selectedTicketId ? [selectedTicketId] : [],
-          },
-        ]}
-        onSelectedChange={handleSelectedChange}
-      />
+      <div data-tour="requisitions-tickets-table">
+        <DataTable
+          showCalendar={true}
+          showDownloadTable={false}
+          showButton={false}
+          showFilter
+          showRefresh
+          filterOptions={filterOptions}
+          filterValue={filterValue}
+          filterTitle="Estatus"
+          onFilterChange={(value) => setFilterValue(value)}
+          onRefreshPage={refresh}
+          textSize={{ mobile: "text-c3", desktop: "text-c2" }}
+          tables={[
+            {
+              data: rows,
+              columns: columns,
+              title: "Tickets",
+              enableCollaps: true,
+              enableSelection: eneableSelection,
+              selectionMode: "single",
+              initialSelectedRowIds: selectedTicketId ? [selectedTicketId] : [],
+              selectionDataTour: (row, index) =>
+                isTutorialActive &&
+                tutorialMockRow &&
+                row.id === tutorialMockRow.id &&
+                index === 0
+                  ? "requisitions-ticket-select"
+                  : undefined,
+            },
+          ]}
+          onSelectedChange={handleSelectedChange}
+        />
+      </div>
       <DetailsPanelLayout
         open={detailOpen}
         onClose={closeDetails}
+        closeButtonDataTour="requisitions-ticket-close"
         actionButton={
-          <Button
-            size="large"
-            variant="solid"
-            hideIcon
-            onClick={openReject}
-            disabled={
-              detailRow?.status.toLocaleLowerCase() == "validado" || rejecting
-            }
-          >
-            Rechazar
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="large"
+              variant="solid"
+              hideIcon
+              onClick={handleValidateClick}
+              disabled={isValidateLocked}
+              data-tour="requisitions-ticket-validate"
+            >
+              Validar
+            </Button>
+            <Button
+              size="large"
+              variant="outline"
+              hideIcon
+              onClick={openReject}
+              disabled={
+                detailRow?.status.toLocaleLowerCase() === "validado" ||
+                detailRow?.status.toLocaleLowerCase() === "rechazado" ||
+                rejecting ||
+                notDeducting
+              }
+              data-tour="requisitions-ticket-reject"
+            >
+              Rechazar
+            </Button>
+          </div>
         }
         renderActions={() => {
           if (!detailRow) return null;
           const imageUrl = detailRow.imageUrls?.[0];
           return (
             <div className="flex items-center gap-2">
-              <Label
-                type={detailRow?.status?.toLocaleLowerCase() as any}
-                text={detailRow.status.toUpperCase()}
-              />
               {imageUrl && (
                 <Button
                   iconOnly
@@ -104,6 +150,7 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
                   icon={ImageIcon}
                   onClick={() => window.open(imageUrl, "_blank")}
                   aria-label="Abrir imagen"
+                  data-tour="requisitions-ticket-open-image"
                 />
               )}
               {imageUrl && (
@@ -116,6 +163,7 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
                     DownloadFile(imageUrl, `ticket-${detailRow.id}.jpg`)
                   }
                   aria-label="Descargar imagen"
+                  data-tour="requisitions-ticket-download-image"
                 />
               )}
             </div>
@@ -123,7 +171,25 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
         }}
       >
         {detailRow ? (
-          <div className="space-y-0">
+          <div className="space-y-4">
+            {detailRow.source.requisition?.employeename && (
+              <div className="flex items-baseline gap-2">
+                <span className="text-gray-90 text-b4 font-medium">Nombre:</span>
+                <span className="text-gray-90 text-b3 font-regular">
+                  {detailRow.source.requisition.employeename}
+                </span>
+              </div>
+            )}
+
+            <ToggleButton
+              checked={markAsNotDeductible}
+              onChange={handleToggleNotDeductible}
+              disabled={isToggleLocked}
+              label="Marcar como no deducible"
+              dataTour="requisitions-ticket-not-deductible"
+              className="w-fit"
+            />
+
             <div className="flex items-baseline gap-2">
               <span className="text-gray-90 text-b4 font-medium">Fecha:</span>
               <span className="text-gray-90 text-b3 font-regular">
@@ -138,16 +204,18 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
                 {detailRow.category}
               </span>
             </div>
-            {detailRow.comments && (
+            {(detailRow.comments || detailRow.userComments) && (
               <div className="space-y-1">
                 <div className="text-gray-90 text-b4 font-medium">
                   Comentarios:
                 </div>
                 <p className="text-b4 p-2 font-medium text-gray-50">
-                  {detailRow.comments}
+                  {detailRow.comments?.trim() || detailRow.userComments?.trim()}
                 </p>
               </div>
             )}
+
+
             <div className="space-y-2">
               <div className="flex flex-wrap items-center justify-center gap-2">
                 {detailRow.imageUrls.map((url, index) => (
@@ -168,6 +236,26 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
                 ))}
               </div>
             </div>
+            
+            {showValidationForm && markAsNotDeductible && (
+              <div className="pt-2">
+                <DynamicForm
+                  fields={validationFields}
+                  valuesVersion={validationFormVersion}
+                  valuesVersionActive
+                  onSubmit={() => undefined}
+                  onValuesChange={(values) =>
+                    setValidationValues({
+                      requisition_id: String(values.requisition_id ?? ""),
+                      numpersons: Number(values.numpersons ?? 0),
+                      total: Number(values.total ?? 0),
+                    })
+                  }
+                  showSubmitIf={() => false}
+                  showSecondaryButtonIf={() => false}
+                />
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-gray-70 text-b3">
@@ -176,9 +264,21 @@ const TicketsFiles = ({ onSelectedTicketChange, selectedTicketId }: TicketsFiles
         )}
       </DetailsPanelLayout>
       <PopUp
+        open={openValidateTicket}
+        title="Gasto no deducible"
+        content="Esta seguro de marcar esta imagen como un gasto no deducible"
+        onClose={() => setOpenValidateTicket(false)}
+        primaryButtonText="Aceptar"
+        secondaryButtonText="Cancelar"
+        onPrimaryButtonClick={handleConfirmValidate}
+        onSecondaryButtonClick={() => setOpenValidateTicket(false)}
+        showPrimaryButton
+        showSecondaryButton
+      />
+      <PopUp
         title={"Rechazar Ticket"}
         content={
-          "Deja aquí un comentario para que tu compañero sepa la razón del rechazo de su ticket"
+          "Deja aqui un comentario para que tu compañero sepa la razon del rechazo de su ticket"
         }
         open={openRejectTicket.state}
         onClose={() => setOpenRejectTicket({ state: false, row: null })}

@@ -3,6 +3,7 @@ import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useInvoicesFiles from "./useInvoicesFiles";
 import { PopUp } from "@/app/components/PopUp/PopUp";
@@ -12,6 +13,10 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
   const {
     columns,
     rows,
+    filterOptions,
+    filterValue,
+    setFilterValue,
+    refresh,
     detailOpen,
     detailRow,
     closeDetails,
@@ -26,7 +31,8 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const requisitionId = searchParams.get("id");
+  const requisitionId = searchParams.get("idRequisition") ?? searchParams.get("id");
+  const employeeId = searchParams.get("idEmployee");
   const currency = new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "MXN",
@@ -51,7 +57,10 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
     if (!requisitionId) return;
 
     const query = new URLSearchParams(searchParams.toString());
-    query.set("id", requisitionId);
+    query.set("idRequisition", requisitionId);
+    if (employeeId) {
+      query.set("idEmployee", employeeId);
+    }
     const label = searchParams.get("label");
     if (label) {
       query.set("label", label);
@@ -63,25 +72,36 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
 
   return (
     <div>
-      <DataTable
-        showCalendar={true}
-        showDownloadTable={false}
-        actionLabel="Subir Factura"
+      <div data-tour="requisitions-invoices-table">
+        <DataTable
+          showCalendar={true}
+          showDownloadTable={false}
+          actionLabel="Subir Factura"
+          showFilter
+        showRefresh
+        filterOptions={filterOptions}
+        filterValue={filterValue}
+        filterTitle="Estatus"
+        onFilterChange={(value) => setFilterValue(value)}
+        onRefreshPage={refresh}
         onTableActionClick={handleUploadBillableFiles}
-        textSize={{ mobile: "text-c3", desktop: "text-c2" }}
-        tables={[
-          {
-            data: rows,
-            columns: columns,
-            title: "Facturas",
-            enableCollaps: true,
-            enableSelection: false,
-          },
-        ]}
-      />
+          actionButtonDataTour="requisitions-upload-invoice"
+          textSize={{ mobile: "text-c3", desktop: "text-c2" }}
+          tables={[
+            {
+              data: rows,
+              columns: columns,
+              title: "Facturas",
+              enableCollaps: true,
+              enableSelection: false,
+            },
+          ]}
+        />
+      </div>
       <DetailsPanelLayout
         open={detailOpen}
         onClose={closeDetails}
+        closeButtonDataTour="requisitions-invoice-close"
         leftLabel={
           detailRow?.employeeName
             ? `Nombre: ${detailRow.employeeName}`
@@ -101,6 +121,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
               className="mr-2"
               onClick={() => setOpenValidInvoice(true)}
               disabled={isStatusLocked}
+              data-tour="requisitions-invoice-validate"
             >
               Validar
             </Button>
@@ -110,6 +131,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
               hideIcon={true}
               onClick={() => setOpenRejectInvoice(true)}
               disabled={isStatusLocked}
+              data-tour="requisitions-invoice-reject"
             >
               Rechazar
             </Button>
@@ -141,6 +163,18 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
                 aria-label="Abrir PDF"
               />
             )}
+          {detailRow?.imageUrl && (
+              <Button
+                iconOnly
+                size="small"
+                variant="ghost"
+                icon={ImageIcon}
+                onClick={() =>
+                  window.open(detailRow.imageUrl ?? undefined, "_blank")
+                }
+                aria-label="Abrir Imagen"
+              />
+            )}
           </div>
         )}
       >
@@ -150,12 +184,15 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
               <div className="text-gray-90 text-s1 font-semibold">
                 {detailRow.uuid}
               </div>
-              <div className="text-gray-90 text-b4 font-medium">
+              {!detailRow.certificationDate?.includes("NaN-NaN")&&
+               <div className="text-gray-90 text-b4 font-medium">
                 FECHA Y HORA DE CERTIFICACIÓN:&nbsp;
                 <span className="text-gray-90 text-b3 font-regular">
                   {formatDateTime(detailRow.certificationDate)}
                 </span>
               </div>
+              }
+             
               <div className="text-gray-90 text-b4 font-medium">
                 RFC EMISOR:&nbsp;
                 <span className="text-gray-90 text-b3 font-regular">
@@ -175,13 +212,13 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
                   {detailRow.description || "-"}
                 </span>
               </div>
-              {detailRow.comments && (
+              {(detailRow.comments || detailRow.userComments) && (
                 <div className="space-y-1">
                   <div className="text-gray-90 text-b4 font-medium">
                     Comentarios:
                   </div>
                   <p className="text-b4 p-2 font-medium text-gray-50">
-                    {detailRow.comments}
+                    {detailRow.comments?.trim() || detailRow.userComments?.trim()}
                   </p>
                 </div>
               )}

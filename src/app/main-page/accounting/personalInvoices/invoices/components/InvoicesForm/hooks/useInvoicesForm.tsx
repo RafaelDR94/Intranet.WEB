@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { shallow } from "zustand/shallow";
 
 import { useInvoices } from "../../../context/InvoicesContext";
@@ -16,6 +17,8 @@ import type {
 } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
+import { useBillingAllDocumentsByEmployeeStore } from "@/app/stores/useBillingAllDocumentsByEmployeeStore/useBillingAllDocumentsByEmployeeStore";
+import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
 
 const useInvoicesForm = ({
   dataEdit,
@@ -27,6 +30,20 @@ const useInvoicesForm = ({
 }: UseInvoicesFormProps): UseInvoicesFormReturn => {
   const isEdit = Boolean(dataEdit);
   const { firebasestorage } = useFirebase();
+
+  const getDisplayNameFromUrl = (url: string | undefined, fallback: string) => {
+    if (!url) return fallback;
+    try {
+      const parsed = new URL(url);
+      const path = parsed.pathname ?? "";
+      const afterO = path.includes("/o/") ? path.split("/o/")[1] : path;
+      const decoded = decodeURIComponent(afterO);
+      const last = decoded.split("/").pop();
+      return (last && last.trim()) || fallback;
+    } catch {
+      return fallback;
+    }
+  };
 
   const {
     creating,
@@ -54,6 +71,13 @@ const useInvoicesForm = ({
   const { forceFetchBillingHistory } = useBillingHistoryStore(
     (s) => ({
       forceFetchBillingHistory: s.forceFetchBillingHistory,
+    }),
+    shallow,
+  );
+
+  const { fetchBillingAllDocumentsByEmployee } = useBillingAllDocumentsByEmployeeStore(
+    (s) => ({
+      fetchBillingAllDocumentsByEmployee: s.fetchBillingAllDocumentsByEmployee,
     }),
     shallow,
   );
@@ -149,8 +173,10 @@ const useInvoicesForm = ({
           name: "xml",
           label: "Sube aquí el archivo xml",
           placeholder: "Seleccionar documento",
-          value: { name: "Documento XML", url: dataEdit?.xml },
-          initialFile: { name: dataEdit?.xml ?? "", url: dataEdit?.xml },
+          value: null,
+          initialFile: dataEdit?.xml
+            ? { name: getDisplayNameFromUrl(dataEdit.xml, "XML cargado") }
+            : undefined,
           accept: ".xml",
           className: "w-full md:w-[200px] px-3 py-1.5 text-btn-sm",
           validations: [{ type: "required" }],
@@ -160,8 +186,10 @@ const useInvoicesForm = ({
           name: "pdf",
           label: "Sube aquí el archivo pdf",
           placeholder: "Seleccionar documento",
-          value: { name: "Documento PDF", url: dataEdit?.pdf },
-          initialFile: { name: dataEdit?.pdf ?? "", url: dataEdit?.pdf },
+          value: null,
+          initialFile: dataEdit?.pdf
+            ? { name: getDisplayNameFromUrl(dataEdit.pdf, "PDF cargado") }
+            : undefined,
           accept: ".pdf",
           className: "w-full md:w-[200px] px-3 py-1.5 text-btn-sm",
           validations: [{ type: "required" }],
@@ -173,6 +201,14 @@ const useInvoicesForm = ({
   }, [dataEdit, isEdit, withoutName]);
 
   const { field1, formId1, user } = useInvoices();
+  const searchParams = useSearchParams();
+  const employeeIdParam = searchParams.get("idEmployee") ?? undefined;
+  const { fetchBillingImages } = useBillingImagesStore(
+    (s) => ({
+      fetchBillingImages: s.fetchBillingImages,
+    }),
+    shallow,
+  );
   const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm } =
     useInitInvoicesForms({
       initialformFields,
@@ -188,34 +224,74 @@ const useInvoicesForm = ({
   const { showAlert, hideAlert } = usePrincipalAlert;
   const { showImage } = usePrincipalImage;
 
+  const asBlobLike = (value: unknown): Blob | null => {
+    if (!value || typeof value !== "object") return null;
+    const candidate = value as any;
+    if (typeof candidate.size !== "number") return null;
+    if (typeof candidate.slice !== "function") return null;
+    return candidate as Blob;
+  };
+
+  const readHeadText = async (blob: Blob, bytes: number) => {
+    const slice = blob.slice(0, bytes) as any;
+    if (typeof slice.text === "function") return await slice.text();
+    if (typeof slice.arrayBuffer !== "function") return "";
+    const buffer = await slice.arrayBuffer();
+    return new TextDecoder().decode(buffer);
+  };
+
   const uploadXmlIfNeeded = async (
-    file: File | null | undefined,
+    file: unknown,
     requisition: string,
   ): Promise<string> => {
-    if (file) {
+    const maybeFile = asBlobLike(file);
+
+    if (maybeFile) {
+      if ("size" in maybeFile && maybeFile.size === 0) {
+        throw new Error(
+          "El archivo XML se detectó³ como vacó­o (0 bytes). Vuelve a seleccionarlo e intenta de nuevo.",
+        );
+      }
+
+      // Validació³n ligera: evitar subir texto vacó­o o no-XML
+      const head = String(await readHeadText(maybeFile, 256)).trim();
+      if (head && !head.startsWith("<")) {
+        throw new Error("El archivo seleccionado no parece ser un XML vó¡lido.");
+      }
       const url = await firebasestorage.uploadFile(
-        file,
+        maybeFile,
         `Billings/BillingDocuments/${requisition}.xml`,
       );
       if (!url) throw new Error("Hubo un problema al subir el XML");
       return url;
     }
+    const urlObj = (file as { url?: string } | null | undefined)?.url;
+    if (urlObj) return urlObj;
     if (isEdit && dataEdit?.xml) return dataEdit.xml;
     throw new Error("No se encontró XML válido para continuar");
   };
 
   const uploadPdfIfNeeded = async (
-    file: File | null | undefined,
+    file: unknown,
     requisition: string,
   ): Promise<string> => {
-    if (file) {
+    const maybeFile = asBlobLike(file);
+
+    if (maybeFile) {
+      if ("size" in maybeFile && maybeFile.size === 0) {
+        throw new Error(
+          "El archivo PDF se detectó³ como vacó­o (0 bytes). Vuelve a seleccionarlo e intenta de nuevo.",
+        );
+      }
       const url = await firebasestorage.uploadFile(
-        file,
+        maybeFile,
         `Billings/BillingDocuments/${requisition}.pdf`,
       );
       if (!url) throw new Error("Hubo un problema al subir el PDF");
       return url;
     }
+    const urlObj = (file as { url?: string } | null | undefined)?.url;
+    if (urlObj) return urlObj;
     if (isEdit && dataEdit?.pdf) return dataEdit.pdf;
     throw new Error("No se encontró PDF válido para continuar");
   };
@@ -317,6 +393,11 @@ const useInvoicesForm = ({
       onCloseImage?.();
       if (postOk) ResetForm();
       if (putOk && user) forceFetchBillingHistory(user?.idEmployee);
+      const employeeId = employeeIdParam ?? user?.idEmployee;
+      if (employeeId) {
+        fetchBillingImages(employeeId, true);
+        fetchBillingAllDocumentsByEmployee(employeeId, true);
+      }
       showAlert({
         type: "success",
         variant: "filled",
@@ -341,6 +422,9 @@ const useInvoicesForm = ({
     submitRef,
     isEdit,
     user,
+    employeeIdParam,
+    fetchBillingImages,
+    fetchBillingAllDocumentsByEmployee,
   ]);
 
   const resolvedFields = useMemo(
@@ -350,6 +434,7 @@ const useInvoicesForm = ({
         : field1,
     [disabled, field1],
   );
+ 
 
   return {
     fields: resolvedFields,

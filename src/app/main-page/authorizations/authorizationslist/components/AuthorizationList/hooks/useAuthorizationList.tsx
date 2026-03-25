@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 /**
  * Alias estable del hook de listado de autorizaciones.

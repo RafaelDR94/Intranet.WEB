@@ -55,17 +55,18 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
         onClick={handleSearchClick}
         onKeyDown={handleInputKeyDown}
         
+        data-tour={props.searchDataTour}
         icon={!isMobile&&SearchIcon||""}
       />
 
       {showCalendar && (
-        <div className="relative z-[70] mx-1">
+        <div className="relative z-[70] mx-1" data-tour={props.calendarDataTour}>
           <Calendar onCalendarClick={handleDateRange} />
         </div>
       )}
 
       {showFilter && (
-        <div className="relative z-[70]">
+        <div className="relative z-[70]" data-tour={props.filterDataTour}>
           <Filter
             title={filterTitle}
             options={filterOptions ?? []}
@@ -88,6 +89,7 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
           icon={RefreshDouble}
           onClick={onRefreshPage}
           disabled={!onRefreshPage}
+          data-tour={props.refreshDataTour}
         />
       )}
 
@@ -159,6 +161,7 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
             size={isMobile ? "small" : "medium"}
             hideIcon
             onClick={onTableActionClick}
+            data-tour={props.actionButtonDataTour}
           >
             {actionLabel}
           </Button>

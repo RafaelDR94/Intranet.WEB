@@ -2,13 +2,14 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
 const uploadFile = vi.fn().mockResolvedValue('url');
+const showAlert = vi.fn();
 vi.mock('@/app/context/FirebaseContext/FirebaseContext', () => ({
   useFirebase: () => ({ firebasestorage: { uploadFile } }),
 }));
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   usePrincipal: () => ({
     usePrincipalLoading: { showSpinner: vi.fn(), hideSpinner: vi.fn() },
-    usePrincipalAlert: { showAlert: vi.fn(), hideAlert: vi.fn() },
+    usePrincipalAlert: { showAlert, hideAlert: vi.fn() },
     usePrincipalImage: { showImage: vi.fn() },
   }),
 }));
@@ -56,10 +57,31 @@ describe('useInvoicesForm', () => {
         category: 1,
         numnights: 1,
         numpersons: 1,
-        xml: new File([''], 'a.xml'),
-        pdf: new File([''], 'a.pdf'),
+        xml: new File(["<cfdi:Comprobante/>"], "a.xml", { type: "text/xml" }),
+        pdf: new File(["%PDF-1.4"], "a.pdf", { type: "application/pdf" }),
       });
     });
     expect(createBillingDocument).toHaveBeenCalled();
+  });
+
+  it('muestra error y no envó­a si el XML estó¡ vacó­o', async () => {
+    const { result } = renderHook(() => useInvoicesForm({}));
+    showAlert.mockClear();
+    createBillingDocument.mockClear();
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        requisition: '1',
+        description: 1,
+        category: 1,
+        numnights: 1,
+        numpersons: 1,
+        xml: new File([''], 'a.xml', { type: 'text/xml' }),
+        pdf: new File(['%PDF-1.4'], 'a.pdf', { type: 'application/pdf' }),
+      });
+    });
+
+    expect(createBillingDocument).not.toHaveBeenCalled();
+    expect(showAlert).toHaveBeenCalled();
   });
 });

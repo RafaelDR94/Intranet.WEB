@@ -25,4 +25,8 @@ export interface DetailsPanelProps {
   /** Identificador de requisición asociado. */
   reqisition?:string
   onSendToSap?: any
+  /** Data-tour para botón cerrar */
+  closeButtonDataTour?: string
+  /** Texto visible para el tipo de documento. */
+  documentLabel?: string
 }

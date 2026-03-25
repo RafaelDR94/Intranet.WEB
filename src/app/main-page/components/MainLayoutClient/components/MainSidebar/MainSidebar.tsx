@@ -1,3 +1,4 @@
+"use client"
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -40,7 +41,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
       <div className={logoContainer}>
         <Image src={LogoDr} alt="DR Security Logo" width={150} height={150} />
       </div>
-      <nav className={nav} data-testid="sidebar-nav">
+      <nav className={nav} data-testid="sidebar-nav" data-tour="sidebar-nav">
         {routes
           .filter(route => {
             if (!route.subroutes) return validPermissionsbyroute(route.path);
@@ -95,11 +96,18 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
                 checked={!offlineMode}
                 onChange={checked => onToggleOffline(!checked)}
                 label=""
+                dataTour="offline-toggle"
               />
             </div>
             <div className="flex items-center gap-2">
               <ThemeIcon />
-              <ToggleButton checked={theme === 'dark'} onChange={toggleTheme} label="" dataTestId='theme-toggle' />
+              <ToggleButton
+                checked={theme === 'dark'}
+                onChange={toggleTheme}
+                label=""
+                dataTestId="theme-toggle"
+                dataTour="theme-toggle"
+              />
             </div>
           </div>
         </div>
@@ -114,6 +122,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
             className="flex items-center gap-2 text-b3  font-regular hover:bg-blue-90  py-1 rounded"
             onClick={() => { router.push('/main-page/configuration') }}
             data-testid="sidebar-logout"
+            data-tour="configuration-button"
           >
             <ConfigurationLogo />
             Configuración
@@ -121,6 +130,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
           <Link
             href="https://drsecurity.atlassian.net/servicedesk/customer/portals"
             className="flex items-center gap-2 text-b3  font-regular hover:bg-blue-90  py-1 rounded"
+            data-tour="sidebar-help-link"
           >
             <HelpIcon />
             Ayuda
@@ -135,6 +145,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
               window.location.href = '/';
             }}
             data-testid="sidebar-logout"
+            data-tour="logout-button"
           >
             <LogoutIcon />
             Cerrar Sesión

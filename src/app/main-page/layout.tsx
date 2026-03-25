@@ -15,7 +15,9 @@ import MainLayoutClient from './components/MainLayoutClient/MainLayoutClient';
  */
 
 export default function MainLayout({ children }: { readonly children: ReactNode }) {
-  return <Suspense>
-    <MainLayoutClient>{children}</MainLayoutClient>;
-  </Suspense>
+  return (
+    <Suspense>
+      <MainLayoutClient>{children}</MainLayoutClient>
+    </Suspense>
+  );
 }

@@ -12,6 +12,7 @@ import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/
 import { useBillingImagesStore } from '@/app/stores/useBillingImagesStore/useBillingImagesStore'
 import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequisitionStore'
 import { useAuth } from '@/app/context/AuthContext/AuthContext'
+import { useTutorials } from "@/tutorials/engine/TutorialProvider";
 
 
 /**
@@ -22,10 +23,16 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
   const { usePrincipalAlert } = usePrincipal();
   const { showAlert } = usePrincipalAlert
   const searchParams = useSearchParams()
-  const requisitionId = overrideRequisitionId ?? searchParams.get('id') ?? undefined
+  const requisitionId =
+    overrideRequisitionId ??
+    searchParams.get('idRequisition') ??
+    searchParams.get('id') ??
+    undefined
   const [panelOpen, setPanelOpen] = useState(false)
   const [selected, setSelected] = useState<BillingDocuments | null>(null)
   const [documentImages, setDocumentImages] = useState<Record<string, string>>({})
+  const { activeTutorialId } = useTutorials();
+  const isTutorialActive = activeTutorialId === "operations-requisitions:detail";
   const {
     fetchBillingDocumentByIdRequisition,
     billingDocuments,
@@ -107,11 +114,13 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
   }, [loading, error, succesDownloadDocument, downloadingDocument, downloaderror, showAlert])
 
   useEffect(() => {
+    if (isTutorialActive) return
     if (!requisitionId) return
     fetchBillingDocumentByIdRequisition(requisitionId, true)
-  }, [requisitionId, fetchBillingDocumentByIdRequisition])
+  }, [requisitionId, fetchBillingDocumentByIdRequisition, isTutorialActive])
 
   useEffect(() => {
+    if (isTutorialActive) return
     if (!selected) return
     const updated = billingDocuments.find(
       (doc) => doc.billingdocument_id === selected.billingdocument_id
@@ -141,9 +150,10 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
     }
 
     loadComment()
-  }, [fetchBillingImageById, selected])
+  }, [fetchBillingImageById, selected, isTutorialActive])
 
   useEffect(() => {
+    if (isTutorialActive) return
     if (!selected?.billingimages_id || selected.image) return
     let active = true
 
@@ -160,14 +170,16 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
     return () => {
       active = false
     }
-  }, [fetchBillingImageById, selected])
+  }, [fetchBillingImageById, selected, isTutorialActive])
 
   useEffect(() => {
+    if (isTutorialActive) return
     if (!user?.idEmployee) return
     fetchBillingImages(user.idEmployee)
-  }, [fetchBillingImages, user?.idEmployee])
+  }, [fetchBillingImages, user?.idEmployee, isTutorialActive])
 
   useEffect(() => {
+    if (isTutorialActive) return
     if (!billingDocuments?.length) return
     const pendingIds = billingDocuments
       .map((doc) => doc.billingimages_id)
@@ -204,7 +216,7 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
     return () => {
       active = false
     }
-  }, [billingDocuments, documentImages, fetchBillingImageById])
+  }, [billingDocuments, documentImages, fetchBillingImageById, isTutorialActive])
 
   const normalizeImages = (images: BillingImages["images"]): string[] => {
     if (!Array.isArray(images)) return []
@@ -249,7 +261,73 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
         }
       })
 
+  const mockImage =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2P4z8DwHwAFgwJ/lm8X3wAAAABJRU5ErkJggg==";
+  const mockRow: BillingDocumentDetailsTable = useMemo(
+    () => ({
+      id: "mock-detail-doc-001",
+      billingdocument_id: "mock-detail-doc-001",
+      billingimages_id: "mock-detail-image-001",
+      fecha: "2026-02-26",
+      rfc_emisor: "RFC123456",
+      rfc_receptor: "RFC654321",
+      description: "Hospedaje",
+      numpersons: 2,
+      numnights: 3,
+      uuid: "UUID-MOCK-001",
+      subtotal: 1200,
+      iva: 192,
+      total: 1392,
+      otherinvoices: 0,
+      status: "Pendiente",
+      xmlUrl: "data:text/xml;base64,PHhtbD5Nb2NrPC94bWw+",
+      pdfUrl: "data:application/pdf;base64,JVBERi0xLjQKJcfs",
+      imageUrl: mockImage,
+      comments: "Documento de ejemplo",
+      user_comments: "Documento de ejemplo",
+      authorization: { idAuthorization: "mock-auth" } as any,
+    }),
+    [mockImage],
+  );
+
+  const mockSelected: BillingDocuments = useMemo(
+    () => ({
+      id: "mock-detail-doc-001",
+      billingdocument_id: "mock-detail-doc-001",
+      requisition: { requisitionkey: "REQ-MOCK-001" } as any,
+      billingimages_id: "mock-detail-image-001",
+      xml: "data:text/xml;base64,PHhtbD5Nb2NrPC94bWw+",
+      pdf: "data:application/pdf;base64,JVBERi0xLjQKJcfs",
+      image: mockImage,
+      status: "Pendiente",
+      comments: "Documento de ejemplo",
+      rfc_emisor: "RFC123456",
+      rfc_receptor: "RFC654321",
+      conceptos: [],
+      uuid: "UUID-MOCK-001",
+      fecha: "2026-02-26",
+      xmlinformation: "",
+      date_created: "2026-02-26",
+      user_comments: "Documento de ejemplo",
+      forbidden_code: false,
+      sat_validation: false,
+      billingAcuse: null,
+      description: { name: "Hospedaje" } as any,
+      numpersons: 2,
+      numnights: 3,
+      total: 1392,
+      subtotal: 1200,
+      iva: 192,
+      otherinvoices: 0,
+      category: { name: "Hospedaje" } as any,
+      validatedbyoperations: false,
+      authorization: null,
+    }),
+    [mockImage],
+  );
+
   const rows: BillingDocumentDetailsTable[] = useMemo(() => {
+    if (isTutorialActive) return [mockRow];
     const documentsRows = BillingDocumentDetailsTableListMap(billingDocuments ?? [])
     const ticketRows = mapTicketsToRows(billingImages ?? [], requisitionId)
     const imagesByTicketId = new Map<string, string>()
@@ -275,7 +353,7 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
     })
 
     return [...ticketRows, ...enrichedDocumentRows]
-  }, [billingDocuments, billingImages, documentImages, requisitionId])
+  }, [billingDocuments, billingImages, documentImages, requisitionId, isTutorialActive, mockRow])
 
   const handleOpenImage = async (row: BillingDocumentDetailsTable) => {
     if (row.imageUrl) {
@@ -299,7 +377,7 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
     showAlert({
       type: "warning",
       title: "Imagen no disponible",
-      description: "No se encontrÃ³ una imagen para este registro.",
+      description: "No se encontró³ una imagen para este registro.",
       showPrimaryButton: false,
       showSecondaryButton: false,
       autoCloseMs: 1500,
@@ -340,6 +418,11 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
   })
 
   const handleOpenDetails = (row: BillingDocumentDetailsTable) => {
+    if (isTutorialActive) {
+      setSelected(mockSelected);
+      setPanelOpen(true);
+      return;
+    }
     const billingdocument = billingDocuments.find(document => document.billingdocument_id == row.billingdocument_id);
     if (billingdocument) {
       setSelected(billingdocument);

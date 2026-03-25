@@ -12,6 +12,8 @@ export interface DataTableContentProps<T extends { id: string | number }> {
   enableSelection?: boolean
   /** Controla si la selecci?n es simple o m?ltiple */
   selectionMode?: SelectionMode
+  /** Data-tour para checkbox de seleccion por fila */
+  selectionDataTour?: (row: T, index: number) => string | undefined
   /** Identificadores de filas que deben iniciar seleccionadas */
   initialSelectedIds?: Array<T['id']>
   /** Clave inicial para ordenar */

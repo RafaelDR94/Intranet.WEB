@@ -69,7 +69,7 @@ const HistoryTable: React.FC = () => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const requisitionId = searchParams.get("id");
+  const requisitionId = searchParams.get("idRequisition") ?? searchParams.get("id");
   const { authorizationHistory, getRequisitionAuthorizationsHistory } = useAuthorizationsStore(
     (s) => ({
       authorizationHistory: s.authorizationHistory,
@@ -124,7 +124,9 @@ const HistoryTable: React.FC = () => {
           className="text-teal-70"
           onClick={() => {
             const query = new URLSearchParams(searchParams.toString());
-            query.set("id", row.raw.event_id ?? "");
+            if (requisitionId) {
+              query.set("idRequisition", requisitionId);
+            }
             if (!query.get("label")) {
               query.set("label", "Detalle Requisicion");
             }

@@ -10,6 +10,7 @@ import type { Requisition } from '@/app/mappings/requisitions/requisitions.types
 import { useIntranetGatewayStore } from '@/app/stores/system/useIntranetGatewayStore'
 import { useBillingRequisitionWithEmployeesStore } from '@/app/stores/useBillingRequisitionWithEmployeesStore/useBillingRequisitionWithEmployeesStore'
 import { currentDate } from '@/app/utilities/DatesHelper/Dateshelper'
+import { useTutorials } from '@/tutorials/engine/TutorialProvider'
 
 /**
  * Handles data loading, filtering and row actions for the requisitions table.
@@ -18,6 +19,8 @@ export const useRequisitionTable = () => {
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
   const { showSpinner, hideSpinner } = usePrincipalLoading
   const { showAlert, hideAlert } = usePrincipalAlert
+  const { activeTutorialId } = useTutorials()
+  const isTutorialActive = activeTutorialId === 'operations-requisitions:list'
   const [lastDates, setLastDates] = useState<{ startDate: string, endDate: string }>({ startDate: currentDate(), endDate: currentDate() })
   const isGatewayReady = useIntranetGatewayStore(s => s.isReady)
   const path = usePathname();
@@ -50,13 +53,22 @@ export const useRequisitionTable = () => {
 
   // Prefetch
   useEffect(() => {
+    if (isTutorialActive) return;
     if (isGatewayReady && !hasIdParam)
       fetchRequisitionsWithEmployees(lastDates.startDate, lastDates.endDate, true)
-  }, [isGatewayReady, hasIdParam, fetchRequisitionsWithEmployees, lastDates.startDate, lastDates.endDate])
+  }, [
+    isGatewayReady,
+    hasIdParam,
+    fetchRequisitionsWithEmployees,
+    lastDates.startDate,
+    lastDates.endDate,
+    isTutorialActive,
+  ])
 
 
   // Alert de error general de carga
   useEffect(() => {
+    if (isTutorialActive) return;
     if (loading) { showSpinner({ message: 'Cargando requisiciones…' }); return; }
     hideSpinner();
     resetFlags();
@@ -88,11 +100,54 @@ export const useRequisitionTable = () => {
     fetchRequisitionsWithEmployees,
     lastDates.startDate,
     lastDates.endDate,
+    isTutorialActive,
   ])
 
   const [query, setQuery] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [rowToDelete, setRowToDelete] = useState<RequisitionRow | null>(null)
+  const mockRows = useMemo<RequisitionRow[]>(() => {
+    const today = currentDate()
+    const demoAvatar =
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2P4z8DwHwAFgwJ/lm8X3wAAAABJRU5ErkJggg=='
+    return [
+      {
+        id: 'mock-req-001',
+        employeeId: 'EMP-001',
+        snCode: 'REQ-2026-001',
+        employeename: 'Maria Gonzalez',
+        debtorName: 'Maria Gonzalez',
+        projectCode: 'Proyecto Atlas',
+        assignmentDate: today,
+        dueDate: today,
+        amount: 12500,
+        status: 'En revision',
+        state: 'Pendiente',
+        phone_number: '55 1234 5678',
+        email: 'maria.gonzalez@demo.com',
+        image_url: demoAvatar,
+        date_created: today,
+      },
+      {
+        id: 'mock-req-002',
+        employeeId: 'EMP-002',
+        snCode: 'REQ-2026-002',
+        employeename: 'Carlos Hernandez',
+        debtorName: 'Carlos Hernandez',
+        projectCode: 'Proyecto Delta',
+        assignmentDate: today,
+        dueDate: today,
+        amount: 9800,
+        status: 'Pendiente',
+        state: 'Pendiente',
+        phone_number: '55 8765 4321',
+        email: 'carlos.hernandez@demo.com',
+        image_url: demoAvatar,
+        date_created: today,
+      },
+    ]
+  }, [])
+  const isMockRow = (row: RequisitionRow) => row.id.startsWith('mock-')
 
 
   const rows: RequisitionRow[] = useMemo(() => {
@@ -100,13 +155,16 @@ export const useRequisitionTable = () => {
       const requisition = r as Partial<Requisition>
       const benefit = r as {
         id_employee?: string
+        id_requisition?: string
         fullname?: string
         email?: string
         phone_number?: string
+        image_url?: string
       }
       const employeename = requisition.employeename ?? benefit.fullname ?? ''
       const employeeId = requisition.id_Employee ?? benefit.id_employee ?? ''
-      const requisitionId = requisition.billingrequisition_id ?? employeeId
+      const requisitionId =
+        requisition.billingrequisition_id ?? benefit.id_requisition ?? employeeId
 
       return {
         id: requisitionId ?? '',
@@ -123,18 +181,20 @@ export const useRequisitionTable = () => {
         state: requisition.state,
         phone_number: requisition.phone_number ?? benefit.phone_number ?? '',
         email: requisition.email ?? benefit.email ?? '',
+        image_url: requisition.image_url ?? benefit.image_url ?? '',
         date_created: requisition.date_created,
       }
     })
-    if (!query) return base
+    const merged = isTutorialActive ? [...mockRows, ...base] : base
+    if (!query) return merged
     const q = query.toLowerCase()
-    return base.filter(r =>
+    return merged.filter(r =>
       r.snCode.toLowerCase().includes(q) ||
       r.employeename?.toLowerCase().includes(q) ||
       r.debtorName.toLowerCase().includes(q) ||
       r.projectCode.toLowerCase().includes(q)
     )
-  }, [requisitions, query])
+  }, [requisitions, query, mockRows, isTutorialActive])
 
   const onEdit = (row: RequisitionRow) => {
     const clean = path.endsWith('/') ? path.slice(0, -1) : path; // quita slash final si viene
@@ -156,14 +216,35 @@ export const useRequisitionTable = () => {
   };
 
   const onViewFiles = (row: RequisitionRow) => {
-    const clean = path.endsWith('/') ? path.slice(0, -1) : path;
-    const qs = new URLSearchParams(searchParams.toString());
-    qs.set('id', row.id);
-    if (row.employeeId) {
-      qs.set('idEmployee', row.employeeId);
+    const isOperationsContext = path.startsWith(
+      "/main-page/operations/requisitions/requisitionListPage",
+    );
+
+    // `RequisitionsTable` is shared by Operations and Accounting.
+    // Keep the original Operations behavior (same-page view switch) when used there.
+    if (isOperationsContext) {
+      const clean = path.endsWith("/") ? path.slice(0, -1) : path;
+      const qs = new URLSearchParams(searchParams.toString());
+      const resolvedId = row.id || row.employeeId || "";
+      qs.set("id", resolvedId);
+      if (row.employeeId) {
+        qs.set("idEmployee", row.employeeId);
+      }
+      qs.set("label", buildLabel("Archivos", row.debtorName));
+      router.push(`${clean}?${qs.toString()}`);
+      return;
     }
-    qs.set('label', buildLabel('Archivos', row.debtorName));
-    router.push(`${clean}?${qs.toString()}`);
+
+    // Accounting behavior: jump to validate invoices with employee context.
+    const qs = new URLSearchParams();
+    const employeeId = row.employeeId || row.id;
+    if (employeeId) {
+      qs.set("idEmployee", employeeId);
+    }
+    if (row.debtorName) {
+      qs.set("employeeName", row.debtorName);
+    }
+    router.push(`/main-page/accounting/invoices/validateinvoices?${qs.toString()}`);
   };
 
   const onViewRequisitions = (row: RequisitionRow) => {
@@ -178,6 +259,18 @@ export const useRequisitionTable = () => {
   };
 
   const onDelete = (row: RequisitionRow) => {
+    if (isTutorialActive && isMockRow(row)) {
+      showAlert({
+        type: 'info',
+        variant: 'filled',
+        title: 'Acción de demostración',
+        description: 'Este registro es de ejemplo para el tutorial.',
+        showPrimaryButton: true,
+        primaryLabel: 'Entendido',
+        onPrimaryClick: hideAlert,
+      })
+      return
+    }
     setRowToDelete(row)
     setConfirmOpen(true)
   }
@@ -220,9 +313,12 @@ export const useRequisitionTable = () => {
   }
 
   const refresh = (start?: Date, end?: Date) => {
-    const startDate = start ? currentDate(start) : currentDate();
-    const endDate = end ? currentDate(end) : currentDate();
-    setLastDates({ startDate: startDate, endDate: endDate })
+    const startDate = start ? currentDate(start) : lastDates.startDate
+    const endDate = end ? currentDate(end) : lastDates.endDate
+    if (start || end) {
+      setLastDates({ startDate, endDate })
+    }
+    if (isTutorialActive) return
     fetchRequisitionsWithEmployees(startDate, endDate, true)
   }
 

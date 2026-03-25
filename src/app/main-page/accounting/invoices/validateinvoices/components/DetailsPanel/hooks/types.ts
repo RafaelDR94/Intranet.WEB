@@ -14,4 +14,6 @@ export interface UseDetailsPanelArgs {
   operations:any
   /** Id de requisición relacionada. */
   reqisition?:string
+  /** Texto visible para el tipo de documento. */
+  documentLabel?: string
 }

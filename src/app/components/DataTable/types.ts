@@ -67,6 +67,8 @@ export interface DataTableGroup<T> {
   enableSelection?: boolean
   /** Controla si la selecci?n es simple o m?ltiple */
   selectionMode?: SelectionMode
+  /** Data-tour para checkbox de seleccion por fila */
+  selectionDataTour?: (row: T, index: number) => string | undefined
   /** Permite colapsar la sección que contiene la tabla */
   enableCollaps?: boolean
 
@@ -148,6 +150,16 @@ export interface DataTableProps<T = any> {
   showFilter?: boolean;
   /** Muestra el botón de recarga parcial del contenido. */
   showRefresh?: boolean;
+  /** Data-tour para input de bóºsqueda */
+  searchDataTour?: string;
+  /** Data-tour para calendario */
+  calendarDataTour?: string;
+  /** Data-tour para filtros */
+  filterDataTour?: string;
+  /** Data-tour para botón refrescar */
+  refreshDataTour?: string;
+  /** Data-tour para botón de acción principal */
+  actionButtonDataTour?: string;
   /** Opciones mostradas dentro del menú contextual de filtros. */
   filterOptions?: DataTableFilterOption<T>[];
   /** Valor seleccionado actualmente en el filtro. */

@@ -1,6 +1,6 @@
 {
   "name": "intranet.web",
-  "version": "1.50.25",
+  "version": "1.50.30",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -35,6 +35,7 @@
     "axios": "^1.11.0",
     "clsx": "^2.1.1",
     "dexie": "^4.0.11",
+    "driver.js": "^1.4.0",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "firebase": "^12.0.0",

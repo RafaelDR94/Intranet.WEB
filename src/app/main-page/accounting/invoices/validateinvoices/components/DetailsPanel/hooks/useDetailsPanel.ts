@@ -13,6 +13,7 @@ export const useDetailsPanel = ({
   setPanelOpen,
   operations,
   reqisition,
+  documentLabel = "factura",
 }: UseDetailsPanelArgs) => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
@@ -137,13 +138,13 @@ export const useDetailsPanel = ({
     }
     if (rejecting) {
       showSpinner({
-        message: "Espera un momento, se está rechazando la factura.",
+        message: `Espera un momento, se está rechazando el ${documentLabel}.`,
       });
       return;
     }
     if (validating) {
       showSpinner({
-        message: "Espera un momento, se está validando la factura.",
+        message: `Espera un momento, se está validando el ${documentLabel}.`,
       });
       return;
     }
@@ -166,7 +167,7 @@ export const useDetailsPanel = ({
       setPanelOpen(false);
       showAlert({
         type: "info",
-        title: "Factura Validada",
+        title: `${documentLabel.charAt(0).toUpperCase()}${documentLabel.slice(1)} Validado`,
         description: "Se ha validado correctamente.",
         showPrimaryButton: false,
         showSecondaryButton: false,
@@ -178,7 +179,7 @@ export const useDetailsPanel = ({
       setPanelOpen(false);
       showAlert({
         type: "info",
-        title: "Factura Rechazada",
+        title: `${documentLabel.charAt(0).toUpperCase()}${documentLabel.slice(1)} Rechazado`,
         description: "Se ha rechazado correctamente.",
         showPrimaryButton: false,
         showSecondaryButton: false,
@@ -212,6 +213,7 @@ export const useDetailsPanel = ({
     setPanelOpen,
     showAlert,
     showSpinner,
+    documentLabel,
   ]);
 
   return {

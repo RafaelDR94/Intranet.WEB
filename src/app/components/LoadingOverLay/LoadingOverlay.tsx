@@ -88,7 +88,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   // Si quieres solo el contenedor: devuelve el overlay directo (absolute + inset-0).
   // Si quieres pantalla completa: lo envolvemos en un wrapper fixed + inset-0.
   return scope === 'container' ? node : (
-    <div className="fixed inset-0 z-[100]">
+    <div className="fixed inset-0 z-[9999]">
       {node}
     </div>
   );

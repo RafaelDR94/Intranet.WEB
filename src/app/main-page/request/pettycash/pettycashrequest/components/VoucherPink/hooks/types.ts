@@ -50,7 +50,7 @@ export type UseVoucherFormReturn = {
   authorizerSelected?: string;
   /** Setter del autorizador seleccionado (cuando aplica). */
   setAuthorizerSelected?: (value: string) => void;
-  /** Indica si el popup de autorizador estÃƒÂ¡ abierto. */
+  /** Indica si el popup de autorizador estóƒÂ¡ abierto. */
   authorizerPopUpOpen?: boolean;
   /** Setter del popup de autorizador. */
   setAuthorizerPopUpOpen?: (value: boolean) => void;

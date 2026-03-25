@@ -1,3 +1,4 @@
+"use client"
 'use client';
 
 /**
@@ -9,6 +10,7 @@ import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import useVehicleRegistry from "./hooks/useVehicleRegistry";
 import { Button } from "@/app/components/Button/Button";
 import ImagesComponent from "./componentes/ImagesComponent/ImagesComponent";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
 const VehicleRegistry = () => {
   const {
@@ -29,16 +31,23 @@ const VehicleRegistry = () => {
     handleBack,
   } = useVehicleRegistry();
 
+  useTutorialAutoRun({
+    moduleId: "generalservices-vehicleregistry",
+    tutorialId: "generalservices-vehicleregistry:form",
+  });
+
   return (
+    <div data-tour="vehicleregistry-form">
     <FormsLayout
       title={title}
       onPrimaryClick={() => submitRef.current?.()}
       primaryLabel={submitLabel}
       primaryDisabled={!formIsCompleted}
+      primaryButtonDataTour="vehicleregistry-submit"
     >
       <div className="flex flex-col gap-6 w-full ">
         {currentView === "form" &&
-          <DynamicForm
+          <DynamicForm data-tour="vehicleregistry-form-fields"
             responsiveLayoutMatrix={responsiveLayoutMatrix}
             onValidChange={setFormReady}
             fields={fields}
@@ -50,7 +59,7 @@ const VehicleRegistry = () => {
           />
         }
         {currentView === "pictures" &&
-          <ImagesComponent formId={formId} />
+          <div data-tour="vehicleregistry-photos"><ImagesComponent formId={formId} /></div>
         }
         <Button
           className="ml-auto"
@@ -59,12 +68,14 @@ const VehicleRegistry = () => {
           }}
           hideIcon
           disabled={currentView === "form" && !formReady}
+          data-tour="vehicleregistry-next"
         >
           {currentView === "form" ? "Siguiente: Cargar Fotos" : "Volver al Formulario"}
         </Button>
       </div>
 
     </FormsLayout >
+    </div>
   );
 };
 

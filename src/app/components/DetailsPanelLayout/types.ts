@@ -18,6 +18,7 @@ export interface DetailsPanelProps {
     expanded?: boolean;
     onClose: () => void;
     onExpandedChange?: (value: boolean) => void;
+    closeButtonDataTour?: string;
     actionButton?: React.ReactNode;
     renderActions?: () => React.ReactNode;
     leftLabel?: React.ReactNode;

@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { shallow } from 'zustand/shallow'
 
@@ -15,13 +15,15 @@ import type { Authorized } from '@/app/components/SignaturePopUp/types'
 import { useAuthorizationsStore } from '@/app/stores/useAuthorizationsStore/useAuthorizationsStore'
 import type { SelectOption } from '@/app/components/Select/types'
 import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore'
+import Label from '@/app/components/Label/Label'
+import type { LabelType } from '@/app/components/Label/types'
 
 export type RequisitionAuthorizationRow = {
   id: string
   displayId: string
   consumptionDate: string
   provider: string
-  description: string
+  category: string
   persons: string
   nights: string
   invoice: string
@@ -29,6 +31,7 @@ export type RequisitionAuthorizationRow = {
   iva: string
   others: string
   total: string
+  status: string
 }
 
 const formatDateSafe = (value?: string): string => {
@@ -57,6 +60,15 @@ const normalizeText = (value: string) =>
     .toLocaleLowerCase('es-MX')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+
+const statusToLabelType = (status?: string): LabelType => {
+  const normalized = normalizeText(status ?? '')
+  if (normalized.includes('aprob') || normalized.includes('valid')) return 'valido'
+  if (normalized.includes('rechaz')) return 'rechazado'
+  if (normalized.includes('cancel')) return 'restringido'
+  if (normalized.includes('pend')) return 'pendiente'
+  return 'actualizado'
+}
 
 /**
  * Hook que orquesta el detalle de autorizaciones de requisiciones.
@@ -575,7 +587,7 @@ const useRequisitionsAuthorization = () => {
       displayId: String(index + 1),
       consumptionDate: formatDateSafe(doc.fecha),
       provider: doc.rfc_emisor ?? '-',
-      description: doc.description ?? '-',
+      category: source[index]?.category?.name ?? '-',
       persons: doc.numpersons ? String(doc.numpersons) : 'N/A',
       nights: doc.numnights ? String(doc.numnights) : 'N/A',
       invoice: doc.uuid ?? doc.billingdocument_id ?? '-',
@@ -583,22 +595,34 @@ const useRequisitionsAuthorization = () => {
       iva: formatCurrency(doc.iva ?? 0),
       others: formatCurrency(doc.otherinvoices ?? 0),
       total: formatCurrency(doc.total ?? 0),
+      status: doc.status ?? '-',
     }))
   }, [authorizationBillingDocuments, billingDocuments, useAuthorizationDocuments])
 
   const columns: ColumnDefinition<RequisitionAuthorizationRow>[] = useMemo(
     () => [
-      { key: 'displayId', label: 'ID', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
-      { key: 'consumptionDate', label: 'FECHA CONSUMO', cellClass: 'w-2/15 text-center', headerClass: 'w-2/15 text-center' },
+      { key: 'displayId', label: 'ID', cellClass: 'w-[4%] text-center', headerClass: 'w-[4%] text-center' },
+      { key: 'consumptionDate', label: 'FECHA CONSUMO', cellClass: 'w-[9%] text-center', headerClass: 'w-[9%] text-center' },
       { key: 'provider', label: 'PROVEEDOR', cellClass: 'w-2/15 text-center', headerClass: 'w-2/15 text-center' },
-      { key: 'description', label: 'DESCRIPCION', cellClass: 'w-2/15 text-center', headerClass: 'w-2/15 text-center' },
+      { key: 'category', label: 'CATEGORIA', cellClass: 'w-2/15 text-center', headerClass: 'w-2/15 text-center' },
       { key: 'persons', label: 'No. PERS.', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
       { key: 'nights', label: 'No. NOCHES', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
-      { key: 'invoice', label: 'No. FACTURA/TICKET/REMISION', cellClass: 'w-3/15  text-center truncate', headerClass: 'w-3/15 text-center truncate' },
+      { key: 'invoice', label: 'No. FACTURA/TICKET/REMISION', cellClass: 'w-3/15 text-center truncate', headerClass: 'w-3/15 text-center truncate' },
       { key: 'subtotal', label: 'SUBTOTAL', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
       { key: 'iva', label: 'IVA', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
       { key: 'others', label: 'OTROS IMP.', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
       { key: 'total', label: 'TOTAL', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
+      {
+        key: 'status',
+        label: 'ESTATUS',
+        render: (row) =>
+          createElement(Label, {
+            type: statusToLabelType(row.status),
+            text: row.status,
+          }),
+        cellClass: 'w-[10%] text-center',
+        headerClass: 'w-[10%] text-center',
+      },
     ],
     [],
   )

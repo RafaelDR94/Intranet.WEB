@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
 const uploadImageMock = vi.fn();
@@ -30,22 +30,36 @@ vi.mock('../../../hooks/useInitInvoicesForms', () => ({
 }));
 const createBillingImageMock = vi.fn();
 const updateBillingImageMock = vi.fn();
+const resetFlagsMock = vi.fn();
+const forceFetchBillingHistoryMock = vi.fn();
+const fetchBillingAllDocumentsByEmployeeMock = vi.fn();
+const billingImagesStoreState = {
+  creating: false,
+  updating: false,
+  error: undefined as string | undefined,
+  successPost: false,
+  successPut: false,
+  createBillingImage: createBillingImageMock,
+  updateBillingImage: updateBillingImageMock,
+  resetFlags: resetFlagsMock,
+};
 vi.mock('@/app/stores/useBillingImagesStore/useBillingImagesStore', () => ({
   useBillingImagesStore: (sel: any) =>
-    sel({
-      creating: false,
-      updating: false,
-      error: undefined,
-      successPost: false,
-      successPut: false,
-      createBillingImage: createBillingImageMock,
-      updateBillingImage: updateBillingImageMock,
-      resetFlags: vi.fn(),
-    }),
+    sel(billingImagesStoreState),
 }));
 vi.mock('@/app/stores/useBillingHistoryStore/useBillingHistoryStore', () => ({
-  useBillingHistoryStore: (sel: any) => sel({ forceFetchBillingHistory: vi.fn() }),
+  useBillingHistoryStore: (sel: any) =>
+    sel({ forceFetchBillingHistory: forceFetchBillingHistoryMock }),
 }));
+vi.mock(
+  '@/app/stores/useBillingAllDocumentsByEmployeeStore/useBillingAllDocumentsByEmployeeStore',
+  () => ({
+    useBillingAllDocumentsByEmployeeStore: (sel: any) =>
+      sel({
+        fetchBillingAllDocumentsByEmployee: fetchBillingAllDocumentsByEmployeeMock,
+      }),
+  }),
+);
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams('id=REQ-123'),
 }));
@@ -64,12 +78,59 @@ describe('useTicketForm', () => {
     const { result } = renderHook(() => useTicketForm({}));
 
     await result.current.handleSubmit({
-      ticket: {} as File,
+      ticket: new File(['x'], 'ticket.png', { type: 'image/png' }),
       category: 'cat-1',
     });
 
     expect(createBillingImageMock).toHaveBeenCalledWith(
       expect.objectContaining({ requisition_id: 'REQ-123', employee_id: '1' })
     );
+  });
+
+  it('envó­a image (string) en PUT cuando edita', async () => {
+    const dataEdit: any = {
+      billing_image_id: 'BILL-1',
+      billingrequisition_id: 'REQ-EDIT',
+      image: 'https://image.example.com/old.png',
+      comments: 'c',
+    };
+
+    const { result } = renderHook(() => useTicketForm({ dataEdit }));
+
+    await result.current.handleSubmit({
+      requisition: 'REQ-EDIT',
+      ticket: null,
+      category: 'cat-1',
+      numnights: '1',
+      numpersons: '1',
+      description: 'desc',
+    });
+
+    expect(updateBillingImageMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        billing_image_id: 'BILL-1',
+        requisition_id: 'REQ-EDIT',
+        image: 'https://image.example.com/old.png',
+      }),
+    );
+  });
+
+  it('refresca tablas (all documents) al completar un PUT', async () => {
+    billingImagesStoreState.successPut = true;
+    const dataEdit: any = {
+      billing_image_id: 'BILL-1',
+      billingrequisition_id: 'REQ-EDIT',
+      image: 'https://image.example.com/old.png',
+      comments: 'c',
+    };
+
+    renderHook(() => useTicketForm({ dataEdit }));
+
+    await waitFor(() => {
+      expect(forceFetchBillingHistoryMock).toHaveBeenCalledWith('1');
+      expect(fetchBillingAllDocumentsByEmployeeMock).toHaveBeenCalledWith('1', true);
+    });
+
+    billingImagesStoreState.successPut = false;
   });
 });

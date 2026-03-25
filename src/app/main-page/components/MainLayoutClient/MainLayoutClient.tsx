@@ -1,5 +1,5 @@
+"use client"
 // app/layouts/MainLayoutClient.tsx
-"use client";
 
 import React, { ReactNode } from "react";
 
@@ -17,6 +17,8 @@ import { PermissionAgent } from "@/app/components/PermissionsAgent/PermissionsAg
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import ShowImage from "@/app/components/ShowImage/ShowImage";
 import { getOfflineModeSuport } from "./utilities/getOfflineModeSuport";
+import TutorialProvider from "@/tutorials/engine/TutorialProvider";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 /**
  * Layout principal del sistema DR Intranet.
  *
@@ -68,6 +70,8 @@ export default function MainLayoutClient({
       open: imageOpen,
       src,
       alt,
+      items,
+      initialIndex,
       showAction,
       actionLabel,
       onAction,
@@ -78,6 +82,8 @@ export default function MainLayoutClient({
 
   // NEW: estado del drawer mobile
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const openMobileSidebar = React.useCallback(() => setMobileOpen(true), []);
+  const closeMobileSidebar = React.useCallback(() => setMobileOpen(false), []);
   const hasPendingNotifications = pendingNotifications.length > 0;
   const showNotificationAlert = alert?.type === "notification";
   const hasNotification = hasPendingNotifications || showNotificationAlert;
@@ -95,11 +101,23 @@ export default function MainLayoutClient({
   };
 
 
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.__tutorialSidebar = {
+      open: openMobileSidebar,
+      close: closeMobileSidebar,
+    };
+    return () => {
+      delete window.__tutorialSidebar;
+    };
+  }, [openMobileSidebar, closeMobileSidebar]);
+
   return (
     <ErrorBoundary>
-
-      <PermissionAgent fallbackPath="/main-page/home">
-        <div className={mainLayoutStyles.container}>
+      <TutorialProvider>
+        <TutorialAutoRunGate />
+        <PermissionAgent fallbackPath="/main-page/home">
+          <div className={mainLayoutStyles.container}>
           {alert && (
             <div className={mainLayoutStyles.alertContainer}>
               {showNotificationAlert ? (
@@ -141,13 +159,15 @@ export default function MainLayoutClient({
           {/* Drawer Mobile */}
           <MobileSidebar
             isOpen={mobileOpen}
-            onClose={() => setMobileOpen(false)}
+            onClose={closeMobileSidebar}
             {...sidebarSharedProps}
           />
           <ShowImage
             open={imageOpen}
             src={src}
             alt={alt}
+            items={items}
+            initialIndex={initialIndex}
             showAction={showAction}
             actionLabel={actionLabel}
             onAction={onAction}
@@ -169,9 +189,13 @@ export default function MainLayoutClient({
               pendingNotifications={pendingNotifications}
               onOpenPending={handleOpenPending}
               onDismissPending={handleRemovePending}
-              onOpenMobileMenu={() => setMobileOpen(true)} // << abre el drawer
+              onOpenMobileMenu={openMobileSidebar} // << abre el drawer
             />
-            <main className={mainLayoutStyles.main}>{offlineLoggin&&!getOfflineModeSuport(pathname)?"El modo offline no tiene soporte en este módulo":children}</main>
+            <main className={mainLayoutStyles.main} data-tour="main-content">
+              {offlineLoggin && !getOfflineModeSuport(pathname)
+                ? "El modo offline no tiene soporte en este módulo"
+                : children}
+            </main>
             <LoadingOverlay
               open={open}
               message={message}
@@ -179,8 +203,13 @@ export default function MainLayoutClient({
             />
           </div>
         </div>
-      </PermissionAgent>
+        </PermissionAgent>
+      </TutorialProvider>
     </ErrorBoundary>
-
   );
 }
+
+const TutorialAutoRunGate = () => {
+  useTutorialAutoRun({ moduleId: "main-page", tutorialId: "main-page:theme-toggle" });
+  return null;
+};

@@ -219,7 +219,10 @@ const useImagesComponent = ({
       setDownloadingResponsive(true);
       showSpinner({ message: 'Generando responsiva...' });
 
-      const pdfData = await makeResponsive(selectedDriverId,selectedVehicleId);
+      const pdfData = await makeResponsive({
+        employeeId: selectedDriverId,
+        vehicleId: selectedVehicleId,
+      });
       if (!pdfData) {
         throw new Error('No se pudo construir la responsiva');
       }

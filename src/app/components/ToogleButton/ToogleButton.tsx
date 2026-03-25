@@ -55,6 +55,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   labelColor,
   className,
   dataTestId,
+  dataTour,
 }) => {
   // Extraemos la lógica anidada en un bloque if/else
   let trackStyle: string
@@ -69,6 +70,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
     return (
       <label
         data-testid={dataTestId}
+        data-tour={dataTour}
         className={clsx(
           styles.containerBase,
           labelPosition === 'left' && styles.containerReverse,

@@ -1,3 +1,32 @@
+### 1.50.30 Tutoriales en pettycash request e history 03-04-2026
+
+Feature:
+
+- Agrega tutoriales para formularios de caja chica y su historial. (Agente IA) [#]()
+
+### 1.50.29 Tutoriales en treasury request 03-04-2026
+
+Feature:
+
+- Agrega tutoriales para formularios de vales en tesoreria. (Agente IA) [#]()
+
+### 1.50.28 Tutoriales en treasury control 03-04-2026
+
+Feature:
+
+- Agrega tutorial para Control de Caja Chica en tesorer�a. (Agente IA) [#]()
+
+### 1.50.27 Tutoriales en ownrequisitions y authorizations 03-04-2026
+
+Feature:
+
+- Agrega tutoriales con data-tour y auto-run para requisiciones personales y autorizaciones. (Agente IA) [#]()
+
+### 1.50.26 Documentos completos por requisici�n 03-03-2026
+
+Feature:
+
+- Agrega store, mapeo y tipos para Billings/BillingAllDocumentByIdRequisition. (Agente IA) [#]()
 ### 1.47.87 Evidencia de aprobación en requisiciones 02-03-2026
 
 Feature:
@@ -951,3 +980,8 @@ Feature:
 
 - Adjustments to the Invoices Form.
   (Katherine Negrete) [347#](https://github.com/DR-Mexico/dr.intranet.web/pull/347#)
+
+
+
+
+

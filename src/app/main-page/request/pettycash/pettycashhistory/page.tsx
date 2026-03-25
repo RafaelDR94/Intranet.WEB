@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React from "react";
 
 import { PettyCashProvider } from "../pettycashrequest/context/PettyCashContext";
@@ -16,6 +16,7 @@ import { ColumnDefinition } from "@/app/components/DataTable/types";
 import { Label } from "@/app/components/Label/Label";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 import CancelIcon from "@/assets/icons/acciones/cancel.svg"
 import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 import DotsIcon from "@/assets/icons/navegacion/more-horiz.svg";
@@ -131,7 +132,14 @@ const ActionMenuCell: React.FC<PettyCashActionMenuProps> = ({
     <ContextMenu
       alignRight
       autoFlip
-      trigger={<Button size="xsmall" variant="ghost" icon={isMobile ? RightArrowIcon : DotsIcon} />}
+      trigger={
+        <Button
+          size="xsmall"
+          variant="ghost"
+          icon={isMobile ? RightArrowIcon : DotsIcon}
+          data-tour="pettycash-history-row-actions"
+        />
+      }
       items={menuItems}
       isOpen={menuOpen}
       setIsOpen={setMenuOpen}
@@ -169,6 +177,11 @@ const PettyCashHistory = () => {
 
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
+
+  useTutorialAutoRun({
+    moduleId: "request-pettycash-history",
+    tutorialId: "request-pettycash-history:table",
+  });
 
   // Columnas de escritorio
   const columnsDesktop: ColumnDefinition<PettyCashHistoryRow>[] = React.useMemo( () => [
@@ -289,34 +302,40 @@ const PettyCashHistory = () => {
       />
       <div className="space-y-8 overflow-visible">
         {currentPagePermissions?.voucherhistory &&
-        <DataTable
-          showCalendar={true}
-          showFilter={true}
-          showRefresh
-          onRefreshPage={refresh}
-          filterOptions={pettyCashFilterOptions}
-          filterValue={activeFilter}
-          filterTitle="Filtrar vales"
-          showDownloadTable
-          showButton={false}
-          dateKey={(row) => row.dateValue}
-          onFilterChange={(value) => {
-            handleFilterChange(value);
-            refresh();
-          }}
-          textSize={{ mobile: 'c2', desktop: 'text-c2' }}
-          tables={[
-            {
-              data: filteredPettyCashRows,
-              columns,
-              enableSelection: true,
-              title: "Historial Vales",
-              enableCollaps: true,
-              defaultSortKey: "dateSort",
-              defaultSortDirection: "desc",
-            },
-          ]}
-        />
+        <div data-tour="pettycash-history-table">
+          <DataTable
+            showCalendar={true}
+            showFilter={true}
+            showRefresh
+            onRefreshPage={refresh}
+            filterOptions={pettyCashFilterOptions}
+            filterValue={activeFilter}
+            filterTitle="Filtrar vales"
+            showDownloadTable
+            showButton={false}
+            dateKey={(row) => row.dateValue}
+            onFilterChange={(value) => {
+              handleFilterChange(value);
+              refresh();
+            }}
+            searchDataTour="pettycash-history-search"
+            calendarDataTour="pettycash-history-calendar"
+            filterDataTour="pettycash-history-filter"
+            refreshDataTour="pettycash-history-refresh"
+            textSize={{ mobile: 'c2', desktop: 'text-c2' }}
+            tables={[
+              {
+                data: filteredPettyCashRows,
+                columns,
+                enableSelection: true,
+                title: "Historial Vales",
+                enableCollaps: true,
+                defaultSortKey: "dateSort",
+                defaultSortDirection: "desc",
+              },
+            ]}
+          />
+        </div>
       }
       </div>
 

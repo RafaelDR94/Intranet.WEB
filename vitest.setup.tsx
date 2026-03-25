@@ -101,6 +101,12 @@ vi.mock('@/app/configurations/DataBase/crud', () => ({
     }
   }),
 }));
+// Evita exigir TutorialProvider en pruebas de páginas/componentes
+vi.mock('@/tutorials/engine/useTutorialAutoRun', () => ({
+  __esModule: true,
+  default: vi.fn(),
+  useTutorialAutoRun: vi.fn(),
+}));
 class DataTransferMock {
   private _files: File[] = [];
   items = {

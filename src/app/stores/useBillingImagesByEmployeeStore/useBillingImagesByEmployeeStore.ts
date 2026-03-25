@@ -6,7 +6,7 @@ import type { BillingImagesByEmployeeState } from './types'
 import { fetchBillingImagesByIdEmployee } from './utilities'
 
 /**
- * Store global para la gestiÃ³n de imÃ¡genes de facturas por empleado.
+ * Store global para la gestión de imó¡genes de facturas por empleado.
  */
 export const useBillingImagesByEmployeeStore = createWithEqualityFn<BillingImagesByEmployeeState>()(
   devtools((set, get) => ({

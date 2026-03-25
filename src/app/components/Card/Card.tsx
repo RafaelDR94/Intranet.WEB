@@ -19,11 +19,11 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
 
 /**
- * Componente de tarjeta con imagen, etiqueta, t+itulo, descripciÃ³n y acciones.
+ * Componente de tarjeta con imagen, etiqueta, t+itulo, descripción y acciones.
  *
  * @remarks
  * - Soporta n `vertical` u `horizontal`.
- * - El botÃ³n **Aceptar** siempre se muestra. El botÃ³n **Cancelar** es opcional.
+ * - El botón **Aceptar** siempre se muestra. El botón **Cancelar** es opcional.
  * - La imagen utiliza `next/image` con `fill` para cubrir el contenedor.
  *
  * @accessibility
@@ -37,8 +37,8 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
  *   orientation="vertical"
  *   imageSrc="/images/example.jpg"
  *   label="Novedad"
- *   title="TÃ­tulo de la tarjeta"
- *   description="DescripciÃ³n corta del contenido presentado en la tarjeta."
+ *   title="Tó­tulo de la tarjeta"
+ *   description="Descripción corta del contenido presentado en la tarjeta."
  *   onAccept={() => console.log('Aceptar')}
  *   onCancel={() => console.log('Cancelar')}
  *   showCancelButton

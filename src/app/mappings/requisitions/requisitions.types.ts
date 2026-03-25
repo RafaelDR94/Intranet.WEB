@@ -53,6 +53,7 @@ export type Requisition = {
   gts_type: string
   email: string
   phone_number: string
+  image_url: string
   period: string
   current_days: number
   billingDocumentRquisition: BillingDocumentRequisition[]
@@ -90,4 +91,5 @@ export type Benefit ={
   fullname: string,
   email: string,
   phone_number: string,
+  image_url: string,
 }

@@ -47,6 +47,7 @@ describe('SAP Operations page', () => {
     useSapOperationsPage.mockReturnValue({
       handleOpenDetails: vi.fn(),
       billingDocuments: [],
+      nonDeductibleDocuments: [],
       panelOpen: {
         state: false,
         onlyText: false,
@@ -56,13 +57,15 @@ describe('SAP Operations page', () => {
       setPanelOpen: vi.fn(),
       selected: null,
       multiSelected: [],
+      multiSelectedNonDeductible: [],
       handleSendToSap: vi.fn(),
       handleMultiSelect: vi.fn(),
+      handleMultiSelectNonDeductible: vi.fn(),
     });
 
     render(<SapOperationsPage />);
 
-    expect(screen.getByText('DataTableMock')).toBeInTheDocument();
+    expect(screen.getAllByText('DataTableMock').length).toBeGreaterThan(0);
     expect(screen.getByText('DetailsPanelMock')).toBeInTheDocument();
   });
 });

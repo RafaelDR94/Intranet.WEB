@@ -1,4 +1,4 @@
-'use client'
+"use client"
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import useAccesHistory from "./hooks/useAccesHistory";
 import HistoryDetails from "./components/historyDetails/HistoryDetails";
@@ -12,10 +12,15 @@ import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import Label from "@/app/components/Label/Label";
 import type { LabelType } from "@/app/components/Label/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
 const AcccesHistory = () => {
     const isMobile = useIsMobile();
     const { currentPagePermissions } = useAuth();
+    useTutorialAutoRun({
+        moduleId: "request-acces-history",
+        tutorialId: "request-acces-history:table",
+    });
     const {
         accesreq,
         handleCreate,
@@ -64,7 +69,7 @@ const AcccesHistory = () => {
             {
                 key: "link" as keyof AccesRequirmentGet,
                 label: "Link",
-                render: (row) => <div className="flex">
+                render: (row) => <div className="flex" data-tour="acces-history-row-actions">
                     {currentPagePermissions?.canObtainLink && <Button hideIcon onClick={() => handleLinkClick(row)}> Link Formuarlio</Button>}
                     {currentPagePermissions?.canAddInfo && <Button icon={AddUser} variant="ghost" onClick={() => handleAddPerson(row)} />}
                     {(currentPagePermissions?.delete || currentPagePermissions?.delete) && <ActionMenuCell row={row} onDelete={handleOpenConfirmPopUP} onDetails={handleOpenDetails} />}
@@ -88,7 +93,7 @@ const AcccesHistory = () => {
             {
                 key: "link" as keyof AccesRequirmentGet,
                 label: "Link",
-                render: (row) => <div className="flex">
+                render: (row) => <div className="flex" data-tour="acces-history-row-actions">
                     {currentPagePermissions?.canObtainLink && <Button hideIcon onClick={() => handleLinkClick(row)}> Link Formuarlio</Button>}
                     {currentPagePermissions?.canAddInfo && <Button icon={AddUser} variant="ghost" onClick={() => handleAddPerson(row)} />}
                     {(currentPagePermissions?.delete || currentPagePermissions?.delete) && <ActionMenuCell row={row} onDelete={handleOpenConfirmPopUP} onDetails={handleOpenDetails} />}
@@ -122,7 +127,7 @@ const AcccesHistory = () => {
             {
                 key: "status",
                 label: "Estatus",
-                render: (row) => <div className="flex">
+                render: (row) => <div className="flex" data-tour="acces-history-row-actions">
                     {currentPagePermissions?.canObtainLink && <Button hideIcon onClick={() => handleLinkClick(row)}> Link Formuarlio</Button>}
                     <Label type={mapStatusToLabel(row.status)} text={row.status} />
                     {(currentPagePermissions?.delete || currentPagePermissions?.delete) && <ActionMenuCell row={row} onDelete={handleOpenConfirmPopUP} onDetails={handleOpenDetails} onRenewDay={handleRenewAcces} />}
@@ -146,7 +151,7 @@ const AcccesHistory = () => {
             {
                 key: "link" as keyof AccesRequirmentGet,
                 label: "Link",
-                render: (row) => <div className="flex">
+                render: (row) => <div className="flex" data-tour="acces-history-row-actions">
                     <Label type={mapStatusToLabel(row.status)} text={row.status} />
                     {(currentPagePermissions?.delete || currentPagePermissions?.delete) && <ActionMenuCell row={row} onDelete={handleOpenConfirmPopUP} onDetails={handleOpenDetails} />}
                 </div>
@@ -159,18 +164,26 @@ const AcccesHistory = () => {
 
 
     return (<>
-        <DataTable tables={[
-            {
-                data: accesreq.filter(acces => acces.status == 'Creada'),
-                columns: columnRows(),
-                title: "Solicitudes creadas",
-            },
-            {
-                data: accesreq.filter(acces => acces.status != 'Creada'),
-                columns: columnRowsHistory(),
-                title: "Historial de accesos",
-            }
-        ]} actionLabel="Crear solicitud" onTableActionClick={handleCreate} showButton={currentPagePermissions?.create} />
+        <div data-tour="acces-history-table">
+            <DataTable
+                tables={[
+                    {
+                        data: accesreq.filter(acces => acces.status == 'Creada'),
+                        columns: columnRows(),
+                        title: "Solicitudes creadas",
+                    },
+                    {
+                        data: accesreq.filter(acces => acces.status != 'Creada'),
+                        columns: columnRowsHistory(),
+                        title: "Historial de accesos",
+                    }
+                ]}
+                actionLabel="Crear solicitud"
+                onTableActionClick={handleCreate}
+                showButton={currentPagePermissions?.create}
+                actionButtonDataTour="acces-history-create"
+            />
+        </div>
         <HistoryDetails open={openDetails} onClose={handleCloseDetails} />
         <PopUp open={openConfirmPopUp} onClose={handleOpenClosePopUP}
             title="Eliminar"

@@ -1,11 +1,12 @@
-"use client";
+"use client"
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
 import RequisitionsTable from "@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsTable/RequisitionsTable";
 import TicketsFiles from "./components/TicketsFiles/TicketsFiles";
 import InvoicesFiles from "./components/InvoicesFiles/InvoicesFiles";
-import RequisitionsFiles from "./components/RequisitionsFiles/RequisitionsFiles";
+import UserRequisitionsList from "./components/UserRequisitionsList/UserRequisitionsList";
 import RequisitionDetails from "./components/RequisitionDetails/RequisitionDetails";
 import HistoryTable from "./components/RequisitionDetails/components/HistoryTable/HistoryTable";
 import RequisitionsAuthorization from "@/app/main-page/authorizations/authorizationslist/components/AuthorizationDetail/components/RequisitionsAuthorization/RequisitionsAuthorization";
@@ -26,6 +27,31 @@ const RequisitionListPage: React.FC = () => {
   const isBillableFilesView = view === "billablefiles";
   const isHistoryView = view === "history";
   const isAuthorizationDetailView = view === "authorizationDetail";
+  const isDetailView = view === "detail";
+  const isDefaultView =
+    !isBillableFilesView &&
+    !isHistoryView &&
+    !isAuthorizationDetailView &&
+    !isDetailView &&
+    !isFilesView &&
+    !isRequisitionsView;
+
+  useTutorialAutoRun({
+    moduleId: isDefaultView ? "operations-requisitions-list" : "",
+    tutorialId: isDefaultView ? "operations-requisitions:list" : "",
+  });
+  useTutorialAutoRun({
+    moduleId: isFilesView ? "operations-requisitions-files" : "",
+    tutorialId: isFilesView ? "operations-requisitions:files" : "",
+  });
+  useTutorialAutoRun({
+    moduleId: isBillableFilesView ? "operations-requisitions-billablefiles" : "",
+    tutorialId: isBillableFilesView ? "operations-requisitions:billablefiles" : "",
+  });
+  useTutorialAutoRun({
+    moduleId: isDetailView ? "operations-requisitions-detail" : "",
+    tutorialId: isDetailView ? "operations-requisitions:detail" : "",
+  });
 
   if (isBillableFilesView) {
     return (
@@ -50,6 +76,7 @@ const RequisitionListPage: React.FC = () => {
           onCloseImage={() => setSelectedTicket(null)}
         />
         <TicketsFiles
+          eneableSelection={true}
           onSelectedTicketChange={setSelectedTicket}
           selectedTicketId={selectedTicket?.billing_image_id ?? null}
         />
@@ -75,7 +102,7 @@ const RequisitionListPage: React.FC = () => {
   }
 
   if (isRequisitionsView) {
-    return <RequisitionsFiles forceVisible userId={userId} />;
+    return <UserRequisitionsList forceVisible userId={userId} />;
   }
 
   return (
