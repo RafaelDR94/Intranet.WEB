@@ -161,6 +161,13 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       ),
     [expenseTypeCatalog],
   );
+  const hasMissingSapInternalKey = useMemo(() => {
+    const jsonSapItems = (selected as any)?.json_sap?.items;
+    if (!Array.isArray(jsonSapItems) || jsonSapItems.length === 0) return false;
+    return jsonSapItems.some(
+      (item: any) => !String(item?.claveInterna ?? "").trim(),
+    );
+  }, [selected]);
 
   useEffect(() => {
     const nextSelections: Record<string, string> = {};
@@ -187,7 +194,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           {(currentPagePermissions?.canValidInvoice && validInvoice) && <Button size="small" variant="solid" hideIcon onClick={() => setOpenValidInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
             {`Validar ${documentLabel}`}
           </Button>}
-          {(currentPagePermissions?.canSendToSap && sendInvoiceToSap) && <Button size="small" variant="solid" hideIcon onClick={() => onSendToSap?.()}>
+          {(currentPagePermissions?.canSendToSap && sendInvoiceToSap) && <Button size="small" variant="solid" hideIcon onClick={() => onSendToSap?.()} disabled={hasMissingSapInternalKey}>
             Enviar a SAP
           </Button>}
           {currentPagePermissions?.canRejectInvoice && rejectInvoice && <Button size="small" variant="outline" hideIcon onClick={() => setOpenRejectInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>

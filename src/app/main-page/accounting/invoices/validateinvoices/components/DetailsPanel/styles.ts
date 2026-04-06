@@ -52,6 +52,5 @@ emptyState: "text-gray-70 text-b3",
 actionsRow: "flex items-center gap-2",
 commentBoxPadding: "pt-4",
 requisitionkey:"text-blue-60 text-label font-medium",
-requisitionkeyspan:"text-blue-60 text-label font-regular",
-bottomSection: "mt-auto space-y-4"
+requisitionkeyspan:"text-blue-60 text-label font-regular"
 };

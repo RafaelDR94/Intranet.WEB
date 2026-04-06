@@ -333,7 +333,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             </div>
           </div>
 
-          <div className={isMobile ? ms.bottomSection : s.bottomSection}>
+          <div className={ s.bottomSection}>
             {/* Divider */}
             <div className={s.divider} />
 
