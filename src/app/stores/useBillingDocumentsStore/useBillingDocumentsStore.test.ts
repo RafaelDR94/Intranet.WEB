@@ -7,6 +7,7 @@ vi.mock('./utilities', () => ({
   fetchBillingDocumentById: vi.fn(async (id: string, set: Set) => { set({ billingDocument: { billing_document_id: id } as any, loading: false }); return { billing_document_id: id } as any }),
   createBillingDocument: vi.fn(async (set: Set) => { set({ successPost: true }); return { billing_document_id: '2' } as any }),
   updateBillingDocument: vi.fn(async (set: Set) => { set({ successPut: true }); return null }),
+  updateBillingDocumentJsonSap: vi.fn(async (set: Set) => { set({ successPut: true }); return true }),
   deleteBillingDocument: vi.fn(async (set: Set) => { set({ successDelete: true }); return true }),
 }))
 

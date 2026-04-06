@@ -11,11 +11,14 @@ import {
   BillingDocumentDetailsTable,
   BillingDocumentCategory,
   BillingDocumentDescription,
+  ExpenseTypeCatalog,
   BillingDocumentFull,
   BillingDocumentNotDeductible,
   CompleteProcessToSAPRequest,
   BillingDocumentCategoryFull,
-  BillingDocumentDescriptionFull
+  BillingDocumentDescriptionFull,
+  BillingDocumentJsonSap,
+  BillingDocumentJsonSapItem
 } from './billingdocuments.types';
 import {  toInputDateTimeString } from '@/app/utilities/FormatHelpers/FormatHelpets';
 
@@ -37,6 +40,26 @@ const mapConcepto = (raw: any): Concepto => ({
   tipo_gasto: raw?.tipo_gasto == null ? undefined : toString(raw?.tipo_gasto),
   grupo_iva: raw?.grupo_iva == null ? undefined : toString(raw?.grupo_iva),
 });
+const mapJsonSapItem = (raw: any): BillingDocumentJsonSapItem => ({
+  itemIndex: Number(raw?.itemIndex ?? 0),
+  claveInterna: toString(raw?.claveInterna),
+  claveProdServ: toString(raw?.claveProdServ),
+  descripcion: toString(raw?.descripcion),
+  importe: Number(raw?.importe ?? 0),
+});
+
+const mapJsonSap = (raw: any): BillingDocumentJsonSap | null => {
+  if (!raw || typeof raw !== 'object') return null;
+  return {
+    iva: Number(raw?.iva ?? 0),
+    subtotal: Number(raw?.subtotal ?? 0),
+    total: Number(raw?.total ?? 0),
+    otherInvoices: Number(raw?.otherInvoices ?? 0),
+    moneda: toString(raw?.moneda),
+    iscompleted: Boolean(raw?.iscompleted),
+    items: Array.isArray(raw?.items) ? raw.items.map(mapJsonSapItem) : [],
+  };
+};
 
 /** ---------------------- Submappers ---------------------- */
 export const BillingDocumentCategoryMap = (raw: any): BillingDocumentCategory => {
@@ -83,6 +106,16 @@ export const BillingDocumentDescriptionFullMap = (raw: any): BillingDocumentDesc
   name: toString(raw?.name)
 });
 
+export const ExpenseTypeCatalogMap = (raw: any): ExpenseTypeCatalog => ({
+  id: toString(raw?.id),
+  satKey: toString(raw?.satKey ?? raw?.sat_key),
+  descriptionSatKey: toString(raw?.descriptionSatKey ?? raw?.description_sat_key),
+  internalKey: toString(raw?.internalKey ?? raw?.internal_key),
+  descriptionInternalKey: toString(raw?.descriptionInternalKey ?? raw?.description_internal_key),
+  gtStype: toString(raw?.gtStype ?? raw?.gstype),
+  iva: Number(raw?.iva ?? 0),
+});
+
 export const BillingAcuseMap = (raw: any): BillingAcuse => ({
   id: toString(raw?.id),
   statusCode: toString(raw?.statusCode),
@@ -95,7 +128,9 @@ export const BillingAcuseMap = (raw: any): BillingAcuse => ({
 });
 
 /** ---------------------- BillingDocumentMap ---------------------- */
-export const BillingDocumentMap = (raw: any): BillingDocuments => ({
+export const BillingDocumentMap = (raw: any): BillingDocuments => {
+  const jsonSap = mapJsonSap(raw?.json_sap);
+  return ({
   id: toString(raw?.billingdocument_id ?? raw?.id),
   billingdocument_id: toString(raw?.billingdocument_id ?? raw?.id),
   requisition: RequisitionMap(raw?.requisition ?? raw?.Requisition ?? {}),
@@ -125,14 +160,16 @@ export const BillingDocumentMap = (raw: any): BillingDocuments => ({
   description: BillingDocumentDescriptionMap(raw?.description ?? raw?.Description),
   numpersons: Number(raw?.numpersons ?? 0),
   numnights: Number(raw?.numnights ?? 0),
-  total: Number(raw?.total),
-  subtotal: Number(raw?.subtotal),
-  iva: Number(raw?.iva),
-  otherinvoices: Number(raw?.otherinvoices),
+  total: Number(jsonSap?.total ?? raw?.total ?? 0),
+  subtotal: Number(jsonSap?.subtotal ?? raw?.subtotal ?? 0),
+  iva: Number(jsonSap?.iva ?? raw?.iva ?? 0),
+  otherinvoices: Number(jsonSap?.otherInvoices ?? raw?.otherinvoices ?? 0),
+  json_sap: jsonSap,
   category: BillingDocumentCategoryMap(raw?.category ?? raw?.Category),
   validatedbyoperations: Boolean(raw?.validatedbyoperations),
   authorization: raw?.authorization ? mapAuthorization(raw.authorization) : null,
 });
+};
 
 /** ---------------------- BillingDocumentDetails ---------------------- */
 export const BillingDocumentDetailsTableMap = (raw: BillingDocuments): BillingDocumentDetailsTable => ({

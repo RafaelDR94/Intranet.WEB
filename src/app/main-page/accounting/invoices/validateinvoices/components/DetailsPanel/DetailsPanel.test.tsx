@@ -12,6 +12,7 @@ vi.mock('./hooks/useDetailsPanel', () => ({
     setOpenRejectInvoice: vi.fn(),
     setOpenValidInvoice: vi.fn(),
     handleSubmitComment: vi.fn(),
+    handleUpdateJsonSapItem: vi.fn(),
     handleSubmitReject: vi.fn(),
     handleSubmitValid: vi.fn(),
   }),

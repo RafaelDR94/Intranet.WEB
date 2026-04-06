@@ -1,7 +1,12 @@
-import { BillingDocumentDescription, BillingDocuments, BillingDocumentCategory, BillingDocumentsPost, BillingDocumentsPut, BillingDocumentReject, BillingDocumentNotDeductible } from '@/app/mappings/billingdocuments/billingdocuments.types'
+import { BillingDocumentDescription, BillingDocuments, BillingDocumentCategory, BillingDocumentsPost, BillingDocumentsPut, BillingDocumentReject, BillingDocumentNotDeductible, ExpenseTypeCatalog, BillingDocumentJsonSapPut } from '@/app/mappings/billingdocuments/billingdocuments.types'
 
 export type BillingDocumentsFilterOptions = {
   filterValue?: '3' | '4' | '5'
+  idRequisition?: string
+  idEmployee?: string
+}
+
+export type SatBillingDocumentsFilterOptions = {
   idRequisition?: string
   idEmployee?: string
 }
@@ -21,6 +26,7 @@ export type BillingDocumentsState = {
   billingDocumentsEfos: BillingDocuments[]
   billingCategories: BillingDocumentCategory[]
   billingDocumentDescription: BillingDocumentDescription[]
+  expenseTypeCatalog: ExpenseTypeCatalog[]
   activeDocumentsFilter: BillingDocumentsFilterOptions
 
   /** Montos del balance de viáticos (por requisición) */
@@ -43,6 +49,7 @@ export type BillingDocumentsState = {
   notDeducting: boolean
   gettingDescriptions: boolean,
   gettingCategories: boolean,
+  gettingExpenseTypeCatalog: boolean
   /** Flags de éxito por operación */
   successGet: boolean
   successGetSat: boolean
@@ -56,6 +63,7 @@ export type BillingDocumentsState = {
   successNotDeductible: boolean
   succesDescriptions: boolean,
   succesCategories: boolean,
+  successExpenseTypeCatalog: boolean
   /** Mensaje de error general */
   error?: string
   /** Advertencias retornadas por API */
@@ -65,17 +73,22 @@ export type BillingDocumentsState = {
     force?: boolean,
     filterOptions?: BillingDocumentsFilterOptions,
   ) => Promise<void> | void
-  fetchSatBillingDocument: (force?: boolean) => Promise<void>
+  fetchSatBillingDocument: (
+    force?: boolean,
+    filterOptions?: SatBillingDocumentsFilterOptions,
+  ) => Promise<void>
   fetchBillingDocumentById: (id: string, force?: boolean) => Promise<BillingDocuments | null>
   fetchBillingDocumentDescriptions: (id: string, force?: boolean) => Promise<BillingDocuments | null>
   fetchBillingDocumentByIdRequisition: (id: string, force?: boolean) => Promise<BillingDocuments | null>
   fetchBillingDocumentCategories: (force?: boolean) => Promise<BillingDocuments | null>
+  fetchExpenseTypeCatalog: (force?: boolean) => Promise<ExpenseTypeCatalog[] | null>
   createBillingDocument: (payload: BillingDocumentsPost) => Promise<BillingDocuments | null>
   updateBillingDocument: (payload: BillingDocumentsPut,idReq?:string) => Promise<BillingDocuments | null>
   deleteBillingDocument: (id: string) => Promise<boolean>
   validateBillingDocument: (ids: string[]) => Promise<BillingDocuments | null>
   validateBillingDocumentOperations: (ids: string[],idReq?:string) => Promise<BillingDocuments | null>
   sendToSapBillingDocument: (ids: string[]) => Promise<BillingDocuments | null>
+  updateBillingDocumentJsonSap: (payload: BillingDocumentJsonSapPut) => Promise<boolean>
   rejectBillingDocument: (payload: BillingDocumentReject,idReq?:string) => Promise<boolean>
   billingDocumentNotDeductible: (payload: BillingDocumentNotDeductible) => Promise<BillingDocuments | null>
   reset: () => void

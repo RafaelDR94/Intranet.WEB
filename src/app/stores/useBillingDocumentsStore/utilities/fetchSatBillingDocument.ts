@@ -2,9 +2,13 @@
 'use client'
 import type { AxiosResponse } from 'axios'
 
-import { Get, Set } from '../types'
+import { Get, Set, SatBillingDocumentsFilterOptions } from '../types'
 
-import { BillingSATBillingDocument as BillingDocumentUrl } from '@/app/configurations/Axios/urls'
+import {
+  BillingSATBillingDocument as BillingDocumentUrl,
+  BillingSATBillingDocumentByEmployee,
+  BillingSATBillingDocumentByRequisition,
+} from '@/app/configurations/Axios/urls'
 import { BillingDocumentsMap } from '@/app/mappings/billingdocuments/billingdocuments.mapper'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pGet } from '@/app/utilities/Http/promisifyIntranet'
@@ -16,7 +20,24 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
  * @param get Función `get` de Zustand
  * @param force Forza la recarga ignorando cache
  */
-export const fetchSatBillingDocument = async (set: Set, get: Get, force = false) => {
+const resolveSatBillingUrl = (filterOptions?: SatBillingDocumentsFilterOptions): string => {
+  if (filterOptions?.idRequisition) {
+    return `${BillingSATBillingDocumentByRequisition}/${encodeURIComponent(filterOptions.idRequisition)}`
+  }
+
+  if (filterOptions?.idEmployee) {
+    return `${BillingSATBillingDocumentByEmployee}/${encodeURIComponent(filterOptions.idEmployee)}`
+  }
+
+  return BillingDocumentUrl
+}
+
+export const fetchSatBillingDocument = async (
+  set: Set,
+  get: Get,
+  force = false,
+  filterOptions?: SatBillingDocumentsFilterOptions,
+) => {
   if (get().billingDocuments?.length > 0 && !force) return
 
   set({ loadigSat: true, error: undefined, successGetSat: false })
@@ -24,7 +45,7 @@ export const fetchSatBillingDocument = async (set: Set, get: Get, force = false)
   try {
     const GetFn = requireGateway('get')
     const getReq = pGet(GetFn)
-    const res: AxiosResponse = await getReq(BillingDocumentUrl)
+    const res: AxiosResponse = await getReq(resolveSatBillingUrl(filterOptions))
     const valid = BillingDocumentsMap(res.data?.data?.validas)?? []
     const notvalid = BillingDocumentsMap(res.data?.data?.noValidas)?? []
     const bad = BillingDocumentsMap(res.data?.data?.prohibidas)?? []

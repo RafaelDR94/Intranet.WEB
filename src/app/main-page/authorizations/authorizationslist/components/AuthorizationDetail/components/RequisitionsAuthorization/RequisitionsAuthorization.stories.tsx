@@ -63,6 +63,12 @@ const meta: Meta<StoryArgs> = {
       },
       rows: [],
       columns: [],
+      activeFilter: 'pending-current-authorization',
+      setActiveFilter: vi.fn(),
+      filterOptions: [
+        { label: 'Todas', value: 'all' },
+        { label: 'Pendientes de esta autorización', value: 'pending-current-authorization' },
+      ],
       periodLabel: '01/02/2026 al 05/02/2026',
       verificationDate: '05/02/2026',
       requestedAmountLabel: '$1,000.00',

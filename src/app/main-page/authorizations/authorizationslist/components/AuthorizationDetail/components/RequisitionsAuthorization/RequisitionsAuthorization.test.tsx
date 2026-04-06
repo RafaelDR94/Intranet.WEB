@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+﻿import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
@@ -44,6 +44,12 @@ describe('RequisitionsAuthorization', () => {
       requisition: { requisitionkey: 'REQ-001' },
       rows: [],
       columns: [],
+      activeFilter: 'pending-current-authorization',
+      setActiveFilter: vi.fn(),
+      filterOptions: [
+        { label: 'Todas', value: 'all' },
+        { label: 'Documentos de la autorización', value: 'pending-current-authorization' },
+      ],
       periodLabel: '01/02/2026 al 05/02/2026',
       verificationDate: '05/02/2026',
       requestedAmountLabel: '$1,000.00',
@@ -78,3 +84,4 @@ describe('RequisitionsAuthorization', () => {
     expect(handleStartApproval).toHaveBeenCalledTimes(1)
   })
 })
+

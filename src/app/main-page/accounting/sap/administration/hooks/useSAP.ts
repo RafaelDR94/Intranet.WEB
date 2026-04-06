@@ -1,10 +1,14 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { shallow } from "zustand/shallow";
 
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
+import useQuery from "@/app/hooks/useQuery/useQuery";
+import { BillingDocuments, BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingDocumentsSAPStore } from "@/app/stores/useBillingDocumentsSAPStore/useBillingDocumentsSAPStore";
 import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
+
+const BILLING_DOCUMENT_ID_QUERY_KEY = "billingDocumentId";
 
 const useSAP = () => {
   const [panelOpen, setPanelOpen] = useState<{
@@ -14,15 +18,24 @@ const useSAP = () => {
     sendInvoiceToSap: boolean;
   }>({ state: false, onlyText: false, sendInvoiceToSap: false, rejectInvoice: false });
 
-  const [selected, setSelected] = useState<BillingDocumentsSatTable | null>(null);
+  const [selected, setSelected] = useState<BillingDocumentsSatTable | BillingDocuments | null>(null);
   const [multiSelected, setMultiSelected] = useState<BillingDocumentsSatTable[]>([]);
   const [multiSelectedNonDeductible, setMultiSelectedNonDeductible] = useState<
     BillingDocumentsSatTable[]
   >([]);
+  const [isQueryDrivenPanel, setIsQueryDrivenPanel] = useState(false);
+  const fetchedByQueryIdRef = useRef<string | null>(null);
+  const isOpeningFromQueryRef = useRef(false);
+  const isClosingFromQueryRef = useRef(false);
 
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert } = usePrincipalAlert;
+  const { all, updateQuery } = useQuery();
+  const { fetchBillingDocumentById } = useBillingDocumentsStore(
+    (s) => ({ fetchBillingDocumentById: s.fetchBillingDocumentById }),
+    shallow,
+  );
 
   const {
     billingDocuments,
@@ -68,14 +81,33 @@ const useSAP = () => {
     [billingDocuments],
   );
 
+  const closeDetailsPanel = useCallback(() => {
+    if (isQueryDrivenPanel) {
+      isClosingFromQueryRef.current = true;
+      isOpeningFromQueryRef.current = false;
+      updateQuery({ [BILLING_DOCUMENT_ID_QUERY_KEY]: null });
+      return;
+    }
+    setPanelOpen((prev) => ({ ...prev, state: false }));
+    setSelected(null);
+  }, [isQueryDrivenPanel, updateQuery]);
+
   const handleOpenDetails = (
     row: BillingDocumentsSatTable,
     onlyText: boolean,
     rejectInvoice: boolean,
-    sendInvoiceToSap: boolean
+    sendInvoiceToSap: boolean,
+    syncWithQuery = false,
   ) => {
     setSelected(row);
+    setIsQueryDrivenPanel(syncWithQuery);
     setPanelOpen({ state: true, onlyText, rejectInvoice, sendInvoiceToSap });
+
+    if (syncWithQuery) {
+      isOpeningFromQueryRef.current = true;
+      isClosingFromQueryRef.current = false;
+      updateQuery({ [BILLING_DOCUMENT_ID_QUERY_KEY]: row.billingdocument_id });
+    }
   };
 
   const handleMultiSelect = (rows: BillingDocumentsSatTable[]) => {
@@ -97,6 +129,46 @@ const useSAP = () => {
     fetchBillingDocumentsSAP(true);
   }, [fetchBillingDocumentsSAP]);
 
+  const billingDocumentIdFromQuery = useMemo(() => {
+    const value = all?.[BILLING_DOCUMENT_ID_QUERY_KEY];
+    if (Array.isArray(value)) return value[0] ?? "";
+    return value ? String(value) : "";
+  }, [all]);
+
+  useEffect(() => {
+    if (!billingDocumentIdFromQuery) {
+      fetchedByQueryIdRef.current = null;
+      if (isOpeningFromQueryRef.current) return;
+
+      if (isClosingFromQueryRef.current || isQueryDrivenPanel) {
+        setPanelOpen((prev) => ({ ...prev, state: false }));
+        setSelected(null);
+        setIsQueryDrivenPanel(false);
+        isClosingFromQueryRef.current = false;
+      }
+      return;
+    }
+
+    if (isClosingFromQueryRef.current) return;
+
+    isOpeningFromQueryRef.current = false;
+    setIsQueryDrivenPanel(true);
+    setPanelOpen((prev) => ({
+      ...prev,
+      state: true,
+      onlyText: true,
+      rejectInvoice: true,
+      sendInvoiceToSap: true,
+    }));
+
+    if (fetchedByQueryIdRef.current === billingDocumentIdFromQuery) return;
+    fetchedByQueryIdRef.current = billingDocumentIdFromQuery;
+
+    void fetchBillingDocumentById(billingDocumentIdFromQuery, true).then((doc) => {
+      if (doc) setSelected(doc);
+    });
+  }, [billingDocumentIdFromQuery, fetchBillingDocumentById, isQueryDrivenPanel]);
+
   useEffect(() => {
     if (sending) {
       showSpinner({ message: "Enviando Facturas a SAP..." });
@@ -117,6 +189,7 @@ const useSAP = () => {
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
+      closeDetailsPanel();
     }
 
     const errorMessage = error ?? sapError;
@@ -144,6 +217,7 @@ const useSAP = () => {
     showSpinner,
     success,
     fetchBillingDocumentsSAP,
+    closeDetailsPanel,
   ]);
 
   return {
@@ -158,6 +232,7 @@ const useSAP = () => {
     handleMultiSelect,
     handleMultiSelectNonDeductible,
     handleSendToSap,
+    closeDetailsPanel,
   };
 };
 
