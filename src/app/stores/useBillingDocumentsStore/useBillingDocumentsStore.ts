@@ -14,10 +14,12 @@ import {
   rejectBillingDocument,
   fetchSatBillingDocument,
   sendToSapBillingDocument,
+  updateBillingDocumentJsonSap,
   fetchBillingDocumentByIdRequisition,
   fetchBillingDocumentCategories,
   fetchBillingDocumentDescriptions,
   billingDocumentNotDeductible,
+  fetchExpenseTypeCatalog,
 } from './utilities'
 
 /**
@@ -34,6 +36,7 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     billingDocumentsEfos: [],
     billingCategories: [],
     billingDocumentDescription: [],
+    expenseTypeCatalog: [],
     activeDocumentsFilter: { filterValue: '3' },
     montoComprobado: 0,
     montoAFavorEmpresa: 0,
@@ -51,6 +54,7 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     rejecting: false,
     gettingDescriptions: false,
     gettingCategories: false,
+    gettingExpenseTypeCatalog: false,
     sending: false,
     notDeducting: false,
     /** Flags de éxito */
@@ -66,6 +70,7 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     successNotDeductible: false,
     succesDescriptions: false,
     succesCategories: false,
+    successExpenseTypeCatalog: false,
     /** Mensaje de error global */
     error: undefined,
     /** Mensaje de advertencia */
@@ -74,13 +79,16 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     fetchBillingDocuments: (force = false, filterOptions) =>
       fetchBillingDocuments(set, get, force, filterOptions),
     /**Obtiene documentos validados por el SAT */
-    fetchSatBillingDocument: (force = false) => fetchSatBillingDocument(set, get, force),
+    fetchSatBillingDocument: (force = false, filterOptions) =>
+      fetchSatBillingDocument(set, get, force, filterOptions),
     /** Obtiene documento por ID */
     fetchBillingDocumentById: (id, force = false) => fetchBillingDocumentById(id, set, get, force),
     /** Obtiene categorias de documentos */
     fetchBillingDocumentCategories: (force = false) => fetchBillingDocumentCategories(set, get, force),
     /** Obtiene categorias de documentos */
     fetchBillingDocumentDescriptions: (id, force = false) => fetchBillingDocumentDescriptions(id, set, get, force),
+    /** Obtiene catalogo de tipos de gasto */
+    fetchExpenseTypeCatalog: (force = false) => fetchExpenseTypeCatalog(set, get, force),
     /** Obtiene documento por ID */
     fetchBillingDocumentByIdRequisition: (id, force = false) => fetchBillingDocumentByIdRequisition(id, set, get, force),
     /** Crea un documento */
@@ -95,6 +103,8 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
     validateBillingDocumentOperations: (ids,idReq) => validateBillingDocumentOperations(set, get, ids,idReq),
     /**Envio de Documentos a SAP*/
     sendToSapBillingDocument: (ids) => sendToSapBillingDocument(set, get, ids),
+    /** Actualiza json_sap de un documento */
+    updateBillingDocumentJsonSap: (payload) => updateBillingDocumentJsonSap(set, get, payload),
     /** Rechaza un documento*/
     rejectBillingDocument: (payload,idReq) => rejectBillingDocument(set, get, payload,idReq),
     /** Marca un ticket como gasto no deducible */
@@ -107,6 +117,7 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
       billingDocumentsNotValid: [],
       billingDocumentsBadCode: [],
       billingDocumentsEfos: [],
+      expenseTypeCatalog: [],
       billingDocument: undefined,
       activeDocumentsFilter: { filterValue: '3' },
       montoComprobado: 0,
@@ -137,6 +148,8 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
       gettingCategories: false,
       succesDescriptions: false,
       succesCategories: false,
+      successExpenseTypeCatalog: false,
+      gettingExpenseTypeCatalog: false,
     }),
     /** Limpia solo los flags */
     resetFlags: () => set({
@@ -152,10 +165,12 @@ export const useBillingDocumentsStore = createWithEqualityFn<BillingDocumentsSta
       succesSend: false,
       gettingDescriptions: false,
       gettingCategories: false,
+      gettingExpenseTypeCatalog: false,
       successGet: false, successGetById: false, successPost: false, successPut: false, successDelete: false,
       error: undefined,
       succesDescriptions: false,
       succesCategories: false,
+      successExpenseTypeCatalog: false,
     }),
   }))
 )

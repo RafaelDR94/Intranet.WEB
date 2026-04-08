@@ -31,6 +31,7 @@ const SAT = () => {
     multiSelected,
     handleSendToSap,
     handleMultiSelect,
+    closeDetailsPanel,
   } = useSAT();
   const { currentPagePermissions } = useAuth();
   useTutorialAutoRun({
@@ -87,7 +88,7 @@ const SAT = () => {
               <Button
                 size="medium"
                 onClick={() =>
-                  handleOpenDetails(row, true, rejectInvoice, sendInvoiceToSap)
+                  handleOpenDetails(row, true, rejectInvoice, sendInvoiceToSap, true)
                 }
                 variant="ghost"
                 hideIcon
@@ -218,9 +219,13 @@ const SAT = () => {
       <DetailsPanel
         panelOpen={panelOpen.state}
         onlyText={panelOpen.onlyText}
-        setPanelOpen={(state: boolean) =>
-          setPanelOpen((prev) => ({ ...prev, state: state }))
-        }
+        setPanelOpen={(state: boolean) => {
+          if (!state) {
+            closeDetailsPanel();
+            return;
+          }
+          setPanelOpen((prev) => ({ ...prev, state: state }));
+        }}
         selected={selected}
         rejectType={false}
         rejectInvoice={panelOpen.rejectInvoice}

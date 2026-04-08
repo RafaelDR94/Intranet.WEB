@@ -9,6 +9,7 @@ import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayo
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
+import type { LabelType } from "@/app/components/Label/types";
 // NEW: Overlay (ruta de ejemplo)
 import LoadingOverlay from "@/app/components/LoadingOverLay/LoadingOverlay";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
@@ -47,14 +48,35 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
 
   const sapprofile = currentPagePermissions?.sapprofile;
 
-  
+  const getAuthorizationStatusBadge = (
+    row: BillingDocumentDetailsTable,
+  ): { type: LabelType; text: string } => {
+    const statusName = String(row.authorization?.status?.name ?? "").trim();
+    const normalizedStatus = statusName.toLowerCase();
+
+    if (!statusName || normalizedStatus.includes("pend")) {
+      return { type: "pendiente", text: statusName || "Pendiente" };
+    }
+
+    if (normalizedStatus.includes("aprob")) {
+      return { type: "valido", text: statusName };
+    }
+
+    if (normalizedStatus.includes("rechaz")) {
+      return { type: "rechazado", text: statusName };
+    }
+
+    if (normalizedStatus.includes("cancel")) {
+      return { type: "restringido", text: statusName };
+    }
+
+    return { type: "pendiente", text: statusName };
+  };
+
   const renderValidationStatus = (row: BillingDocumentDetailsTable) => {
-    const isApproved = Boolean(row.authorization);
+    const badge = getAuthorizationStatusBadge(row);
     return (
-      <Label
-        type={isApproved ? "valido" : "pendiente"}
-        text={isApproved ? "Aprobado" : "Pendiente"}
-      />
+      <Label type={badge.type} text={badge.text} />
     );
   };
 
@@ -64,7 +86,10 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
     useMemo(
       () => [
         { key: "fecha", label: "" },
-        { key: "description", label: "DESCRIPCIÓN" },
+        {
+          key: "uuid",
+          label: "UUID",
+        },
         {
           key: "status",
           label: "",
@@ -152,22 +177,22 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
         headerClass: "w-2/15 text-left",
       },
       {
-        key: "description",
-        label: "DESCRIPCIÓN",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        key: "uuid",
+        label: "UUID",
+        cellClass: "w-5/15 text-left truncate",
+        headerClass: "w-5/15 text-left",
       },
       {
         key: "numpersons",
         label: "No. PERS.",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        cellClass: "w-1/15 text-left",
+        headerClass: "w-1/15 text-left",
       },
       {
         key: "numnights",
         label: "No. NOCHES",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        cellClass: "w-1/15 text-left",
+        headerClass: "w-1/15 text-left",
       },
       {
         key: "subtotal",
@@ -214,8 +239,8 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
             Ver Detalles
           </Button>
         ),
-        cellClass: "w-2/15 text-center",
-        headerClass: "w-2/15 text-right",
+        cellClass: "w-1/15 text-center",
+        headerClass: "w-1/15 text-right",
       },
     ],
     [handleOpenDetails],
@@ -312,3 +337,4 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
 };
 
 export default RequisitionDetailsTable;
+
