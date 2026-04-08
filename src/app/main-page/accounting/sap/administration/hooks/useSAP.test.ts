@@ -6,6 +6,8 @@ import useSAP from "./useSAP";
 const usePrincipalMock = vi.fn();
 const useBillingDocumentsSAPStoreMock = vi.fn();
 const useBillingCompleteProcessToSAPStoreMock = vi.fn();
+const useBillingDocumentsStoreMock = vi.fn();
+const updateQuery = vi.fn();
 
 vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
   usePrincipal: () => usePrincipalMock(),
@@ -17,6 +19,12 @@ vi.mock("@/app/stores/useBillingDocumentsSAPStore/useBillingDocumentsSAPStore", 
   ) => useBillingDocumentsSAPStoreMock(selector),
 }));
 
+vi.mock("@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore", () => ({
+  useBillingDocumentsStore: (
+    selector: (state: any) => unknown,
+  ) => useBillingDocumentsStoreMock(selector),
+}));
+
 vi.mock(
   "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore",
   () => ({
@@ -26,6 +34,11 @@ vi.mock(
   }),
 );
 
+vi.mock("@/app/hooks/useQuery/useQuery", () => ({
+  __esModule: true,
+  default: () => ({ all: {}, updateQuery }),
+}));
+
 describe("useSAP", () => {
   const fetchBillingDocumentsSAP = vi.fn();
   const resetSapFlags = vi.fn();
@@ -34,6 +47,7 @@ describe("useSAP", () => {
   const showAlert = vi.fn();
   const completeProcessToSAP = vi.fn();
   const resetCompleteProcessFlags = vi.fn();
+  const fetchBillingDocumentById = vi.fn();
 
   beforeEach(() => {
     fetchBillingDocumentsSAP.mockClear();
@@ -43,6 +57,8 @@ describe("useSAP", () => {
     showAlert.mockClear();
     completeProcessToSAP.mockClear();
     resetCompleteProcessFlags.mockClear();
+    fetchBillingDocumentById.mockClear();
+    updateQuery.mockClear();
 
     usePrincipalMock.mockReturnValue({
       usePrincipalAlert: { showAlert },
@@ -66,6 +82,12 @@ describe("useSAP", () => {
         completeProcessToSAP,
         error: null,
         resetFlags: resetCompleteProcessFlags,
+      }),
+    );
+
+    useBillingDocumentsStoreMock.mockImplementation((selector) =>
+      selector({
+        fetchBillingDocumentById,
       }),
     );
   });

@@ -193,6 +193,12 @@ export const BillingValidateBillingDocument = process.env.NEXT_PUBLIC_BILLINGS_V
 export const BillingRejectBillingDocument = process.env.NEXT_PUBLIC_BILLINGS_REJECTBILLINGDOCUMENT??"/Billings/RejectBillingDocument"
 export const BillingBillingDocumentByFilter = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTSBYFILTER??"/Billings/BillingDocumentByFilter"
 export const BillingSATBillingDocument = process.env.NEXT_PUBLIC_BILLINGS_SATBILLINGDOCUMENTS??"/Billings/GetAllSATBillingDocuments"
+export const BillingSATBillingDocumentByEmployee =
+  process.env.NEXT_PUBLIC_BILLINGS_SATBILLINGDOCUMENTS_BY_EMPLOYEE ??
+  "/Billings/GetAllSATBillingDocumentsByEmployee"
+export const BillingSATBillingDocumentByRequisition =
+  process.env.NEXT_PUBLIC_BILLINGS_SATBILLINGDOCUMENTS_BY_REQUISITION ??
+  "/Billings/GetAllSATBillingDocumentsByRequisition"
 export const BillingImagesReject = process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGESREJECT??"/Billings/BillingImagesReject"
 export const BillingInvoiceReject = process.env.NEXT_PUBLIC_BILLINGS_INVOICE_REJECT ?? "/Billings/Invoice/Reject"
 export const BillingDocumentsSendToSAP = process.env.NEXT_PUBLIC_BILLINGS_SENDTOSAPBILLINGDOCUMENTS??"/Billings/SendToSAPBillingDocuments"
@@ -200,6 +206,7 @@ export const BillingRequisitionsByID= process.env.NEXT_PUBLIC_BILLINGS_REQUISITI
 export const BillingCategories= process.env.NEXT_PUBLIC_BILLINGS_BILLINGCATEGORIES??"/Billings/BillingCategory"
 export const BillingDescription= process.env.NEXT_PUBLIC_BILLINGS_BILLINGDESCRITION??"/Billings/BillingDescription"
 export const BillingDocuments= process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTS??"/Billings/BillingDocuments"
+export const BillingJsonSap = process.env.NEXT_PUBLIC_BILLINGS_JSONSAP ?? "/Billings/JsonSap"
 export const BillingDocumentNotDeductible = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTNOTDEDUCTIBLE ?? "/Billings/BillingDocumentNotDeductible"
 export const BillingReport= process.env.NEXT_PUBLIC_BILLINGS_REQUISITIONREPORT??"/Billings/BillingReport"
 export const BillingPettyCashFund = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHFUND ?? "/Billings/PettyCashFund";
@@ -216,3 +223,4 @@ export const BillingPettyCashVoucherByIdEmployee = process.env.NEXT_PUBLIC_BILLI
 export const BillingPettyCashVoucherHistoryAmount = process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_HISTORYAMOUNT ?? "/Billings/PettyCashVoucher/HistoryAmount"
 export const BillingsSAPPendingDocuments = process.env.NEXT_PUBLIC_BILLINGS_SAP_PENDING_DOCUMENTS ?? "/Billings/SAPPendingDocuments";
 export const BillingsCompleteProcessToSAP = process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENT_COMPLETEPROCESSTOSAP ?? "/Billings/BillingDocument/CompleteProcessToSAP"
+export const ExpenseTypeCatalog = process.env.NEXT_PUBLIC_EXPENSE_TYPE_CATALOG ?? "/ExpenseTypeCatalog"

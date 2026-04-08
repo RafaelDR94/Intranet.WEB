@@ -115,13 +115,11 @@ const RequisitionDetails: React.FC = () => {
   );
 
   const {
-    getAuthorizations,
     authorizationHistory,
     getRequisitionAuthorizationsHistory,
   } = useAuthorizationsStore(
     (s) => ({
       authorizations: s.authorizations,
-      getAuthorizations: s.getAuthorizations,
       authorizationHistory: s.authorizationHistory,
       getRequisitionAuthorizationsHistory: s.getRequisitionAuthorizationsHistory,
     }),
@@ -131,11 +129,6 @@ const RequisitionDetails: React.FC = () => {
   useEffect(() => {
     fetchEmployees();
   }, [fetchEmployees]);
-
-  useEffect(() => {
-    if (!currentRequisition?.billingrequisition_id) return;
-    getAuthorizations();
-  }, [currentRequisition?.billingrequisition_id, getAuthorizations]);
 
   useEffect(() => {
     if (!currentRequisition?.billingrequisition_id) return;
@@ -236,13 +229,11 @@ const RequisitionDetails: React.FC = () => {
       fetchCurrentRequisition(requisitionId, true),
       fetchBillingDocumentByIdRequisition(requisitionId, true),
       getRequisitionAuthorizationsHistory(requisitionId, true),
-      getAuthorizations(true),
     ]);
   }, [
     currentRequisition?.billingrequisition_id,
     fetchBillingDocumentByIdRequisition,
     fetchCurrentRequisition,
-    getAuthorizations,
     getRequisitionAuthorizationsHistory,
   ]);
 

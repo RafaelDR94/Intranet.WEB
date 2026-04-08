@@ -1,11 +1,14 @@
-import { renderHook, waitFor } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+﻿import { act, renderHook, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import useRequisitionsAuthorization from './useRequisitionsAuthorization'
 
 const fetchCurrentRequisition = vi.fn()
 const fetchBillingDocumentByIdRequisition = vi.fn()
+const getAuthorizationBillingDocuments = vi.fn()
 const getAuthorizations = vi.fn()
+const approveAuthorization = vi.fn()
+const mappedRowsMock = vi.fn(() => [{ billingdocument_id: 'doc-1', fecha: '2026-02-02', authorization: null }])
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -35,8 +38,11 @@ vi.mock('@/app/stores/useAuthorizationsStore/useAuthorizationsStore', () => ({
         authorizer: { employee_id: 'emp-1' },
       },
     ],
+    authorizationBillingDocuments: [],
+    loadingBillingDocuments: false,
+    getAuthorizationBillingDocuments,
     getAuthorizations,
-    approveAuthorization: vi.fn(),
+    approveAuthorization,
     rejectAuthorization: vi.fn(),
     updateAuthorizationAuthorizer: vi.fn(),
   }),
@@ -82,13 +88,24 @@ vi.mock('@/app/stores/useEmployeesStore/useEmployeesStore', () => ({
 }))
 
 vi.mock('@/app/mappings/billingdocuments/billingdocuments.mapper', () => ({
-  BillingDocumentDetailsTableListMap: () => [
-    { billingdocument_id: 'doc-1', fecha: '2026-02-02' },
-  ],
+  BillingDocumentDetailsTableListMap: (...args: unknown[]) => mappedRowsMock(...args),
 }))
 
 describe('useRequisitionsAuthorization', () => {
+  beforeEach(() => {
+    mappedRowsMock.mockReset()
+    fetchCurrentRequisition.mockReset()
+    fetchBillingDocumentByIdRequisition.mockReset()
+    getAuthorizationBillingDocuments.mockReset()
+    getAuthorizations.mockReset()
+    approveAuthorization.mockReset()
+  })
+
   it('carga requisicion y documentos al iniciar', async () => {
+    mappedRowsMock.mockReturnValue([
+      { billingdocument_id: 'doc-1', fecha: '2026-02-02', authorization: null },
+    ])
+
     const { result } = renderHook(() => useRequisitionsAuthorization())
 
     await waitFor(() => {
@@ -97,6 +114,81 @@ describe('useRequisitionsAuthorization', () => {
     })
 
     expect(result.current.isPendingStatus).toBe(true)
+    expect(result.current.rows).toHaveLength(0)
+    act(() => {
+      result.current.setActiveFilter('all')
+    })
     expect(result.current.rows).toHaveLength(1)
+    expect(result.current.rows[0]?.status).toBe('Pendiente')
+  })
+
+  it('muestra documentos autorizados de la misma autorización por default', async () => {
+    mappedRowsMock.mockReturnValue([
+      {
+        billingdocument_id: 'doc-1',
+        fecha: '2026-02-02',
+        authorization: { authorization_id: 'auth-1', status: { name: 'Aprobada' } },
+      },
+    ])
+
+    const { result } = renderHook(() => useRequisitionsAuthorization())
+
+    await waitFor(() => {
+      expect(result.current.rows).toHaveLength(1)
+    })
+
+    expect(result.current.rows[0]?.status).toBe('Aprobada')
+  })
+
+  it('filtra por documentos de esta autorización usando authorization_id sin importar status', async () => {
+    mappedRowsMock.mockReturnValue([
+      {
+        billingdocument_id: 'doc-1',
+        fecha: '2026-02-02',
+        authorization: { authorization_id: 'auth-1', status: { name: 'Pendiente' } },
+      },
+      {
+        billingdocument_id: 'doc-2',
+        fecha: '2026-02-02',
+        authorization: { authorization_id: 'auth-1', status: { name: 'Aprobada' } },
+      },
+      {
+        billingdocument_id: 'doc-3',
+        fecha: '2026-02-02',
+        authorization: { authorization_id: 'auth-2', status: { name: 'Pendiente' } },
+      },
+    ])
+
+    const { result } = renderHook(() => useRequisitionsAuthorization())
+
+    await waitFor(() => {
+      expect(result.current.rows).toHaveLength(2)
+    })
+
+    expect(result.current.rows[0]?.id).toBe('doc-1')
+    expect(result.current.rows[1]?.id).toBe('doc-2')
+  })
+
+  it('refresca documentos de requisición después de aprobar con éxito', async () => {
+    approveAuthorization.mockResolvedValue(true)
+    mappedRowsMock.mockReturnValue([
+      { billingdocument_id: 'doc-1', fecha: '2026-02-02', authorization: null },
+    ])
+
+    const { result } = renderHook(() => useRequisitionsAuthorization())
+
+    act(() => {
+      result.current.handleStartApproval()
+    })
+
+    await act(async () => {
+      await result.current.handleSignatureAuthorization({ state: true } as any)
+    })
+
+    await waitFor(() => {
+      expect(approveAuthorization).toHaveBeenCalledWith('auth-1')
+      expect(getAuthorizations).toHaveBeenCalledWith(true)
+      expect(fetchBillingDocumentByIdRequisition).toHaveBeenCalledWith('req-1', true)
+    })
   })
 })

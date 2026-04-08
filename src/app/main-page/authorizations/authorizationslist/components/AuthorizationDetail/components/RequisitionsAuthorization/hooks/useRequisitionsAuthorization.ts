@@ -1,4 +1,4 @@
-import { createElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+﻿import { createElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { shallow } from 'zustand/shallow'
 
@@ -11,6 +11,7 @@ import { useRequisitionsStore } from '@/app/stores/useRequisitionStore/useRequis
 import { useBillingDocumentsStore } from '@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore'
 import type { Requisition } from '@/app/mappings/requisitions/requisitions.types'
 import type { ColumnDefinition } from '@/app/components/DataTable/types'
+import type { DataTableFilterOption } from '@/app/components/DataTable/types'
 import type { Authorized } from '@/app/components/SignaturePopUp/types'
 import { useAuthorizationsStore } from '@/app/stores/useAuthorizationsStore/useAuthorizationsStore'
 import type { SelectOption } from '@/app/components/Select/types'
@@ -32,6 +33,7 @@ export type RequisitionAuthorizationRow = {
   others: string
   total: string
   status: string
+  authorizationId: string
 }
 
 const formatDateSafe = (value?: string): string => {
@@ -63,12 +65,15 @@ const normalizeText = (value: string) =>
 
 const statusToLabelType = (status?: string): LabelType => {
   const normalized = normalizeText(status ?? '')
-  if (normalized.includes('aprob') || normalized.includes('valid')) return 'valido'
+  if (normalized.includes('aprob') || normalized.includes('valid') || normalized.includes('autoriz')) return 'valido'
   if (normalized.includes('rechaz')) return 'rechazado'
   if (normalized.includes('cancel')) return 'restringido'
   if (normalized.includes('pend')) return 'pendiente'
   return 'actualizado'
 }
+
+const resolveBillingAuthorizationStatus = (authorization?: BillingDocumentDetailsTable['authorization']) =>
+  String(authorization?.status?.name ?? '').trim() || 'Pendiente'
 
 /**
  * Hook que orquesta el detalle de autorizaciones de requisiciones.
@@ -81,6 +86,9 @@ const useRequisitionsAuthorization = () => {
     searchParams.get('authorization_id') || searchParams.get('id') || undefined
   const requisitionId = searchParams.get('event_id') ?? undefined
   const useAuthorizationDocuments = searchParams.get('documents') === 'authorization'
+  const isOperationsRequisitionListContext = pathname.includes(
+    '/main-page/operations/requisitions/requisitionListPage',
+  )
   const attemptedRef = useRef<string | null>(null)
   const billingAttemptedRef = useRef<string | null>(null)
   const redirectedRef = useRef(false)
@@ -94,6 +102,15 @@ const useRequisitionsAuthorization = () => {
   const [authorizerPopUpOpen, setAuthorizerPopUpOpen] = useState(false)
   const [authorizerSelected, setAuthorizerSelected] = useState('')
   const [authorizerError, setAuthorizerError] = useState<string | null>(null)
+  const [activeFilter, setActiveFilter] = useState(
+    isOperationsRequisitionListContext ? 'all' : 'pending-current-authorization',
+  )
+
+  useEffect(() => {
+    if (!isOperationsRequisitionListContext) return
+    if (activeFilter === 'all') return
+    setActiveFilter('all')
+  }, [activeFilter, isOperationsRequisitionListContext])
 
   const {
     authorizations,
@@ -398,6 +415,15 @@ const useRequisitionsAuthorization = () => {
         const success = await approveAuthorization(authorizationId ?? '')
         hideSpinner()
 
+        if (success) {
+          await getAuthorizations(true)
+          if (useAuthorizationDocuments && authorizationId) {
+            await getAuthorizationBillingDocuments(authorizationId, true)
+          } else if (requisitionId) {
+            await fetchBillingDocumentByIdRequisition(requisitionId, true)
+          }
+        }
+
         showAlert({
           type: success ? 'success' : 'error',
           variant: 'filled',
@@ -420,12 +446,17 @@ const useRequisitionsAuthorization = () => {
     },
     [
       approveAuthorization,
+      fetchBillingDocumentByIdRequisition,
+      getAuthorizationBillingDocuments,
+      getAuthorizations,
       authorizationId,
       hideAlert,
       hideSpinner,
       pendingAction,
+      requisitionId,
       showAlert,
       showSpinner,
+      useAuthorizationDocuments,
     ],
   )
 
@@ -577,7 +608,7 @@ const useRequisitionsAuthorization = () => {
     updateAuthorizationAuthorizer,
   ])
 
-  const rows: RequisitionAuthorizationRow[] = useMemo(() => {
+  const allRows: RequisitionAuthorizationRow[] = useMemo(() => {
     const source = useAuthorizationDocuments
       ? authorizationBillingDocuments ?? []
       : billingDocuments ?? []
@@ -595,16 +626,42 @@ const useRequisitionsAuthorization = () => {
       iva: formatCurrency(doc.iva ?? 0),
       others: formatCurrency(doc.otherinvoices ?? 0),
       total: formatCurrency(doc.total ?? 0),
-      status: doc.status ?? '-',
+      status: resolveBillingAuthorizationStatus(doc.authorization),
+      authorizationId: String(doc.authorization?.authorization_id ?? ''),
     }))
   }, [authorizationBillingDocuments, billingDocuments, useAuthorizationDocuments])
+
+  const rows: RequisitionAuthorizationRow[] = useMemo(() => {
+    if (isOperationsRequisitionListContext) return allRows
+
+    const normalizedFilter = normalizeText(activeFilter)
+    if (!normalizedFilter || normalizedFilter === 'all') return allRows
+
+    if (normalizedFilter === 'pending-current-authorization') {
+      return allRows.filter(
+        (row) =>
+          row.authorizationId !== '' &&
+          row.authorizationId === authorizationId,
+      )
+    }
+
+    return allRows
+  }, [activeFilter, allRows, authorizationId, isOperationsRequisitionListContext])
+
+  const filterOptions: DataTableFilterOption<RequisitionAuthorizationRow>[] = useMemo(
+    () => [
+      { label: 'Todas', value: 'all' },
+      { label: 'Documentos de la autorización', value: 'pending-current-authorization' },
+    ],
+    [],
+  )
 
   const columns: ColumnDefinition<RequisitionAuthorizationRow>[] = useMemo(
     () => [
       { key: 'displayId', label: 'ID', cellClass: 'w-[4%] text-center', headerClass: 'w-[4%] text-center' },
       { key: 'consumptionDate', label: 'FECHA CONSUMO', cellClass: 'w-[9%] text-center', headerClass: 'w-[9%] text-center' },
       { key: 'provider', label: 'PROVEEDOR', cellClass: 'w-2/15 text-center', headerClass: 'w-2/15 text-center' },
-      { key: 'category', label: 'CATEGORIA', cellClass: 'w-2/15 text-center', headerClass: 'w-2/15 text-center' },
+      { key: 'category', label: 'CATEGORIA', cellClass: 'w-2/15 text-center truncate', headerClass: 'w-2/15 text-center' },
       { key: 'persons', label: 'No. PERS.', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
       { key: 'nights', label: 'No. NOCHES', cellClass: 'w-1/15 text-center', headerClass: 'w-1/15 text-center' },
       { key: 'invoice', label: 'No. FACTURA/TICKET/REMISION', cellClass: 'w-3/15 text-center truncate', headerClass: 'w-3/15 text-center truncate' },
@@ -639,6 +696,9 @@ const useRequisitionsAuthorization = () => {
     requisition: currentRequisition,
     rows,
     columns,
+    activeFilter,
+    setActiveFilter,
+    filterOptions,
     periodLabel: buildPeriod(currentRequisition),
     verificationDate: formatDateSafe(currentRequisition?.date_created),
     requestedAmountLabel: buildAmountLabel(requestedAmount),
@@ -649,6 +709,7 @@ const useRequisitionsAuthorization = () => {
     isPendingStatus,
     isRejectedStatus,
     authorizationComment,
+    isOperationsRequisitionListContext,
     authorizerId,
     signatureOpen,
     setSignatureOpen,
@@ -674,3 +735,5 @@ const useRequisitionsAuthorization = () => {
 }
 
 export default useRequisitionsAuthorization
+
+

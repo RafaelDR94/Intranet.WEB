@@ -19,6 +19,15 @@ export type BillingDocumentDescription = {
   id_billingdescription: string,
   name: string
 }
+export type ExpenseTypeCatalog = {
+  id: string
+  satKey: string
+  descriptionSatKey: string
+  internalKey: string
+  descriptionInternalKey: string
+  gtStype: string
+  iva: number
+}
 export type BillingDocumentCategoryFull = {
   id: string,
   name: string,
@@ -38,6 +47,25 @@ export type BillingAcuse = {
   "dateCreated": string,
   "billingDocuments": null
 }
+
+export type BillingDocumentJsonSapItem = {
+  itemIndex: number
+  claveInterna: string
+  claveProdServ: string
+  descripcion: string
+  importe: number
+}
+
+export type BillingDocumentJsonSap = {
+  iva: number
+  subtotal: number
+  total: number
+  otherInvoices: number
+  moneda: string
+  iscompleted: boolean
+  items: BillingDocumentJsonSapItem[]
+}
+
 export type BillingDocuments = {
   "id": string,
   "billingdocument_id": string,
@@ -66,6 +94,7 @@ export type BillingDocuments = {
   "subtotal": number,
   "iva": number,
   "otherinvoices": number,
+  "json_sap"?: BillingDocumentJsonSap | null,
   "category": BillingDocumentCategory,
   "validatedbyoperations":boolean
   "authorization"?: Authorization | null
@@ -132,6 +161,7 @@ export type BillingDocumentsSatTable = {
   "billingAcuse": BillingAcuse | null
   "validatedbyoperations":boolean
   "employeename": string
+  "json_sap"?: BillingDocumentJsonSap | null
 }
 
 
@@ -215,3 +245,8 @@ export type BillingDocumentFull = {
 }
 
 export type CompleteProcessToSAPRequest = string[];
+
+export type BillingDocumentJsonSapPut = {
+  Id_BillingDocument: string
+  jsonsap: string
+}

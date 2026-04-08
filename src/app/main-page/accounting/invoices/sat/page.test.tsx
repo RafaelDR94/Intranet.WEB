@@ -18,6 +18,7 @@ vi.mock('./hooks/useSAT', () => ({
     multiSelected: [],
     handleSendToSap: vi.fn(),
     handleMultiSelect: vi.fn(),
+    closeDetailsPanel: vi.fn(),
   }),
 }));
 

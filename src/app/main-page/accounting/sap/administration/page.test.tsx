@@ -61,6 +61,7 @@ describe('SAP Administration page', () => {
       handleSendToSap: vi.fn(),
       handleMultiSelect: vi.fn(),
       handleMultiSelectNonDeductible: vi.fn(),
+      closeDetailsPanel: vi.fn(),
     });
 
     render(<SapAdministrationPage />);

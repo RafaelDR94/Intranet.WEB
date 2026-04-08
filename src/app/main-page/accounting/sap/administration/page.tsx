@@ -26,6 +26,7 @@ const SAP = () => {
     handleSendToSap,
     handleMultiSelect,
     handleMultiSelectNonDeductible,
+    closeDetailsPanel,
   } = useSAP();
 
   const { currentPagePermissions } = useAuth();
@@ -70,12 +71,12 @@ const SAP = () => {
       render: (row) => (
         <div className="flex">
           {!currentPagePermissions?.canSeeDetails && (
-            <Button
-              size="medium"
-              onClick={() => handleOpenDetails(row, true, true, true)}
-              variant="ghost"
-              hideIcon
-            >
+              <Button
+                size="medium"
+                onClick={() => handleOpenDetails(row, true, true, true, true)}
+                variant="ghost"
+                hideIcon
+              >
               Ver Detalles
             </Button>
           )}
@@ -132,12 +133,12 @@ const SAP = () => {
       render: (row) => (
         <div className="flex">
           {!currentPagePermissions?.canSeeDetails && (
-            <Button
-              size="medium"
-              onClick={() => handleOpenDetails(row, true, true, true)}
-              variant="ghost"
-              hideIcon
-            >
+              <Button
+                size="medium"
+                onClick={() => handleOpenDetails(row, true, true, true, true)}
+                variant="ghost"
+                hideIcon
+              >
               Ver Detalles
             </Button>
           )}
@@ -158,7 +159,7 @@ const SAP = () => {
       render: (row) => (
         <Button
           size="small"
-          onClick={() => handleOpenDetails(row, true, true, true)}
+          onClick={() => handleOpenDetails(row, true, true, true, true)}
           variant="ghost"
           hideIcon
         >
@@ -251,9 +252,13 @@ const SAP = () => {
       <DetailsPanel
         panelOpen={panelOpen.state}
         onlyText={panelOpen.onlyText}
-        setPanelOpen={(state: boolean) =>
-          setPanelOpen((prev) => ({ ...prev, state }))
-        }
+        setPanelOpen={(state: boolean) => {
+          if (!state) {
+            closeDetailsPanel();
+            return;
+          }
+          setPanelOpen((prev) => ({ ...prev, state }));
+        }}
         selected={selected}
         rejectType={false}
         rejectInvoice={panelOpen.rejectInvoice}
