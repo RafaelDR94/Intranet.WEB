@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
 import { UseDetailsPanelArgs } from "./types";
@@ -7,6 +7,9 @@ import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsPutMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
+
+type UpdateAction = "comment" | "json_sap" | null;
+
 export const useDetailsPanel = ({
   selected,
   rejectType,
@@ -18,23 +21,26 @@ export const useDetailsPanel = ({
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
-  const {
-    sending,
-  } = useBillingCompleteProcessToSAPStore(
+
+  const { sending } = useBillingCompleteProcessToSAPStore(
     (s) => ({
       sending: s.sending,
     }),
     shallow,
   );
+
   const {
     validateBillingDocument,
     validateBillingDocumentOperations,
     rejectBillingDocument,
+    fetchExpenseTypeCatalog,
+    expenseTypeCatalog,
+    updateBillingDocument,
+    updateBillingDocumentJsonSap,
     rejecting,
     validating,
     succesReject,
     succesValidate,
-    updateBillingDocument,
     updating,
     successPut,
     resetFlags,
@@ -42,9 +48,12 @@ export const useDetailsPanel = ({
   } = useBillingDocumentsStore(
     (s) => ({
       updateBillingDocument: s.updateBillingDocument,
+      updateBillingDocumentJsonSap: s.updateBillingDocumentJsonSap,
       validateBillingDocument: s.validateBillingDocument,
       validateBillingDocumentOperations: s.validateBillingDocumentOperations,
       rejectBillingDocument: s.rejectBillingDocument,
+      fetchExpenseTypeCatalog: s.fetchExpenseTypeCatalog,
+      expenseTypeCatalog: s.expenseTypeCatalog,
       updating: s.updating,
       successPut: s.successPut,
       succesReject: s.succesReject,
@@ -59,10 +68,8 @@ export const useDetailsPanel = ({
 
   const [openRejectInvoice, setOpenRejectInvoice] = useState(false);
   const [openValidInvoice, setOpenValidInvoice] = useState(false);
+  const [currentUpdateAction, setCurrentUpdateAction] = useState<UpdateAction>(null);
 
-  /**
-   * 🔹 Función para obtener solo el primer nombre y primer apellido
-   */
   const getShortName = (fullName?: string): string => {
     if (!fullName) return "";
     const parts = fullName.trim().split(" ").filter(Boolean);
@@ -70,25 +77,23 @@ export const useDetailsPanel = ({
     return `${firstName || ""} ${lastName || ""}`.trim();
   };
 
-  /**
-   * 🔹 Labels con nombre corto
-   */
   const labels = useMemo(
     () => ({
       left: selected
         ? `Usuario: ${getShortName(selected?.requisition?.employeename)}`
         : undefined,
       secondLeft: selected ? `Tipo de gastos: 105` : undefined,
-      childrenLabel: selected ? `Denom. Gto.: Analisis Clínico ` : undefined,
+      childrenLabel: selected ? `Denom. Gto.: Analisis Clinico ` : undefined,
       secondRight: selected ? `Grupo IVA: A.16%` : undefined,
       right: selected
-        ? `Código de solicitud: ${selected?.requisition?.projectname}`
+        ? `Codigo de solicitud: ${selected?.requisition?.projectname}`
         : undefined,
     }),
     [selected],
   );
 
   const handleSubmitComment = (values: Record<string, any>) => {
+    setCurrentUpdateAction("comment");
     const payload = BillingDocumentsPutMap({
       billingdocument_id: selected?.billingdocument_id ?? "",
       requisition_id: selected?.requisition?.billingrequisition_id ?? "",
@@ -106,6 +111,28 @@ export const useDetailsPanel = ({
       sat_validation: selected?.sat_validation,
     });
     updateBillingDocument(payload, reqisition);
+  };
+
+  const handleUpdateJsonSapItem = async (
+    jsonSapItemIndex: number,
+    sapInternalKey: string,
+  ): Promise<boolean> => {
+    const documentId = selected?.billingdocument_id;
+    const currentJsonSap = selected?.json_sap;
+    if (!documentId || !currentJsonSap || !Array.isArray(currentJsonSap.items)) return false;
+
+    const updatedJsonSap = {
+      ...currentJsonSap,
+      items: currentJsonSap.items.map((item, idx) =>
+        idx === jsonSapItemIndex ? { ...item, claveInterna: sapInternalKey } : item,
+      ),
+    };
+
+    setCurrentUpdateAction("json_sap");
+    return updateBillingDocumentJsonSap({
+      Id_BillingDocument: documentId,
+      jsonsap: JSON.stringify(updatedJsonSap),
+    });
   };
 
   const handleSubmitReject = (values: Record<string, any>) => {
@@ -130,21 +157,29 @@ export const useDetailsPanel = ({
   };
 
   useEffect(() => {
+    if (!selected?.billingdocument_id) return;
+    fetchExpenseTypeCatalog(false);
+  }, [fetchExpenseTypeCatalog, selected?.billingdocument_id]);
+
+  useEffect(() => {
     if (updating) {
       showSpinner({
-        message: "Espera un momento, se está enviando el comentario.",
+        message:
+          currentUpdateAction === "json_sap"
+            ? "Actualizando informacion SAP..."
+            : "Espera un momento, se esta enviando el comentario.",
       });
       return;
     }
     if (rejecting) {
       showSpinner({
-        message: `Espera un momento, se está rechazando el ${documentLabel}.`,
+        message: `Espera un momento, se esta rechazando el ${documentLabel}.`,
       });
       return;
     }
     if (validating) {
       showSpinner({
-        message: `Espera un momento, se está validando el ${documentLabel}.`,
+        message: `Espera un momento, se esta validando el ${documentLabel}.`,
       });
       return;
     }
@@ -152,15 +187,27 @@ export const useDetailsPanel = ({
     hideSpinner();
 
     if (successPut) {
-      setPanelOpen(false);
-      showAlert({
-        type: "info",
-        title: "Comentario Enviado",
-        description: "Tu ticket ha sido subido correctamente.",
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 1500,
-      });
+      if (currentUpdateAction === "json_sap") {
+        showAlert({
+          type: "success",
+          title: "JSON SAP actualizado",
+          description: "La clave SAP del item se guardo correctamente.",
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500,
+        });
+      } else {
+        setPanelOpen(false);
+        showAlert({
+          type: "info",
+          title: "Comentario Enviado",
+          description: "Tu ticket ha sido subido correctamente.",
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500,
+        });
+      }
+      setCurrentUpdateAction(null);
     }
 
     if (succesValidate) {
@@ -190,13 +237,20 @@ export const useDetailsPanel = ({
     if (error) {
       showAlert({
         type: "error",
-        title: "Error al enviar comentario",
+        title:
+          currentUpdateAction === "json_sap"
+            ? "Error al actualizar JSON SAP"
+            : "Error al enviar comentario",
         description:
-          String(error) || "Hubo un problema al enviar tus comentarios.",
+          String(error) ||
+          (currentUpdateAction === "json_sap"
+            ? "Hubo un problema al actualizar la informacion SAP."
+            : "Hubo un problema al enviar tus comentarios."),
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
       });
+      setCurrentUpdateAction(null);
     }
 
     resetFlags();
@@ -214,15 +268,19 @@ export const useDetailsPanel = ({
     showAlert,
     showSpinner,
     documentLabel,
+    sending,
+    currentUpdateAction,
   ]);
 
   return {
     labels,
+    expenseTypeCatalog,
     openRejectInvoice,
     openValidInvoice,
     setOpenRejectInvoice,
     setOpenValidInvoice,
     handleSubmitComment,
+    handleUpdateJsonSapItem,
     handleSubmitReject,
     handleSubmitValid,
   };

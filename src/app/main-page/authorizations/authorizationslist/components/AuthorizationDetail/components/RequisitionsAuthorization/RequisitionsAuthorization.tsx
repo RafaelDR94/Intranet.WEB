@@ -27,6 +27,9 @@ const RequisitionsAuthorization = () => {
     requisition,
     rows,
     columns,
+    activeFilter,
+    setActiveFilter,
+    filterOptions,
     periodLabel,
     verificationDate,
     requestedAmountLabel,
@@ -39,6 +42,7 @@ const RequisitionsAuthorization = () => {
     isPendingStatus,
     isRejectedStatus,
     authorizationComment,
+    isOperationsRequisitionListContext,
     signatureOpen,
     setSignatureOpen,
     rejectCommentOpen,
@@ -106,7 +110,7 @@ const RequisitionsAuthorization = () => {
           <div className="hidden h-px flex-1 bg-blue-40 md:block" />
         </div>
 
-        {isPendingStatus && (
+        {!isOperationsRequisitionListContext && isPendingStatus && (
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
@@ -168,7 +172,7 @@ const RequisitionsAuthorization = () => {
         </div>
       </div>
 
-      {isPendingStatus ? (
+      {!isOperationsRequisitionListContext && isPendingStatus ? (
         <div className="flex justify-end">
           <Button
             variant="outline"
@@ -191,11 +195,15 @@ const RequisitionsAuthorization = () => {
       <div data-tour="authorizations-requisition-report-table">
         <DataTable
           showCalendar={false}
-          showFilter={false}
+          showFilter={!isOperationsRequisitionListContext}
           showRefresh={false}
           showButton={false}
           showDownloadTable={false}
           enableInternalSearch={false}
+          filterTitle="Filtrar comprobantes"
+          filterOptions={filterOptions}
+          filterValue={activeFilter}
+          onFilterChange={(value) => setActiveFilter(value)}
           enablePagination
           actionLabel=""
           actionsRender={() => (

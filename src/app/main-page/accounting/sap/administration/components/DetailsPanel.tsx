@@ -39,10 +39,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     operations,
     reqisition,
   });
-
-  console.log('selected ', selected);
-  
-
   return (
     <DetailsPanelLayout
       open={panelOpen}

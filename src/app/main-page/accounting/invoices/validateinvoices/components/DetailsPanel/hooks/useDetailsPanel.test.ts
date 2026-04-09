@@ -7,6 +7,8 @@ const updateBillingDocument = vi.fn();
 const validateBillingDocument = vi.fn();
 const validateBillingDocumentOperations = vi.fn();
 const rejectBillingDocument = vi.fn();
+const fetchExpenseTypeCatalog = vi.fn();
+const updateBillingDocumentJsonSap = vi.fn();
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   usePrincipal: () => ({
@@ -19,9 +21,12 @@ vi.mock('@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore', () => 
   useBillingDocumentsStore: (selector: any) =>
     selector({
       updateBillingDocument,
+      updateBillingDocumentJsonSap,
       validateBillingDocument,
       validateBillingDocumentOperations,
       rejectBillingDocument,
+      fetchExpenseTypeCatalog,
+      expenseTypeCatalog: [],
       updating: false,
       successPut: false,
       succesReject: false,
