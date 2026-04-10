@@ -27,6 +27,8 @@ export interface TableLayoutProps {
   actionLabel?: string
   /** Muestra el botón de calendario */
   showCalendar?: boolean
+  /** Muestra el campo de búsqueda */
+  showSearch?: boolean
   /** Muestra el botón de filtros */
   showFilter?: boolean
   /** Opciones disponibles para el menú de filtros. */

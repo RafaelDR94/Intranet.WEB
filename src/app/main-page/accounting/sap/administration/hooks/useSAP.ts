@@ -125,6 +125,17 @@ const useSAP = () => {
     completeProcessToSAP(ids);
   };
 
+  const handleJsonSapUpdated = useCallback(
+    async (billingDocumentId?: string) => {
+      const targetId = billingDocumentId ?? selected?.billingdocument_id;
+      await fetchBillingDocumentsSAP(true);
+      if (!targetId) return;
+      const refreshed = await fetchBillingDocumentById(targetId, true);
+      if (refreshed) setSelected(refreshed);
+    },
+    [fetchBillingDocumentById, fetchBillingDocumentsSAP, selected],
+  );
+
   useEffect(() => {
     fetchBillingDocumentsSAP(true);
   }, [fetchBillingDocumentsSAP]);
@@ -233,6 +244,7 @@ const useSAP = () => {
     handleMultiSelectNonDeductible,
     handleSendToSap,
     closeDetailsPanel,
+    handleJsonSapUpdated,
   };
 };
 

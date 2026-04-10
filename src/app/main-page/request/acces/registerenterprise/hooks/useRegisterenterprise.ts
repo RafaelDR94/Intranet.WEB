@@ -17,34 +17,54 @@ const useRegisterEnterprise = () => {
         error: s.error,
         succesCreate: s.successPost
     }), shallow);
-    const model: FieldModel[] = [{
-        type: "input",
-        value: "",
-        name: "name",
-        label: "Nombre de la empresa",
-        validations: [{ type: "required" }]
-    },
-    {
-        type: "input",
-        value: "",
-        name: "rfc",
-        label: "RFC",
-        validations: [{ type: "required" }]
-    },
-    {
-        type: "checkbox",
-        value: "false",
-        name: "external",
-        label: "Empresa externa"
-    }
+    const model: FieldModel[] = [
+        {
+            type: "input",
+            value: "",
+            name: "name",
+            label: "Nombre de la empresa",
+            validations: [{ type: "required" }]
+        },
+        {
+            type: "input",
+            value: "",
+            name: "companytype",
+            label: "Tipo de empresa",
+            validations: [{ type: "required" }]
+        },
+        {
+            type: "input",
+            value: "",
+            name: "rfc",
+            label: "RFC",
+            validations: [{ type: "required" }]
+        },
+        {
+            type: "input",
+            value: "",
+            name: "businessindustry",
+            label: "Giro empresarial",
+            validations: [{ type: "required" }]
+        },
+        {
+            type: "checkbox",
+            value: "false",
+            name: "external",
+            label: "Empresa externa"
+        }
     ]
     const handleSubmit = (values: Record<string, any>) => {
         const Payload = {
-            newEnterprise: values.name,
-            RFC: values.rfc,
+            name: values.name,
+            companytype: values.companytype,
+            rfc: values.rfc,
+            businessindustry: values.businessindustry,
         }
         if (values.external) {
-            createExternal(Payload)
+            createExternal({
+                newEnterprise: values.name,
+                RFC: values.rfc,
+            })
             return;
         }
         createInteral(Payload);

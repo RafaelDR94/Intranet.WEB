@@ -146,6 +146,8 @@ export interface DataTableProps<T = any> {
   actionLabel?: string;
   /** Muestra el botón de calendario (por defecto: `true`). */
   showCalendar?: boolean;
+  /** Muestra el campo de búsqueda (por defecto: `true`). */
+  showSearch?: boolean;
   /** Muestra el botón de filtros (por defecto: `false`). */
   showFilter?: boolean;
   /** Muestra el botón de recarga parcial del contenido. */

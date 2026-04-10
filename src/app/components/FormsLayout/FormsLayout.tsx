@@ -30,6 +30,7 @@ type FormsLayoutProps = {
   children: ReactNode;
   enableCollapse?: boolean;
   showDivider?: boolean;
+  showBackground?: boolean;
 };
 
 /**
@@ -50,6 +51,7 @@ const FormsLayout = ({
   startCollaps = false,
   enableCollapse = true,
   showDivider = true,
+  showBackground = true,
   primaryButtonDataTour,
   secondaryButtonDataTour,
   children,
@@ -105,7 +107,10 @@ const FormsLayout = ({
             return (
               <div
                 key={key}
-                className="bg-white-100 flex gap-6 rounded-lg p-6 shadow-md"
+                className={clsx(
+                  "flex gap-6 rounded-lg p-6",
+                  showBackground && "bg-white-100 shadow-md" 
+                )}
               >
                 {child}
               </div>

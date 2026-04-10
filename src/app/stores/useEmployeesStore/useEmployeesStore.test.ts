@@ -26,6 +26,7 @@ const { fetchEmployeesMock, fetchEmployeeByIdMock } = vi.hoisted(() => {
 vi.mock("./utilities", () => ({
   fetchEmployees: fetchEmployeesMock,
   fetchActiveEmployees: vi.fn(async () => {}),
+  fetchEmployeesByDepartment: vi.fn(async () => []),
   fetchEmployeeById: fetchEmployeeByIdMock,
   createEmployee: vi.fn(async () => null),
   updateEmployee: vi.fn(async () => null),
@@ -48,9 +49,12 @@ describe("useEmployeesStore", () => {
     const state = useEmployeesStore.getState();
     expect(state.employees).toEqual([]);
     expect(state.activeEmployees).toEqual([]);
+    expect(state.departmentEmployees).toEqual([]);
+    expect(state.departmentEmployeesDepartmentId).toBeUndefined();
     expect(state.employee).toBeUndefined();
     expect(state.loading).toBe(false);
     expect(state.loadingById).toBe(false);
+    expect(state.loadingByDepartment).toBe(false);
   });
 
   it("fetchEmployees updates list and success flag", async () => {

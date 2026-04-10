@@ -1,5 +1,5 @@
 // File: /app/components/DetailsPanel/DetailsPanel.tsx
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import clsx from "clsx";
 import {
@@ -11,10 +11,55 @@ import { DetailsPanelProps } from "../../../invoices/validateinvoices/components
 import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import { PopUp } from "@/app/components/PopUp/PopUp";
+import { Select } from "@/app/components/Select/Select";
+import type { SelectOption } from "@/app/components/Select/types";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+import type { ExpenseTypeCatalog } from "@/app/mappings/billingdocuments/billingdocuments.types";
 
 import { useSAPDetailsPanel } from "../../common/hooks/useSAPDetailsPanel";
+
+type DetailItemRow = {
+  id: string;
+  jsonSapArrayIndex: number | null;
+  satKey: string;
+  description: string;
+  sapInternalKey: string;
+  expenseType: string;
+  denomination: string;
+  ivaGroup: string;
+};
+
+type SapOption = SelectOption & {
+  internalKey: string;
+  satKey: string;
+};
+
+const toSapOptions = (catalog: ExpenseTypeCatalog[]): SapOption[] =>
+  catalog.map((item) => ({
+    label: `${String(item.internalKey)}-${String(item.descriptionInternalKey ?? "")}`,
+    value: String(item.id),
+    internalKey: String(item.internalKey),
+    satKey: String(item.satKey),
+  }));
+
+const findMatchingSapOption = (
+  row: DetailItemRow,
+  options: SapOption[],
+): SapOption | undefined => {
+  const byInternalAndSat = options.find(
+    (option) =>
+      option.internalKey === row.sapInternalKey && option.satKey === row.satKey,
+  );
+  if (byInternalAndSat) return byInternalAndSat;
+
+  const byInternal = options.find(
+    (option) => option.internalKey === row.sapInternalKey,
+  );
+  if (byInternal) return byInternal;
+
+  return undefined;
+};
 
 const DetailsPanel: React.FC<DetailsPanelProps> = ({
   panelOpen,
@@ -25,6 +70,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   operations = false,
   rejectType = true,
   reqisition,
+  onJsonSapUpdated,
 }) => {
   const {
     labels,
@@ -36,6 +82,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     setShowEditConfirmation,
     handleSave,
     handleSendToSap,
+    expenseTypeCatalog,
+    handleUpdateJsonSapItem,
   } = useSAPDetailsPanel({
     selected,
     rejectType,
@@ -44,6 +92,78 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     reqisition,
   });
 
+  const detailRows = useMemo<DetailItemRow[]>(() => {
+    if (!selected) return [];
+
+    const catalog = Array.isArray(expenseTypeCatalog) ? expenseTypeCatalog : [];
+    const findByInternalKey = (key: string) =>
+      catalog.find((item) => String(item.internalKey) === String(key));
+    const findBySatKey = (key: string) =>
+      catalog.find((item) => String(item.satKey) === String(key));
+    const toIvaGroup = (catalogItem?: ExpenseTypeCatalog, fallback = "") =>
+      catalogItem?.iva != null && Number.isFinite(catalogItem.iva)
+        ? `${catalogItem.iva}%`
+        : fallback;
+
+    const jsonSapItems = (selected as any)?.json_sap?.items;
+    if (Array.isArray(jsonSapItems) && jsonSapItems.length > 0) {
+      return jsonSapItems.map((item: any, idx: number) => {
+        const byInternal = findByInternalKey(String(item?.claveInterna ?? ""));
+        const bySat = findBySatKey(String(item?.claveProdServ ?? ""));
+        const matched = byInternal ?? bySat;
+        return {
+          id: String(item?.itemIndex ?? idx),
+          jsonSapArrayIndex: idx,
+          satKey: String(item?.claveProdServ ?? ""),
+          description: String(item?.descripcion ?? ""),
+          sapInternalKey: String(item?.claveInterna ?? matched?.internalKey ?? ""),
+          expenseType: String(matched?.gtStype ?? ""),
+          denomination: String(matched?.descriptionInternalKey ?? ""),
+          ivaGroup: toIvaGroup(matched, ""),
+        };
+      });
+    }
+
+    if (!Array.isArray((selected as any)?.conceptos)) return [];
+    return (selected as any).conceptos.map((concept: any, idx: number) => {
+      const byInternal = findByInternalKey(String(concept?.tipo_gasto ?? ""));
+      const bySat = findBySatKey(String(concept?.clave_sat ?? ""));
+      const matched = byInternal ?? bySat;
+      return {
+        id: `${concept?.clave_sat ?? "concept"}-${idx}`,
+        jsonSapArrayIndex: null,
+        satKey: String(concept?.clave_sat ?? ""),
+        description: String(concept?.clavesat_description ?? ""),
+        sapInternalKey: String(concept?.tipo_gasto ?? matched?.internalKey ?? ""),
+        expenseType: String(concept?.tipo_gasto ?? matched?.gtStype ?? ""),
+        denomination: String(
+          matched?.descriptionInternalKey ?? concept?.clavesat_description ?? "",
+        ),
+        ivaGroup: String(concept?.grupo_iva ?? toIvaGroup(matched, "")),
+      };
+    });
+  }, [expenseTypeCatalog, selected]);
+
+  const [sapSelectionByRow, setSapSelectionByRow] = useState<
+    Record<string, string>
+  >({});
+  const sapOptions = useMemo(
+    () =>
+      toSapOptions(
+        Array.isArray(expenseTypeCatalog) ? expenseTypeCatalog : [],
+      ),
+    [expenseTypeCatalog],
+  );
+
+  useEffect(() => {
+    const nextSelections: Record<string, string> = {};
+    detailRows.forEach((row) => {
+      const matched = findMatchingSapOption(row, sapOptions);
+      if (matched) nextSelections[row.id] = matched.value;
+    });
+    setSapSelectionByRow(nextSelections);
+  }, [detailRows, sapOptions]);
+
   return (
     <DetailsPanelLayout
       open={panelOpen}
@@ -51,6 +171,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       onClose={() => setPanelOpen(false)}
       leftLabel={isMobile ? "" : labels?.left}
       rightLabel={isMobile ? "" : labels?.right}
+      contentClassName="overflow-hidden flex flex-col"
       actionButton={
         <div
           className={clsx(
@@ -151,92 +272,120 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             </div>
           </div>
 
-          {/* Conceptos */}
+          {/* Conceptos / Tipos de gasto */}
           <div className={s.conceptsScroller}>
-            <table className="w-full table-auto text-sm">
-              <thead>
-                <tr>
-                  <th className="text-gray-90 px-2 py-1 text-left">
-                    CLAVE SAT
-                  </th>
-                  <th className="text-gray-90 px-2 py-1 text-left">
-                    Tipo de Gasto
-                  </th>
-                  <th className="text-gray-90 px-2 py-1 text-left">
-                    Denom. Gto.
-                  </th>
-                  <th className="text-gray-90 px-2 py-1 text-left">
-                    Grupo IVA
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {selected.conceptos.map((concept: any, idx: number) => (
-                  <tr key={`${concept.clave_sat}-${idx}`}>
-                    <td className="text-gray-90 px-2 py-1">
-                      {concept?.clave_sat}
-                    </td>
-                    <td className="text-gray-90 px-2 py-1">
-                      {concept?.tipo_gasto}
-                    </td>
-                    <td className="text-gray-90 px-2 py-1">
-                      {concept?.clavesat_description}
-                    </td>
-                    <td className="text-gray-90 px-2 py-1">
-                      {concept?.porcentajeiva}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className={s.sapRowsContainer}>
+              {detailRows.map((row) => (
+                <div key={row.id} className={s.sapRow}>
+                  <div className={s.conceptItem}>
+                    <div className={isMobile ? ms.labelLine : s.labelLine}>
+                      CLAVE SAT:&nbsp;
+                      <span className={isMobile ? ms.valueText : s.valueText}>
+                        {row.satKey}
+                      </span>
+                    </div>
+                    <div className={isMobile ? ms.labelLine : s.labelLine}>
+                      DESC.:&nbsp;
+                      <span className={isMobile ? ms.valueText : s.valueText}>
+                        {row.description}
+                      </span>
+                    </div>
+                  </div>
+                  <div className={s.sapSelectBox}>
+                    <Select
+                      label="Clave SAP"
+                      placeholder="Seleccione"
+                      options={sapOptions}
+                      selected={
+                        sapSelectionByRow[row.id]
+                          ? [sapSelectionByRow[row.id]]
+                          : []
+                      }
+                      onChange={async (values) => {
+                        const nextValue = values[0] ?? "";
+                        const selectedOption = sapOptions.find(
+                          (option) => option.value === nextValue,
+                        );
+                        const nextInternalKey = selectedOption?.internalKey ?? "";
+
+                        setSapSelectionByRow((prev) => ({
+                          ...prev,
+                          [row.id]: nextValue,
+                        }));
+                        if (row.jsonSapArrayIndex == null || !nextInternalKey)
+                          return;
+                        const ok = await handleUpdateJsonSapItem(
+                          row.jsonSapArrayIndex,
+                          nextInternalKey,
+                        );
+                        if (!ok) {
+                          const fallback = findMatchingSapOption(
+                            row,
+                            sapOptions,
+                          );
+                          setSapSelectionByRow((prev) => ({
+                            ...prev,
+                            [row.id]: fallback?.value ?? "",
+                          }));
+                          return;
+                        }
+                        onJsonSapUpdated?.(selected?.billingdocument_id);
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Divider */}
-          <div className={s.divider} />
+          <div className={isMobile ? ms.bottomSection : s.bottomSection}>
+            {/* Divider */}
+            <div className={s.divider} />
 
-          {/* Desglose */}
-          {!isEditing ? (
-            <div className={isMobile ? ms.breakdownBox : s.breakdownBox}>
-              <div className={s.breakdownRow}>
-                <span
-                  className={isMobile ? ms.breakdownLabel : s.breakdownLabel}
-                >
-                  SUBTOTAL:
-                </span>
-                <span
-                  className={isMobile ? ms.breakdownValue : s.breakdownValue}
-                >
-                  {selected?.subtotal}
-                </span>
+            {/* Desglose */}
+            {!isEditing ? (
+              <div className={isMobile ? ms.breakdownBox : s.breakdownBox}>
+                <div className={s.breakdownRow}>
+                  <span
+                    className={isMobile ? ms.breakdownLabel : s.breakdownLabel}
+                  >
+                    SUBTOTAL:
+                  </span>
+                  <span
+                    className={isMobile ? ms.breakdownValue : s.breakdownValue}
+                  >
+                    {selected?.subtotal}
+                  </span>
+                </div>
+                <div className={s.breakdownRow}>
+                  <span
+                    className={isMobile ? ms.breakdownLabel : s.breakdownLabel}
+                  >
+                    TRASLADOS <br /> (IVA 16%):
+                  </span>
+                  <span
+                    className={isMobile ? ms.breakdownValue : s.breakdownValue}
+                  >
+                    {selected?.iva}
+                  </span>
+                </div>
+                <div className={s.breakdownRow}>
+                  <span
+                    className={isMobile ? ms.breakdownLabel : s.breakdownLabel}
+                  >
+                    TOTAL:
+                  </span>
+                  <span
+                    className={isMobile ? ms.breakdownValue : s.breakdownValue}
+                  >
+                    {selected?.total}
+                  </span>
+                </div>
               </div>
-              <div className={s.breakdownRow}>
-                <span
-                  className={isMobile ? ms.breakdownLabel : s.breakdownLabel}
-                >
-                  TRASLADOS <br /> (IVA 16%):
-                </span>
-                <span
-                  className={isMobile ? ms.breakdownValue : s.breakdownValue}
-                >
-                  {selected?.iva}
-                </span>
-              </div>
-              <div className={s.breakdownRow}>
-                <span
-                  className={isMobile ? ms.breakdownLabel : s.breakdownLabel}
-                >
-                  TOTAL:
-                </span>
-                <span
-                  className={isMobile ? ms.breakdownValue : s.breakdownValue}
-                >
-                  {selected?.total}
-                </span>
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
+            ) : (
+              ""
+            )}
+          </div>
 
           {/* Editar Información */}
           {/* <div className={s.editInformationBox}>

@@ -1,19 +1,14 @@
 // src/app/stores/useEmployeesStore/utilities/fetchActiveEmployees.ts
 import type { Set, Get } from "../types";
 
-import { Employees, EmployeesIsActive } from "@/app/configurations/Axios/urls";
+import { Employees } from "@/app/configurations/Axios/urls";
 import { mapEmployees } from "@/app/mappings/employees/employee.mapper";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pGet } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
 
-const withLeadingSlash = (path: string) =>
-  path.startsWith("/") ? path : `/${path}`;
-
-const ACTIVE_ENDPOINT = EmployeesIsActive
-  ? withLeadingSlash(EmployeesIsActive)
-  : `${Employees}?IsActive=true`;
+const ACTIVE_ENDPOINT = `${Employees}?IsActive=true`;
 
 /**
  * Fetch only active employees and cache them locally.

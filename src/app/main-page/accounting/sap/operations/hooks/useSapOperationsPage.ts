@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { shallow } from "zustand/shallow";
 
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsSatTable } from "@/app/mappings/billingdocuments/billingdocuments.types";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingDocumentsSAPStore } from "@/app/stores/useBillingDocumentsSAPStore/useBillingDocumentsSAPStore";
 import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
 
@@ -43,6 +44,11 @@ const useSapOperationsPage = () => {
       error: s.error,
       resetFlags: s.resetFlags,
     }),
+    shallow,
+  );
+
+  const { fetchBillingDocumentById } = useBillingDocumentsStore(
+    (s) => ({ fetchBillingDocumentById: s.fetchBillingDocumentById }),
     shallow,
   );
 
@@ -97,6 +103,17 @@ const useSapOperationsPage = () => {
     );
     completeProcessToSAP(ids);
   };
+
+  const handleJsonSapUpdated = useCallback(
+    async (billingDocumentId?: string) => {
+      const targetId = billingDocumentId ?? selected?.billingdocument_id;
+      await fetchBillingDocumentsSAP(true);
+      if (!targetId) return;
+      const refreshed = await fetchBillingDocumentById(targetId, true);
+      if (refreshed) setSelected(refreshed as BillingDocumentsSatTable);
+    },
+    [fetchBillingDocumentById, fetchBillingDocumentsSAP, selected],
+  );
 
   useEffect(() => {
     fetchBillingDocumentsSAP(true);
@@ -166,6 +183,7 @@ const useSapOperationsPage = () => {
     handleMultiSelect,
     handleMultiSelectNonDeductible,
     handleSendToSap,
+    handleJsonSapUpdated,
   };
 };
 

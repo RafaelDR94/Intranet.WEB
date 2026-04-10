@@ -30,6 +30,7 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
     onTableActionClick,
     actionLabel,
     showCalendar,
+    showSearch,
     showFilter,
     showButton,
     isDownloadOpen,
@@ -47,7 +48,8 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
 
   return (
     <div className={tableLayoutStyles.headerdiv}>
-      <Input
+      {showSearch && (
+        <Input
         placeholder="Buscar"
         inputSize={isMobile ? "sm" : "md"}
         className={tableLayoutStyles.inputSyle}
@@ -58,6 +60,7 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
         data-tour={props.searchDataTour}
         icon={!isMobile&&SearchIcon||""}
       />
+      )}
 
       {showCalendar && (
         <div className="relative z-[70] mx-1" data-tour={props.calendarDataTour}>

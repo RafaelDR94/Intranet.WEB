@@ -29,4 +29,6 @@ export interface DetailsPanelProps {
   closeButtonDataTour?: string
   /** Texto visible para el tipo de documento. */
   documentLabel?: string
+  /** Callback para refrescar datos tras actualizar JSON SAP. */
+  onJsonSapUpdated?: (billingDocumentId?: string) => void
 }
