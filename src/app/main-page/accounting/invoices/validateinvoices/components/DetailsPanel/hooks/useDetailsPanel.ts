@@ -113,26 +113,40 @@ export const useDetailsPanel = ({
     updateBillingDocument(payload, reqisition);
   };
 
+  const [jsonSapSnapshot, setJsonSapSnapshot] = useState<any>(selected?.json_sap ?? null);
+
+  useEffect(() => {
+    setJsonSapSnapshot(selected?.json_sap ?? null);
+  }, [selected?.billingdocument_id, selected?.json_sap]);
+
   const handleUpdateJsonSapItem = async (
     jsonSapItemIndex: number,
     sapInternalKey: string,
   ): Promise<boolean> => {
     const documentId = selected?.billingdocument_id;
-    const currentJsonSap = selected?.json_sap;
+    const currentJsonSap = jsonSapSnapshot ?? selected?.json_sap;
     if (!documentId || !currentJsonSap || !Array.isArray(currentJsonSap.items)) return false;
 
     const updatedJsonSap = {
       ...currentJsonSap,
-      items: currentJsonSap.items.map((item, idx) =>
+      items: currentJsonSap.items.map((item: any, idx: any) =>
         idx === jsonSapItemIndex ? { ...item, claveInterna: sapInternalKey } : item,
       ),
     };
 
     setCurrentUpdateAction("json_sap");
-    return updateBillingDocumentJsonSap({
+    setJsonSapSnapshot(updatedJsonSap);
+
+    const ok = await updateBillingDocumentJsonSap({
       Id_BillingDocument: documentId,
       jsonsap: JSON.stringify(updatedJsonSap),
     });
+
+    if (!ok) {
+      setJsonSapSnapshot(currentJsonSap);
+    }
+
+    return ok;
   };
 
   const handleSubmitReject = (values: Record<string, any>) => {

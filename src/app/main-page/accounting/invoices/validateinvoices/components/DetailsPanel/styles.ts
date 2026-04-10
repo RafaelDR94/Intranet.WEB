@@ -1,10 +1,10 @@
 export const classes = {
-container: "space-y-4",
+container: "flex h-full min-h-0 flex-col space-y-4",
 uuid: "text-gray-90 text-s1 font-semibold",
 labelLine: "text-gray-90 text-b4 font-medium",
 valueText: "text-gray-90 text-b3 font-regular",
 sectionTopMargin: "mt-4",
-conceptsScroller: "mt-4 h-50 overflow-y-auto pr-2 space-y-4",
+conceptsScroller: "mt-4 flex-1 min-h-0 overflow-y-auto pr-2 space-y-4",
 conceptItem: "space-y-1",
 sapRowsContainer: "space-y-4",
 sapRow: "grid grid-cols-1 md:grid-cols-[1fr_260px] gap-4 items-center",
@@ -24,15 +24,16 @@ actionsRow: "flex items-center gap-2",
 commentBoxPadding: "pt-4",
 requisitionkey:"text-gray-90 text-b4 font-medium",
 requisitionkeyspan:"text-gray-90 text-b3 font-regular",
-editInformationBox:"flex justify-end"
+editInformationBox:"flex justify-end",
+bottomSection: "mt-auto space-y-4"
 };
 export const mobileclasses = {
-container: "space-y-4",
+container: "flex h-full min-h-0 flex-col space-y-4",
 uuid: "text-gray-90 text-b2 font-semibold",
 labelLine: "text-gray-90 text-c2 font-medium",
 valueText: "text-gray-90 text-c2 font-regular",
 sectionTopMargin: "mt-4",
-conceptsScroller: "mt-4 h-50 overflow-y-auto pr-2 space-y-4",
+conceptsScroller: "mt-4 flex-1 min-h-0 overflow-y-auto pr-2 space-y-4",
 conceptItem: "space-y-1",
 sapRowsContainer: "space-y-4",
 sapRow: "space-y-2",
@@ -51,5 +52,6 @@ emptyState: "text-gray-70 text-b3",
 actionsRow: "flex items-center gap-2",
 commentBoxPadding: "pt-4",
 requisitionkey:"text-blue-60 text-label font-medium",
-requisitionkeyspan:"text-blue-60 text-label font-regular"
+requisitionkeyspan:"text-blue-60 text-label font-regular",
+bottomSection: "mt-auto space-y-4"
 };

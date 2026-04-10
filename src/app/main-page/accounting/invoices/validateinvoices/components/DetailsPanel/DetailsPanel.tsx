@@ -178,6 +178,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       onClose={() => setPanelOpen(false)}
       leftLabel={isMobile ? "" : labels?.left}
       rightLabel={isMobile ? "" : labels?.right}
+      contentClassName="overflow-hidden flex flex-col"
       actionButton={
         <div className={clsx(
           "flex",
@@ -337,60 +338,62 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             )}
           </div>
 
-          {/* Divider */}
-          <div className={s.divider} />
+          <div className={isMobile ? ms.bottomSection : s.bottomSection}>
+            {/* Divider */}
+            <div className={s.divider} />
 
-          {/* Desglose */}
-          <div className={isMobile ? ms.breakdownBox : s.breakdownBox}>
-            <div className={s.breakdownRow}>
-              <span className={isMobile ? ms.breakdownLabel : s.breakdownLabel}>SUBTOTAL:</span>
-              <span className={isMobile ? ms.breakdownValue : s.breakdownValue}>{selected?.subtotal}</span>
+            {/* Desglose */}
+            <div className={isMobile ? ms.breakdownBox : s.breakdownBox}>
+              <div className={s.breakdownRow}>
+                <span className={isMobile ? ms.breakdownLabel : s.breakdownLabel}>SUBTOTAL:</span>
+                <span className={isMobile ? ms.breakdownValue : s.breakdownValue}>{selected?.subtotal}</span>
+              </div>
+              <div className={s.breakdownRow}>
+                <span className={isMobile ? ms.breakdownLabel : s.breakdownLabel}>TRASLADOS 002 (IVA 16%):</span>
+                <span className={isMobile ? ms.breakdownValue : s.breakdownValue}>{selected?.iva}</span>
+              </div>
+              <div className={s.breakdownRow}>
+                <span className={isMobile ? ms.breakdownLabel : s.breakdownLabel}>OTROS IMPUESTOS:</span>
+                <span className={isMobile ? ms.breakdownValue : s.breakdownValue}>{selected?.otherinvoices}</span>
+              </div>
+              <div className={s.breakdownRow}>
+                <span className={isMobile ? ms.breakdownLabel : s.breakdownLabel}>TOTAL:</span>
+                <span className={isMobile ? ms.breakdownValue : s.breakdownValue}>{selected?.total}</span>
+              </div>
             </div>
-            <div className={s.breakdownRow}>
-              <span className={isMobile ? ms.breakdownLabel : s.breakdownLabel}>TRASLADOS 002 (IVA 16%):</span>
-              <span className={isMobile ? ms.breakdownValue : s.breakdownValue}>{selected?.iva}</span>
-            </div>
-            <div className={s.breakdownRow}>
-              <span className={isMobile ? ms.breakdownLabel : s.breakdownLabel}>OTROS IMPUESTOS:</span>
-              <span className={isMobile ? ms.breakdownValue : s.breakdownValue}>{selected?.otherinvoices}</span>
-            </div>
-            <div className={s.breakdownRow}>
-              <span className={isMobile ? ms.breakdownLabel : s.breakdownLabel}>TOTAL:</span>
-              <span className={isMobile ? ms.breakdownValue : s.breakdownValue}>{selected?.total}</span>
-            </div>
+            {selected.user_comments &&
+              <div className="space-y-1">
+                <div className="text-gray-90 text-b4 font-medium">Comentarios en Factura:</div>
+                <p className="text-gray-50 text-b4 font-medium p-2">
+                  {selected.user_comments || "—"}
+                </p>
+              </div>
+            }
+            {/* Comentarios */}
+            <CollapsibleSection title={onlyText ? "Comentario" : "Deja un comentario"} defaultOpen={false} showDivider={false} enableCollapse={!onlyText}>
+              <div className={s.commentBoxPadding}>
+                {currentPagePermissions?.canAddComment && <DynamicForm
+
+                  fields={[
+                    {
+                      type: "textarea",
+                      name: "comments",
+                      label: "Comentarios:",
+                      value: selected?.comments,
+                      placeholder: "Agregar comentario",
+                      validations: [{ type: "required" }],
+                      className: "bg-white-40",
+                      onlyText: onlyText
+                    },
+                  ]}
+                  showSubmitIf={() => !onlyText}
+                  submitLabel="Guardar Comentario"
+                  onSubmit={handleSubmitComment}
+                />}
+
+              </div>
+            </CollapsibleSection>
           </div>
-          {selected.user_comments &&
-            <div className="space-y-1">
-              <div className="text-gray-90 text-b4 font-medium">Comentarios en Factura:</div>
-              <p className="text-gray-50 text-b4 font-medium p-2">
-                {selected.user_comments || "—"}
-              </p>
-            </div>
-          }
-          {/* Comentarios */}
-          <CollapsibleSection title={onlyText ? "Comentario" : "Deja un comentario"} defaultOpen={false} showDivider={false} enableCollapse={!onlyText}>
-            <div className={s.commentBoxPadding}>
-              {currentPagePermissions?.canAddComment && <DynamicForm
-
-                fields={[
-                  {
-                    type: "textarea",
-                    name: "comments",
-                    label: "Comentarios:",
-                    value: selected?.comments,
-                    placeholder: "Agregar comentario",
-                    validations: [{ type: "required" }],
-                    className: "bg-white-40",
-                    onlyText: onlyText
-                  },
-                ]}
-                showSubmitIf={() => !onlyText}
-                submitLabel="Guardar Comentario"
-                onSubmit={handleSubmitComment}
-              />}
-
-            </div>
-          </CollapsibleSection>
         </div>
       ) : (
         <div className={s.emptyState}>Selecciona un registro para ver el detalle.</div>

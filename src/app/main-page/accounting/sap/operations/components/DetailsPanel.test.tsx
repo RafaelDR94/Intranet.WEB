@@ -33,6 +33,10 @@ vi.mock("@/app/components/PopUp/PopUp", () => ({
   PopUp: () => null,
 }));
 
+vi.mock("@/app/components/Select/Select", () => ({
+  Select: () => <div data-testid="select-mock" />,
+}));
+
 vi.mock("@/assets/icons/Docs/page.svg", () => ({ default: "pdf-icon" }));
 vi.mock("@/assets/icons/Docs/privacy policy.svg", () => ({ default: "xml-icon" }));
 

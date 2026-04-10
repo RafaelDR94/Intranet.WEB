@@ -25,27 +25,62 @@ const toBoolean = (value: unknown, fallback = false) =>
 export const mapEmployee = (emp: any): EmployeeType => ({
   id: toString(emp?.employee_id),
   employee_id: toString(emp?.employee_id ?? emp?.id),
-  employee_number: toString(emp?.employee_number),
-  firstname: toString(emp?.firstname),
-  secondname: toString(emp?.secondname),
-  lastname: toString(emp?.lastname),
-  motherlast_name: toNullableString(emp?.motherlast_name),
+  employee_number: toString(emp?.employee_number ?? emp?.employee),
+  firstname: toString(emp?.firstname ?? emp?.name),
+  secondname: toString(emp?.secondname ?? emp?.second_name),
+  lastname: toString(emp?.lastname ?? emp?.father_lastname),
+  motherlast_name: toNullableString(emp?.motherlast_name ?? emp?.mother_lastname),
   gender: toString(emp?.gender),
-  email: toString(emp?.email),
-  phone_number: toString(emp?.phone_number),
+  email: toString(emp?.email ?? emp?.employee_email),
+  phone_number: toString(emp?.phone_number ?? emp?.employee_phone),
   extension: toString(emp?.extension),
-  image_url: toString(emp?.image_url),
+  image_url: toString(emp?.image_url ?? emp?.image_profile),
   manager_id: toString(emp?.manager_id),
-  department: mapDepartment(emp?.department ?? {}),
+  department: mapDepartment(
+    emp?.department ?? {
+      department_id: emp?.department_id,
+      name: emp?.department_name ?? emp?.department,
+      enterprise_id: emp?.id_enterprise ?? emp?.enterprise_id,
+      enterprise_name: emp?.enterprise_name ?? emp?.enterprice_name,
+    },
+  ),
   gtstype: toString(emp?.gtstype),
-  workposition: mapWorkPosition(emp?.workposition ?? {}),
-  user: emp?.user ? mapUser(emp.user) : null,
+  workposition: mapWorkPosition(
+    emp?.workposition ?? {
+      workposition_id: emp?.workposition_id,
+      name: emp?.workposition_name,
+    },
+  ),
+  user: emp?.user
+    ? mapUser(emp.user)
+    : emp?.user_id || emp?.username || emp?.role_id || emp?.role_name
+    ? mapUser({
+        user_id: emp?.user_id,
+        username: emp?.username,
+        role_id: emp?.role_id,
+        role: {
+          id: emp?.role_id,
+          name: emp?.role_name,
+        },
+      })
+    : null,
   is_active: toBoolean(emp?.is_active),
   fullname: toString(
-    emp?.fullname ?? [emp?.firstname, emp?.secondname, emp?.lastname, emp?.motherlast_name]
+    emp?.fullname ??
+      [emp?.firstname ?? emp?.name,
+      emp?.secondname ?? emp?.second_name,
+      emp?.lastname ?? emp?.father_lastname,
+      emp?.motherlast_name ?? emp?.mother_lastname]
       .filter((part) => part != null && String(part).trim() !== "")
       .join(" ")
   ),
+  workposition_name: toString(
+    emp?.workposition_name ??
+      emp?.workposition?.name ??
+      emp?.workposition?.workposition_name,
+  ),
+  employee_phone: toString(emp?.employee_phone ?? emp?.phone_number),
+  employee_email: toString(emp?.employee_email ?? emp?.email),
 });
 
 export const mapEmployees = (emps: any[] | undefined): EmployeeType[] =>

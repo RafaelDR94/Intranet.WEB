@@ -5,7 +5,10 @@ export default function HumanResources() {
     <PermissionRedirect
       routes={[
         '/main-page/humanresources/release',
-        '/main-page/humanresources/documents'
+        '/main-page/humanresources/documents',
+        '/main-page/humanresources/organizationchart',
+        '/main-page/humanresources/companies',
+        '/main-page/humanresources/departments'
       ]}
     />
   );

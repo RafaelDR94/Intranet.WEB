@@ -121,6 +121,9 @@ const buildEmployee = (
   user: buildUser(`user-${id}`, `${firstname.toLowerCase()}.${lastname.toLowerCase()}`, id),
   is_active: true,
   fullname: `${firstname} ${lastname}`.trim(),
+  workposition_name: workposition.name,
+  employee_phone: '',
+  employee_email: `${firstname.toLowerCase()}.${lastname.toLowerCase()}@example.com`,
 })
 
 const enterpriseADept = buildDepartment('dep-001', 'Finanzas', 'ent-001', 'DR Security')

@@ -26,6 +26,7 @@ const SapOperationsPage = () => {
     handleSendToSap,
     handleMultiSelect,
     handleMultiSelectNonDeductible,
+    handleJsonSapUpdated,
   } = useSapOperationsPage();
 
   const { currentPagePermissions } = useAuth();
@@ -257,6 +258,7 @@ const SapOperationsPage = () => {
         rejectInvoice={panelOpen.rejectInvoice}
         validInvoice={false}
         sendInvoiceToSap={panelOpen.sendInvoiceToSap}
+        onJsonSapUpdated={handleJsonSapUpdated}
       />
     </>
   );
