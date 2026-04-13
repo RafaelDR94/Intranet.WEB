@@ -62,6 +62,7 @@ export type BillingDocumentJsonSap = {
   total: number
   otherInvoices: number
   moneda: string
+  expenseType :string
   iscompleted: boolean
   items: BillingDocumentJsonSapItem[]
 }
@@ -97,6 +98,7 @@ export type BillingDocuments = {
   "json_sap"?: BillingDocumentJsonSap | null,
   "category": BillingDocumentCategory,
   "validatedbyoperations":boolean
+  "requisitionkey": string
   "authorization"?: Authorization | null
 
 
@@ -161,6 +163,7 @@ export type BillingDocumentsSatTable = {
   "billingAcuse": BillingAcuse | null
   "validatedbyoperations":boolean
   "employeename": string
+  "requisitionkey": string
   "json_sap"?: BillingDocumentJsonSap | null
 }
 

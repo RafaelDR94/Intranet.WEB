@@ -4,6 +4,7 @@ import {
   BillingDocumentMap,
   BillingDocumentCategoryMap,
   BillingDocumentDescriptionMap,
+  BillingDocumentSatTableMap,
 } from "./billingdocuments.mapper";
 
 describe("billingdocuments.mapper", () => {
@@ -63,6 +64,7 @@ describe("billingdocuments.mapper", () => {
           total: 593,
           otherInvoices: 0,
           moneda: "MXN",
+          expenseType: "6",
           iscompleted: true,
           items: [
             {
@@ -81,6 +83,7 @@ describe("billingdocuments.mapper", () => {
       expect(mapped.iva).toBe(81.79);
       expect(mapped.otherinvoices).toBe(0);
       expect(mapped.json_sap?.moneda).toBe("MXN");
+      expect(mapped.json_sap?.expenseType).toBe("6");
       expect(mapped.json_sap?.items).toHaveLength(1);
     });
 
@@ -98,6 +101,32 @@ describe("billingdocuments.mapper", () => {
       expect(mapped.iva).toBe(100);
       expect(mapped.otherinvoices).toBe(5);
       expect(mapped.json_sap).toBeNull();
+    });
+
+    it("exposes requisitionkey as a top-level field for table search", () => {
+      const mapped = BillingDocumentMap({
+        billingdocument_id: "bd-req",
+        requisition: {
+          requisitionkey: "REQ-VAL-001",
+        },
+      });
+
+      expect(mapped.requisitionkey).toBe("REQ-VAL-001");
+    });
+  });
+
+  describe("BillingDocumentSatTableMap", () => {
+    it("exposes requisitionkey as a top-level field for table search", () => {
+      const mapped = BillingDocumentSatTableMap({
+        billingdocument_id: "bd-3",
+        requisition: {
+          requisitionkey: "REQ-12345",
+          employeename: "Test User",
+        },
+      } as any);
+
+      expect(mapped.requisitionkey).toBe("REQ-12345");
+      expect(mapped.employeename).toBe("Test User");
     });
   });
 });

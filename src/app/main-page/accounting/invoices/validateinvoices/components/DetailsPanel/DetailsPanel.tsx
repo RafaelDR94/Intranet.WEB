@@ -45,6 +45,18 @@ const toSapOptions = (catalog: ExpenseTypeCatalog[]): SapOption[] =>
     satKey: String(item.satKey),
   }));
 
+const toExpenseTypeOptions = (options: SapOption[]): SapOption[] => {
+  const unique = new Set<string>();
+
+  return options.reduce<SapOption[]>((acc, option) => {
+    if (!option.internalKey || unique.has(option.internalKey)) return acc;
+
+    unique.add(option.internalKey);
+    acc.push(option);
+    return acc;
+  }, []);
+};
+
 const findMatchingSapOption = (
   row: DetailItemRow,
   options: SapOption[],
@@ -76,6 +88,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   rejectType = true,
   reqisition,
   onSendToSap,
+  allowSendToSapAction,
   documentLabel = "Factura",
 }) => {
   const {
@@ -87,6 +100,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     setOpenRejectInvoice,
     handleSubmitComment,
     handleUpdateJsonSapItem,
+    handleUpdateJsonSapExpenseType,
     handleSubmitReject,
     handleSubmitValid,
   } = useDetailsPanel({
@@ -101,7 +115,12 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
   const pathname = usePathname();
-  const isSatRoute = pathname?.includes("/main-page/accounting/invoices/sat");
+  const isSatRoute =
+    pathname?.includes("/main-page/accounting/invoices/sat") ||
+    pathname?.includes("/main-page/accounting/sap/administration") ||
+    pathname?.includes("/main-page/accounting/sap/operations");
+  const canShowSendToSapAction =
+    allowSendToSapAction ?? currentPagePermissions?.canSendToSap;
 
   const detailRows = useMemo<DetailItemRow[]>(() => {
     if (!selected) return [];
@@ -154,12 +173,17 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   }, [expenseTypeCatalog, selected]);
 
   const [sapSelectionByRow, setSapSelectionByRow] = useState<Record<string, string>>({});
+  const [expenseTypeSelection, setExpenseTypeSelection] = useState("");
   const sapOptions = useMemo(
     () =>
       toSapOptions(
         Array.isArray(expenseTypeCatalog) ? expenseTypeCatalog : [],
       ),
     [expenseTypeCatalog],
+  );
+  const expenseTypeOptions = useMemo(
+    () => toExpenseTypeOptions(sapOptions),
+    [sapOptions],
   );
   const hasMissingSapInternalKey = useMemo(() => {
     const jsonSapItems = (selected as any)?.json_sap?.items;
@@ -178,6 +202,14 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     setSapSelectionByRow(nextSelections);
   }, [detailRows, sapOptions]);
 
+  useEffect(() => {
+    const nextExpenseType = String(selected?.json_sap?.expenseType ?? "").trim();
+    const matchedOption = expenseTypeOptions.find(
+      (option) => option.internalKey === nextExpenseType,
+    );
+    setExpenseTypeSelection(matchedOption?.value ?? "");
+  }, [expenseTypeOptions, selected?.json_sap?.expenseType]);
+
   return (
     <DetailsPanelLayout
       open={panelOpen}
@@ -194,7 +226,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           {(currentPagePermissions?.canValidInvoice && validInvoice) && <Button size="small" variant="solid" hideIcon onClick={() => setOpenValidInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
             {`Validar ${documentLabel}`}
           </Button>}
-          {(currentPagePermissions?.canSendToSap && sendInvoiceToSap) && <Button size="small" variant="solid" hideIcon onClick={() => onSendToSap?.()} disabled={hasMissingSapInternalKey}>
+          {(canShowSendToSapAction && sendInvoiceToSap) && <Button size="small" variant="solid" hideIcon onClick={() => onSendToSap?.()} disabled={hasMissingSapInternalKey}>
             Enviar a SAP
           </Button>}
           {currentPagePermissions?.canRejectInvoice && rejectInvoice && <Button size="small" variant="outline" hideIcon onClick={() => setOpenRejectInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
@@ -278,6 +310,36 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           <div className={s.conceptsScroller}>
             {isSatRoute ? (
               <div className={s.sapRowsContainer}>
+                <div className={s.expenseTypeRow}>
+                  <div className={s.expenseTypeLabel}>Tipo de gasto</div>
+                  <div className={s.sapSelectBox}>
+                    <Select
+                      label="Catálogo de gasto"
+                      placeholder="Seleccionar opción"
+                      options={expenseTypeOptions}
+                      selected={expenseTypeSelection ? [expenseTypeSelection] : []}
+                      onChange={async (values) => {
+                        const nextValue = values[0] ?? "";
+
+                        setExpenseTypeSelection(nextValue);
+
+                        const selectedOption = expenseTypeOptions.find(
+                          (option) => option.value === nextValue,
+                        );
+                        const nextInternalKey = selectedOption?.internalKey ?? "";
+
+                        const ok = await handleUpdateJsonSapExpenseType(nextInternalKey);
+                        if (!ok) {
+                          const fallback = String(selected?.json_sap?.expenseType ?? "").trim();
+                          const fallbackOption = expenseTypeOptions.find(
+                            (option) => option.internalKey === fallback,
+                          );
+                          setExpenseTypeSelection(fallbackOption?.value ?? "");
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
                 {detailRows.map((row) => (
                   <div key={row.id} className={s.sapRow}>
                     <div className={s.conceptItem}>
@@ -345,7 +407,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             )}
           </div>
 
-          <div className={isMobile ? ms.bottomSection : s.bottomSection}>
+          <div className={ s.bottomSection}>
             {/* Divider */}
             <div className={s.divider} />
 
