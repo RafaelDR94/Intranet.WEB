@@ -289,6 +289,7 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
   const mockSelected: BillingDocuments = useMemo(
     () => ({
       id: "mock-detail-doc-001",
+      requisitionkey: "REQ-MOCK-001",
       billingdocument_id: "mock-detail-doc-001",
       requisition: { requisitionkey: "REQ-MOCK-001" } as any,
       billingimages_id: "mock-detail-image-001",
@@ -382,6 +383,7 @@ const useRequisitionDetailsDocument = (overrideRequisitionId?: string) => {
 
   const mapImageToDocument = (image: BillingImages): BillingDocuments => ({
     id: `ticket-${image.billing_image_id}`,
+    requisitionkey: image.requisition?.requisitionkey ?? "",
     billingdocument_id: `ticket-${image.billing_image_id}`,
     requisition: image.requisition,
     billingimages_id: image.billing_image_id,

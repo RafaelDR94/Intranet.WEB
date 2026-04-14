@@ -56,6 +56,7 @@ const mapJsonSap = (raw: any): BillingDocumentJsonSap | null => {
     total: Number(raw?.total ?? 0),
     otherInvoices: Number(raw?.otherInvoices ?? 0),
     moneda: toString(raw?.moneda),
+    expenseType : toString(raw?.expenseType),
     iscompleted: Boolean(raw?.iscompleted),
     items: Array.isArray(raw?.items) ? raw.items.map(mapJsonSapItem) : [],
   };
@@ -167,6 +168,7 @@ export const BillingDocumentMap = (raw: any): BillingDocuments => {
   json_sap: jsonSap,
   category: BillingDocumentCategoryMap(raw?.category ?? raw?.Category),
   validatedbyoperations: Boolean(raw?.validatedbyoperations),
+  requisitionkey: toString(raw?.requisition?.requisitionkey),
   authorization: raw?.authorization ? mapAuthorization(raw.authorization) : null,
 });
 };
@@ -235,6 +237,7 @@ export const BillingDocumentSatTableMap = (raw: BillingDocuments): BillingDocume
   billingAcuse: raw?.billingAcuse,
   validatedbyoperations: raw?.validatedbyoperations,
   employeename: raw?.requisition?.employeename,
+  requisitionkey: toString(raw?.requisition?.requisitionkey),
 });
 
 export const BillingDocumentsSatTableListMap = (list: any[]): BillingDocumentsSatTable[] =>
