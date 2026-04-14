@@ -32,5 +32,6 @@ export interface DetailsPanelProps {
     zIndex?: number;
     withinContainer?: boolean;
     label?: () => React.ReactNode;
-
+    divider?: boolean;
+    contentClassName?: string;
 }

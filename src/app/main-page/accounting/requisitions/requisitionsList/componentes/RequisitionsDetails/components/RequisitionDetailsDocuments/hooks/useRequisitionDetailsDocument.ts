@@ -213,6 +213,7 @@ const useRequisitionDetailsDocument = () => {
   const mapImageToDocument = (image: BillingImages): BillingDocuments => ({
     id: `ticket-${image.billing_image_id}`,
     billingdocument_id: `ticket-${image.billing_image_id}`,
+    requisitionkey: image.requisition?.requisitionkey ?? "",
     requisition: image.requisition,
     billingimages_id: image.billing_image_id,
     xml: "",

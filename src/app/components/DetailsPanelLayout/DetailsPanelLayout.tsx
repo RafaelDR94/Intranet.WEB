@@ -29,6 +29,8 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
   zIndex = 80,
   label,
   withinContainer = false,
+  divider = true,
+  contentClassName,
 }) => {
   const [internalExpanded, setInternalExpanded] = useState<boolean>(
     expanded ?? false,
@@ -107,7 +109,7 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
           </div>
         </header>
 
-        <div className={s.divider} />
+        {divider && <div className={s.divider} />}
 
         {(leftLabel || rightLabel) && (
           <div className={s.labels}>
@@ -116,7 +118,7 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
           </div>
         )}
 
-        <section className={s.content}>{children}</section>
+        <section className={clsx(s.content, contentClassName)}>{children}</section>
         {isMobile && <>{actionButton}</>}
       </div>
     </aside>

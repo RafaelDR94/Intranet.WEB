@@ -68,6 +68,7 @@ const DocumentsByRequisition: React.FC = () => {
   const mapFullToBillingDocument = (
     doc: BillingAllDocumentsByRequisition,
   ): BillingDocuments => ({
+    requisitionkey: doc.requisition?.requisitionkey ?? '',
     id: doc.billingdocument_id ?? '',
     billingdocument_id: doc.billingdocument_id ?? '',
     requisition: doc.requisition,

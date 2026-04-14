@@ -67,6 +67,8 @@ export const TransportVehicleReassignmentByEmployee =
 
 export const Employees = process.env.NEXT_PUBLIC_EMPLOYEES ?? "/Employees";
 export const EmployeesById = process.env.NEXT_PUBLIC_EMPLOYEESBYID ?? "/Employees/ById";
+export const EmployeesByIdDepartment =
+  process.env.NEXT_PUBLIC_EMPLOYEES_BY_ID_DEPARTMENT ?? "/Employees/ByIdDepartment";
 export const EmployeesActive = process.env.NEXT_PUBLIC_EMPLOYEES_ACTIVE_ID ?? "/Employees/Activate";
 export const EmployeesIsActive = process.env.NEXT_PUBLIC_EMPLOYEES_IS_ACTIVE ?? "Employees/EmployeesActive";
 

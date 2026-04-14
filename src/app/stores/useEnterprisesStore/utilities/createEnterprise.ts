@@ -32,7 +32,7 @@ export const createEnterprise = async (
 
   try {
     const post = pPost(requireGateway("post"), [200, 201]);
-    const res = await post(Enterprises+"?newEnterprise="+payload.newEnterprise, mapEnterprisePost(payload));
+    const res = await post(Enterprises, mapEnterprisePost(payload));
     const raw = res.data?.data ?? res.data ?? null;
     const created = raw ? mapEnterprise(raw) : null;
 

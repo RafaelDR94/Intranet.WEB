@@ -82,12 +82,15 @@ export const sidebarRoutes = [
     ],
   },
   {
-    label: 'RH',
+    label: 'RRHH',
     path: '/main-page/humanresources',
     icon: ServerIcon,
     subroutes: [
       { label: 'Comunicados', path: '/main-page/humanresources/release' },
       { label: 'Documentos', path: '/main-page/humanresources/documents' },
+      { label: 'Organigrama', path: '/main-page/humanresources/organizationchart' },
+      { label: 'Empresas', path: '/main-page/humanresources/companies' },
+      { label: 'Departamentos', path: '/main-page/humanresources/departments' },
     ],
   },
   {
