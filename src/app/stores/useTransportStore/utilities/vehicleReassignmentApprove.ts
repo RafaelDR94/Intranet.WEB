@@ -1,6 +1,6 @@
 'use client'
 
-import type { GetState, SetState } from '../types'
+import type { GetState, SetState, VehicleReassignmentApprovePayload } from '../types'
 
 import { fetchAssignments } from './fetchAssignments'
 
@@ -8,7 +8,6 @@ import { TransportVehicleReassignmentApprove as TransportVehicleReassignmentAppr
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
-import type { VehicleReassignmentApprovePayload } from '../types'
 
 export const vehicleReassignmentApprove = async (
   set: SetState,

@@ -19,7 +19,13 @@ const mapEnterpriseDepartment = (dep: any): Department => ({
 export const mapEnterprise = (raw: any): Enterprise => ({
   enterprise_id: toString(raw?.enterprise_id ?? raw?.id),
   name: toString(raw?.name),
-  is_external:(raw?.is_external),
+  companytype: toString(raw?.companytype),
+  rfc: toString(raw?.rfc),
+  businessindustry: toString(raw?.businessindustry),
+  imgurl: toString(
+    raw?.imgurl ?? raw?.imgUrl ?? raw?.image_url ?? raw?.imageUrl
+  ),
+  is_external: raw?.is_external,
   departments: Array.isArray(raw?.departments)
     ? raw.departments.map(mapEnterpriseDepartment)
     : [],
@@ -31,16 +37,28 @@ export const mapEnterprises = (list: any[] | undefined): Enterprise[] =>
 // Payload mappers
 export const mapEnterprisePost = (
   payload: Partial<EnterprisePost> | any
-): EnterprisePost => ({
-  newEnterprise: toString(payload?.newEnterprise),
-});
+): EnterprisePost => {
+  const enterpriseId = toString(payload?.enterprise_id ?? payload?.id, "");
+  return {
+    ...(enterpriseId ? { enterprise_id: enterpriseId } : {}),
+    name: toString(payload?.name),
+    companytype: toString(payload?.companytype),
+    rfc: toString(payload?.rfc),
+    businessindustry: toString(payload?.businessindustry),
+    imgurl: toString(payload?.imgurl),
+  };
+};
 
 export const mapEnterprisePut = (
   payload: Partial<EnterprisePut> | any
 ): EnterprisePut => ({
   enterprise_id: toString(payload?.enterprise_id ?? payload?.id),
   name: toString(payload?.name),
+  companytype: toString(payload?.companytype),
+  rfc: toString(payload?.rfc),
+  businessindustry: toString(payload?.businessindustry),
   is_external: Boolean(payload?.is_external),
+  imgurl: toString(payload?.imgurl),
 });
 
 export const mapExternalEnterprisePost = (

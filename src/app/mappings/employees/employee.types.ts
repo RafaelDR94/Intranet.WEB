@@ -22,6 +22,9 @@ export type EmployeeType = {
   user: UserType | null;
   is_active: boolean;
   fullname: string;
+  workposition_name: string;
+  employee_phone: string;
+  employee_email: string;
 };
 
 type BaseEmployeePayload = {

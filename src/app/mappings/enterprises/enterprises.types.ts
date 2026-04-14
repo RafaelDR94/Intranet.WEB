@@ -7,16 +7,29 @@ export type Department = {
 export type Enterprise = {
     enterprise_id: string,
     name: string,
+    companytype?: string,
+    rfc?: string,
+    businessindustry?: string,
+    imgurl?: string,
     departments: Department[],
     is_external:boolean
 }
 export type EnterprisePost = {
-    newEnterprise: string,
+    enterprise_id?: string,
+    name: string,
+    companytype: string,
+    rfc: string,
+    businessindustry: string,
+    imgurl?: string
 }
 export type EnterprisePut = {
-    "enterprise_id": string,
-    "name": string,
-    "is_external": boolean
+    enterprise_id: string,
+    name: string,
+    companytype: string,
+    rfc: string,
+    businessindustry: string,
+    is_external: boolean,
+    imgurl?: string
 }
 export type ExternalEnterprisePost = {
     newEnterprise: string,

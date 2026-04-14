@@ -161,6 +161,16 @@ export const getTabsFromPath = (
       { label: 'Documentos Gerenciales', path: '/main-page/humanresources/documents/managementdocuments' },
       { label: 'Documentos Operativos', path: '/main-page/humanresources/documents/operationaldocuments' },
     ],
+    'humanresources/organizationchart': [
+      { label: 'Departamentos', path: '/main-page/humanresources/organizationchart/departments' },
+      { label: 'Directorio General', path: '/main-page/humanresources/organizationchart/generaldirectory' },
+    ],
+    'humanresources/companies': [
+      { label: 'Empresas', path: '/main-page/humanresources/companies' },
+    ],
+    'humanresources/departments': [
+      { label: 'Departamentos', path: '/main-page/humanresources/departments' },
+    ],
     'administration/usersmanagment': [
       { label: 'Crear Empleado', path: '/main-page/administration/usersmanagment/createemployee' },
       { label: 'Lista de Empleados', path: '/main-page/administration/usersmanagment/employeesList' },
@@ -546,6 +556,64 @@ export const getTabsFromPath = (
       if (!tabs.some((tab) => tab.path === detailPath)) {
         tabs = [...tabs, { label: detailLabel, path: detailPath }];
       }
+    }
+  }
+
+  if (first === 'humanresources' && second === 'companies') {
+    if (view === 'new') {
+      tabs = [
+        { label: 'Empresas', path: '/main-page/humanresources/companies' },
+        { label: 'Nueva empresa', path: '/main-page/humanresources/companies?view=new' },
+      ];
+    }
+    if (view === 'edit' && id) {
+      tabs = [
+        { label: 'Empresas', path: '/main-page/humanresources/companies' },
+        { label: 'Editar empresa', path: `/main-page/humanresources/companies?view=edit&id=${id}` },
+      ];
+    }
+  }
+
+  if (first === 'humanresources' && second === 'departments') {
+    if (view === 'new') {
+      tabs = [
+        { label: 'Departamentos', path: '/main-page/humanresources/departments' },
+        { label: 'Nuevo departamento', path: '/main-page/humanresources/departments?view=new' },
+      ];
+    }
+    if (view === 'edit' && id) {
+      const departmentLabel = labelparam || 'Departamento';
+      const detailQs = new URLSearchParams();
+      detailQs.set('view', 'edit');
+      detailQs.set('id', id);
+      if (departmentLabel) detailQs.set('label', departmentLabel);
+
+      tabs = [
+        { label: 'Departamentos', path: '/main-page/humanresources/departments' },
+        {
+          label: departmentLabel,
+          path: `/main-page/humanresources/departments?${detailQs.toString()}`,
+        },
+      ];
+    }
+  }
+
+
+  if (first === 'humanresources' && second === 'organizationchart' && third === 'departments') {
+    if (view === 'detail' && id) {
+      const departmentLabel = labelparam || 'Departamento';
+      const detailQs = new URLSearchParams();
+      detailQs.set('view', 'detail');
+      detailQs.set('id', id);
+      if (departmentLabel) detailQs.set('label', departmentLabel);
+
+      tabs = [
+        { label: 'Departamentos', path: '/main-page/humanresources/organizationchart/departments' },
+        {
+          label: departmentLabel,
+          path: `/main-page/humanresources/organizationchart/departments?${detailQs.toString()}`,
+        },
+      ];
     }
   }
 

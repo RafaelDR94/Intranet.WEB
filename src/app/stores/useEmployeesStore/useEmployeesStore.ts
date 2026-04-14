@@ -10,6 +10,7 @@ import {
   createEmployee as createEmployeeRequest,
   deleteEmployee as deleteEmployeeRequest,
   fetchActiveEmployees as fetchActiveEmployeesRequest,
+  fetchEmployeesByDepartment as fetchEmployeesByDepartmentRequest,
   fetchEmployeeById as fetchEmployeeByIdRequest,
   fetchEmployees as fetchEmployeesRequest,
   updateEmployee as updateEmployeeRequest,
@@ -18,10 +19,12 @@ import { EmployeeType } from "@/app/mappings/employees/employee.types";
 
 const initialCollections: Pick<
   EmployeesState,
-  "employees" | "activeEmployees" | "employee"
+  "employees" | "activeEmployees" | "departmentEmployees" | "departmentEmployeesDepartmentId" | "employee"
 > = {
   employees: [],
   activeEmployees: [],
+  departmentEmployees: [],
+  departmentEmployeesDepartmentId: undefined,
   employee: undefined,
 };
 
@@ -30,6 +33,7 @@ const initialFlags: Pick<
   | "loading"
   | "loadingById"
   | "loadingActive"
+  | "loadingByDepartment"
   | "creating"
   | "updating"
   | "deleting"
@@ -37,6 +41,7 @@ const initialFlags: Pick<
   | "successGet"
   | "successGetById"
   | "successGetActive"
+  | "successGetByDepartment"
   | "successPost"
   | "successPut"
   | "successDelete"
@@ -47,6 +52,7 @@ const initialFlags: Pick<
   loading: false,
   loadingById: false,
   loadingActive: false,
+  loadingByDepartment: false,
   creating: false,
   updating: false,
   deleting: false,
@@ -54,6 +60,7 @@ const initialFlags: Pick<
   successGet: false,
   successGetById: false,
   successGetActive: false,
+  successGetByDepartment: false,
   successPost: false,
   successPut: false,
   successDelete: false,
@@ -75,6 +82,8 @@ export const useEmployeesStore = createWithEqualityFn<EmployeesState>()(
     fetchEmployees: (force = false) => fetchEmployeesRequest(set, get, force),
     fetchActiveEmployees: (force = false) =>
       fetchActiveEmployeesRequest(set, get, force),
+    fetchEmployeesByDepartment: (departmentId: string, force = false) =>
+      fetchEmployeesByDepartmentRequest(departmentId, set, get, force),
     fetchEmployeeById: (id: string, force = false) =>
       fetchEmployeeByIdRequest(id, set, get, force),
     createEmployee: (payload) => createEmployeeRequest(set, get, payload),

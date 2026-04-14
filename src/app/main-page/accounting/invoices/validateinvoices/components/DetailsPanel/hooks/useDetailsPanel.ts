@@ -135,6 +135,25 @@ export const useDetailsPanel = ({
     });
   };
 
+  const handleUpdateJsonSapExpenseType = async (
+    expenseType: string,
+  ): Promise<boolean> => {
+    const documentId = selected?.billingdocument_id;
+    const currentJsonSap = selected?.json_sap;
+    if (!documentId || !currentJsonSap) return false;
+
+    const updatedJsonSap = {
+      ...currentJsonSap,
+      expenseType: expenseType,
+    };
+
+    setCurrentUpdateAction("json_sap");
+    return updateBillingDocumentJsonSap({
+      Id_BillingDocument: documentId,
+      jsonsap: JSON.stringify(updatedJsonSap),
+    });
+  };
+
   const handleSubmitReject = (values: Record<string, any>) => {
     setOpenRejectInvoice(false);
     const payload = {
@@ -281,6 +300,7 @@ export const useDetailsPanel = ({
     setOpenValidInvoice,
     handleSubmitComment,
     handleUpdateJsonSapItem,
+    handleUpdateJsonSapExpenseType,
     handleSubmitReject,
     handleSubmitValid,
   };

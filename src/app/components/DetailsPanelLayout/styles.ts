@@ -6,7 +6,7 @@ export const detailsPanelStyles = {
   headerRight: 'flex items-center',
   divider: 'h-px bg-green-90 ml-5 mr-5',
   labels: 'flex items-center justify-between gap-4 px-5 py-3',
-  content: 'flex-1 overflow-auto p-5',
+  content: 'flex-1 min-h-0 overflow-auto p-5',
   headertexts:'text-label font-medium text-blue-60 ',
   iconButtons:'text-blue-80'
 };

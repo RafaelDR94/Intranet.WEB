@@ -20,6 +20,10 @@ export type EmployeesState = {
   employees: EmployeeType[];
   /** Only active employees cached from the API */
   activeEmployees: EmployeeType[];
+  /** Employees cached for the selected department */
+  departmentEmployees: EmployeeType[];
+  /** Department id associated to cached employees */
+  departmentEmployeesDepartmentId?: string;
   /** Currently selected employee (detail) */
   employee?: EmployeeType;
 
@@ -29,6 +33,8 @@ export type EmployeesState = {
   loadingById: boolean;
   /** Loading active employees flag */
   loadingActive: boolean;
+  /** Loading employees by department flag */
+  loadingByDepartment: boolean;
   /** Create request in progress */
   creating: boolean;
   /** Update request in progress */
@@ -42,6 +48,7 @@ export type EmployeesState = {
   successGet: boolean;
   successGetById: boolean;
   successGetActive: boolean;
+  successGetByDepartment: boolean;
   successPost: boolean;
   successPut: boolean;
   successDelete: boolean;
@@ -56,6 +63,11 @@ export type EmployeesState = {
   fetchEmployees: (force?: boolean) => Promise<void>;
   /** Fetch only active employees */
   fetchActiveEmployees: (force?: boolean) => Promise<void>;
+  /** Fetch employees by department id */
+  fetchEmployeesByDepartment: (
+    departmentId: string,
+    force?: boolean
+  ) => Promise<EmployeeType[]>;
   /** Fetch an employee by identifier */
   fetchEmployeeById: (id: string, force?: boolean) => Promise<EmployeeType | null>;
   /** Create a new employee */
