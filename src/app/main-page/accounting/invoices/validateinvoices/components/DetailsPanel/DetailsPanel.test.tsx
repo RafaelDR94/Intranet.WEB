@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+﻿import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 
@@ -118,16 +118,22 @@ describe('DetailsPanel', () => {
           conceptos: [],
           json_sap: {
             expenseType: '162',
-            items: [],
+            items: [
+              {
+                itemIndex: 1,
+                claveInterna: '162',
+                claveProdServ: '90101500',
+                descripcion: 'Consumo de Alimentos',
+                importe: 11.6,
+              },
+            ],
           },
         } as any}
         rejectType={false}
         operations={false}
       />,
     );
-
-    expect(screen.getByText('Tipo de gasto')).toBeInTheDocument();
-    expect(screen.getByText('Catálogo de gasto')).toBeInTheDocument();
+    expect(screen.getByText('Clave SAP')).toBeInTheDocument();
     expect(screen.getByText('1')).toBeInTheDocument();
   });
 
@@ -170,3 +176,4 @@ describe('DetailsPanel', () => {
     expect(screen.getByRole('button', { name: 'Enviar a SAP' })).toBeDisabled();
   });
 });
+

@@ -45,18 +45,6 @@ const toSapOptions = (catalog: ExpenseTypeCatalog[]): SapOption[] =>
     satKey: String(item.satKey),
   }));
 
-const toExpenseTypeOptions = (options: SapOption[]): SapOption[] => {
-  const unique = new Set<string>();
-
-  return options.reduce<SapOption[]>((acc, option) => {
-    if (!option.internalKey || unique.has(option.internalKey)) return acc;
-
-    unique.add(option.internalKey);
-    acc.push(option);
-    return acc;
-  }, []);
-};
-
 const findMatchingSapOption = (
   row: DetailItemRow,
   options: SapOption[],
@@ -100,7 +88,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     setOpenRejectInvoice,
     handleSubmitComment,
     handleUpdateJsonSapItem,
-    handleUpdateJsonSapExpenseType,
     handleSubmitReject,
     handleSubmitValid,
   } = useDetailsPanel({
@@ -173,17 +160,12 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   }, [expenseTypeCatalog, selected]);
 
   const [sapSelectionByRow, setSapSelectionByRow] = useState<Record<string, string>>({});
-  const [expenseTypeSelection, setExpenseTypeSelection] = useState("");
   const sapOptions = useMemo(
     () =>
       toSapOptions(
         Array.isArray(expenseTypeCatalog) ? expenseTypeCatalog : [],
       ),
     [expenseTypeCatalog],
-  );
-  const expenseTypeOptions = useMemo(
-    () => toExpenseTypeOptions(sapOptions),
-    [sapOptions],
   );
   const hasMissingSapInternalKey = useMemo(() => {
     const jsonSapItems = (selected as any)?.json_sap?.items;
@@ -201,14 +183,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     });
     setSapSelectionByRow(nextSelections);
   }, [detailRows, sapOptions]);
-
-  useEffect(() => {
-    const nextExpenseType = String(selected?.json_sap?.expenseType ?? "").trim();
-    const matchedOption = expenseTypeOptions.find(
-      (option) => option.internalKey === nextExpenseType,
-    );
-    setExpenseTypeSelection(matchedOption?.value ?? "");
-  }, [expenseTypeOptions, selected?.json_sap?.expenseType]);
 
   return (
     <DetailsPanelLayout
@@ -310,36 +284,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           <div className={s.conceptsScroller}>
             {isSatRoute ? (
               <div className={s.sapRowsContainer}>
-                <div className={s.expenseTypeRow}>
-                  <div className={s.expenseTypeLabel}>Tipo de gasto</div>
-                  <div className={s.sapSelectBox}>
-                    <Select
-                      label="Catálogo de gasto"
-                      placeholder="Seleccionar opción"
-                      options={expenseTypeOptions}
-                      selected={expenseTypeSelection ? [expenseTypeSelection] : []}
-                      onChange={async (values) => {
-                        const nextValue = values[0] ?? "";
-
-                        setExpenseTypeSelection(nextValue);
-
-                        const selectedOption = expenseTypeOptions.find(
-                          (option) => option.value === nextValue,
-                        );
-                        const nextInternalKey = selectedOption?.internalKey ?? "";
-
-                        const ok = await handleUpdateJsonSapExpenseType(nextInternalKey);
-                        if (!ok) {
-                          const fallback = String(selected?.json_sap?.expenseType ?? "").trim();
-                          const fallbackOption = expenseTypeOptions.find(
-                            (option) => option.internalKey === fallback,
-                          );
-                          setExpenseTypeSelection(fallbackOption?.value ?? "");
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
                 {detailRows.map((row) => (
                   <div key={row.id} className={s.sapRow}>
                     <div className={s.conceptItem}>

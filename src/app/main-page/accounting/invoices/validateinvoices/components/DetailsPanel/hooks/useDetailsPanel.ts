@@ -1,10 +1,11 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
 
 import { UseDetailsPanelArgs } from "./types";
 
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsPutMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
+import type { BillingDocumentJsonSap } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
 
@@ -69,6 +70,11 @@ export const useDetailsPanel = ({
   const [openRejectInvoice, setOpenRejectInvoice] = useState(false);
   const [openValidInvoice, setOpenValidInvoice] = useState(false);
   const [currentUpdateAction, setCurrentUpdateAction] = useState<UpdateAction>(null);
+  const selectedRef = useRef(selected);
+  const latestJsonSapRef = useRef<BillingDocumentJsonSap | null>(
+    selected?.json_sap ?? null,
+  );
+  const jsonSapUpdateQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   const getShortName = (fullName?: string): string => {
     if (!fullName) return "";
@@ -117,41 +123,81 @@ export const useDetailsPanel = ({
     jsonSapItemIndex: number,
     sapInternalKey: string,
   ): Promise<boolean> => {
-    const documentId = selected?.billingdocument_id;
-    const currentJsonSap = selected?.json_sap;
-    if (!documentId || !currentJsonSap || !Array.isArray(currentJsonSap.items)) return false;
+    let result = false;
 
-    const updatedJsonSap = {
-      ...currentJsonSap,
-      items: currentJsonSap.items.map((item, idx) =>
-        idx === jsonSapItemIndex ? { ...item, claveInterna: sapInternalKey } : item,
-      ),
-    };
+    const queuedUpdate = jsonSapUpdateQueueRef.current.then(async () => {
+      const currentSelected = selectedRef.current;
+      const documentId = currentSelected?.billingdocument_id;
+      const currentJsonSap = latestJsonSapRef.current ?? currentSelected?.json_sap;
+      if (!documentId || !currentJsonSap || !Array.isArray(currentJsonSap.items)) {
+        result = false;
+        return;
+      }
 
-    setCurrentUpdateAction("json_sap");
-    return updateBillingDocumentJsonSap({
-      Id_BillingDocument: documentId,
-      jsonsap: JSON.stringify(updatedJsonSap),
+      const previousJsonSap = currentJsonSap;
+      const updatedJsonSap = {
+        ...currentJsonSap,
+        items: currentJsonSap.items.map((item, idx) =>
+          idx === jsonSapItemIndex
+            ? { ...item, claveInterna: sapInternalKey }
+            : item,
+        ),
+      };
+
+      latestJsonSapRef.current = updatedJsonSap;
+      setCurrentUpdateAction("json_sap");
+      const ok = await updateBillingDocumentJsonSap({
+        Id_BillingDocument: documentId,
+        jsonsap: JSON.stringify(updatedJsonSap),
+      });
+
+      if (!ok) {
+        latestJsonSapRef.current = previousJsonSap;
+      }
+      result = ok;
     });
+
+    jsonSapUpdateQueueRef.current = queuedUpdate.then(() => undefined);
+    await queuedUpdate;
+    return result;
   };
 
   const handleUpdateJsonSapExpenseType = async (
     expenseType: string,
   ): Promise<boolean> => {
-    const documentId = selected?.billingdocument_id;
-    const currentJsonSap = selected?.json_sap;
-    if (!documentId || !currentJsonSap) return false;
+    let result = false;
 
-    const updatedJsonSap = {
-      ...currentJsonSap,
-      expenseType: expenseType,
-    };
+    const queuedUpdate = jsonSapUpdateQueueRef.current.then(async () => {
+      const currentSelected = selectedRef.current;
+      const documentId = currentSelected?.billingdocument_id;
+      const currentJsonSap = latestJsonSapRef.current ?? currentSelected?.json_sap;
+      if (!documentId || !currentJsonSap) {
+        result = false;
+        return;
+      }
 
-    setCurrentUpdateAction("json_sap");
-    return updateBillingDocumentJsonSap({
-      Id_BillingDocument: documentId,
-      jsonsap: JSON.stringify(updatedJsonSap),
+      const previousJsonSap = currentJsonSap;
+      const updatedJsonSap = {
+        ...currentJsonSap,
+        expenseType,
+      };
+
+      latestJsonSapRef.current = updatedJsonSap;
+      setCurrentUpdateAction("json_sap");
+      const ok = await updateBillingDocumentJsonSap({
+        Id_BillingDocument: documentId,
+        jsonsap: JSON.stringify(updatedJsonSap),
+      });
+
+      if (!ok) {
+        latestJsonSapRef.current = previousJsonSap;
+      }
+      result = ok;
     });
+
+    jsonSapUpdateQueueRef.current = queuedUpdate.then(() => undefined);
+    await queuedUpdate;
+    return result;
   };
 
   const handleSubmitReject = (values: Record<string, any>) => {
@@ -174,6 +220,11 @@ export const useDetailsPanel = ({
       );
     else validateBillingDocument([selected?.billingdocument_id ?? ""]);
   };
+
+  useEffect(() => {
+    selectedRef.current = selected;
+    latestJsonSapRef.current = selected?.json_sap ?? null;
+  }, [selected]);
 
   useEffect(() => {
     if (!selected?.billingdocument_id) return;
