@@ -1,4 +1,8 @@
-import type { DepartmentType, DepartmentPost } from '@/app/mappings/department/department.types'
+import type {
+  DepartmentType,
+  DepartmentPost,
+  DepartmentPut,
+} from '@/app/mappings/department/department.types'
 
 export type DepartmentsState = {
   departments: DepartmentType[]
@@ -6,9 +10,12 @@ export type DepartmentsState = {
   successGet: boolean
   creating: boolean
   successPost: boolean
+  updating: boolean
+  successPut: boolean
   error?: string
   fetchDepartments: (force?: boolean) => Promise<void>
   createDepartment: (payload: DepartmentPost) => Promise<DepartmentType | null>
+  updateDepartment: (payload: DepartmentPut) => Promise<DepartmentType | null>
   reset: () => void
   resetFlags: () => void
 }

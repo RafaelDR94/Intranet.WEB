@@ -2,6 +2,7 @@ import type {
   DepartmentEnterprise,
   DepartmentPosition,
   DepartmentPost,
+  DepartmentPut,
   DepartmentType,
 } from "./department.types";
 
@@ -71,3 +72,11 @@ export const mapDepartmentPost = (payload: DepartmentPost): DepartmentPost => ({
     .map((item) => toString(item).trim())
     .filter(Boolean),
 });
+
+export const mapDepartmentPut = (payload: DepartmentPut): DepartmentPut => {
+  const mapped = mapDepartmentPost(payload);
+  return {
+    ...mapped,
+    department_id: toString(payload.department_id).trim(),
+  };
+};

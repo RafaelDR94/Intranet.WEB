@@ -8,6 +8,10 @@ import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pPut } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
 
+import { fetchActiveEmployees } from "./fetchActiveEmployees";
+import { fetchEmployees } from "./fetchEmployees";
+import { fetchEmployeesByDepartment } from "./fetchEmployeesByDepartment";
+
 
 /**
  * Update an existing employee.
@@ -30,6 +34,21 @@ export const updateEmployee = async (
     const res = await put(Employees, body);
     const raw = res.data?.data ?? res.data ?? null;
     const updated = raw ? mapEmployee(raw) : null;
+
+    const cachedDepartmentId = get().departmentEmployeesDepartmentId;
+    const targetDepartmentId = payload.department_id;
+    const departmentsToRefresh = Array.from(
+      new Set([cachedDepartmentId, targetDepartmentId].filter(Boolean) as string[]),
+    );
+
+    await Promise.all([
+      fetchEmployees(set, get, true),
+      fetchActiveEmployees(set, get, true),
+      ...departmentsToRefresh.map((departmentId) =>
+        fetchEmployeesByDepartment(departmentId, set, get, true),
+      ),
+    ]);
+
     set({
       updating: false,
       successPut: true,
