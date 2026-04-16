@@ -14,6 +14,29 @@ import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 import { BillingDocuments } from "@/app/mappings/billingdocuments/billingdocuments.types";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
+
+type BillingDocumentsTableRow = BillingDocuments & {
+  empleado: string;
+  requisicion: string;
+};
+
+const mapTableRows = (
+  documents: BillingDocuments[],
+): BillingDocumentsTableRow[] =>
+  documents.map((document) => ({
+    ...document,
+    empleado: document.requisition?.employeename ?? "",
+    requisicion: document.requisition?.requisitionkey ?? "",
+  }));
+
+const searchableKeys: (keyof BillingDocumentsTableRow)[] = [
+  "empleado",
+  "requisicion",
+  "rfc_emisor",
+  "uuid",
+  "fecha",
+];
+
 const ValidateInvoices = () => {
   const {
     handleOpenDetails,
@@ -32,13 +55,23 @@ const ValidateInvoices = () => {
     multiselectedt2,
   } = useValidateInvoices();
 
+  const billingDocumentsRows = React.useMemo(
+    () => mapTableRows(billingDocuments),
+    [billingDocuments],
+  );
+  const billingDocumentnotTodayRows = React.useMemo(
+    () => mapTableRows(billingDocumentnotToday),
+    [billingDocumentnotToday],
+  );
+
   const isMobile = useIsMobile();
   const { currentPagePermissions } = useAuth();
   useTutorialAutoRun({
     moduleId: "accounting-validateinvoices",
     tutorialId: "accounting-validateinvoices:table",
   });
-  const columnasDesktop: ColumnDefinition<BillingDocuments>[] = [
+
+  const columnasDesktop: ColumnDefinition<BillingDocumentsTableRow>[] = [
     {
       key: "xml",
       label: "XML",
@@ -70,27 +103,31 @@ const ValidateInvoices = () => {
       headerClass: "w-1/12 text-center",
     },
     {
-      key: "empleado" as unknown as keyof BillingDocuments,
+      key: "empleado",
       label: "EMPLEADO",
       cellClass: "w-2/12 truncate text-center",
       headerClass: "w-2/12 truncate text-center",
-      render: (row) => row?.requisition?.employeename ?? "—",
+      render: (row) => row.empleado || "-",
     },
     {
-      key: "requisicion" as unknown as keyof BillingDocuments,
-      label: "REQUISICIÓN",
+      key: "requisicion",
+      label: "REQUISICION",
       cellClass: "w-2/12 truncate text-center",
       headerClass: "w-2/12 truncate text-center",
-      render: (row) => row?.requisition?.requisitionkey ?? "—",
+      render: (row) => row.requisicion || "-",
     },
-    // rfc_emisor es boolean según BillingDocuments
     {
       key: "rfc_emisor",
       label: "RFC EMISOR",
       cellClass: "w-2/12 truncate text-center",
       headerClass: "w-2/12 truncate text-center",
     },
-    { key: "uuid", label: "UUID", cellClass: "w-3/12 truncate text-center", headerClass: "w-3/12 truncate text-center " },
+    {
+      key: "uuid",
+      label: "UUID",
+      cellClass: "w-3/12 truncate text-center",
+      headerClass: "w-3/12 truncate text-center",
+    },
     {
       key: "fecha",
       label: "FECHA",
@@ -104,40 +141,37 @@ const ValidateInvoices = () => {
       headerClass: "w-1/12 truncate text-right",
     },
     {
-      // columna de acciones: tipamos la key para satisfacer keyof<BillingDocuments>
-      key: "acciones" as unknown as keyof BillingDocuments,
+      key: "acciones" as unknown as keyof BillingDocumentsTableRow,
       cellClass: "w-1/12 truncate text-right",
       headerClass: "w-1/12 truncate text-right",
-      headerRender: () => <span className="text-lg">⋯</span>,
+      headerRender: () => <span className="text-lg">...</span>,
       render: (row) => (
         <>
-          {currentPagePermissions?.canSeeDetails && <Button
-            size="small"
-            onClick={() => handleOpenDetails(row)}
-            variant="ghost"
-            hideIcon
-            data-tour="accounting-validateinvoices-details"
-          >
-            Ver Detalles
-          </Button>}
+          {currentPagePermissions?.canSeeDetails && (
+            <Button
+              size="small"
+              onClick={() => handleOpenDetails(row)}
+              variant="ghost"
+              hideIcon
+              data-tour="accounting-validateinvoices-details"
+            >
+              Ver Detalles
+            </Button>
+          )}
         </>
-
       ),
     },
   ];
 
-  const columnasMobile: ColumnDefinition<BillingDocuments>[] = [
-
-    // rfc_emisor es boolean según BillingDocuments
+  const columnasMobile: ColumnDefinition<BillingDocumentsTableRow>[] = [
     {
       key: "rfc_emisor",
       label: "RFC EMISOR",
       cellClass: "truncate",
     },
     {
-      // columna de acciones: tipamos la key para satisfacer keyof<BillingDocuments>
-      key: "acciones" as unknown as keyof BillingDocuments,
-      headerRender: () => <span className="text-lg">⋯</span>,
+      key: "acciones" as unknown as keyof BillingDocumentsTableRow,
+      headerRender: () => <span className="text-lg">...</span>,
       render: (row) => (
         <Button
           size="small"
@@ -159,71 +193,73 @@ const ValidateInvoices = () => {
     <>
       <div className="space-y-8 overflow-auto">
         <div data-tour="accounting-validateinvoices-table-new">
-        <DataTable
-          showButton={false}
-          enableInternalSearch
-          actionsRender={() => (
-            <Button
-              disabled={multiselectedt1?.length == 0}
-              hideIcon
-              onClick={handleActionClick}
-              className="flex items-center gap-2 shrink-0 text-left w-full"
-              data-tour="accounting-validateinvoices-validate"
-            >
-              Validar Facturas
-            </Button>
-          )}
-          showDownloadTable
-          onSelectedChange={handleMultiSelectt1}
-          tables={[
-            {
-              data: billingDocuments,
-              columns: columnas,
-              enableSelection: true,
-              title: "Nuevas Facturas",
-              enableCollaps: true,
-              defaultSortKey: "fecha",
-              defaultSortDirection: "desc",
-              
-            },
-          ]}
-        />
+          <DataTable
+            showButton={false}
+            enableInternalSearch
+            searchableKeys={searchableKeys}
+            actionsRender={() => (
+              <Button
+                disabled={multiselectedt1?.length == 0}
+                hideIcon
+                onClick={handleActionClick}
+                className="flex items-center gap-2 shrink-0 text-left w-full"
+                data-tour="accounting-validateinvoices-validate"
+              >
+                Validar Facturas
+              </Button>
+            )}
+            showDownloadTable
+            onSelectedChange={handleMultiSelectt1}
+            tables={[
+              {
+                data: billingDocumentsRows,
+                columns: columnas,
+                enableSelection: true,
+                title: "Nuevas Facturas",
+                enableCollaps: true,
+                defaultSortKey: "fecha",
+                defaultSortDirection: "desc",
+              },
+            ]}
+          />
         </div>
 
         <div data-tour="accounting-validateinvoices-table-pending">
-        <DataTable
-          showButton={false}
-          actionsRender={() => (
-            <Button
-              disabled={multiselectedt2?.length == 0}
-              hideIcon
-              onClick={handleActionClick}
-              className="flex items-center gap-2 shrink-0 text-left w-full"
-              data-tour="accounting-validateinvoices-validate"
-            >
-              Validar Facturas
-            </Button>
-          )}
-          showDownloadTable
-          onSelectedChange={handleMultiSelectt2}
-          tables={[
-            {
-              data: billingDocumentnotToday,
-              columns: columnas,
-              enableSelection: true,
-              title: "Facturas Pendientes por Validar",
-              enableCollaps: true,
-              defaultSortKey: "fecha",
-              defaultSortDirection: "desc",
-            },
-          ]}
-        />
+          <DataTable
+            showButton={false}
+            enableInternalSearch
+            searchableKeys={searchableKeys}
+            actionsRender={() => (
+              <Button
+                disabled={multiselectedt2?.length == 0}
+                hideIcon
+                onClick={handleActionClick}
+                className="flex items-center gap-2 shrink-0 text-left w-full"
+                data-tour="accounting-validateinvoices-validate"
+              >
+                Validar Facturas
+              </Button>
+            )}
+            showDownloadTable
+            onSelectedChange={handleMultiSelectt2}
+            tables={[
+              {
+                data: billingDocumentnotTodayRows,
+                columns: columnas,
+                enableSelection: true,
+                title: "Facturas Pendientes por Validar",
+                enableCollaps: true,
+                defaultSortKey: "fecha",
+                defaultSortDirection: "desc",
+              },
+            ]}
+          />
         </div>
       </div>
       <PopUp
         open={openValidInvoice}
-        title={"¿Desea validar la factura seleccionada?"}
-        content="Esta acción confirmará la validez de los documentos marcados. Una vez validadas, no podrás revertir el cambio."
+        title={"Desea validar la factura seleccionada?"}
+        content="Esta accion confirmara la validez de los documentos marcados. Una vez validadas, no podras revertir el cambio."
         onClose={() => setOpenValidInvoice(false)}
         primaryButtonText="Validar"
         secondaryButtonText="Cancelar"
