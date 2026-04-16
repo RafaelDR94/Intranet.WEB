@@ -72,9 +72,12 @@ const useDepartmentsPage = () => {
     loading,
     error,
     creating,
+    updating,
     successPost,
+    successPut,
     fetchDepartments,
     createDepartment,
+    updateDepartment,
     resetFlags,
   } = useDepartmentsStore(
     (state) => ({
@@ -82,9 +85,12 @@ const useDepartmentsPage = () => {
       loading: state.loading,
       error: state.error,
       creating: state.creating,
+      updating: state.updating,
       successPost: state.successPost,
+      successPut: state.successPut,
       fetchDepartments: state.fetchDepartments,
       createDepartment: state.createDepartment,
+      updateDepartment: state.updateDepartment,
       resetFlags: state.resetFlags,
     }),
     shallow,
@@ -230,15 +236,21 @@ const useDepartmentsPage = () => {
       showSpinner({ message: "Registrando departamento" });
       return;
     }
+    if (updating) {
+      showSpinner({ message: "Actualizando departamento" });
+      return;
+    }
     hideSpinner();
-  }, [creating, hideSpinner, showSpinner]);
+  }, [creating, hideSpinner, showSpinner, updating]);
 
   useEffect(() => {
-    if (successPost) {
+    if (successPost || successPut) {
       showAlert({
         type: "success",
-        title: "Registro exitoso",
-        description: "El departamento se registro correctamente.",
+        title: successPut ? "Actualizacion exitosa" : "Registro exitoso",
+        description: successPut
+          ? "El departamento se actualizo correctamente."
+          : "El departamento se registro correctamente.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1200,
@@ -267,10 +279,12 @@ const useDepartmentsPage = () => {
     router,
     showAlert,
     successPost,
+    successPut,
   ]);
 
   const handleSubmit = async () => {
-    if (!isCreateView) return;
+    if (!isCreateView && !isEditView) return;
+    if (isEditView && !departmentId) return;
     const name = formState.name.trim();
     if (!name) return;
     const enterpriseId = formState.enterpriseId.trim();
@@ -279,11 +293,21 @@ const useDepartmentsPage = () => {
       .map((position) => position.name.trim())
       .filter(Boolean);
 
-    await createDepartment({
+    const payload = {
       name,
       description: formState.description.trim() || undefined,
       enterprise_id: enterpriseId,
       workpositions,
+    };
+
+    if (isCreateView) {
+      await createDepartment(payload);
+      return;
+    }
+
+    await updateDepartment({
+      ...payload,
+      department_id: departmentId ?? "",
     });
   };
 
@@ -307,7 +331,9 @@ const useDepartmentsPage = () => {
     ? "Guardar ajustes"
     : "Registrar departamento";
 
-  const isReady = Boolean(formState.name.trim()) && Boolean(formState.enterpriseId.trim());
+  const isReady =
+    Boolean(formState.name.trim()) && Boolean(formState.enterpriseId.trim());
+  const isSubmitting = creating || updating;
 
   return {
     view,
@@ -317,7 +343,7 @@ const useDepartmentsPage = () => {
     primaryLabel,
     isReady,
     departments,
-    creating,
+    creating: isSubmitting,
     paginatedDepartments,
     currentPage,
     totalPages,

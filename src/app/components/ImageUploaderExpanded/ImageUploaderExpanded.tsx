@@ -102,6 +102,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     className || dropzoneBaseClasses,
     isDragging ? dropzoneDraggingClasses : dropzoneIdleClasses,
     disabled && dropzoneDisabledClasses,
+    preview && "w-[245px] h-[218px] mx-auto",
   );
 
   const { capture: captureLabel, switchCamera, close } = cameraLabels ?? {};
@@ -117,7 +118,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
       {label && <label className={labelClasses()}>{label}</label>}
 
       {isPreviewVisible ? (
-        <div className={previewWrapperClasses}>
+        <div className={clsx(previewWrapperClasses, preview && "w-[245px] mx-auto")}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={previewUrl ?? ""}

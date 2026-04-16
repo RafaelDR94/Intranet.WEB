@@ -18,10 +18,12 @@ const fetchDepartmentsMock = vi.fn(async (set: Set) => {
 })
 
 const createDepartmentMock = vi.fn(async () => null)
+const updateDepartmentMock = vi.fn(async () => null)
 
 vi.mock('./utilities', () => ({
   fetchDepartments: (...args: any[]) => fetchDepartmentsMock(...args),
   createDepartment: (...args: any[]) => createDepartmentMock(...args),
+  updateDepartment: (...args: any[]) => updateDepartmentMock(...args),
 }))
 
 import { useDepartmentsStore } from './useDepartmentsStore'
@@ -35,9 +37,12 @@ describe('useDepartmentsStore', () => {
       successGet: false,
       creating: false,
       successPost: false,
+      updating: false,
+      successPut: false,
       error: undefined,
       fetchDepartments: useDepartmentsStore.getState().fetchDepartments,
       createDepartment: useDepartmentsStore.getState().createDepartment,
+      updateDepartment: useDepartmentsStore.getState().updateDepartment,
       reset: useDepartmentsStore.getState().reset,
       resetFlags: useDepartmentsStore.getState().resetFlags,
     } as DepartmentsState)
@@ -71,9 +76,12 @@ describe('useDepartmentsStore', () => {
       successGet: true,
       creating: true,
       successPost: true,
+      updating: true,
+      successPut: true,
       error: 'Error',
       fetchDepartments: useDepartmentsStore.getState().fetchDepartments,
       createDepartment: useDepartmentsStore.getState().createDepartment,
+      updateDepartment: useDepartmentsStore.getState().updateDepartment,
       reset: useDepartmentsStore.getState().reset,
       resetFlags: useDepartmentsStore.getState().resetFlags,
     } as DepartmentsState)
@@ -86,6 +94,8 @@ describe('useDepartmentsStore', () => {
     expect(state.successGet).toBe(false)
     expect(state.creating).toBe(false)
     expect(state.successPost).toBe(false)
+    expect(state.updating).toBe(false)
+    expect(state.successPut).toBe(false)
     expect(state.error).toBeUndefined()
   })
 })

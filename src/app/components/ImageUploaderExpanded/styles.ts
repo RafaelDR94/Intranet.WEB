@@ -37,7 +37,7 @@ export const previewWrapperClasses = clsx(
   'relative overflow-hidden'
 );
 export const previewImageClasses = clsx(
-  'max-h-[360px] w-full object-contain rounded-md',
+  'h-[218px] w-[245px] object-cover rounded-md',
   'bg-white'
 );
 export const previewActionsClasses = 'mt-4 flex justify-center';

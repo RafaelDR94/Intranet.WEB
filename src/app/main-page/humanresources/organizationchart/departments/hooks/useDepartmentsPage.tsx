@@ -44,6 +44,7 @@ const useDepartmentsPage = () => {
   const view = (searchParams.get("view") ?? "list") as "list" | "detail";
   const departmentId = searchParams.get("id");
   const departmentLabelParam = searchParams.get("label") ?? "";
+  const forceRefresh = searchParams.get("force") === "true";
 
   const isDetailView = view === "detail" && Boolean(departmentId);
   const hasFetched = useRef(false);
@@ -88,10 +89,10 @@ const useDepartmentsPage = () => {
 
   useEffect(() => {
     if (!isDetailView || !departmentId) return;
-    if (lastDepartmentId.current === departmentId) return;
+    if (lastDepartmentId.current === departmentId && !forceRefresh) return;
     lastDepartmentId.current = departmentId;
     fetchEmployeesByDepartment(departmentId, true);
-  }, [departmentId, fetchEmployeesByDepartment, isDetailView]);
+  }, [departmentId, fetchEmployeesByDepartment, forceRefresh, isDetailView]);
 
   const filteredDepartments = useMemo(() => {
     const query = searchValue.trim();

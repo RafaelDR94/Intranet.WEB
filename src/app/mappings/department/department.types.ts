@@ -14,6 +14,10 @@ export type DepartmentPost = {
   workpositions: string[];
 };
 
+export type DepartmentPut = DepartmentPost & {
+  department_id: string;
+};
+
 export type DepartmentType = {
   department_id: string;
   name: string;
