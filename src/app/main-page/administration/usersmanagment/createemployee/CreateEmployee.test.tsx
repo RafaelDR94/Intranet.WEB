@@ -120,7 +120,11 @@ describe('CreateEmployee page', () => {
 
     render(<CreateEmployee loggedUser={mockUser} />);
 
-    expect(mockHook).toHaveBeenCalledWith({ loggedUser: mockUser });
+    expect(mockHook).toHaveBeenCalledWith({
+      loggedUser: mockUser,
+      onSuccess: undefined,
+      redirectOnSuccess: true,
+    });
     expect(
       screen.getByRole('button', { name: 'Registrar empleado' })
     ).toBeDisabled();

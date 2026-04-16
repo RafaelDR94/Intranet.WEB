@@ -23,6 +23,7 @@ const DataTable = vi.hoisted(() =>
 );
 
 const useEmployeesStore = vi.hoisted(() => vi.fn());
+const useAuth = vi.hoisted(() => vi.fn());
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
   DataTable,
@@ -31,6 +32,10 @@ vi.mock('@/app/components/DataTable/DataTable', () => ({
 vi.mock('@/app/stores/useEmployeesStore/useEmployeesStore', () => ({
   useEmployeesStore: (selector: (state: unknown) => unknown) =>
     selector(useEmployeesStore()),
+}));
+
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => useAuth(),
 }));
 
 vi.mock(
@@ -44,6 +49,15 @@ describe('GeneralDirectoryPage', () => {
   beforeEach(() => {
     DataTable.mockClear();
     useEmployeesStore.mockReset();
+    useAuth.mockReset();
+    useAuth.mockReturnValue({
+      currentPagePermissions: {
+        canSeeDetails: true,
+        canSeeInformation: true,
+        update: true,
+        delete: true,
+      },
+    });
   });
 
   it('fetches active employees on mount when empty', () => {

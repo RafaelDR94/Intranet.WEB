@@ -12,8 +12,14 @@ import type { User } from "@/app/context/AuthContext/types";
 const formId = "CreateEmployee";
 type UseCreateEmployeeOptions = {
   loggedUser?: User;
+  onSuccess?: () => void;
+  redirectOnSuccess?: boolean;
 };
-const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
+const useCreateEemployee = ({
+  loggedUser,
+  onSuccess,
+  redirectOnSuccess = true,
+}: UseCreateEmployeeOptions = {}) => {
   const router = useRouter();
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const [loadingForm, setLoadingForm] = useState(false);
@@ -89,6 +95,9 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
  
   const { fieldsByFormId, setFields, updateField, resetFields } =
     useFormFieldsStore();
+  const formVersion = useFormFieldsStore(
+    (state) => state.formVersionsByFormId?.[formId] ?? 0,
+  );
   const handleValidChange = (valid: boolean) => {
     setFormCompleted(isReadOnly ? false : valid);
   };
@@ -137,45 +146,50 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
  
     // 4️⃣ Crear o actualizar
     if (currentEmployee) {
-      updateEmployee({
+      await updateEmployee({
         ...postPayload,
         employee_id: currentEmployee.employee_id,
       });
     } else {
-      createEmployee({ ...postPayload });
+      await createEmployee({ ...postPayload });
     }
   };
  
   const completeSelect = async (idEnterprise: string) => {
     setLoadingForm(true);
-    const workposition = await fetchWorkPosition(idEnterprise, true);
-    updateField(formId, "workposition", {
-      options: workposition.map((workposition) => ({
-        label: workposition.name,
-        value: workposition.workposition_id,
-      })),
-      value: currentEmployee?.workposition?.workposition_id || "", // reset value
-      disabled: isReadOnly,
-    });
-    if (enterprisesList) {
-      const enterpriseSelected =
-        enterprisesList?.filter(
-          (enterprise) => enterprise.enterprise_id == idEnterprise,
-        ) || [];
-      const departments = enterpriseSelected[0].departments;
- 
-     
+
+    try {
+      updateField(formId, "enteprise", {
+        value: idEnterprise,
+        disabled: isReadOnly,
+      });
+
+      const workposition = await fetchWorkPosition(idEnterprise, true);
+      updateField(formId, "workposition", {
+        options: workposition.map((workposition) => ({
+          label: workposition.name,
+          value: workposition.workposition_id,
+        })),
+        value: currentEmployee?.workposition?.workposition_id || "",
+        disabled: isReadOnly,
+      });
+
+      const enterpriseSelected = enterprisesList.find(
+        (enterprise) => enterprise.enterprise_id === idEnterprise,
+      );
+      const departments = enterpriseSelected?.departments ?? [];
+
       updateField(formId, "departments", {
         options: departments.map((deparments) => ({
           label: deparments.name,
           value: deparments.department_id,
         })),
-        value: currentEmployee?.department?.department_id || "", // reset value
+        value: currentEmployee?.department?.department_id || "",
         disabled: isReadOnly,
       });
+    } finally {
+      setLoadingForm(false);
     }
- 
-    setLoadingForm(false);
   };
  
   const loadInitialFields = () => {
@@ -192,6 +206,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
           },
           value: { name: "Imagen de perfil", url: currentEmployee?.image_url },
           accept: ".jpg,.png",
+          preview: true,
           validations: [{ type: "required" }],
           disabled: isReadOnly,
         },
@@ -359,9 +374,11 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
       });
     }
     if (succesCreate) {
-      router.push(
-        "/main-page/administration/usersmanagment/employeesList?force=true",
-      );
+      if (redirectOnSuccess) {
+        router.push(
+          "/main-page/administration/usersmanagment/employeesList?force=true",
+        );
+      }
       showAlert({
         type: "success",
         title: "Registro exitoso",
@@ -370,11 +387,14 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
         showSecondaryButton: false,
         autoCloseMs: 1000,
       });
+      onSuccess?.();
     }
     if (succesUpdate) {
-      router.push(
-        "/main-page/administration/usersmanagment/employeesList?force=true",
-      );
+      if (redirectOnSuccess) {
+        router.push(
+          "/main-page/administration/usersmanagment/employeesList?force=true",
+        );
+      }
       showAlert({
         type: "success",
         title: "Registro exitoso",
@@ -383,6 +403,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
         showSecondaryButton: false,
         autoCloseMs: 1000,
       });
+      onSuccess?.();
     }
     resetFlags();
     resetEnterprisesFlags();
@@ -398,6 +419,8 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
     errorEnterprises,
     succesCreate,
     succesUpdate,
+    onSuccess,
+    redirectOnSuccess,
   ]);
  
   useEffect(() => {
@@ -437,8 +460,9 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
           disabled: isReadOnly,
           onChange: isReadOnly
             ? undefined
-            : async (value: string) => {
-                completeSelect(value);
+            : (value: string) => {
+                void completeSelect(value);
+                return value;
               },
         });
       }
@@ -488,6 +512,7 @@ const useCreateEemployee = ({ loggedUser }: UseCreateEmployeeOptions = {}) => {
   return {
     loadingForm,
     fields: fieldsByFormId[formId],
+    formVersion,
     submitRef,
     handleSubmit,
     canStart,

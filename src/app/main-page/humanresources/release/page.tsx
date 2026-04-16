@@ -1,5 +1,12 @@
-const ReleasesPage = () => {
-  return <div>Releases Page</div>;
-}
+import { PermissionRedirect } from '@/app/components/PermissionRedirect/PermissionRedirect';
 
-export default ReleasesPage;
+export default function Documents() {
+  return (
+    <PermissionRedirect
+      routes={[
+        '/main-page/humanresources/release/pressreleases',
+        '/main-page/humanresources/release/importantinformation',
+      ]}
+    />
+  );
+}

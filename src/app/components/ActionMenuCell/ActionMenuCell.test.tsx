@@ -65,11 +65,11 @@ describe("buildActionMenuItems", () => {
     });
 
     expect(items).toHaveLength(2);
-    expect(items[0].label).toBe("Ver Detalle");
+    expect(items[0].label).toBe("Editar");
     items[0].onClick?.();
     expect(onEdit).toHaveBeenCalledWith(row);
 
-    expect(items[1].label).toBe("Cancelar o eliminar");
+    expect(items[1].label).toBe("Eliminar");
     items[1].onClick?.();
     expect(onDelete).toHaveBeenCalledWith(row);
   });
@@ -179,6 +179,6 @@ describe("ActionMenuCell", () => {
     );
 
     expect(lastButtonIcon).toBe(RightArrowIcon);
-    expect(screen.getByText("Cancelar o eliminar")).toBeInTheDocument();
+    expect(screen.getByText("Eliminar")).toBeInTheDocument();
   });
 });

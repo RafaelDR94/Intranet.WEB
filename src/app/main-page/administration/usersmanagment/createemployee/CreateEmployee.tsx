@@ -15,11 +15,23 @@ export type CreateEmployeeProps = {
    */
   loggedUser?: User | null;
   onConfigurations?: boolean;
+  onSuccess?: () => void;
+  /**
+   * Cuando es `false`, evita la redirección automática al finalizar.
+   */
+  redirectOnSuccess?: boolean;
+  /**
+   * Variante visual para reutilizar el formulario en panel lateral.
+   */
+  variant?: "default" | "panel";
 };
 
 const CreateEmployee: React.FC<CreateEmployeeProps> = ({
   loggedUser,
   onConfigurations,
+  onSuccess,
+  redirectOnSuccess = true,
+  variant = "default",
 }) => {
   useTutorialAutoRun({
     moduleId: "administration-createemployee",
@@ -29,13 +41,18 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({
   const {
     loadingForm,
     fields,
+    formVersion,
     submitRef,
     canStart,
     handleSubmit,
     handleValidChange,
     formCompleted,
     isReadOnly,
-  } = useCreateEemployee({ loggedUser: loggedUser ?? undefined });
+  } = useCreateEemployee({
+    loggedUser: loggedUser ?? undefined,
+    onSuccess,
+    redirectOnSuccess,
+  });
 
   if (!canStart) {
     return null;
@@ -44,9 +61,11 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({
   return (
     <div data-tour="createemployee-form">
     <FormsLayout
-      title={onConfigurations ? "Ajustes de Usuario" : "Registro de empleado"}
+      title="Registra aquí a un nuevo empleado"
       primaryLabel="Registrar empleado"
-      enableCollapse={!onConfigurations}
+      enableCollapse={variant === "panel" ? false : !onConfigurations}
+      showBackground={variant === "panel" ? false : true}
+      showDivider={variant === "panel" ? false : true}
       showPrimaryButton={!onConfigurations}
       onPrimaryClick={() => submitRef.current?.()}
       primaryDisabled={isReadOnly || !formCompleted}
@@ -87,6 +106,8 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({
           fields={fields}
           loadingFormInfo={loadingForm}
           onValidChange={handleValidChange}
+          valuesVersion={formVersion}
+          valuesVersionActive
         />
       )}
     </FormsLayout>

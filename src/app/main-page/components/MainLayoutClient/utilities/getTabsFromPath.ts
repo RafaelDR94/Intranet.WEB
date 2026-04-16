@@ -171,6 +171,10 @@ export const getTabsFromPath = (
     'humanresources/departments': [
       { label: 'Departamentos', path: '/main-page/humanresources/departments' },
     ],
+    'humanresources/release': [
+      { label: 'Comunicados', path: '/main-page/humanresources/release/pressreleases' },
+      { label: 'Información Importante', path: '/main-page/humanresources/release/importantinformation' },
+    ],
     'administration/usersmanagment': [
       { label: 'Crear Empleado', path: '/main-page/administration/usersmanagment/createemployee' },
       { label: 'Lista de Empleados', path: '/main-page/administration/usersmanagment/employeesList' },

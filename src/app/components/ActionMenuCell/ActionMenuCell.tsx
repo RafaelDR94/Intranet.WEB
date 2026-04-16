@@ -98,7 +98,7 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
 
   if (canEdit) {
     items.push({
-      label: permissions.details ? "Ver Detalle" : "Actualizar",
+      label: permissions.details ? "Editar" : "Actualizar",
       icon: EditIcon,
       onClick: () => onEdit?.(row) ?? onDetails?.(row),
     });
@@ -114,7 +114,7 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
 
   if (permissions.delete) {
     items.push({
-      label: "Cancelar o eliminar",
+      label: "Eliminar",
       icon: DeleteIcon,
       danger: true,
       onClick: () => onDelete?.(row),
