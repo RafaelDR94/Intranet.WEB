@@ -27,6 +27,11 @@ type DirectoryRow = {
 };
 
 const emptyValue = "N/D";
+const collator = new Intl.Collator("es-MX", {
+  sensitivity: "base",
+  numeric: true,
+});
+
 const getShortName = (employee: EmployeeType) => {
   const first = employee.firstname?.trim() ?? "";
   const last = employee.lastname?.trim() ?? "";
@@ -150,8 +155,8 @@ const GeneralDirectoryPage = () => {
   );
 
   const rows = useMemo<DirectoryRow[]>(
-    () =>
-      activeEmployees.map((employee) => ({
+    () => {
+      const mappedRows = activeEmployees.map((employee) => ({
         id: employee.id ?? employee.employee_id,
         fullname: getShortName(employee),
         position: employee.workposition?.name ?? emptyValue,
@@ -160,7 +165,12 @@ const GeneralDirectoryPage = () => {
         employee_number: employee.employee_number || emptyValue,
         image_url: employee.image_url,
         employee,
-      })),
+      }));
+
+      return mappedRows.sort((left, right) =>
+        collator.compare(left.fullname, right.fullname),
+      );
+    },
     [activeEmployees],
   );
 
@@ -170,43 +180,45 @@ const GeneralDirectoryPage = () => {
         key: "fullname",
         label: "NOMBRE",
         render: (row) => (
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <Avatar src={row.image_url} size="xxs" />
-            <span>{row.fullname}</span>
+            <span className="block min-w-0 flex-1 truncate" title={row.fullname}>
+              {row.fullname}
+            </span>
           </div>
         ),
-        cellClass: "w-3/12",
-        headerClass: "w-3/12",
+        cellClass: "w-3/12 min-w-0 pr-6",
+        headerClass: "w-3/12 min-w-0 pr-6",
       },
       {
         key: "position",
         label: "PUESTO",
-        cellClass: "w-5/12",
-        headerClass: "w-5/12",
+        cellClass: "w-3/12 min-w-0 truncate whitespace-nowrap pr-6",
+        headerClass: "w-3/12 min-w-0 pr-6",
       },
       {
         key: "phone_number",
         label: "TELEFONO",
-        cellClass: "w-2/12",
-        headerClass: "w-2/12",
+        cellClass: "w-2/12 min-w-0 truncate whitespace-nowrap pr-6",
+        headerClass: "w-2/12 min-w-0 pr-6",
       },
       {
         key: "email",
         label: "CORREO",
-        cellClass: "w-3/12",
-        headerClass: "w-3/12",
+        cellClass: "w-3/12 min-w-0 truncate whitespace-nowrap pr-6",
+        headerClass: "w-3/12 min-w-0 pr-6",
       },
       {
         key: "employee_number",
         label: "No. Empleado",
-        cellClass: "w-1/12",
-        headerClass: "w-1/12",
+        cellClass: "w-2/12 min-w-0 truncate whitespace-nowrap pr-4",
+        headerClass: "w-2/12 min-w-0 pr-4",
       },
       {
         key: "id",
         label: "",
-        cellClass: "w-1/12 text-right",
-        headerClass: "w-1/12 text-right",
+        cellClass: "w-2/12 text-right",
+        headerClass: "w-2/12 text-right",
         render: (row) => (
           <Button
             hideIcon
@@ -295,7 +307,7 @@ const GeneralDirectoryPage = () => {
           open={isDeletePopUpOpen}
           onClose={handleCloseDeletePopUp}
           title={`Deseas eliminar el usuario de ${employeeToDelete.fullname || getShortName(employeeToDelete)}?`}
-          content="Esta accion confirmara la eliminacion del usuario"
+          content="Esta acción confirmara la eliminación del usuario"
           showPrimaryButton
           showSecondaryButton
           primaryButtonText={deletingEmployee ? "Eliminando..." : "Eliminar"}

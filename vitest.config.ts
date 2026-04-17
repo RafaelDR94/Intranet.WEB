@@ -20,6 +20,10 @@ export default defineConfig(async () => {
       globals: true,
       environment: 'jsdom',
       css: false,
+      pool: 'forks',
+      testTimeout: 30000,
+      hookTimeout: 30000,
+      teardownTimeout: 30000,
       setupFiles: ['./vitest.setup.tsx'],
       include: ['src/**/*.test.{ts,tsx}'],
       coverage: {

@@ -1,22 +1,11 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 
 import ButtonsNavigation from "@/app/components/ButtonsNavigation/ButtonsNavigation";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
-import DocumentIcon from "@/assets/icons/Docs/submit-document.svg";
-import DownloadIcon from "@/assets/icons/acciones/download.svg";
-
-type EmployeeDocument = {
-  id?: string | number;
-  name?: string;
-  file_name?: string;
-  filename?: string;
-  url?: string;
-  file_url?: string;
-};
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 
 type EmployeeDetailsExtras = {
   employee?: string;
@@ -35,9 +24,6 @@ type EmployeeDetailsExtras = {
   address?: string;
   emergency_phone?: string;
   emergency_number?: string;
-  employee_documents?: EmployeeDocument[];
-  documents?: EmployeeDocument[];
-  files?: EmployeeDocument[];
 };
 
 type EmployeeDetailsPanelProps = {
@@ -90,71 +76,14 @@ const EmployeeDetailsPanel = ({
   employee,
   canSeeInformation,
 }: EmployeeDetailsPanelProps) => {
+  const { currentPagePermissions } = useAuth();
+  const showEmployeeNumber = Boolean(currentPagePermissions?.showEmployeeNumber);
+  const showAssignedDevices = Boolean(currentPagePermissions?.showAssignedDevices)
   const detailEmployee = employee as (EmployeeType & EmployeeDetailsExtras) | null;
   const detailDepartment = detailEmployee?.department;
   const detailDisplay = detailEmployee
     ? getEmployeeDisplay(detailEmployee)
     : null;
-
-  const rawBirthDate =
-    detailEmployee?.birth_date ||
-    detailEmployee?.birthdate ||
-    detailEmployee?.date_of_birth;
-  const parsedBirthDate = rawBirthDate ? new Date(rawBirthDate) : null;
-  const hasValidBirthDate = Boolean(
-    parsedBirthDate && !Number.isNaN(parsedBirthDate.getTime()),
-  );
-
-  const resolvedAge = (() => {
-    if (!detailEmployee) return emptyValue;
-
-    if (detailEmployee.age !== undefined && detailEmployee.age !== null) {
-      return String(detailEmployee.age);
-    }
-
-    if (!parsedBirthDate || Number.isNaN(parsedBirthDate.getTime())) {
-      return emptyValue;
-    }
-
-    const today = new Date();
-    let age = today.getFullYear() - parsedBirthDate.getFullYear();
-    const hasHadBirthdayThisYear =
-      today.getMonth() > parsedBirthDate.getMonth() ||
-      (today.getMonth() === parsedBirthDate.getMonth() &&
-        today.getDate() >= parsedBirthDate.getDate());
-    if (!hasHadBirthdayThisYear) age -= 1;
-    return String(age);
-  })();
-
-  const resolvedBirthDate =
-    hasValidBirthDate && parsedBirthDate
-      ? parsedBirthDate.toLocaleDateString("es-MX")
-      : emptyValue;
-
-  const resolvedMaritalStatus =
-    detailEmployee?.marital_status ||
-    detailEmployee?.civil_status ||
-    emptyValue;
-
-  const resolvedAddress = detailEmployee?.address || emptyValue;
-  const resolvedEmergencyNumber =
-    detailEmployee?.emergency_phone ||
-    detailEmployee?.emergency_number ||
-    emptyValue;
-
-  const fallbackDocuments: EmployeeDocument[] = [
-    { id: "doc-1", name: "Documento 1" },
-    { id: "doc-2", name: "Documento 2" },
-    { id: "doc-3", name: "Documento 3" },
-    { id: "doc-4", name: "Documento 4" },
-  ];
-
-  const documentsToRender = detailEmployee
-    ? detailEmployee.employee_documents ||
-      detailEmployee.documents ||
-      detailEmployee.files ||
-      fallbackDocuments
-    : fallbackDocuments;
 
   return (
     <DetailsPanelLayout open={open} onClose={onClose} divider={false}>
@@ -181,37 +110,37 @@ const EmployeeDetailsPanel = ({
                 renderContent={
                   <div className="space-y-6">
                     <dl className="text-b3 space-y-2 text-gray-100">
-                      <div className="flex">
+                      <div className="flex gap-1">
                         <dt className="text-gray-90 font-semibold">EMPRESA:</dt>
                         <dd>{detailDepartment?.enterprice_name || emptyValue}</dd>
                       </div>
-                      <div className="flex">
+                      <div className="flex gap-1">
                         <dt className="text-gray-90 font-semibold">
                           NO. EMPLEADO:
                         </dt>
                         <dd>{detailDisplay?.employeeNumber || emptyValue}</dd>
                       </div>
-                      <div className="flex my-6">
+                      <div className="flex gap-1 my-6">
                         <dt className="text-gray-90 font-semibold">
                           RESPONSABLE:
                         </dt>
                         <dd>{detailEmployee.manager_id || emptyValue}</dd>
                       </div>
-                      <div className="flex">
+                      <div className="flex gap-1">
                         <dt className="text-gray-90 font-semibold">AREA:</dt>
                         <dd>{detailDepartment?.name || emptyValue}</dd>
                       </div>
-                      <div className="flex">
+                      <div className="flex gap-1">
                         <dt className="text-gray-90 font-semibold">
                           POSICION DE TRABAJO:
                         </dt>
                         <dd>{detailDisplay?.position || emptyValue}</dd>
                       </div>
-                      <div className="flex mt-6">
+                      <div className="flex gap-1 mt-6">
                         <dt className="text-gray-90 font-semibold">TELEFONO:</dt>
                         <dd>{detailDisplay?.phone || emptyValue}</dd>
                       </div>
-                      <div className="flex">
+                      <div className="flex gap-1">
                         <dt className="text-gray-90 font-semibold">CORREO:</dt>
                         <dd>{detailDisplay?.email || emptyValue}</dd>
                       </div>
@@ -222,30 +151,31 @@ const EmployeeDetailsPanel = ({
                         Activo
                       </span>
                     </div>
-
-                    <div className="border-t border-gray-20 pt-4">
-                      <h3 className="text-s2 font-semibold text-gray-100">
-                        Dispositivos Asignados
-                      </h3>
-                      <dl className="mt-4 text-b3 space-y-2 text-gray-100">
-                        <div className="flex">
-                          <dt className="text-gray-90 font-semibold">
-                            TELEFONO:
-                          </dt>
-                          <dd>{emptyValue}</dd>
-                        </div>
-                        <div className="flex">
-                          <dt className="text-gray-90 font-semibold">
-                            COMPUTADORA:
-                          </dt>
-                          <dd>{emptyValue}</dd>
-                        </div>
-                      </dl>
-                    </div>
+                    {showAssignedDevices && (
+                      <div className="border-t border-gray-20 pt-4">
+                        <h3 className="text-s2 font-semibold text-gray-100">
+                          Dispositivos Asignados
+                        </h3>
+                        <dl className="mt-4 text-b3 space-y-2 text-gray-100">
+                          <div className="flex gap-1">
+                            <dt className="text-gray-90 font-semibold">
+                              TELEFONO:
+                            </dt>
+                            <dd>{emptyValue}</dd>
+                          </div>
+                          <div className="flex gap-1">
+                            <dt className="text-gray-90 font-semibold">
+                              COMPUTADORA:
+                            </dt>
+                            <dd>{emptyValue}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                    )}
                   </div>
                 }
               />
-              <ButtonsNavigation.Item
+              {/* <ButtonsNavigation.Item
                 id="personal"
                 label="Informacion Personal"
                 renderContent={
@@ -353,7 +283,7 @@ const EmployeeDetailsPanel = ({
                     })}
                   </div>
                 }
-              />
+              /> */}
             </ButtonsNavigation>
           ) : (
             <div className="space-y-4">
@@ -362,33 +292,35 @@ const EmployeeDetailsPanel = ({
               </div>
 
               <dl className="text-b3 space-y-2 text-gray-100">
-                <div className="flex">
+                <div className="flex gap-1">
                   <dt className="text-gray-90 font-semibold">EMPRESA:</dt>
                   <dd> {detailDepartment?.enterprice_name || emptyValue}</dd>
                 </div>
-                <div className="flex">
-                  <dt className="text-gray-90 font-semibold">NO. EMPLEADO:</dt>
-                  <dd>{detailDisplay?.employeeNumber || emptyValue}</dd>
-                </div>
-                <div className="flex my-6">
+                {showEmployeeNumber && (
+                  <div className="flex gap-1">
+                    <dt className="text-gray-90 font-semibold">NO. EMPLEADO:</dt>
+                    <dd>{detailDisplay?.employeeNumber || emptyValue}</dd>
+                  </div>
+                )}
+                <div className="flex gap-1 my-6">
                   <dt className="text-gray-90 font-semibold">RESPONSABLE:</dt>
                   <dd>{detailEmployee.manager_id || emptyValue}</dd>
                 </div>
-                <div className="flex">
+                <div className="flex gap-1">
                   <dt className="text-gray-90 font-semibold">AREA:</dt>
                   <dd>{detailDepartment?.name || emptyValue}</dd>
                 </div>
-                <div className="flex">
+                <div className="flex gap-1">
                   <dt className="text-gray-90 font-semibold">
                     POSICION DE TRABAJO:
                   </dt>
                   <dd>{detailDisplay?.position || emptyValue}</dd>
                 </div>
-                <div className="flex mt-6">
+                <div className="flex gap-1 mt-6">
                   <dt className="text-gray-90 font-semibold">TELEFONO:</dt>
                   <dd>{detailDisplay?.phone || emptyValue}</dd>
                 </div>
-                <div className="flex">
+                <div className="flex gap-1">
                   <dt className="text-gray-90 font-semibold">CORREO:</dt>
                   <dd>{detailDisplay?.email || emptyValue}</dd>
                 </div>

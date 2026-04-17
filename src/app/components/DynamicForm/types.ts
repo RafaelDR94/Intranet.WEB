@@ -110,6 +110,8 @@ export interface FieldModel {
   defaultFacingMode?: 'user' | 'environment';
   /** Modo vista previa con opción de cambiar */
   preview?: boolean;
+  /** En preview superpone el botón de cambio sobre la imagen y oculta borde punteado */
+  previewCoverMode?: boolean;
   /** Permite la selección de múltiples imágenes. */
   multiple?: boolean;
 
