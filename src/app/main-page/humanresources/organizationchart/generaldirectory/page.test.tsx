@@ -75,9 +75,9 @@ describe('GeneralDirectoryPage', () => {
     expect(fetchActiveEmployees).toHaveBeenCalled();
   });
 
-  it('passes active employees to the table', () => {
+  it('passes active employees to the table sorted alphabetically', () => {
     const fetchActiveEmployees = vi.fn();
-    const employee = {
+    const employeeB = {
       id: 'emp-1',
       employee_id: 'emp-1',
       employee_number: '30000',
@@ -103,9 +103,18 @@ describe('GeneralDirectoryPage', () => {
       fullname: 'Rafael Gomez',
       gtstype: undefined,
     } satisfies EmployeeType;
+    const employeeA = {
+      ...employeeB,
+      id: 'emp-2',
+      employee_id: 'emp-2',
+      firstname: 'Ana',
+      lastname: 'Lopez',
+      fullname: 'Ana Lopez',
+      email: 'ana.lopez@drsecurity.net',
+    } satisfies EmployeeType;
 
     useEmployeesStore.mockReturnValue({
-      activeEmployees: [employee],
+      activeEmployees: [employeeB, employeeA],
       loadingActive: false,
       error: undefined,
       fetchActiveEmployees,
@@ -115,7 +124,8 @@ describe('GeneralDirectoryPage', () => {
 
     expect(DataTable).toHaveBeenCalledTimes(1);
     const props = DataTable.mock.calls[0][0] as DataTableProps<DirectoryRow>;
-    expect(props.tables[0].data).toHaveLength(1);
-    expect(props.tables[0].data[0].fullname).toBe('Rafael Gomez');
+    expect(props.tables[0].data).toHaveLength(2);
+    expect(props.tables[0].data[0].fullname).toBe('Ana Lopez');
+    expect(props.tables[0].data[1].fullname).toBe('Rafael Gomez');
   });
 });

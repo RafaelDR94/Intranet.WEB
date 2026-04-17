@@ -49,6 +49,10 @@ const DepartmentsPage = () => {
   const showInformation = Boolean(
     currentPagePermissions?.showInformation
   );
+  const canCreateEmployee = Boolean(
+    currentPagePermissions?.create
+  );
+  const showEmployeeNumber = Boolean(currentPagePermissions?.showEmployeeNumber)
   const canSeeInformation = showInformation;
   const canEditEmployee = Boolean(
     currentPagePermissions?.update ?? currentPagePermissions?.canSeeDetails,
@@ -331,9 +335,11 @@ const DepartmentsPage = () => {
         key: "fullname",
         label: "NOMBRE",
         render: (row) => (
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <Avatar src={row.image_url} size="sm" />
-            <span>{row.fullname}</span>
+            <span className="block min-w-0 flex-1 truncate" title={row.fullname}>
+              {row.fullname}
+            </span>
           </div>
         ),
         cellClass: "min-w-0 flex-[3]",
@@ -342,26 +348,26 @@ const DepartmentsPage = () => {
       {
         key: "position",
         label: "PUESTO",
-        cellClass: "min-w-0 flex-[2]",
-        headerClass: "min-w-0 flex-[2]",
+        cellClass: "min-w-0 flex-[2] truncate whitespace-nowrap pr-6",
+        headerClass: "min-w-0 flex-[2] pr-6",
       },
       {
         key: "phone",
         label: "TELEFONO",
-        cellClass: "min-w-0 flex-[1.5]",
-        headerClass: "min-w-0 flex-[1.5]",
+        cellClass: "min-w-0 flex-[1.5] truncate whitespace-nowrap pr-6",
+        headerClass: "min-w-0 flex-[1.5] pr-6",
       },
       {
         key: "email",
         label: "CORREO",
-        cellClass: "min-w-0 flex-[2]",
-        headerClass: "min-w-0 flex-[2]",
+        cellClass: "min-w-0 flex-[2] truncate whitespace-nowrap pr-6",
+        headerClass: "min-w-0 flex-[2] pr-6",
       },
       {
         key: "employeeNumber",
         label: "No. EMPLEADO",
-        cellClass: "min-w-0 flex-[1]",
-        headerClass: "min-w-0 flex-[1]",
+        cellClass: "min-w-0 flex-[1] truncate whitespace-nowrap pr-4",
+        headerClass: "min-w-0 flex-[1] pr-4",
       },
       ...(showActionsColumn
         ? [
@@ -570,6 +576,7 @@ const DepartmentsPage = () => {
             showDownloadTable={false}
             enableInternalSearch={false}
             enablePagination={false}
+            textSize={{ mobile: "c2", desktop: "text-b4" }}
             onSearchChange={(value) => setEmployeeSearchValue(value)}
             tables={listTables}
           />
@@ -620,10 +627,12 @@ const DepartmentsPage = () => {
                 <span className={departmentsStyles.mosaicMeta}>
                   {getEmployeeDisplay(responsibleEmployee).email}
                 </span>
-                <span className={departmentsStyles.mosaicMeta}>
-                  No. Empleado:{" "}
-                  {getEmployeeDisplay(responsibleEmployee).employeeNumber}
-                </span>
+                {showEmployeeNumber && (
+                  <span className={departmentsStyles.mosaicMeta}>
+                    No. Empleado:{" "}
+                    {getEmployeeDisplay(responsibleEmployee).employeeNumber}
+                  </span>
+                )}
                 {showInformation ? (
                   <Button
                     size="small"
@@ -689,10 +698,12 @@ const DepartmentsPage = () => {
                     <span className={departmentsStyles.mosaicMeta}>
                       {getEmployeeDisplay(employee).email}
                     </span>
-                    <span className={departmentsStyles.mosaicMeta}>
-                      No. Empleado:{" "}
-                      {getEmployeeDisplay(employee).employeeNumber}
-                    </span>
+                    {showEmployeeNumber && (
+                      <span className={departmentsStyles.mosaicMeta}>
+                        No. Empleado:{" "}
+                        {getEmployeeDisplay(responsibleEmployee).employeeNumber}
+                      </span>
+                    )}
                     {showInformation ? (
                       <Button
                         size="small"
@@ -757,9 +768,11 @@ const DepartmentsPage = () => {
               className={departmentsStyles.searchInput}
             />
           </div>
-          <Button hideIcon onClick={handleOpenCreateView}>
-            Nuevo Empleado
-          </Button>
+          {canCreateEmployee && (
+            <Button hideIcon onClick={handleOpenCreateView}>
+              Nuevo Empleado
+            </Button>
+          )}
         </div>
       </div>
 
@@ -794,7 +807,11 @@ const DepartmentsPage = () => {
               imageSrc={resolveImageSrc(department)}
               label="Departamento"
               title={department.name || "Sin nombre"}
-              description=""
+              description={
+                    department.enterprice_name
+                      ? `Empresa: ${department.enterprice_name}`
+                      : ""
+                  }
               primaryLabel="Ver Departamento"
               onAccept={() => handleViewDepartment(department)}
             />

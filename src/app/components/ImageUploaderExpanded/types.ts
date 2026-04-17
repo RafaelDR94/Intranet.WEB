@@ -44,6 +44,8 @@ export interface ImageUploaderExpandedProps {
   dataTestId?: string;
   /** Modo de vista previa: muestra la imagen seleccionada con opción para cambiar. */
   preview?: boolean;
+  /** En preview, superpone el CTA sobre la imagen y elimina borde punteado del recuadro. */
+  previewCoverMode?: boolean;
   /** Permite seleccionar varias imágenes. */
   multiple?: boolean;
 }
