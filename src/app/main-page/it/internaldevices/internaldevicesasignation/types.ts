@@ -16,6 +16,7 @@ export type InternalDeviceAssignmentRow = {
   name?: string
   assigned_to?: string | null
   responsive_url?: string | null
+  assigned?: boolean
   is_active?: boolean
 }
 
