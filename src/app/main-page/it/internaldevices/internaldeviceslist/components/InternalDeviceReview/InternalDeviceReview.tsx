@@ -116,12 +116,12 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
       return
     }
 
-    const userId = user?.idUser
-    if (!userId) {
+    const employeeId = user?.idEmployee
+    if (!employeeId) {
       showAlert({
         type: 'warning',
         title: 'Usuario no disponible',
-        description: 'No se encontro el usuario autenticado.',
+        description: 'No se encontro el empleado autenticado.',
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1200,
@@ -144,14 +144,14 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
     const result = await createDeviceReview({
       description: formValues.description ?? '',
       device_id: device.device_id,
-      user_id: userId,
+      IdEmployee: employeeId,
       status_id: formValues.status_id,
     })
 
     if (result) {
       onBack()
     }
-  }, [createDeviceReview, device, formValues, onBack, showAlert, user?.idUser])
+  }, [createDeviceReview, device, formValues, onBack, showAlert, user?.idEmployee])
 
   if (!device) {
     return (
