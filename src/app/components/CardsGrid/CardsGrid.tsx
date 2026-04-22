@@ -69,6 +69,7 @@ export function CardsGrid<T>({ data, adapt, rowsPerPage }: Readonly<CardsGridPro
               primaryLabel={adapt.primaryLabel ?? "Ver"}
               secondaryLabel={adapt.secondaryLabel ?? "Cancelar"}
               actionMenuProps={menuProps as any}
+              enableImagePreview={adapt.enableImagePreview}
             />
           );
         })}

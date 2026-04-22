@@ -28,5 +28,7 @@ export type CardProps<TRow extends Record<string, unknown> = Record<string, unkn
   secondaryLabel?: string
   /** Optional props to display contextual action menu */
   actionMenuProps?: ActionMenuCellProps<TRow>
+  /** Enables opening the image in fullscreen preview on click (default: true) */
+  enableImagePreview?: boolean
 }
 
