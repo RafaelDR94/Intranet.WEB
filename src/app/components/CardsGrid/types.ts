@@ -15,6 +15,8 @@ export type CardsGridProps<T> = {
     secondaryLabel?: string
     showPrimaryButton?: boolean
     showSecondaryButton?: boolean
+    /** Enable opening image preview in fullscreen */
+    enableImagePreview?: boolean
     /** Menú contextual por tarjeta */
     actionMenuProps?: (row: T) => ActionMenuCellProps<T>
     /** si lo envías y es menor, se respeta (pero nunca más de 2 filas) */

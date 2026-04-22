@@ -249,6 +249,8 @@ export interface CardAdapt<T> {
   /** Mostrar/ocultar botones */
   showPrimaryButton?: boolean
   showSecondaryButton?: boolean
+  /** Enable opening image preview in fullscreen */
+  enableImagePreview?: boolean
   /** Props para renderizar el menu contextual en cada tarjeta */
   actionMenuProps?: (row: T) => ActionMenuCellProps<T>
   /** Número de tarjetas por página (opcional, por defecto `rowsPerPage`) */

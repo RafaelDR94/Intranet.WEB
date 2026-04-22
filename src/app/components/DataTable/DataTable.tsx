@@ -194,6 +194,7 @@ export const DataTable = <T extends { id: string | number }>({
                   secondaryLabel: table.cardAdapt.secondaryLabel,
                   showPrimaryButton: table.cardAdapt.showPrimaryButton,
                   showSecondaryButton: table.cardAdapt.showSecondaryButton,
+                  enableImagePreview: table.cardAdapt.enableImagePreview,
                   actionMenuProps: table.cardAdapt.actionMenuProps,
                   cardsPerPage: table.cardAdapt.cardsPerPage,
                 }}
