@@ -476,7 +476,13 @@ export const InternalDeviceReviewPostMap = (
   return {
     description: toString(record.description),
     device_id: toString(record.device_id ?? record.deviceId),
-    user_id: toString(record.user_id ?? record.userId),
+    IdEmployee: toString(
+      record.IdEmployee ??
+        record.idEmployee ??
+        record.id_employee ??
+        record.user_id ??
+        record.userId,
+    ),
     status_id: toString(record.status_id ?? record.statusId),
   }
 }
@@ -489,7 +495,13 @@ export const InternalDeviceReviewPutMap = (
     device_review_id: toString(record.device_review_id ?? record.id),
     description: toString(record.description),
     device_id: toString(record.device_id ?? record.deviceId),
-    user_id: toString(record.user_id ?? record.userId),
+    IdEmployee: toString(
+      record.IdEmployee ??
+        record.idEmployee ??
+        record.id_employee ??
+        record.user_id ??
+        record.userId,
+    ),
     status_id: toString(record.status_id ?? record.statusId),
   }
 }
@@ -500,6 +512,17 @@ export const InternalDeviceAssignmentMap = (
   const record = toRecord(raw)
   const deviceRaw = record.device
   const employeeRaw = record.employee
+  const employeeId = toString(
+    record.employee_id ??
+      record.employeeId ??
+      readNestedId(employeeRaw, 'employee_id') ??
+      readNestedId(employeeRaw, 'id'),
+  )
+  const hasEmployeeAssigned = employeeId.trim().length > 0
+  const assigned =
+    record.assigned == null
+      ? hasEmployeeAssigned
+      : toBoolean(record.assigned, hasEmployeeAssigned)
   return {
     device_assigment_id: toString(
       record.device_assigment_id ?? record.device_assignment_id ?? record.id,
@@ -512,12 +535,10 @@ export const InternalDeviceAssignmentMap = (
         readNestedId(deviceRaw, 'device_id') ??
         readNestedId(deviceRaw, 'id'),
     ),
-    employee_id: toString(
-      record.employee_id ??
-        record.employeeId ??
-        readNestedId(employeeRaw, 'employee_id') ??
-        readNestedId(employeeRaw, 'id'),
-    ),
+    employee_id: employeeId,
+    assigned,
+    is_active:
+      record.is_active == null ? undefined : toBoolean(record.is_active),
     id_user: record.id_user ? toString(record.id_user) : undefined,
     responsive_url: toNullableString(
       record.responsive_url ??

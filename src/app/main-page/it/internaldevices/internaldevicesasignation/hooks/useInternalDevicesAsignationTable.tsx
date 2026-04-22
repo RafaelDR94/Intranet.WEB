@@ -63,6 +63,9 @@ const useInternalDevicesAsignationTable = ({
       deviceAssignments.map((assignment, index) => {
         const device = deviceById.get(assignment.device_id);
         const employee = employeeById.get(assignment.employee_id);
+        const assigned =
+          assignment.assigned ??
+          Boolean((assignment.employee_id ?? "").trim());
         return {
           id: assignment.device_assigment_id || String(index + 1),
           assignment_id: assignment.device_assigment_id || "",
@@ -76,116 +79,117 @@ const useInternalDevicesAsignationTable = ({
           name: device?.name ?? "",
           assigned_to: employee?.fullname ?? assignment.employee_id ?? "-",
           responsive_url: assignment.responsive_url ?? null,
+          assigned,
         };
       }),
     [deviceAssignments, deviceById, employeeById],
   );
 
   const columnsDesktop = useMemo<
-    ColumnDefinition<InternalDeviceAssignmentRow>[]
-  >(
-    () => [
-      {
-        key: "display_id",
-        label: "ID",
-        cellClass: "w-1/12",
-        headerClass: "w-1/12",
-      },
-      {
-        key: "device_status",
-        label: "ESTATUS",
-        cellClass: "w-1/12",
-        headerClass: "w-1/12",
-        render: (row) => (
-          <Label
-            type={statusToLabelType(row.device_status?.name)}
-            text={row.device_status?.name ?? "SIN ESTATUS"}
+  ColumnDefinition<InternalDeviceAssignmentRow>[]
+>(
+  () => [
+    {
+      key: "display_id",
+      label: "ID",
+      cellClass: "w-[4%]",
+      headerClass: "w-[4%]",
+    },
+    {
+      key: "device_status",
+      label: "ESTATUS",
+      cellClass: "w-[10%]",
+      headerClass: "w-[10%]",
+      render: (row) => (
+        <Label
+          type={statusToLabelType(row.device_status?.name)}
+          text={row.device_status?.name ?? "SIN ESTATUS"}
+        />
+      ),
+    },
+    {
+      key: "device_type",
+      label: "DISPOSITIVO",
+      cellClass: "w-[9%]",
+      headerClass: "w-[9%]",
+      render: (row) => row.device_type?.name ?? "-",
+    },
+    {
+      key: "device_brand",
+      label: "MARCA",
+      cellClass: "w-[7%]",
+      headerClass: "w-[7%]",
+      render: (row) => row.device_brand?.name ?? "-",
+    },
+    {
+      key: "model",
+      label: "MODELO",
+      cellClass: "w-[10%]",
+      headerClass: "w-[10%]",
+    },
+    {
+      key: "serial_number",
+      label: "No. SERIE",
+      cellClass: "w-[11%]",
+      headerClass: "w-[11%]",
+    },
+    {
+      key: "name",
+      label: "NOMBRE",
+      cellClass: "w-[11%]",
+      headerClass: "w-[11%]",
+    },
+    {
+      key: "assigned_to",
+      label: "ASIGNADO A",
+      cellClass: "w-[14%]",
+      headerClass: "w-[14%]",
+      render: (row) => row.assigned_to ?? "-",
+    },
+    {
+      key: "responsive_url",
+      label: "RESPONSIVA",
+      cellClass: "w-[8%]",
+      headerClass: "w-[8%]",
+      render: (row) => (
+        <Button
+          size="small"
+          variant="ghost"
+          icon={ResponsiveDoc}
+          onClick={() => onOpenResponsive(row)}
+        />
+      ),
+    },
+    {
+      key: "assigned",
+      label: "ESTADO ASIGNACIÓN",
+      cellClass: "w-[10%]",
+      headerClass: "w-[10%]",
+      render: (row) => (
+        <Label
+          type={row.assigned ? "valido" : "restringido"}
+          text={row.assigned ? "ACTIVO" : "INACTIVO"}
+        />
+      ),
+    },
+    {
+      key: "assignment_id",
+      label: "",
+      cellClass: "w-[6%]",
+      headerClass: "w-[6%]",
+      render: (row) => (
+        <div data-tour="internaldevices-asignation-row-actions">
+          <ActionMenuCell
+            row={row}
+            onDetails={() => onOpenDetails(row)}
+            permissions={{ details: true, delete: false, update: false }}
           />
-        ),
-      },
-      {
-        key: "device_type",
-        label: "DISPOSITIVO",
-        cellClass: "w-2/12",
-        headerClass: "w-2/12",
-        render: (row) => row.device_type?.name ?? "-",
-      },
-      {
-        key: "device_brand",
-        label: "MARCA",
-        cellClass: "w-1/12",
-        headerClass: "w-1/12",
-        render: (row) => row.device_brand?.name ?? "-",
-      },
-      {
-        key: "model",
-        label: "MODELO",
-        cellClass: "w-2/12",
-        headerClass: "w-2/12",
-      },
-      {
-        key: "serial_number",
-        label: "No. SERIE",
-        cellClass: "w-2/12",
-        headerClass: "w-2/12",
-      },
-      {
-        key: "name",
-        label: "NOMBRE",
-        cellClass: "w-2/12",
-        headerClass: "w-2/12",
-      },
-      {
-        key: "assigned_to",
-        label: "ASIGNADO A",
-        cellClass: "w-2/12",
-        headerClass: "w-2/12",
-        render: (row) => row.assigned_to ?? "-",
-      },
-      {
-        key: "responsive_url",
-        label: "RESPONSIVA",
-        cellClass: "w-2/12",
-        headerClass: "w-2/12",
-        render: (row) => (
-          <Button
-            size="small"
-            variant="ghost"
-            icon={ResponsiveDoc}
-            onClick={() => onOpenResponsive(row)}
-          />
-        ),
-      },
-      {
-        key: "is_active",
-        label: "ESTADO ASIGNACIÓN",
-        cellClass: "w-2/12",
-        headerClass: "w-2/12",
-        render: (row) => (
-          <Label
-            type={row.is_active ? "valido" : "restringido"}
-            text={row.is_active ? "ACTIVO" : "INACTIVO"}
-          />
-        ),
-      },
-      {
-        key: "assignment_id",
-        label: "",
-        cellClass: "w-1/12",
-        headerClass: "w-1/12",
-        render: (row) => (
-          <div data-tour="internaldevices-asignation-row-actions">
-            <ActionMenuCell
-              row={row}
-              onDetails={() => onOpenDetails(row)}
-              permissions={{ details: true, delete: false, update: false }}
-            />
-          </div>
-        ),
-      },
-    ],
-    [onOpenDetails, onOpenResponsive],
-  );
+        </div>
+      ),
+    },
+  ],
+  [onOpenDetails, onOpenResponsive],
+);
 
   const columnsMobile = useMemo<
     ColumnDefinition<InternalDeviceAssignmentRow>[]

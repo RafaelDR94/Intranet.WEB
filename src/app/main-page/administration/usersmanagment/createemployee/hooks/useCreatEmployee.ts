@@ -207,6 +207,7 @@ const useCreateEemployee = ({
           value: { name: "Imagen de perfil", url: currentEmployee?.image_url },
           accept: ".jpg,.png",
           preview: true,
+          previewCoverMode: true,
           validations: [{ type: "required" }],
           disabled: isReadOnly,
         },

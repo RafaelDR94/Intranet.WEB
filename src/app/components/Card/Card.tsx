@@ -67,6 +67,7 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
   primaryLabel = 'Aceptar',
   secondaryLabel = 'Cancelar',
   actionMenuProps,
+  enableImagePreview = true,
 }: CardProps<TRow>) {
   const isVertical = orientation === 'vertical';
   // Compute initial image: if empty, use fallback immediately
@@ -87,8 +88,10 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
 
   const viewerAlt = title ?? 'card image'
 
+  const canOpenImagePreview = enableImagePreview && Boolean(viewerSrc);
+
   const handleImageClick = () => {
-    if (!viewerSrc) return
+    if (!canOpenImagePreview) return
     principalImage?.showImage({
       src: viewerSrc,
       alt: viewerAlt,
@@ -96,7 +99,7 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
   }
 
   const handleImageKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (event) => {
-    if (!viewerSrc) return
+    if (!canOpenImagePreview) return
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
       principalImage?.showImage({
@@ -123,11 +126,11 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
         className={cx(
           cardStyles.ImageWrapperBase,
           isVertical ? cardStyles.ImageWrapperVertical : cardStyles.ImageWrapperHorizontal,
-          viewerSrc && 'cursor-zoom-in'
+          canOpenImagePreview && 'cursor-zoom-in'
         )}
-        role={viewerSrc ? 'button' : undefined}
-        tabIndex={viewerSrc ? 0 : -1}
-        aria-label={viewerSrc ? enlargeImageLabel : undefined}
+        role={canOpenImagePreview ? 'button' : undefined}
+        tabIndex={canOpenImagePreview ? 0 : -1}
+        aria-label={canOpenImagePreview ? enlargeImageLabel : undefined}
         onClick={handleImageClick}
         onKeyDown={handleImageKeyDown}
       >
