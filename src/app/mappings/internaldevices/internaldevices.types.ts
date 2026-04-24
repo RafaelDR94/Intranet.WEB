@@ -145,7 +145,7 @@ export type InternalDeviceReview = {
 export type InternalDeviceReviewPost = {
   description: string
   device_id: string
-  IdEmployee: string
+  employee_id: string
   status_id: string
 }
 
@@ -153,7 +153,7 @@ export type InternalDeviceReviewPut = {
   device_review_id: string
   description: string
   device_id: string
-  IdEmployee: string
+  employee_id: string
   status_id: string
 }
 
