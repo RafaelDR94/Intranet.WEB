@@ -10,8 +10,9 @@ describe('ToggleButton component', () => {
     const handleChange = vi.fn()
     render(<ToggleButton checked={false} onChange={handleChange} />)
 
-    const checkbox = screen.getByRole('checkbox') as HTMLInputElement
+    const checkbox = screen.getByRole('switch') as HTMLInputElement
     expect(checkbox.checked).toBe(false)
+    expect(checkbox).toHaveAttribute('aria-checked', 'false')
 
     const wrapperDiv = checkbox.parentElement as HTMLElement
     // estado unchecked usa bg-gray-10
@@ -25,8 +26,9 @@ describe('ToggleButton component', () => {
     const handleChange = vi.fn()
     render(<ToggleButton checked={true} onChange={handleChange} />)
 
-    const checkbox = screen.getByRole('checkbox') as HTMLInputElement
+    const checkbox = screen.getByRole('switch') as HTMLInputElement
     expect(checkbox.checked).toBe(true)
+    expect(checkbox).toHaveAttribute('aria-checked', 'true')
 
     const wrapperDiv = checkbox.parentElement as HTMLElement
     // estado checked usa bg-green-90
@@ -39,7 +41,7 @@ describe('ToggleButton component', () => {
     const handleChange = vi.fn()
     render(<ToggleButton checked={false} onChange={handleChange} />)
 
-    const checkbox = screen.getByRole('checkbox') as HTMLInputElement
+    const checkbox = screen.getByRole('switch') as HTMLInputElement
     fireEvent.click(checkbox)
     expect(handleChange).toHaveBeenCalledWith(true)
   })
@@ -48,10 +50,10 @@ describe('ToggleButton component', () => {
     const handleChange = vi.fn()
     render(<ToggleButton checked={false} onChange={handleChange} disabled />)
 
-    const checkbox = screen.getByRole('checkbox') as HTMLInputElement
+    const checkbox = screen.getByRole('switch') as HTMLInputElement
     expect(checkbox.disabled).toBe(true)
 
-    const wrapperLabel = screen.getByRole('checkbox').closest('label')!
+    const wrapperLabel = screen.getByRole('switch').closest('label')!
     expect(wrapperLabel).toHaveClass('cursor-not-allowed')
 
     fireEvent.click(checkbox)

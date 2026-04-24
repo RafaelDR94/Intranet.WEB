@@ -17,6 +17,12 @@ export interface ToggleButtonProps {
   labelColor?:string;
   /** Clases CSS adicionales para personalizar el contenedor */
   className?: string;
+  /** Clases CSS adicionales para personalizar la pista */
+  trackClassName?: string;
+  /** Clases CSS adicionales para personalizar el pulgar */
+  thumbClassName?: string;
+  /** Etiqueta accesible cuando no se renderiza texto visible */
+  ariaLabel?: string;
   /** Identificador de pruebas */
   dataTestId?: string;
   /** Selector estable para tutoriales */

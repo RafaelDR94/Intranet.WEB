@@ -1,132 +1,130 @@
 import { useRouter } from "next/navigation";
-import { useCallback, useState, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
-import type { FieldModel } from "@/app/components/DynamicForm/types";
-import { PutRecoverPassword } from "@/app/mappings/auth/auth.types";
+import { useRecoverPasswordFlow } from "@/app/login/context/RecoverPasswordFlowContext";
+import type { RecoverChannel } from "@/app/mappings/auth/auth.types";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
-/** Campos del formulario de recuperación de contraseña */
-export const recoverPasswordFields: FieldModel[] = [
-  {
-    name: "email",
-    type: "email",
-    label: "Usuario",
-    placeholder: "usuario@drsecurity.net",
-    value: "",
-    validations: [{ type: "required" }, { type: "email" }],
-  },
-];
-
-export interface UseRecoverPassword {
-  /** Indica si la solicitud está en curso */
-  isLoading: boolean;
-  /** Envía el correo para recuperar la contraseña */
-  handleRecover: (values: Record<string, any>) => Promise<void>;
+export interface VerificationOption {
+  value: "Email" | "SMS";
+  title: string;
+  description: string;
+  channelValue: string | null;
 }
 
-/**
- * Maneja el flujo de recuperación de contraseña.
- * @param routerOverride Router opcional para pruebas
- * @returns Estado y acciones del proceso
- */
+export interface UseRecoverPassword {
+  email: string;
+  isLoading: boolean;
+  selectedMethod: "Email" | "SMS";
+  selectedChannelValue: string;
+  submitError: string;
+  verificationOptions: VerificationOption[];
+  setSelectedMethod: (method: "Email" | "SMS") => void;
+  handleRecover: () => Promise<void>;
+}
+
 export default function useRecoverPassword(
-  routerOverride?: ReturnType<typeof useRouter>
+  routerOverride?: ReturnType<typeof useRouter>,
 ): UseRecoverPassword {
   const routerFromHook = useRouter();
   const router = routerOverride ?? routerFromHook;
-
-  // Estado local
-  const [isLoading, setIsLoading] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState("");
-
-  // Evitar doble redirección en renderizados/reintentos
-  const didRedirectRef = useRef(false);
-
-  // Store de auth
   const {
-    error,
-    resetFlags,
-    successRecoverPassword,
-    recoveringPassword,
-    recoverPassword,
-  } = useAuthStore(
-    (s) => ({
-      resetFlags: s.resetFlags,
-      error: s.error,
-      successRecoverPassword: s.successRecoverPassword,
-      recoveringPassword: s.recoveringPassword,
-      recoverPassword: s.recoverPassword,
-    }),
-    shallow
-  );
+    email,
+    recoverChannels,
+    selectedMethod,
+    setSelectedMethod,
+    setVerificationChallenge,
+  } = useRecoverPasswordFlow();
+  const [submitError, setSubmitError] = useState("");
 
-  // Efecto para reaccionar al resultado
+  const { error, recoveringPassword, recoverPassword, clearRecoverPasswordState } =
+    useAuthStore(
+      (state) => ({
+        error: state.error,
+        recoveringPassword: state.recoveringPassword,
+        recoverPassword: state.recoverPassword,
+        clearRecoverPasswordState: state.clearRecoverPasswordState,
+      }),
+      shallow,
+    );
+
+  const verificationOptions = useMemo<VerificationOption[]>(() => {
+    const definitions: Array<Omit<VerificationOption, "channelValue">> = [
+      {
+        value: "Email",
+        title: "Correo electrónico",
+        description: "Recibirás un código en tu correo corporativo",
+      },
+      {
+        value: "SMS",
+        title: "Mensaje SMS",
+        description: "Recibirás un código en el teléfono registrado",
+      },
+    ];
+
+    return definitions
+      .map((definition) => {
+        const matchingChannel = recoverChannels.find(
+          (channel: RecoverChannel) => channel.type === definition.value,
+        );
+
+        return {
+          ...definition,
+          channelValue: matchingChannel?.value ?? null,
+        };
+      })
+      .filter((option) => Boolean(option.channelValue?.trim()));
+  }, [recoverChannels]);
+
+  const selectedChannelValue = useMemo(() => {
+    const selectedOption = verificationOptions.find(
+      (option) => option.value === selectedMethod,
+    );
+
+    return selectedOption?.channelValue ?? "";
+  }, [selectedMethod, verificationOptions]);
+
   useEffect(() => {
-    // Mientras está en curso, mantenemos el loading
-    if (recoveringPassword) {
-      setIsLoading(true);
-      return;
-    }
-
-    // Terminó la solicitud (éxito o error), apagamos loading
-    setIsLoading(false);
-
-    // Error del flujo
     if (error) {
-      // Ajusta el shape de showAlert si tu implementación difiere.
-      resetFlags();
+      setSubmitError(error);
+    }
+  }, [error]);
+
+  const handleRecover = useCallback(async () => {
+    if (!email) {
+      router.replace("/login");
       return;
     }
 
-    // Éxito del flujo
-    if (successRecoverPassword && submittedEmail && !didRedirectRef.current) {
-      didRedirectRef.current = true; // evita dobles pushes
+    setSubmitError("");
 
-      // Redirige con el email en la query
-      router.push(
-        `/login/recover-password/recovery-email/?email=${encodeURIComponent(
-          submittedEmail
-        )}`
-      );
+    const response = await recoverPassword({ email, type: selectedMethod });
 
-      // Importante: resetea flags después de disparar la navegación
-      resetFlags();
+    if (!response) {
       return;
     }
 
-    // Si terminó y no hubo error ni éxito (edge cases), limpia flags
-    if (!recoveringPassword && !error && !successRecoverPassword) {
-      resetFlags();
-    }
+    setVerificationChallenge(response, selectedMethod);
+    clearRecoverPasswordState();
+    router.push("/login/recover-password/recovery-email/");
   }, [
-    recoveringPassword,
-    error,
-    successRecoverPassword,
-    submittedEmail,
+    clearRecoverPasswordState,
+    email,
+    recoverPassword,
     router,
-    resetFlags,
+    selectedMethod,
+    setVerificationChallenge,
   ]);
 
-  // Handler de envío
-  const handleRecover = useCallback(
-    async (values: Record<string, any>) => {
-      // Capturamos el email real del formulario
-      const email: string = values?.email ?? "";
-      setSubmittedEmail(email);
-
-      // Disparamos la acción del store
-      const payload: PutRecoverPassword = { username: email };
-      recoverPassword(payload);
-
-      // Activamos loading local
-      setIsLoading(true);
-
-      // Si mostrabas un alert de "procesando", lo puedes lanzar aquí:
-      // showAlert?.("Procesando solicitud...", "info");
-    },
-    [recoverPassword]
-  );
-
-  return { isLoading, handleRecover };
+  return {
+    email,
+    isLoading: recoveringPassword,
+    selectedMethod,
+    selectedChannelValue,
+    submitError,
+    verificationOptions,
+    setSelectedMethod,
+    handleRecover,
+  };
 }
