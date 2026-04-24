@@ -155,6 +155,7 @@ const useInternalDevicesListTable = ({
           <div data-tour="internaldevices-list-row-actions">
             <ActionMenuCell
               row={row}
+              editLabel="Ver detalle"
               onDetails={() => onOpenDetails(row)}
               onDelete={() => onDeleteDevice(row)}
               permissions={{ details: true, delete: true }}
@@ -189,6 +190,7 @@ const useInternalDevicesListTable = ({
           <div data-tour="internaldevices-list-row-actions">
             <ActionMenuCell
               row={row}
+              editLabel="Ver detalle"
               onDetails={() => onOpenDetails(row)}
               onDelete={() => onDeleteDevice(row)}
               permissions={{ details: true, delete: true }}
