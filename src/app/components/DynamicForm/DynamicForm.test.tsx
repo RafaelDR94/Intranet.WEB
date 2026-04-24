@@ -85,7 +85,7 @@ describe('DynamicForm', () => {
     expect(screen.queryByText('Secreto')).toBeNull()
 
     // Hacer click en toggle
-    const toggleCheckbox = screen.getByRole('checkbox', { name: 'Mostrar' })
+    const toggleCheckbox = screen.getByRole('switch', { name: 'Mostrar' })
     fireEvent.click(toggleCheckbox)
 
     // Ahora aparece la etiqueta "Secreto"
