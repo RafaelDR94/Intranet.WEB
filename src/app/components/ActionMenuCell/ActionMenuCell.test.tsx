@@ -85,6 +85,17 @@ describe("buildActionMenuItems", () => {
     expect(items[0].label).toBe("Actualizar");
   });
 
+  it("usa la etiqueta personalizada cuando se proporciona editLabel", () => {
+    const items = buildActionMenuItems({
+      row,
+      onEdit,
+      editLabel: "Ver detalle",
+      permissions: { details: true },
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0].label).toBe("Ver detalle");
+  });
+
   it("devuelve una lista vacia cuando no hay permisos", () => {
     const items = buildActionMenuItems({
       row,

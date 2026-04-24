@@ -181,6 +181,7 @@ const useInternalDevicesAsignationTable = ({
         <div data-tour="internaldevices-asignation-row-actions">
           <ActionMenuCell
             row={row}
+            editLabel="Ver detalle"
             onDetails={() => onOpenDetails(row)}
             permissions={{ details: true, delete: false, update: false }}
           />
@@ -223,6 +224,7 @@ const useInternalDevicesAsignationTable = ({
           <div data-tour="internaldevices-asignation-row-actions">
             <ActionMenuCell
               row={row}
+              editLabel="Ver detalle"
               onDetails={() => onOpenDetails(row)}
               permissions={{ details: true, delete: false, update: false }}
             />

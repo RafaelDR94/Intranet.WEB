@@ -144,7 +144,7 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
     const result = await createDeviceReview({
       description: formValues.description ?? '',
       device_id: device.device_id,
-      IdEmployee: employeeId,
+      employee_id: employeeId,
       status_id: formValues.status_id,
     })
 

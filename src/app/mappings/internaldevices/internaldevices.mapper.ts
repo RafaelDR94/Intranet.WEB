@@ -476,7 +476,9 @@ export const InternalDeviceReviewPostMap = (
   return {
     description: toString(record.description),
     device_id: toString(record.device_id ?? record.deviceId),
-    IdEmployee: toString(
+    employee_id: toString(
+      record.employee_id ??
+        record.employeeId ??
       record.IdEmployee ??
         record.idEmployee ??
         record.id_employee ??
@@ -495,7 +497,9 @@ export const InternalDeviceReviewPutMap = (
     device_review_id: toString(record.device_review_id ?? record.id),
     description: toString(record.description),
     device_id: toString(record.device_id ?? record.deviceId),
-    IdEmployee: toString(
+    employee_id: toString(
+      record.employee_id ??
+        record.employeeId ??
       record.IdEmployee ??
         record.idEmployee ??
         record.id_employee ??
