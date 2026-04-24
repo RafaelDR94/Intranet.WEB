@@ -6,6 +6,7 @@ import { intranetClient } from "@/app/configurations/Axios/Clients";
 import { basicPost } from "@/app/configurations/Axios/GenericMethods";
 import { LoginUrl, VerifyOTP } from "@/app/configurations/Axios/urls";
 import { lastuserremebered } from "@/app/configurations/DataBase/bases";
+import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import {
   createDocument,
   readDocumentById,
@@ -56,6 +57,13 @@ const loginUser = async (
       (response) => {
         if (response instanceof Error) {
           reject(response);
+        } else if (response.data?.success === false || !response.data?.data) {
+          reject(
+            normalizeApiError(
+              response,
+              "No se logró acceder, revise sus datos e inténtelo de nuevo",
+            ),
+          );
         } else {
           resolve(response.data.data);
         }

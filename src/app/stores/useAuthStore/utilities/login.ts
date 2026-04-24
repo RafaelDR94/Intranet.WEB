@@ -5,6 +5,7 @@ import { setInterceptor } from './interceptor'
 import { fetchUserSignature } from './fetchUserSignature'
 
 import type { LoginCredentials } from '@/app/context/AuthContext/types'
+import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import {
   authenticateUser,
   readUser,
@@ -66,7 +67,10 @@ export const login = async (
       set({ userRemebered: null })
     } catch { /* noop */ }
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : 'login error'
+    const message = normalizeApiError(
+      e,
+      'No se logró acceder, revise sus datos e inténtelo de nuevo',
+    ).message
     set({ error: message, successLogin: false })
     throw e
   } finally {

@@ -1,3 +1,9 @@
+import type {
+  RecoverChannel,
+  PasswordRecoveryVerificationResponse,
+  RecoverPasswordResponse,
+  ResetPasswordRecoveryResponse,
+} from '@/app/mappings/auth/auth.types'
 import type { User, LoginCredentials } from '@/app/context/AuthContext/types'
 
 export interface AuthValidatePayload {
@@ -17,7 +23,24 @@ export interface SignaturePayload {
 
 
 export interface RecoverPasswordPayload {
-  username: string
+  email: string
+  type: "Email" | "SMS"
+}
+
+export interface VerifyPasswordRecoveryCodePayload {
+  challengeId: string
+  code: string
+}
+
+export interface VerifyPasswordRecoverySmsPayload {
+  challengeId: string
+  token: string
+}
+
+export interface ResetPasswordRecoveryPayload {
+  challengeId: string
+  newPassword: string
+  confirmPassword: string
 }
 
 export interface NipPayload {
@@ -54,10 +77,21 @@ export interface AuthState {
   loading: boolean
   changingSignature: boolean
   recoveringPassword: boolean
+  verifyingPasswordRecovery: boolean
+  resettingPasswordRecovery: boolean
+  fetchingRecoverChannels: boolean
+  recoverChannels: RecoverChannel[]
+  recoverPasswordRequest?: RecoverPasswordPayload
+  recoverPasswordChallenge?: RecoverPasswordResponse
+  passwordRecoveryVerification?: PasswordRecoveryVerificationResponse
+  passwordRecoveryResetResponse?: ResetPasswordRecoveryResponse
   successLogin: boolean
   successAuthValidate: boolean
   successChangePassword: boolean
   successRecoverPassword: boolean
+  successPasswordRecoveryVerification: boolean
+  successResetPasswordRecovery: boolean
+  successRecoverChannels: boolean
   successChangeNIPStatus: boolean
   succesChangeSignature: boolean
   successChangeNIP: boolean
@@ -76,13 +110,24 @@ export interface AuthState {
   handleOfflineMode: (offline: boolean) => void
   authValidate: (payload: AuthValidatePayload) => Promise<void>
   changePassword: (payload: ChangePasswordPayload) => Promise<void>
-  recoverPassword: (payload: RecoverPasswordPayload) => Promise<void>
+  recoverPassword: (payload: RecoverPasswordPayload) => Promise<RecoverPasswordResponse | null>
+  fetchRecoverChannels: (email: string) => Promise<RecoverChannel[] | null>
+  verifyPasswordRecoveryCode: (
+    payload: VerifyPasswordRecoveryCodePayload,
+  ) => Promise<PasswordRecoveryVerificationResponse | null>
+  verifyPasswordRecoverySms: (
+    payload: VerifyPasswordRecoverySmsPayload,
+  ) => Promise<PasswordRecoveryVerificationResponse | null>
+  resetPasswordRecovery: (
+    payload: ResetPasswordRecoveryPayload,
+  ) => Promise<ResetPasswordRecoveryResponse | null>
   fetchFirebaseConfiguration: () => Promise<void>
   updateUserPermissions: (permissions: string) => Promise<void>
   changeNipStatusByIdUser: (id: number) => Promise<void>
   changeNip: (payload: NipPayload) => Promise<void>
   createNip: (payload: NipPayload) => Promise<void>
   changeSignature: (payload: SignaturePayload) => Promise<void>
+  clearRecoverPasswordState: () => void
   reset: () => void
   resetFlags: () => void
   resetSignature: () => void

@@ -8,14 +8,16 @@ import type { LoginCredentials } from '@/app/context/AuthContext/types'
 
 const setInterceptorMock = vi.hoisted(() => vi.fn())
 const fetchUserSignatureMock = vi.hoisted(() => vi.fn())
+const authenticateUserMock = vi.hoisted(() => vi.fn())
+const readUserMock = vi.hoisted(() => vi.fn())
 
 vi.mock('./interceptor', () => ({ setInterceptor: setInterceptorMock }))
 vi.mock('./fetchUserSignature', () => ({
   fetchUserSignature: fetchUserSignatureMock,
 }))
 vi.mock('@/app/context/AuthContext/utilities/AuthService', () => ({
-  authenticateUser: vi.fn(),
-  readUser: vi.fn().mockResolvedValue({
+  authenticateUser: authenticateUserMock,
+  readUser: readUserMock.mockResolvedValue({
     user: {
       token: 'abc',
       email: 'a@a.com',
@@ -33,6 +35,17 @@ describe('login util', () => {
   beforeEach(() => {
     fetchUserSignatureMock.mockReset()
     setInterceptorMock.mockReset()
+    authenticateUserMock.mockReset()
+    readUserMock.mockReset()
+    readUserMock.mockResolvedValue({
+      user: {
+        token: 'abc',
+        email: 'a@a.com',
+        idEmployee: 'emp-1',
+        idUser: 'usr-1',
+        signature: '',
+      },
+    })
   })
 
   it('actualiza usuario y token', async () => {
@@ -56,5 +69,26 @@ describe('login util', () => {
     expect(state.token).toBe('abc')
     expect(state.successLogin).toBe(true)
     expect(setInterceptorMock).toHaveBeenCalledWith('abc')
+  })
+
+  it('guarda el mensaje del backend cuando authenticateUser rechaza normalizado', async () => {
+    const state: Partial<AuthState> = { remeberMe: false, offlineMode: false }
+    const set: Set = (partial) =>
+      Object.assign(
+        state,
+        typeof partial === 'function' ? partial(state as AuthState) : partial,
+      )
+    const get: Get = () => state as AuthState
+    const credentials: LoginCredentials = { email: 'a@a.com', password: '123' }
+
+    authenticateUserMock.mockRejectedValueOnce({
+      message: 'Credenciales incorrectas',
+    })
+
+    await expect(login(set, get, credentials)).rejects.toEqual({
+      message: 'Credenciales incorrectas',
+    })
+    expect(state.error).toBe('Credenciales incorrectas')
+    expect(state.successLogin).toBe(false)
   })
 })

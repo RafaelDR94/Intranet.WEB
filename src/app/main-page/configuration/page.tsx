@@ -4,7 +4,7 @@ export default function Configuration() {
   return (
     <PermissionRedirect
       routes={[
-        '/main-page/configuration/userconfiguration',
+        '/main-page/configuration/account',
       ]}
     />
   );

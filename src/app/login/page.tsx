@@ -1,91 +1,84 @@
 "use client";
-import Image from "next/image";
+
 import Link from "next/link";
 import React from "react";
 
 import { Alert } from "../components/Alert/Alert";
+import { Checkbox } from "../components/CheckBox/CheckBox";
 import DynamicForm from "../components/DynamicForm/DynamicForm";
-import { ToggleButton } from "../components/ToogleButton/ToogleButton";
 
+import AuthSplitLayout from "./components/AuthSplitLayout";
 import useLogin from "./hooks/useLogin";
 import { loginStyles } from "./styles";
-
-import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
-import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile.png";
 
 const LoginPage = () => {
   const {
     handleLogin,
     handleRemember,
+    handleForgotPassword,
+    handleLoginValuesChange,
     rememberStatus,
     failMessage,
     isLoading,
-    loginFields, // ← con email y password precargados (si los hay)
+    loginFields,
   } = useLogin();
 
   return (
-    <div className={loginStyles.page}>
-      {/* Columna izquierda - Formulario */}
-      <div className={loginStyles.formContainer}>
-        <div className={loginStyles.formWrapper}>
-          <DynamicForm
-            fields={loginFields}
-            onSubmit={handleLogin}
-            submitLabel="Iniciar sesión"
-            loading={isLoading}
-            dataTestId="login"
-          >
-            <div className={loginStyles.rememberContainer}>
-              <ToggleButton
-                checked={rememberStatus}
-                onChange={(checked) => handleRemember(checked)}
-                label="Recordarme"
-                labelColor="text-black-100"
-                dataTestId="login-remeberme"
-              />
-              <Link
-                href="/login/recover-password"
-                className="text-label hover:text-black-100"
-                prefetch={false}
-                data-testid="login-forgorpassword"
-              >
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
+    <AuthSplitLayout
+      header={
+        <div className={loginStyles.header}>
+          <h1 className={loginStyles.title}>Bienvenido de vuelta</h1>
+          <p className={loginStyles.subtitle}>Ingresa a la intranet</p>
+        </div>
+      }
+    >
+      <div className={`${loginStyles.panel} ${loginStyles.formSkin}`}>
+        <DynamicForm
+          fields={loginFields}
+          onSubmit={handleLogin}
+          onValuesChange={handleLoginValuesChange}
+          submitLabel="Iniciar sesión"
+          loading={isLoading}
+          dataTestId="login"
+        >
+          <div className={loginStyles.rememberContainer}>
+            <Checkbox
+              checked={rememberStatus}
+              onChange={(checked) => handleRemember(checked)}
+              label="Recordarme"
+              className={loginStyles.rememberCheckbox}
+              dataTestId="login-remeberme"
+            />
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className={loginStyles.forgotPasswordLink}
+              data-testid="login-forgorpassword"
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
 
-            {failMessage && (
-              <Alert
-                type="error"
-                variant="subtle"
-                title="Login incorrecto"
-                description={failMessage}
-                showPrimaryButton={false}
-                showSecondaryButton={false}
-              />
-            )}
-          </DynamicForm>
+          {failMessage && (
+            <Alert
+              type="error"
+              variant="subtle"
+              title="Login incorrecto"
+              description={failMessage}
+              showPrimaryButton={false}
+              showSecondaryButton={false}
+            />
+          )}
+        </DynamicForm>
+
+        <div className={loginStyles.supportContainer}>
+          ¿Problemas para acceder?{" "}
+          <Link href="#" className={loginStyles.supportLink}>
+            Contacta a soporte
+          </Link>
         </div>
       </div>
-
-      {/* Columna derecha - Imagen de fondo */}
-      <div className={loginStyles.logoContainer}>
-        <Image
-          src={logoDesktop}
-          alt="Fondo DR Security (desktop)"
-          fill
-          priority
-          className={`${loginStyles.logo} hidden md:block`}
-          sizes="(min-width: 768px) 60vw, 0px"
-        />
-        <Image
-          src={logoMobile}
-          alt="Fondo DR Security (mobile)"
-          fill
-          className={`${loginStyles.logo} md:hidden`}
-          sizes="(max-width: 767px) 100vw, 0px"
-        />
-      </div>
-    </div>
+    </AuthSplitLayout>
   );
 };
 

@@ -54,6 +54,9 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   labelPosition = 'right',
   labelColor,
   className,
+  trackClassName,
+  thumbClassName,
+  ariaLabel,
   dataTestId,
   dataTour,
 }) => {
@@ -81,13 +84,15 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
       <div
         className={clsx(
           styles.trackBase,
-          trackStyle
+          trackStyle,
+          trackClassName
         )}
       >
         <span
           className={clsx(
             styles.thumbBase,
-            checked ? styles.thumbChecked : styles.thumbUnchecked
+            checked ? styles.thumbChecked : styles.thumbUnchecked,
+            thumbClassName
           )}
         />
         <input
@@ -95,6 +100,9 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
           className="sr-only"
           checked={checked}
           disabled={disabled}
+          role="switch"
+          aria-checked={checked}
+          aria-label={ariaLabel}
           onChange={(e) => {
             if (disabled) return
             onChange(e.target.checked)
