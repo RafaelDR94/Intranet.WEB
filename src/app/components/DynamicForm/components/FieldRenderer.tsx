@@ -173,6 +173,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             initialFiles={field.initialFiles}
             dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
             preview={field.preview}
+            previewCoverMode={field.previewCoverMode}
             multiple={field.multiple}
           />
           {helperText && (

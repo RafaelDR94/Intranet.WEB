@@ -1,15 +1,19 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
+import { useRouter } from "next/navigation";
 
 import Avatar from "@/app/components/Avatar/Avatar";
+import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import { Button } from "@/app/components/Button/Button";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
-import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
+import { PopUp } from "@/app/components/PopUp/PopUp";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
+import EmployeeDetailsPanel from "../components/EmployeeDetailsPanel/EmployeeDetailsPanel";
 
 type DirectoryRow = {
   id: string;
@@ -23,6 +27,11 @@ type DirectoryRow = {
 };
 
 const emptyValue = "N/D";
+const collator = new Intl.Collator("es-MX", {
+  sensitivity: "base",
+  numeric: true,
+});
+
 const getShortName = (employee: EmployeeType) => {
   const first = employee.firstname?.trim() ?? "";
   const last = employee.lastname?.trim() ?? "";
@@ -37,6 +46,17 @@ const getShortName = (employee: EmployeeType) => {
 };
 
 const GeneralDirectoryPage = () => {
+  const router = useRouter();
+  const { currentPagePermissions } = useAuth();
+  const canSeeDetails = Boolean(currentPagePermissions?.canSeeDetails);
+  const canSeeInformation = Boolean(
+    currentPagePermissions?.canSeeInformation ?? currentPagePermissions?.canSeeDetails,
+  );
+  const canEditEmployee = Boolean(
+    currentPagePermissions?.update ?? currentPagePermissions?.canSeeDetails,
+  );
+  const canDeleteEmployee = Boolean(currentPagePermissions?.delete);
+
   const { activeEmployees, loadingActive, error, fetchActiveEmployees } =
     useEmployeesStore(
       (state) => ({
@@ -47,11 +67,17 @@ const GeneralDirectoryPage = () => {
       }),
       shallow,
     );
+  const deleteEmployee = useEmployeesStore((state) => state.deleteEmployee);
+  const deletingEmployee = useEmployeesStore((state) => state.deleting);
 
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeType | null>(
     null,
   );
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState<EmployeeType | null>(
+    null,
+  );
+  const [isDeletePopUpOpen, setIsDeletePopUpOpen] = useState(false);
 
   useEffect(() => {
     if (activeEmployees.length === 0) {
@@ -59,9 +85,78 @@ const GeneralDirectoryPage = () => {
     }
   }, [activeEmployees.length, fetchActiveEmployees]);
 
+  const handleCloseDetails = useCallback(() => {
+    setIsDetailsOpen(false);
+    setSelectedEmployee(null);
+  }, []);
+
+  const handleOpenEmployeeDetails = useCallback((employee: EmployeeType) => {
+    setSelectedEmployee(employee);
+    setIsDetailsOpen(true);
+  }, []);
+
+  const handleEditEmployee = useCallback(
+    (employee: EmployeeType) => {
+      const employeeId = employee.employee_id || employee.id;
+      if (!employeeId) return;
+      const params = new URLSearchParams();
+      params.set("view", "create");
+      params.set("idEmployee", String(employeeId));
+      const sourceDepartmentId = employee.department?.department_id ?? "";
+      if (sourceDepartmentId) {
+        params.set("sourceDepartmentId", sourceDepartmentId);
+      }
+      const sourceDepartmentLabel = employee.department?.name ?? "";
+      if (sourceDepartmentLabel) {
+        params.set("sourceDepartmentLabel", sourceDepartmentLabel);
+      }
+      router.push(
+        `/main-page/humanresources/organizationchart/departments?${params.toString()}`,
+      );
+    },
+    [router],
+  );
+
+  const handleOpenDeletePopUp = useCallback((employee: EmployeeType) => {
+    setEmployeeToDelete(employee);
+    setIsDeletePopUpOpen(true);
+  }, []);
+
+  const handleCloseDeletePopUp = useCallback(() => {
+    setIsDeletePopUpOpen(false);
+    setEmployeeToDelete(null);
+  }, []);
+
+  const handleDeleteEmployee = useCallback(
+    async () => {
+      if (!employeeToDelete) return;
+      const employeeId = employeeToDelete.employee_id || employeeToDelete.id;
+      if (!employeeId) return;
+      const resolvedId = String(employeeId);
+
+      const deleted = await deleteEmployee(resolvedId);
+      if (!deleted) return;
+      await fetchActiveEmployees(true);
+
+      if (String(selectedEmployee?.employee_id ?? selectedEmployee?.id ?? "") === resolvedId) {
+        handleCloseDetails();
+      }
+
+      handleCloseDeletePopUp();
+    },
+    [
+      deleteEmployee,
+      employeeToDelete,
+      fetchActiveEmployees,
+      handleCloseDeletePopUp,
+      handleCloseDetails,
+      selectedEmployee,
+    ],
+  );
+
   const rows = useMemo<DirectoryRow[]>(
-    () =>
-      activeEmployees.map((employee) => ({
+    () => {
+      const mappedRows = activeEmployees.map((employee) => ({
         id: employee.id ?? employee.employee_id,
         fullname: getShortName(employee),
         position: employee.workposition?.name ?? emptyValue,
@@ -70,7 +165,12 @@ const GeneralDirectoryPage = () => {
         employee_number: employee.employee_number || emptyValue,
         image_url: employee.image_url,
         employee,
-      })),
+      }));
+
+      return mappedRows.sort((left, right) =>
+        collator.compare(left.fullname, right.fullname),
+      );
+    },
     [activeEmployees],
   );
 
@@ -80,68 +180,88 @@ const GeneralDirectoryPage = () => {
         key: "fullname",
         label: "NOMBRE",
         render: (row) => (
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <Avatar src={row.image_url} size="xxs" />
-            <span>{row.fullname}</span>
+            <span className="block min-w-0 flex-1 truncate" title={row.fullname}>
+              {row.fullname}
+            </span>
           </div>
         ),
-        cellClass: "w-3/12",
-        headerClass: "w-3/12",
+        cellClass: "w-3/12 min-w-0 pr-6",
+        headerClass: "w-3/12 min-w-0 pr-6",
       },
       {
         key: "position",
         label: "PUESTO",
-        cellClass: "w-5/12",
-        headerClass: "w-5/12",
+        cellClass: "w-3/12 min-w-0 truncate whitespace-nowrap pr-6",
+        headerClass: "w-3/12 min-w-0 pr-6",
       },
       {
         key: "phone_number",
         label: "TELEFONO",
-        cellClass: "w-2/12",
-        headerClass: "w-2/12",
+        cellClass: "w-2/12 min-w-0 truncate whitespace-nowrap pr-6",
+        headerClass: "w-2/12 min-w-0 pr-6",
       },
       {
         key: "email",
         label: "CORREO",
-        cellClass: "w-3/12",
-        headerClass: "w-3/12",
+        cellClass: "w-3/12 min-w-0 truncate whitespace-nowrap pr-6",
+        headerClass: "w-3/12 min-w-0 pr-6",
       },
       {
         key: "employee_number",
         label: "No. Empleado",
-        cellClass: "w-1/12",
-        headerClass: "w-1/12",
+        cellClass: "w-2/12 min-w-0 truncate whitespace-nowrap pr-4",
+        headerClass: "w-2/12 min-w-0 pr-4",
       },
       {
         key: "id",
         label: "",
-        cellClass: "w-1/12 text-right",
-        headerClass: "w-1/12 text-right",
+        cellClass: "w-2/12 text-right",
+        headerClass: "w-2/12 text-right",
         render: (row) => (
           <Button
             hideIcon
             variant="ghost"
             size="small"
-            onClick={() => {
-              setSelectedEmployee(row.employee);
-              setIsDetailsOpen(true);
-            }}
+            onClick={() => handleOpenEmployeeDetails(row.employee)}
           >
-            Ver mas
+            {canSeeDetails ? "Ver carpeta" : "Ver informacion"}
           </Button>
         ),
       },
+      ...(canEditEmployee || canDeleteEmployee
+        ? [
+            {
+              key: "actions" as keyof DirectoryRow,
+              label: "",
+              cellClass: "w-1/12 text-right",
+              headerClass: "w-1/12 text-right",
+              render: (row: DirectoryRow) => (
+                <ActionMenuCell
+                  row={row.employee}
+                  onEdit={handleEditEmployee}
+                  onDelete={handleOpenDeletePopUp}
+                  permissions={{
+                    details: canSeeDetails,
+                    update: canEditEmployee,
+                    delete: canDeleteEmployee,
+                  }}
+                />
+              ),
+            },
+          ]
+        : []),
     ],
-    [],
+    [
+      canDeleteEmployee,
+      canEditEmployee,
+      canSeeDetails,
+      handleEditEmployee,
+      handleOpenDeletePopUp,
+      handleOpenEmployeeDetails,
+    ],
   );
-
-  const handleCloseDetails = () => {
-    setIsDetailsOpen(false);
-    setSelectedEmployee(null);
-  };
-
-  const detailEmployee = selectedEmployee;
-  const detailDepartment = detailEmployee?.department;
 
   return (
     <div className="relative flex min-h-[calc(100vh-180px)] flex-col gap-4">
@@ -176,59 +296,26 @@ const GeneralDirectoryPage = () => {
         textSize={{ mobile: "text-d3", desktop: "text-b4" }}
       />
 
-      <DetailsPanelLayout
+      <EmployeeDetailsPanel
         open={isDetailsOpen}
         onClose={handleCloseDetails}
-        divider={false}
-      >
-        {!detailEmployee ? (
-          <div className="text-b3 text-gray-100">
-            Selecciona un colaborador.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h2 className="text-s1 font-semibold text-green-100">
-                {detailEmployee.fullname}
-              </h2>
-              <div className="bg-green-80 text-b4 w-[157px] rounded-[8px] px-[8px] py-[6px] text-white">
-                Información Laboral
-              </div>
-            </div>
-
-            <dl className="text-b3 space-y-2 text-gray-100">
-              <div className="flex">
-                <dt className="text-gray-80">EMPRESA: </dt>
-                <dd>{detailDepartment?.enterprice_name || emptyValue}</dd>
-              </div>
-              <div className="flex">
-                <dt className="text-gray-80">NO. EMPLEADO:</dt>
-                <dd>{detailEmployee.employee_number || emptyValue}</dd>
-              </div>
-              <div className="flex">
-                <dt className="text-gray-80">RESPONSABLE:</dt>
-                <dd>{detailEmployee.manager_id || emptyValue}</dd>
-              </div>
-              <div className="flex">
-                <dt className="text-gray-80">AREA:</dt>
-                <dd>{detailDepartment?.name || emptyValue}</dd>
-              </div>
-              <div className="flex">
-                <dt className="text-gray-80">POSICION DE TRABAJO:</dt>
-                <dd>{detailEmployee.workposition?.name || emptyValue}</dd>
-              </div>
-              <div className="flex">
-                <dt className="text-gray-80">TELEFONO:</dt>
-                <dd>{detailEmployee.phone_number || emptyValue}</dd>
-              </div>
-              <div className="flex">
-                <dt className="text-gray-80">CORREO:</dt>
-                <dd>{detailEmployee.email || emptyValue}</dd>
-              </div>
-            </dl>
-          </div>
-        )}
-      </DetailsPanelLayout>
+        employee={selectedEmployee}
+        canSeeInformation={canSeeInformation}
+      />
+      {employeeToDelete ? (
+        <PopUp
+          open={isDeletePopUpOpen}
+          onClose={handleCloseDeletePopUp}
+          title={`Deseas eliminar el usuario de ${employeeToDelete.fullname || getShortName(employeeToDelete)}?`}
+          content="Esta acción confirmara la eliminación del usuario"
+          showPrimaryButton
+          showSecondaryButton
+          primaryButtonText={deletingEmployee ? "Eliminando..." : "Eliminar"}
+          secondaryButtonText="Cancelar"
+          onPrimaryButtonClick={handleDeleteEmployee}
+          onSecondaryButtonClick={handleCloseDeletePopUp}
+        />
+      ) : null}
     </div>
   );
 };

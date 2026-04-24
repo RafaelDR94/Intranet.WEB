@@ -145,7 +145,7 @@ export type InternalDeviceReview = {
 export type InternalDeviceReviewPost = {
   description: string
   device_id: string
-  user_id: string
+  employee_id: string
   status_id: string
 }
 
@@ -153,7 +153,7 @@ export type InternalDeviceReviewPut = {
   device_review_id: string
   description: string
   device_id: string
-  user_id: string
+  employee_id: string
   status_id: string
 }
 
@@ -163,6 +163,8 @@ export type InternalDeviceAssignment = {
   delivery_condition: string
   device_id: string
   employee_id: string
+  assigned?: boolean
+  is_active?: boolean
   id_user?: string
   responsive_url?: string | null
   date?: string

@@ -137,6 +137,7 @@ const ProyectList = () => {
                             secondaryLabel: 'Nuevo Reporte',
                             showPrimaryButton: true,
                             showSecondaryButton: currentPagePermissions?.createreport,
+                            enableImagePreview: false,
                             actionMenuProps: (row) => ({
                                 row,
                                 onEdit: handleEdit,

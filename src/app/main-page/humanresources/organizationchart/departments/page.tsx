@@ -2,27 +2,37 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import Avatar from "@/app/components/Avatar/Avatar";
 import { Button } from "@/app/components/Button/Button";
 import { Card } from "@/app/components/Card/Card";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
-import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import { Input } from "@/app/components/Input/Input";
 import Pagination from "@/app/components/Pagination/Pagination";
+import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import SearchIcon from "@/assets/icons/organization/search.svg";
 import ListIcon from "@/assets/icons/Editor/list.svg";
 import GridIcon from "@/assets/icons/Layout/view-grid.svg";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
+import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 
 import { departmentsStyles } from "./styles";
 import useDepartmentsPage from "./hooks/useDepartmentsPage";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import EmployeeDetailsPanel from "../components/EmployeeDetailsPanel/EmployeeDetailsPanel";
+import CreateEmployee from "@/app/main-page/administration/usersmanagment/createemployee/CreateEmployee";
+import { PopUp } from "@/app/components/PopUp/PopUp";
 
 /**
  * Vista de departamentos para organigrama.
  */
 const DepartmentsPage = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentView = searchParams.get("view") ?? "list";
+
   type EmployeeExtras = {
     employee?: string;
     name?: string;
@@ -33,6 +43,23 @@ const DepartmentsPage = () => {
     employee_phone?: string;
     workposition_name?: string;
   };
+
+  const { currentPagePermissions } = useAuth();
+  const canSeeDetails = Boolean(currentPagePermissions?.canSeeDetails);
+  const showInformation = Boolean(
+    currentPagePermissions?.showInformation
+  );
+  const canCreateEmployee = Boolean(
+    currentPagePermissions?.create
+  );
+  const showEmployeeNumber = Boolean(currentPagePermissions?.showEmployeeNumber)
+  const canSeeInformation = showInformation;
+  const canEditEmployee = Boolean(
+    currentPagePermissions?.update ?? currentPagePermissions?.canSeeDetails,
+  );
+  const canDeleteEmployee = Boolean(currentPagePermissions?.delete);
+  const showActionMenu = canEditEmployee || canDeleteEmployee;
+  const showActionsColumn = true;
 
   const formatEmployeeName = (employee: Partial<EmployeeExtras>) => {
     const firstName = employee.name?.trim() ?? "";
@@ -105,8 +132,6 @@ const DepartmentsPage = () => {
     );
   };
 
-  const emptyValue = "N/D";
-
   const {
     isDetailView,
     departmentId,
@@ -143,6 +168,15 @@ const DepartmentsPage = () => {
     null,
   );
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState<EmployeeType | null>(
+    null,
+  );
+  const [isDeletePopUpOpen, setIsDeletePopUpOpen] = useState(false);
+  const deleteEmployee = useEmployeesStore((state) => state.deleteEmployee);
+  const deletingEmployee = useEmployeesStore((state) => state.deleting);
+  const fetchEmployeesByDepartment = useEmployeesStore(
+    (state) => state.fetchEmployeesByDepartment,
+  );
 
   useEffect(() => {
     if (!isDetailView) {
@@ -159,15 +193,100 @@ const DepartmentsPage = () => {
     setSelectedEmployee(null);
   };
 
-  const detailEmployee = selectedEmployee;
-  const detailDepartment = detailEmployee?.department;
+  const handleOpenCreateView = () => {
+    router.push("/main-page/humanresources/organizationchart/departments?view=create");
+  };
 
+  const handleBackToDepartments = () => {
+    const sourceDepartmentId = searchParams.get("sourceDepartmentId");
+    if (sourceDepartmentId) {
+      const params = new URLSearchParams();
+      params.set("view", "detail");
+      params.set("id", sourceDepartmentId);
+      params.set("force", "true");
+      const sourceDepartmentLabel = searchParams.get("sourceDepartmentLabel");
+      if (sourceDepartmentLabel) {
+        params.set("label", sourceDepartmentLabel);
+      }
+      router.push(
+        `/main-page/humanresources/organizationchart/departments?${params.toString()}`,
+      );
+      return;
+    }
+    router.push("/main-page/humanresources/organizationchart/departments");
+  };
+
+  const handleOpenEmployeeDetails = (employee: EmployeeType) => {
+    setSelectedEmployee(employee);
+    setIsDetailsOpen(true);
+  };
+
+  const handleEditEmployee = (employee: EmployeeType) => {
+    const employeeId = employee.employee_id || employee.id;
+    if (!employeeId) return;
+    const params = new URLSearchParams();
+    params.set("view", "create");
+    params.set("idEmployee", String(employeeId));
+    const sourceDepartmentId =
+      departmentId ?? employee.department?.department_id ?? "";
+    if (sourceDepartmentId) {
+      params.set("sourceDepartmentId", sourceDepartmentId);
+    }
+    if (departmentLabel) {
+      params.set("sourceDepartmentLabel", departmentLabel);
+    }
+    router.push(
+      `/main-page/humanresources/organizationchart/departments?${params.toString()}`,
+    );
+  };
+
+  const handleOpenDeletePopUp = (employee: EmployeeType) => {
+    setEmployeeToDelete(employee);
+    setIsDeletePopUpOpen(true);
+  };
+
+  const handleCloseDeletePopUp = () => {
+    setIsDeletePopUpOpen(false);
+    setEmployeeToDelete(null);
+  };
+
+  const handleDeleteEmployee = async () => {
+    if (!employeeToDelete) return;
+    const employeeId = employeeToDelete.employee_id || employeeToDelete.id;
+    if (!employeeId) return;
+    const resolvedId = String(employeeId);
+
+    const deleted = await deleteEmployee(resolvedId);
+    if (!deleted) return;
+    if (departmentId) {
+      await fetchEmployeesByDepartment(departmentId, true);
+    }
+
+    if (String(selectedEmployee?.employee_id ?? "") === resolvedId) {
+      handleCloseDetails();
+    }
+
+    handleCloseDeletePopUp();
+  };
+
+  const detailEmployee = selectedEmployee;
   const isEmpty = !loading && !error && departments.length === 0;
   const isFilteredEmpty =
     !loading &&
     !error &&
     departments.length > 0 &&
     filteredDepartments.length === 0;
+
+  if (currentView === "create") {
+    return (
+      <div className={departmentsStyles.container}>
+        <CreateEmployee
+          redirectOnSuccess={false}
+          onSuccess={handleBackToDepartments}
+        />
+      </div>
+    );
+  }
 
   if (isDetailView) {
     const isEmployeesEmpty =
@@ -181,9 +300,21 @@ const DepartmentsPage = () => {
       !responsibleEmployee &&
       paginatedEmployees.length === 0;
 
+    type EmployeeRow = {
+      id: string;
+      fullname: string;
+      position: string;
+      phone: string;
+      email: string;
+      employeeNumber: string;
+      image_url?: string;
+      employee: EmployeeType & Partial<EmployeeExtras>;
+      actions: null;
+    };
+
     const employeeRows = (
       employees: (EmployeeType & Partial<EmployeeExtras>)[],
-    ) =>
+    ): EmployeeRow[] =>
       employees.map((employee) => {
         const display = getEmployeeDisplay(employee);
         return {
@@ -195,19 +326,20 @@ const DepartmentsPage = () => {
           employeeNumber: display.employeeNumber,
           image_url: employee.image_url,
           employee,
+          actions: null,
         };
       });
-
-    type EmployeeRow = ReturnType<typeof employeeRows>[number];
 
     const columns: ColumnDefinition<EmployeeRow>[] = [
       {
         key: "fullname",
         label: "NOMBRE",
         render: (row) => (
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <Avatar src={row.image_url} size="sm" />
-            <span>{row.fullname}</span>
+            <span className="block min-w-0 flex-1 truncate" title={row.fullname}>
+              {row.fullname}
+            </span>
           </div>
         ),
         cellClass: "min-w-0 flex-[3]",
@@ -216,46 +348,60 @@ const DepartmentsPage = () => {
       {
         key: "position",
         label: "PUESTO",
-        cellClass: "min-w-0 flex-[2]",
-        headerClass: "min-w-0 flex-[2]",
+        cellClass: "min-w-0 flex-[2] truncate whitespace-nowrap pr-6",
+        headerClass: "min-w-0 flex-[2] pr-6",
       },
       {
         key: "phone",
         label: "TELEFONO",
-        cellClass: "min-w-0 flex-[1.5]",
-        headerClass: "min-w-0 flex-[1.5]",
+        cellClass: "min-w-0 flex-[1.5] truncate whitespace-nowrap pr-6",
+        headerClass: "min-w-0 flex-[1.5] pr-6",
       },
       {
         key: "email",
         label: "CORREO",
-        cellClass: "min-w-0 flex-[2]",
-        headerClass: "min-w-0 flex-[2]",
+        cellClass: "min-w-0 flex-[2] truncate whitespace-nowrap pr-6",
+        headerClass: "min-w-0 flex-[2] pr-6",
       },
       {
         key: "employeeNumber",
         label: "No. EMPLEADO",
-        cellClass: "min-w-0 flex-[1]",
-        headerClass: "min-w-0 flex-[1]",
+        cellClass: "min-w-0 flex-[1] truncate whitespace-nowrap pr-4",
+        headerClass: "min-w-0 flex-[1] pr-4",
       },
-      {
-        key: "id",
-        label: "",
-        cellClass: "min-w-0 flex-[1] text-right",
-        headerClass: "min-w-0 flex-[1] text-right",
-        render: (row) => (
-          <Button
-            variant="ghost"
-            size="small"
-            hideIcon
-            onClick={() => {
-              setSelectedEmployee(row.employee);
-              setIsDetailsOpen(true);
-            }}
-          >
-            Ver Informacion
-          </Button>
-        ),
-      },
+      ...(showActionsColumn
+        ? [
+            {
+              key: "actions" as keyof EmployeeRow,
+              label: "",
+              cellClass: "min-w-0 flex-[1] text-right",
+              headerClass: "min-w-0 flex-[1] text-right",
+              render: (row: EmployeeRow) => (
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="small"
+                    hideIcon
+                    onClick={() => handleOpenEmployeeDetails(row.employee)}
+                  >
+                    {canSeeDetails ? "Ver carpeta" : "Ver información"}
+                  </Button>
+                  {showActionMenu ? (
+                    <ActionMenuCell
+                      row={row.employee}
+                      onEdit={handleEditEmployee}
+                      onDelete={handleOpenDeletePopUp}
+                      permissions={{
+                        update: canEditEmployee,
+                        delete: canDeleteEmployee,
+                      }}
+                    />
+                  ) : null}
+                </div>
+              ),
+            },
+          ]
+        : []),
     ];
 
     const teamRows = employeeRows(paginatedEmployees);
@@ -271,6 +417,7 @@ const DepartmentsPage = () => {
           ]
         : []),
     ];
+    const useGridInformationStyles = viewMode === "grid" && showInformation;
 
     return (
       <div className={departmentsStyles.container}>
@@ -278,18 +425,25 @@ const DepartmentsPage = () => {
           <h2 className="text-h4 text-blue-60 mt-[35px] font-semibold">
             {departmentLabel}
           </h2>
+          {currentPagePermissions?.showTitle && (
+            <p className="text-s2 text-gray-70 mt-2 font-semibold">Departamentos encargado de crear, mejorar y mantener aplicaciones, sistemas y herramientas tecnológicas</p>
+          )}
         </div>
 
         {viewMode === "grid" || viewMode === "list" ? (
           <div className={departmentsStyles.searchRow}>
             <div className={departmentsStyles.searchWrapper}>
-              <Input
-                placeholder="Buscar"
-                value={employeeSearchValue}
-                onChange={(event) => setEmployeeSearchValue(event.target.value)}
-                icon={SearchIcon}
-                className={departmentsStyles.searchInput}
-              />
+              <div className={departmentsStyles.searchInputWrapper}>
+                <Input
+                  placeholder="Buscar"
+                  value={employeeSearchValue}
+                  onChange={(event) =>
+                    setEmployeeSearchValue(event.target.value)
+                  }
+                  icon={SearchIcon}
+                  className={departmentsStyles.searchInput}
+                />
+              </div>
             </div>
 
             <div className={departmentsStyles.viewToggle}>
@@ -347,7 +501,7 @@ const DepartmentsPage = () => {
                 <div className="flex">
                   <div className={departmentsStyles.listAvatar}>
                     <div className={departmentsStyles.listAvatar}>
-                    <Avatar src={responsibleEmployee.image_url} size="sm" />
+                    <Avatar src={responsibleEmployee.image_url} size="lg" />
                   </div>
                   </div>
                   <div className={departmentsStyles.listInfo}>
@@ -387,17 +541,27 @@ const DepartmentsPage = () => {
                     {getEmployeeDisplay(responsibleEmployee).employeeNumber}
                   </span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="small"
-                  hideIcon
-                  onClick={() => {
-                    setSelectedEmployee(responsibleEmployee);
-                    setIsDetailsOpen(true);
-                  }}
-                >
-                  Ver Informacion
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="small"
+                    hideIcon
+                    onClick={() => handleOpenEmployeeDetails(responsibleEmployee)}
+                  >
+                    {canSeeDetails ? "Ver carpeta" : "Ver información"}
+                  </Button>
+                  {showActionMenu ? (
+                    <ActionMenuCell
+                      row={responsibleEmployee}
+                      onEdit={handleEditEmployee}
+                      onDelete={handleOpenDeletePopUp}
+                      permissions={{
+                        update: canEditEmployee,
+                        delete: canDeleteEmployee,
+                      }}
+                    />
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>
@@ -412,6 +576,7 @@ const DepartmentsPage = () => {
             showDownloadTable={false}
             enableInternalSearch={false}
             enablePagination={false}
+            textSize={{ mobile: "c2", desktop: "text-b4" }}
             onSearchChange={(value) => setEmployeeSearchValue(value)}
             tables={listTables}
           />
@@ -424,11 +589,29 @@ const DepartmentsPage = () => {
               <span className={departmentsStyles.sectionDivider} />
             </div>
 
-            <div className={departmentsStyles.mosaicCard}>
-              <div className={departmentsStyles.mosaicAvatar}>
+            <div
+              className={
+                useGridInformationStyles
+                  ? departmentsStyles.mosaicCardInformation
+                  : departmentsStyles.mosaicCard
+              }
+            >
+              <div
+                className={
+                  useGridInformationStyles
+                    ? departmentsStyles.mosaicAvatarResponsible
+                    : departmentsStyles.mosaicAvatar
+                }
+              >
                 {renderEmployeeImage(responsibleEmployee)}
               </div>
-              <div className={departmentsStyles.mosaicInfo}>
+              <div
+                className={
+                  useGridInformationStyles
+                    ? departmentsStyles.mosaicInfoInformation
+                    : departmentsStyles.mosaicInfo
+                }
+              >
                 <span className={departmentsStyles.mosaicCompany}>
                   {responsibleEmployee.department?.enterprice_name || "EMPRESA"}
                 </span>
@@ -444,10 +627,24 @@ const DepartmentsPage = () => {
                 <span className={departmentsStyles.mosaicMeta}>
                   {getEmployeeDisplay(responsibleEmployee).email}
                 </span>
-                <span className={departmentsStyles.mosaicMeta}>
-                  No. Empleado:{" "}
-                  {getEmployeeDisplay(responsibleEmployee).employeeNumber}
-                </span>
+                {showEmployeeNumber && (
+                  <span className={departmentsStyles.mosaicMeta}>
+                    No. Empleado:{" "}
+                    {getEmployeeDisplay(responsibleEmployee).employeeNumber}
+                  </span>
+                )}
+                {showInformation ? (
+                  <Button
+                    size="small"
+                    hideIcon
+                    className={departmentsStyles.mosaicInfoButton}
+                    onClick={() =>
+                      handleOpenEmployeeDetails(responsibleEmployee)
+                    }
+                  >
+                    Ver Información
+                  </Button>
+                ) : null}
               </div>
             </div>
           </div>
@@ -464,12 +661,28 @@ const DepartmentsPage = () => {
               {paginatedEmployees.map((employee) => (
                 <div
                   key={employee.employee_id || employee.id}
-                  className={departmentsStyles.mosaicCard}
+                  className={
+                    useGridInformationStyles
+                      ? departmentsStyles.mosaicCardInformation
+                      : departmentsStyles.mosaicCard
+                  }
                 >
-                  <div className={departmentsStyles.mosaicAvatar}>
+                  <div
+                    className={
+                      useGridInformationStyles
+                        ? departmentsStyles.mosaicAvatarInformation
+                        : departmentsStyles.mosaicAvatar
+                    }
+                  >
                     {renderEmployeeImage(employee)}
                   </div>
-                  <div className={departmentsStyles.mosaicInfo}>
+                  <div
+                    className={
+                      useGridInformationStyles
+                        ? departmentsStyles.mosaicInfoInformation
+                        : departmentsStyles.mosaicInfo
+                    }
+                  >
                     <span className={departmentsStyles.mosaicCompany}>
                       {employee.department?.enterprice_name || "EMPRESA"}
                     </span>
@@ -485,10 +698,22 @@ const DepartmentsPage = () => {
                     <span className={departmentsStyles.mosaicMeta}>
                       {getEmployeeDisplay(employee).email}
                     </span>
-                    <span className={departmentsStyles.mosaicMeta}>
-                      No. Empleado:{" "}
-                      {getEmployeeDisplay(employee).employeeNumber}
-                    </span>
+                    {showEmployeeNumber && (
+                      <span className={departmentsStyles.mosaicMeta}>
+                        No. Empleado:{" "}
+                        {getEmployeeDisplay(responsibleEmployee).employeeNumber}
+                      </span>
+                    )}
+                    {showInformation ? (
+                      <Button
+                        size="small"
+                        hideIcon
+                        className={departmentsStyles.mosaicInfoButton}
+                        onClick={() => handleOpenEmployeeDetails(employee)}
+                      >
+                        Ver Información
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -506,74 +731,26 @@ const DepartmentsPage = () => {
           </div>
         ) : null}
 
-        <DetailsPanelLayout
+        <EmployeeDetailsPanel
           open={isDetailsOpen}
           onClose={handleCloseDetails}
-          divider={false}
-        >
-          {!detailEmployee ? (
-            <div className="text-b3 text-gray-100">
-              Selecciona un colaborador.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <h2 className="text-s1 font-semibold text-green-100">
-                  {getEmployeeDisplay(detailEmployee).fullname}
-                </h2>
-                <div className="bg-green-80 text-b4 w-[157px] rounded-[8px] px-[8px] py-[6px] text-white mb-6 mt-3">
-                  Información Laboral
-                </div>
-              </div>
-
-              <dl className="text-b3 space-y-2 text-gray-100">
-                <div className="flex">
-                  <dt className="text-gray-90 font-semibold">EMPRESA:</dt>
-                  <dd> {detailDepartment?.enterprice_name || emptyValue}</dd>
-                </div>
-                <div className="flex">
-                  <dt className="text-gray-90 font-semibold">NO. EMPLEADO:</dt>
-                  <dd>
-                    {getEmployeeDisplay(detailEmployee).employeeNumber ||
-                      emptyValue}
-                  </dd>
-                </div>
-                <div className="flex my-6">
-                  <dt className="text-gray-90 font-semibold">RESPONSABLE:</dt>
-                  <dd>{detailEmployee.manager_id || emptyValue}</dd>
-                </div>
-                <div className="flex">
-                  <dt className="text-gray-90 font-semibold">AREA:</dt>
-                  <dd>{detailDepartment?.name || emptyValue}</dd>
-                </div>
-                <div className="flex">
-                  <dt className="text-gray-90 font-semibold">POSICION DE TRABAJO:</dt>
-                  <dd>
-                    {detailEmployee.workposition?.name ||
-                      detailEmployee.workposition_name ||
-                      emptyValue}
-                  </dd>
-                </div>
-                <div className="flex mt-6">
-                  <dt className="text-gray-90 font-semibold">TELEFONO:</dt>
-                  <dd>
-                    {detailEmployee.phone_number ||
-                      detailEmployee.employee_phone ||
-                      emptyValue}
-                  </dd>
-                </div>
-                <div className="flex">
-                  <dt className="text-gray-90 font-semibold">CORREO:</dt>
-                  <dd>
-                    {detailEmployee.email ||
-                      detailEmployee.employee_email ||
-                      emptyValue}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          )}
-        </DetailsPanelLayout>
+          employee={detailEmployee}
+          canSeeInformation={canSeeInformation}
+        />
+        {employeeToDelete ? (
+          <PopUp
+            open={isDeletePopUpOpen}
+            onClose={handleCloseDeletePopUp}
+            title={`Deseas eliminar el usuario de ${getEmployeeDisplay(employeeToDelete).fullname}?`}
+            content="Esta accion confirmara la eliminacion del usuario"
+            showPrimaryButton
+            showSecondaryButton
+            primaryButtonText={deletingEmployee ? "Eliminando..." : "Eliminar"}
+            secondaryButtonText="Cancelar"
+            onPrimaryButtonClick={handleDeleteEmployee}
+            onSecondaryButtonClick={handleCloseDeletePopUp}
+          />
+        ) : null}
       </div>
     );
   }
@@ -582,13 +759,20 @@ const DepartmentsPage = () => {
     <div className={departmentsStyles.container}>
       <div className={departmentsStyles.searchRow}>
         <div className={departmentsStyles.searchWrapper}>
-          <Input
-            placeholder="Buscar"
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-            icon={SearchIcon}
-            className={departmentsStyles.searchInput}
-          />
+          <div className={departmentsStyles.searchInputWrapper}>
+            <Input
+              placeholder="Buscar"
+              value={searchValue}
+              onChange={(event) => setSearchValue(event.target.value)}
+              icon={SearchIcon}
+              className={departmentsStyles.searchInput}
+            />
+          </div>
+          {canCreateEmployee && (
+            <Button hideIcon onClick={handleOpenCreateView}>
+              Nuevo Empleado
+            </Button>
+          )}
         </div>
       </div>
 
@@ -623,7 +807,11 @@ const DepartmentsPage = () => {
               imageSrc={resolveImageSrc(department)}
               label="Departamento"
               title={department.name || "Sin nombre"}
-              description=""
+              description={
+                    department.enterprice_name
+                      ? `Empresa: ${department.enterprice_name}`
+                      : ""
+                  }
               primaryLabel="Ver Departamento"
               onAccept={() => handleViewDepartment(department)}
             />

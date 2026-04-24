@@ -65,11 +65,11 @@ describe("buildActionMenuItems", () => {
     });
 
     expect(items).toHaveLength(2);
-    expect(items[0].label).toBe("Ver Detalle");
+    expect(items[0].label).toBe("Editar");
     items[0].onClick?.();
     expect(onEdit).toHaveBeenCalledWith(row);
 
-    expect(items[1].label).toBe("Cancelar o eliminar");
+    expect(items[1].label).toBe("Eliminar");
     items[1].onClick?.();
     expect(onDelete).toHaveBeenCalledWith(row);
   });
@@ -83,6 +83,17 @@ describe("buildActionMenuItems", () => {
     });
     expect(items).toHaveLength(1);
     expect(items[0].label).toBe("Actualizar");
+  });
+
+  it("usa la etiqueta personalizada cuando se proporciona editLabel", () => {
+    const items = buildActionMenuItems({
+      row,
+      onEdit,
+      editLabel: "Ver detalle",
+      permissions: { details: true },
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0].label).toBe("Ver detalle");
   });
 
   it("devuelve una lista vacia cuando no hay permisos", () => {
@@ -179,6 +190,6 @@ describe("ActionMenuCell", () => {
     );
 
     expect(lastButtonIcon).toBe(RightArrowIcon);
-    expect(screen.getByText("Cancelar o eliminar")).toBeInTheDocument();
+    expect(screen.getByText("Eliminar")).toBeInTheDocument();
   });
 });

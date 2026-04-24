@@ -12,6 +12,8 @@ export type ActionMenuCellBaseProps<T> = {
   row: T;
   /** Callback cuando se elige la opcion de ver/editar. */
   onEdit?: (row: T) => void;
+  /** Etiqueta personalizada para la opcion principal de ver/editar. */
+  editLabel?: string;
   /** Callback cuando se elige la opcion de cancelar/eliminar. */
   onDelete?: (row: T) => void;
 

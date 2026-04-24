@@ -58,6 +58,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
   initialFiles,
   dataTestId,
   preview = false,
+  previewCoverMode = false,
   multiple = false,
 }) => {
   const [isChanging, setIsChanging] = React.useState(false);
@@ -102,11 +103,14 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     className || dropzoneBaseClasses,
     isDragging ? dropzoneDraggingClasses : dropzoneIdleClasses,
     disabled && dropzoneDisabledClasses,
+    preview && "w-[245px] mx-auto",
+    preview && (previewCoverMode ? "h-[290px]" : "h-[218px]"),
   );
 
   const { capture: captureLabel, switchCamera, close } = cameraLabels ?? {};
 
   const isPreviewVisible = preview && !!previewUrl && !isChanging;
+  const isPreviewCoverMode = isPreviewVisible && previewCoverMode;
 
   return (
     <div
@@ -117,23 +121,41 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
       {label && <label className={labelClasses()}>{label}</label>}
 
       {isPreviewVisible ? (
-        <div className={previewWrapperClasses}>
+        <div
+          className={clsx(
+            previewWrapperClasses,
+            preview && "w-[245px] mx-auto",
+            isPreviewCoverMode && "h-[290px]",
+            isPreviewCoverMode && "border-0",
+          )}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={previewUrl ?? ""}
             alt="Vista previa"
-            className={previewImageClasses}
+            className={clsx(
+              previewImageClasses,
+              isPreviewCoverMode && "h-[290px]",
+            )}
             onClick={openPreview}
           />
 
-          <div className={previewActionsClasses}>
+          <div
+            className={clsx(
+              previewActionsClasses,
+              isPreviewCoverMode && "absolute bottom-3 left-0 right-0 mt-0",
+            )}
+          >
             <Button
               type="button"
               variant="outline"
               hideIcon
               onClick={() => setIsChanging(true)}
               disabled={disabled}
-              className="px-8"
+              className={clsx(
+                "px-8",
+                isPreviewCoverMode && "bg-white-100/90 backdrop-blur-sm",
+              )}
             >
               Cambiar imagen
             </Button>

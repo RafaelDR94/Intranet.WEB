@@ -18,6 +18,14 @@ const normalizeText = (value: string) =>
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 
+const collator = new Intl.Collator("es-MX", {
+  sensitivity: "base",
+  numeric: true,
+});
+
+const compareText = (left: string, right: string) =>
+  collator.compare(normalizeText(left), normalizeText(right));
+
 const buildEmployeeSearchPayload = (employee: {
   workposition_name?: string;
   workposition?: { name?: string } | null;
@@ -44,6 +52,7 @@ const useDepartmentsPage = () => {
   const view = (searchParams.get("view") ?? "list") as "list" | "detail";
   const departmentId = searchParams.get("id");
   const departmentLabelParam = searchParams.get("label") ?? "";
+  const forceRefresh = searchParams.get("force") === "true";
 
   const isDetailView = view === "detail" && Boolean(departmentId);
   const hasFetched = useRef(false);
@@ -88,27 +97,35 @@ const useDepartmentsPage = () => {
 
   useEffect(() => {
     if (!isDetailView || !departmentId) return;
-    if (lastDepartmentId.current === departmentId) return;
+    if (lastDepartmentId.current === departmentId && !forceRefresh) return;
     lastDepartmentId.current = departmentId;
     fetchEmployeesByDepartment(departmentId, true);
-  }, [departmentId, fetchEmployeesByDepartment, isDetailView]);
+  }, [departmentId, fetchEmployeesByDepartment, forceRefresh, isDetailView]);
 
   const filteredDepartments = useMemo(() => {
     const query = searchValue.trim();
-    if (!query) return departments;
-    const needle = normalizeText(query);
+    const filtered = !query
+      ? departments
+      : departments.filter((department) => {
+          const needle = normalizeText(query);
+          const candidates = [
+            department.name,
+            department.enterprice_name,
+            ...(department.enterprises?.map((enterprise) => enterprise.name) ??
+              []),
+          ]
+            .filter(Boolean)
+            .map((value) => normalizeText(String(value)));
 
-    return departments.filter((department) => {
-      const candidates = [
-        department.name,
-        department.enterprice_name,
-        ...(department.enterprises?.map((enterprise) => enterprise.name) ?? []),
-      ]
-        .filter(Boolean)
-        .map((value) => normalizeText(String(value)));
+          return candidates.some((value) => value.includes(needle));
+        });
 
-      return candidates.some((value) => value.includes(needle));
-    });
+    return [...filtered].sort((left, right) =>
+      compareText(
+        left.name || left.enterprice_name || left.department_id,
+        right.name || right.enterprice_name || right.department_id,
+      ),
+    );
   }, [departments, searchValue]);
 
   useEffect(() => {
@@ -170,10 +187,20 @@ const useDepartmentsPage = () => {
 
   const filteredEmployees = useMemo(() => {
     const query = employeeSearchValue.trim();
-    if (!query) return departmentEmployees;
-    const needle = normalizeText(query);
-    return departmentEmployees.filter((employee) =>
-      buildEmployeeSearchPayload(employee).some((value) => value.includes(needle)),
+    const filtered = !query
+      ? departmentEmployees
+      : departmentEmployees.filter((employee) => {
+          const needle = normalizeText(query);
+          return buildEmployeeSearchPayload(employee).some((value) =>
+            value.includes(needle),
+          );
+        });
+
+    return [...filtered].sort((left, right) =>
+      compareText(
+        left.employee_number || left.fullname || "",
+        right.employee_number || right.fullname || "",
+      ),
     );
   }, [departmentEmployees, employeeSearchValue]);
 

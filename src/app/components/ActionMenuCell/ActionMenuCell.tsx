@@ -88,6 +88,7 @@ export default ActionMenuCell;
 export const buildActionMenuItems = <T extends Record<string, unknown>>({
   row,
   onEdit,
+  editLabel,
   onDelete,
   onDetails,
   onRenewDay,
@@ -98,7 +99,7 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
 
   if (canEdit) {
     items.push({
-      label: permissions.details ? "Ver Detalle" : "Actualizar",
+      label: editLabel ?? (permissions.details ? "Editar" : "Actualizar"),
       icon: EditIcon,
       onClick: () => onEdit?.(row) ?? onDetails?.(row),
     });
@@ -114,7 +115,7 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
 
   if (permissions.delete) {
     items.push({
-      label: "Cancelar o eliminar",
+      label: "Eliminar",
       icon: DeleteIcon,
       danger: true,
       onClick: () => onDelete?.(row),
@@ -137,6 +138,7 @@ export type ActionMenuCellViewProps<T> = ActionMenuCellResolvedProps<T> & {
 export const ActionMenuCellView = <T extends Record<string, unknown>>({
   row,
   onEdit,
+  editLabel,
   onDelete,
   onDetails,
   onRenewDay,
@@ -146,8 +148,17 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
   buttonComponent: ButtonComponent = Button,
 }: ActionMenuCellViewProps<T>) => {
   const menuItems = useMemo(
-    () => buildActionMenuItems<T>({ row, onEdit, onDelete, onDetails, onRenewDay, permissions }),
-    [row, onEdit, onDelete, onDetails, onRenewDay, permissions]
+    () =>
+      buildActionMenuItems<T>({
+        row,
+        onEdit,
+        editLabel,
+        onDelete,
+        onDetails,
+        onRenewDay,
+        permissions,
+      }),
+    [row, onEdit, editLabel, onDelete, onDetails, onRenewDay, permissions]
   );
 
   const TriggerIcon = isMobile ? RightArrowIcon : DotsIcon;
