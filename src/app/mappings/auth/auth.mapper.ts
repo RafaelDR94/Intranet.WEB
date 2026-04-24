@@ -3,8 +3,15 @@ import {
   PostLogin,
   PostAuthValidate,
   PostCreateNip,
+  RecoverChannel,
   PutChangePassword,
-  PutRecoverPassword,
+  PostRecoverPassword,
+  RecoverPasswordResponse,
+  PostVerifyPasswordRecoveryCode,
+  PostVerifyPasswordRecoverySms,
+  PasswordRecoveryVerificationResponse,
+  PostResetPasswordRecovery,
+  ResetPasswordRecoveryResponse,
   PutChangeNipStatus,
   PutChangeNip,
   GetFirebaseConfiguration,
@@ -46,8 +53,31 @@ export const PutChangePasswordMap = (src: any): PutChangePassword => ({
   changePassword: toBoolean(src?.changePassword),
 });
 
-export const PutRecoverPasswordMap = (src: any): PutRecoverPassword => ({
-  username: toString(src?.username),
+export const PostRecoverPasswordMap = (src: any): PostRecoverPassword => ({
+  email: toString(src?.email),
+  type: toString(src?.type).toUpperCase() === "SMS" ? "SMS" : "Email",
+});
+
+export const PostVerifyPasswordRecoveryCodeMap = (
+  src: any,
+): PostVerifyPasswordRecoveryCode => ({
+  challengeId: toString(src?.challengeId),
+  code: toString(src?.code),
+});
+
+export const PostVerifyPasswordRecoverySmsMap = (
+  src: any,
+): PostVerifyPasswordRecoverySms => ({
+  challengeId: toString(src?.challengeId),
+  token: toString(src?.token),
+});
+
+export const PostResetPasswordRecoveryMap = (
+  src: any,
+): PostResetPasswordRecovery => ({
+  challengeId: toString(src?.challengeId),
+  newPassword: toString(src?.newPassword),
+  confirmPassword: toString(src?.confirmPassword),
 });
 
 export const PutChangeNipStatusMap = (src: any): PutChangeNipStatus => ({
@@ -78,6 +108,57 @@ export const FirebaseDataMap = (raw: any): FirebaseData => ({
   userFirebase: toString(raw?.userFirebase),
   paswordFirebase: toString(raw?.paswordFirebase),
 });
+
+export const RecoverPasswordResponseMap = (
+  raw: any,
+): RecoverPasswordResponse => {
+  const source = raw?.data ?? raw;
+
+  return {
+    type: toString(source?.type).toUpperCase() === "SMS" ? "SMS" : "Email",
+    challengeId: toString(source?.challengeId),
+    phoneMasked:
+      source?.phoneMasked == null ? undefined : toString(source?.phoneMasked),
+    emailMasked:
+      source?.emailMasked == null ? undefined : toString(source?.emailMasked),
+    message: toString(source?.message),
+    expiresInSeconds: toNumber(source?.expiresInSeconds),
+    nextStep: toString(source?.nextStep),
+  };
+};
+
+export const RecoverChannelsMap = (raw: any): RecoverChannel[] => {
+  const items = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : []
+
+  return items.map((item: any) => ({
+    type: toString(item?.type).toUpperCase() === "SMS" ? "SMS" : "Email",
+    value: item?.value == null ? null : toString(item?.value),
+  }))
+}
+
+export const PasswordRecoveryVerificationResponseMap = (
+  raw: any,
+): PasswordRecoveryVerificationResponse => {
+  const source = raw?.data ?? raw;
+
+  return {
+    message: toString(source?.message),
+    challengeId: toString(source?.challengeId),
+    nextStep: toString(source?.nextStep),
+  };
+};
+
+export const ResetPasswordRecoveryResponseMap = (
+  raw: any,
+): ResetPasswordRecoveryResponse => {
+  const source = raw?.data ?? raw;
+
+  return {
+    success: toBoolean(source?.success),
+    message: toString(source?.message),
+    nextStep: toString(source?.nextStep),
+  };
+};
 
 export const GetFirebaseConfigurationMap = (raw: any): GetFirebaseConfiguration => ({
   data: FirebaseDataMap(raw?.data ?? {}),

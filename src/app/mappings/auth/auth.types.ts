@@ -19,8 +19,52 @@ export type PutChangePassword = {
   changePassword: boolean
 }
 
-export type PutRecoverPassword = {
-    username: string
+export type PostRecoverPassword = {
+  email: string,
+  type: "Email" | "SMS"
+}
+
+export type RecoverChannel = {
+  type: "Email" | "SMS",
+  value: string | null
+}
+
+export type RecoverPasswordResponse = {
+  type: "Email" | "SMS",
+  challengeId: string,
+  phoneMasked?: string,
+  emailMasked?: string,
+  message: string,
+  expiresInSeconds: number,
+  nextStep: string
+}
+
+export type PostVerifyPasswordRecoveryCode = {
+  challengeId: string,
+  code: string
+}
+
+export type PostVerifyPasswordRecoverySms = {
+  challengeId: string,
+  token: string
+}
+
+export type PasswordRecoveryVerificationResponse = {
+  message: string,
+  challengeId: string,
+  nextStep: string
+}
+
+export type PostResetPasswordRecovery = {
+  challengeId: string,
+  newPassword: string,
+  confirmPassword: string
+}
+
+export type ResetPasswordRecoveryResponse = {
+  success: boolean,
+  message: string,
+  nextStep: string
 }
 
 export type PutChangeNipStatus = {
