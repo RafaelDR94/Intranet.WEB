@@ -183,7 +183,9 @@ export const getTabsFromPath = (
       { label: 'Lista de autorizaciones', path: '/main-page/authorizations/authorizationslist' },
     ],
     'configuration': [
-      { label: 'Configuración', path: '/main-page/configuration/userconfiguration' },
+      { label: 'Cuenta', path: '/main-page/configuration/account' },
+      { label: 'Seguridad', path: '/main-page/configuration/security' },
+      { label: 'Notificaciones', path: '/main-page/configuration/notifications' },
     ],
   };
 

@@ -21,6 +21,16 @@ describe('getTabsFromPath utility', () => {
     expect(result).toEqual([]);
   });
 
+  it('returns configuration tabs for the account section', () => {
+    const result = getTabsFromPath('/main-page/configuration/account');
+
+    expect(result).toEqual([
+      { label: 'Cuenta', path: '/main-page/configuration/account' },
+      { label: 'Seguridad', path: '/main-page/configuration/security' },
+      { label: 'Notificaciones', path: '/main-page/configuration/notifications' },
+    ]);
+  });
+
   it('adds files tab when operations requisition list has an id', () => {
     const result = getTabsFromPath(
       '/main-page/operations/requisitions/requisitionListPage',

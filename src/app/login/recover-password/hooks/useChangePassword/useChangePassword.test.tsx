@@ -1,160 +1,114 @@
-// useChangePassword.test.tsx
-import { renderHook, act } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import useChangePassword from "./useChangePassword";
 
-// ---- Mocks de dependencias ----
-const mockShowAlert = vi.fn();
-const mockHideAlert = vi.fn();
-vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
-  usePrincipal: () => ({
-    usePrincipalAlert: {
-      showAlert: mockShowAlert,
-      hideAlert: mockHideAlert,
-    },
-  }),
-}));
-
 type MockState = {
   error: string | null;
-  successRecoverPassword: boolean;
-  recoveringPassword: boolean;
+  resettingPasswordRecovery: boolean;
+  resetPasswordRecovery: (payload: unknown) => Promise<unknown>;
   resetFlags: () => void;
-  changePassword: (p: any) => void;
 };
 
 const mockResetFlags = vi.fn();
-const mockChangePassword = vi.fn();
+const mockResetPasswordRecovery = vi.fn();
+const mockClearFlow = vi.fn();
 let mockState: MockState;
+let mockFlowState: any;
 
 vi.mock("@/app/stores/useAuthStore/useAuthStore", () => ({
-  useAuthStore: (selector: (s: MockState) => any) => selector(mockState),
+  useAuthStore: (selector: (state: MockState) => unknown) => selector(mockState),
 }));
 
-const makeSearchParams = (email: string) =>
-  ({
-    get: (key: string) => (key === "user" ? email : null),
-  } as unknown as ReturnType<typeof import("next/navigation").useSearchParams>);
+vi.mock("@/app/login/context/RecoverPasswordFlowContext", () => ({
+  useRecoverPasswordFlow: () => mockFlowState,
+}));
 
 const mockRouter = {
   push: vi.fn(),
+  replace: vi.fn(),
 } as unknown as ReturnType<typeof import("next/navigation").useRouter>;
 
-// ---- Tests ----
 describe("useChangePassword", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockState = {
       error: null,
-      successRecoverPassword: false,
-      recoveringPassword: false,
+      resettingPasswordRecovery: false,
+      resetPasswordRecovery: mockResetPasswordRecovery.mockResolvedValue(null),
       resetFlags: mockResetFlags,
-      changePassword: mockChangePassword,
+    };
+    mockFlowState = {
+      clearFlow: mockClearFlow,
+      resetChallenge: { challengeId: "challenge-1" },
     };
   });
 
-  it("devuelve estado inicial con isLoading=false", () => {
-    const { result } = renderHook(() =>
-      useChangePassword(mockRouter, makeSearchParams("user@test.com"))
-    );
-    expect(result.current.isLoading).toBe(false);
+  it("inicia con submit deshabilitado", () => {
+    const { result } = renderHook(() => useChangePassword(mockRouter));
+
+    expect(result.current.canSubmit).toBe(false);
+    expect(result.current.isSuccess).toBe(false);
   });
 
-  it("muestra alerta y NO llama changePassword si las contraseñas no coinciden", async () => {
-    const { result } = renderHook(() =>
-      useChangePassword(mockRouter, makeSearchParams("user@test.com"))
-    );
+  it("envía el payload correcto cuando la contraseña cumple reglas", async () => {
+    mockResetPasswordRecovery.mockResolvedValue({
+      success: true,
+      message: "Contraseña actualizada correctamente.",
+    });
+
+    const { result } = renderHook(() => useChangePassword(mockRouter));
+
+    act(() => {
+      result.current.setNewPassword("NuevaSegura123!");
+      result.current.setConfirmPassword("NuevaSegura123!");
+    });
 
     await act(async () => {
-      await result.current.handleChange({
-        newPassword: "abc123",
-        confirmPassword: "xyz987",
-      });
+      await result.current.handleSubmit();
     });
 
-    expect(mockShowAlert).toHaveBeenCalledTimes(1);
-    expect(mockChangePassword).not.toHaveBeenCalled();
-    expect(result.current.isLoading).toBe(false);
+    expect(mockResetPasswordRecovery).toHaveBeenCalledWith({
+      challengeId: "challenge-1",
+      newPassword: "NuevaSegura123!",
+      confirmPassword: "NuevaSegura123!",
+    });
+    expect(result.current.isSuccess).toBe(true);
   });
 
-  it("llama changePassword con el payload correcto cuando las contraseñas coinciden", async () => {
-    const email = "katherine@drsecurity.net";
-    const { result } = renderHook(() =>
-      useChangePassword(mockRouter, makeSearchParams(email))
-    );
+  it("reporta error si las contraseñas no coinciden", async () => {
+    const { result } = renderHook(() => useChangePassword(mockRouter));
+
+    act(() => {
+      result.current.setNewPassword("NuevaSegura123!");
+      result.current.setConfirmPassword("OtraSegura123!");
+    });
 
     await act(async () => {
-      await result.current.handleChange({
-        newPassword: "segura123",
-        confirmPassword: "segura123",
-      });
+      await result.current.handleSubmit();
     });
 
-    expect(mockShowAlert).not.toHaveBeenCalled();
-    expect(mockChangePassword).toHaveBeenCalledTimes(1);
-    expect(mockChangePassword).toHaveBeenCalledWith({
-      email,
-      newPassword: "segura123",
-      changePassword: true,
-    });
-    expect(result.current.isLoading).toBe(true);
+    expect(mockResetPasswordRecovery).not.toHaveBeenCalled();
+    expect(result.current.submitError).toBe("Las contraseñas no coinciden.");
   });
 
-  it("usa el email proveniente de searchParams", async () => {
-    const email = "desde-searchparams@example.com";
-    const { result } = renderHook(() =>
-      useChangePassword(mockRouter, makeSearchParams(email))
-    );
+  it("redirige al login desde la pantalla final y limpia el flujo", () => {
+    const { result } = renderHook(() => useChangePassword(mockRouter));
 
-    await act(async () => {
-      await result.current.handleChange({
-        newPassword: "abc123",
-        confirmPassword: "abc123",
-      });
+    act(() => {
+      result.current.handleGoToLogin();
     });
 
-    expect(mockChangePassword).toHaveBeenCalledWith(
-      expect.objectContaining({ email })
-    );
+    expect(mockClearFlow).toHaveBeenCalledTimes(1);
+    expect(mockRouter.push).toHaveBeenCalledWith("/login");
   });
 
-  it("ejecuta resetFlags cuando cambian los flags (error)", () => {
-    const { rerender } = renderHook(() =>
-      useChangePassword(mockRouter, makeSearchParams("u@test.com"))
-    );
+  it("toma el error del store", () => {
+    const { result, rerender } = renderHook(() => useChangePassword(mockRouter));
 
-    // El efecto del mount ya llamó resetFlags(); limpiamos para contar SOLO el cambio
-    mockResetFlags.mockClear();
-
-    mockState.error = "Algo salió mal";
+    mockState.error = "Error del servicio";
     rerender();
 
-    expect(mockResetFlags).toHaveBeenCalledTimes(1);
-  });
-
-  it("ejecuta resetFlags cuando cambian los flags (successRecoverPassword)", () => {
-    const { rerender } = renderHook(() =>
-      useChangePassword(mockRouter, makeSearchParams("u@test.com"))
-    );
-
-    // El efecto del mount ya llamó resetFlags(); limpiamos para contar SOLO el cambio
-    mockResetFlags.mockClear();
-
-    mockState.successRecoverPassword = true;
-    rerender();
-
-    expect(mockResetFlags).toHaveBeenCalledTimes(1);
-  });
-
-  it("no hace nada en el efecto si recoveringPassword está activo", () => {
-    // Inicializamos el estado con recoveringPassword = true ANTES del render
-    mockState.recoveringPassword = true;
-
-    renderHook(() =>
-      useChangePassword(mockRouter, makeSearchParams("u@test.com"))
-    );
-
-    expect(mockResetFlags).not.toHaveBeenCalled();
+    expect(result.current.submitError).toBe("Error del servicio");
   });
 });

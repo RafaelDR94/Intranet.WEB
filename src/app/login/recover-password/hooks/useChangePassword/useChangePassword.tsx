@@ -1,120 +1,199 @@
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
-import type { FieldModel } from "@/app/components/DynamicForm/types";
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import { PutChangePassword } from "@/app/mappings/auth/auth.types";
+import { useRecoverPasswordFlow } from "@/app/login/context/RecoverPasswordFlowContext";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
-/**
- * Hook para evaluar un media query y responder a cambios.
- * @param query Media query CSS (ej: '(max-width: 600px)')
- * @param initialValue Valor inicial antes de la primera evaluación (útil en SSR)
- * @returns `true` si el media query coincide, `false` en caso contrario.
- *
- * Detalles:
- * - Usa `window.matchMedia` y se suscribe a cambios con `addEventListener('change', ...)`.
- * - Fallback para Safari < 14 (`addListener`/`removeListener`).
- * - En SSR o pruebas sin DOM, utiliza `initialValue` y evita acceder a `window`.
- */
+export type PasswordRequirement = {
+  id: "minLength" | "upper" | "lower" | "number" | "special";
+  label: string;
+  satisfied: boolean;
+};
 
-/** Campos del formulario para cambiar contraseña */
-export const changePasswordFields: FieldModel[] = [
+export interface UseChangePassword {
+  challengeId: string;
+  newPassword: string;
+  confirmPassword: string;
+  isLoading: boolean;
+  isSuccess: boolean;
+  successMessage: string;
+  submitError: string;
+  showNewPassword: boolean;
+  showConfirmPassword: boolean;
+  requirements: PasswordRequirement[];
+  canSubmit: boolean;
+  setNewPassword: (value: string) => void;
+  setConfirmPassword: (value: string) => void;
+  toggleNewPasswordVisibility: () => void;
+  toggleConfirmPasswordVisibility: () => void;
+  handleSubmit: () => Promise<void>;
+  handleGoToLogin: () => void;
+}
+
+const buildRequirements = (password: string): PasswordRequirement[] => [
   {
-    name: "newPassword",
-    type: "password",
-    label: "Contraseña Nueva",
-    placeholder: "Escribe una nueva contraseña",
-    value: "",
-    validations: [{ type: "required" }, { type: "minLength", value: 6 }],
+    id: "minLength",
+    label: "Mínimo 8 caracteres",
+    satisfied: password.length >= 8,
   },
   {
-    name: "confirmPassword",
-    type: "password",
-    label: "Confirmar contraseña",
-    placeholder: "Confirma tu nueva contraseña",
-    value: "",
-    validations: [{ type: "required" }],
+    id: "upper",
+    label: "Al menos una letra mayúscula",
+    satisfied: /[A-ZÁÉÍÓÚÑ]/.test(password),
+  },
+  {
+    id: "lower",
+    label: "Al menos una letra minúscula",
+    satisfied: /[a-záéíóúñ]/.test(password),
+  },
+  {
+    id: "number",
+    label: "Al menos un número",
+    satisfied: /\d/.test(password),
+  },
+  {
+    id: "special",
+    label: "Al menos un carácter especial (!@#$%...)",
+    satisfied: /[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9]/.test(password),
   },
 ];
 
-export interface UseChangePassword {
-  /** Indica si la solicitud está en curso */
-  isLoading: boolean;
-  /** Envía la nueva contraseña */
-  handleChange: (values: Record<string, any>) => Promise<void>;
-}
-
-/**
- * Maneja el cambio de contraseña desde un enlace de recuperación.
- * @param routerOverride Router opcional para pruebas
- * @param searchParamsOverride SearchParams opcional para pruebas
- */
 export default function useChangePassword(
   routerOverride?: ReturnType<typeof useRouter>,
-  searchParamsOverride?: ReturnType<typeof useSearchParams>
 ): UseChangePassword {
-  const _routerFromHook = useRouter();
-  const searchParamsFromHook = useSearchParams();
-  const _router = routerOverride ?? _routerFromHook;
-  const searchParams = searchParamsOverride ?? searchParamsFromHook;
-  const email = searchParams.get("user") ?? "";
-  const { usePrincipalAlert } = usePrincipal();
-  const { showAlert, hideAlert } = usePrincipalAlert;
-  const [isLoading, setIsLoading] = useState(false);
-  const {
-    error,
-    resetFlags,
-    successRecoverPassword,
-    recoveringPassword,
-    changePassword,
-  } = useAuthStore(
-    (s) => ({
-      resetFlags: s.resetFlags,
-      error: s.error,
-      successRecoverPassword: s.successRecoverPassword,
-      recoveringPassword: s.recoveringPassword,
-      recoverPassword: s.recoverPassword,
-      changePassword: s.changePassword,
-    }),
-    shallow
+  const routerFromHook = useRouter();
+  const router = routerOverride ?? routerFromHook;
+  const { clearFlow, resetChallenge } = useRecoverPasswordFlow();
+  const challengeId = resetChallenge?.challengeId ?? "";
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const { error, resettingPasswordRecovery, resetPasswordRecovery, resetFlags } =
+    useAuthStore(
+      (state) => ({
+        error: state.error,
+        resettingPasswordRecovery: state.resettingPasswordRecovery,
+        resetPasswordRecovery: state.resetPasswordRecovery,
+        resetFlags: state.resetFlags,
+      }),
+      shallow,
+    );
+
+  const requirements = useMemo(
+    () => buildRequirements(newPassword),
+    [newPassword],
   );
+
+  const allRequirementsSatisfied = requirements.every(
+    (requirement) => requirement.satisfied,
+  );
+  const passwordsMatch =
+    newPassword.length > 0 &&
+    confirmPassword.length > 0 &&
+    newPassword === confirmPassword;
+  const canSubmit =
+    Boolean(challengeId) &&
+    allRequirementsSatisfied &&
+    passwordsMatch &&
+    !resettingPasswordRecovery;
 
   useEffect(() => {
-    if (recoveringPassword) return; //Falta agregar spinner
+    if (!challengeId) {
+      router.replace("/login");
+    }
+  }, [challengeId, router]);
+
+  useEffect(() => {
     if (error) {
-      // Mostrar error
+      setSubmitError(error);
     }
-    if (successRecoverPassword) {
-      // Mostrar success
+  }, [error]);
+
+  useEffect(() => {
+    return () => {
+      resetFlags();
+    };
+  }, [resetFlags]);
+
+  const handleSubmit = useCallback(async () => {
+    if (!challengeId) {
+      setSubmitError("No encontramos un desafío activo para restablecer la contraseña.");
+      return;
     }
+
+    if (!allRequirementsSatisfied) {
+      setSubmitError("La nueva contraseña aún no cumple todos los requisitos.");
+      return;
+    }
+
+    if (!passwordsMatch) {
+      setSubmitError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    setSubmitError("");
+
+    const response = await resetPasswordRecovery({
+      challengeId,
+      newPassword,
+      confirmPassword,
+    });
+
+    if (!response?.success) {
+      return;
+    }
+
+    setIsSuccess(true);
+    setSuccessMessage(response.message);
     resetFlags();
-  }, [recoveringPassword, error, successRecoverPassword, resetFlags]);
+  }, [
+    allRequirementsSatisfied,
+    challengeId,
+    confirmPassword,
+    newPassword,
+    passwordsMatch,
+    resetFlags,
+    resetPasswordRecovery,
+  ]);
 
-  const handleChange = useCallback(
-    async (values: Record<string, any>) => {
-      if (values.newPassword !== values.confirmPassword) {
-        showAlert({
-          type: "error",
-          variant: "subtle",
-          title: "Error",
-          description: "Las contraseñas no coinciden",
-          onPrimaryClick: hideAlert,
-          showSecondaryButton:false
-        });
-        return;
-      }
-      setIsLoading(true);
-      const payload: PutChangePassword = {
-        email: email,
-        newPassword: values.newPassword,
-        changePassword: true,
-      };
-      changePassword(payload);
+  const handleGoToLogin = useCallback(() => {
+    resetFlags();
+    clearFlow();
+    router.push("/login");
+  }, [clearFlow, resetFlags, router]);
+
+  return {
+    challengeId,
+    newPassword,
+    confirmPassword,
+    isLoading: resettingPasswordRecovery,
+    isSuccess,
+    successMessage,
+    submitError,
+    showNewPassword,
+    showConfirmPassword,
+    requirements,
+    canSubmit,
+    setNewPassword: (value) => {
+      setSubmitError("");
+      setNewPassword(value);
     },
-    [email, showAlert, hideAlert, changePassword]
-  );
-
-  return { isLoading, handleChange };
+    setConfirmPassword: (value) => {
+      setSubmitError("");
+      setConfirmPassword(value);
+    },
+    toggleNewPasswordVisibility: () =>
+      setShowNewPassword((current) => !current),
+    toggleConfirmPasswordVisibility: () =>
+      setShowConfirmPassword((current) => !current),
+    handleSubmit,
+    handleGoToLogin,
+  };
 }

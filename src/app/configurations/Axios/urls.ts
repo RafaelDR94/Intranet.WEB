@@ -4,6 +4,16 @@ export const AuthFirebaseConfiguration = process.env.NEXT_PUBLIC_AUTHFIREBASECON
 export const AuthChangeNIP = process.env.NEXT_PUBLIC_AUTHCHANGENIP ?? "/Auth/ChangeNIP";
 export const AuthChangePassword = process.env.NEXT_PUBLIC_AUTHCHANGEPASSWORD ?? "/Auth/ChangePassword";
 export const AuthRecoverPassword = process.env.NEXT_PUBLIC_AUTHRECOVERPASSWORD ?? "/Auth/RecoverPassword";
+export const AuthRecoverChannels = process.env.NEXT_PUBLIC_AUTHRECOVERCHANNELS ?? "/Auth/RecoverChannels";
+export const AuthPasswordRecoveryVerifyCode =
+  process.env.NEXT_PUBLIC_AUTHPASSWORDRECOVERYVERIFYCODE ??
+  "/Auth/VerifyRecoveryCode";
+export const AuthPasswordRecoveryVerifySms =
+  process.env.NEXT_PUBLIC_AUTHPASSWORDRECOVERYVERIFYSMS ??
+  "/Auth/VerifyRecoverySms";
+export const AuthPasswordRecoveryResetPassword =
+  process.env.NEXT_PUBLIC_AUTHPASSWORDRECOVERYRESETPASSWORD ??
+  "/Auth/ResetPassword";
 export const AuthChangeNIPStatusByIdUser = process.env.NEXT_PUBLIC_AUTHCHANGENIPSTATUSBYIDUSER ?? "/Auth/ChangeNIPStatusByIdUser";
 export const AuthCreateNIP = process.env.NEXT_PUBLIC_AUTHCREATENIP ?? "/Auth/CreateNIP";
 export const VerifyOTP = process.env.NEXT_PUBLIC_VERIFY_OTP ?? "/VerifyOTP";
