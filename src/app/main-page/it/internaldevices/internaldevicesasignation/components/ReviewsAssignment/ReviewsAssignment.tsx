@@ -49,8 +49,8 @@ const ReviewsAssignment = (props: ReviewsAssignmentProps) => {
                 className="border-b border-gray-10 last:border-b-0"
               >
                 <td className="px-6 py-4 text-c2">{review.dateLabel}</td>
-                <td className="px-6 py-4 text-c2">
-                  <span className="block max-w-[280px] truncate">
+                <td className="px-6 py-4 text-c2 align-top">
+                  <span className="block whitespace-normal break-words">
                     {review.description}
                   </span>
                 </td>

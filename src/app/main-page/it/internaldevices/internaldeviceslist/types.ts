@@ -13,7 +13,6 @@ export type InternalDeviceRow = InternalDevice & {
  */
 export type StatusFilterValue =
   | 'all'
-  | 'en_revision'
   | 'excelente'
   | 'bueno'
   | 'regular'

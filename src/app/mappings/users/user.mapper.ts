@@ -1,8 +1,13 @@
 import {
   CreateUserPayload,
+  MfaMethodPayloadMethod,
   RolePost,
   ToggleUserActivePayload,
   UpdateUserPayload,
+  UserMfaByIdResponse,
+  UserMfaMethodPayload,
+  UserMfaMethodResponse,
+  UserMfaPayload,
   UserPost,
   UserPut,
   UserRole,
@@ -43,6 +48,12 @@ const toStringArray = (value: unknown): string[] => {
     .map((item) => toOptionalString(item))
     .filter((item): item is string => item !== undefined);
 };
+
+const toMfaMethodResponse = (value: unknown): "SMS" | "Email" =>
+  toString(value).toUpperCase() === "SMS" ? "SMS" : "Email";
+
+const toMfaMethodPayload = (value: unknown): MfaMethodPayloadMethod =>
+  toString(value).toUpperCase() === "SMS" ? "SMS" : "EMAIL";
 
 export const mapUser = (user: any): UserType => {
   const rawRole = user?.role;
@@ -220,4 +231,40 @@ export const mapToggleUserActivePayload = (
     payload?.isActive ?? payload?.is_active ?? payload?.active,
     false
   ),
+});
+
+export const mapUserMfaByIdMethodResponse = (
+  method: any,
+): UserMfaMethodResponse => ({
+  method: toMfaMethodResponse(method?.method),
+  isEnabled: toBoolean(method?.isEnabled),
+  isVerified: toBoolean(method?.isVerified),
+  destinationMasked: toNullableString(method?.destinationMasked),
+  challengeId: toNullableString(method?.challengeId),
+});
+
+export const mapUserMfaByIdResponse = (raw: any): UserMfaByIdResponse => {
+  const source = raw?.data ?? raw;
+  const methods = Array.isArray(source?.methods) ? source.methods : [];
+
+  return {
+    idUser: toString(source?.idUser),
+    twoFactorEnabled: toBoolean(source?.twoFactorEnabled),
+    methods: methods.map(mapUserMfaByIdMethodResponse),
+  };
+};
+
+export const mapUserMfaPayload = (
+  payload: Partial<UserMfaPayload> | any,
+): UserMfaPayload => ({
+  idUser: toString(payload?.idUser ?? payload?.id_user ?? payload?.userId),
+  twoFactorEnabled: toBoolean(payload?.twoFactorEnabled),
+});
+
+export const mapUserMfaMethodPayload = (
+  payload: Partial<UserMfaMethodPayload> | any,
+): UserMfaMethodPayload => ({
+  idUser: toString(payload?.idUser ?? payload?.id_user ?? payload?.userId),
+  method: toMfaMethodPayload(payload?.method),
+  isEnabled: toBoolean(payload?.isEnabled),
 });

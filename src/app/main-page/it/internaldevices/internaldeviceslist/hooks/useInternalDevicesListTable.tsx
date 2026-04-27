@@ -63,14 +63,14 @@ const useInternalDevicesListTable = ({
       {
         key: 'display_id',
         label: 'ID',
-        cellClass: 'w-[4%]',
-        headerClass: 'w-[5%]',
+        cellClass: 'w-[5%] min-w-0 px-2',
+        headerClass: 'w-[5%] min-w-0 px-2',
       },
       {
         key: 'device_status',
         label: 'ESTATUS',
-        cellClass: 'w-[10%]',
-        headerClass: 'w-[9%]',
+        cellClass: 'w-[11%] min-w-0 px-2',
+        headerClass: 'w-[11%] min-w-0 px-2',
         render: (row) => (
           <Label
             type={statusToLabelType(row.device_status?.name)}
@@ -81,52 +81,44 @@ const useInternalDevicesListTable = ({
       {
         key: 'device_type',
         label: 'DISPOSITIVO',
-        cellClass: 'w-[9%]',
-        headerClass: 'w-[9%]',
-        render: (row) => row.device_type?.name ?? '-',
+        cellClass: 'w-[10%] min-w-0 px-2',
+        headerClass: 'w-[10%] min-w-0 px-2',
+        render: (row) => (
+          <span className="block w-full truncate">{row.device_type?.name ?? '-'}</span>
+        ),
       },
       {
         key: 'device_brand',
         label: 'MARCA',
-        cellClass: 'w-[7%]',
-        headerClass: 'w-[7%]',
-        render: (row) => row.device_brand?.name ?? '-',
+        cellClass: 'w-[9%] min-w-0 px-2',
+        headerClass: 'w-[9%] min-w-0 px-2',
+        render: (row) => (
+          <span className="block w-full truncate">{row.device_brand?.name ?? '-'}</span>
+        ),
       },
       {
         key: 'model',
         label: 'MODELO',
-        cellClass: 'w-[8%]',
-        headerClass: 'w-[8%]',
+        cellClass: 'w-[11%] min-w-0 px-2',
+        headerClass: 'w-[11%] min-w-0 px-2',
       },
       {
         key: 'serial_number',
         label: 'No. SERIE',
-        cellClass: 'w-[11%]',
-        headerClass: 'w-[11%]',
+        cellClass: 'w-[12%] min-w-0 px-2',
+        headerClass: 'w-[12%] min-w-0 px-2',
       },
       {
         key: 'name',
         label: 'NOMBRE',
-        cellClass: 'w-[11%]',
-        headerClass: 'w-[11%]',
-      },
-      {
-        key: 'ip_address',
-        label: 'DIR. IP',
-        cellClass: 'w-[8%]',
-        headerClass: 'w-[8%]',
-      },
-      {
-        key: 'mac_address',
-        label: 'DIR. MAC',
-        cellClass: 'w-[12%]',
-        headerClass: 'w-[12%]',
+        cellClass: 'w-[12%] min-w-0 px-2',
+        headerClass: 'w-[12%] min-w-0 px-2',
       },
       {
         key: 'assigned',
         label: 'ASIGNADO',
-        cellClass: 'w-[8%]',
-        headerClass: 'w-[8%]',
+        cellClass: 'w-[10%] min-w-0 px-2',
+        headerClass: 'w-[10%] min-w-0 px-2',
         render: (row) => (
           <Label
             type={row.assigned ? 'asignado' : 'sin-asignar'}
@@ -137,8 +129,8 @@ const useInternalDevicesListTable = ({
       {
         key: 'reviewed',
         label: 'REVISIÓN',
-        cellClass: 'w-[7%]',
-        headerClass: 'w-[7%]',
+        cellClass: 'w-[10%] min-w-0 px-2',
+        headerClass: 'w-[10%] min-w-0 px-2',
         render: (row) => (
           <Label
             type={row.reviewed === false ? 'valido' : 'prohibido'}
@@ -149,8 +141,8 @@ const useInternalDevicesListTable = ({
       {
         key: 'actions' as keyof InternalDeviceRow,
         label: '',
-        cellClass: 'w-[3%]',
-        headerClass: 'w-[3%]',
+        cellClass: 'w-[4%] min-w-0 px-2',
+        headerClass: 'w-[4%] min-w-0 px-2',
         render: (row) => (
           <div data-tour="internaldevices-list-row-actions">
             <ActionMenuCell
@@ -172,20 +164,20 @@ const useInternalDevicesListTable = ({
       {
         key: 'display_id',
         label: 'ID',
-        cellClass: 'w-2/12',
-        headerClass: 'w-2/12',
+        cellClass: 'w-2/12 min-w-0 px-2',
+        headerClass: 'w-2/12 min-w-0 px-2',
       },
       {
         key: 'name',
         label: 'DISPOSITIVO',
-        cellClass: 'w-6/12',
-        headerClass: 'w-6/12',
+        cellClass: 'w-6/12 min-w-0 px-2',
+        headerClass: 'w-6/12 min-w-0 px-2',
       },
       {
         key: 'actions' as keyof InternalDeviceRow,
         label: '',
-        cellClass: 'w-2/12',
-        headerClass: 'w-2/12',
+        cellClass: 'w-2/12 min-w-0 px-2',
+        headerClass: 'w-2/12 min-w-0 px-2',
         render: (row) => (
           <div data-tour="internaldevices-list-row-actions">
             <ActionMenuCell

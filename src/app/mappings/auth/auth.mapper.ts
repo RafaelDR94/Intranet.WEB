@@ -16,7 +16,9 @@ import {
   PutChangeNip,
   GetFirebaseConfiguration,
   FirebaseConfig,
-  FirebaseData
+  FirebaseData,
+  PostAuthChallengeVerify,
+  AuthChallengeVerifyResponse
 } from './auth.types';
 
 /**
@@ -57,6 +59,16 @@ export const PostRecoverPasswordMap = (src: any): PostRecoverPassword => ({
   email: toString(src?.email),
   type: toString(src?.type).toUpperCase() === "SMS" ? "SMS" : "Email",
 });
+
+export const PostAuthChallengeVerifyMap = (
+  src: any,
+): PostAuthChallengeVerify => ({
+  challengeId: toString(src?.challengeId),
+  method: toString(src?.method).toUpperCase() === 'SMS' ? 'SMS' : 'Email',
+  code: src?.code == null ? null : toString(src?.code),
+  verificationToken:
+    src?.verificationToken == null ? null : toString(src?.verificationToken),
+})
 
 export const PostVerifyPasswordRecoveryCodeMap = (
   src: any,
@@ -159,6 +171,26 @@ export const ResetPasswordRecoveryResponseMap = (
     nextStep: toString(source?.nextStep),
   };
 };
+
+export const AuthChallengeVerifyResponseMap = (
+  raw: any,
+): AuthChallengeVerifyResponse => {
+  const source =
+    raw?.challengeId != null || raw?.verified != null ? raw : (raw?.data ?? raw)
+
+  return {
+    challengeId: toString(source?.challengeId),
+    verified: toBoolean(source?.verified),
+    purpose: toString(source?.purpose),
+    nextStep: toString(source?.nextStep),
+    data:
+      source?.data == null
+        ? null
+        : {
+            token: toString(source?.data?.token),
+          },
+  }
+}
 
 export const GetFirebaseConfigurationMap = (raw: any): GetFirebaseConfiguration => ({
   data: FirebaseDataMap(raw?.data ?? {}),

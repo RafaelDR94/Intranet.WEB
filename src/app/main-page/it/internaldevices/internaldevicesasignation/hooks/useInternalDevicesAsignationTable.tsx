@@ -240,7 +240,7 @@ const useInternalDevicesAsignationTable = ({
   const filteredRows = useMemo(
     () =>
       rows.filter((row) =>
-        matchesStatusFilter(row.device_status?.name ?? null, statusFilter),
+        matchesStatusFilter(row.assigned, statusFilter),
       ),
     [rows, statusFilter],
   );
