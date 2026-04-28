@@ -73,7 +73,7 @@ const LoginPage = () => {
 
         <div className={loginStyles.supportContainer}>
           ¿Problemas para acceder?{" "}
-          <Link href="#" className={loginStyles.supportLink}>
+          <Link href="https://drsecurity.atlassian.net/servicedesk/customer/portals" target="_blank" rel="noopener noreferrer" className={loginStyles.supportLink}>
             Contacta a soporte
           </Link>
         </div>
@@ -83,3 +83,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+

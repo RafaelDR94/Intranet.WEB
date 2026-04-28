@@ -25,6 +25,9 @@ export const PermissionAgent: React.FC<PermissionAgentProps> = ({
 
   const routeToCheck = strictPath ?? pathname;
 
+  const normalizePath = (path: string) =>
+    path.startsWith('/') ? path : `/${path}`;
+
   // ---- Configurable: cuánto esperamos a que "llegue" el usuario
   const AUTH_GRACE_MS = 1200;
   const graceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -88,13 +91,30 @@ export const PermissionAgent: React.FC<PermissionAgentProps> = ({
       return;
     }
 
-    // Con user presente, evaluar permisos
-    const ok = validPermissionsbyroute(routeToCheck);
+    // Con user presente, evaluar permisos.
+    // Para Home, algunas implementaciones de permisos solo modelan `/main-page/home`
+    // y no cada subruta (`/announcements`, `/important-information`).
+    const baseHomeRoute = '/main-page/home';
+    const isHomeChildRoute =
+      routeToCheck.startsWith(`${baseHomeRoute}/`) &&
+      routeToCheck !== baseHomeRoute;
+    const ok =
+      validPermissionsbyroute(routeToCheck) ||
+      (isHomeChildRoute && validPermissionsbyroute(baseHomeRoute));
     setHasPermission(ok);
     setChecking(false);
 
     if (!ok) {
-      router.replace(fallbackPath);
+      const normalizedRoute = normalizePath(routeToCheck);
+      const normalizedFallback = normalizePath(fallbackPath);
+      const isSamePath = normalizedRoute === normalizedFallback;
+      const isHomeFallbackLoop =
+        normalizedFallback === '/main-page/home' &&
+        normalizedRoute.startsWith('/main-page/home');
+
+      if (!isSamePath && !isHomeFallbackLoop) {
+        router.replace(fallbackPath);
+      }
     }
   }, [authReady, user, routeToCheck, validPermissionsbyroute, router, fallbackPath, hasExpired]);
 

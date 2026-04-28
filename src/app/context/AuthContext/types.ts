@@ -24,6 +24,7 @@ export interface User {
   treeFirebase: string;
   nip: string;
   activeNIP: boolean;
+  twoFactorEnabled?: boolean;
   idWorkPosition: string;
   workPositionName: string;
   idEnterprise: string;

@@ -8,7 +8,6 @@ import type {
 
 const STATUS_FILTER_VALUES = [
   'all',
-  'en_revision',
   'excelente',
   'bueno',
   'regular',
@@ -25,7 +24,6 @@ export const DEFAULT_STATUS_FILTER: StatusFilterValue = 'all'
  */
 export const STATUS_FILTER_OPTIONS: StatusFilterOption[] = [
   { label: 'Todos', value: 'all' },
-  { label: 'En revision', value: 'en_revision' },
   { label: 'Excelente', value: 'excelente' },
   { label: 'Bueno', value: 'bueno' },
   { label: 'Regular', value: 'regular' },
@@ -72,8 +70,6 @@ export const matchesStatusFilter = (
   if (filter === 'all') return true
   const normalized = normalizeStatus(status)
   switch (filter) {
-    case 'en_revision':
-      return normalized.includes('REVISION')
     case 'excelente':
       return normalized.includes('EXCELENTE') || normalized.includes('OPTIMO')
     case 'bueno':
