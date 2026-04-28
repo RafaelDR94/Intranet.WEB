@@ -208,6 +208,7 @@ const useCreateEemployee = ({
           accept: ".jpg,.png",
           preview: true,
           previewCoverMode: true,
+          buttonLabel: currentEmployee ? "" : "Seleccionar Imagen",
           validations: [{ type: "required" }],
           disabled: isReadOnly,
         },

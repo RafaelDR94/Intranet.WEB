@@ -140,26 +140,28 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
             onClick={openPreview}
           />
 
-          <div
-            className={clsx(
-              previewActionsClasses,
-              isPreviewCoverMode && "absolute bottom-3 left-0 right-0 mt-0",
-            )}
-          >
-            <Button
-              type="button"
-              variant="outline"
-              hideIcon
-              onClick={() => setIsChanging(true)}
-              disabled={disabled}
+          {buttonLabel.trim().length > 0 && (
+            <div
               className={clsx(
-                "px-8",
-                isPreviewCoverMode && "bg-white-100/90 backdrop-blur-sm",
+                previewActionsClasses,
+                isPreviewCoverMode && "absolute bottom-3 left-0 right-0 mt-0",
               )}
             >
-              Cambiar imagen
-            </Button>
-          </div>
+              <Button
+                type="button"
+                variant="outline"
+                hideIcon
+                onClick={() => setIsChanging(true)}
+                disabled={disabled}
+                className={clsx(
+                  "px-8",
+                  isPreviewCoverMode && "bg-white-100/90 backdrop-blur-sm",
+                )}
+              >
+                Cambiar imagen
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <div

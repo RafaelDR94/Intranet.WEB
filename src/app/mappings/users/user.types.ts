@@ -78,6 +78,35 @@ export type RolePost = {
   description?: string | null;
 };
 
+export type MfaMethod = "SMS" | "Email";
+
+export type MfaMethodPayloadMethod = "SMS" | "EMAIL";
+
+export type UserMfaMethodResponse = {
+  method: MfaMethod;
+  isEnabled: boolean;
+  isVerified: boolean;
+  destinationMasked: string | null;
+  challengeId: string | null;
+};
+
+export type UserMfaByIdResponse = {
+  idUser: string;
+  twoFactorEnabled: boolean;
+  methods: UserMfaMethodResponse[];
+};
+
+export type UserMfaPayload = {
+  idUser: string;
+  twoFactorEnabled: boolean;
+};
+
+export type UserMfaMethodPayload = {
+  idUser: string;
+  method: MfaMethodPayloadMethod;
+  isEnabled: boolean;
+};
+
 
 
 export type UserRol = UserRole;

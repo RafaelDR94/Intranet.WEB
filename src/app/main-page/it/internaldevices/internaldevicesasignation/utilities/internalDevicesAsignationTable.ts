@@ -8,28 +8,22 @@ import type {
 
 const STATUS_FILTER_VALUES = [
   'all',
-  'en_revision',
-  'excelente',
-  'bueno',
-  'regular',
-  'malo',
+  'active',
+  'inactive',
 ] as const
 
 /**
  * Default filter value for the table status selector.
  */
-export const DEFAULT_STATUS_FILTER: StatusFilterValue = 'all'
+export const DEFAULT_STATUS_FILTER: StatusFilterValue = 'active'
 
 /**
  * Status filter options shown in the table toolbar.
  */
 export const STATUS_FILTER_OPTIONS: StatusFilterOption[] = [
   { label: 'Todos', value: 'all' },
-  { label: 'En revision', value: 'en_revision' },
-  { label: 'Excelente', value: 'excelente' },
-  { label: 'Bueno', value: 'bueno' },
-  { label: 'Regular', value: 'regular' },
-  { label: 'Malo', value: 'malo' },
+  { label: 'Activo', value: 'active' },
+  { label: 'Inactivo', value: 'inactive' },
 ]
 
 /**
@@ -55,32 +49,19 @@ export const statusToLabelType = (status?: string | null): LabelType => {
   return 'pendiente'
 }
 
-const normalizeStatus = (status?: string | null) =>
-  (status ?? '')
-    .toUpperCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-
 /**
- * Evaluates if a device status matches the selected filter.
+ * Evaluates if an assignment status matches the selected filter.
  */
 export const matchesStatusFilter = (
-  status: string | null | undefined,
+  assigned: boolean | null | undefined,
   filter: StatusFilterValue,
 ): boolean => {
   if (filter === 'all') return true
-  const normalized = normalizeStatus(status)
   switch (filter) {
-    case 'en_revision':
-      return normalized.includes('REVISION')
-    case 'excelente':
-      return normalized.includes('EXCELENTE') || normalized.includes('OPTIMO')
-    case 'bueno':
-      return normalized.includes('BUENO')
-    case 'regular':
-      return normalized.includes('REGULAR')
-    case 'malo':
-      return normalized.includes('MALO') || normalized.includes('DEFECTUOSO')
+    case 'active':
+      return Boolean(assigned)
+    case 'inactive':
+      return !assigned
     default:
       return true
   }

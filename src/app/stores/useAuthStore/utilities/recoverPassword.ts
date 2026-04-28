@@ -2,11 +2,11 @@
 import type { Set, Get, RecoverPasswordPayload } from '../types'
 
 import {
-  PostRecoverPasswordMap,
-  RecoverPasswordResponseMap,
-} from '@/app/mappings/auth/auth.mapper'
+  PostRecoverPasswordChallengeStartMap,
+  RecoverPasswordChallengeStartResponseMap,
+} from '@/app/mappings/recoverPassword/recoverPassword.mapper'
 import type { RecoverPasswordResponse } from '@/app/mappings/auth/auth.types'
-import { AuthRecoverPassword } from '@/app/configurations/Axios/urls'
+import { AuthChallengeStart } from '@/app/configurations/Axios/urls'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pPost } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
@@ -17,7 +17,7 @@ import {
 
 export const recoverPassword = async (
   set: Set,
-  _get: Get,
+  get: Get,
   payload: RecoverPasswordPayload
 ): Promise<RecoverPasswordResponse | null> => {
   set({
@@ -44,8 +44,21 @@ export const recoverPassword = async (
     }
 
     const post = pPost(requireGateway('post'))
-    const response = await post(AuthRecoverPassword, PostRecoverPasswordMap(payload))
-    const challenge = RecoverPasswordResponseMap(response.data)
+    const state = get()
+    const postPayload = PostRecoverPasswordChallengeStartMap({
+      purpose: 'PasswordRecovery',
+      ...payload,
+      challengeId: payload.challengeId ?? state.recoverPasswordChallenge?.challengeId,
+      idUser:
+        payload.idUser ??
+        state.user?.idUser ??
+        state.userRemebered?.idUser,
+    })
+    const response = await post(
+      AuthChallengeStart,
+      postPayload,
+    )
+    const challenge = RecoverPasswordChallengeStartResponseMap(response.data)
 
     set({
       loading: false,

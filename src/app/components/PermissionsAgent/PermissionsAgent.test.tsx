@@ -86,5 +86,48 @@ describe('PermissionAgent', () => {
     expect(routerReplace).toHaveBeenCalledWith('/home');
     vi.useRealTimers();
   });
+
+  it('does not redirect when fallback would create /main-page/home loop', () => {
+    vi.useFakeTimers();
+    validPermissionsMock.mockReturnValue(false);
+    pathnameMock.mockReturnValue('/main-page/home/announcements');
+    routerReplace.mockClear();
+    routerHook.mockReturnValue({ replace: routerReplace } as any);
+    render(
+      <PermissionAgent fallbackPath="/main-page/home">
+        <div>Contenido</div>
+      </PermissionAgent>
+    );
+    act(() => {
+      vi.runAllTimers();
+    });
+    expect(routerReplace).not.toHaveBeenCalled();
+    expect(
+      screen.getByText('No tienes permisos para acceder a esta sección.')
+    ).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it('allows home child route when /main-page/home has access', () => {
+    vi.useFakeTimers();
+    validPermissionsMock.mockImplementation((route: string) => route === '/main-page/home');
+    pathnameMock.mockReturnValue('/main-page/home/announcements');
+    routerReplace.mockClear();
+    routerHook.mockReturnValue({ replace: routerReplace } as any);
+
+    render(
+      <PermissionAgent fallbackPath="/main-page/home">
+        <div>Contenido</div>
+      </PermissionAgent>
+    );
+
+    act(() => {
+      vi.runAllTimers();
+    });
+
+    expect(screen.getByText('Contenido')).toBeInTheDocument();
+    expect(routerReplace).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
 });
 
