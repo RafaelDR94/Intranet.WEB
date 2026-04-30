@@ -7,7 +7,10 @@ export const AuthRecoverPassword = process.env.NEXT_PUBLIC_AUTHRECOVERPASSWORD ?
 export const AuthChallengeStart =
   process.env.NEXT_PUBLIC_AUTH_CHALLENGE_START ??
   "/Auth/Challenge/Start";
-export const AuthRecoverChannels = process.env.NEXT_PUBLIC_AUTHRECOVERCHANNELS ?? "/Auth/RecoverChannels";
+export const AuthRecoverChannels =
+  process.env.NEXT_PUBLIC_AUTHAUTHENTICATIONMETHODS ??
+  process.env.NEXT_PUBLIC_AUTHRECOVERCHANNELS ??
+  "/Auth/AuthenticationMethods";
 export const AuthPasswordRecoveryVerifyCode =
   process.env.NEXT_PUBLIC_AUTHPASSWORDRECOVERYVERIFYCODE ??
   "/Auth/VerifyRecoveryCode";
@@ -20,6 +23,18 @@ export const AuthPasswordRecoveryResetPassword =
 export const AuthChallengeVerify =
   process.env.NEXT_PUBLIC_AUTH_CHALLENGE_VERIFY ??
   "/Auth/Challenge/Verify";
+export const AuthPasskeysRegisterOptions =
+  process.env.NEXT_PUBLIC_AUTH_PASSKEYS_REGISTER_OPTIONS ??
+  "/Auth/Passkeys/RegisterOptions";
+export const AuthPasskeysRegisterVerify =
+  process.env.NEXT_PUBLIC_AUTH_PASSKEYS_REGISTER_VERIFY ??
+  "/Auth/Passkeys/RegisterVerify";
+export const AuthPasskeys =
+  process.env.NEXT_PUBLIC_AUTH_PASSKEYS ??
+  "/Auth/Passkeys";
+export const AuthPasskeysByUser =
+  process.env.NEXT_PUBLIC_AUTH_PASSKEYS_BY_USER ??
+  "/Auth/Passkeys/User";
 export const AuthChangeNIPStatusByIdUser = process.env.NEXT_PUBLIC_AUTHCHANGENIPSTATUSBYIDUSER ?? "/Auth/ChangeNIPStatusByIdUser";
 export const AuthCreateNIP = process.env.NEXT_PUBLIC_AUTHCREATENIP ?? "/Auth/CreateNIP";
 export const VerifyOTP = process.env.NEXT_PUBLIC_VERIFY_OTP ?? "/VerifyOTP";

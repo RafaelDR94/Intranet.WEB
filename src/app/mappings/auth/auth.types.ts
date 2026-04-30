@@ -51,9 +51,9 @@ export type AuthChallengeVerifyResponse = {
   verified: boolean
   purpose: string
   nextStep: string
-  data: {
-    token: string
-  } | null
+  data: ({
+    token?: string
+  } & Record<string, unknown>) | null
 }
 
 export type PostVerifyPasswordRecoveryCode = {

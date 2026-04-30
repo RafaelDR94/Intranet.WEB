@@ -15,6 +15,36 @@ import {
 } from "@/app/configurations/DataBase/crud";
 
 const USER_DOC_ID = 1;
+
+export type LoginMfaMethod = {
+  type: "Email" | "SMS";
+  value: string;
+};
+
+export type LoginMfaRequiredPayload = {
+  requiresMfa: true;
+  challengeId: string;
+  purpose: "LoginMfa";
+  nextStep: string;
+  defaultMethod: "Email" | "SMS";
+  expiresInSeconds: number;
+  availableMethods: LoginMfaMethod[];
+  idUser: string;
+  idEmployee: string;
+  employeeNumber: string;
+  userName: string;
+  fullName: string;
+};
+
+export class LoginMfaRequiredError extends Error {
+  payload: LoginMfaRequiredPayload;
+
+  constructor(payload: LoginMfaRequiredPayload) {
+    super("MFA_REQUIRED");
+    this.name = "LoginMfaRequiredError";
+    this.payload = payload;
+  }
+}
 /**
  * Inicia sesión de usuario autenticando contra backend o local.
  * Guarda el usuario actual y recordado si aplica.
@@ -57,6 +87,8 @@ const loginUser = async (
       (response) => {
         if (response instanceof Error) {
           reject(response);
+        } else if (response.data?.data?.requiresMfa === true) {
+          reject(new LoginMfaRequiredError(response.data.data));
         } else if (response.data?.success === false || !response.data?.data) {
           reject(
             normalizeApiError(

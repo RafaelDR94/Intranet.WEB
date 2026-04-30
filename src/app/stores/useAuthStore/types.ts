@@ -5,7 +5,7 @@ import type {
   ResetPasswordRecoveryResponse,
   AuthChallengeVerifyResponse,
 } from '@/app/mappings/auth/auth.types'
-import type { UserMfaByIdResponse } from '@/app/mappings/users/user.types'
+import type { UserMfaByIdResponse, UserPasskeyResponse } from '@/app/mappings/users/user.types'
 import type { User, LoginCredentials } from '@/app/context/AuthContext/types'
 
 export interface AuthValidatePayload {
@@ -38,6 +38,8 @@ export interface MfaMethodPayload {
 export interface RecoverPasswordPayload {
   email: string
   type: "Email" | "SMS"
+  purpose?: "PasswordRecovery" | "LoginMfa"
+  phoneNumber?: string
   challengeId?: string
   idUser?: string
 }
@@ -106,8 +108,11 @@ export interface AuthState {
   verifyingAuthChallenge: boolean
   fetchingRecoverChannels: boolean
   fetchingUserMfaById: boolean
+  fetchingUserPasskeys: boolean
+  deletingUserPasskey: boolean
   recoverChannels: RecoverChannel[]
   userMfaById: UserMfaByIdResponse | null
+  userPasskeys: UserPasskeyResponse[]
   mfaSmsEnabled: boolean
   mfaEmailEnabled: boolean
   recoverPasswordRequest?: RecoverPasswordPayload
@@ -131,6 +136,8 @@ export interface AuthState {
   successChangeMFA: boolean
   successChangeMFAMethod: boolean
   successUserMfaById: boolean
+  successUserPasskeys: boolean
+  successDeleteUserPasskey: boolean
   error?: string
   login: (payload: LoginCredentials) => Promise<void>
   logout: () => Promise<void>
@@ -152,6 +159,9 @@ export interface AuthState {
   verifyPasswordRecoverySms: (
     payload: VerifyPasswordRecoverySmsPayload,
   ) => Promise<PasswordRecoveryVerificationResponse | null>
+  verifyAuthChallenge: (
+    payload: VerifyAuthChallengePayload,
+  ) => Promise<AuthChallengeVerifyResponse | null>
   resetPasswordRecovery: (
     payload: ResetPasswordRecoveryPayload,
   ) => Promise<ResetPasswordRecoveryResponse | null>
@@ -161,6 +171,8 @@ export interface AuthState {
   changeMfaStatus: (payload: MfaPayload) => Promise<void>
   changeMfaMethodStatus: (payload: MfaMethodPayload) => Promise<void>
   fetchUserMfaById: (idUser: string) => Promise<UserMfaByIdResponse | null>
+  fetchUserPasskeys: (idUser: string) => Promise<UserPasskeyResponse[] | null>
+  deleteUserPasskey: (id: string) => Promise<boolean>
   changeNip: (payload: NipPayload) => Promise<void>
   createNip: (payload: NipPayload) => Promise<void>
   changeSignature: (payload: SignaturePayload) => Promise<void>

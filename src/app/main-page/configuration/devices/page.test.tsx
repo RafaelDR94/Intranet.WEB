@@ -1,0 +1,86 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import DevicesPage from './page';
+
+Object.assign(globalThis, { React });
+
+const fetchUserPasskeysMock = vi.fn();
+const deleteUserPasskeyMock = vi.fn();
+
+const authState = {
+  user: { idUser: 'u-1' },
+  userPasskeys: [
+    {
+      id: 'pk-1',
+      idUser: 'u-1',
+      friendlyName: 'iPhone Tania',
+      createdAt: null,
+      lastUsedAt: null,
+    },
+    {
+      id: 'pk-2',
+      idUser: 'u-1',
+      friendlyName: 'Laptop 0123',
+      createdAt: null,
+      lastUsedAt: null,
+    },
+  ],
+  fetchingUserPasskeys: false,
+  deletingUserPasskey: false,
+  fetchUserPasskeys: fetchUserPasskeysMock,
+  deleteUserPasskey: deleteUserPasskeyMock,
+};
+
+vi.mock('@/app/stores/useAuthStore/useAuthStore', () => ({
+  useAuthStore: (selector: (state: typeof authState) => unknown) => selector(authState),
+}));
+
+describe('DevicesPage', () => {
+  beforeEach(() => {
+    fetchUserPasskeysMock.mockClear();
+    deleteUserPasskeyMock.mockClear();
+    authState.userPasskeys = [
+      {
+        id: 'pk-1',
+        idUser: 'u-1',
+        friendlyName: 'iPhone Tania',
+        createdAt: null,
+        lastUsedAt: null,
+      },
+      {
+        id: 'pk-2',
+        idUser: 'u-1',
+        friendlyName: 'Laptop 0123',
+        createdAt: null,
+        lastUsedAt: null,
+      },
+    ];
+    authState.fetchingUserPasskeys = false;
+    authState.deletingUserPasskey = false;
+  });
+
+  it('renders devices management view and fetches passkeys', async () => {
+    render(<DevicesPage />);
+
+    expect(screen.getByRole('button', { name: /administraci.*dispositivos/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /nuevo dispositivo/i })).toBeInTheDocument();
+    expect(screen.getByText(/dispositivos con inicio de sesi.*n en la intranet/i)).toBeInTheDocument();
+    expect(screen.getByText('iPhone Tania')).toBeInTheDocument();
+    expect(screen.getByText('Laptop 0123')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /desvincular dispositivo/i })).toHaveLength(2);
+
+    await waitFor(() => {
+      expect(fetchUserPasskeysMock).toHaveBeenCalledWith('u-1');
+    });
+  });
+
+  it('calls delete action on unlink button click', () => {
+    render(<DevicesPage />);
+
+    fireEvent.click(screen.getAllByRole('button', { name: /desvincular dispositivo/i })[0]);
+
+    expect(deleteUserPasskeyMock).toHaveBeenCalledWith('pk-1');
+  });
+});

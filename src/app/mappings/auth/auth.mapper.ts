@@ -177,17 +177,23 @@ export const AuthChallengeVerifyResponseMap = (
 ): AuthChallengeVerifyResponse => {
   const source =
     raw?.challengeId != null || raw?.verified != null ? raw : (raw?.data ?? raw)
+  const sourceData = source?.data ?? source
+  const inferredVerified =
+    source?.verified != null
+      ? toBoolean(source?.verified)
+      : toString(source?.nextStep) === 'LoginCompleted'
 
   return {
     challengeId: toString(source?.challengeId),
-    verified: toBoolean(source?.verified),
+    verified: inferredVerified,
     purpose: toString(source?.purpose),
     nextStep: toString(source?.nextStep),
     data:
-      source?.data == null
+      sourceData == null
         ? null
         : {
-            token: toString(source?.data?.token),
+            ...(typeof sourceData === 'object' ? sourceData : {}),
+            token: toString(sourceData?.token),
           },
   }
 }

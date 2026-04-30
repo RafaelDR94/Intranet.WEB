@@ -33,15 +33,13 @@ describe('recoverPassword util', () => {
     const response = await recoverPassword(set, get, {
       email: 'u',
       type: 'Email',
-      challengeId: 'prev-challenge',
-      idUser: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      phoneNumber: '',
     })
     expect(postSpy).toHaveBeenCalledWith('/Auth/Challenge/Start', {
       purpose: 'PasswordRecovery',
       method: 'Email',
       email: 'u',
-      challengeId: 'prev-challenge',
-      idUser: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      phoneNumber: '',
     })
     expect(state.successRecoverPassword).toBe(true)
     expect(state.recoverPasswordChallenge?.challengeId).toBe('uuid')

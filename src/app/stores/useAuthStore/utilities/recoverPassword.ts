@@ -17,7 +17,7 @@ import {
 
 export const recoverPassword = async (
   set: Set,
-  get: Get,
+  _get: Get,
   payload: RecoverPasswordPayload
 ): Promise<RecoverPasswordResponse | null> => {
   set({
@@ -44,15 +44,10 @@ export const recoverPassword = async (
     }
 
     const post = pPost(requireGateway('post'))
-    const state = get()
     const postPayload = PostRecoverPasswordChallengeStartMap({
-      purpose: 'PasswordRecovery',
+      purpose: payload.purpose ?? 'PasswordRecovery',
       ...payload,
-      challengeId: payload.challengeId ?? state.recoverPasswordChallenge?.challengeId,
-      idUser:
-        payload.idUser ??
-        state.user?.idUser ??
-        state.userRemebered?.idUser,
+      phoneNumber: payload.phoneNumber ?? '',
     })
     const response = await post(
       AuthChallengeStart,
