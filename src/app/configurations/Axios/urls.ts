@@ -102,6 +102,15 @@ export const EmployeesByIdDepartment =
   process.env.NEXT_PUBLIC_EMPLOYEES_BY_ID_DEPARTMENT ?? "/Employees/ByIdDepartment";
 export const EmployeesActive = process.env.NEXT_PUBLIC_EMPLOYEES_ACTIVE_ID ?? "/Employees/Activate";
 export const EmployeesIsActive = process.env.NEXT_PUBLIC_EMPLOYEES_IS_ACTIVE ?? "Employees/EmployeesActive";
+export const EmployeesWithoutActiveUser =
+  process.env.NEXT_PUBLIC_EMPLOYEES_WITHOUT_ACTIVE_USER ??
+  "/Employees/WithoutActiveUser";
+export const EmployeesActiveUsers =
+  process.env.NEXT_PUBLIC_EMPLOYEES_ACTIVE_USERS ??
+  "/Employees/ActiveUsers";
+export const EmployeesDevicesAssigned =
+  process.env.NEXT_PUBLIC_EMPLOYEES_DEVICES_ASSIGNED ??
+  "/Employees/DevicesAssigned";
 
 export const Statuses = process.env.NEXT_PUBLIC_STATUS ?? "/Status";
 export const StatusByType = process.env.NEXT_PUBLIC_STATUSBYTYPE ?? "/Status/ByType";
@@ -184,6 +193,8 @@ export const DevicesAssigned = process.env.NEXT_PUBLIC_DEVICES_ASSIGNED ?? "/Ass
 export const Devices = process.env.NEXT_PUBLIC_DEVICES ?? "/Assets/Devices";
 
 export const Users = process.env.NEXT_PUBLIC_USERS ?? "/Users";
+export const UsersProfile =
+  process.env.NEXT_PUBLIC_USERS_PROFILE ?? "/Users/Profile";
 export const UsersMfa = process.env.NEXT_PUBLIC_USERS_MFA ?? "/Users/Mfa";
 export const UsersMfaById = process.env.NEXT_PUBLIC_USERS_MFA_BY_ID ?? "/Users/Mfa";
 export const UsersMfaMethod = process.env.NEXT_PUBLIC_USERS_MFA_METHOD ?? "/Users/Mfa/Method";

@@ -120,6 +120,8 @@ const buildEmployee = (
   workposition,
   user: buildUser(`user-${id}`, `${firstname.toLowerCase()}.${lastname.toLowerCase()}`, id),
   is_active: true,
+  is_gerence: false,
+  dr_fingerprint: false,
   fullname: `${firstname} ${lastname}`.trim(),
   workposition_name: workposition.name,
   employee_phone: '',

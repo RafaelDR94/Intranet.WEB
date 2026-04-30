@@ -51,7 +51,7 @@ export const updateUser = async (
       user: nextDetail,
     });
 
-    return updated;
+    return updated ?? nextDetail ?? null;
   } catch (err) {
     const e = normalizeApiError(err);
     set({

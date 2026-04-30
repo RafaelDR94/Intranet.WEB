@@ -101,7 +101,7 @@ describe('FileUploader component', () => {
     expect(screen.getByTestId('uploader1')).toBeInTheDocument();
   });
 
-  it('muestra un archivo inicial y llama a onFile', async () => {
+  it('muestra un archivo inicial sin llamar a onFile', async () => {
     const onFile = vi.fn();
     render(
       <FileUploader
@@ -117,7 +117,7 @@ describe('FileUploader component', () => {
     );
 
     expect(await screen.findByText('inicial.txt')).toBeInTheDocument();
-    await waitFor(() => expect(onFile).toHaveBeenCalled());
+    expect(onFile).not.toHaveBeenCalled();
   });
 
 

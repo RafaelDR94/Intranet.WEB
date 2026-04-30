@@ -48,4 +48,12 @@ export interface ImageUploaderExpandedProps {
   previewCoverMode?: boolean;
   /** Permite seleccionar varias imágenes. */
   multiple?: boolean;
+  /** Clases adicionales para el wrapper del preview. */
+  previewWrapperClassName?: string;
+  /** Clases adicionales para la imagen del preview. */
+  previewImageClassName?: string;
+  /** Clases adicionales para el contenedor de acciones del preview. */
+  previewActionsClassName?: string;
+  /** Clases adicionales para el botón de cambio en preview. */
+  previewButtonClassName?: string;
 }

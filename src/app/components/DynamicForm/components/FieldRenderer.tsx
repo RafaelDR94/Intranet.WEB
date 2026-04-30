@@ -44,6 +44,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
     label: field.label,
     name: field.name,
     placeholder: field.placeholder,
+    autoComplete: field.autoComplete,
     helperText,
     variant,
     inputSize: field.inputSize || "md",

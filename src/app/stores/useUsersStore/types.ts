@@ -2,7 +2,10 @@ import type {
   CreateUserPayload,
   RolePost,
   ToggleUserActivePayload,
+  UpdateUserProfilePayload,
   UpdateUserPayload,
+  UserEmployeeSummary,
+  UserProfilePut,
   UserRole,
   UserSignaturePayload,
   UserType,
@@ -13,6 +16,10 @@ import type {
 export type UsersState = {
   /** Users list as returned by the API */
   users: UserType[];
+  /** Employees without an active user account */
+  employeesWithoutActiveUser: UserEmployeeSummary[];
+  /** Employees with an active user account */
+  employeesWithActiveUser: UserEmployeeSummary[];
   /** Currently selected user (detail) */
   user?: UserType;
   /** Catalog of roles available for users */
@@ -22,6 +29,10 @@ export type UsersState = {
   loading: boolean;
   /** Loading detail flag */
   loadingById: boolean;
+  /** Loading employees without active user flag */
+  loadingWithoutActiveUser: boolean;
+  /** Loading employees with active user flag */
+  loadingWithActiveUser: boolean;
   /** Loading roles flag */
   loadingRoles: boolean;
   /** Create request in progress */
@@ -40,6 +51,8 @@ export type UsersState = {
   /** Success flags */
   successGet: boolean;
   successGetById: boolean;
+  successGetWithoutActiveUser: boolean;
+  successGetWithActiveUser: boolean;
   successPost: boolean;
   successPut: boolean;
   successDelete: boolean;
@@ -55,6 +68,14 @@ export type UsersState = {
 
   /** Fetch full users list */
   fetchUsers: (force?: boolean) => Promise<void>;
+  /** Fetch employees without an active user account */
+  fetchEmployeesWithoutActiveUser: (
+    force?: boolean
+  ) => Promise<UserEmployeeSummary[]>;
+  /** Fetch employees with an active user account */
+  fetchEmployeesWithActiveUser: (
+    force?: boolean
+  ) => Promise<UserEmployeeSummary[]>;
   /** Fetch user by identifier */
   fetchUserById: (id: string, force?: boolean) => Promise<UserType | null>;
   /** Create a new user */
@@ -64,6 +85,10 @@ export type UsersState = {
   /** Update an existing user */
   updateUser: (
     payload: UpdateUserPayload | UserPut
+  ) => Promise<UserType | null>;
+  /** Update user profile information */
+  updateUserProfile: (
+    payload: UpdateUserProfilePayload | UserProfilePut
   ) => Promise<UserType | null>;
   /** Delete an existing user */
   deleteUser: (id: string) => Promise<boolean>;

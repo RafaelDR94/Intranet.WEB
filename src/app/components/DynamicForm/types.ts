@@ -77,9 +77,10 @@ export interface FieldModel {
   name: string;
   label: string;
   placeholder?: string;
+  autoComplete?: string;
   value: string | string[] | number | boolean | File | InitialFile | SelectedImage[] | File[] | null;
   helperText?: string;
-  inputSize?: 'md' | 'lg';
+  inputSize?: 'sm' | 'md' | 'lg';
   variant?: Variant;
   options?: ({ label: string; value: string } | CheckBoxListOption)[];
   validations?: ValidationRule[];

@@ -21,6 +21,8 @@ export type EmployeeType = {
   workposition: WorkPositionType;
   user: UserType | null;
   is_active: boolean;
+  is_gerence: boolean;
+  dr_fingerprint: boolean;
   fullname: string;
   workposition_name: string;
   employee_phone: string;
