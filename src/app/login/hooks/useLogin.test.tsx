@@ -12,6 +12,9 @@ const mockClearRecoverPasswordState = vi.fn();
 const mockClearFlow = vi.fn();
 const mockSetLookupData = vi.fn();
 const mockSetVerificationChallenge = vi.fn();
+const mockAuthStoreState = {
+  user: null as { changePassword?: boolean } | null,
+};
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
@@ -30,12 +33,17 @@ vi.mock("../context/RecoverPasswordFlowContext", () => ({
 }));
 
 vi.mock("@/app/stores/useAuthStore/useAuthStore", () => ({
-  useAuthStore: (selector: (state: any) => unknown) =>
-    selector({
-      fetchRecoverChannels: mockFetchRecoverChannels,
-      recoverPassword: mockRecoverPassword,
-      clearRecoverPasswordState: mockClearRecoverPasswordState,
-    }),
+  useAuthStore: Object.assign(
+    (selector: (state: any) => unknown) =>
+      selector({
+        fetchRecoverChannels: mockFetchRecoverChannels,
+        recoverPassword: mockRecoverPassword,
+        clearRecoverPasswordState: mockClearRecoverPasswordState,
+      }),
+    {
+      getState: () => mockAuthStoreState,
+    },
+  ),
 }));
 
 const localStorageMock = (() => {
@@ -62,6 +70,7 @@ describe("useLogin hook", () => {
     localStorage.clear();
     mockFetchRecoverChannels.mockResolvedValue(null);
     mockRecoverPassword.mockResolvedValue(null);
+    mockAuthStoreState.user = null;
   });
 
   it("carga credenciales recordadas desde localStorage", () => {

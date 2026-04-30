@@ -75,40 +75,52 @@ export default function useChangePassword(
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { error, resettingPasswordRecovery, resetPasswordRecovery, resetFlags } =
-    useAuthStore(
-      (state) => ({
-        error: state.error,
-        resettingPasswordRecovery: state.resettingPasswordRecovery,
-        resetPasswordRecovery: state.resetPasswordRecovery,
-        resetFlags: state.resetFlags,
-      }),
-      shallow,
-    );
-
-  const requirements = useMemo(
-    () => buildRequirements(newPassword),
-    [newPassword],
+  const {
+    error,
+    user,
+    loading,
+    resettingPasswordRecovery,
+    successChangePassword,
+    resetPasswordRecovery,
+    changePassword,
+    resetFlags,
+  } = useAuthStore(
+    (state) => ({
+      error: state.error,
+      user: state.user,
+      loading: state.loading,
+      resettingPasswordRecovery: state.resettingPasswordRecovery,
+      successChangePassword: state.successChangePassword,
+      resetPasswordRecovery: state.resetPasswordRecovery,
+      changePassword: state.changePassword,
+      resetFlags: state.resetFlags,
+    }),
+    shallow,
   );
 
-  const allRequirementsSatisfied = requirements.every(
-    (requirement) => requirement.satisfied,
-  );
+  const userEmail = user?.email ?? user?.userName ?? "";
+  const isForcedPasswordChangeFlow =
+    !challengeId && user?.changePassword === true && Boolean(userEmail);
+
+  const requirements = useMemo(() => buildRequirements(newPassword), [newPassword]);
+
+  const allRequirementsSatisfied = requirements.every((requirement) => requirement.satisfied);
   const passwordsMatch =
     newPassword.length > 0 &&
     confirmPassword.length > 0 &&
     newPassword === confirmPassword;
   const canSubmit =
-    Boolean(challengeId) &&
+    (Boolean(challengeId) || isForcedPasswordChangeFlow) &&
     allRequirementsSatisfied &&
     passwordsMatch &&
-    !resettingPasswordRecovery;
+    !resettingPasswordRecovery &&
+    !loading;
 
   useEffect(() => {
-    if (!challengeId) {
+    if (!challengeId && !isForcedPasswordChangeFlow) {
       router.replace("/login");
     }
-  }, [challengeId, router]);
+  }, [challengeId, isForcedPasswordChangeFlow, router]);
 
   useEffect(() => {
     if (error) {
@@ -117,13 +129,23 @@ export default function useChangePassword(
   }, [error]);
 
   useEffect(() => {
+    if (!successChangePassword || !isForcedPasswordChangeFlow) {
+      return;
+    }
+
+    setIsSuccess(true);
+    setSuccessMessage("Tu contraseña fue actualizada correctamente.");
+    resetFlags();
+  }, [isForcedPasswordChangeFlow, resetFlags, successChangePassword]);
+
+  useEffect(() => {
     return () => {
       resetFlags();
     };
   }, [resetFlags]);
 
   const handleSubmit = useCallback(async () => {
-    if (!challengeId) {
+    if (!challengeId && !isForcedPasswordChangeFlow) {
       setSubmitError("No encontramos un desafío activo para restablecer la contraseña.");
       return;
     }
@@ -140,6 +162,15 @@ export default function useChangePassword(
 
     setSubmitError("");
 
+    if (isForcedPasswordChangeFlow) {
+      await changePassword({
+        email: userEmail,
+        newPassword,
+        changePassword: false,
+      });
+      return;
+    }
+
     const response = await resetPasswordRecovery({
       challengeId,
       newPassword,
@@ -155,12 +186,15 @@ export default function useChangePassword(
     resetFlags();
   }, [
     allRequirementsSatisfied,
+    changePassword,
     challengeId,
     confirmPassword,
+    isForcedPasswordChangeFlow,
     newPassword,
     passwordsMatch,
     resetFlags,
     resetPasswordRecovery,
+    userEmail,
   ]);
 
   const handleGoToLogin = useCallback(() => {
@@ -173,7 +207,7 @@ export default function useChangePassword(
     challengeId,
     newPassword,
     confirmPassword,
-    isLoading: resettingPasswordRecovery,
+    isLoading: resettingPasswordRecovery || loading,
     isSuccess,
     successMessage,
     submitError,
@@ -189,8 +223,7 @@ export default function useChangePassword(
       setSubmitError("");
       setConfirmPassword(value);
     },
-    toggleNewPasswordVisibility: () =>
-      setShowNewPassword((current) => !current),
+    toggleNewPasswordVisibility: () => setShowNewPassword((current) => !current),
     toggleConfirmPasswordVisibility: () =>
       setShowConfirmPassword((current) => !current),
     handleSubmit,
