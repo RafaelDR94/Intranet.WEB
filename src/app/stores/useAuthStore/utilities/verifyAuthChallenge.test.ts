@@ -98,4 +98,51 @@ describe('verifyAuthChallenge util', () => {
     })
     expect(state.successAuthChallengeVerification).toBe(true)
   })
+
+  it('normaliza treeFirebase como string al guardar usuario desde verify', async () => {
+    postSpy.mockResolvedValueOnce({
+      data: {
+        data: {
+          challengeId: 'guid-tree',
+          purpose: 'LoginMfa',
+          nextStep: 'LoginCompleted',
+          token: 'token-tree',
+          idUser: 'user-id',
+          idEmployee: 'employee-id',
+          userName: 'user.name',
+          fullName: 'Usuario Prueba',
+          employeeNumber: '000001',
+          treeFirebase: { login: { Acces: true } },
+        },
+      },
+    })
+
+    const state: Partial<AuthState> = {
+      loading: false,
+      verifyingAuthChallenge: false,
+      successAuthChallengeVerification: false,
+      authChallengeVerification: undefined,
+      user: null,
+      token: null,
+    }
+    const set: Set = (partial) =>
+      Object.assign(
+        state,
+        typeof partial === 'function' ? partial(state as AuthState) : partial,
+      )
+    const get: Get = () => state as AuthState
+
+    await verifyAuthChallenge(set, get, {
+      challengeId: 'guid-tree',
+      method: 'Email',
+      code: '123456',
+      verificationToken: null,
+    })
+
+    expect(state.user).toBeTruthy()
+    expect(typeof state.user?.treeFirebase).toBe('string')
+    expect(state.user?.treeFirebase).toBe(
+      JSON.stringify({ login: { Acces: true } }),
+    )
+  })
 })

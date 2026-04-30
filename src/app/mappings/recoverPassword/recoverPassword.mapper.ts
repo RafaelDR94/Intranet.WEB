@@ -7,11 +7,7 @@ type RecoverPasswordSource = {
   purpose?: unknown;
   email?: unknown;
   type?: unknown;
-  challengeId?: unknown;
-  challengedat?: unknown;
-  challengeData?: unknown;
-  idUser?: unknown;
-  userId?: unknown;
+  phoneNumber?: unknown;
 };
 
 const toString = (value: unknown, fallback = ""): string =>
@@ -39,8 +35,7 @@ export const PostRecoverPasswordChallengeStartMap = (
   purpose: toPurpose(src.purpose),
   method: toMethod(src.type),
   email: toString(src.email),
-  challengeId: toString(src.challengeId ?? src.challengedat ?? src.challengeData),
-  idUser: toString(src.idUser ?? src.userId),
+  phoneNumber: toString(src.phoneNumber),
 });
 
 /**

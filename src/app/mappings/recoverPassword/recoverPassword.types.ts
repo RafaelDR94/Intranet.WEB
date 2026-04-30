@@ -6,8 +6,7 @@ export type PostRecoverPasswordChallengeStart = {
   purpose: ChallengePurpose;
   method: ChallengeMethod;
   email: string;
-  challengeId: string;
-  idUser: string;
+  phoneNumber: string;
 };
 
 export type RecoverPasswordChallengeStartResponse = {

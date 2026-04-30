@@ -16,6 +16,7 @@ import type {
 type VerificationChallenge = {
   challengeId: string;
   type: "Email" | "SMS";
+  purpose: "PasswordRecovery" | "LoginMfa";
   maskedDestination: string;
   expiresInSeconds: number;
   nextStep: string;
@@ -36,6 +37,7 @@ type RecoverPasswordFlowContextValue = {
   setVerificationChallenge: (
     challenge: RecoverPasswordResponse,
     method: "Email" | "SMS",
+    purpose?: "PasswordRecovery" | "LoginMfa",
   ) => void;
   setResetChallenge: (challengeId: string) => void;
   clearFlow: () => void;
@@ -90,11 +92,16 @@ export const RecoverPasswordFlowProvider = ({
   }, []);
 
   const setVerificationChallenge = useCallback(
-    (challenge: RecoverPasswordResponse, method: "Email" | "SMS") => {
+    (
+      challenge: RecoverPasswordResponse,
+      method: "Email" | "SMS",
+      purpose: "PasswordRecovery" | "LoginMfa" = "PasswordRecovery",
+    ) => {
       setSelectedMethodState(method);
       setVerificationChallengeState({
         challengeId: challenge.challengeId,
         type: challenge.type,
+        purpose,
         maskedDestination:
           challenge.type === "SMS"
             ? challenge.phoneMasked ?? ""

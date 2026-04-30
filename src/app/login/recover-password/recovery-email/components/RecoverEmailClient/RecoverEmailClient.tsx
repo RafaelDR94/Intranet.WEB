@@ -49,6 +49,7 @@ const RecoverEmailClient = () => {
   const router = useRouter();
   const {
     email,
+    recoverChannels,
     selectedMethod,
     verificationChallenge,
     setResetChallenge,
@@ -77,6 +78,7 @@ const RecoverEmailClient = () => {
     recoverPassword,
     verifyPasswordRecoveryCode,
     verifyPasswordRecoverySms,
+    verifyAuthChallenge,
     clearRecoverPasswordState,
   } = useAuthStore((state) => ({
     error: state.error,
@@ -85,6 +87,7 @@ const RecoverEmailClient = () => {
     recoverPassword: state.recoverPassword,
     verifyPasswordRecoveryCode: state.verifyPasswordRecoveryCode,
     verifyPasswordRecoverySms: state.verifyPasswordRecoverySms,
+    verifyAuthChallenge: state.verifyAuthChallenge,
     clearRecoverPasswordState: state.clearRecoverPasswordState,
   }));
 
@@ -112,6 +115,9 @@ const RecoverEmailClient = () => {
   );
 
   const hintDestination = destinationMasked || email;
+  const availableMethodsCount = recoverChannels.filter((channel) =>
+    Boolean(channel.value?.trim()),
+  ).length;
   const code = digits.join("");
   const isSubmitting = recoveringPassword || verifyingPasswordRecovery;
   const hasChallenge = Boolean(challengeId);
@@ -229,6 +235,23 @@ const RecoverEmailClient = () => {
 
     setLocalError("");
 
+    if (verificationChallenge?.purpose === "LoginMfa") {
+      const response = await verifyAuthChallenge({
+        challengeId,
+        method,
+        code: method === "Email" ? code : null,
+        verificationToken: method === "SMS" ? code : null,
+      });
+
+      if (!response) {
+        return;
+      }
+
+      clearRecoverPasswordState();
+      router.push("/main-page/home/announcements/");
+      return;
+    }
+
     const response =
       method === "SMS"
         ? await verifyPasswordRecoverySms({
@@ -344,14 +367,16 @@ const RecoverEmailClient = () => {
               </button>
             )}
 
-            <Link
-              href="/login/recover-password/verification-method/"
-              className={viewStyles.changeMethod}
-              prefetch={false}
-            >
-              <ArrowLeftIcon className={viewStyles.changeMethodIcon} />
-              Usar otro método
-            </Link>
+            {availableMethodsCount > 1 && (
+              <Link
+                href="/login/recover-password/verification-method/"
+                className={viewStyles.changeMethod}
+                prefetch={false}
+              >
+                <ArrowLeftIcon className={viewStyles.changeMethodIcon} />
+                Usar otro método
+              </Link>
+            )}
           </div>
         </form>
       </div>

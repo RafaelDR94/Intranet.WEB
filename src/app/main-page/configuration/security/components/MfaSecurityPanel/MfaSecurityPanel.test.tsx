@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+﻿import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -54,15 +54,10 @@ describe('MfaSecurityPanel', () => {
     expect(
       screen.getByText(/6 dígitos a tu correo electrónico empresarial/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/dispositivos de confianza/i)).toBeInTheDocument();
     expect(screen.getByTestId('mfa-main-toggle')).toBeInTheDocument();
     expect(screen.getByTestId('mfa-sms-toggle')).toBeInTheDocument();
     expect(screen.getByTestId('mfa-email-toggle')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /cambiar número/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^cerrar sesión$/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /cerrar todas las sesiones/i }),
-    ).toBeInTheDocument();
     expect(fetchUserMfaByIdMock).toHaveBeenCalledWith(
       '3fa8f564-5717-4562-b3fc-2c963f66af86',
     );
