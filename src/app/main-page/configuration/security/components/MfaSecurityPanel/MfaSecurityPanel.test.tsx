@@ -108,6 +108,28 @@ describe('MfaSecurityPanel', () => {
     });
   });
 
+  it('disables SMS and email toggles when main MFA is off', () => {
+    authState.user.twoFactorEnabled = false;
+    authState.userMfaById = {
+      idUser: '3fa8f564-5717-4562-b3fc-2c963f66af86',
+      twoFactorEnabled: false,
+      methods: [],
+    };
+
+    render(<MfaSecurityPanel />);
+
+    const smsToggle = screen.getByTestId('mfa-sms-toggle');
+    const emailToggle = screen.getByTestId('mfa-email-toggle');
+
+    expect(smsToggle).toBeDisabled();
+    expect(emailToggle).toBeDisabled();
+
+    fireEvent.click(smsToggle);
+    fireEvent.click(emailToggle);
+
+    expect(changeMfaMethodStatusMock).not.toHaveBeenCalled();
+  });
+
   it('uses Users/Mfa twoFactorEnabled to paint main toggle', () => {
     authState.user.twoFactorEnabled = true;
     authState.userMfaById = {

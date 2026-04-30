@@ -245,7 +245,12 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
         setRememberedPassword("");
       }
 
-      router.push("/main-page");
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser?.changePassword === true) {
+        router.push("/login/recover-password/recovery-new-password/");
+      } else {
+        router.push("/main-page");
+      }
     } catch (error: unknown) {
       if (error instanceof LoginMfaRequiredError) {
         const options = (error.payload.availableMethods ?? []).filter((option) =>

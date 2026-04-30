@@ -70,6 +70,8 @@ const MfaSecurityPanel = () => {
       isEnabled,
     });
   };
+  const isMethodToggleDisabled =
+    changingMFAMethod || fetchingUserMfaById || !user?.idUser || !mfaEnabled;
 
   return (
     <section className={panel}>
@@ -108,10 +110,10 @@ const MfaSecurityPanel = () => {
               role="switch"
               aria-checked={mfaSmsEnabled}
               aria-label="Activar método SMS"
-              disabled={changingMFAMethod || fetchingUserMfaById || !user?.idUser}
+              disabled={isMethodToggleDisabled}
               className={clsx(
                 mfaSmsEnabled ? toggleOn : toggleOff,
-                (changingMFAMethod || fetchingUserMfaById || !user?.idUser) && "cursor-not-allowed opacity-70",
+                isMethodToggleDisabled && "cursor-not-allowed opacity-70",
               )}
               data-testid="mfa-sms-toggle"
               onClick={() => handleToggleMfaMethod("SMS", !mfaSmsEnabled)}
@@ -139,10 +141,10 @@ const MfaSecurityPanel = () => {
               role="switch"
               aria-checked={mfaEmailEnabled}
               aria-label="Activar método email"
-              disabled={changingMFAMethod || fetchingUserMfaById || !user?.idUser}
+              disabled={isMethodToggleDisabled}
               className={clsx(
                 mfaEmailEnabled ? toggleOn : toggleOff,
-                (changingMFAMethod || fetchingUserMfaById || !user?.idUser) && "cursor-not-allowed opacity-70",
+                isMethodToggleDisabled && "cursor-not-allowed opacity-70",
               )}
               data-testid="mfa-email-toggle"
               onClick={() => handleToggleMfaMethod("EMAIL", !mfaEmailEnabled)}
