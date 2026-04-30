@@ -1,10 +1,14 @@
-import { render, screen } from '@testing-library/react';
+﻿import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 
 import SecurityPage from './page';
 
 Object.assign(globalThis, { React });
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
 
 vi.mock('../userconfiguration/components/Password/Password', () => ({
   __esModule: true,
@@ -34,10 +38,6 @@ describe('SecurityPage', () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /cambiar número/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /cerrar sesión/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /cerrar todas las sesiones/i }),
-    ).toBeInTheDocument();
     expect(screen.queryByText('CreateEmployee')).toBeNull();
   });
 });

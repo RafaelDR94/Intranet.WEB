@@ -10,6 +10,18 @@ import { AuthChallengeVerify } from '@/app/configurations/Axios/urls'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pPost } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
+import type { User } from '@/app/context/AuthContext/types'
+import { saveUser } from '@/app/context/AuthContext/utilities/AuthService'
+import { setInterceptor } from './interceptor'
+
+const isUserLike = (value: unknown): value is User => {
+  if (!value || typeof value !== 'object') {
+    return false
+  }
+
+  const source = value as Record<string, unknown>
+  return typeof source.token === 'string' && source.token.length > 0
+}
 
 export const verifyAuthChallenge = async (
   set: Set,
@@ -31,12 +43,43 @@ export const verifyAuthChallenge = async (
       PostAuthChallengeVerifyMap(payload),
     )
     const verification = AuthChallengeVerifyResponseMap(response.data)
+    const maybeUser = isUserLike(verification.data) ? verification.data : null
+    const normalizedUser = maybeUser
+      ? ({
+          ...maybeUser,
+          treeFirebase:
+            typeof maybeUser.treeFirebase === 'string'
+              ? maybeUser.treeFirebase
+              : JSON.stringify(maybeUser.treeFirebase ?? {}),
+        } as User)
+      : null
+    const token =
+      normalizedUser?.token ??
+      (typeof verification.data?.token === 'string'
+        ? verification.data.token
+        : typeof verification.data?.accessToken === 'string'
+          ? verification.data.accessToken
+          : null)
+
+    if (verification.verified && normalizedUser && token) {
+      try {
+        await saveUser(normalizedUser)
+        setInterceptor(token)
+      } catch {
+        // no-op: no bloquear el flujo de login MFA por persistencia local
+      }
+    }
 
     set({
       loading: false,
       verifyingAuthChallenge: false,
       successAuthChallengeVerification: true,
       authChallengeVerification: verification,
+      ...(verification.verified &&
+      normalizedUser &&
+      token
+        ? { user: normalizedUser, token, successLogin: true }
+        : {}),
     })
 
     return verification

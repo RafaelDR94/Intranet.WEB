@@ -107,6 +107,14 @@ export type UserMfaMethodPayload = {
   isEnabled: boolean;
 };
 
+export type UserPasskeyResponse = {
+  id: string;
+  idUser: string;
+  friendlyName: string | null;
+  createdAt: string | null;
+  lastUsedAt: string | null;
+};
+
 
 
 export type UserRol = UserRole;

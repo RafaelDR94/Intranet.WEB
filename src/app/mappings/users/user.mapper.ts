@@ -8,6 +8,7 @@ import {
   UserMfaMethodPayload,
   UserMfaMethodResponse,
   UserMfaPayload,
+  UserPasskeyResponse,
   UserPost,
   UserPut,
   UserRole,
@@ -268,3 +269,17 @@ export const mapUserMfaMethodPayload = (
   method: toMfaMethodPayload(payload?.method),
   isEnabled: toBoolean(payload?.isEnabled),
 });
+
+export const mapUserPasskeyResponse = (raw: any): UserPasskeyResponse => ({
+  id: toString(raw?.id ?? raw?.passkeyId ?? raw?.credentialId),
+  idUser: toString(raw?.idUser ?? raw?.userId ?? raw?.id_user),
+  friendlyName: toNullableString(raw?.friendlyName ?? raw?.name ?? raw?.deviceName),
+  createdAt: toNullableString(raw?.createdAt ?? raw?.created_at),
+  lastUsedAt: toNullableString(raw?.lastUsedAt ?? raw?.last_used_at),
+});
+
+export const mapUserPasskeysResponse = (raw: any): UserPasskeyResponse[] => {
+  const source = raw?.data ?? raw;
+  const list = Array.isArray(source) ? source : [];
+  return list.map(mapUserPasskeyResponse);
+};

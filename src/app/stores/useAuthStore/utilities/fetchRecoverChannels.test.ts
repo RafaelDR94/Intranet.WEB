@@ -45,7 +45,7 @@ describe('fetchRecoverChannels util', () => {
       { type: 'SMS', value: null },
     ])
     expect(getSpy).toHaveBeenCalledWith(
-      '/Auth/RecoverChannels?email=test%40drsecurity.net',
+      '/Auth/AuthenticationMethods?email=test%40drsecurity.net',
     )
     expect(state.successRecoverChannels).toBe(true)
     expect(state.recoverChannels).toEqual(response)

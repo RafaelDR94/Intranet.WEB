@@ -26,10 +26,12 @@ const recoverPasswordIntroStyles = {
 
 const RecoverPasswordPage = () => {
   const router = useRouter();
-  const { email, clearFlow, setLookupData } = useRecoverPasswordFlow();
+  const { email, clearFlow, setLookupData, setVerificationChallenge } =
+    useRecoverPasswordFlow();
   const fetchRecoverChannels = useAuthStore(
     (state) => state.fetchRecoverChannels,
   );
+  const recoverPassword = useAuthStore((state) => state.recoverPassword);
   const clearRecoverPasswordState = useAuthStore(
     (state) => state.clearRecoverPasswordState,
   );
@@ -69,6 +71,29 @@ const RecoverPasswordPage = () => {
       setSubmitError(
         "No encontramos métodos de verificación disponibles para ese correo.",
       );
+      return;
+    }
+
+    if (availableChannels.length === 1) {
+      const selectedMethod = availableChannels[0].type;
+      const challenge = await recoverPassword({
+        email: nextEmail,
+        type: selectedMethod,
+      });
+
+      setIsLoading(false);
+
+      if (!challenge) {
+        setSubmitError(
+          "No se pudo enviar el cÃ³digo de verificaciÃ³n. IntÃ©ntalo de nuevo.",
+        );
+        return;
+      }
+
+      setLookupData(nextEmail, channels ?? []);
+      setVerificationChallenge(challenge, selectedMethod);
+      clearRecoverPasswordState();
+      router.push("/login/recover-password/recovery-email/");
       return;
     }
 

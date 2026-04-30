@@ -7,10 +7,8 @@ import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
 import {
   actionColumn,
-  dangerAction,
   header,
   linkAction,
-  outlineAction,
   panel,
   row,
   rowContent,
@@ -154,7 +152,41 @@ const MfaSecurityPanel = () => {
           </div>
         </div>
 
-        <div className={row}>
+        {/* <div className={row}>
+          <div className={rowContent}>
+            <h3 className={rowTitle}>Acceso con huella o passkey</h3>
+            <p className={rowDescription}>
+              Inicia sesión con tu dispositivo (huella, Face ID o PIN). Tu
+              identidad se valida sin compartir información.
+            </p>
+          </div>
+
+          <div className={actionColumn}>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={mfaEnabled}
+              aria-label="Activar acceso con huella o passkey"
+              disabled={changingMFAMethod || fetchingUserMfaById || !user?.idUser}
+              className={clsx(
+                mfaEnabled ? toggleOn : toggleOff,
+                (changingMFAMethod || fetchingUserMfaById || !user?.idUser) && "cursor-not-allowed opacity-70",
+              )}
+              data-testid="mfa-passkey-toggle"
+            >
+              <span className={mfaEnabled ? toggleThumbOn : toggleThumbOff} />
+            </button>
+            <button
+              type="button"
+              className={linkAction}
+              onClick={() => router.push("/main-page/configuration/devices")}
+            >
+              Administrar dispositivos
+            </button>
+          </div>
+        </div> */}
+
+        {/* <div className={row}>
           <div className={rowContent}>
             <h3 className={rowTitle}>Dispositivos de confianza</h3>
             <p className={rowDescription}>
@@ -163,9 +195,9 @@ const MfaSecurityPanel = () => {
               dispositivo.
             </p>
           </div>
-        </div>
+        </div> */}
 
-        <div className={row}>
+        {/* <div className={row}>
           <div className={rowContent}>
             <h3 className={rowTitle}>Cerrar sesión en este dispositivo</h3>
           </div>
@@ -173,9 +205,9 @@ const MfaSecurityPanel = () => {
           <button type="button" className={outlineAction}>
             Cerrar sesión
           </button>
-        </div>
+        </div> */}
 
-        <div className={row}>
+        {/* <div className={row}>
           <div className={rowContent}>
             <h3 className={rowTitle}>
               Cerrar sesión en todos los dispositivos
@@ -190,7 +222,7 @@ const MfaSecurityPanel = () => {
           <button type="button" className={dangerAction}>
             Cerrar todas las sesiones
           </button>
-        </div>
+        </div> */}
       </div>
     </section>
   );

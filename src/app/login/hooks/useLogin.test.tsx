@@ -7,9 +7,11 @@ const pushMock = vi.fn();
 const mockLogin = vi.fn();
 const mockLogout = vi.fn();
 const mockFetchRecoverChannels = vi.fn();
+const mockRecoverPassword = vi.fn();
 const mockClearRecoverPasswordState = vi.fn();
 const mockClearFlow = vi.fn();
 const mockSetLookupData = vi.fn();
+const mockSetVerificationChallenge = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
@@ -23,6 +25,7 @@ vi.mock("../context/RecoverPasswordFlowContext", () => ({
   useRecoverPasswordFlow: () => ({
     clearFlow: mockClearFlow,
     setLookupData: mockSetLookupData,
+    setVerificationChallenge: mockSetVerificationChallenge,
   }),
 }));
 
@@ -30,6 +33,7 @@ vi.mock("@/app/stores/useAuthStore/useAuthStore", () => ({
   useAuthStore: (selector: (state: any) => unknown) =>
     selector({
       fetchRecoverChannels: mockFetchRecoverChannels,
+      recoverPassword: mockRecoverPassword,
       clearRecoverPasswordState: mockClearRecoverPasswordState,
     }),
 }));
@@ -57,6 +61,7 @@ describe("useLogin hook", () => {
     vi.clearAllMocks();
     localStorage.clear();
     mockFetchRecoverChannels.mockResolvedValue(null);
+    mockRecoverPassword.mockResolvedValue(null);
   });
 
   it("carga credenciales recordadas desde localStorage", () => {
@@ -153,9 +158,16 @@ describe("useLogin hook", () => {
     });
   });
 
-  it("si el email es valido y hay canales disponibles guarda el lookup y va a verification-method", async () => {
+  it("si el email es valido y hay un solo canal disponible inicia challenge y va a recovery-email", async () => {
     const channels = [{ type: "Email", value: "us***@drsecurity.net" }];
     mockFetchRecoverChannels.mockResolvedValueOnce(channels);
+    mockRecoverPassword.mockResolvedValueOnce({
+      type: "Email",
+      challengeId: "challenge-id",
+      emailMasked: "us***@drsecurity.net",
+      expiresInSeconds: 300,
+      nextStep: "VerifyCode",
+    });
 
     const { result } = renderHook(() => useLogin({ push: pushMock } as any));
 
@@ -167,14 +179,20 @@ describe("useLogin hook", () => {
       await result.current.handleForgotPassword();
     });
 
-    expect(mockClearRecoverPasswordState).toHaveBeenCalledTimes(1);
+    expect(mockClearRecoverPasswordState).toHaveBeenCalledTimes(2);
     expect(mockFetchRecoverChannels).toHaveBeenCalledWith("user@drsecurity.net");
     expect(mockSetLookupData).toHaveBeenCalledWith(
       "user@drsecurity.net",
       channels,
     );
+    expect(mockRecoverPassword).toHaveBeenCalledWith({
+      email: "user@drsecurity.net",
+      type: "Email",
+    });
+    expect(mockSetVerificationChallenge).toHaveBeenCalledTimes(1);
+    expect(mockClearRecoverPasswordState).toHaveBeenCalledTimes(2);
     expect(pushMock).toHaveBeenCalledWith(
-      "/login/recover-password/verification-method/",
+      "/login/recover-password/recovery-email/",
     );
   });
 
@@ -192,5 +210,29 @@ describe("useLogin hook", () => {
     expect(mockFetchRecoverChannels).not.toHaveBeenCalled();
     expect(mockClearFlow).toHaveBeenCalled();
     expect(pushMock).toHaveBeenCalledWith("/login/recover-password/");
+  });
+
+  it("si hay dos o mas canales mantiene la vista de seleccion de metodo", async () => {
+    const channels = [
+      { type: "Email", value: "us***@drsecurity.net" },
+      { type: "SMS", value: "+52******1234" },
+    ];
+    mockFetchRecoverChannels.mockResolvedValueOnce(channels);
+
+    const { result } = renderHook(() => useLogin({ push: pushMock } as any));
+
+    act(() => {
+      result.current.handleLoginValuesChange({ email: "user@drsecurity.net" });
+    });
+
+    await act(async () => {
+      await result.current.handleForgotPassword();
+    });
+
+    expect(mockRecoverPassword).not.toHaveBeenCalled();
+    expect(mockSetVerificationChallenge).not.toHaveBeenCalled();
+    expect(pushMock).toHaveBeenCalledWith(
+      "/login/recover-password/verification-method/",
+    );
   });
 });

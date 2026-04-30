@@ -185,7 +185,8 @@ export const getTabsFromPath = (
     'configuration': [
       { label: 'Cuenta', path: '/main-page/configuration/account' },
       { label: 'Seguridad', path: '/main-page/configuration/security' },
-      { label: 'Notificaciones', path: '/main-page/configuration/notifications' },
+      // { label: 'Notificaciones', path: '/main-page/configuration/notifications' },
+      // { label: 'Dispositivos', path: '/main-page/configuration/devices' },
     ],
   };
 
