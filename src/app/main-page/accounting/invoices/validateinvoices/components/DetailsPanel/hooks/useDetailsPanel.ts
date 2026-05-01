@@ -122,6 +122,7 @@ export const useDetailsPanel = ({
   const handleUpdateJsonSapItem = async (
     jsonSapItemIndex: number,
     sapInternalKey: string,
+    description?: string,
   ): Promise<boolean> => {
     let result = false;
 
@@ -139,7 +140,11 @@ export const useDetailsPanel = ({
         ...currentJsonSap,
         items: currentJsonSap.items.map((item, idx) =>
           idx === jsonSapItemIndex
-            ? { ...item, claveInterna: sapInternalKey }
+            ? {
+                ...item,
+                claveInterna: sapInternalKey,
+                ...(typeof description === "string" ? { descripcion: description } : {}),
+              }
             : item,
         ),
       };
@@ -260,8 +265,8 @@ export const useDetailsPanel = ({
       if (currentUpdateAction === "json_sap") {
         showAlert({
           type: "success",
-          title: "JSON SAP actualizado",
-          description: "La clave SAP del item se guardo correctamente.",
+          title: "Ajuste guardado",
+          description: "Se han guardado exitosamente los ajustes.",
           showPrimaryButton: false,
           showSecondaryButton: false,
           autoCloseMs: 1500,
