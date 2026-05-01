@@ -1,4 +1,4 @@
-﻿import { render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 
@@ -174,6 +174,66 @@ describe('DetailsPanel', () => {
     );
 
     expect(screen.getByRole('button', { name: 'Enviar a SAP' })).toBeDisabled();
+  });
+
+  it('deshabilita Enviar a SAP cuando existe warning por descripcion mayor al limite', () => {
+    useDetailsPanelMock.expenseTypeCatalog = [];
+    const setPanelOpen = vi.fn();
+    render(
+      <DetailsPanel
+        panelOpen
+        setPanelOpen={setPanelOpen}
+        selected={{
+          billingdocument_id: 'doc-2',
+          json_sap: {
+            items: [
+              {
+                itemIndex: 1,
+                claveInterna: '138',
+                claveProdServ: '90101501',
+                descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus feugiat, tortor non fermentum consequat, augue velit pulvinar mi, nec laoreet velit magna at turpis. Donec.',
+              },
+            ],
+          },
+        } as any}
+        rejectType={false}
+        operations={false}
+        sendInvoiceToSap
+        onSendToSap={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Enviar a SAP' })).toBeDisabled();
+  });
+
+  it('habilita Enviar a SAP cuando no hay warning y todas las claves SAP estan completas', () => {
+    useDetailsPanelMock.expenseTypeCatalog = [];
+    const setPanelOpen = vi.fn();
+    render(
+      <DetailsPanel
+        panelOpen
+        setPanelOpen={setPanelOpen}
+        selected={{
+          billingdocument_id: 'doc-3',
+          json_sap: {
+            items: [
+              {
+                itemIndex: 1,
+                claveInterna: '138',
+                claveProdServ: '90101501',
+                descripcion: 'Corto',
+              },
+            ],
+          },
+        } as any}
+        rejectType={false}
+        operations={false}
+        sendInvoiceToSap
+        onSendToSap={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Enviar a SAP' })).toBeEnabled();
   });
 });
 
