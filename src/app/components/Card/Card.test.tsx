@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Card } from './Card'
 
 const actionMenuCellMock = vi.fn()
+const useRecoverableImageMock = vi.fn()
 
 vi.mock('../ActionMenuCell/ActionMenuCell', () => ({
   __esModule: true,
@@ -12,6 +13,10 @@ vi.mock('../ActionMenuCell/ActionMenuCell', () => ({
     actionMenuCellMock(props)
     return <div data-testid="action-menu-cell" />
   },
+}))
+
+vi.mock('./hooks/useRecoverableImage', () => ({
+  useRecoverableImage: (...args: unknown[]) => useRecoverableImageMock(...args),
 }))
 
 describe('Card', () => {
@@ -25,6 +30,14 @@ describe('Card', () => {
 
   beforeEach(() => {
     actionMenuCellMock.mockClear()
+    useRecoverableImageMock.mockReset()
+    useRecoverableImageMock.mockReturnValue({
+      currentSrc: 'image.png',
+      hasPlaceholder: false,
+      isLoading: false,
+      handleImageError: vi.fn(),
+      handleImageLoaded: vi.fn(),
+    })
   })
 
   it('renders label and title', () => {
@@ -54,5 +67,33 @@ describe('Card', () => {
     expect(actionMenuCellMock).toHaveBeenCalledWith(
       expect.objectContaining({ row, onEdit, onDelete })
     )
+  })
+
+  it('shows a stable placeholder when the image cannot be recovered', () => {
+    useRecoverableImageMock.mockReturnValue({
+      currentSrc: '',
+      hasPlaceholder: true,
+      isLoading: false,
+      handleImageError: vi.fn(),
+      handleImageLoaded: vi.fn(),
+    })
+
+    render(<Card {...baseProps} />)
+
+    expect(screen.getByText('Imagen no disponible')).toBeInTheDocument()
+  })
+
+  it('shows a loading state while the image is being resolved', () => {
+    useRecoverableImageMock.mockReturnValue({
+      currentSrc: '',
+      hasPlaceholder: false,
+      isLoading: true,
+      handleImageError: vi.fn(),
+      handleImageLoaded: vi.fn(),
+    })
+
+    render(<Card {...baseProps} />)
+
+    expect(screen.getByText('Cargando imagen...')).toBeInTheDocument()
   })
 })
