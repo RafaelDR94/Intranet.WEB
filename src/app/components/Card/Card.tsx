@@ -1,50 +1,18 @@
-﻿﻿import Image from 'next/image';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
+
+import ActionMenuCell from '../ActionMenuCell/ActionMenuCell';
+import { Button } from '../Button/Button';
+
+import { useRecoverableImage } from './hooks/useRecoverableImage';
 import { cardStyles } from './styles';
 import type { CardProps } from './types';
-import { Button } from '../Button/Button';
-import ActionMenuCell from '../ActionMenuCell/ActionMenuCell';
+
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
 import type { UseShowImage } from '@/app/context/PrincipalContext/hooks/useShowImage/useShowImage';
-/**
- * Concatena clases condicionales de forma segura.
- *
- * @param classes Lista de clases (strings) u operaciones falsy.
- * @returns Cadena de clases sin valores falsy.
- *
- * @example
- * const className = cx('p-4', isActive && 'bg-blue-50')
- */
+
 const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
 
-/**
- * Componente de tarjeta con imagen, etiqueta, t+itulo, descripción y acciones.
- *
- * @remarks
- * - Soporta n `vertical` u `horizontal`.
- * - El botón **Aceptar** siempre se muestra. El botón **Cancelar** es opcional.
- * - La imagen utiliza `next/image` con `fill` para cubrir el contenedor.
- *
- * @accessibility
- * - Asegura que `title` describa el contenido principal (se renderiza como `<h4>`).
- * - Proporciona `alt` descriptivo en la imagen (por defecto: "card image").
- * - Los botones son elementos nativos interactivos con `type="button"`.
- *
- * @example
- * ```tsx
- * <Card
- *   orientation="vertical"
- *   imageSrc="/images/example.jpg"
- *   label="Novedad"
- *   title="Tó­tulo de la tarjeta"
- *   description="Descripción corta del contenido presentado en la tarjeta."
- *   onAccept={() => console.log('Aceptar')}
- *   onCancel={() => console.log('Cancelar')}
- *   showCancelButton
- * />
- * ```
- */
 const useOptionalPrincipalImage = (): UseShowImage | undefined => {
   try {
     return usePrincipal().usePrincipalImage;
@@ -68,52 +36,53 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
   secondaryLabel = 'Cancelar',
   actionMenuProps,
   enableImagePreview = true,
+  enableRemoteImageRecovery = true,
 }: CardProps<TRow>) {
   const isVertical = orientation === 'vertical';
-  // Compute initial image: if empty, use fallback immediately
-  const initialSrc = useMemo(() => {
-    const main = (imageSrc ?? '').trim();
-    return main.length > 0 ? main : (fallbackSrc ?? '')
-  }, [imageSrc, fallbackSrc])
-  const [currentSrc, setCurrentSrc] = useState<string>(initialSrc)
+  const {
+    currentSrc,
+    hasPlaceholder,
+    isLoading,
+    handleImageError,
+    handleImageLoaded,
+  } = useRecoverableImage({
+    imageSrc,
+    fallbackSrc,
+    enableRemoteImageRecovery,
+  });
 
   const principalImage = useOptionalPrincipalImage();
 
   const viewerSrc = useMemo(() => {
-    const normalized = (currentSrc ?? '').trim()
-    if (normalized.length > 0) return normalized
-    const fallback = (fallbackSrc ?? '').trim()
-    return fallback
-  }, [currentSrc, fallbackSrc])
+    const normalized = (currentSrc ?? '').trim();
+    if (normalized.length > 0) return normalized;
+    const fallback = (fallbackSrc ?? '').trim();
+    return fallback;
+  }, [currentSrc, fallbackSrc]);
 
-  const viewerAlt = title ?? 'card image'
-
+  const viewerAlt = title ?? 'card image';
   const canOpenImagePreview = enableImagePreview && Boolean(viewerSrc);
 
   const handleImageClick = () => {
-    if (!canOpenImagePreview) return
+    if (!canOpenImagePreview) return;
     principalImage?.showImage({
       src: viewerSrc,
       alt: viewerAlt,
-    })
-  }
+    });
+  };
 
   const handleImageKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (event) => {
-    if (!canOpenImagePreview) return
+    if (!canOpenImagePreview) return;
     if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
+      event.preventDefault();
       principalImage?.showImage({
         src: viewerSrc,
         alt: viewerAlt,
-      })
+      });
     }
-  }
+  };
 
-  useEffect(() => {
-    setCurrentSrc(initialSrc)
-  }, [initialSrc])
-
-  const enlargeImageLabel = title ? `Ampliar imagen de ${title}` : 'Ampliar imagen'
+  const enlargeImageLabel = title ? `Ampliar imagen de ${title}` : 'Ampliar imagen';
 
   return (
     <div
@@ -134,18 +103,50 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
         onClick={handleImageClick}
         onKeyDown={handleImageKeyDown}
       >
-        <Image
-          src={currentSrc}
-          alt="card image"
-          layout="fill"
-          objectFit="cover"
-          className={cardStyles.Image}
-          onError={() => {
-            if (fallbackSrc && currentSrc !== fallbackSrc) {
-              setCurrentSrc(fallbackSrc)
-            }
-          }}
-        />
+        {hasPlaceholder ? (
+          <div
+            className={cx(
+              cardStyles.Image,
+              'flex h-full w-full items-center justify-center bg-neutral-900 text-xs text-neutral-400'
+            )}
+          >
+            Imagen no disponible
+          </div>
+        ) : isLoading && !currentSrc ? (
+          <div
+            className={cx(
+              cardStyles.Image,
+              'flex h-full w-full animate-pulse items-center justify-center bg-neutral-900 text-xs text-neutral-500'
+            )}
+          >
+            Cargando imagen...
+          </div>
+        ) : (
+          <div className="relative h-full w-full">
+            {isLoading && (
+              <div
+                className={cx(
+                  cardStyles.Image,
+                  'absolute inset-0 z-10 flex animate-pulse items-center justify-center bg-neutral-900/90 text-xs text-neutral-500'
+                )}
+              >
+                Cargando imagen...
+              </div>
+            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={currentSrc}
+              alt="card image"
+              loading="lazy"
+              decoding="async"
+              className={cx(cardStyles.Image, 'h-full w-full object-cover', isLoading && 'opacity-0')}
+              onLoad={handleImageLoaded}
+              onError={() => {
+                void handleImageError();
+              }}
+            />
+          </div>
+        )}
       </div>
 
       <div className={cardStyles.Body}>
@@ -155,12 +156,8 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
             <h4 className={cardStyles.Title}>{title}</h4>
             <p className={cardStyles.Description}>{description}</p>
           </div>
-          {actionMenuProps ? (
-            <ActionMenuCell {...actionMenuProps} />
-          ) : null}
-
+          {actionMenuProps ? <ActionMenuCell {...actionMenuProps} /> : null}
         </div>
-
 
         <div
           className={cx(
@@ -175,7 +172,6 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
               onClick={onCancel}
               hideIcon
               className={cardStyles.CancelBtn}
-
             >
               {secondaryLabel}
             </Button>
@@ -200,4 +196,3 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
     </div>
   );
 }
-

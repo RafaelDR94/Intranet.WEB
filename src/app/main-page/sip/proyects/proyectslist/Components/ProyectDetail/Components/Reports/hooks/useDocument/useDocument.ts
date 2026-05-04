@@ -9,6 +9,7 @@ import { useReportsStore } from "@/app/stores/useReportsStore/useReportsStore";
 import { exportExcelPro, type SheetInput, type ColumnDef } from "@/app/utilities/Excel/ExportExcel";
 import { Table, SingleElement, DataChartElement, ImageElement, newDocument } from "@/app/utilities/PDF/types";
 import { urlToBase64 } from "@/app/utilities/PicturesHelper/PictureHelper";
+import { resolveImageWithFallback } from "@/app/utilities/PicturesHelper/recoverRemoteImage";
 import Logo from "@/assets/images/LogosDR/DRLogoOficial.png";
 
 const sanitizeText = (value: unknown, fallback = "No disponible") => {
@@ -41,6 +42,14 @@ const useDocument = () => {
             img.onload = () => resolve(img);
             img.onerror = (err) => reject(err);
             img.src = dataUrl;
+        });
+
+    const blobToDataUrl = (blob: Blob): Promise<string> =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error ?? new Error("No se pudo leer el blob"));
+            reader.readAsDataURL(blob);
         });
 
     type PdfImageOptions = {
@@ -94,7 +103,13 @@ const useDocument = () => {
         let lastError: unknown;
         for (let i = 0; i < attempts; i++) {
             try {
-                const dataUrl = await urlToBase64(url);
+                let dataUrl = "";
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    const recovered = await resolveImageWithFallback(url);
+                    dataUrl = await blobToDataUrl(recovered.blob);
+                } else {
+                    dataUrl = await urlToBase64(url);
+                }
                 if (dataUrl) {
                     return dataUrl;
                 }

@@ -10,6 +10,20 @@ import useQuery from "@/app/hooks/useQuery/useQuery";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import useReportBuilderStore from "@/app/stores/useReportBuilderStore/useReportBuilderStore";
 
+const MIME_EXTENSION_MAP: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/heic": "heic",
+    "image/heif": "heif",
+};
+
+const resolveImageExtension = (blobLike: Blob | { type?: string }, mimeHint?: string) => {
+    const normalizedMime = (blobLike?.type || mimeHint || "image/jpeg").toLowerCase();
+    return MIME_EXTENSION_MAP[normalizedMime] ?? "jpg";
+};
+
 const useReportSaver = () => {
     const { firebasestorage } = useFirebase()
     const [savinging, setSavinging] = useState({ state: false, progress: 0, action: "" });
@@ -56,6 +70,7 @@ const useReportSaver = () => {
                     const uniqueTitle = `${picture.title}_${timestamp}`;
 
                     let blobToUpload: Blob;
+                    let optimizedMime: string | undefined;
                     try {
                         const optimized = await optimizeDataUrlToBlob(picture.urlimage, {
                             maxWidth: 1600,
@@ -65,14 +80,16 @@ const useReportSaver = () => {
                             ...optimizeOverrides,
                         });
                         blobToUpload = optimized.blob;
+                        optimizedMime = optimized.mime;
                     } catch (optError) {
                         console.warn("No se pudo optimizar la imagen, usando original", optError);
                         blobToUpload = base64ToBlob(picture.urlimage);
                     }
 
+                    const extension = resolveImageExtension(blobToUpload, optimizedMime);
                     const uploadedImageUrl = await firebasestorage.uploadFile(
                         blobToUpload,
-                        `${folderPath}/${uniqueTitle}`
+                        `${folderPath}/${uniqueTitle}.${extension}`
                     );
 
                     // Actualiza progreso
