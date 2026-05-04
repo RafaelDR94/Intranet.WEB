@@ -114,6 +114,16 @@ export const getTabsFromPath = (
         path: "/main-page/it/internaldevices/internaldevicesasignation",
       },
     ],
+    "it/users": [
+      {
+        label: "Cuentas Activadas",
+        path: "/main-page/it/users/userslist",
+      },
+      {
+        label: "Cuentas por Activar",
+        path: "/main-page/it/users/userspending",
+      },
+    ],
     "accounting/invoices": [
       {
         label: "Validación de Facturas",
@@ -185,7 +195,8 @@ export const getTabsFromPath = (
     'configuration': [
       { label: 'Cuenta', path: '/main-page/configuration/account' },
       { label: 'Seguridad', path: '/main-page/configuration/security' },
-      { label: 'Notificaciones', path: '/main-page/configuration/notifications' },
+      // { label: 'Notificaciones', path: '/main-page/configuration/notifications' },
+      // { label: 'Dispositivos', path: '/main-page/configuration/devices' },
     ],
   };
 
@@ -630,6 +641,19 @@ export const getTabsFromPath = (
 
     if (!tabs.some(t => t.label === 'Editar Proyecto')) {
       tabs = [...tabs, { label: labelparam || 'Editar Proyecto', path: detailPath }];
+    }
+  }
+
+  if (first === 'it' && second === 'users' && third === 'userspending' && id) {
+    const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+    const activationLabel = labelparam || 'Activar Empleado';
+    const activationQs = new URLSearchParams();
+    activationQs.set('id', id);
+    activationQs.set('label', activationLabel);
+    const activationPath = `${clean}?${activationQs.toString()}`;
+
+    if (!tabs.some((tab) => tab.path === activationPath || tab.label === activationLabel)) {
+      tabs = [...tabs, { label: activationLabel, path: activationPath }];
     }
   }
 

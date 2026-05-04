@@ -60,6 +60,10 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
   preview = false,
   previewCoverMode = false,
   multiple = false,
+  previewWrapperClassName,
+  previewImageClassName,
+  previewActionsClassName,
+  previewButtonClassName,
 }) => {
   const [isChanging, setIsChanging] = React.useState(false);
   const {
@@ -127,6 +131,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
             preview && "w-[245px] mx-auto",
             isPreviewCoverMode && "h-[290px]",
             isPreviewCoverMode && "border-0",
+            previewWrapperClassName,
           )}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -136,30 +141,35 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
             className={clsx(
               previewImageClasses,
               isPreviewCoverMode && "h-[290px]",
+              previewImageClassName,
             )}
             onClick={openPreview}
           />
 
-          <div
-            className={clsx(
-              previewActionsClasses,
-              isPreviewCoverMode && "absolute bottom-3 left-0 right-0 mt-0",
-            )}
-          >
-            <Button
-              type="button"
-              variant="outline"
-              hideIcon
-              onClick={() => setIsChanging(true)}
-              disabled={disabled}
+          {buttonLabel.trim().length > 0 && (
+            <div
               className={clsx(
-                "px-8",
-                isPreviewCoverMode && "bg-white-100/90 backdrop-blur-sm",
+                previewActionsClasses,
+                isPreviewCoverMode && "absolute bottom-3 left-0 right-0 mt-0",
+                previewActionsClassName,
               )}
             >
-              Cambiar imagen
-            </Button>
-          </div>
+              <Button
+                type="button"
+                variant="outline"
+                hideIcon
+                onClick={() => setIsChanging(true)}
+                disabled={disabled}
+                className={clsx(
+                  "px-8",
+                  isPreviewCoverMode && "bg-white-100/90 backdrop-blur-sm",
+                  previewButtonClassName,
+                )}
+              >
+                Cambiar imagen
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <div

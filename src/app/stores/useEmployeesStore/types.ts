@@ -4,6 +4,7 @@ import type {
   PostEmployees,
   PutEmployees,
 } from "@/app/mappings/employees/employee.types";
+import type { InternalDeviceAssignmentHistory } from "@/app/mappings/internaldevices/internaldevices.types";
 
 /**
  * Payload expected by the update employee endpoint.
@@ -26,6 +27,10 @@ export type EmployeesState = {
   departmentEmployeesDepartmentId?: string;
   /** Currently selected employee (detail) */
   employee?: EmployeeType;
+  /** Device assignment history by employee */
+  devicesAssignedHistory: InternalDeviceAssignmentHistory[];
+  /** Employee id associated to cached device history */
+  lastDevicesAssignedEmployeeId?: string;
 
   /** Loading list flag */
   loading: boolean;
@@ -35,6 +40,8 @@ export type EmployeesState = {
   loadingActive: boolean;
   /** Loading employees by department flag */
   loadingByDepartment: boolean;
+  /** Loading employee devices assigned history flag */
+  loadingDevicesAssignedHistory: boolean;
   /** Create request in progress */
   creating: boolean;
   /** Update request in progress */
@@ -49,6 +56,7 @@ export type EmployeesState = {
   successGetById: boolean;
   successGetActive: boolean;
   successGetByDepartment: boolean;
+  successGetDevicesAssignedHistory: boolean;
   successPost: boolean;
   successPut: boolean;
   successDelete: boolean;
@@ -68,6 +76,11 @@ export type EmployeesState = {
     departmentId: string,
     force?: boolean
   ) => Promise<EmployeeType[]>;
+  /** Fetch device assignment history by employee id */
+  fetchDevicesAssignedByEmployeeId: (
+    employeeId: string,
+    force?: boolean
+  ) => Promise<InternalDeviceAssignmentHistory[] | null>;
   /** Fetch an employee by identifier */
   fetchEmployeeById: (id: string, force?: boolean) => Promise<EmployeeType | null>;
   /** Create a new employee */

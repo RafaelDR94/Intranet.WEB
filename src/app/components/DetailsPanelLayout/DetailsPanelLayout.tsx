@@ -16,6 +16,7 @@ import CollapseIcon from "@/assets/icons/navegacion/sidebar-expand.svg";
 export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
   open,
   expanded,
+  collapsedWidthClass,
   onClose,
   onExpandedChange,
   closeButtonDataTour,
@@ -40,9 +41,11 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
   const isMobile = useIsMobile();
   const widthClass = !open
     ? "w-0"
+    : isMobile
+      ? "w-full max-w-full min-w-0"
     : isExpanded
       ? "w-full"
-      : "w-2/5 min-w-[320px]";
+      : collapsedWidthClass ?? "w-2/5 min-w-[320px]";
 
   const sidePosition = side === "right" ? "right-0" : "left-0";
   const borderSide = side === "right" ? "border-l" : "border-r";

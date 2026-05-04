@@ -3,7 +3,9 @@ import type {
   PasswordRecoveryVerificationResponse,
   RecoverPasswordResponse,
   ResetPasswordRecoveryResponse,
+  AuthChallengeVerifyResponse,
 } from '@/app/mappings/auth/auth.types'
+import type { UserMfaByIdResponse, UserPasskeyResponse } from '@/app/mappings/users/user.types'
 import type { User, LoginCredentials } from '@/app/context/AuthContext/types'
 
 export interface AuthValidatePayload {
@@ -21,10 +23,25 @@ export interface SignaturePayload {
   "signature": string
 };
 
+export interface MfaPayload {
+  idUser: string
+  twoFactorEnabled: boolean
+}
+
+export interface MfaMethodPayload {
+  idUser: string
+  method: "SMS" | "EMAIL"
+  isEnabled: boolean
+}
+
 
 export interface RecoverPasswordPayload {
   email: string
   type: "Email" | "SMS"
+  purpose?: "PasswordRecovery" | "LoginMfa"
+  phoneNumber?: string
+  challengeId?: string
+  idUser?: string
 }
 
 export interface VerifyPasswordRecoveryCodePayload {
@@ -35,6 +52,13 @@ export interface VerifyPasswordRecoveryCodePayload {
 export interface VerifyPasswordRecoverySmsPayload {
   challengeId: string
   token: string
+}
+
+export interface VerifyAuthChallengePayload {
+  challengeId: string
+  method: "Email" | "SMS"
+  code: string | null
+  verificationToken: string | null
 }
 
 export interface ResetPasswordRecoveryPayload {
@@ -76,27 +100,44 @@ export interface AuthState {
   offlineMode: boolean
   loading: boolean
   changingSignature: boolean
+  changingMFA: boolean
+  changingMFAMethod: boolean
   recoveringPassword: boolean
   verifyingPasswordRecovery: boolean
   resettingPasswordRecovery: boolean
+  verifyingAuthChallenge: boolean
   fetchingRecoverChannels: boolean
+  fetchingUserMfaById: boolean
+  fetchingUserPasskeys: boolean
+  deletingUserPasskey: boolean
   recoverChannels: RecoverChannel[]
+  userMfaById: UserMfaByIdResponse | null
+  userPasskeys: UserPasskeyResponse[]
+  mfaSmsEnabled: boolean
+  mfaEmailEnabled: boolean
   recoverPasswordRequest?: RecoverPasswordPayload
   recoverPasswordChallenge?: RecoverPasswordResponse
   passwordRecoveryVerification?: PasswordRecoveryVerificationResponse
   passwordRecoveryResetResponse?: ResetPasswordRecoveryResponse
+  authChallengeVerification?: AuthChallengeVerifyResponse
   successLogin: boolean
   successAuthValidate: boolean
   successChangePassword: boolean
   successRecoverPassword: boolean
   successPasswordRecoveryVerification: boolean
   successResetPasswordRecovery: boolean
+  successAuthChallengeVerification: boolean
   successRecoverChannels: boolean
   successChangeNIPStatus: boolean
   succesChangeSignature: boolean
   successChangeNIP: boolean
   successCreateNIP: boolean
   successFirebaseConfig: boolean
+  successChangeMFA: boolean
+  successChangeMFAMethod: boolean
+  successUserMfaById: boolean
+  successUserPasskeys: boolean
+  successDeleteUserPasskey: boolean
   error?: string
   login: (payload: LoginCredentials) => Promise<void>
   logout: () => Promise<void>
@@ -118,12 +159,20 @@ export interface AuthState {
   verifyPasswordRecoverySms: (
     payload: VerifyPasswordRecoverySmsPayload,
   ) => Promise<PasswordRecoveryVerificationResponse | null>
+  verifyAuthChallenge: (
+    payload: VerifyAuthChallengePayload,
+  ) => Promise<AuthChallengeVerifyResponse | null>
   resetPasswordRecovery: (
     payload: ResetPasswordRecoveryPayload,
   ) => Promise<ResetPasswordRecoveryResponse | null>
   fetchFirebaseConfiguration: () => Promise<void>
   updateUserPermissions: (permissions: string) => Promise<void>
   changeNipStatusByIdUser: (id: number) => Promise<void>
+  changeMfaStatus: (payload: MfaPayload) => Promise<void>
+  changeMfaMethodStatus: (payload: MfaMethodPayload) => Promise<void>
+  fetchUserMfaById: (idUser: string) => Promise<UserMfaByIdResponse | null>
+  fetchUserPasskeys: (idUser: string) => Promise<UserPasskeyResponse[] | null>
+  deleteUserPasskey: (id: string) => Promise<boolean>
   changeNip: (payload: NipPayload) => Promise<void>
   createNip: (payload: NipPayload) => Promise<void>
   changeSignature: (payload: SignaturePayload) => Promise<void>

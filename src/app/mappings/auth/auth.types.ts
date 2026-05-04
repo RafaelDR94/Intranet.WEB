@@ -24,6 +24,13 @@ export type PostRecoverPassword = {
   type: "Email" | "SMS"
 }
 
+export type PostAuthChallengeVerify = {
+  challengeId: string
+  method: "Email" | "SMS"
+  code: string | null
+  verificationToken: string | null
+}
+
 export type RecoverChannel = {
   type: "Email" | "SMS",
   value: string | null
@@ -37,6 +44,16 @@ export type RecoverPasswordResponse = {
   message: string,
   expiresInSeconds: number,
   nextStep: string
+}
+
+export type AuthChallengeVerifyResponse = {
+  challengeId: string
+  verified: boolean
+  purpose: string
+  nextStep: string
+  data: ({
+    token?: string
+  } & Record<string, unknown>) | null
 }
 
 export type PostVerifyPasswordRecoveryCode = {

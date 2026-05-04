@@ -40,7 +40,7 @@ const cx = (...c: Array<string | false | null | undefined>) =>
 
 export const DataTableBodyStyles = {
   bodyContainer:
-    "flex items-center px-4 py-1 rounded-md hover:bg-gray-10 transition-colors",
+    "flex items-center gap-x-2 px-4 py-1 rounded-md hover:bg-gray-10 transition-colors",
   checkBoxContainer: "w-6 mr-4",
   // ahora como funciones con default
   tableTextMobile: (size = "c3") => cx(size, "text-gray-70", "font-medium"),
@@ -92,15 +92,35 @@ export const DataTableBody = <T extends { id: string | number }>({
             )}
             {columns.map((col) => {
               if (col.invisible) return null;
+              const renderedValue = col.render ? col.render(row) : row[col.key];
+              const isPrimitiveValue =
+                typeof renderedValue === "string" ||
+                typeof renderedValue === "number" ||
+                typeof renderedValue === "bigint" ||
+                typeof renderedValue === "boolean";
+              const cellContent: React.ReactNode =
+                renderedValue === null || renderedValue === undefined
+                  ? "-"
+                  : isPrimitiveValue
+                    ? (
+                      <span className="block w-full truncate">{String(renderedValue)}</span>
+                    )
+                    : React.isValidElement(renderedValue) || Array.isArray(renderedValue)
+                      ? (renderedValue as React.ReactNode)
+                      : (
+                        <span className="block w-full truncate">{String(renderedValue)}</span>
+                      );
+
               return (
                 <div
                   key={String(col.key)}
                   className={cx(
                     isMobile ? mobileText : isTablet ? tabletText : deskText,
+                    "min-w-0",
                     col.cellClass ?? "flex-1",
                   )}
                 >
-                  {col.render ? col.render(row) : String(row[col.key])}
+                  {cellContent}
                 </div>
               );
             })}

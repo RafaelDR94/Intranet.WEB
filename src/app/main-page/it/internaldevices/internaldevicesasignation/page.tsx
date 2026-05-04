@@ -245,7 +245,7 @@ const InternalDevicesAsignationPage = () => {
           showRefresh
           showDownloadTable
           onRefreshPage={handleRefresh}
-          filterTitle="Estatus"
+          filterTitle="Estado de asignacion"
           filterOptions={statusFilterOptions}
           filterValue={statusFilter}
           onFilterChange={handleStatusFilterChange}

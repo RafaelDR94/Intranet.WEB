@@ -1,10 +1,14 @@
 "use client";
 
+import clsx from "clsx";
+import { useEffect, useMemo } from "react";
+
+import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+
 import {
   actionColumn,
-  dangerAction,
+  header,
   linkAction,
-  outlineAction,
   panel,
   row,
   rowContent,
@@ -12,14 +16,83 @@ import {
   rows,
   rowTitle,
   title,
-  toggle,
-  toggleThumb,
+  toggleOff,
+  toggleOn,
+  toggleOnlyAction,
+  toggleThumbOff,
+  toggleThumbOn,
 } from "./styles";
 
 const MfaSecurityPanel = () => {
+  const user = useAuthStore((state) => state.user);
+  const changingMFA = useAuthStore((state) => state.changingMFA);
+  const changingMFAMethod = useAuthStore((state) => state.changingMFAMethod);
+  const fetchingUserMfaById = useAuthStore((state) => state.fetchingUserMfaById);
+  const mfaSmsEnabled = useAuthStore((state) => state.mfaSmsEnabled);
+  const mfaEmailEnabled = useAuthStore((state) => state.mfaEmailEnabled);
+  const userMfaById = useAuthStore((state) => state.userMfaById);
+  const changeMfaStatus = useAuthStore((state) => state.changeMfaStatus);
+  const changeMfaMethodStatus = useAuthStore((state) => state.changeMfaMethodStatus);
+  const fetchUserMfaById = useAuthStore((state) => state.fetchUserMfaById);
+  const mfaEnabled = useMemo(
+    () => Boolean(userMfaById?.twoFactorEnabled ?? user?.twoFactorEnabled ?? false),
+    [user, userMfaById],
+  );
+
+  useEffect(() => {
+    if (!user?.idUser) return;
+    void fetchUserMfaById(user.idUser);
+  }, [fetchUserMfaById, user?.idUser]);
+
+  const handleToggleMfa = async () => {
+    if (!user?.idUser || changingMFA) return;
+    const nextMfaEnabled = !mfaEnabled;
+
+    await changeMfaStatus({
+      idUser: user.idUser,
+      twoFactorEnabled: nextMfaEnabled,
+    });
+
+    if (nextMfaEnabled && !mfaEmailEnabled) {
+      await changeMfaMethodStatus({
+        idUser: user.idUser,
+        method: "EMAIL",
+        isEnabled: true,
+      });
+    }
+  };
+
+  const handleToggleMfaMethod = async (method: "SMS" | "EMAIL", isEnabled: boolean) => {
+    if (!user?.idUser || changingMFAMethod) return;
+    await changeMfaMethodStatus({
+      idUser: user.idUser,
+      method,
+      isEnabled,
+    });
+  };
+  const isMethodToggleDisabled =
+    changingMFAMethod || fetchingUserMfaById || !user?.idUser || !mfaEnabled;
+
   return (
     <section className={panel}>
-      <h2 className={title}>Autenticación de múltiples factores (MFA)</h2>
+      <div className={header}>
+        <h2 className={title}>Autenticación de múltiples factores (MFA)</h2>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={mfaEnabled}
+          aria-label="Activar autenticación de múltiples factores"
+          disabled={changingMFA || fetchingUserMfaById || !user?.idUser}
+          className={clsx(
+            mfaEnabled ? toggleOn : toggleOff,
+            (changingMFA || fetchingUserMfaById || !user?.idUser) && "cursor-not-allowed opacity-70",
+          )}
+          data-testid="mfa-main-toggle"
+          onClick={handleToggleMfa}
+        >
+          <span className={mfaEnabled ? toggleThumbOn : toggleThumbOff} />
+        </button>
+      </div>
 
       <div className={rows}>
         <div className={row}>
@@ -32,13 +105,21 @@ const MfaSecurityPanel = () => {
           </div>
 
           <div className={actionColumn}>
-            <div
-              className={toggle}
-              aria-hidden="true"
+            <button
+              type="button"
+              role="switch"
+              aria-checked={mfaSmsEnabled}
+              aria-label="Activar método SMS"
+              disabled={isMethodToggleDisabled}
+              className={clsx(
+                mfaSmsEnabled ? toggleOn : toggleOff,
+                isMethodToggleDisabled && "cursor-not-allowed opacity-70",
+              )}
               data-testid="mfa-sms-toggle"
+              onClick={() => handleToggleMfaMethod("SMS", !mfaSmsEnabled)}
             >
-              <span className={toggleThumb} />
-            </div>
+              <span className={mfaSmsEnabled ? toggleThumbOn : toggleThumbOff} />
+            </button>
             <button type="button" className={linkAction}>
               Cambiar número
             </button>
@@ -47,6 +128,68 @@ const MfaSecurityPanel = () => {
 
         <div className={row}>
           <div className={rowContent}>
+            <h3 className={rowTitle}>Mensaje por correo electrónico</h3>
+            <p className={rowDescription}>
+              Recibe códigos de verificación de 6 dígitos a tu correo
+              electrónico empresarial.
+            </p>
+          </div>
+
+          <div className={toggleOnlyAction}>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={mfaEmailEnabled}
+              aria-label="Activar método email"
+              disabled={isMethodToggleDisabled}
+              className={clsx(
+                mfaEmailEnabled ? toggleOn : toggleOff,
+                isMethodToggleDisabled && "cursor-not-allowed opacity-70",
+              )}
+              data-testid="mfa-email-toggle"
+              onClick={() => handleToggleMfaMethod("EMAIL", !mfaEmailEnabled)}
+            >
+              <span className={mfaEmailEnabled ? toggleThumbOn : toggleThumbOff} />
+            </button>
+          </div>
+        </div>
+
+        {/* <div className={row}>
+          <div className={rowContent}>
+            <h3 className={rowTitle}>Acceso con huella o passkey</h3>
+            <p className={rowDescription}>
+              Inicia sesión con tu dispositivo (huella, Face ID o PIN). Tu
+              identidad se valida sin compartir información.
+            </p>
+          </div>
+
+          <div className={actionColumn}>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={mfaEnabled}
+              aria-label="Activar acceso con huella o passkey"
+              disabled={changingMFAMethod || fetchingUserMfaById || !user?.idUser}
+              className={clsx(
+                mfaEnabled ? toggleOn : toggleOff,
+                (changingMFAMethod || fetchingUserMfaById || !user?.idUser) && "cursor-not-allowed opacity-70",
+              )}
+              data-testid="mfa-passkey-toggle"
+            >
+              <span className={mfaEnabled ? toggleThumbOn : toggleThumbOff} />
+            </button>
+            <button
+              type="button"
+              className={linkAction}
+              onClick={() => router.push("/main-page/configuration/devices")}
+            >
+              Administrar dispositivos
+            </button>
+          </div>
+        </div> */}
+
+        {/* <div className={row}>
+          <div className={rowContent}>
             <h3 className={rowTitle}>Dispositivos de confianza</h3>
             <p className={rowDescription}>
               Cuando inicies sesión en otro dispositivo, se añadirá aquí y podrá
@@ -54,9 +197,9 @@ const MfaSecurityPanel = () => {
               dispositivo.
             </p>
           </div>
-        </div>
+        </div> */}
 
-        <div className={row}>
+        {/* <div className={row}>
           <div className={rowContent}>
             <h3 className={rowTitle}>Cerrar sesión en este dispositivo</h3>
           </div>
@@ -64,9 +207,9 @@ const MfaSecurityPanel = () => {
           <button type="button" className={outlineAction}>
             Cerrar sesión
           </button>
-        </div>
+        </div> */}
 
-        <div className={row}>
+        {/* <div className={row}>
           <div className={rowContent}>
             <h3 className={rowTitle}>
               Cerrar sesión en todos los dispositivos
@@ -81,7 +224,7 @@ const MfaSecurityPanel = () => {
           <button type="button" className={dangerAction}>
             Cerrar todas las sesiones
           </button>
-        </div>
+        </div> */}
       </div>
     </section>
   );

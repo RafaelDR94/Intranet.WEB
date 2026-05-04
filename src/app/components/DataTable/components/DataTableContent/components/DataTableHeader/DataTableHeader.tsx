@@ -50,10 +50,16 @@ export const DataTableHeader = <T,>({
             key={String(col.key)}
             type="button"
             onClick={() => onSort(col.key)}
-            className={isMobile ? `${DataTableHeaderStyles.headerTextMobile} ${col.headerClass ?? 'flex-1'}` : `${DataTableHeaderStyles.headerTextDesk} ${col.headerClass ?? 'flex-1'}`}
+            className={
+              isMobile
+                ? `${DataTableHeaderStyles.headerTextMobile} min-w-0 ${col.headerClass ?? 'flex-1'}`
+                : `${DataTableHeaderStyles.headerTextDesk} min-w-0 ${col.headerClass ?? 'flex-1'}`
+            }
           >
-            <span className="inline-flex items-center gap-1">
-              {col.headerRender ? col.headerRender() : col.label?.toUpperCase()}
+            <span className="inline-flex min-w-0 items-center gap-1">
+              <span className="truncate">
+                {col.headerRender ? col.headerRender() : col.label?.toUpperCase()}
+              </span>
               {arrow && <span className="flex-shrink-0">{arrow}</span>}
             </span>
           </button>

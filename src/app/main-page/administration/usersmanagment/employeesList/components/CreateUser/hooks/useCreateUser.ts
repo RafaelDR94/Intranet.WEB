@@ -119,12 +119,6 @@ const useCreateUser = () => {
       },
       {
         type: "toggle",
-        name: "twoFactorEnabled",
-        label: "Habilitar doble factor de autenticacion",
-        value: false,
-      },
-      {
-        type: "toggle",
         name: "changePassword",
         label: "Solicitar cambio de contrasena en el primer acceso",
         value: true,
@@ -147,7 +141,6 @@ const useCreateUser = () => {
 
   const resetFormValues = useCallback(() => {
     updateField(FORM_ID, "password", { value: "" });
-    updateField(FORM_ID, "twoFactorEnabled", { value: false });
     updateField(FORM_ID, "changePassword", { value: true });
     updateField(FORM_ID, "roleId", { value: "" });
     if (employeeEmail) {
@@ -216,10 +209,17 @@ const useCreateUser = () => {
 
       const payload = {
         username: String(values.username ?? "").trim(),
+        imageUrl: String(employee.image_url ?? "").trim(),
+        phoneNumber: String(employee.phone_number ?? "").trim(),
+        isGerence: Boolean((employee as any)?.is_gerence),
+        drFingerprint: Boolean(
+          (employee as any)?.dr_fingerprint ??
+            (employee as any)?.accessWithFingerprint
+        ),
         password: String(values.password ?? ""),
+        signature: String((employee as any)?.signature ?? ""),
         roleId: String(values.roleId ?? ""),
         employeeId: employee.employee_id,
-        twoFactorEnabled: Boolean(values.twoFactorEnabled),
         changePassword: Boolean(values.changePassword),
       };
 

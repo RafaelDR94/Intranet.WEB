@@ -4,7 +4,13 @@ export const AuthFirebaseConfiguration = process.env.NEXT_PUBLIC_AUTHFIREBASECON
 export const AuthChangeNIP = process.env.NEXT_PUBLIC_AUTHCHANGENIP ?? "/Auth/ChangeNIP";
 export const AuthChangePassword = process.env.NEXT_PUBLIC_AUTHCHANGEPASSWORD ?? "/Auth/ChangePassword";
 export const AuthRecoverPassword = process.env.NEXT_PUBLIC_AUTHRECOVERPASSWORD ?? "/Auth/RecoverPassword";
-export const AuthRecoverChannels = process.env.NEXT_PUBLIC_AUTHRECOVERCHANNELS ?? "/Auth/RecoverChannels";
+export const AuthChallengeStart =
+  process.env.NEXT_PUBLIC_AUTH_CHALLENGE_START ??
+  "/Auth/Challenge/Start";
+export const AuthRecoverChannels =
+  process.env.NEXT_PUBLIC_AUTHAUTHENTICATIONMETHODS ??
+  process.env.NEXT_PUBLIC_AUTHRECOVERCHANNELS ??
+  "/Auth/AuthenticationMethods";
 export const AuthPasswordRecoveryVerifyCode =
   process.env.NEXT_PUBLIC_AUTHPASSWORDRECOVERYVERIFYCODE ??
   "/Auth/VerifyRecoveryCode";
@@ -14,6 +20,21 @@ export const AuthPasswordRecoveryVerifySms =
 export const AuthPasswordRecoveryResetPassword =
   process.env.NEXT_PUBLIC_AUTHPASSWORDRECOVERYRESETPASSWORD ??
   "/Auth/ResetPassword";
+export const AuthChallengeVerify =
+  process.env.NEXT_PUBLIC_AUTH_CHALLENGE_VERIFY ??
+  "/Auth/Challenge/Verify";
+export const AuthPasskeysRegisterOptions =
+  process.env.NEXT_PUBLIC_AUTH_PASSKEYS_REGISTER_OPTIONS ??
+  "/Auth/Passkeys/RegisterOptions";
+export const AuthPasskeysRegisterVerify =
+  process.env.NEXT_PUBLIC_AUTH_PASSKEYS_REGISTER_VERIFY ??
+  "/Auth/Passkeys/RegisterVerify";
+export const AuthPasskeys =
+  process.env.NEXT_PUBLIC_AUTH_PASSKEYS ??
+  "/Auth/Passkeys";
+export const AuthPasskeysByUser =
+  process.env.NEXT_PUBLIC_AUTH_PASSKEYS_BY_USER ??
+  "/Auth/Passkeys/User";
 export const AuthChangeNIPStatusByIdUser = process.env.NEXT_PUBLIC_AUTHCHANGENIPSTATUSBYIDUSER ?? "/Auth/ChangeNIPStatusByIdUser";
 export const AuthCreateNIP = process.env.NEXT_PUBLIC_AUTHCREATENIP ?? "/Auth/CreateNIP";
 export const VerifyOTP = process.env.NEXT_PUBLIC_VERIFY_OTP ?? "/VerifyOTP";
@@ -81,6 +102,15 @@ export const EmployeesByIdDepartment =
   process.env.NEXT_PUBLIC_EMPLOYEES_BY_ID_DEPARTMENT ?? "/Employees/ByIdDepartment";
 export const EmployeesActive = process.env.NEXT_PUBLIC_EMPLOYEES_ACTIVE_ID ?? "/Employees/Activate";
 export const EmployeesIsActive = process.env.NEXT_PUBLIC_EMPLOYEES_IS_ACTIVE ?? "Employees/EmployeesActive";
+export const EmployeesWithoutActiveUser =
+  process.env.NEXT_PUBLIC_EMPLOYEES_WITHOUT_ACTIVE_USER ??
+  "/Employees/WithoutActiveUser";
+export const EmployeesActiveUsers =
+  process.env.NEXT_PUBLIC_EMPLOYEES_ACTIVE_USERS ??
+  "/Employees/ActiveUsers";
+export const EmployeesDevicesAssigned =
+  process.env.NEXT_PUBLIC_EMPLOYEES_DEVICES_ASSIGNED ??
+  "/Employees/DevicesAssigned";
 
 export const Statuses = process.env.NEXT_PUBLIC_STATUS ?? "/Status";
 export const StatusByType = process.env.NEXT_PUBLIC_STATUSBYTYPE ?? "/Status/ByType";
@@ -163,6 +193,11 @@ export const DevicesAssigned = process.env.NEXT_PUBLIC_DEVICES_ASSIGNED ?? "/Ass
 export const Devices = process.env.NEXT_PUBLIC_DEVICES ?? "/Assets/Devices";
 
 export const Users = process.env.NEXT_PUBLIC_USERS ?? "/Users";
+export const UsersProfile =
+  process.env.NEXT_PUBLIC_USERS_PROFILE ?? "/Users/Profile";
+export const UsersMfa = process.env.NEXT_PUBLIC_USERS_MFA ?? "/Users/Mfa";
+export const UsersMfaById = process.env.NEXT_PUBLIC_USERS_MFA_BY_ID ?? "/Users/Mfa";
+export const UsersMfaMethod = process.env.NEXT_PUBLIC_USERS_MFA_METHOD ?? "/Users/Mfa/Method";
 export const UsersSignature = process.env.NEXT_PUBLIC_USERSSIGNATURE ?? "/Users/Signature";
 export const Visitor = process.env.NEXT_PUBLIC_VISITOR ?? "/GeneralServices/Visitor";
 export const UsersRoles = process.env.NEXT_PUBLIC_USERS_ROLES ?? "/Users/Roles";

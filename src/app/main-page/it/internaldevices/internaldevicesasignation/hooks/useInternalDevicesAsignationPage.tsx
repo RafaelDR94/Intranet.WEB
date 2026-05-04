@@ -74,6 +74,12 @@ const useInternalDevicesAsignationPage = () => {
     if (typeof raw === 'string' && raw.trim()) return raw
     return null
   }, [all.assignmentId])
+  const normalizedEmployeeId = useMemo(() => {
+    const raw = all.employeeId
+    if (Array.isArray(raw)) return raw[0] ?? null
+    if (typeof raw === 'string' && raw.trim()) return raw
+    return null
+  }, [all.employeeId])
   const openDetails = Boolean(
     normalizedId && !isCreateView && !isEditView && !isReviewView,
   )
@@ -177,6 +183,7 @@ const useInternalDevicesAsignationPage = () => {
   const prevCreateView = useRef(false)
   const prevDeviceId = useRef<string | null>(null)
   const suppressCreateSuccessRef = useRef(false)
+  const hasHandledPrefillRef = useRef(false)
 
   useEffect(() => {
     if (!isCreateView) {
@@ -197,14 +204,67 @@ const useInternalDevicesAsignationPage = () => {
         device_brand_name: '',
         model: '',
         device_status_id: '',
-        employee_id: '',
+        employee_id: normalizedEmployeeId ?? '',
       })
       setStepValidity({ device: false, signature: true })
       setUserSignature('')
       setFormVersion((prev) => prev + 1)
+      hasHandledPrefillRef.current = false
     }
     prevCreateView.current = isCreateView
-  }, [isCreateView])
+  }, [isCreateView, normalizedEmployeeId])
+
+  useEffect(() => {
+    if (!isCreateView) {
+      hasHandledPrefillRef.current = false
+      return
+    }
+
+    if (!normalizedEmployeeId || loadingActive) {
+      return
+    }
+
+    if (hasHandledPrefillRef.current) {
+      return
+    }
+
+    hasHandledPrefillRef.current = true
+
+    const employeeExists = activeEmployees.some(
+      (employee) =>
+        (employee.employee_id || employee.id) === normalizedEmployeeId,
+    )
+
+    if (employeeExists) {
+      setFormValues((prev) => ({
+        ...prev,
+        employee_id: normalizedEmployeeId,
+      }))
+      setFormVersion((prev) => prev + 1)
+      return
+    }
+
+    setFormValues((prev) => ({
+      ...prev,
+      employee_id: '',
+    }))
+    setFormVersion((prev) => prev + 1)
+    showAlert({
+      type: 'warning',
+      title: 'Colaborador no disponible',
+      description:
+        'El colaborador indicado no esta disponible para asignacion de dispositivo.',
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      autoCloseMs: 1800,
+    })
+  }, [
+    activeEmployees,
+    isCreateView,
+    loadingActive,
+    normalizedEmployeeId,
+    showAlert,
+  ])
 
   useEffect(() => {
     if (!isCreateView) return

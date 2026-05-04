@@ -2,7 +2,7 @@
 
 import clsx from 'clsx';
 import Image from 'next/image';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import useAvatar from './hooks/useAvatar';
 import { baseClasses, imageClass, sizes, onlineClasses } from './styles';
@@ -44,11 +44,26 @@ const Avatar = ({
   className = '',
 }: AvatarProps) => {
   const fallback = useAvatar(initials, alt);
+  const [hasImageError, setHasImageError] = useState(false);
+
+  useEffect(() => {
+    setHasImageError(false);
+  }, [src]);
+
+  const shouldRenderImage = Boolean(src) && !hasImageError;
 
   return (
     <div className={clsx(baseClasses, sizes[size], className)}>
-      {src ? (
-        <Image src={src} alt={alt} className={imageClass} fill priority unoptimized />
+      {shouldRenderImage ? (
+        <Image
+          src={src!}
+          alt={alt}
+          className={imageClass}
+          fill
+          priority
+          unoptimized
+          onError={() => setHasImageError(true)}
+        />
       ) : (
         <span>{fallback}</span>
       )}

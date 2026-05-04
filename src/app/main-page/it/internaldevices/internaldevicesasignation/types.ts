@@ -25,11 +25,8 @@ export type InternalDeviceAssignmentRow = {
  */
 export type StatusFilterValue =
   | 'all'
-  | 'en_revision'
-  | 'excelente'
-  | 'bueno'
-  | 'regular'
-  | 'malo'
+  | 'active'
+  | 'inactive'
 
 /**
  * Option model for the status filter UI.

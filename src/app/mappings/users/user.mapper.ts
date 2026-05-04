@@ -1,9 +1,18 @@
 import {
   CreateUserPayload,
+  MfaMethodPayloadMethod,
   RolePost,
   ToggleUserActivePayload,
+  UpdateUserProfilePayload,
   UpdateUserPayload,
+  UserMfaByIdResponse,
+  UserMfaMethodPayload,
+  UserMfaMethodResponse,
+  UserMfaPayload,
+  UserPasskeyResponse,
+  UserEmployeeSummary,
   UserPost,
+  UserProfilePut,
   UserPut,
   UserRole,
   UserSignaturePayload,
@@ -44,9 +53,55 @@ const toStringArray = (value: unknown): string[] => {
     .filter((item): item is string => item !== undefined);
 };
 
+const toMfaMethodResponse = (value: unknown): "SMS" | "Email" =>
+  toString(value).toUpperCase() === "SMS" ? "SMS" : "Email";
+
+const toMfaMethodPayload = (value: unknown): MfaMethodPayloadMethod =>
+  toString(value).toUpperCase() === "SMS" ? "SMS" : "EMAIL";
+
+export const mapUserEmployeeSummary = (employee: any): UserEmployeeSummary => ({
+  employee_id: toString(employee?.employee_id ?? employee?.id),
+  image_url: toString(employee?.image_url ?? employee?.imageUrl),
+  fullname: toString(employee?.fullname),
+  department: toString(employee?.department),
+  workposition: toString(
+    employee?.workposition ?? employee?.workposition_name ?? employee?.position
+  ),
+  employee_number: toString(
+    employee?.employee_number ?? employee?.employeeNumber ?? employee?.employee
+  ),
+  dr_fingerprint: toBoolean(
+    employee?.dr_fingerprint ?? employee?.accessWithFingerprint
+  ),
+});
+
+export const mapUserEmployeeSummaries = (
+  employees: any[] | undefined
+): UserEmployeeSummary[] =>
+  Array.isArray(employees) ? employees.map(mapUserEmployeeSummary) : [];
+
 export const mapUser = (user: any): UserType => {
   const rawRole = user?.role;
-  const role = rawRole ? mapUserRole(rawRole) : null;
+  const fallbackRoleCandidate =
+    user?.rolename || user?.role_name || user?.name_role || user?.roleName
+      ? {
+          id:
+            user?.role_id ??
+            user?.id_role ??
+            user?.idrole ??
+            user?.roleId,
+          name:
+            user?.rolename ??
+            user?.role_name ??
+            user?.name_role ??
+            user?.roleName,
+        }
+      : null;
+  const role = rawRole
+    ? mapUserRole(rawRole)
+    : fallbackRoleCandidate
+      ? mapUserRole(fallbackRoleCandidate)
+      : null;
   const roles = Array.isArray(user?.roles)
     ? mapUserRoles(user.roles)
     : role
@@ -64,6 +119,7 @@ export const mapUser = (user: any): UserType => {
     email: toOptionalString(user?.email) ?? null,
     email_confirmed: toBoolean(user?.email_confirmed),
     phone_number: toOptionalString(user?.phone_number) ?? null,
+    image_url: toOptionalString(user?.image_url ?? user?.imageUrl) ?? null,
     phone_number_confirmed: toBoolean(user?.phone_number_confirmed),
     two_factor_enabled: toBoolean(user?.two_factor_enabled),
     lockout_enabled: toBoolean(user?.lockout_enabled),
@@ -72,6 +128,7 @@ export const mapUser = (user: any): UserType => {
     change_password: toBoolean(user?.change_password),
     signature: toNullableString(user?.signature),
     is_active: toBoolean(user?.is_active, true),
+    is_gerence: toBoolean(user?.is_gerence),
     employee_id: employeeId ?? undefined,
     idemployee: employeeId ?? undefined,
     role_id: roleId ?? undefined,
@@ -88,7 +145,16 @@ export const mapUserPost = (
   payload: Partial<CreateUserPayload | UserPost> | any
 ): UserPost => ({
   username: toString(payload?.username),
+  image_url: toString(payload?.imageUrl ?? payload?.image_url),
+  phone_number: toString(payload?.phoneNumber ?? payload?.phone_number),
+  is_gerence: toBoolean(payload?.isGerence ?? payload?.is_gerence),
+  dr_fingerprint: toBoolean(
+    payload?.drFingerprint ??
+      payload?.dr_fingerprint ??
+      payload?.accessWithFingerprint
+  ),
   password: toString(payload?.password),
+  signature: toString(payload?.signature),
   idrole: toString(
     payload?.roleId ??
       payload?.role_id ??
@@ -103,10 +169,6 @@ export const mapUserPost = (
       payload?.id_employee ??
       payload?.user?.employee_id ??
       payload?.user?.id
-  ),
-  two_factor_enabled: toBoolean(
-    payload?.twoFactorEnabled ?? payload?.two_factor_enabled,
-    true
   ),
   change_password: toBoolean(
     payload?.changePassword ?? payload?.change_password,
@@ -163,6 +225,34 @@ export const mapUserPut = (
   return result;
 };
 
+export const mapUserProfilePut = (
+  payload: Partial<UpdateUserProfilePayload | UserProfilePut> | any
+): UserProfilePut => ({
+  user_id: toString(
+    payload?.userId ?? payload?.user_id ?? payload?.id_user ?? payload?.id
+  ),
+  employee_id: toString(
+    payload?.employeeId ??
+      payload?.employee_id ??
+      payload?.idemployee ??
+      payload?.id_employee
+  ),
+  role_id: toString(
+    payload?.roleId ?? payload?.role_id ?? payload?.id_role ?? payload?.idrole
+  ),
+  email: toString(payload?.email),
+  phone_number: toString(payload?.phoneNumber ?? payload?.phone_number),
+  image_url: toString(payload?.imageUrl ?? payload?.image_url),
+  is_gerence: toBoolean(payload?.isGerence ?? payload?.is_gerence),
+  dr_fingerprint: toBoolean(
+    payload?.drFingerprint ?? payload?.dr_fingerprint
+  ),
+  password: toString(payload?.password),
+  change_password: toBoolean(
+    payload?.changePassword ?? payload?.change_password
+  ),
+});
+
 export const mapUserRole = (role: any): UserRole => ({
   id: toString(
     role?.id ??
@@ -172,7 +262,13 @@ export const mapUserRole = (role: any): UserRole => ({
       role?.idRole ??
       role?.roleId
   ),
-  name: toString(role?.name),
+  name: toString(
+    role?.name ??
+      role?.rolename ??
+      role?.role_name ??
+      role?.name_role ??
+      role?.roleName
+  ),
   description: toNullableString(role?.description),
   isActive: toBoolean(role?.isActive ?? role?.is_active ?? role?.active, true),
 });
@@ -221,3 +317,53 @@ export const mapToggleUserActivePayload = (
     false
   ),
 });
+
+export const mapUserMfaByIdMethodResponse = (
+  method: any,
+): UserMfaMethodResponse => ({
+  method: toMfaMethodResponse(method?.method),
+  isEnabled: toBoolean(method?.isEnabled),
+  isVerified: toBoolean(method?.isVerified),
+  destinationMasked: toNullableString(method?.destinationMasked),
+  challengeId: toNullableString(method?.challengeId),
+});
+
+export const mapUserMfaByIdResponse = (raw: any): UserMfaByIdResponse => {
+  const source = raw?.data ?? raw;
+  const methods = Array.isArray(source?.methods) ? source.methods : [];
+
+  return {
+    idUser: toString(source?.idUser),
+    twoFactorEnabled: toBoolean(source?.twoFactorEnabled),
+    methods: methods.map(mapUserMfaByIdMethodResponse),
+  };
+};
+
+export const mapUserMfaPayload = (
+  payload: Partial<UserMfaPayload> | any,
+): UserMfaPayload => ({
+  idUser: toString(payload?.idUser ?? payload?.id_user ?? payload?.userId),
+  twoFactorEnabled: toBoolean(payload?.twoFactorEnabled),
+});
+
+export const mapUserMfaMethodPayload = (
+  payload: Partial<UserMfaMethodPayload> | any,
+): UserMfaMethodPayload => ({
+  idUser: toString(payload?.idUser ?? payload?.id_user ?? payload?.userId),
+  method: toMfaMethodPayload(payload?.method),
+  isEnabled: toBoolean(payload?.isEnabled),
+});
+
+export const mapUserPasskeyResponse = (raw: any): UserPasskeyResponse => ({
+  id: toString(raw?.id ?? raw?.passkeyId ?? raw?.credentialId),
+  idUser: toString(raw?.idUser ?? raw?.userId ?? raw?.id_user),
+  friendlyName: toNullableString(raw?.friendlyName ?? raw?.name ?? raw?.deviceName),
+  createdAt: toNullableString(raw?.createdAt ?? raw?.created_at),
+  lastUsedAt: toNullableString(raw?.lastUsedAt ?? raw?.last_used_at),
+});
+
+export const mapUserPasskeysResponse = (raw: any): UserPasskeyResponse[] => {
+  const source = raw?.data ?? raw;
+  const list = Array.isArray(source) ? source : [];
+  return list.map(mapUserPasskeyResponse);
+};
