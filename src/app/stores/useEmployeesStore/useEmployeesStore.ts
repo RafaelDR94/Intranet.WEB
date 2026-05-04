@@ -10,6 +10,7 @@ import {
   createEmployee as createEmployeeRequest,
   deleteEmployee as deleteEmployeeRequest,
   fetchActiveEmployees as fetchActiveEmployeesRequest,
+  fetchDevicesAssignedByEmployeeId as fetchDevicesAssignedByEmployeeIdRequest,
   fetchEmployeesByDepartment as fetchEmployeesByDepartmentRequest,
   fetchEmployeeById as fetchEmployeeByIdRequest,
   fetchEmployees as fetchEmployeesRequest,
@@ -19,13 +20,21 @@ import { EmployeeType } from "@/app/mappings/employees/employee.types";
 
 const initialCollections: Pick<
   EmployeesState,
-  "employees" | "activeEmployees" | "departmentEmployees" | "departmentEmployeesDepartmentId" | "employee"
+  | "employees"
+  | "activeEmployees"
+  | "departmentEmployees"
+  | "departmentEmployeesDepartmentId"
+  | "employee"
+  | "devicesAssignedHistory"
+  | "lastDevicesAssignedEmployeeId"
 > = {
   employees: [],
   activeEmployees: [],
   departmentEmployees: [],
   departmentEmployeesDepartmentId: undefined,
   employee: undefined,
+  devicesAssignedHistory: [],
+  lastDevicesAssignedEmployeeId: undefined,
 };
 
 const initialFlags: Pick<
@@ -34,6 +43,7 @@ const initialFlags: Pick<
   | "loadingById"
   | "loadingActive"
   | "loadingByDepartment"
+  | "loadingDevicesAssignedHistory"
   | "creating"
   | "updating"
   | "deleting"
@@ -42,6 +52,7 @@ const initialFlags: Pick<
   | "successGetById"
   | "successGetActive"
   | "successGetByDepartment"
+  | "successGetDevicesAssignedHistory"
   | "successPost"
   | "successPut"
   | "successDelete"
@@ -53,6 +64,7 @@ const initialFlags: Pick<
   loadingById: false,
   loadingActive: false,
   loadingByDepartment: false,
+  loadingDevicesAssignedHistory: false,
   creating: false,
   updating: false,
   deleting: false,
@@ -61,6 +73,7 @@ const initialFlags: Pick<
   successGetById: false,
   successGetActive: false,
   successGetByDepartment: false,
+  successGetDevicesAssignedHistory: false,
   successPost: false,
   successPut: false,
   successDelete: false,
@@ -84,6 +97,8 @@ export const useEmployeesStore = createWithEqualityFn<EmployeesState>()(
       fetchActiveEmployeesRequest(set, get, force),
     fetchEmployeesByDepartment: (departmentId: string, force = false) =>
       fetchEmployeesByDepartmentRequest(departmentId, set, get, force),
+    fetchDevicesAssignedByEmployeeId: (employeeId: string, force = false) =>
+      fetchDevicesAssignedByEmployeeIdRequest(employeeId, set, get, force),
     fetchEmployeeById: (id: string, force = false) =>
       fetchEmployeeByIdRequest(id, set, get, force),
     createEmployee: (payload) => createEmployeeRequest(set, get, payload),

@@ -37,9 +37,9 @@ const CreateUser = () => {
         disabled={loadingSubmit}
         dataTestId="create-user-form"
         responsiveLayoutMatrix={{
-          sm: [[10], [10], [10], [10], [10]],
-          md: [[10], [10], [10], [10], [10]],
-          lg: [[10], [10], [10], [10], [10]],
+          sm: [[10], [10], [10], [10]],
+          md: [[10], [10], [10], [10]],
+          lg: [[10], [10], [10], [10]],
         }}
       />
     </div>

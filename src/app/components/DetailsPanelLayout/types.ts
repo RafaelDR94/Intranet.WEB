@@ -16,6 +16,7 @@ export interface DetailsPanelLabels {
 export interface DetailsPanelProps {
     open: boolean;
     expanded?: boolean;
+    collapsedWidthClass?: string;
     onClose: () => void;
     onExpandedChange?: (value: boolean) => void;
     closeButtonDataTour?: string;

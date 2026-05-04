@@ -5,12 +5,23 @@ export type UserRole = {
   isActive?: boolean;
 };
 
+export type UserEmployeeSummary = {
+  employee_id: string;
+  image_url: string;
+  fullname: string;
+  department: string;
+  workposition: string;
+  employee_number: string;
+  dr_fingerprint: boolean;
+};
+
 export type UserType = {
   user_id: string;
   username: string;
   email?: string | null;
   email_confirmed: boolean;
   phone_number?: string | null;
+  image_url?: string | null;
   phone_number_confirmed: boolean;
   two_factor_enabled: boolean;
   lockout_enabled: boolean;
@@ -19,6 +30,7 @@ export type UserType = {
   change_password: boolean;
   signature: string | null;
   is_active: boolean;
+  is_gerence?: boolean;
   employee_id?: string | null;
   idemployee?: string | null;
   role_id?: string | null;
@@ -29,19 +41,27 @@ export type UserType = {
 
 export type CreateUserPayload = {
   username: string;
+  imageUrl?: string;
+  phoneNumber?: string;
+  isGerence?: boolean;
+  drFingerprint?: boolean;
   password: string;
+  signature?: string;
   employeeId: string;
   roleId: string;
-  twoFactorEnabled?: boolean;
   changePassword?: boolean;
 };
 
 export type UserPost = {
   username: string;
+  image_url: string;
+  phone_number: string;
+  is_gerence: boolean;
+  dr_fingerprint: boolean;
   password: string;
+  signature: string;
   idrole: string;
   idemployee: string;
-  two_factor_enabled: boolean;
   change_password: boolean;
 };
 
@@ -61,6 +81,32 @@ export type UserPut = {
   signature?: string | null;
   two_factor_enabled?: boolean;
   change_password?: boolean;
+};
+
+export type UpdateUserProfilePayload = {
+  userId: string;
+  employeeId: string;
+  roleId: string;
+  email: string;
+  phoneNumber: string;
+  imageUrl: string;
+  isGerence: boolean;
+  drFingerprint: boolean;
+  password: string;
+  changePassword: boolean;
+};
+
+export type UserProfilePut = {
+  user_id: string;
+  employee_id: string;
+  role_id: string;
+  email: string;
+  phone_number: string;
+  image_url: string;
+  is_gerence: boolean;
+  dr_fingerprint: boolean;
+  password: string;
+  change_password: boolean;
 };
 
 export type UserSignaturePayload = {

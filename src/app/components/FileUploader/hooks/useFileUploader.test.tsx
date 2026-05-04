@@ -59,7 +59,7 @@ describe('useFileUploader hook', () => {
     expect(result.current.allowedTypesLabel).toBe(null);
   });
 
-  it('carga archivo inicial desde base64', async () => {
+  it('carga archivo inicial desde base64 sin invocar onFile', async () => {
     const onFile = vi.fn();
     const { result } = renderHook(() =>
       useFileUploader(onFile, '.txt', false, {
@@ -68,11 +68,11 @@ describe('useFileUploader hook', () => {
       })
     );
 
-    await waitFor(() => expect(onFile).toHaveBeenCalled());
-    expect(result.current.fileName).toBe('base64.txt');
+    await waitFor(() => expect(result.current.fileName).toBe('base64.txt'));
+    expect(onFile).not.toHaveBeenCalled();
   });
 
-  it('carga archivo inicial desde url', async () => {
+  it('carga archivo inicial desde url sin invocar onFile', async () => {
     const onFile = vi.fn();
     const { result } = renderHook(() =>
       useFileUploader(onFile, '.txt', false, {
@@ -81,7 +81,7 @@ describe('useFileUploader hook', () => {
       })
     );
 
-    await waitFor(() => expect(onFile).toHaveBeenCalled());
-    expect(result.current.fileName).toBe('url.txt');
+    await waitFor(() => expect(result.current.fileName).toBe('url.txt'));
+    expect(onFile).not.toHaveBeenCalled();
   });
 });

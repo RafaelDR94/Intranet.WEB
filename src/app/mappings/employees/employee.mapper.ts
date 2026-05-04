@@ -65,6 +65,10 @@ export const mapEmployee = (emp: any): EmployeeType => ({
       })
     : null,
   is_active: toBoolean(emp?.is_active),
+  is_gerence: toBoolean(emp?.is_gerence),
+  dr_fingerprint: toBoolean(
+    emp?.dr_fingerprint ?? emp?.accessWithFingerprint,
+  ),
   fullname: toString(
     emp?.fullname ??
       [emp?.firstname ?? emp?.name,
