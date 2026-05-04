@@ -60,6 +60,10 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
   preview = false,
   previewCoverMode = false,
   multiple = false,
+  previewWrapperClassName,
+  previewImageClassName,
+  previewActionsClassName,
+  previewButtonClassName,
 }) => {
   const [isChanging, setIsChanging] = React.useState(false);
   const {
@@ -127,6 +131,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
             preview && "w-[245px] mx-auto",
             isPreviewCoverMode && "h-[290px]",
             isPreviewCoverMode && "border-0",
+            previewWrapperClassName,
           )}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -136,6 +141,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
             className={clsx(
               previewImageClasses,
               isPreviewCoverMode && "h-[290px]",
+              previewImageClassName,
             )}
             onClick={openPreview}
           />
@@ -145,6 +151,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
               className={clsx(
                 previewActionsClasses,
                 isPreviewCoverMode && "absolute bottom-3 left-0 right-0 mt-0",
+                previewActionsClassName,
               )}
             >
               <Button
@@ -156,6 +163,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
                 className={clsx(
                   "px-8",
                   isPreviewCoverMode && "bg-white-100/90 backdrop-blur-sm",
+                  previewButtonClassName,
                 )}
               >
                 Cambiar imagen

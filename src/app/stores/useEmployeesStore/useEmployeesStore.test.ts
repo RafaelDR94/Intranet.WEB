@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Set } from "./types";
 
-const { fetchEmployeesMock, fetchEmployeeByIdMock } = vi.hoisted(() => {
+const {
+  fetchEmployeesMock,
+  fetchEmployeeByIdMock,
+  fetchDevicesAssignedByEmployeeIdMock,
+} = vi.hoisted(() => {
   const employeesMock = vi.fn(async (set: Set) => {
     set({
       employees: [{ id: "1" } as any],
@@ -20,13 +24,28 @@ const { fetchEmployeesMock, fetchEmployeeByIdMock } = vi.hoisted(() => {
     return { employee_id: id } as any;
   });
 
-  return { fetchEmployeesMock: employeesMock, fetchEmployeeByIdMock: employeeByIdMock };
+  const devicesAssignedByEmployeeIdMock = vi.fn(async (id: string, set: Set) => {
+    set({
+      devicesAssignedHistory: [{ employee_id: id } as any],
+      lastDevicesAssignedEmployeeId: id,
+      loadingDevicesAssignedHistory: false,
+      successGetDevicesAssignedHistory: true,
+    });
+    return [{ employee_id: id }] as any;
+  });
+
+  return {
+    fetchEmployeesMock: employeesMock,
+    fetchEmployeeByIdMock: employeeByIdMock,
+    fetchDevicesAssignedByEmployeeIdMock: devicesAssignedByEmployeeIdMock,
+  };
 });
 
 vi.mock("./utilities", () => ({
   fetchEmployees: fetchEmployeesMock,
   fetchActiveEmployees: vi.fn(async () => {}),
   fetchEmployeesByDepartment: vi.fn(async () => []),
+  fetchDevicesAssignedByEmployeeId: fetchDevicesAssignedByEmployeeIdMock,
   fetchEmployeeById: fetchEmployeeByIdMock,
   createEmployee: vi.fn(async () => null),
   updateEmployee: vi.fn(async () => null),
@@ -43,6 +62,7 @@ describe("useEmployeesStore", () => {
     resetFlags();
     fetchEmployeesMock.mockClear();
     fetchEmployeeByIdMock.mockClear();
+    fetchDevicesAssignedByEmployeeIdMock.mockClear();
   });
 
   it("starts with empty collections", () => {
@@ -52,9 +72,12 @@ describe("useEmployeesStore", () => {
     expect(state.departmentEmployees).toEqual([]);
     expect(state.departmentEmployeesDepartmentId).toBeUndefined();
     expect(state.employee).toBeUndefined();
+    expect(state.devicesAssignedHistory).toEqual([]);
+    expect(state.lastDevicesAssignedEmployeeId).toBeUndefined();
     expect(state.loading).toBe(false);
     expect(state.loadingById).toBe(false);
     expect(state.loadingByDepartment).toBe(false);
+    expect(state.loadingDevicesAssignedHistory).toBe(false);
   });
 
   it("fetchEmployees updates list and success flag", async () => {
@@ -79,5 +102,27 @@ describe("useEmployeesStore", () => {
       employee_id: "abc",
     });
     expect(useEmployeesStore.getState().successGetById).toBe(true);
+  });
+
+  it("fetchDevicesAssignedByEmployeeId updates assignment history", async () => {
+    const result = await useEmployeesStore
+      .getState()
+      .fetchDevicesAssignedByEmployeeId("emp-123");
+    expect(fetchDevicesAssignedByEmployeeIdMock).toHaveBeenCalledWith(
+      "emp-123",
+      expect.any(Function),
+      expect.any(Function),
+      false
+    );
+    expect(result).toEqual([{ employee_id: "emp-123" }]);
+    expect(useEmployeesStore.getState().devicesAssignedHistory).toEqual([
+      { employee_id: "emp-123" },
+    ]);
+    expect(useEmployeesStore.getState().lastDevicesAssignedEmployeeId).toBe(
+      "emp-123"
+    );
+    expect(useEmployeesStore.getState().successGetDevicesAssignedHistory).toBe(
+      true
+    );
   });
 });

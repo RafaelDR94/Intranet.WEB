@@ -26,7 +26,7 @@ actionsRow: "flex items-center gap-2",
 commentBoxPadding: "pt-4",
 requisitionkey:"text-gray-90 text-b4 font-medium",
 requisitionkeyspan:"text-gray-90 text-b3 font-regular",
-editInformationBox:"flex justify-end",
+editInformationBox:"m-0 flex items-center justify-between gap-3",
 bottomSection: "mt-auto space-y-4"
 };
 export const mobileclasses = {

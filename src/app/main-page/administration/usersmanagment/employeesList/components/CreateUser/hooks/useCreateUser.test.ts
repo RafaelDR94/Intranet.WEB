@@ -58,6 +58,11 @@ describe('useCreateUser', () => {
       employee: {
         employee_id: 'emp-1',
         email: 'employee@example.com',
+        image_url: 'https://cdn.example.com/avatar.png',
+        phone_number: '5551234567',
+        dr_fingerprint: true,
+        is_gerence: false,
+        signature: 'firma-base64',
       },
     };
 
@@ -86,17 +91,20 @@ describe('useCreateUser', () => {
         username: ' user@example.com ',
         password: 'password123',
         roleId: 'role-1',
-        twoFactorEnabled: true,
         changePassword: true,
       });
     });
 
     expect(usersStoreState.createUser).toHaveBeenCalledWith({
       username: 'user@example.com',
+      imageUrl: 'https://cdn.example.com/avatar.png',
+      phoneNumber: '5551234567',
+      isGerence: false,
+      drFingerprint: true,
       password: 'password123',
+      signature: 'firma-base64',
       roleId: 'role-1',
       employeeId: 'emp-1',
-      twoFactorEnabled: true,
       changePassword: true,
     });
   });

@@ -91,6 +91,32 @@ describe('FieldRenderer', () => {
     expect(onChange).toHaveBeenCalledWith('2024-11-11T12:45');
   });
 
+  it('propaga autoComplete en campos password', () => {
+    const field: FieldModel = {
+      type: 'password',
+      name: 'provisionalPassword',
+      label: 'Contraseña provisional',
+      value: '',
+      autoComplete: 'new-password',
+    };
+
+    render(
+      <FieldRenderer
+        field={field}
+        value=""
+        allValues={{}}
+        onChange={vi.fn()}
+        variant="default"
+        formDataTestId="form"
+      />
+    );
+
+    expect(screen.getByTestId('form-provisionalPassword')).toHaveAttribute(
+      'autocomplete',
+      'new-password',
+    );
+  });
+
   it('renderiza un select con opciones', () => {
     const field: FieldModel = {
       type: 'select',

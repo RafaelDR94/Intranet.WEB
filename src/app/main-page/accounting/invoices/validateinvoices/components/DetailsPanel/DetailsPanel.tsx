@@ -1,4 +1,4 @@
-﻿// File: /app/components/DetailsPanel/DetailsPanel.tsx
+// File: /app/components/DetailsPanel/DetailsPanel.tsx
 import clsx from "clsx";
 import React, { useEffect, useMemo, useState } from "react";
 
@@ -20,6 +20,9 @@ import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
 import { usePathname } from "next/navigation";
+import WarningIcon from "@/assets/icons/acciones/warning-triangle.svg";
+
+const DESCRIPTION_LIMIT = 150;
 
 type DetailItemRow = {
   id: string
@@ -160,6 +163,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   }, [expenseTypeCatalog, selected]);
 
   const [sapSelectionByRow, setSapSelectionByRow] = useState<Record<string, string>>({});
+  const [editingDescriptionRowId, setEditingDescriptionRowId] = useState<string | null>(null);
+  const [editedDescriptionsByRow, setEditedDescriptionsByRow] = useState<Record<string, string>>({});
+  const [persistedDescriptionsByRow, setPersistedDescriptionsByRow] = useState<Record<string, string>>({});
   const sapOptions = useMemo(
     () =>
       toSapOptions(
@@ -174,6 +180,18 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       (item: any) => !String(item?.claveInterna ?? "").trim(),
     );
   }, [selected]);
+  const getDescriptionValue = (row: DetailItemRow) =>
+    editedDescriptionsByRow[row.id] ?? row.description;
+  const getPersistedDescriptionValue = (row: DetailItemRow) =>
+    persistedDescriptionsByRow[row.id] ?? row.description;
+  const hasDescriptionOverflow = useMemo(
+    () =>
+      detailRows.some(
+        (row) => getDescriptionValue(row).trim().length > DESCRIPTION_LIMIT,
+      ),
+    [detailRows, editedDescriptionsByRow],
+  );
+  const isSendToSapDisabled = hasMissingSapInternalKey || hasDescriptionOverflow;
 
   useEffect(() => {
     const nextSelections: Record<string, string> = {};
@@ -183,6 +201,45 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     });
     setSapSelectionByRow(nextSelections);
   }, [detailRows, sapOptions]);
+
+  useEffect(() => {
+    setEditedDescriptionsByRow((prev) => {
+      const nextDescriptions: Record<string, string> = {};
+      detailRows.forEach((row) => {
+        nextDescriptions[row.id] = prev[row.id] ?? row.description;
+      });
+      return nextDescriptions;
+    });
+  }, [detailRows]);
+
+  useEffect(() => {
+    setPersistedDescriptionsByRow((prev) => {
+      const nextDescriptions: Record<string, string> = {};
+      detailRows.forEach((row) => {
+        nextDescriptions[row.id] = prev[row.id] ?? row.description;
+      });
+      return nextDescriptions;
+    });
+  }, [detailRows]);
+
+  const commitDescriptionChange = async (row: DetailItemRow) => {
+    if (row.jsonSapArrayIndex == null) return;
+    const nextDescription = getDescriptionValue(row);
+    const lastSavedDescription = getPersistedDescriptionValue(row);
+    if (nextDescription === lastSavedDescription) return;
+
+    const ok = await handleUpdateJsonSapItem(
+      row.jsonSapArrayIndex,
+      row.sapInternalKey,
+      nextDescription,
+    );
+    if (ok) {
+      setPersistedDescriptionsByRow((prev) => ({
+        ...prev,
+        [row.id]: nextDescription,
+      }));
+    }
+  };
 
   return (
     <DetailsPanelLayout
@@ -200,7 +257,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           {(currentPagePermissions?.canValidInvoice && validInvoice) && <Button size="small" variant="solid" hideIcon onClick={() => setOpenValidInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
             {`Validar ${documentLabel}`}
           </Button>}
-          {(canShowSendToSapAction && sendInvoiceToSap) && <Button size="small" variant="solid" hideIcon onClick={() => onSendToSap?.()} disabled={hasMissingSapInternalKey}>
+          {(canShowSendToSapAction && sendInvoiceToSap) && <Button size="small" variant="solid" hideIcon onClick={() => onSendToSap?.()} disabled={isSendToSapDisabled}>
             Enviar a SAP
           </Button>}
           {currentPagePermissions?.canRejectInvoice && rejectInvoice && <Button size="small" variant="outline" hideIcon onClick={() => setOpenRejectInvoice(true)} disabled={(operations && selected?.validatedbyoperations) || selected?.status?.toUpperCase() == "RECHAZADO"}>
@@ -279,6 +336,40 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               <span className={isMobile ? ms.valueText :s.valueText}>{String(selected?.rfc_receptor)}</span>
             </div>
           </div>
+          {isSatRoute && (
+            <div className={s.editInformationBox}>
+              {hasDescriptionOverflow ? (
+                <div className="relative group">
+                  <Button
+                    icon={WarningIcon}
+                    variant="ghost"
+                    size="small"
+                    aria-label="Advertencia de descripciones"
+                  />
+                  <div className="pointer-events-none absolute bottom-full left-1/2 z-[999999] mb-2 hidden w-[292px] -translate-x-1/2 group-hover:block group-focus-within:block">
+                    <div className="relative translate-x-28 rounded-2xl bg-[#1E7D86] px-4 py-3 text-left text-white-10 text-c2 font-medium leading-5 shadow-md">
+                      Hay una o más descripciones que exceden el núm. de caracteres permitidos
+                      <span className="absolute left-[calc(50%-7rem)] top-full -translate-x-1/2 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-[#1E7D86]" />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div />
+              )}
+              
+              <Button
+                size="small"
+                variant="solid"
+                hideIcon
+                onClick={() => {
+                  const firstEditableRow = detailRows.find((row) => row.description.trim().length > 0);
+                  setEditingDescriptionRowId(firstEditableRow?.id ?? null);
+                }}
+              >
+                Editar descripción
+              </Button>
+            </div>
+          )}
 
           {/* Conceptos / Tipos de gasto */}
           <div className={s.conceptsScroller}>
@@ -291,10 +382,41 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                         CLAVE SAT:&nbsp;
                         <span className={isMobile ? ms.valueText : s.valueText}>{row.satKey}</span>
                       </div>
-                      <div className={isMobile ? ms.labelLine : s.labelLine}>
-                        DESC.:&nbsp;
-                        <span className={isMobile ? ms.valueText : s.valueText}>{row.description}</span>
-                      </div>
+                      {editingDescriptionRowId === row.id ? (
+                        <input
+                          type="text"
+                          maxLength={DESCRIPTION_LIMIT}
+                          value={getDescriptionValue(row)}
+                          placeholder="Nueva descripción"
+                          className="w-full rounded-md border border-gray-30  px-3 py-2 text-sm text-black-100 outline-none transition-all placeholder:text-gray-50 focus:border-green-100 focus:bg-green-10"
+                          onChange={(event) =>
+                            setEditedDescriptionsByRow((prev) => ({
+                              ...prev,
+                              [row.id]: event.target.value,
+                            }))
+                          }
+                          onBlur={async () => {
+                            await commitDescriptionChange(row);
+                          }}
+                          onKeyDown={async (event) => {
+                            if (event.key !== "Enter") return;
+                            event.preventDefault();
+                            await commitDescriptionChange(row);
+                            (event.currentTarget as HTMLInputElement).blur();
+                          }}
+                        />
+                      ) : (
+                        <div className={isMobile ? ms.labelLine : s.labelLine}>
+                          DESC.:&nbsp;
+                          <button
+                            type="button"
+                            className={clsx(isMobile ? ms.valueText : s.valueText, "text-left")}
+                            onClick={() => setEditingDescriptionRowId(row.id)}
+                          >
+                            {getDescriptionValue(row)}
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className={s.sapSelectBox}>
                       <Select

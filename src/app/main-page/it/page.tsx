@@ -6,6 +6,7 @@ export default function ItPage
     <PermissionRedirect
       routes={[
         '/main-page/it/internaldevices',
+        '/main-page/it/users'
       ]}
     />
   );

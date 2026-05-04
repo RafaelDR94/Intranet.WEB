@@ -248,7 +248,12 @@ const RecoverEmailClient = () => {
       }
 
       clearRecoverPasswordState();
-      router.push("/main-page/home/announcements/");
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser?.changePassword === true) {
+        router.push("/login/recover-password/recovery-new-password/");
+      } else {
+        router.push("/main-page/home/announcements/");
+      }
       return;
     }
 

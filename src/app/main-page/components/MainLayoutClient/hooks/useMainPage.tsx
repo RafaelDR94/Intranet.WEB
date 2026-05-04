@@ -71,6 +71,7 @@ export const sidebarRoutes = [
     icon: ServerIcon,
     subroutes: [
       { label: 'Dispositivos', path: '/main-page/it/internaldevices' },
+      { label: 'Usuarios', path: '/main-page/it/users' },
     ],
   },
   {

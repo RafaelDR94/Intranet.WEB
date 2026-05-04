@@ -5,13 +5,18 @@ import useChangePassword from "./useChangePassword";
 
 type MockState = {
   error: string | null;
+  user: { email?: string; userName?: string; changePassword?: boolean } | null;
+  loading: boolean;
   resettingPasswordRecovery: boolean;
+  successChangePassword: boolean;
   resetPasswordRecovery: (payload: unknown) => Promise<unknown>;
+  changePassword: (payload: unknown) => Promise<unknown>;
   resetFlags: () => void;
 };
 
 const mockResetFlags = vi.fn();
 const mockResetPasswordRecovery = vi.fn();
+const mockChangePassword = vi.fn();
 const mockClearFlow = vi.fn();
 let mockState: MockState;
 let mockFlowState: any;
@@ -34,8 +39,12 @@ describe("useChangePassword", () => {
     vi.clearAllMocks();
     mockState = {
       error: null,
+      user: null,
+      loading: false,
       resettingPasswordRecovery: false,
+      successChangePassword: false,
       resetPasswordRecovery: mockResetPasswordRecovery.mockResolvedValue(null),
+      changePassword: mockChangePassword.mockResolvedValue(undefined),
       resetFlags: mockResetFlags,
     };
     mockFlowState = {
@@ -74,6 +83,29 @@ describe("useChangePassword", () => {
       confirmPassword: "NuevaSegura123!",
     });
     expect(result.current.isSuccess).toBe(true);
+  });
+
+  it("en flujo forzado usa changePassword y no requiere challenge", async () => {
+    mockFlowState.resetChallenge = null;
+    mockState.user = { email: "admin@dr.com", changePassword: true };
+
+    const { result } = renderHook(() => useChangePassword(mockRouter));
+
+    act(() => {
+      result.current.setNewPassword("NuevaSegura123!");
+      result.current.setConfirmPassword("NuevaSegura123!");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(mockChangePassword).toHaveBeenCalledWith({
+      email: "admin@dr.com",
+      newPassword: "NuevaSegura123!",
+      changePassword: false,
+    });
+    expect(mockRouter.replace).not.toHaveBeenCalledWith("/login");
   });
 
   it("reporta error si las contraseñas no coinciden", async () => {
