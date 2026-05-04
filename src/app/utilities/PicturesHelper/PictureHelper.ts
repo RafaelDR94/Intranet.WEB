@@ -10,10 +10,106 @@ export const base64ToBlob = (base64: string) => {
     return new Blob([ab], { type: mimeString });
 };
 
-const getDataUrlMimeType = (dataUrl: string): string => {
+export const getDataUrlMimeType = (dataUrl: string): string => {
   const header = dataUrl.split(',')[0] || '';
   const match = header.match(/data:([^;]+)/);
   return match ? match[1] : 'image/jpeg';
+};
+
+export const isHeicLikeMimeType = (mimeType?: string) => {
+  const normalized = (mimeType ?? '').toLowerCase();
+  return normalized === 'image/heic' || normalized === 'image/heif';
+};
+
+const blobToArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
+  if (typeof blob.arrayBuffer === 'function') {
+    return blob.arrayBuffer();
+  }
+
+  return new Promise<ArrayBuffer>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as ArrayBuffer);
+    reader.onerror = () => reject(reader.error ?? new Error('Unable to read blob'));
+    reader.readAsArrayBuffer(blob);
+  });
+};
+
+export const detectImageMimeTypeFromSignature = async (
+  blob: Blob
+): Promise<string | undefined> => {
+  const buffer = await blobToArrayBuffer(blob);
+  const bytes = new Uint8Array(buffer.slice(0, 32));
+
+  if (
+    bytes[0] === 0xff &&
+    bytes[1] === 0xd8 &&
+    bytes[2] === 0xff
+  ) {
+    return 'image/jpeg';
+  }
+
+  if (
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47
+  ) {
+    return 'image/png';
+  }
+
+  if (
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46 &&
+    bytes[8] === 0x57 &&
+    bytes[9] === 0x45 &&
+    bytes[10] === 0x42 &&
+    bytes[11] === 0x50
+  ) {
+    return 'image/webp';
+  }
+
+  const brand = String.fromCharCode(...Array.from(bytes.slice(4, 12))).toLowerCase();
+  if (brand.includes('ftypheic') || brand.includes('ftypheif') || brand.includes('ftypmif1')) {
+    return 'image/heic';
+  }
+
+  return undefined;
+};
+
+export const convertHeicBlobToJpeg = async (blob: Blob): Promise<Blob> => {
+  const { default: heic2any } = await import('heic2any');
+  const result = await heic2any({
+    blob,
+    toType: 'image/jpeg',
+    quality: 0.9,
+  });
+
+  const first = Array.isArray(result) ? result[0] : result;
+  if (!(first instanceof Blob)) {
+    throw new Error('HEIC conversion did not return a Blob');
+  }
+
+  return first.type ? first : new Blob([first], { type: 'image/jpeg' });
+};
+
+export const normalizeImageBlobForBrowser = async (
+  blob: Blob,
+  mimeHint?: string
+): Promise<Blob> => {
+  const detectedMime = await detectImageMimeTypeFromSignature(blob);
+  const resolvedMime = detectedMime || blob.type || mimeHint || '';
+
+  if (isHeicLikeMimeType(resolvedMime)) {
+    return convertHeicBlobToJpeg(blob);
+  }
+
+  if (!blob.type && detectedMime) {
+    return new Blob([blob], { type: detectedMime });
+  }
+
+  return blob;
 };
 
 const isWebpSupported = (() => {
@@ -88,6 +184,17 @@ export const optimizeDataUrlToBlob = async (
     preferWebp = true,
     preserveAlpha = false,
   } = options;
+  const sourceMime = getDataUrlMimeType(dataUrl);
+
+  if (isHeicLikeMimeType(sourceMime)) {
+    const convertedBlob = await convertHeicBlobToJpeg(base64ToBlob(dataUrl));
+    return {
+      blob: convertedBlob,
+      mime: convertedBlob.type || 'image/jpeg',
+      width: 0,
+      height: 0,
+    };
+  }
 
   if (typeof document === 'undefined') {
     const fallbackBlob = base64ToBlob(dataUrl);

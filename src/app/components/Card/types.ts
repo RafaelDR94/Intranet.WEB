@@ -30,5 +30,7 @@ export type CardProps<TRow extends Record<string, unknown> = Record<string, unkn
   actionMenuProps?: ActionMenuCellProps<TRow>
   /** Enables opening the image in fullscreen preview on click (default: true) */
   enableImagePreview?: boolean
+  /** Enables a one-time remote image recovery via fetch/blob when first paint fails */
+  enableRemoteImageRecovery?: boolean
 }
 

@@ -137,9 +137,9 @@ describe("useReportSaver", () => {
     resetFlagsMock = vi.fn();
     updateBackIdMock = vi.fn();
     updateQueryMock = vi.fn();
-    base64ToBlobMock = vi.fn(() => "blob:data");
+    base64ToBlobMock = vi.fn(() => new Blob(["png"], { type: "image/png" }));
     optimizeDataUrlToBlobMock = vi.fn(async () => ({
-      blob: "blob:data",
+      blob: new Blob(["jpeg"], { type: "image/jpeg" }),
       mime: "image/jpeg",
       width: 100,
       height: 100,
@@ -171,6 +171,7 @@ describe("useReportSaver", () => {
     expect(showSpinnerMock).toHaveBeenCalledWith({ message: "Guardando reporte..." });
     expect(firebasestorageMock.uploadFile).toHaveBeenCalledTimes(4);
     expect(optimizeDataUrlToBlobMock).toHaveBeenCalled();
+    expect(firebasestorageMock.uploadFile.mock.calls[0]?.[1]).toMatch(/\.jpg$/);
 
     await waitFor(() => {
       expect(createReportMock).toHaveBeenCalledTimes(1);
@@ -236,5 +237,39 @@ describe("useReportSaver", () => {
     expect(showAlertMock).toHaveBeenCalledWith(
       expect.objectContaining({ type: "success" })
     );
+  });
+
+  it("genera extensiones reales segun el mime optimizado o el blob original", async () => {
+    const report = buildReport();
+    createReportMock.mockResolvedValue({ id: "REP-1000" });
+
+    optimizeDataUrlToBlobMock
+      .mockResolvedValueOnce({
+        blob: new Blob(["webp"], { type: "image/webp" }),
+        mime: "image/webp",
+        width: 100,
+        height: 100,
+      })
+      .mockResolvedValueOnce({
+        blob: new Blob(["jpeg"], { type: "image/jpeg" }),
+        mime: "image/jpeg",
+        width: 100,
+        height: 100,
+      })
+      .mockRejectedValueOnce(new Error("opt failed"))
+      .mockRejectedValueOnce(new Error("opt failed"));
+
+    const { result } = renderHook(() => useReportSaver());
+
+    await act(async () => {
+      await result.current.SaveReport(report);
+    });
+
+    const uploadedPaths = firebasestorageMock.uploadFile.mock.calls.map(([, path]) => path);
+
+    expect(uploadedPaths[0]).toMatch(/\.webp$/);
+    expect(uploadedPaths[1]).toMatch(/\.jpg$/);
+    expect(uploadedPaths[2]).toMatch(/\.png$/);
+    expect(uploadedPaths[3]).toMatch(/\.png$/);
   });
 });
