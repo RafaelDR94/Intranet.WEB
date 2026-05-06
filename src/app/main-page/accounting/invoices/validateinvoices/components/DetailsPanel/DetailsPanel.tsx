@@ -164,6 +164,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
 
   const [sapSelectionByRow, setSapSelectionByRow] = useState<Record<string, string>>({});
   const [editingDescriptionRowId, setEditingDescriptionRowId] = useState<string | null>(null);
+  const [editingOverflowDescriptions, setEditingOverflowDescriptions] = useState(false);
   const [editedDescriptionsByRow, setEditedDescriptionsByRow] = useState<Record<string, string>>({});
   const [persistedDescriptionsByRow, setPersistedDescriptionsByRow] = useState<Record<string, string>>({});
   const sapOptions = useMemo(
@@ -189,6 +190,15 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       detailRows.some(
         (row) => getDescriptionValue(row).trim().length > DESCRIPTION_LIMIT,
       ),
+    [detailRows, editedDescriptionsByRow],
+  );
+  const isRowOverflow = (row: DetailItemRow) =>
+    getDescriptionValue(row).trim().length > DESCRIPTION_LIMIT;
+  const firstOverflowRowId = useMemo(
+    () =>
+      detailRows.find(
+        (row) => isRowOverflow(row),
+      )?.id ?? null,
     [detailRows, editedDescriptionsByRow],
   );
   const isSendToSapDisabled = hasMissingSapInternalKey || hasDescriptionOverflow;
@@ -221,6 +231,13 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       return nextDescriptions;
     });
   }, [detailRows]);
+
+  useEffect(() => {
+    if (!hasDescriptionOverflow) {
+      setEditingOverflowDescriptions(false);
+      setEditingDescriptionRowId(null);
+    }
+  }, [hasDescriptionOverflow]);
 
   const commitDescriptionChange = async (row: DetailItemRow) => {
     if (row.jsonSapArrayIndex == null) return;
@@ -361,9 +378,10 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 size="small"
                 variant="solid"
                 hideIcon
+                disabled={!hasDescriptionOverflow}
                 onClick={() => {
-                  const firstEditableRow = detailRows.find((row) => row.description.trim().length > 0);
-                  setEditingDescriptionRowId(firstEditableRow?.id ?? null);
+                  setEditingOverflowDescriptions(true);
+                  setEditingDescriptionRowId(firstOverflowRowId);
                 }}
               >
                 Editar descripción
@@ -382,7 +400,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                         CLAVE SAT:&nbsp;
                         <span className={isMobile ? ms.valueText : s.valueText}>{row.satKey}</span>
                       </div>
-                      {editingDescriptionRowId === row.id ? (
+                      {(isRowOverflow(row) && (editingOverflowDescriptions || editingDescriptionRowId === row.id)) ? (
                         <input
                           type="text"
                           maxLength={DESCRIPTION_LIMIT}
@@ -397,6 +415,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                           }
                           onBlur={async () => {
                             await commitDescriptionChange(row);
+                            if (!hasDescriptionOverflow) setEditingOverflowDescriptions(false);
                           }}
                           onKeyDown={async (event) => {
                             if (event.key !== "Enter") return;
@@ -411,7 +430,10 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                           <button
                             type="button"
                             className={clsx(isMobile ? ms.valueText : s.valueText, "text-left")}
-                            onClick={() => setEditingDescriptionRowId(row.id)}
+                            onClick={() => {
+                              if (!isRowOverflow(row)) return;
+                              setEditingDescriptionRowId(row.id);
+                            }}
                           >
                             {getDescriptionValue(row)}
                           </button>

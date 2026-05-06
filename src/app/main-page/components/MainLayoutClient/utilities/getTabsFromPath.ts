@@ -195,8 +195,7 @@ export const getTabsFromPath = (
     'configuration': [
       { label: 'Cuenta', path: '/main-page/configuration/account' },
       { label: 'Seguridad', path: '/main-page/configuration/security' },
-      // { label: 'Notificaciones', path: '/main-page/configuration/notifications' },
-      // { label: 'Dispositivos', path: '/main-page/configuration/devices' },
+      { label: 'Notificaciones', path: '/main-page/configuration/notifications' },
     ],
   };
 
@@ -667,6 +666,13 @@ export const getTabsFromPath = (
       }
       return tab;
     });
+  }
+
+  if (first === 'configuration' && second === 'devices') {
+    const devicesTab = { label: 'Dispositivos', path: '/main-page/configuration/devices' };
+    if (!tabs.some((tab) => tab.path === devicesTab.path)) {
+      tabs = [...tabs, devicesTab];
+    }
   }
 
   return tabs;

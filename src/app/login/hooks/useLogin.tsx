@@ -4,6 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FieldModel } from "../../components/DynamicForm/types";
 import { useRecoverPasswordFlow } from "../context/RecoverPasswordFlowContext";
 import { useAuth } from "../../context/AuthContext/AuthContext";
+import { PasskeyService, isPasskeySupported } from "@/app/services/passkeys/PasskeyService";
+import { saveUser } from "@/app/context/AuthContext/utilities/AuthService";
+import { setInterceptor } from "@/app/stores/useAuthStore/utilities/interceptor";
 import {
   LoginMfaRequiredError,
   type LoginMfaMethod,
@@ -56,6 +59,7 @@ export interface UseLogin {
   setSelectedMfaMethod: (method: "Email" | "SMS") => void;
   handleSendMfaCode: () => Promise<void>;
   handleBackToLoginFromMfa: () => void;
+  handlePasskeyLogin: () => Promise<void>;
 }
 
 const REMEMBER_EMAIL_KEY = "drs.remember.email";
@@ -354,6 +358,58 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
     clearRecoverPasswordState();
   };
 
+  const handlePasskeyLogin = async () => {
+    setFailMessage("");
+    setIsLoading(true);
+
+    try {
+      const email = String(loginValues.email ?? "").trim();
+      if (!email || !EMAIL_PATTERN.test(email)) {
+        throw new Error("Escribe tu correo antes de continuar con passkey.");
+      }
+
+      if (!(await isPasskeySupported())) {
+        throw new Error("Este dispositivo no soporta passkeys.");
+      }
+
+      const authenticatedUser = await PasskeyService.loginWithPasskey(email);
+      if (!authenticatedUser?.token) {
+        throw new Error("LoginVerify no devolvió un token válido.");
+      }
+
+      const normalizedUser = {
+        ...authenticatedUser,
+        treeFirebase:
+          typeof authenticatedUser.treeFirebase === "string"
+            ? authenticatedUser.treeFirebase
+            : JSON.stringify(authenticatedUser.treeFirebase ?? {}),
+      };
+
+      await saveUser(normalizedUser);
+      useAuthStore.setState({
+        user: normalizedUser,
+        token: normalizedUser.token,
+        successLogin: true,
+      });
+      setInterceptor(normalizedUser.token);
+      router.push("/main-page");
+    } catch (error: unknown) {
+      const appError = error as {
+        response?: { data?: { error_Message?: string } };
+        error_Message?: string;
+        message?: string;
+      };
+      const messageError =
+        appError?.response?.data?.error_Message ??
+        appError?.error_Message ??
+        appError?.message ??
+        "No se logr� acceder con passkey, int�ntalo de nuevo.";
+      setFailMessage(messageError);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     rememberStatus,
     isLoading,
@@ -370,8 +426,10 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
     setSelectedMfaMethod,
     handleSendMfaCode,
     handleBackToLoginFromMfa,
+    handlePasskeyLogin,
   };
 };
 
 export default useLogin;
+
 

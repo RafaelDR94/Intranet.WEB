@@ -27,6 +27,18 @@ describe('getTabsFromPath utility', () => {
     expect(result).toEqual([
       { label: 'Cuenta', path: '/main-page/configuration/account' },
       { label: 'Seguridad', path: '/main-page/configuration/security' },
+      { label: 'Notificaciones', path: '/main-page/configuration/notifications' },
+    ]);
+  });
+
+  it('shows dispositivos tab only when visiting devices page', () => {
+    const result = getTabsFromPath('/main-page/configuration/devices');
+
+    expect(result).toEqual([
+      { label: 'Cuenta', path: '/main-page/configuration/account' },
+      { label: 'Seguridad', path: '/main-page/configuration/security' },
+      { label: 'Notificaciones', path: '/main-page/configuration/notifications' },
+      { label: 'Dispositivos', path: '/main-page/configuration/devices' },
     ]);
   });
 

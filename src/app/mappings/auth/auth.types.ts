@@ -26,7 +26,7 @@ export type PostRecoverPassword = {
 
 export type PostAuthChallengeVerify = {
   challengeId: string
-  method: "Email" | "SMS"
+  method: "Email" | "SMS" | "PASSKEY"
   code: string | null
   verificationToken: string | null
 }

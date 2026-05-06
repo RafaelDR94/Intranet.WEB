@@ -31,6 +31,7 @@ describe('changeMfaMethodStatus util', () => {
             isEnabled: false,
             isVerified: false,
             destinationMasked: null,
+            destination: null,
             challengeId: null,
           },
           {
@@ -38,6 +39,7 @@ describe('changeMfaMethodStatus util', () => {
             isEnabled: false,
             isVerified: true,
             destinationMasked: 'cu***@gmail.com',
+            destination: 'cuenta@gmail.com',
             challengeId: null,
           },
         ],
@@ -51,12 +53,14 @@ describe('changeMfaMethodStatus util', () => {
       idUser: 'F0CCF87B-C135-476E-AFE1-8B86A67269D5',
       method: 'SMS',
       isEnabled: true,
+      destination: '5512345678',
     })
 
     expect(putMock).toHaveBeenCalledWith('/Users/Mfa/Method', {
       idUser: 'F0CCF87B-C135-476E-AFE1-8B86A67269D5',
       method: 'SMS',
       isEnabled: true,
+      destination: '5512345678',
     })
     expect(state.successChangeMFAMethod).toBe(true)
     expect(state.mfaSmsEnabled).toBe(true)
@@ -78,6 +82,7 @@ describe('changeMfaMethodStatus util', () => {
             isEnabled: false,
             isVerified: false,
             destinationMasked: null,
+            destination: null,
             challengeId: null,
           },
           {
@@ -85,6 +90,7 @@ describe('changeMfaMethodStatus util', () => {
             isEnabled: true,
             isVerified: true,
             destinationMasked: 'cu***@gmail.com',
+            destination: 'cuenta@gmail.com',
             challengeId: null,
           },
         ],
@@ -96,14 +102,16 @@ describe('changeMfaMethodStatus util', () => {
 
     await changeMfaMethodStatus(set, get, {
       idUser: 'F0CCF87B-C135-476E-AFE1-8B86A67269D5',
-      method: 'EMAIL',
+      method: 'Email',
       isEnabled: false,
+      destination: 'cuenta@gmail.com',
     })
 
     expect(putMock).toHaveBeenCalledWith('/Users/Mfa/Method', {
       idUser: 'F0CCF87B-C135-476E-AFE1-8B86A67269D5',
-      method: 'EMAIL',
+      method: 'Email',
       isEnabled: false,
+      destination: 'cuenta@gmail.com',
     })
     expect(state.successChangeMFAMethod).toBe(true)
     expect(state.mfaEmailEnabled).toBe(false)
