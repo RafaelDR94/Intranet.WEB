@@ -1,0 +1,21 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Activities/hooks/useActivities" />
+
+# useActivities
+
+Inicializa el store temporal de actividades para el constructor de reportes.
+Sincroniza las actividades actuales del reporte activo y expone banderas basicas
+para saber cuando la UI puede comenzar a renderizar.
+
+```tsx
+const { report, canStart } = useActivities();
+```
+
+## Responsabilidades
+
+- Limpia el estado previo de `useActivitiesStore` antes de comenzar el flujo.
+- Replica `report.activities` dentro del store solo la primera vez que el
+  reporte esta listo.
+- Publica el objeto `report` actual para que otras capas puedan leer firmas o
+  informacion contextual.

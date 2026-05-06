@@ -5,6 +5,7 @@ export const mapDeviceExternal = (dev: any): DeviceExternalView => ({
   brand: dev?.brand,
   model: dev?.model,
   serialnumber: dev?.serialnumber,
+  idGenericEquipment: dev?.idGenericEquipment ?? dev?.idgenericEquipment ?? null,
   idproyect: dev.idproyect,
   keyproyect: dev.keyproyect,
   idlocation: dev.idlocation,

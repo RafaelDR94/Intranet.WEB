@@ -5,7 +5,9 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import type { ProyectLocationState } from './types';
 import {
   fetchAllReportsDevices,
+  fetchDeviceById,
   fetchDevicesByLocation,
+  fetchDevicesByProyectId,
   fetchLocationsByProyect,
 } from './utilities';
 
@@ -13,11 +15,17 @@ export const useProyectLocationStore = createWithEqualityFn<ProyectLocationState
   locations: [],
   devices: [],
   allDevices: [],
+  devicesByProyect: [],
+  currentDevice: null,
   lastProyectId: null,
   lastLocationId: null,
+  lastDevicesByProyectId: null,
+  lastCurrentDeviceId: null,
   loadingLocations: false,
   loadingDevices: false,
   loadingAllDevices: false,
+  loadingDevicesByProyect: false,
+  loadingCurrentDevice: false,
   error: undefined,
 
   fetchLocations: async (proyectId: string, force = false) =>
@@ -26,6 +34,12 @@ export const useProyectLocationStore = createWithEqualityFn<ProyectLocationState
   fetchDevicesByLocation: async (locationId: string, force = false) =>
     fetchDevicesByLocation(locationId, set, get, force),
 
+  fetchDevicesByProyectId: async (proyectId: string, force = false) =>
+    fetchDevicesByProyectId(proyectId, set, get, force),
+
+  fetchDeviceById: async (deviceId: string, force = false) =>
+    fetchDeviceById(deviceId, set, get, force),
+
   fetchAllDevices: async (force = false) => fetchAllReportsDevices(set, get, force),
 
   reset: () =>
@@ -33,11 +47,17 @@ export const useProyectLocationStore = createWithEqualityFn<ProyectLocationState
       locations: [],
       devices: [],
       allDevices: [],
+      devicesByProyect: [],
+      currentDevice: null,
       lastProyectId: null,
       lastLocationId: null,
+      lastDevicesByProyectId: null,
+      lastCurrentDeviceId: null,
       loadingLocations: false,
       loadingDevices: false,
       loadingAllDevices: false,
+      loadingDevicesByProyect: false,
+      loadingCurrentDevice: false,
       error: undefined,
     }),
   resetFlags: () =>
@@ -45,6 +65,8 @@ export const useProyectLocationStore = createWithEqualityFn<ProyectLocationState
       loadingLocations: false,
       loadingDevices: false,
       loadingAllDevices: false,
+      loadingDevicesByProyect: false,
+      loadingCurrentDevice: false,
       error: undefined,
     }),
 }));

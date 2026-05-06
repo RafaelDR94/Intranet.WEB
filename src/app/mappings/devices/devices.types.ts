@@ -3,6 +3,7 @@ export interface DeviceExternalView {
             "brand": string,
             "model": string,
             "serialnumber": string,
+            "idGenericEquipment"?: string | null,
             "idproyect": string,
             "keyproyect": string,
             "idlocation": string,

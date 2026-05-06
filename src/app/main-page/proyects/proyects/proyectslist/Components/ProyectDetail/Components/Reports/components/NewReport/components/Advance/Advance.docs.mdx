@@ -1,0 +1,25 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Advance" />
+
+# Advance
+
+Renderiza el formulario de datos generales del reporte usando `useAdvanceForm`.
+Controla la altura y notifica al paso principal cuando el formulario es valido.
+
+---
+
+## Uso rapido
+
+```tsx
+import Advance from "./Advance";
+
+<Advance
+  submitRef={submitRef}
+  currentModelName="Correctivo"
+  onStepValidChange={setAdvanceValid}
+/>;
+```
+
+El componente deshabilita el formulario cuando el reporte ya cuenta con firma
+de cliente para impedir cambios posteriores.
