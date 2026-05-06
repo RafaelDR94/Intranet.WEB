@@ -1,0 +1,29 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Devices/components/DevicesForm" />
+
+# DevicesForm
+
+Formulario compacto para crear o editar un dispositivo asociado al reporte. Se
+apoya en `useDeviceForm` para manejar validaciones, peticiones y feedback al
+usuario.
+
+---
+
+## Uso rapido
+
+```tsx
+<DevicesForm
+  selectedRowId="__new__"
+  onClose={close}
+  onSaved={refresh}
+/>;
+```
+
+## Comportamiento
+
+- Muestra controles de accion (Cancelar/Guardar) y delega el submit al hook via
+  `submitRef`.
+- Renderiza `DynamicForm` con tres campos obligatorios (marca, modelo, serie).
+- Cambia el texto del boton segun si el id corresponde a `__new__` o a un
+  dispositivo existente.

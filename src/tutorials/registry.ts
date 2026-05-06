@@ -8,7 +8,7 @@ import { pettyCashTutorials } from './modules/pettyCash';
 import { requestDocumentsTutorials } from './modules/requestDocuments';
 import { requestAccesTutorials } from './modules/requestAcces';
 import { accountingInvoicesTutorials } from './modules/accountingInvoices';
-import { sipProjectsTutorials } from './modules/sipProjects';
+import { proyectsProjectsTutorials } from './modules/proyectsProjects';
 import { generalServicesVehiclesTutorials } from './modules/generalServicesVehicles';
 import { humanResourcesDocumentsTutorials } from './modules/humanResourcesDocuments';
 import { administrationUsersTutorials } from './modules/administrationUsers';
@@ -24,7 +24,7 @@ export const tutorialRegistry: TutorialDefinition[] = [
   ...requestDocumentsTutorials,
   ...requestAccesTutorials,
   ...accountingInvoicesTutorials,
-  ...sipProjectsTutorials,
+  ...proyectsProjectsTutorials,
   ...generalServicesVehiclesTutorials,
   ...humanResourcesDocumentsTutorials,
   ...administrationUsersTutorials,

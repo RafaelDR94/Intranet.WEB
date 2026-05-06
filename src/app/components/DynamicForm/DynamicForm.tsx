@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { Formik, Form } from "formik";
 import React, { useEffect, useMemo, useRef } from "react";
 
@@ -125,7 +126,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   dataTestId,
   valuesVersion = 0,
   valuesVersionActive = false,
-  marginButton
+  marginButton,
+  formClassName,
+  rowClassName,
 }) => {
   const { initialValues, validationSchema, cleanValues, resolveVariant } =
     useDynamicForm(fields, valuesVersion, valuesVersionActive);
@@ -199,7 +202,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             colIndex;
 
           return (
-            <Form className={dynamicFormStyles.form}>
+            <Form className={clsx(dynamicFormStyles.form, formClassName)}>
               <FormStateWatcher isValid={isValid} onValidChange={onValidChange} values={values} onValuesChange={onValuesChange} />
               {effectiveLayoutMatrix
                 ? effectiveLayoutMatrix.map((row, rowIndex) => {
@@ -252,7 +255,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     return (
                       <div
                         key={`row-${rowIndex}`}
-                        className="flex w-full gap-4 mb-4"
+                        className={clsx("mb-4 flex w-full gap-4", rowClassName)}
                       >
                         {columns}
                       </div>

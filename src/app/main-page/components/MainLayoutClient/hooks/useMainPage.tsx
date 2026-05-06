@@ -59,10 +59,11 @@ export const sidebarRoutes = [
   },
   {
     label: 'Reportes',
-    path: '/main-page/sip',
+    path: '/main-page/proyects',
     icon: ServerIcon,
     subroutes: [
-      { label: 'Proyectos', path: '/main-page/sip/proyects' },
+      { label: 'Proyectos', path: '/main-page/proyects/proyects' },
+      { label: 'Inventario', path: '/main-page/proyects/inventory' },
     ],
   },
   {

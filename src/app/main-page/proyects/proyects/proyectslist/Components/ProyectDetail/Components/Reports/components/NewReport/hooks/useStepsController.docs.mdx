@@ -1,0 +1,34 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/hooks/useStepsController" />
+
+# useStepsController
+
+Administra la navegacion del wizard de reportes. Filtra los pasos disponibles
+segun el modelo activo y publica banderas para habilitar los botones de avance,
+retroceso y guardado.
+
+```tsx
+const {
+  steps,
+  currentStep,
+  handleStepChange,
+  handleNext,
+  handleBack,
+  isAdvanceValid,
+  isBackValid,
+  isSaveValid,
+  handleCanSaveReport,
+} = useStepsController({ currentModel });
+```
+
+## Detalles clave
+
+- Usa `BASE_STEPS` y el modelo (`maps`, `refactions`, `clientsign`, etc.) para
+  determinar los pasos visibles.
+- Sincroniza el paso activo con la URL mediante `useQuery`, permitiendo
+  reanudar flujos desde enlaces compartidos.
+- Ajusta automaticamente `isAdvanceValid` e `isBackValid` cuando el paso cambia:
+  en "avance" no se puede retroceder; en "firma" no se puede avanzar.
+- Expone `handleCanSaveReport` para que otros pasos informen si el guardado
+  esta habilitado (por ejemplo, tras validar el formulario de Avance).

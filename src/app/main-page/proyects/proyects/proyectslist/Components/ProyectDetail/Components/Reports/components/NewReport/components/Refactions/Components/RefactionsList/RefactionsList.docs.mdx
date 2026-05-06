@@ -1,0 +1,23 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Refactions/components/RefactionsList" />
+
+# RefactionsList
+
+Tabla que muestra las refacciones ya registradas en el builder. Usa
+`useRefactionsList` para obtener filas y manejar confirmaciones de borrado.
+
+---
+
+## Uso rapido
+
+```tsx
+<RefactionsList onCreate={openForm} onEdit={selectRow} />;
+```
+
+## Funcionalidad
+
+- Configura `DataTable` sin seleccion pero con busqueda interna.
+- Deshabilita el menu de acciones cuando el reporte ya cuenta con firma de
+  cliente.
+- Renderiza un estado vacio amigable cuando no hay refacciones asociadas.

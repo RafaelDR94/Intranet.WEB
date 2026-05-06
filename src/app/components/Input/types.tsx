@@ -27,6 +27,12 @@ export interface InputCommonProps extends React.InputHTMLAttributes<HTMLInputEle
   onIconClick ?:()=>void
   /** Identificador de pruebas */
   dataTestId?: string
+  /** Clase opcional para el contenedor externo */
+  containerClassName?: string
+  /** Clase opcional para la etiqueta */
+  labelClassName?: string
+  /** Clase opcional para el texto auxiliar */
+  helperClassName?: string
 }
 /** Modo <input> (por defecto) */
 export type InputAsInputProps = InputCommonProps &

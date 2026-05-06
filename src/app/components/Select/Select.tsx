@@ -61,6 +61,9 @@ export const Select: React.FC<SelectProps> = ({
   helperText,
   disabled,
   className,
+  labelClassName,
+  triggerClassName,
+  helperClassName,
   maxPanelHeight,
 }) => {
   const listboxId = useId();
@@ -205,7 +208,7 @@ export const Select: React.FC<SelectProps> = ({
 
   return (
     <div className={clsx(baseStyles.container, className)} ref={ref}>
-      {label && <label className={baseStyles.label}>{label}</label>}
+      {label && <label className={clsx(baseStyles.label, labelClassName)}>{label}</label>}
 
       <div
         {...triggerProps}
@@ -214,7 +217,8 @@ export const Select: React.FC<SelectProps> = ({
           baseStyles.sizes[size],
           open ? baseStyles.focusLike : baseStyles.variants[currentVariant],
           !disabled && baseStyles.hover,
-          disabled && baseStyles.variants.disabled
+          disabled && baseStyles.variants.disabled,
+          triggerClassName
         )}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -237,7 +241,7 @@ export const Select: React.FC<SelectProps> = ({
       )}
 
       {helperText && (
-        <span className={clsx(baseStyles.helper, helperClass)}>{helperText}</span>
+        <span className={clsx(baseStyles.helper, helperClass, helperClassName)}>{helperText}</span>
       )}
 
       {open && (

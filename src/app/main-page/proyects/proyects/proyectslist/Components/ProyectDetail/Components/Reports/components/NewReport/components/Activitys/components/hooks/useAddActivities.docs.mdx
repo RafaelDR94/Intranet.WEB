@@ -1,0 +1,28 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Activities/hooks/useAddActivities" />
+
+# useAddActivities
+
+Hook que encapsula toda la logica del paso de actividades: lectura/escritura en
+`useActivitiesStore`, carga de imagenes, validaciones y comunicacion con
+`useReportBuilderStore`.
+
+```tsx
+const {
+  viewerItems,
+  handleImage,
+  handleFormSubmit,
+  handleActivityEdit,
+  confirmActivityDelete,
+} = useAddActivities();
+```
+
+## Puntos clave
+
+- Convierte archivos a dataURL y mantiene un `imagePreview` controlado con
+  proteccion contra race conditions.
+- Genera titulos por defecto y sincroniza cada cambio con `updateActivities`
+  para que el builder tenga el estado actualizado.
+- Expone `pendingDelete` y callbacks para mostrar confirmaciones sin que el
+  componente de presentacion tenga que replicar logica.

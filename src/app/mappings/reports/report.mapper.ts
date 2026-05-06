@@ -21,6 +21,7 @@ export const mapDeviceExternal = (dev: any): DeviceExternalView => ({
   brand: dev?.brand,
   model: dev?.model,
   serialnumber: dev?.serialnumber,
+  idGenericEquipment: dev?.idGenericEquipment ?? dev?.idgenericEquipment ?? null,
   "idproyect": dev?.idproyect,
   "keyproyect": dev?.keyproyect,
   "idlocation": dev?.idlocation,
@@ -38,7 +39,7 @@ export const mapClientSignature = (sign: any): ClientSignatureinterface => ({
 export const mapReportDevicesExternal = (devices: any[]): ReportDeviceView[] =>
   devices.map((dev: any) => ({
     id: dev?.id,
-    device_external_view: mapDeviceExternal(dev?.device_external_view),
+    device_external_view: mapDeviceExternal(dev?.device_external_view ?? dev),
   }));
 export const mapCategory = (category: any): CategoriesType => ({
   id: category?.id,

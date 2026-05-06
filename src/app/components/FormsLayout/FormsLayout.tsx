@@ -31,6 +31,7 @@ type FormsLayoutProps = {
   enableCollapse?: boolean;
   showDivider?: boolean;
   showBackground?: boolean;
+  cardClassName?: string;
 };
 
 /**
@@ -52,6 +53,7 @@ const FormsLayout = ({
   enableCollapse = true,
   showDivider = true,
   showBackground = true,
+  cardClassName,
   primaryButtonDataTour,
   secondaryButtonDataTour,
   children,
@@ -109,7 +111,8 @@ const FormsLayout = ({
                 key={key}
                 className={clsx(
                   "flex gap-6 rounded-lg p-6",
-                  showBackground && "bg-white-100 shadow-md" 
+                  showBackground && "bg-white-100 shadow-md",
+                  cardClassName
                 )}
               >
                 {child}
