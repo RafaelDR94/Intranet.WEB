@@ -91,6 +91,10 @@ export interface FieldModel {
   accept?: string;
   disabled?: boolean;
   className?: string;
+  containerClassName?: string;
+  labelClassName?: string;
+  helperClassName?: string;
+  triggerClassName?: string;
   icon?: FC<SVGProps<SVGSVGElement>>;
   initialFile?: InitialFile;
   initialFiles?: SelectedImage[];
@@ -205,4 +209,6 @@ export interface DynamicFormProps {
   /** Identificador base para data-testid del formulario */
   dataTestId?: string
   marginButton?: string
+  formClassName?: string
+  rowClassName?: string
 }

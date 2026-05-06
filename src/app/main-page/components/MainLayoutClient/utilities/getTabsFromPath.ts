@@ -24,6 +24,23 @@ const withInvoiceContext = (
   return nextQuery ? `${base}?${nextQuery}` : base;
 };
 
+const withProjectContext = (
+  path: string,
+  context: {
+    id?: string | null;
+    label?: string | null;
+  },
+): string => {
+  const [base, query = ""] = path.split("?");
+  const params = new URLSearchParams(query);
+
+  if (context.id) params.set("id", context.id);
+  if (context.label) params.set("label", context.label);
+
+  const nextQuery = params.toString();
+  return nextQuery ? `${base}?${nextQuery}` : base;
+};
+
 export const getTabsFromPath = (
   pathname: string,
   search?: string | URLSearchParams,
@@ -158,9 +175,17 @@ export const getTabsFromPath = (
         path: "/main-page/accounting/sap/operations",
       },
     ],
-    'sip/proyects': [
-      { label: 'Nuevo Proyecto', path: '/main-page/sip/proyects/newproyect' },
-      { label: 'Proyectos', path: '/main-page/sip/proyects/proyectslist' },
+    'proyects/proyects': [
+      { label: 'Nuevo Proyecto', path: '/main-page/proyects/proyects/newproyect' },
+      { label: 'Proyectos', path: '/main-page/proyects/proyects/proyectslist' },
+      { label: 'Ubicaciones', path: '/main-page/proyects/proyects/locations' },
+      { label: 'Dispositivos', path: '/main-page/proyects/proyects/devices' },
+      { label: 'Refacciones', path: '/main-page/proyects/proyects/refactions' },
+    ],
+    'proyects/inventory': [
+      { label: 'Dispositivos', path: '/main-page/proyects/inventory/devices' },
+      { label: 'Refacciones', path: '/main-page/proyects/inventory/refactions' },
+      { label: 'Ubicaciones', path: '/main-page/proyects/inventory/locations' },
     ],
     'generalservices/vehicleregist': [
       { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist/vehicleregistry' },
@@ -634,14 +659,44 @@ export const getTabsFromPath = (
     }
   }
 
-  // SIP/Proyectos: agrega tab dinámica para edición si viene un id
-  if (first === 'sip' && second === 'proyects' && id) {
-    const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-    const detailPath = labelparam ? `${clean}?id=${id}&label=${labelparam}` : `${clean}?id=${id}`;
+  if (first === 'proyects' && second === 'proyects') {
+    const baseProjectTabs: Tab[] = [
+      { label: 'Nuevo Proyecto', path: '/main-page/proyects/proyects/newproyect' },
+      { label: 'Proyectos', path: '/main-page/proyects/proyects/proyectslist' },
+    ];
+    const hasProjectContext = Boolean(id && labelparam);
 
-    if (!tabs.some(t => t.label === 'Editar Proyecto')) {
-      tabs = [...tabs, { label: labelparam || 'Editar Proyecto', path: detailPath }];
+    if (!hasProjectContext) {
+      tabs = baseProjectTabs;
+    } else {
+      const projectContext = { id, label: labelparam };
+      const detailPath = withProjectContext(
+        '/main-page/proyects/proyects/proyectslist',
+        projectContext,
+      );
+      const contextualTabs: Tab[] = [
+        { label: 'Ubicaciones', path: '/main-page/proyects/proyects/locations' },
+        { label: 'Dispositivos', path: '/main-page/proyects/proyects/devices' },
+        { label: 'Refacciones', path: '/main-page/proyects/proyects/refactions' },
+      ].map((tab) => ({
+        ...tab,
+        path: withProjectContext(tab.path, projectContext),
+      }));
+
+      tabs = [
+        ...baseProjectTabs,
+        { label: labelparam ?? 'Proyecto', path: detailPath },
+        ...contextualTabs,
+      ];
     }
+  }
+
+  if (first === 'proyects' && second === 'inventory' && id) {
+    const projectContext = { id, label: labelparam };
+    tabs = tabs.map((tab) => ({
+      ...tab,
+      path: withProjectContext(tab.path, projectContext),
+    }));
   }
 
   if (first === 'it' && second === 'users' && third === 'userspending' && id) {

@@ -1,0 +1,23 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Devices" />
+
+# Devices
+
+Contenedor que alterna entre la lista de dispositivos del proyecto y el
+formulario de alta/edicion. Se apoya en `useDevices` para manejar la fila
+seleccionada.
+
+---
+
+## Uso rapido
+
+```tsx
+import Devices from "./Devices";
+
+<Devices />;
+```
+
+Mientras no exista un `selectedRowId`, se muestra `DevicesList`. Al elegir
+`__new__` o un id especifico, se monta `DevicesForm` reutilizando los callbacks
+expuestos por el hook.

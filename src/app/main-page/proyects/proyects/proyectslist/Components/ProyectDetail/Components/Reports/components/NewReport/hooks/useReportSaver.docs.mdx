@@ -1,0 +1,26 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/hooks/useReportSaver" />
+
+# useReportSaver
+
+Encapsula el proceso de persistir un reporte: sube imagenes a Firebase
+Storage, completa campos faltantes y delega la creacion/actualizacion en
+`useReportsStore`.
+
+```tsx
+const { SaveReport } = useReportSaver();
+
+await SaveReport(reportView);
+```
+
+## Flujo resumido
+
+1. Muestra progreso mediante `usePrincipalLoading` mientras convierte imagenes
+   base64 a blobs y las sube a Firebase.
+2. Asegura datos obligatorios (proyecto, empleado, fechas) usando la sesion del
+   usuario y `currentDate`.
+3. Decide entre `createReport` o `updateReport` segun la presencia de `report.id`
+   y, al terminar, sincroniza la URL (`frontId`/`reportId`) y alerta al usuario.
+4. Maneja errores disparando `showAlert` y reiniciando los flags del store para
+   evitar estados inconsistentes.

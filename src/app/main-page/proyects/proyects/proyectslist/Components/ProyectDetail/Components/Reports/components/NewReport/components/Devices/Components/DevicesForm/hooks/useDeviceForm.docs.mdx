@@ -1,0 +1,30 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Devices/hooks/useDeviceForm" />
+
+# useDeviceForm
+
+Gestiona el ciclo de vida de un dispositivo: carga valores iniciales, valida el
+formulario y coordina llamadas a `useReportDevicesStore`. Tambien muestra
+spinners y alertas mediante `usePrincipal`.
+
+```tsx
+const {
+  values,
+  setValues,
+  isValid,
+  setIsValid,
+  submitting,
+  submitRef,
+  handleSubmit,
+} = useDeviceForm({ deviceId, onSuccess });
+```
+
+## Highlights
+
+- Localiza el dispositivo a editar buscando primero en `locationDevices` y luego
+  en `devices`.
+- Normaliza los payloads con ids de proyecto/ubicacion obtenidos del reporte y
+  del query string.
+- Reacciona a flags (`creating`, `updating`, `successPost`, `successPut`, `error`)
+  para mostrar feedback consistente y llamar `onSuccess` al terminar.

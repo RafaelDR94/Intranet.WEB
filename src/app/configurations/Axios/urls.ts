@@ -137,10 +137,33 @@ export const ReportsTypesReports = process.env.NEXT_PUBLIC_REPORTS_TYPESREPORTS 
 export const ReportsCategories = process.env.NEXT_PUBLIC_REPORTS_REPORTSCATEGORIES ?? "/Reports/ReportCategories";
 export const ReportsCategoriesByIdType = process.env.NEXT_PUBLIC_REPORTS_REPORTSCATEGORIESBYIDTYPE ?? "/Reports/ReportCategoriesByIdType";
 export const ReportsDevices = process.env.NEXT_PUBLIC_REPORTS_DEVICES ?? "/Reports/DevicesExternal";
+export const ReportDeviceExternalById =
+  process.env.NEXT_PUBLIC_REPORT_DEVICE_EXTERNAL_BY_ID ??
+  "/Reports/ReportDeviceExternal";
+export const ReportsDevicesByProyectId =
+  process.env.NEXT_PUBLIC_REPORTS_DEVICES_BY_PROYECT_ID ??
+  "/Reports/DevicesExternalByProyectId";
 export const ReportsDevicesByLocation = process.env.NEXT_PUBLIC_REPORTS_DEVICESBYLOCATION ?? "/Reports/DevicesByProyectLocationId";
 export const ReportsLocation = process.env.NEXT_PUBLIC_REPORTS_LOCATION ?? "/Reports/Location";
 export const LocationProyect = process.env.NEXT_PUBLIC_LOCATION_REPORTS ?? "/Reports/ProyectLocation";
 export const ReportsLocationProyect = process.env.NEXT_PUBLIC_REPORTS_LOCATIONPROYECT ?? "/Reports/LocationProyect";
+export const ReportsGenericEquipment =
+  process.env.NEXT_PUBLIC_REPORTS_GENERIC_EQUIPMENT ??
+  "/Reports/GenericEquipment";
+export const ReportsSpareParts =
+  process.env.NEXT_PUBLIC_REPORTS_SPARE_PARTS ?? "/Reports/SpareParts";
+export const ReportsSparePartsByProyectId =
+  process.env.NEXT_PUBLIC_REPORTS_SPARE_PARTS_BY_PROYECT_ID ??
+  "/Reports/SparePartsByProyectId";
+export const ReportsSparePartsByDeviceId =
+  process.env.NEXT_PUBLIC_REPORTS_SPARE_PARTS_BY_DEVICE_ID ??
+  "/Reports/SparePartsByDeviceId";
+export const ReportsSparePartsByGenericEquipmentId =
+  process.env.NEXT_PUBLIC_REPORTS_SPARE_PARTS_BY_GENERIC_EQUIPMENT_ID ??
+  "/Reports/SparePartsByGenericEquipmentId";
+export const ReportsGenericEquipmentSpareParts =
+  process.env.NEXT_PUBLIC_REPORTS_GENERIC_EQUIPMENT_SPARE_PARTS ??
+  "/Reports/GenericEquipmentSpareParts";
 export const ReportsAllReports = process.env.NEXT_PUBLIC_REPORTS_ALLREPORTS ?? "/Reports/AllReports";
 export const ReportsByID = process.env.NEXT_PUBLIC_REPORTS_BYID ?? "/Reports/ReportsByID";
 export const ReportsAllReportsByIdProyect = process.env.NEXT_PUBLIC_REPORTS_ALLREPORTSBYIDPROYECT ?? "/Reports/AllReportsByIdProyect";

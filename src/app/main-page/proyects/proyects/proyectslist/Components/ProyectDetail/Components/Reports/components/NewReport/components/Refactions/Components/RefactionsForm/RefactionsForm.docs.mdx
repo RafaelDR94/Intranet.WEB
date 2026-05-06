@@ -1,0 +1,29 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Refactions/components/RefactionsForm" />
+
+# RefactionsForm
+
+Formulario para crear o actualizar refacciones asociadas al reporte. Se integra
+con `DynamicForm` y con `useRefactionForm` para toda la logica.
+
+---
+
+## Uso rapido
+
+```tsx
+<RefactionsForm
+  selectedRowId="__new__"
+  onClose={close}
+  onSaved={refresh}
+/>;
+```
+
+## Notas
+
+- Ajusta textos de encabezado y boton segun si se trata de un alta o una
+  edicion.
+- Deshabilita la accion primaria cuando `isValid` es falso para evitar submit
+  accidentales.
+- Propaga cambios del formulario via `setValues` y `setIsValid` expuestos por el
+  hook.

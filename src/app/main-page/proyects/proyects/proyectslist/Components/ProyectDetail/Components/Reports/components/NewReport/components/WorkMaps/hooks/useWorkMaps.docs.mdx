@@ -1,0 +1,30 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/WorkMaps/hooks/useWorkMaps" />
+
+# useWorkMaps
+
+Encapsula el estado del paso "Mapas de trabajo": lectura del mapa existente,
+carga de nuevas imagenes, manejo de cancelaciones y sincronizacion con el
+builder.
+
+```tsx
+const {
+  direction,
+  imagePreview,
+  isEditing,
+  handleImageSelection,
+  handleSave,
+  handleCancel,
+  handleEdit,
+} = useWorkMaps();
+```
+
+## Claves
+
+- Convierte archivos a dataURL mediante `fileToDataUrl` para mostrar un preview
+  inmediato.
+- Persiste la informacion usando `updateMaps`, guardando solo un mapa por
+  reporte.
+- Restaura los valores previos al cancelar, reutilizando un ref interno con el
+  ultimo estado guardado.

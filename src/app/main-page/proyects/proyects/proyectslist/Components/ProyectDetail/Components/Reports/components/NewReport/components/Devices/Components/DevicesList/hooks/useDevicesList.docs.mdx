@@ -1,0 +1,29 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Devices/hooks/useDevicesList" />
+
+# useDevicesList
+
+Hook que alimenta la tabla de dispositivos. Se encarga de cargar los equipos de
+la ubicacion, construir la seleccion inicial y ofrecer helpers para eliminar o
+actualizar la lista dentro del builder.
+
+```tsx
+const {
+  rows,
+  initialSelectedIds,
+  deleteRow,
+  confirmDeleteUI,
+  onSelectedChange,
+  loading,
+} = useDevicesList();
+```
+
+## Responsabilidades
+
+- Filtra los dispositivos del store global por `locationId` y mantiene los ids
+  normalizados.
+- Sincroniza la seleccion con `updateReportDevices` cada vez que el usuario
+  marca/desmarca elementos.
+- Gestiona el popup de confirmacion y dispara `deleteDevice`, mostrando spinners
+  y alerts segun los flags del store remoto.
