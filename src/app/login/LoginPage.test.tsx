@@ -117,6 +117,7 @@ vi.mock("../components/CheckBox/CheckBox", () => {
 
 type LoginMockState = {
   handleLogin: () => void;
+  handlePasskeyLogin: () => void;
   handleForgotPassword: () => void;
   handleLoginValuesChange: (values: Record<string, any>) => void;
   handleRemember: (checked: boolean) => void;
@@ -128,6 +129,7 @@ type LoginMockState = {
 
 const loginState: LoginMockState = {
   handleLogin: vi.fn(),
+  handlePasskeyLogin: vi.fn(),
   handleForgotPassword: vi.fn(),
   handleLoginValuesChange: vi.fn(),
   handleRemember: vi.fn(),
@@ -146,6 +148,7 @@ export function __setLoginMock(partial: Partial<LoginMockState>) {
 
 export function __resetLoginMock() {
   loginState.handleLogin = vi.fn();
+  loginState.handlePasskeyLogin = vi.fn();
   loginState.handleForgotPassword = vi.fn();
   loginState.handleLoginValuesChange = vi.fn();
   loginState.handleRemember = vi.fn();
@@ -197,6 +200,17 @@ describe("LoginPage", () => {
 
     await user.click(screen.getByRole("button", { name: "Iniciar sesión" }));
     expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("dispara handlePasskeyLogin al hacer click en el boton passkey", async () => {
+    const user = userEvent.setup();
+    const passkeySpy = vi.fn();
+    __setLoginMock({ handlePasskeyLogin: passkeySpy });
+
+    render(<LoginPage />);
+    await user.click(screen.getByRole("button", { name: "Iniciar sesión con Passkey" }));
+
+    expect(passkeySpy).toHaveBeenCalledTimes(1);
   });
 
   it("llama a handleRemember con el valor alternado al hacer click en Checkbox", async () => {

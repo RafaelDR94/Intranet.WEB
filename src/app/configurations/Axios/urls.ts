@@ -29,6 +29,12 @@ export const AuthPasskeysRegisterOptions =
 export const AuthPasskeysRegisterVerify =
   process.env.NEXT_PUBLIC_AUTH_PASSKEYS_REGISTER_VERIFY ??
   "/Auth/Passkeys/RegisterVerify";
+export const AuthPasskeysLoginOptions =
+  process.env.NEXT_PUBLIC_AUTH_PASSKEYS_LOGIN_OPTIONS ??
+  "/Auth/Passkeys/LoginOptions";
+export const AuthPasskeysLoginVerify =
+  process.env.NEXT_PUBLIC_AUTH_PASSKEYS_LOGIN_VERIFY ??
+  "/Auth/Passkeys/LoginVerify";
 export const AuthPasskeys =
   process.env.NEXT_PUBLIC_AUTH_PASSKEYS ??
   "/Auth/Passkeys";

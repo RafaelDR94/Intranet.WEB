@@ -58,6 +58,7 @@ const LoginPage = () => {
     setSelectedMfaMethod,
     handleSendMfaCode,
     handleBackToLoginFromMfa,
+    handlePasskeyLogin,
   } = useLogin();
 
   const isMfaStep = Boolean(mfaRequiredData?.requiresMfa);
@@ -165,6 +166,23 @@ const LoginPage = () => {
           </div>
         ) : (
           <>
+            <button
+              type="button"
+              className="mb-4 flex h-12 w-full items-center justify-center rounded-xl bg-green-80 text-[16px] font-semibold leading-[29px] text-white transition hover:bg-[#67cfc5] disabled:cursor-not-allowed disabled:bg-[#295f68]"
+              onClick={() => {
+                void handlePasskeyLogin();
+              }}
+              disabled={isLoading}
+            >
+              Iniciar sesión con Passkey
+            </button>
+
+            <div className="mb-4 flex items-center gap-4 text-white/70">
+              <span className="h-px flex-1 bg-white/40" />
+              <span className="text-sm font-medium">ó</span>
+              <span className="h-px flex-1 bg-white/40" />
+            </div>
+
             <DynamicForm
               fields={loginFields}
               onSubmit={handleLogin}

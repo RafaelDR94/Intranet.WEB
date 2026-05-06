@@ -145,4 +145,43 @@ describe('verifyAuthChallenge util', () => {
       JSON.stringify({ login: { Acces: true } }),
     )
   })
+
+  it('envía challenge PASSKEY preservando el método', async () => {
+    postSpy.mockResolvedValueOnce({
+      data: {
+        challengeId: 'guid-passkey',
+        verified: true,
+        purpose: 'LoginMfa',
+        nextStep: 'LoginCompleted',
+        data: { token: 'pk-token' },
+      },
+    })
+
+    const state: Partial<AuthState> = {
+      loading: false,
+      verifyingAuthChallenge: false,
+      successAuthChallengeVerification: false,
+      authChallengeVerification: undefined,
+    }
+    const set: Set = (partial) =>
+      Object.assign(
+        state,
+        typeof partial === 'function' ? partial(state as AuthState) : partial,
+      )
+    const get: Get = () => state as AuthState
+
+    await verifyAuthChallenge(set, get, {
+      challengeId: 'guid-passkey',
+      method: 'PASSKEY',
+      code: null,
+      verificationToken: '{"assertion":"demo"}',
+    })
+
+    expect(postSpy).toHaveBeenCalledWith('/Auth/Challenge/Verify', {
+      challengeId: 'guid-passkey',
+      method: 'PASSKEY',
+      code: null,
+      verificationToken: '{"assertion":"demo"}',
+    })
+  })
 })

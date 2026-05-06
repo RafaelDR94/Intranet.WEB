@@ -6,6 +6,7 @@ import useLogin from "./useLogin";
 const pushMock = vi.fn();
 const mockLogin = vi.fn();
 const mockLogout = vi.fn();
+const mockUpdateUser = vi.fn();
 const mockFetchRecoverChannels = vi.fn();
 const mockRecoverPassword = vi.fn();
 const mockClearRecoverPasswordState = vi.fn();
@@ -21,7 +22,14 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("../../context/AuthContext/AuthContext", () => ({
-  useAuth: () => ({ login: mockLogin, logout: mockLogout }),
+  useAuth: () => ({ login: mockLogin, logout: mockLogout, UpdateUser: mockUpdateUser }),
+}));
+
+vi.mock("@/app/services/passkeys/PasskeyService", () => ({
+  PasskeyService: {
+    loginWithPasskey: vi.fn(),
+  },
+  isPasskeySupported: vi.fn(async () => true),
 }));
 
 vi.mock("../context/RecoverPasswordFlowContext", () => ({
