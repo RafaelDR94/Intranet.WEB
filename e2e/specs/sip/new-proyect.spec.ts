@@ -1,4 +1,4 @@
-// e2e/specs/sip/new-proyect.spec.ts
+// e2e/specs/proyects/new-proyect.spec.ts
 import { test, expect } from '@playwright/test'
 
 import { fastLogin } from '../../helpers/login-helpers'
@@ -7,7 +7,7 @@ import { fillStable } from '../../helpers/actions-helpers'
 const email = process.env.E2E_USER_EMAIL!
 const password = process.env.E2E_USER_PASSWORD!
 
-test.describe('SIP/New Proyect', () => {
+test.describe('proyects/New Proyect', () => {
   test('crea un proyecto mostrando PopUp de confirmación', async ({ page }) => {
     // Mock de catálogos y creación
     await page.route('**/Employees**', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: [] }) }))
@@ -22,7 +22,7 @@ test.describe('SIP/New Proyect', () => {
 
     await fastLogin(page, email, password)
 
-    await page.goto('/main-page/sip/proyects/newproyect')
+    await page.goto('/main-page/proyects/proyects/newproyect')
     await expect(page.getByTestId('new-proyect-form')).toBeVisible()
 
     await fillStable(page.getByTestId('new-proyect-form-name'), 'Proyecto E2E')

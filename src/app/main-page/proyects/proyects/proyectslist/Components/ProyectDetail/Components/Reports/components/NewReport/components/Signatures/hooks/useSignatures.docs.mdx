@@ -1,0 +1,27 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Signatures/hooks/useSignatures" />
+
+# useSignatures
+
+Controla el flujo de firmas para el colaborador y el cliente. Coordina la
+apertura de los popups, almacena las imagenes y actualiza el reporte en el
+builder.
+
+```tsx
+const {
+  userSignature,
+  clientSignature,
+  handleAuthorization,
+  handleClientAuthorization,
+  handleClick,
+} = useSignature();
+```
+
+## Responsabilidades
+
+- Prefill firmas existentes (empleado y cliente) al hidratar el reporte.
+- Usa `updateSignature` y `updateClientsign` para escribir en la tienda del
+  builder.
+- Decide si abrir el modal del colaborador o el del cliente segun el estado de
+  las firmas y la validez de los datos previos.

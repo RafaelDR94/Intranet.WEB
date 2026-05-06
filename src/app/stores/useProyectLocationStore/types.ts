@@ -5,14 +5,22 @@ export type ProyectLocationState = {
   locations: ProyectLocationType[];
   devices: ReportDeviceView[];
   allDevices: ReportDeviceView[];
+  devicesByProyect: ReportDeviceView[];
+  currentDevice: ReportDeviceView | null;
   lastProyectId: string | null;
   lastLocationId: string | null;
+  lastDevicesByProyectId: string | null;
+  lastCurrentDeviceId: string | null;
   loadingLocations: boolean;
   loadingDevices: boolean;
   loadingAllDevices: boolean; 
+  loadingDevicesByProyect: boolean;
+  loadingCurrentDevice: boolean;
   error?: string;
   fetchLocations: (proyectId: string, force?: boolean)   => Promise<ProyectLocationType[] | null | undefined>
   fetchDevicesByLocation: (locationId: string, force?: boolean)  => Promise<void>
+  fetchDevicesByProyectId: (proyectId: string, force?: boolean) => Promise<void>;
+  fetchDeviceById: (deviceId: string, force?: boolean) => Promise<ReportDeviceView | null>;
   fetchAllDevices: (force?: boolean) => Promise<void>;
   reset: () => void;
   resetFlags: () => void;

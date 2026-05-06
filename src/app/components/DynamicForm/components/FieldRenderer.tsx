@@ -49,6 +49,9 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
     variant,
     inputSize: field.inputSize || "md",
     className: field.className,
+    containerClassName: field.containerClassName,
+    labelClassName: field.labelClassName,
+    helperClassName: field.helperClassName,
   };
 
   const handleChange = (newValue: any) => {
@@ -93,6 +96,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             ...opt,
           }))}
           disabled={field.disabled}
+          triggerClassName={field.triggerClassName}
         />
       );
 
@@ -107,6 +111,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             ...opt,
           }))}
           disabled={field.disabled}
+          triggerClassName={field.triggerClassName}
         />
       );
 

@@ -74,6 +74,9 @@ export const Input: React.FC<InputProps> = ({
   variant = 'default',
   disabled,
   className,
+  containerClassName,
+  labelClassName,
+  helperClassName,
   type = 'text',
   icon,
   onIconClick,
@@ -96,8 +99,8 @@ export const Input: React.FC<InputProps> = ({
   const Icon = icon;
 
   return (
-    <div className={containerClasses()} {...containerTestIdProps}>
-      {label && <label className={labelClasses()}>{label}</label>}
+    <div className={clsx(containerClasses(), containerClassName)} {...containerTestIdProps}>
+      {label && <label className={clsx(labelClasses(), labelClassName)}>{label}</label>}
 
       <div className="relative mb-0">
         {isTextarea ? (
@@ -151,7 +154,7 @@ export const Input: React.FC<InputProps> = ({
       </div>
 
       {helperText && (
-        <span {...helperTestIdProps} className={helperClasses(state)}>
+        <span {...helperTestIdProps} className={clsx(helperClasses(state), helperClassName)}>
           {helperText}
         </span>
       )}

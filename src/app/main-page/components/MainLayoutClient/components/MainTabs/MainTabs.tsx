@@ -105,8 +105,8 @@ export const MainTabs: React.FC<MainTabsProps> = ({
     if (pathname.includes("/main-page/accounting/invoices/sat")) {
       return "accounting-invoices-sat";
     }
-    if (pathname.includes("/main-page/sip/proyects/newproyect")) {
-      return "sip-newproyect";
+    if (pathname.includes("/main-page/proyects/proyects/newproyect")) {
+      return "proyects-newproyect";
     }
     if (pathname.includes("/main-page/generalservices/vehicleregist/vehicleregistry")) {
       return "generalservices-vehicleregistry";

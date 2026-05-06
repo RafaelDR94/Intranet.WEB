@@ -1,0 +1,20 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta title="MAINPAGE/proyects/Proyects/ProyectDetail/Reports/NewReport/Signatures" />
+
+# Signatures
+
+Paso final del reporte. Muestra las firmas capturadas y expone botones para
+abrir el `SignatureComponent` del colaborador y del cliente.
+
+---
+
+## Uso rapido
+
+```tsx
+<Signatures isSaveValid={isReadyToSign} />;
+```
+
+Si el reporte ya cuenta con firma de cliente, el boton de captura se oculta.
+Cuando esta disponible, llama a `useSignature` para decidir que modal abrir
+(propio o cliente) y revincular los assets en `useReportBuilderStore`.
