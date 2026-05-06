@@ -30,8 +30,10 @@ export interface MfaPayload {
 
 export interface MfaMethodPayload {
   idUser: string
-  method: "SMS" | "EMAIL"
+  method: "SMS" | "Email" | "Passkey"
   isEnabled: boolean
+  destination?: string
+  idPasskey?: string
 }
 
 
@@ -56,7 +58,7 @@ export interface VerifyPasswordRecoverySmsPayload {
 
 export interface VerifyAuthChallengePayload {
   challengeId: string
-  method: "Email" | "SMS"
+  method: "Email" | "SMS" | "PASSKEY"
   code: string | null
   verificationToken: string | null
 }
@@ -110,6 +112,7 @@ export interface AuthState {
   fetchingUserMfaById: boolean
   fetchingUserPasskeys: boolean
   deletingUserPasskey: boolean
+  registeringUserPasskey: boolean
   recoverChannels: RecoverChannel[]
   userMfaById: UserMfaByIdResponse | null
   userPasskeys: UserPasskeyResponse[]
@@ -138,6 +141,7 @@ export interface AuthState {
   successUserMfaById: boolean
   successUserPasskeys: boolean
   successDeleteUserPasskey: boolean
+  successRegisterUserPasskey: boolean
   error?: string
   login: (payload: LoginCredentials) => Promise<void>
   logout: () => Promise<void>
@@ -173,6 +177,7 @@ export interface AuthState {
   fetchUserMfaById: (idUser: string) => Promise<UserMfaByIdResponse | null>
   fetchUserPasskeys: (idUser: string) => Promise<UserPasskeyResponse[] | null>
   deleteUserPasskey: (id: string) => Promise<boolean>
+  registerUserPasskeyOptions: (deviceName: string) => Promise<boolean>
   changeNip: (payload: NipPayload) => Promise<void>
   createNip: (payload: NipPayload) => Promise<void>
   changeSignature: (payload: SignaturePayload) => Promise<void>

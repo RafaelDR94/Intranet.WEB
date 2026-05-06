@@ -5,7 +5,7 @@ export const header = "flex items-center justify-between gap-4";
 
 export const title = "text-b4 font-medium text-blue-80";
 
-export const rows = "mt-6 flex flex-col gap-7";
+export const rows = "mt-6 flex flex-col gap-2";
 
 export const row =
   "flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-8";

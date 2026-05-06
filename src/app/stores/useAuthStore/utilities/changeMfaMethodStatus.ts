@@ -20,7 +20,8 @@ export const changeMfaMethodStatus = async (
     await put(UsersMfaMethod, mapped)
 
     const currentMfa = get().userMfaById
-    const normalizedMethod = mapped.method === 'SMS' ? 'SMS' : 'Email'
+    const normalizedMethod =
+      mapped.method === 'SMS' ? 'SMS' : mapped.method === 'Passkey' ? 'Passkey' : 'Email'
     const nextMethods = currentMfa
       ? currentMfa.methods.map((method) =>
           method.method === normalizedMethod
@@ -34,7 +35,9 @@ export const changeMfaMethodStatus = async (
       successChangeMFAMethod: true,
       ...(mapped.method === 'SMS'
         ? { mfaSmsEnabled: mapped.isEnabled }
-        : { mfaEmailEnabled: mapped.isEnabled }),
+        : mapped.method === 'Email'
+          ? { mfaEmailEnabled: mapped.isEnabled }
+          : {}),
       userMfaById: currentMfa
         ? {
             ...currentMfa,

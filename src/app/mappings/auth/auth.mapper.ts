@@ -62,13 +62,16 @@ export const PostRecoverPasswordMap = (src: any): PostRecoverPassword => ({
 
 export const PostAuthChallengeVerifyMap = (
   src: any,
-): PostAuthChallengeVerify => ({
+): PostAuthChallengeVerify => {
+  const method = toString(src?.method).toUpperCase();
+  return {
   challengeId: toString(src?.challengeId),
-  method: toString(src?.method).toUpperCase() === 'SMS' ? 'SMS' : 'Email',
+  method: method === 'PASSKEY' ? 'PASSKEY' : method === 'SMS' ? 'SMS' : 'Email',
   code: src?.code == null ? null : toString(src?.code),
   verificationToken:
     src?.verificationToken == null ? null : toString(src?.verificationToken),
-})
+  }
+}
 
 export const PostVerifyPasswordRecoveryCodeMap = (
   src: any,
