@@ -8,7 +8,8 @@ export type GenericEquipment = {
 };
 
 export type GenericEquipmentPost = {
-  typeOfEquipment: string;
+  name?: string;
+  typeOfEquipment?: string;
   brand: string;
   model: string;
 };
@@ -44,9 +45,9 @@ export type SparePartPost = {
   model: string;
   serialNumber: string;
   characteristic: string;
-  provider: string;
   website: string;
   phoneNumber: string;
+  idSuppliers: string[];
 };
 
 export type SparePartPut = {
@@ -58,9 +59,9 @@ export type SparePartPut = {
   model: string;
   serialNumber: string;
   characteristic: string;
-  provider: string;
   website: string;
   phoneNumber: string;
+  idSuppliers: string[];
 };
 
 export type GenericEquipmentSparePart = {
@@ -72,11 +73,37 @@ export type GenericEquipmentSparePart = {
 
 export type GenericEquipmentSparePartPost = {
   idGenericEquipment: string;
-  idSparePart: string;
+  idSparePart: string | string[];
 };
 
 export type GenericEquipmentSparePartPut = {
   id: string;
   idGenericEquipment: string;
   idSparePart: string;
+};
+
+export type Supplier = {
+  id: string;
+  nombreProveedor: string;
+  paginaWeb: string;
+  telefono: string;
+};
+
+export type SupplierPost = {
+  supplierName: string;
+  website: string;
+  phonenumber: string;
+  nombreProveedor?: string;
+  paginaWeb?: string;
+  telefono?: string;
+};
+
+export type SupplierPut = {
+  id: string;
+  supplierName: string;
+  website: string;
+  phonenumber: string;
+  nombreProveedor?: string;
+  paginaWeb?: string;
+  telefono?: string;
 };

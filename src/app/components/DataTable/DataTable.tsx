@@ -95,7 +95,6 @@ export const DataTable = <T extends { id: string | number }>({
     <div className="space-y-8">
       {tables.length > 1 && (
         <DataTableLayout
-          
           onSearchChange={handleSearchChange}
           onCalendarClick={onCalendarClick}
           onFilterClick={onFilterClick}
@@ -194,6 +193,7 @@ export const DataTable = <T extends { id: string | number }>({
                   secondaryLabel: table.cardAdapt.secondaryLabel,
                   showPrimaryButton: table.cardAdapt.showPrimaryButton,
                   showSecondaryButton: table.cardAdapt.showSecondaryButton,
+                  secondaryVariant: table.cardAdapt.secondaryVariant,
                   enableImagePreview: table.cardAdapt.enableImagePreview,
                   actionMenuProps: table.cardAdapt.actionMenuProps,
                   cardsPerPage: table.cardAdapt.cardsPerPage,

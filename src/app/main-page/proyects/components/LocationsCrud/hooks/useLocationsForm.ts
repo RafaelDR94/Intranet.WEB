@@ -4,9 +4,11 @@ import clsx from 'clsx';
 
 import type { FieldModel } from '@/app/components/DynamicForm/types';
 
-import { locationsDefinition, locationsRows } from '../../crudDefinitions';
+import { locationsDefinition } from '../../crudDefinitions';
 import { useCrudModule } from '../../crudShared';
 import type { CrudScope } from '../../types';
+import { useLocationsData } from './useLocationsData';
+import useProyectLocationStore from '@/app/stores/useProyectLocationStore/useProyectLocationStore';
 
 const ACTIVE_LABEL_CLASS = 'text-label font-medium leading-4 text-gray-70';
 const ACTIVE_CONTROL_CLASS =
@@ -14,16 +16,22 @@ const ACTIVE_CONTROL_CLASS =
 const SELECT_CONTAINER_CLASS = 'w-full';
 
 export const useLocationsForm = (scope: CrudScope) => {
-  const crud = useCrudModule(locationsDefinition, scope);
+  const data = useLocationsData(scope);
+  const crud = useCrudModule(locationsDefinition, scope, data.rows, {
+    isResolvingRecord: data.loading,
+  });
+
   const projectOptions = Array.from(
     new Map(
-      locationsRows.map((row) => [
-        row.secondary,
-        {
-          label: row.secondary,
-          value: row.secondary,
-        },
-      ]),
+      data.rows
+        .filter((row) => row.secondary && row.secondary !== 'Sin proyecto')
+        .map((row) => [
+          row.secondary,
+          {
+            label: row.secondary,
+            value: row.secondary,
+          },
+        ]),
     ).values(),
   );
 
@@ -78,7 +86,7 @@ export const useLocationsForm = (scope: CrudScope) => {
       ? 'Detalle ubicacion'
       : `${locationsDefinition.config.createLabel}`;
 
-  const handleSubmit = async (_values: Record<string, unknown>) => {
+  const handleSubmit = async (values: Record<string, unknown>) => {
     crud.hideAlert();
     crud.showSpinner({
       message:
@@ -86,16 +94,45 @@ export const useLocationsForm = (scope: CrudScope) => {
           ? 'Actualizando ubicacion...'
           : 'Registrando ubicacion...',
     });
-    await Promise.resolve();
+
+    const payload = {
+      name: String(values.primary ?? '').trim(),
+      linkmaps: String(values.mapLink ?? '').trim(),
+      address: String(values.tertiary ?? '').trim(),
+    };
+
+    const result =
+      crud.crudMode === 'edit' && crud.crudItemId
+        ? await data.updateLocation({ id: crud.crudItemId, ...payload })
+        : await data.createLocation(payload);
+
     crud.hideSpinner();
+
+    if (!result) {
+      crud.showAlert({
+        type: 'error',
+        variant: 'subtle',
+        title:
+          crud.crudMode === 'edit'
+            ? 'No fue posible actualizar la ubicacion'
+            : 'No fue posible registrar la ubicacion',
+        description: useProyectLocationStore.getState().error ?? 'Ocurrio un error inesperado.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+      });
+      data.resetFlags();
+      return;
+    }
+
     crud.showAlert({
       type: 'success',
       variant: 'subtle',
       title: crud.crudMode === 'edit' ? 'Ubicacion actualizada' : 'Ubicacion registrada',
-      description: 'La accion fue ejecutada como parte de la infraestructura base del CRUD.',
+      description: 'La informacion se guardo correctamente.',
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
+    data.resetFlags();
     crud.goList();
   };
 
@@ -113,10 +150,5 @@ export const useLocationsForm = (scope: CrudScope) => {
     onSubmit: handleSubmit,
     onCancel: crud.goList,
     dataTestId: 'locations-crud-form',
-    cardClassName:
-      '!block !gap-0 !rounded-[10px] !bg-white !p-0 shadow-[0px_2px_4px_-2px_rgba(19,25,39,0.12),0px_4px_4px_-2px_rgba(19,25,39,0.08)]',
-    contentClassName: 'flex flex-col gap-5 px-[18px] pt-[26px] pb-9 md:px-[25px] md:pt-[23px]',
-    formClassName: 'space-y-5',
-    rowClassName: '!mb-0 !gap-[29px]',
   };
 };

@@ -1,34 +1,41 @@
-import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+﻿"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
-import { buildInitialFields } from "../utilities/formFieldModel";
-
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import type { ProyectPost } from "@/app/mappings/proyects/proyects.types";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
-import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
+import useProyectLocationStore from "@/app/stores/useProyectLocationStore/useProyectLocationStore";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
 
-
-const formId = "proyects-new-proyect";
-
 const useNewProyect = () => {
-  const submitRef = useRef<() => void | Promise<void>>(null);
-  const [formReady, setFormReady] = useState(false);
-  const [loadingFormInfo, setLoadingFormInfo] = useState(false);
+  const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams?.get("id") ?? "";
 
-  const { fieldsByFormId, setFields, updateField, resetFields } = useFormFieldsStore();
-  const fields = fieldsByFormId[formId] ?? [];
+  const [client, setClient] = useState("");
+  const [name, setName] = useState("");
+  const [proyectKey, setProyectKey] = useState("");
+  const [locationId, setLocationId] = useState("");
+  const [pendingCollaboratorId, setPendingCollaboratorId] = useState("");
+  const [collaboratorIds, setCollaboratorIds] = useState<string[]>([]);
+  const getEmployeeUserId = useCallback(
+    (employee: EmployeeType): string =>
+      String(
+        employee.user?.user_id ??
+          (employee.user as unknown as { id?: string } | null)?.id ??
+          ""
+      ),
+    []
+  );
 
-  // Principal (spinner + alert)
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
 
-  // Employees catalog
   const { employees, employeesLoading, employeesError, fetchEmployees } = useEmployeesStore(
     (s) => ({
       employees: s.employees,
@@ -39,37 +46,29 @@ const useNewProyect = () => {
     shallow
   );
 
-  useEffect(() => { setFields(formId, buildInitialFields()); }, [setFields]);
-  useEffect(() => { fetchEmployees(); }, [fetchEmployees]);
+  const { locations, loadingLocations, locationError, fetchAllLocations, createLocation } = useProyectLocationStore(
+    (s) => ({
+      locations: s.locations,
+      loadingLocations: s.loadingLocations,
+      locationError: s.error,
+      fetchAllLocations: s.fetchAllLocations,
+      createLocation: s.createLocation,
+    }),
+    shallow
+  );
 
-  // Repoblar selects cuando haya empleados
-  useEffect(() => {
-    setLoadingFormInfo(employeesLoading);
-    if (!employees?.length) return;
-    const employeeOptions = employees.map((e) => ({ label: e.fullname, value: e.employee_id }));
-    updateField(formId, "manager", { options: employeeOptions });
-    updateField(formId, "collaborators", { options: employeeOptions });
-  }, [employees, employeesLoading, updateField]);
-
-  // Manejo de errores de catálogos
-  useEffect(() => {
-    if (!employeesError) return;
-    showAlert({
-      type: "error",
-      variant: "filled",
-      title: "No se pudo cargar la lista de empleados",
-      description: String(employeesError) || "Intenta refrescar.",
-      showPrimaryButton: true,
-      primaryLabel: "Entendido",
-      onPrimaryClick: hideAlert,
-      showSecondaryButton: true,
-      secondaryLabel: "Refrescar",
-      onSecondaryClick: () => { hideAlert(); fetchEmployees(); },
-    });
-  }, [employeesError, fetchEmployees, showAlert, hideAlert]);
-
-  // Store de proyectos (create/update + catálogo para edición)
-  const { proyects, fetchProyects, createProyect, updateProyect, creating, updating, successPost, successPut, error, resetFlags } = useProyectsStore(
+  const {
+    proyects,
+    fetchProyects,
+    createProyect,
+    updateProyect,
+    creating,
+    updating,
+    successPost,
+    successPut,
+    error,
+    resetFlags,
+  } = useProyectsStore(
     (s) => ({
       proyects: s.proyects,
       fetchProyects: s.fetchProyects,
@@ -85,41 +84,73 @@ const useNewProyect = () => {
     shallow
   );
 
-  useEffect(() => { if (editId) fetchProyects(); }, [editId, fetchProyects]);
+  useEffect(() => {
+    void fetchEmployees();
+    void fetchAllLocations();
+  }, [fetchAllLocations, fetchEmployees]);
 
-  // Prellenar para edición
+  useEffect(() => {
+    if (editId) void fetchProyects();
+  }, [editId, fetchProyects]);
+
   useEffect(() => {
     if (!editId) return;
-    const found = proyects.find(p => p.id === editId);
+    const found = proyects.find((p) => p.id === editId);
     if (!found) return;
-    updateField(formId, 'name', { value: found.name });
-    updateField(formId, 'client', { value: found.client });
-    updateField(formId, 'proyectKey', { value: found.proyectKey });
-    const collabIds = (found.collaborators ?? []).map(c => c.employee_id);
-    updateField(formId, 'collaborators', { value: collabIds });
-    updateField(formId, 'manager', { value: collabIds[0] ?? '' });
-  }, [editId, proyects, updateField]);
 
-  // Spinner + alert según operación
+    setClient(found.client ?? "");
+    setName(found.name ?? "");
+    setProyectKey(found.proyectKey ?? "");
+    setCollaboratorIds(
+      (found.collaborators ?? [])
+        .map((collaborator) => getEmployeeUserId(collaborator))
+        .filter((id) => id.length > 0)
+    );
+  }, [editId, getEmployeeUserId, proyects]);
+
+  useEffect(() => {
+    if (!employeesError && !locationError) return;
+    showAlert({
+      type: "error",
+      variant: "filled",
+      title: "No se pudo cargar la informacion del formulario",
+      description: String(employeesError || locationError || "Intenta refrescar."),
+      showPrimaryButton: true,
+      primaryLabel: "Entendido",
+      onPrimaryClick: hideAlert,
+      showSecondaryButton: true,
+      secondaryLabel: "Refrescar",
+      onSecondaryClick: () => {
+        hideAlert();
+        void fetchEmployees();
+        void fetchAllLocations();
+      },
+    });
+  }, [employeesError, locationError, hideAlert, showAlert, fetchEmployees, fetchAllLocations]);
+
   useEffect(() => {
     if (creating || updating) {
-      showSpinner({ message: "Espera un momento, guardando proyecto…" });
+      showSpinner({ message: "Espera un momento, guardando proyecto..." });
       return;
     }
+
     hideSpinner();
 
     if (successPost || successPut) {
-      setFields(formId, buildInitialFields());
       showAlert({
         type: "success",
         variant: "filled",
-        title: successPost ? "Creación exitosa" : "Actualización exitosa",
-        description: successPost ? "El proyecto se ha creado exitosamente" : "El proyecto se actualizó exitosamente",
+        title: successPost ? "Creacion exitosa" : "Actualizacion exitosa",
+        description: successPost
+          ? "El proyecto se ha creado exitosamente"
+          : "El proyecto se actualizo exitosamente",
         autoCloseMs: 1500,
         showPrimaryButton: false,
         showSecondaryButton: false,
-        onClose: () => { resetFlags(); },
       });
+
+      router.push("/main-page/proyects/proyects/proyectslist");
+      router.refresh();
     }
 
     if (!creating && !updating && !successPost && !successPut && error) {
@@ -127,43 +158,160 @@ const useNewProyect = () => {
         type: "error",
         variant: "filled",
         title: editId ? "No se pudo actualizar el proyecto" : "No se pudo crear el proyecto",
-        description: String(error) || "Ocurrió un error. Intenta de nuevo.",
+        description: String(error),
         showPrimaryButton: true,
         primaryLabel: "Entendido",
-        onPrimaryClick: () => { hideAlert(); resetFlags(); },
-        showSecondaryButton: true,
-        secondaryLabel: "Reintentar",
-        onSecondaryClick: () => { hideAlert(); submitRef.current?.(); },
+        onPrimaryClick: () => {
+          hideAlert();
+          resetFlags();
+        },
       });
     }
-    resetFlags();
-  }, [creating, updating, successPost, successPut, error, showSpinner, hideSpinner, showAlert, hideAlert, setFields, resetFlags, editId]);
 
-  const handleSubmit = useCallback(async (values: Record<string, any>) => {
+    resetFlags();
+  }, [
+    creating,
+    updating,
+    successPost,
+    successPut,
+    error,
+    editId,
+    hideAlert,
+    hideSpinner,
+    resetFlags,
+    showAlert,
+    showSpinner,
+    router,
+  ]);
+
+  const collaboratorOptions = useMemo(
+    () =>
+      employees
+        .map((employee) => ({ label: employee.fullname, value: getEmployeeUserId(employee) }))
+        .filter((option) => option.value.length > 0),
+    [employees, getEmployeeUserId]
+  );
+
+  const locationOptions = useMemo(
+    () => locations.map((location) => ({ label: location.name, value: location.id })),
+    [locations]
+  );
+
+  const collaborators = useMemo(
+    () =>
+      collaboratorIds
+        .map((id) => employees.find((employee) => getEmployeeUserId(employee) === id))
+        .filter(Boolean) as Array<(typeof employees)[number]>,
+    [collaboratorIds, employees, getEmployeeUserId]
+  );
+
+  const addCollaborator = () => {
+    if (!pendingCollaboratorId) return;
+    setCollaboratorIds((current) =>
+      current.includes(pendingCollaboratorId) ? current : [...current, pendingCollaboratorId]
+    );
+    setPendingCollaboratorId("");
+  };
+
+  const removeCollaborator = (id: string) => {
+    setCollaboratorIds((current) => current.filter((item) => item !== id));
+  };
+
+  const formReady = useMemo(
+    () =>
+      client.trim().length > 0 &&
+      name.trim().length > 0 &&
+      proyectKey.trim().length > 0 &&
+      collaboratorIds.length > 0,
+    [client, name, proyectKey, collaboratorIds.length]
+  );
+
+  const submit = useCallback(async () => {
+    if (!formReady) return;
+
     const payload: ProyectPost = {
-      name: String(values?.name ?? ""),
-      proyectKey: String(values?.proyectKey ?? ""),
-      client: String(values?.client ?? ""),
-      collaborators: Array.isArray(values?.collaborators) ? values.collaborators : [],
-      managerId: String(values?.manager ?? ""),
+      client: client.trim(),
+      name: name.trim(),
+      proyectKey: proyectKey.trim(),
+      managerId: collaboratorIds[0],
+      collaborators: collaboratorIds,
     };
+
     if (editId) {
       await updateProyect({ id: editId, ...payload });
-    } else {
-      await createProyect(payload);
+      return;
     }
-  }, [createProyect, updateProyect, editId]);
 
-  const responsiveLayout = useMemo(() => ({
-    lg: [[5, 5], [5, 5], [5]],
-    md: [[10], [10], [10], [10],[10]],
-    sm: [[10], [10], [10], [10],[10]],
-  }), []);
+    await createProyect(payload);
+  }, [client, collaboratorIds, createProyect, editId, formReady, name, proyectKey, updateProyect]);
 
-  useEffect(() => () => { resetFields(formId); }, [resetFields]);
+  const registerLocation = useCallback(
+    async (payload: { name: string; address: string; linkmaps: string }) => {
+      const nameValue = payload.name.trim();
+      const addressValue = payload.address.trim();
+      const linkmapsValue = payload.linkmaps.trim();
 
-  return { responsiveLayout, submitRef, formReady, setFormReady, fields, handleSubmit, loadingFormInfo, creating: creating || updating };
-}
+      if (!nameValue || !addressValue || !linkmapsValue) return false;
+
+      showSpinner({ message: "Registrando ubicacion..." });
+      const created = await createLocation({
+        name: nameValue,
+        address: addressValue,
+        linkmaps: linkmapsValue,
+      });
+      hideSpinner();
+
+      if (!created) {
+        showAlert({
+          type: "error",
+          variant: "filled",
+          title: "No se pudo registrar la ubicacion",
+          description: "Intenta nuevamente.",
+          showPrimaryButton: true,
+          primaryLabel: "Entendido",
+          onPrimaryClick: hideAlert,
+        });
+        return false;
+      }
+
+      await fetchAllLocations(true);
+      setLocationId(created.id);
+      showAlert({
+        type: "success",
+        variant: "filled",
+        title: "Ubicacion registrada",
+        description: "La ubicacion se agrego correctamente.",
+        autoCloseMs: 1200,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+      });
+      return true;
+    },
+    [createLocation, fetchAllLocations, hideAlert, hideSpinner, showAlert, showSpinner]
+  );
+
+  return {
+    client,
+    name,
+    proyectKey,
+    locationId,
+    pendingCollaboratorId,
+    collaborators,
+    collaboratorOptions,
+    locationOptions,
+    loadingFormInfo: employeesLoading || loadingLocations,
+    creating: creating || updating,
+    formReady,
+    setClient,
+    setName,
+    setProyectKey,
+    setLocationId,
+    setPendingCollaboratorId,
+    addCollaborator,
+    removeCollaborator,
+    submit,
+    registerLocation,
+  };
+};
 
 export default useNewProyect;
-

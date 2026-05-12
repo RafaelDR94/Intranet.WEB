@@ -1,12 +1,16 @@
 'use client';
 
+import { useEffect, useMemo } from 'react';
+
 import clsx from 'clsx';
+import { shallow } from 'zustand/shallow';
 
 import type { FieldModel } from '@/app/components/DynamicForm/types';
+import useProyectInventoryStore from '@/app/stores/useProyectInventoryStore/useProyectInventoryStore';
 
 import { refactionsDefinition } from '../../crudDefinitions';
 import { useCrudModule } from '../../crudShared';
-import type { CrudScope } from '../../types';
+import type { CrudRecord, CrudScope } from '../../types';
 
 const getSingleValue = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
@@ -23,22 +27,84 @@ const SELECT_CONTAINER_CLASS = 'w-full';
 
 export type RefactionProviderFormValue = {
   id: string;
+  supplierId: string;
   provider: string;
   website: string;
   phone: string;
 };
 
 export const useRefactionsForm = (scope: CrudScope) => {
-  const crud = useCrudModule(refactionsDefinition, scope);
+  const {
+    spareParts,
+    loadingSpareParts,
+    fetchSpareParts,
+    suppliers,
+    fetchSuppliers,
+    createSparePart,
+    updateSparePart,
+    creating,
+    updating,
+    error,
+    resetFlags,
+  } = useProyectInventoryStore(
+    (state) => ({
+      spareParts: state.spareParts,
+      loadingSpareParts: state.loadingSpareParts,
+      fetchSpareParts: state.fetchSpareParts,
+      suppliers: state.suppliers,
+      fetchSuppliers: state.fetchSuppliers,
+      createSparePart: state.createSparePart,
+      updateSparePart: state.updateSparePart,
+      creating: state.creating,
+      updating: state.updating,
+      error: state.error,
+      resetFlags: state.resetFlags,
+    }),
+    shallow,
+  );
+
+  useEffect(() => {
+    void fetchSpareParts(true);
+    void fetchSuppliers();
+  }, [fetchSpareParts, fetchSuppliers]);
+
+  const rowsOverride = useMemo<CrudRecord[]>(
+    () =>
+      spareParts.map((sparePart) => ({
+        id: sparePart.id,
+        primary: sparePart.name,
+        secondary: sparePart.characteristic,
+        tertiary: sparePart.brand,
+        status: sparePart.isActive === false ? 'Inactivo' : 'Disponible',
+        description: sparePart.characteristic,
+        stock: String(sparePart.stock),
+        model: sparePart.model,
+        serialOrPart: sparePart.serialNumber,
+        provider: sparePart.provider,
+        website: sparePart.website,
+        phone: sparePart.phoneNumber,
+      })),
+    [spareParts],
+  );
+
+  const crud = useCrudModule(refactionsDefinition, scope, rowsOverride, {
+    isResolvingRecord: loadingSpareParts,
+  });
   const onlyProveedor = getSingleValue(crud.all.onlyproveedor) === 'true';
-  const initialProviders: RefactionProviderFormValue[] = [
-    {
-      id: 'provider-1',
-      provider: crud.currentRecord?.provider ?? '',
-      website: crud.currentRecord?.website ?? '',
-      phone: crud.currentRecord?.phone ?? '',
-    },
-  ];
+  const initialProviders = useMemo<RefactionProviderFormValue[]>(
+    () => [
+      {
+        id: 'provider-1',
+        supplierId:
+          suppliers.find((supplier) => supplier.nombreProveedor === (crud.currentRecord?.provider ?? ''))
+            ?.id ?? '',
+        provider: crud.currentRecord?.provider ?? '',
+        website: crud.currentRecord?.website ?? '',
+        phone: crud.currentRecord?.phone ?? '',
+      },
+    ],
+    [crud.currentRecord?.phone, crud.currentRecord?.provider, crud.currentRecord?.website, suppliers],
+  );
 
   const fields: FieldModel[] = refactionsDefinition
     .fields(scope, crud.crudMode, crud.currentRecord)
@@ -66,7 +132,39 @@ export const useRefactionsForm = (scope: CrudScope) => {
       ? 'Detalle refaccion'
       : refactionsDefinition.config.createLabel;
 
-  const handleSubmit = async (_values: Record<string, unknown>) => {
+  const handleSubmit = async (
+    values: Record<string, unknown>,
+    providers: RefactionProviderFormValue[],
+  ) => {
+    const selectedSupplierIds = providers
+      .map((provider) => provider.supplierId.trim())
+      .filter((supplierId, index, array) => supplierId.length > 0 && array.indexOf(supplierId) === index);
+
+    if (selectedSupplierIds.length === 0) {
+      crud.showAlert({
+        type: 'warning',
+        variant: 'subtle',
+        title: 'Proveedor requerido',
+        description: 'Selecciona al menos un proveedor para guardar la refacción.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+      });
+      return;
+    }
+
+    const supplierInfo = suppliers.find((supplier) => supplier.id === selectedSupplierIds[0]);
+    const sku = String(values.sku ?? crud.currentRecord?.id ?? '').trim();
+    const stock = Number(values.stock ?? crud.currentRecord?.stock ?? 0);
+    const name = String(values.name ?? crud.currentRecord?.primary ?? '').trim();
+    const brand = String(values.brand ?? crud.currentRecord?.tertiary ?? '').trim();
+    const model = String(values.model ?? crud.currentRecord?.model ?? '').trim();
+    const serialNumber = String(values.serialOrPart ?? crud.currentRecord?.serialOrPart ?? '').trim();
+    const equipment = String(values.equipment ?? crud.currentRecord?.secondary ?? '').trim();
+    const description = String(values.description ?? crud.currentRecord?.description ?? '').trim();
+    const characteristic = description.length > 0 ? description : equipment;
+    const website = supplierInfo?.paginaWeb ?? providers[0]?.website ?? '';
+    const phoneNumber = supplierInfo?.telefono ?? providers[0]?.phone ?? '';
+
     crud.hideAlert();
     crud.showSpinner({
       message:
@@ -74,16 +172,63 @@ export const useRefactionsForm = (scope: CrudScope) => {
           ? 'Actualizando refaccion...'
           : 'Registrando refaccion...',
     });
-    await Promise.resolve();
+    const saved =
+      crud.crudMode === 'edit' && crud.currentRecord
+        ? await updateSparePart({
+            id: crud.currentRecord.id,
+            sku,
+            stock: Number.isFinite(stock) ? stock : 0,
+            name,
+            brand,
+            model,
+            serialNumber,
+            characteristic,
+            website,
+            phoneNumber,
+            idSuppliers: selectedSupplierIds,
+          })
+        : await createSparePart({
+            sku,
+            stock: Number.isFinite(stock) ? stock : 0,
+            name,
+            brand,
+            model,
+            serialNumber,
+            characteristic,
+            website,
+            phoneNumber,
+            idSuppliers: selectedSupplierIds,
+          });
+
     crud.hideSpinner();
+
+    if (!saved) {
+      crud.showAlert({
+        type: 'error',
+        variant: 'subtle',
+        title:
+          crud.crudMode === 'edit'
+            ? 'No fue posible actualizar la refaccion'
+            : 'No fue posible registrar la refaccion',
+        description: error ?? 'Ocurrio un error al guardar la refaccion.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+      });
+      return;
+    }
+
     crud.showAlert({
       type: 'success',
       variant: 'subtle',
       title: crud.crudMode === 'edit' ? 'Refaccion actualizada' : 'Refaccion registrada',
-      description: 'La accion fue ejecutada como parte de la infraestructura base del CRUD.',
+      description:
+        crud.crudMode === 'edit'
+          ? 'La refaccion se actualizo correctamente.'
+          : 'La refaccion se registro correctamente.',
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
+    resetFlags();
     crud.goList();
   };
 
@@ -92,9 +237,10 @@ export const useRefactionsForm = (scope: CrudScope) => {
     primaryLabel: 'Guardar informacion',
     fields,
     initialProviders,
+    suppliers,
     onlyProveedor,
-    loading: false,
-    loadingFormInfo: false,
+    loading: creating || updating,
+    loadingFormInfo: loadingSpareParts,
     responsiveLayout: refactionsDefinition.responsiveLayout,
     onSubmit: handleSubmit,
     onCancel: crud.goList,

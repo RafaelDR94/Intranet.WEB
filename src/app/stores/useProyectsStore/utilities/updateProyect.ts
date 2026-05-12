@@ -7,6 +7,7 @@ import type { Set, Get } from '../types'
 import { fetchProyects } from './fetchProyects'
 
 import { ReportsProyects } from '@/app/configurations/Axios/urls'
+import { ProyectPutMap } from '@/app/mappings/proyects/proyects.mapper'
 import type { Proyect, ProyectPut } from '@/app/mappings/proyects/proyects.types'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pPut } from '@/app/utilities/Http/promisifyIntranet'
@@ -24,7 +25,7 @@ export const updateProyect = async (
 
   try {
     const put = pPut(requireGateway('put'), [200, 204])
-    const res: AxiosResponse = await put(ReportsProyects, payload)
+    const res: AxiosResponse = await put(ReportsProyects, ProyectPutMap(payload))
     const raw = res.data?.data
     const updated = raw ? (raw as Proyect) : null
 

@@ -14,13 +14,19 @@ export const fetchAllReportsByProyect = async (
   set: Set,
   _get: Get,
   force = true,
+  idEmployee?: string,
 ) => {
   // For this endpoint we usually need fresh data by project
   if (_get().reports.length > 0 && !force) return
   set({ reports: [], loading: true, error: undefined, successGet: false })
   try {
     const getFn = requireGateway('get')
-    const url = `${ReportsAllReportsByIdProyect}?idproyect=${encodeURIComponent(idproyect)}`
+    const baseUrl = `${ReportsAllReportsByIdProyect}/${encodeURIComponent(idproyect)}`
+    const query = new URLSearchParams()
+    if (idEmployee) {
+      query.set('idEmployee', idEmployee)
+    }
+    const url = query.toString() ? `${baseUrl}?${query.toString()}` : baseUrl
     const res: AxiosResponse = await pGet(getFn)(url)
     const list = res.data?.data ?? []
     const mapped: ReportView[] = ReportsMap(list);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import ActionMenuCell from '@/app/components/ActionMenuCell/ActionMenuCell';
 import { DataTable } from '@/app/components/DataTable/DataTable';
@@ -9,17 +9,30 @@ import type { ColumnDefinition } from '@/app/components/DataTable/types';
 import Label from '@/app/components/Label/Label';
 import { PopUp } from '@/app/components/PopUp/PopUp';
 
-import { refactionsConfig, refactionsDefinition } from '../../crudDefinitions';
+import { refactionsDefinition } from '../../crudDefinitions';
 import { useCrudModule } from '../../crudShared';
-import type { CrudScope } from '../../types';
+import type { CrudRecord, CrudScope } from '../../types';
+import { Button } from '@/app/components/Button/Button';
+
+import { shallow } from 'zustand/shallow';
+
+import useProyectInventoryStore from '@/app/stores/useProyectInventoryStore/useProyectInventoryStore';
 
 type RefactionsListProps = {
   scope: CrudScope;
 };
 
-type RefactionListRow = (typeof refactionsDefinition.rows)[number] & {
+type RefactionListRow = {
+  id: string;
+  primary: string;
   equipment: string;
   brand: string;
+  model: string;
+  serialOrPart: string;
+  stock: number | string;
+  provider: string;
+  status: string;
+  actions: string;
 };
 
 const statusToLabelType = (status: string) => {
@@ -31,19 +44,69 @@ const statusToLabelType = (status: string) => {
 };
 
 const RefactionsList = ({ scope }: RefactionsListProps) => {
-  const crud = useCrudModule(refactionsDefinition, scope);
   const isMobile = useIsMobile();
   const [rowPendingDeletion, setRowPendingDeletion] = useState<RefactionListRow | null>(null);
 
+  const {
+    spareParts,
+    loadingSpareParts,
+    fetchSpareParts,
+    deleteSparePart,
+    resetFlags,
+  } = useProyectInventoryStore(
+    (state) => ({
+      spareParts: state.spareParts,
+      loadingSpareParts: state.loadingSpareParts,
+      fetchSpareParts: state.fetchSpareParts,
+      deleteSparePart: state.deleteSparePart,
+      resetFlags: state.resetFlags,
+    }),
+    shallow,
+  );
+
+  useEffect(() => {
+    void fetchSpareParts(true);
+  }, [fetchSpareParts]);
+
   const rows = useMemo<RefactionListRow[]>(
     () =>
-      refactionsDefinition.rows.map((row) => ({
-        ...row,
-        equipment: row.secondary,
-        brand: row.tertiary,
+      spareParts.map((sparePart) => ({
+        id: sparePart.id,
+        primary: sparePart.name,
+        equipment: sparePart.characteristic,
+        brand: sparePart.brand,
+        model: sparePart.model,
+        serialOrPart: sparePart.serialNumber,
+        stock: sparePart.stock,
+        provider: sparePart.provider,
+        status: sparePart.isActive === false ? 'Inactivo' : 'Disponible',
+        actions: '',
       })),
-    [],
+    [spareParts],
   );
+
+  const rowsOverride = useMemo<CrudRecord[]>(
+    () =>
+      rows.map((row) => ({
+        id: row.id,
+        primary: row.primary,
+        secondary: row.equipment,
+        tertiary: row.brand,
+        status: row.status,
+        description: row.equipment,
+        stock: String(row.stock),
+        model: row.model,
+        serialOrPart: row.serialOrPart,
+        provider: row.provider,
+        website: '',
+        phone: '',
+      })),
+    [rows],
+  );
+
+  const crud = useCrudModule(refactionsDefinition, scope, rowsOverride, {
+    isResolvingRecord: loadingSpareParts,
+  });
 
   const actionColumn = useMemo<ColumnDefinition<RefactionListRow>>(
     () => ({
@@ -129,16 +192,17 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
   const columnsMobile = useMemo<ColumnDefinition<RefactionListRow>[]>(
     () => [
       {
-        key: 'id',
-        label: 'ID',
-        cellClass: 'w-2/12 min-w-0 px-2',
-        headerClass: 'w-2/12 min-w-0 px-2',
-      },
-      {
         key: 'primary',
         label: 'NOMBRE',
         cellClass: 'w-7/12 min-w-0 px-2',
         headerClass: 'w-7/12 min-w-0 px-2',
+      },
+      {
+        key: 'status',
+        label: 'ESTATUS',
+        cellClass: 'w-[10%] min-w-0 px-2',
+        headerClass: 'w-[10%] min-w-0 px-2',
+        render: (row) => <Label type={statusToLabelType(row.status)} text={row.status} />,
       },
       actionColumn,
     ],
@@ -150,9 +214,29 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
 
     crud.hideAlert();
     crud.showSpinner({ message: 'Eliminando refaccion...' });
-    await Promise.resolve();
+    const success = await deleteSparePart(rowPendingDeletion.id);
+
+    if (success) {
+      await fetchSpareParts(true, true);
+    }
+
     crud.hideSpinner();
     setRowPendingDeletion(null);
+
+    if (!success) {
+      crud.showAlert({
+        type: 'error',
+        variant: 'subtle',
+        title: 'No fue posible eliminar la refaccion',
+        description:
+          useProyectInventoryStore.getState().error ?? 'Ocurrio un error inesperado.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+      });
+      resetFlags();
+      return;
+    }
+
     crud.showAlert({
       type: 'success',
       variant: 'subtle',
@@ -161,6 +245,7 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
+    resetFlags();
   };
 
   return (
@@ -173,7 +258,7 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
             ? `Eliminar ${rowPendingDeletion.primary}`
             : 'Eliminar refaccion'
         }
-        content="Esta accion solo representa el flujo visual del CRUD compartido."
+        content="Esta accion eliminara la refaccion seleccionada."
         showPrimaryButton
         showSecondaryButton
         primaryButtonText="Eliminar"
@@ -186,10 +271,20 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
         <DataTable
           showCalendar={false}
           showFilter={false}
-          showButton
-          actionLabel={refactionsConfig.createLabel}
-          onTableActionClick={crud.goCreate}
+          showButton={false}
           enableInternalSearch
+          rightContent={
+            <Button
+              variant="solid"
+              hideIcon
+              size="medium"
+              onClick={crud.goCreate}
+              data-tour="refactions-crud-list-create"
+              className={isMobile ? 'w-full mt-3' : ''}
+            >
+              Nueva refacción
+            </Button>
+          }
           searchableKeys={[
             'id',
             'primary',
@@ -202,12 +297,11 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
           ]}
           textSize={{ mobile: 'text-d3', desktop: 'text-b3' }}
           searchDataTour="refactions-crud-list-search"
-          actionButtonDataTour="refactions-crud-list-create"
           tables={[
             {
               data: rows,
               columns: isMobile ? columnsMobile : columnsDesktop,
-              title: crud.title,
+              title: loadingSpareParts ? 'Cargando refacciones...' : crud.title,
             },
           ]}
         />

@@ -10,6 +10,7 @@ import type { GenericEquipment } from '@/app/mappings/inventory/inventory.types'
 import type { ReportDeviceView } from '@/app/mappings/reports/reports.types';
 import { useProyectInventoryStore } from '@/app/stores/useProyectInventoryStore/useProyectInventoryStore';
 import useProyectLocationStore from '@/app/stores/useProyectLocationStore/useProyectLocationStore';
+import useReportDevicesStore from '@/app/stores/useReportDevicesStore/useReportDevicesStore';
 import type { CrudRecord, CrudScope } from '../../types';
 
 export type DeviceListType = 'complete' | 'generic';
@@ -92,6 +93,7 @@ export const useDevicesData = (scope: CrudScope) => {
     inventoryLoading,
     inventoryError,
     fetchGenericEquipments,
+    deleteGenericEquipment,
     resetInventoryFlags,
   } = useProyectInventoryStore(
     (state) => ({
@@ -99,10 +101,20 @@ export const useDevicesData = (scope: CrudScope) => {
       inventoryLoading: state.loading,
       inventoryError: state.error,
       fetchGenericEquipments: state.fetchGenericEquipments,
+      deleteGenericEquipment: state.deleteGenericEquipment,
       resetInventoryFlags: state.resetFlags,
     }),
     shallow,
   );
+
+  const { deleteDevice: deleteCompleteDevice, resetFlags: resetReportDevicesFlags } =
+    useReportDevicesStore(
+      (state) => ({
+        deleteDevice: state.deleteDevice,
+        resetFlags: state.resetFlags,
+      }),
+      shallow,
+    );
 
   useEffect(() => {
     if (scope === 'project') {
@@ -191,6 +203,21 @@ export const useDevicesData = (scope: CrudScope) => {
     return allDevices.map(buildCompleteDeviceRow);
   }, [allDevices, devicesByProyect, effectiveType, genericEquipments, scope]);
 
+  const refreshRows = async () => {
+    if (scope === 'project') {
+      if (!projectId?.trim()) return;
+      await fetchDevicesByProyectId(projectId, true);
+      return;
+    }
+
+    if (effectiveType === 'generic') {
+      await fetchGenericEquipments(true);
+      return;
+    }
+
+    await fetchAllDevices(true);
+  };
+
   return {
     rawType,
     effectiveType,
@@ -198,5 +225,10 @@ export const useDevicesData = (scope: CrudScope) => {
     rows: sourceRows,
     projectId,
     isLoading,
+    deleteGenericEquipment,
+    deleteCompleteDevice,
+    resetInventoryFlags,
+    resetReportDevicesFlags,
+    refreshRows,
   };
 };

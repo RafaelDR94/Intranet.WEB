@@ -25,7 +25,7 @@ export type ProyectsState = {
   error?: string
 
   /** Obtiene proyectos */
-  fetchProyects: (force?: boolean) => Promise<void>
+  fetchProyects: (force?: boolean, idEmployee?: string) => Promise<void>
   /** Refetch forzado */
   forceFetchProyects: () => Promise<void>
 

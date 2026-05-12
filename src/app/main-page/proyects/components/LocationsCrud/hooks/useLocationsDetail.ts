@@ -5,6 +5,7 @@ import type { LabelType } from '@/app/components/Label/types';
 import { locationsDefinition } from '../../crudDefinitions';
 import { useCrudModule } from '../../crudShared';
 import type { CrudScope } from '../../types';
+import { useLocationsData } from './useLocationsData';
 
 const statusToLabelType = (status?: string): LabelType => {
   const normalized = (status ?? '').trim().toLowerCase();
@@ -14,7 +15,10 @@ const statusToLabelType = (status?: string): LabelType => {
 };
 
 export const useLocationsDetail = (scope: CrudScope) => {
-  const crud = useCrudModule(locationsDefinition, scope);
+  const data = useLocationsData(scope);
+  const crud = useCrudModule(locationsDefinition, scope, data.rows, {
+    isResolvingRecord: data.loading,
+  });
 
   return {
     location: crud.currentRecord,

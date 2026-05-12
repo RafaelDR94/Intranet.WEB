@@ -183,9 +183,11 @@ export const getTabsFromPath = (
       { label: 'Refacciones', path: '/main-page/proyects/proyects/refactions' },
     ],
     'proyects/inventory': [
-      { label: 'Dispositivos', path: '/main-page/proyects/inventory/devices' },
+      { label: 'Equipos', path: '/main-page/proyects/inventory/devices' },
       { label: 'Refacciones', path: '/main-page/proyects/inventory/refactions' },
       { label: 'Ubicaciones', path: '/main-page/proyects/inventory/locations' },
+      { label: 'Proveedores', path: '/main-page/proyects/inventory/providers' },
+
     ],
     'generalservices/vehicleregist': [
       { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist/vehicleregistry' },
@@ -659,10 +661,13 @@ export const getTabsFromPath = (
   }
 
   if (first === 'proyects' && second === 'proyects') {
-    const baseProjectTabs: Tab[] = [
-      { label: 'Nuevo Proyecto', path: '/main-page/proyects/proyects/newproyect' },
-      { label: 'Proyectos', path: '/main-page/proyects/proyects/proyectslist' },
-    ];
+    const isNewProjectView = third === 'newproyect';
+    const baseProjectTabs: Tab[] = isNewProjectView
+      ? [
+          { label: 'Proyectos', path: '/main-page/proyects/proyects/proyectslist' },
+          { label: 'Nuevo Proyecto', path: '/main-page/proyects/proyects/newproyect' },
+        ]
+      : [{ label: 'Proyectos', path: '/main-page/proyects/proyects/proyectslist' }];
     const hasProjectContext = Boolean(id && labelparam);
 
     if (!hasProjectContext) {

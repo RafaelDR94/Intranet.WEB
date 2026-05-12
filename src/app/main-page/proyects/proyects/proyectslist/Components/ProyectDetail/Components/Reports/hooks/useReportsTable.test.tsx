@@ -27,6 +27,12 @@ let currentReportRef = createSampleReport();
 let localReportsRef: typeof sampleReports = [];
 let loadingRef = false;
 let windowOpenSpy: ReturnType<typeof vi.spyOn>;
+let authPermissionsRef: Record<string, unknown> = { reportdetails: true, canSeeAllReports: true };
+let authUserRef = {
+  idEmployee: sampleReports[0].employe.employee_id,
+  fullName: sampleReports[0].employe.fullname,
+  fullname: sampleReports[0].employe.fullname,
+};
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/main-page/proyects/proyects/proyectslist",
@@ -37,12 +43,8 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/app/context/AuthContext/AuthContext", () => ({
   useAuth: () => ({
-    currentPagePermissions: { reportdetails: true },
-    user: {
-      idEmployee: sampleReports[0].employe.employee_id,
-      fullName: sampleReports[0].employe.fullname,
-      fullname: sampleReports[0].employe.fullname,
-    },
+    currentPagePermissions: authPermissionsRef,
+    user: authUserRef,
   }),
 }));
 
@@ -123,6 +125,12 @@ describe("useReportsTable", () => {
     vi.clearAllMocks();
     routerReplaceMock = vi.fn();
     searchParamsValue = "id=PROY-1";
+    authPermissionsRef = { reportdetails: true, canSeeAllReports: true };
+    authUserRef = {
+      idEmployee: sampleReports[0].employe.employee_id,
+      fullName: sampleReports[0].employe.fullname,
+      fullname: sampleReports[0].employe.fullname,
+    };
     currentReportRef = null as any;
     localReportsRef = [];
     loadingRef = false;
@@ -146,6 +154,22 @@ describe("useReportsTable", () => {
     });
     expect(fetchLocalReportsMock).toHaveBeenCalledWith(true, "PROY-1");
     expect(hideSpinnerMock).toHaveBeenCalled();
+  });
+
+  it("solicita reportes por proyecto y empleado cuando no puede ver todos", async () => {
+    authPermissionsRef = { reportdetails: true, canSeeAllReports: false };
+    authUserRef = {
+      idEmployee: "EMP-99",
+      fullName: sampleReports[0].employe.fullname,
+      fullname: sampleReports[0].employe.fullname,
+    };
+
+    renderHook(() => useReportsTable());
+
+    await waitFor(() => {
+      expect(fetchAllReportsByProyectMock).toHaveBeenCalledWith("PROY-1", true, "EMP-99");
+    });
+    expect(fetchLocalReportsMock).toHaveBeenCalledWith(true, "PROY-1");
   });
 
   it("limpia el reporte actual y elimina el query reportId al cerrar detalles", () => {

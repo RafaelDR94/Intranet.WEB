@@ -1,4 +1,4 @@
-﻿import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 
 import { Button } from "../Button/Button";
 import type { ButtonProps } from "../Button/types";
@@ -147,15 +147,28 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
   menuComponent: MenuComponent = ContextMenu,
   buttonComponent: ButtonComponent = Button,
 }: ActionMenuCellViewProps<T>) => {
+  const [menuOpen, setMenuOpen] = useState(false);
   const menuItems = useMemo(
     () =>
       buildActionMenuItems<T>({
         row,
-        onEdit,
+        onEdit: (currentRow) => {
+          setMenuOpen(false);
+          onEdit?.(currentRow);
+        },
         editLabel,
-        onDelete,
-        onDetails,
-        onRenewDay,
+        onDelete: (currentRow) => {
+          setMenuOpen(false);
+          onDelete?.(currentRow);
+        },
+        onDetails: (currentRow) => {
+          setMenuOpen(false);
+          onDetails?.(currentRow);
+        },
+        onRenewDay: (currentRow) => {
+          setMenuOpen(false);
+          onRenewDay?.(currentRow);
+        },
         permissions,
       }),
     [row, onEdit, editLabel, onDelete, onDetails, onRenewDay, permissions]
@@ -167,6 +180,8 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
     <MenuComponent
       alignRight
       autoFlip
+      isOpen={menuOpen}
+      setIsOpen={setMenuOpen}
       items={menuItems}
       trigger={
         <ButtonComponent
@@ -179,3 +194,5 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
     />
   );
 };
+
+

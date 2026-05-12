@@ -36,7 +36,11 @@ export const createGenericEquipmentSparePart = async (
       mapGenericEquipmentSparePartPost(payload)
     );
     const raw = res.data?.data ?? res.data;
-    const created = raw ? mapGenericEquipmentSparePart(raw) : null;
+    const created = raw
+      ? Array.isArray(raw)
+        ? mapGenericEquipmentSparePart(raw[0] ?? {})
+        : mapGenericEquipmentSparePart(raw)
+      : null;
 
     await fetchGenericEquipmentSpareParts(
       get().lastGenericEquipmentSparePartsIsActive ?? true,

@@ -1,4 +1,5 @@
 import type { ActionMenuCellProps } from "../ActionMenuCell/types"
+import type { Variant } from "../Button/types"
 import type { TextSize } from "./components/DataTableContent/components/DataTableBody/DataTableBody"
 
 export type SelectionMode = "single" | "multiple"
@@ -249,6 +250,8 @@ export interface CardAdapt<T> {
   /** Mostrar/ocultar botones */
   showPrimaryButton?: boolean
   showSecondaryButton?: boolean
+  /** Variant visual del boton secundario */
+  secondaryVariant?: Variant
   /** Enable opening image preview in fullscreen */
   enableImagePreview?: boolean
   /** Props para renderizar el menu contextual en cada tarjeta */
