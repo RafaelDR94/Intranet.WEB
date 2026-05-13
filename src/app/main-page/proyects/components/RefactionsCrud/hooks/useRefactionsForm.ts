@@ -228,6 +228,7 @@ export const useRefactionsForm = (scope: CrudScope) => {
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
+    await fetchSpareParts(true, true);
     resetFlags();
     crud.goList();
   };

@@ -52,13 +52,23 @@ export const mapGenericEquipmentPut = (
   src: Partial<GenericEquipmentPut> | any
 ): GenericEquipmentPut => ({
   id: String(src?.id ?? ""),
-  typeOfEquipment: String(src?.typeOfEquipment ?? src?.typeofEquipment ?? ""),
+  name: String(
+    src?.name ??
+      src?.typeOfEquipment ??
+      src?.typeofEquipment ??
+      src?.typeequipment ??
+      src?.equipmentType ??
+      ""
+  ),
   brand: String(src?.brand ?? ""),
   model: String(src?.model ?? ""),
   createdBy: String(src?.createdBy ?? ""),
 });
 
-export const mapSparePart = (raw: any): SparePart => ({
+export const mapSparePart = (raw: any): SparePart => {
+  const supplierIds = raw?.idSuppliers ?? raw?.idsuppliers;
+
+  return {
   id: String(raw?.id ?? ""),
   sku: String(raw?.sku ?? ""),
   stock: Number(raw?.stock ?? 0),
@@ -70,9 +80,13 @@ export const mapSparePart = (raw: any): SparePart => ({
   provider: String(raw?.provider ?? ""),
   website: String(raw?.website ?? ""),
   phoneNumber: String(raw?.phoneNumber ?? raw?.phonenumber ?? ""),
+  idSuppliers: Array.isArray(supplierIds)
+    ? supplierIds.map((id: unknown) => String(id))
+    : [],
   isActive:
     typeof raw?.isActive === "boolean" ? raw.isActive : undefined,
-});
+  };
+};
 
 export const mapSpareParts = (list: any[]): SparePart[] =>
   Array.isArray(list) ? list.map(mapSparePart) : [];
@@ -154,13 +168,19 @@ export const mapGenericEquipmentSparePartPost = (
 
 export const mapGenericEquipmentSparePartPut = (
   src: Partial<GenericEquipmentSparePartPut> | any
-): GenericEquipmentSparePartPut => ({
-  id: String(src?.id ?? ""),
-  idGenericEquipment: String(
-    src?.idGenericEquipment ?? src?.idgenericEquipment ?? ""
-  ),
-  idSparePart: String(src?.idSparePart ?? src?.idsparePart ?? ""),
-});
+): GenericEquipmentSparePartPut => {
+  const sparePartValue = src?.idSparePart ?? src?.idsparePart;
+
+  return {
+    id: String(src?.id ?? ""),
+    idGenericEquipment: String(
+      src?.idGenericEquipment ?? src?.idgenericEquipment ?? ""
+    ),
+    idSparePart: Array.isArray(sparePartValue)
+      ? sparePartValue.map((id: unknown) => String(id))
+      : String(sparePartValue ?? ""),
+  };
+};
 
 export const mapSupplier = (raw: any): Supplier => ({
   id: String(raw?.id ?? ""),

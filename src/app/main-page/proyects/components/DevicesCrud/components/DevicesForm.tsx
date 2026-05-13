@@ -17,6 +17,7 @@ type DevicesFormProps = {
 const DevicesForm = ({ scope }: DevicesFormProps) => {
   const state = useDevicesForm(scope);
   const { values, showErrors, formType } = state;
+  const lockBrandAndModel = Boolean(values.equipmentId);
 
   const requiredHelper = (value: string, label: string) =>
     showErrors && !String(value ?? '').trim() ? `${label} es obligatorio.` : undefined;
@@ -106,7 +107,9 @@ const DevicesForm = ({ scope }: DevicesFormProps) => {
                   label="Marca*"
                   placeholder="Marca del equipo"
                   value={values.brand}
-                  disabled
+                  disabled={lockBrandAndModel}
+                  variant={lockBrandAndModel ? 'disabled' : 'default'}
+                  onChange={(event) => state.onChange('brand', event.target.value)}
                   helperText={requiredHelper(values.brand, 'Marca')}
                   dataTestId="devices-crud-form-brand"
                 />
@@ -114,7 +117,9 @@ const DevicesForm = ({ scope }: DevicesFormProps) => {
                   label="Modelo*"
                   placeholder="Modelo del equipo"
                   value={values.model}
-                  disabled
+                  disabled={lockBrandAndModel}
+                  variant={lockBrandAndModel ? 'disabled' : 'default'}
+                  onChange={(event) => state.onChange('model', event.target.value)}
                   helperText={requiredHelper(values.model, 'Modelo')}
                   dataTestId="devices-crud-form-model"
                 />

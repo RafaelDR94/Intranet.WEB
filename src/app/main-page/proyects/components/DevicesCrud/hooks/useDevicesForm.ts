@@ -66,6 +66,12 @@ const normalizeFormType = (value?: string): DeviceFormType =>
   value === 'generic' ? 'generic' : 'complete';
 
 const sanitize = (value: unknown) => String(value ?? '').trim();
+const normalizeCompleteStatusToOption = (value?: string) => {
+  const normalized = sanitize(value).toLowerCase();
+  if (normalized === 'activo') return 'Operativo';
+  if (normalized === 'inactivo') return 'Inactivo';
+  return sanitize(value);
+};
 const EMPTY_REFACTION_FORM: NewRefactionFormValues = {
   sku: '',
   stock: '0',
@@ -100,9 +106,11 @@ export const useDevicesForm = (scope: CrudScope) => {
     createGenericEquipment,
     updateGenericEquipment,
     fetchSpareParts,
+    fetchSparePartsByGenericEquipmentId,
+    sparePartsByGenericEquipment,
     fetchGenericEquipmentSpareParts,
     createGenericEquipmentSparePart,
-    deleteGenericEquipmentSparePart,
+    updateGenericEquipmentSparePart,
     createSparePart,
     spareParts,
     genericEquipmentSpareParts,
@@ -121,9 +129,11 @@ export const useDevicesForm = (scope: CrudScope) => {
       createGenericEquipment: state.createGenericEquipment,
       updateGenericEquipment: state.updateGenericEquipment,
       fetchSpareParts: state.fetchSpareParts,
+      fetchSparePartsByGenericEquipmentId: state.fetchSparePartsByGenericEquipmentId,
+      sparePartsByGenericEquipment: state.sparePartsByGenericEquipment,
       fetchGenericEquipmentSpareParts: state.fetchGenericEquipmentSpareParts,
       createGenericEquipmentSparePart: state.createGenericEquipmentSparePart,
-      deleteGenericEquipmentSparePart: state.deleteGenericEquipmentSparePart,
+      updateGenericEquipmentSparePart: state.updateGenericEquipmentSparePart,
       createSparePart: state.createSparePart,
       spareParts: state.spareParts,
       genericEquipmentSpareParts: state.genericEquipmentSpareParts,
@@ -239,7 +249,7 @@ export const useDevicesForm = (scope: CrudScope) => {
 
     if (formType === 'generic') {
       void fetchSpareParts(true);
-      void fetchGenericEquipmentSpareParts(true);
+      void fetchGenericEquipmentSpareParts(true, true);
     }
 
     if (formType === 'complete' && resolvedProjectId) {
@@ -270,6 +280,11 @@ export const useDevicesForm = (scope: CrudScope) => {
   ]);
 
   useEffect(() => {
+    if (formType !== 'generic' || crud.crudMode !== 'edit' || !crud.crudItemId) return;
+    void fetchSparePartsByGenericEquipmentId(crud.crudItemId, true);
+  }, [crud.crudItemId, crud.crudMode, fetchSparePartsByGenericEquipmentId, formType]);
+
+  useEffect(() => {
     if (!error) return;
 
     crud.hideAlert();
@@ -297,8 +312,13 @@ export const useDevicesForm = (scope: CrudScope) => {
         const assignedFromStore = genericEquipmentSpareParts
           .filter((item) => item.idGenericEquipment === currentGenericEquipment.id)
           .map((item) => item.idSparePart);
+        const assignedFromDevice = sparePartsByGenericEquipment.map((item) => item.id);
+        const assignedIds =
+          assignedFromDevice.length > 0 ? assignedFromDevice : assignedFromStore;
 
-        setAssignedRefactionIds(Array.from(new Set(assignedFromStore)));
+        const normalizedAssignedIds = Array.from(new Set(assignedIds));
+        setAssignedRefactionIds(normalizedAssignedIds);
+        setSelectedDraftRefactionIds(normalizedAssignedIds);
 
         setValues({
           equipmentId: currentGenericEquipment.id,
@@ -314,6 +334,7 @@ export const useDevicesForm = (scope: CrudScope) => {
       }
 
       setAssignedRefactionIds([]);
+      setSelectedDraftRefactionIds([]);
       setValues({
         ...EMPTY_VALUES,
         typeOfEquipment: crud.currentRecord?.primary ?? '',
@@ -328,12 +349,22 @@ export const useDevicesForm = (scope: CrudScope) => {
     }
 
     setAssignedRefactionIds([]);
+    setSelectedDraftRefactionIds([]);
+
+    if (crud.crudMode === 'create') {
+      setValues(EMPTY_VALUES);
+      return;
+    }
 
     const matchedEquipment = genericEquipments.find(
-      (equipment) => equipment.typeOfEquipment === (crud.currentRecord?.primary ?? ''),
+      (equipment) =>
+        equipment.id === crud.currentRecord?.idGenericEquipment ||
+        equipment.typeOfEquipment === (crud.currentRecord?.primary ?? ''),
     );
     const matchedLocation = locations.find(
-      (location) => location.name === (crud.currentRecord?.tertiary ?? ''),
+      (location) =>
+        location.id === crud.currentRecord?.idLocation ||
+        location.name === (crud.currentRecord?.tertiary ?? ''),
     );
 
     setValues({
@@ -341,9 +372,9 @@ export const useDevicesForm = (scope: CrudScope) => {
       typeOfEquipment: matchedEquipment?.typeOfEquipment ?? crud.currentRecord?.primary ?? '',
       brand: matchedEquipment?.brand ?? '',
       model: matchedEquipment?.model ?? '',
-      serial: crud.currentRecord?.secondary ?? '',
+      serial: crud.currentRecord?.serialOrPart ?? '',
       location: matchedLocation?.id ?? '',
-      status: crud.currentRecord?.status ?? '',
+      status: normalizeCompleteStatusToOption(crud.currentRecord?.status),
       description: crud.currentRecord?.description ?? '',
     });
   }, [
@@ -355,6 +386,7 @@ export const useDevicesForm = (scope: CrudScope) => {
     genericEquipments,
     genericEquipmentSpareParts,
     locations,
+    sparePartsByGenericEquipment,
   ]);
 
   const refactionOptions = useMemo(
@@ -473,7 +505,9 @@ export const useDevicesForm = (scope: CrudScope) => {
           user?.userName?.trim() || user?.fullName?.trim() || user?.email?.trim() || 'sistema';
 
         result = await updateGenericEquipment({
-          ...payloadBase,
+          name: sanitize(values.typeOfEquipment),
+          brand: sanitize(values.brand),
+          model: sanitize(values.model),
           id: crud.crudItemId,
           createdBy,
         } as GenericEquipmentPut);
@@ -498,24 +532,96 @@ export const useDevicesForm = (scope: CrudScope) => {
         return;
       }
 
-      const genericEquipmentId = result.id;
-      const previousSet = new Set(previousAssignedIds);
-      const nextSet = new Set(assignedRefactionIds);
+      const genericEquipmentId =
+        crud.crudMode === 'edit'
+          ? sanitize(currentGenericEquipment?.id ?? crud.crudItemId ?? result.id)
+          : sanitize(result.id);
 
-      const idsToCreate = assignedRefactionIds.filter((id) => !previousSet.has(id));
-      const relationsToDelete = genericEquipmentSpareParts.filter(
-        (item) => item.idGenericEquipment === genericEquipmentId && !nextSet.has(item.idSparePart),
-      );
-
-      for (const relation of relationsToDelete) {
-        await deleteGenericEquipmentSparePart(relation.id);
+      if (!genericEquipmentId) {
+        crud.showAlert({
+          type: 'error',
+          variant: 'subtle',
+          title: 'No fue posible actualizar las refacciones',
+          description: 'No se obtuvo el identificador del equipo genérico.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+        });
+        resetFlags();
+        return;
       }
 
-      if (idsToCreate.length > 0) {
-        await createGenericEquipmentSparePart({
+      if (crud.crudMode !== 'edit' && assignedRefactionIds.length > 0) {
+        const relationCreated = await createGenericEquipmentSparePart({
           idGenericEquipment: genericEquipmentId,
-          idSparePart: idsToCreate,
+          idSparePart: assignedRefactionIds,
         });
+
+        if (!relationCreated) {
+          crud.showAlert({
+            type: 'error',
+            variant: 'subtle',
+            title: 'Equipo guardado con refacciones pendientes',
+            description:
+              useProyectInventoryStore.getState().error ??
+              'Se registró el equipo, pero no fue posible asociar las refacciones.',
+            showPrimaryButton: false,
+            showSecondaryButton: false,
+          });
+          resetFlags();
+          return;
+        }
+      }
+
+      const previousSet = new Set(previousAssignedIds);
+
+      const idsToCreate = assignedRefactionIds.filter((id) => !previousSet.has(id));
+
+      if (crud.crudMode === 'edit') {
+        const relationSeedId =
+          genericEquipmentSpareParts.find((item) => item.idGenericEquipment === genericEquipmentId)
+            ?.id ?? genericEquipmentId;
+        const relationUpdated = await updateGenericEquipmentSparePart({
+          id: relationSeedId,
+          idGenericEquipment: genericEquipmentId,
+          idSparePart: assignedRefactionIds,
+        });
+
+        if (!relationUpdated && assignedRefactionIds.length > 0) {
+          crud.showAlert({
+            type: 'error',
+            variant: 'subtle',
+            title: 'No fue posible actualizar las refacciones',
+            description:
+              useProyectInventoryStore.getState().error ??
+              'Falló la actualización de relaciones de refacciones.',
+            showPrimaryButton: false,
+            showSecondaryButton: false,
+          });
+          resetFlags();
+          return;
+        }
+
+        if (idsToCreate.length > 0) {
+          const relationCreated = await createGenericEquipmentSparePart({
+            idGenericEquipment: genericEquipmentId,
+            idSparePart: idsToCreate,
+          });
+
+          if (!relationCreated) {
+            crud.showAlert({
+              type: 'error',
+              variant: 'subtle',
+              title: 'No fue posible actualizar las refacciones',
+              description:
+                useProyectInventoryStore.getState().error ??
+                'Se guardó el equipo, pero falló la actualización de refacciones.',
+              showPrimaryButton: false,
+              showSecondaryButton: false,
+            });
+            resetFlags();
+            return;
+          }
+        }
       }
 
       crud.showAlert({
@@ -529,6 +635,7 @@ export const useDevicesForm = (scope: CrudScope) => {
         showPrimaryButton: false,
         showSecondaryButton: false,
       });
+      await data.refreshRows();
       resetFlags();
       crud.goList();
       return;
@@ -592,6 +699,7 @@ export const useDevicesForm = (scope: CrudScope) => {
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
+    await data.refreshRows();
     crud.goList();
   };
 
@@ -642,6 +750,11 @@ export const useDevicesForm = (scope: CrudScope) => {
     setNewRefactionValues(EMPTY_REFACTION_FORM);
   };
 
+  const handleRemoveAssignedRefaction = (sparePartId: string) => {
+    setAssignedRefactionIds((current) => current.filter((item) => item !== sparePartId));
+    setSelectedDraftRefactionIds((current) => current.filter((item) => item !== sparePartId));
+  };
+
   return {
     formType,
     title,
@@ -668,10 +781,7 @@ export const useDevicesForm = (scope: CrudScope) => {
     onAssignDraftRefactions: () => {
       setShowAddRefactionForm((current) => !current);
     },
-    onRemoveAssignedRefaction: (sparePartId: string) => {
-      setAssignedRefactionIds((current) => current.filter((item) => item !== sparePartId));
-      setSelectedDraftRefactionIds((current) => current.filter((item) => item !== sparePartId));
-    },
+    onRemoveAssignedRefaction: handleRemoveAssignedRefaction,
     showAddRefactionForm,
     newRefactionValues,
     onChangeNewRefaction: (name: keyof NewRefactionFormValues, value: string) =>
@@ -679,3 +789,4 @@ export const useDevicesForm = (scope: CrudScope) => {
     onSaveNewRefaction: handleSaveNewRefaction,
   };
 };
+

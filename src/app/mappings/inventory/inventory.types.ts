@@ -16,7 +16,7 @@ export type GenericEquipmentPost = {
 
 export type GenericEquipmentPut = {
   id: string;
-  typeOfEquipment: string;
+  name: string;
   brand: string;
   model: string;
   createdBy: string;
@@ -34,6 +34,7 @@ export type SparePart = {
   provider: string;
   website: string;
   phoneNumber: string;
+  idSuppliers?: string[];
   isActive?: boolean;
 };
 
@@ -79,7 +80,7 @@ export type GenericEquipmentSparePartPost = {
 export type GenericEquipmentSparePartPut = {
   id: string;
   idGenericEquipment: string;
-  idSparePart: string;
+  idSparePart: string | string[];
 };
 
 export type Supplier = {

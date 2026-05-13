@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
@@ -19,7 +18,7 @@ import ChatIcon from "@/assets/icons/Comunicacion/chat-bubble.svg";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
-import { BillingImages } from "@/app/mappings/billingimages/billingimages.types";
+import type { BillingImages } from "@/app/mappings/billingimages/billingimages.types";
 import type { BillableFileRow, BillableFileStatus } from "../types";
 
 const normalizeStatus = (status?: string | null): BillableFileStatus => {

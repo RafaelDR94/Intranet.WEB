@@ -1,6 +1,8 @@
 'use client';
 
 import clsx from 'clsx';
+import { useEffect, useMemo } from 'react';
+import { shallow } from 'zustand/shallow';
 
 import type { FieldModel } from '@/app/components/DynamicForm/types';
 
@@ -9,6 +11,7 @@ import { useCrudModule } from '../../crudShared';
 import type { CrudScope } from '../../types';
 import { useLocationsData } from './useLocationsData';
 import useProyectLocationStore from '@/app/stores/useProyectLocationStore/useProyectLocationStore';
+import { useProyectsStore } from '@/app/stores/useProyectsStore/useProyectsStore';
 
 const ACTIVE_LABEL_CLASS = 'text-label font-medium leading-4 text-gray-70';
 const ACTIVE_CONTROL_CLASS =
@@ -21,19 +24,40 @@ export const useLocationsForm = (scope: CrudScope) => {
     isResolvingRecord: data.loading,
   });
 
-  const projectOptions = Array.from(
-    new Map(
-      data.rows
-        .filter((row) => row.secondary && row.secondary !== 'Sin proyecto')
-        .map((row) => [
-          row.secondary,
-          {
-            label: row.secondary,
-            value: row.secondary,
-          },
-        ]),
-    ).values(),
+  const { proyects, fetchProyects } = useProyectsStore(
+    (state) => ({
+      proyects: state.proyects,
+      fetchProyects: state.fetchProyects,
+    }),
+    shallow,
   );
+
+  useEffect(() => {
+    void fetchProyects(true);
+  }, [fetchProyects]);
+
+  const projectOptions = useMemo(
+    () =>
+      proyects.map((project) => ({
+        label: project.name?.trim() || project.proyectKey?.trim() || project.id,
+        value: project.id,
+      })),
+    [proyects],
+  );
+
+  const selectedProjectValue = useMemo(() => {
+    if (crud.crudMode === 'create' && scope === 'project' && crud.projectId) {
+      return crud.projectId;
+    }
+
+    return (
+      projectOptions.find((option) => option.label === (crud.currentRecord?.secondary ?? ''))
+        ?.value ?? ''
+    );
+  }, [crud.crudMode, crud.currentRecord?.secondary, crud.projectId, projectOptions, scope]);
+
+  const shouldDisableProjectField =
+    crud.crudMode === 'create' && scope === 'project' && Boolean(crud.projectId);
 
   const fields: FieldModel[] = [
     {
@@ -41,8 +65,9 @@ export const useLocationsForm = (scope: CrudScope) => {
       name: 'projectCode',
       label: 'Selecciona uno o varios proyectos (opcional)',
       placeholder: 'Selecciona un proyecto',
-      value: crud.currentRecord?.secondary ?? '',
+      value: selectedProjectValue,
       options: projectOptions,
+      disabled: shouldDisableProjectField,
       labelClassName: ACTIVE_LABEL_CLASS,
       className: SELECT_CONTAINER_CLASS,
       triggerClassName: ACTIVE_CONTROL_CLASS,
@@ -132,6 +157,7 @@ export const useLocationsForm = (scope: CrudScope) => {
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
+    await data.refreshRows();
     data.resetFlags();
     crud.goList();
   };
