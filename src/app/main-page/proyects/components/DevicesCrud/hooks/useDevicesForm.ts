@@ -6,6 +6,8 @@ import { shallow } from 'zustand/shallow';
 
 import type { GenericEquipmentPost, GenericEquipmentPut } from '@/app/mappings/inventory/inventory.types';
 import { useProyectInventoryStore } from '@/app/stores/useProyectInventoryStore/useProyectInventoryStore';
+import useProyectLocationStore from '@/app/stores/useProyectLocationStore/useProyectLocationStore';
+import { useReportDevicesStore } from '@/app/stores/useReportDevicesStore/useReportDevicesStore';
 import { devicesDefinition } from '../../crudDefinitions';
 import { useCrudModule } from '../../crudShared';
 import type { CrudScope } from '../../types';
@@ -20,7 +22,30 @@ export type DevicesFormValues = {
   model: string;
   serial: string;
   location: string;
+  status: string;
   description: string;
+};
+
+export type AssignedRefactionRow = {
+  sparePartId: string;
+  sku: string;
+  name: string;
+  brand: string;
+  model: string;
+};
+
+type NewRefactionFormValues = {
+  sku: string;
+  stock: string;
+  name: string;
+  brand: string;
+  model: string;
+  serialNumber: string;
+  status: string;
+  characteristic: string;
+  provider: string;
+  website: string;
+  phoneNumber: string;
 };
 
 const EMPTY_VALUES: DevicesFormValues = {
@@ -30,6 +55,7 @@ const EMPTY_VALUES: DevicesFormValues = {
   model: '',
   serial: '',
   location: '',
+  status: '',
   description: '',
 };
 
@@ -40,6 +66,19 @@ const normalizeFormType = (value?: string): DeviceFormType =>
   value === 'generic' ? 'generic' : 'complete';
 
 const sanitize = (value: unknown) => String(value ?? '').trim();
+const EMPTY_REFACTION_FORM: NewRefactionFormValues = {
+  sku: '',
+  stock: '0',
+  name: '',
+  brand: '',
+  model: '',
+  serialNumber: '',
+  status: '',
+  characteristic: '',
+  provider: '',
+  website: '',
+  phoneNumber: '',
+};
 
 export const useDevicesForm = (scope: CrudScope) => {
   const data = useDevicesData(scope);
@@ -47,6 +86,7 @@ export const useDevicesForm = (scope: CrudScope) => {
     isResolvingRecord: data.isLoading,
   });
   const { user } = useAuth();
+
   const {
     genericEquipments,
     currentGenericEquipment,
@@ -59,6 +99,13 @@ export const useDevicesForm = (scope: CrudScope) => {
     fetchGenericEquipmentById,
     createGenericEquipment,
     updateGenericEquipment,
+    fetchSpareParts,
+    fetchGenericEquipmentSpareParts,
+    createGenericEquipmentSparePart,
+    deleteGenericEquipmentSparePart,
+    createSparePart,
+    spareParts,
+    genericEquipmentSpareParts,
     resetFlags,
   } = useProyectInventoryStore(
     (state) => ({
@@ -73,15 +120,73 @@ export const useDevicesForm = (scope: CrudScope) => {
       fetchGenericEquipmentById: state.fetchGenericEquipmentById,
       createGenericEquipment: state.createGenericEquipment,
       updateGenericEquipment: state.updateGenericEquipment,
+      fetchSpareParts: state.fetchSpareParts,
+      fetchGenericEquipmentSpareParts: state.fetchGenericEquipmentSpareParts,
+      createGenericEquipmentSparePart: state.createGenericEquipmentSparePart,
+      deleteGenericEquipmentSparePart: state.deleteGenericEquipmentSparePart,
+      createSparePart: state.createSparePart,
+      spareParts: state.spareParts,
+      genericEquipmentSpareParts: state.genericEquipmentSpareParts,
       resetFlags: state.resetFlags,
+    }),
+    shallow,
+  );
+
+  const { locations, fetchLocations, fetchAllLocations } = useProyectLocationStore(
+    (state) => ({
+      locations: state.locations,
+      fetchLocations: state.fetchLocations,
+      fetchAllLocations: state.fetchAllLocations,
+    }),
+    shallow,
+  );
+
+  const {
+    createDeviceExternal,
+    updateDeviceExternal,
+    creatingDeviceExternal,
+    updatingDeviceExternal,
+    deviceExternalError,
+  } = useReportDevicesStore(
+    (state) => ({
+      createDeviceExternal: state.createDevice,
+      updateDeviceExternal: state.updateDevice,
+      creatingDeviceExternal: state.creating,
+      updatingDeviceExternal: state.updating,
+      deviceExternalError: state.error,
     }),
     shallow,
   );
 
   const formType =
     scope === 'project' ? 'complete' : normalizeFormType(getSingleValue(crud.all.type));
+  const resolvedProjectId = useMemo(
+    () =>
+      sanitize(
+        getSingleValue(crud.all.id) ??
+          getSingleValue(crud.all.idProyect) ??
+          getSingleValue(crud.all.idproyect) ??
+          getSingleValue(crud.all.projectId) ??
+          getSingleValue(crud.all.proyectId) ??
+          '',
+      ),
+    [crud.all.id, crud.all.idProyect, crud.all.idproyect, crud.all.projectId, crud.all.proyectId],
+  );
   const [values, setValues] = useState<DevicesFormValues>(EMPTY_VALUES);
   const [showErrors, setShowErrors] = useState(false);
+  const [selectedDraftRefactionIds, setSelectedDraftRefactionIds] = useState<string[]>([]);
+  const [assignedRefactionIds, setAssignedRefactionIds] = useState<string[]>([]);
+  const [showAddRefactionForm, setShowAddRefactionForm] = useState(false);
+  const [newRefactionValues, setNewRefactionValues] =
+    useState<NewRefactionFormValues>(EMPTY_REFACTION_FORM);
+  const resolvedProjectIdFromLocation = useMemo(() => {
+    if (!values.location) return '';
+    const selectedLocation = locations.find((location) => location.id === values.location);
+    const projectRef = Array.isArray(selectedLocation?.proyect)
+      ? selectedLocation?.proyect?.[0]
+      : undefined;
+    return sanitize((projectRef as { id?: string } | undefined)?.id ?? '');
+  }, [locations, values.location]);
 
   const equipmentOptions = useMemo(
     () =>
@@ -89,16 +194,37 @@ export const useDevicesForm = (scope: CrudScope) => {
         .filter((equipment) => equipment.isActive !== false)
         .map((equipment) => ({
           value: equipment.id,
-          label: equipment.typeOfEquipment,
+          label:
+            equipment.typeOfEquipment?.trim() ||
+            [equipment.brand?.trim(), equipment.model?.trim()].filter(Boolean).join(' ') ||
+            equipment.id,
         })),
     [genericEquipments],
   );
 
+  const locationOptions = useMemo(
+    () =>
+      locations.map((location) => ({
+        label: location.name,
+        value: location.id,
+      })),
+    [locations],
+  );
+
+  const statusOptions = useMemo(
+    () => [
+      { label: 'Operativo', value: 'Operativo' },
+      { label: 'Disponible', value: 'Disponible' },
+      { label: 'Mantenimiento', value: 'Mantenimiento' },
+      { label: 'En uso', value: 'En uso' },
+      { label: 'Inactivo', value: 'Inactivo' },
+    ],
+    [],
+  );
+
   const title = useMemo(() => {
     if (formType === 'generic') {
-      return crud.crudMode === 'edit'
-        ? 'Actualizar equipo genérico'
-        : 'Nuevo equipo genérico';
+      return crud.crudMode === 'edit' ? 'Actualizar equipo genérico' : 'Nuevo equipo genérico';
     }
 
     return crud.crudMode === 'edit'
@@ -109,8 +235,27 @@ export const useDevicesForm = (scope: CrudScope) => {
   const primaryLabel = title;
 
   useEffect(() => {
-    void fetchGenericEquipments();
-  }, [fetchGenericEquipments]);
+    void fetchGenericEquipments(formType === 'complete');
+
+    if (formType === 'generic') {
+      void fetchSpareParts(true);
+      void fetchGenericEquipmentSpareParts(true);
+    }
+
+    if (formType === 'complete' && resolvedProjectId) {
+      void fetchLocations(resolvedProjectId, true);
+    } else if (formType === 'complete') {
+      void fetchAllLocations(true);
+    }
+  }, [
+    fetchAllLocations,
+    fetchGenericEquipments,
+    fetchGenericEquipmentSpareParts,
+    fetchLocations,
+    fetchSpareParts,
+    formType,
+    resolvedProjectId,
+  ]);
 
   useEffect(() => {
     if (formType !== 'generic' || crud.crudMode !== 'edit' || !crud.crudItemId) return;
@@ -125,22 +270,23 @@ export const useDevicesForm = (scope: CrudScope) => {
   ]);
 
   useEffect(() => {
-    if (error) {
-      crud.hideAlert();
-      crud.showAlert({
-        type: 'error',
-        variant: 'subtle',
-        title: 'No fue posible cargar la información del formulario',
-        description: error,
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-      });
-      resetFlags();
-    }
+    if (!error) return;
+
+    crud.hideAlert();
+    crud.showAlert({
+      type: 'error',
+      variant: 'subtle',
+      title: 'No fue posible cargar la información del formulario',
+      description: error,
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+    });
+    resetFlags();
   }, [crud, error, resetFlags]);
 
   useEffect(() => {
     setShowErrors(false);
+    setSelectedDraftRefactionIds([]);
 
     if (formType === 'generic') {
       if (
@@ -148,6 +294,12 @@ export const useDevicesForm = (scope: CrudScope) => {
         currentGenericEquipment &&
         currentGenericEquipment.id === crud.crudItemId
       ) {
+        const assignedFromStore = genericEquipmentSpareParts
+          .filter((item) => item.idGenericEquipment === currentGenericEquipment.id)
+          .map((item) => item.idSparePart);
+
+        setAssignedRefactionIds(Array.from(new Set(assignedFromStore)));
+
         setValues({
           equipmentId: currentGenericEquipment.id,
           typeOfEquipment: currentGenericEquipment.typeOfEquipment,
@@ -155,11 +307,13 @@ export const useDevicesForm = (scope: CrudScope) => {
           model: currentGenericEquipment.model,
           serial: '',
           location: '',
+          status: '',
           description: '',
         });
         return;
       }
 
+      setAssignedRefactionIds([]);
       setValues({
         ...EMPTY_VALUES,
         typeOfEquipment: crud.currentRecord?.primary ?? '',
@@ -168,11 +322,18 @@ export const useDevicesForm = (scope: CrudScope) => {
             ? crud.currentRecord.secondary
             : '',
       });
+      setShowAddRefactionForm(false);
+      setNewRefactionValues(EMPTY_REFACTION_FORM);
       return;
     }
 
+    setAssignedRefactionIds([]);
+
     const matchedEquipment = genericEquipments.find(
       (equipment) => equipment.typeOfEquipment === (crud.currentRecord?.primary ?? ''),
+    );
+    const matchedLocation = locations.find(
+      (location) => location.name === (crud.currentRecord?.tertiary ?? ''),
     );
 
     setValues({
@@ -181,13 +342,59 @@ export const useDevicesForm = (scope: CrudScope) => {
       brand: matchedEquipment?.brand ?? '',
       model: matchedEquipment?.model ?? '',
       serial: crud.currentRecord?.secondary ?? '',
-      location: crud.currentRecord?.tertiary ?? '',
+      location: matchedLocation?.id ?? '',
+      status: crud.currentRecord?.status ?? '',
       description: crud.currentRecord?.description ?? '',
     });
-  }, [crud.crudMode, crud.currentRecord, currentGenericEquipment, formType, genericEquipments]);
+  }, [
+    crud.crudMode,
+    crud.crudItemId,
+    crud.currentRecord,
+    currentGenericEquipment,
+    formType,
+    genericEquipments,
+    genericEquipmentSpareParts,
+    locations,
+  ]);
+
+  const refactionOptions = useMemo(
+    () =>
+      spareParts
+        .filter((item) => item.isActive !== false)
+        .map((item) => ({
+          value: item.id,
+          label: `${item.sku} ${item.name}`.trim(),
+        })),
+    [spareParts],
+  );
+
+  const assignedRefactions = useMemo<AssignedRefactionRow[]>(
+    () =>
+      assignedRefactionIds
+        .map((sparePartId) => {
+          const part = spareParts.find((item) => item.id === sparePartId);
+          if (!part) return null;
+
+          return {
+            sparePartId,
+            sku: part.sku,
+            name: part.name,
+            brand: part.brand,
+            model: part.model,
+          };
+        })
+        .filter((item): item is AssignedRefactionRow => item !== null),
+    [assignedRefactionIds, spareParts],
+  );
 
   const completeDisabled =
-    equipmentOptions.length === 0 || loading || loadingCurrent || creating || updating;
+    equipmentOptions.length === 0 ||
+    loading ||
+    loadingCurrent ||
+    creating ||
+    updating ||
+    creatingDeviceExternal ||
+    updatingDeviceExternal;
 
   const canSubmit = useMemo(() => {
     if (formType === 'generic') {
@@ -204,6 +411,7 @@ export const useDevicesForm = (scope: CrudScope) => {
       sanitize(values.model).length > 0 &&
       sanitize(values.serial).length > 0 &&
       sanitize(values.location).length > 0 &&
+      sanitize(values.status).length > 0 &&
       sanitize(values.description).length > 0
     );
   }, [formType, values]);
@@ -237,7 +445,7 @@ export const useDevicesForm = (scope: CrudScope) => {
 
     if (formType === 'generic') {
       const payloadBase: GenericEquipmentPost = {
-        typeOfEquipment: sanitize(values.typeOfEquipment),
+        name: sanitize(values.typeOfEquipment),
         brand: sanitize(values.brand),
         model: sanitize(values.model),
       };
@@ -250,6 +458,15 @@ export const useDevicesForm = (scope: CrudScope) => {
       });
 
       let result = null;
+      const previousAssignedIds =
+        crud.crudMode === 'edit' && (currentGenericEquipment?.id || crud.crudItemId)
+          ? genericEquipmentSpareParts
+              .filter(
+                (item) =>
+                  item.idGenericEquipment === (currentGenericEquipment?.id ?? crud.crudItemId ?? ''),
+              )
+              .map((item) => item.idSparePart)
+          : [];
 
       if (crud.crudMode === 'edit' && crud.crudItemId) {
         const createdBy =
@@ -281,6 +498,26 @@ export const useDevicesForm = (scope: CrudScope) => {
         return;
       }
 
+      const genericEquipmentId = result.id;
+      const previousSet = new Set(previousAssignedIds);
+      const nextSet = new Set(assignedRefactionIds);
+
+      const idsToCreate = assignedRefactionIds.filter((id) => !previousSet.has(id));
+      const relationsToDelete = genericEquipmentSpareParts.filter(
+        (item) => item.idGenericEquipment === genericEquipmentId && !nextSet.has(item.idSparePart),
+      );
+
+      for (const relation of relationsToDelete) {
+        await deleteGenericEquipmentSparePart(relation.id);
+      }
+
+      if (idsToCreate.length > 0) {
+        await createGenericEquipmentSparePart({
+          idGenericEquipment: genericEquipmentId,
+          idSparePart: idsToCreate,
+        });
+      }
+
       crud.showAlert({
         type: 'success',
         variant: 'subtle',
@@ -299,23 +536,110 @@ export const useDevicesForm = (scope: CrudScope) => {
 
     crud.showSpinner({
       message:
-        crud.crudMode === 'edit'
-          ? 'Actualizando dispositivo...'
-          : 'Registrando dispositivo...',
+        crud.crudMode === 'edit' ? 'Actualizando dispositivo...' : 'Registrando dispositivo...',
     });
 
-    await Promise.resolve();
+    const idProyect = resolvedProjectId || resolvedProjectIdFromLocation;
+    if (!idProyect) {
+      crud.hideSpinner();
+      crud.showAlert({
+        type: 'error',
+        variant: 'subtle',
+        title: 'No fue posible guardar el dispositivo',
+        description: 'No se encontró el proyecto seleccionado.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+      });
+      return;
+    }
+
+    const payloadBase = {
+      brand: sanitize(values.brand),
+      model: sanitize(values.model),
+      serialnumber: sanitize(values.serial),
+      idGenericEquipment: sanitize(values.equipmentId),
+      idLocation: sanitize(values.location),
+      idProyect,
+    };
+
+    const result =
+      crud.crudMode === 'edit' && crud.crudItemId
+        ? await updateDeviceExternal({ id: crud.crudItemId, ...payloadBase })
+        : await createDeviceExternal(payloadBase);
 
     crud.hideSpinner();
+
+    if (!result) {
+      crud.showAlert({
+        type: 'error',
+        variant: 'subtle',
+        title: 'No fue posible guardar el dispositivo',
+        description:
+          useReportDevicesStore.getState().error ??
+          deviceExternalError ??
+          'Ocurrió un error al registrar el dispositivo.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+      });
+      return;
+    }
+
     crud.showAlert({
       type: 'success',
       variant: 'subtle',
       title: crud.crudMode === 'edit' ? 'Dispositivo actualizado' : 'Dispositivo registrado',
-      description: 'La acción fue ejecutada como parte de la infraestructura base del CRUD.',
+      description: 'La información se guardó correctamente.',
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
     crud.goList();
+  };
+
+  const handleSaveNewRefaction = async () => {
+    const stockNumber = Number.parseInt(sanitize(newRefactionValues.stock), 10);
+    if (
+      !sanitize(newRefactionValues.sku) ||
+      !sanitize(newRefactionValues.name) ||
+      !sanitize(newRefactionValues.brand) ||
+      !sanitize(newRefactionValues.model)
+    ) {
+      return;
+    }
+
+    crud.showSpinner({ message: 'Guardando refacción...' });
+      const created = await createSparePart({
+        sku: sanitize(newRefactionValues.sku),
+        stock: Number.isFinite(stockNumber) ? stockNumber : 0,
+        name: sanitize(newRefactionValues.name),
+        brand: sanitize(newRefactionValues.brand),
+        model: sanitize(newRefactionValues.model),
+        serialNumber: sanitize(newRefactionValues.serialNumber),
+        characteristic: sanitize(newRefactionValues.characteristic),
+        website: sanitize(newRefactionValues.website),
+        phoneNumber: sanitize(newRefactionValues.phoneNumber),
+        idSuppliers: [],
+      });
+    crud.hideSpinner();
+
+    if (!created) {
+      crud.showAlert({
+        type: 'error',
+        variant: 'subtle',
+        title: 'No fue posible guardar la refacción',
+        description:
+          useProyectInventoryStore.getState().error ??
+          'Ocurrió un error al guardar la refacción.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+      });
+      return;
+    }
+
+    await fetchSpareParts(true, true);
+    setSelectedDraftRefactionIds((current) => Array.from(new Set([...current, created.id])));
+    setAssignedRefactionIds((current) => Array.from(new Set([...current, created.id])));
+    setShowAddRefactionForm(false);
+    setNewRefactionValues(EMPTY_REFACTION_FORM);
   };
 
   return {
@@ -325,12 +649,33 @@ export const useDevicesForm = (scope: CrudScope) => {
     values,
     equipmentOptions,
     loadingFormInfo: loading || (formType === 'generic' && crud.crudMode === 'edit' && loadingCurrent),
-    submitting: creating || updating,
+    submitting: creating || updating || creatingDeviceExternal || updatingDeviceExternal,
     completeDisabled,
     showErrors,
     canSubmit,
+    locationOptions,
+    statusOptions,
+    refactionOptions,
+    selectedDraftRefactionIds,
+    assignedRefactions,
     onCancel: crud.goList,
     onSubmit: handleSubmit,
     onChange: updateValue,
+    onSelectDraftRefactions: (ids: string[]) => {
+      setSelectedDraftRefactionIds(ids);
+      setAssignedRefactionIds(ids);
+    },
+    onAssignDraftRefactions: () => {
+      setShowAddRefactionForm((current) => !current);
+    },
+    onRemoveAssignedRefaction: (sparePartId: string) => {
+      setAssignedRefactionIds((current) => current.filter((item) => item !== sparePartId));
+      setSelectedDraftRefactionIds((current) => current.filter((item) => item !== sparePartId));
+    },
+    showAddRefactionForm,
+    newRefactionValues,
+    onChangeNewRefaction: (name: keyof NewRefactionFormValues, value: string) =>
+      setNewRefactionValues((current) => ({ ...current, [name]: value })),
+    onSaveNewRefaction: handleSaveNewRefaction,
   };
 };

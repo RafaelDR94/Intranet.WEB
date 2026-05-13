@@ -58,7 +58,7 @@ export const sidebarRoutes = [
     ],
   },
   {
-    label: 'Reportes',
+    label: 'Proyectos',
     path: '/main-page/proyects',
     icon: ServerIcon,
     subroutes: [

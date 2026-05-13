@@ -15,6 +15,7 @@ export type CrudRecord = {
   description: string;
   projectCode?: string;
   mapLink?: string;
+  linkmaps?: string;
   stock?: string;
   model?: string;
   serialOrPart?: string;

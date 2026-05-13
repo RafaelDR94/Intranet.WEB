@@ -1,4 +1,5 @@
 import type { ActionMenuCellProps } from "../ActionMenuCell/types"
+import type { Variant } from "../Button/types"
 
 export type KeyOrFn<T> = keyof T | ((row: T) => string)
 
@@ -15,6 +16,7 @@ export type CardsGridProps<T> = {
     secondaryLabel?: string
     showPrimaryButton?: boolean
     showSecondaryButton?: boolean
+    secondaryVariant?: Variant
     /** Enable opening image preview in fullscreen */
     enableImagePreview?: boolean
     /** Menú contextual por tarjeta */

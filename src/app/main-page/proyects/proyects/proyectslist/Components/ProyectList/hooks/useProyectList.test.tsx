@@ -17,6 +17,11 @@ const hideAlertMock = vi.fn();
 const showSpinnerMock = vi.fn();
 const hideSpinnerMock = vi.fn();
 
+let authState: { currentPagePermissions?: Record<string, unknown>; user: { idEmployee?: string } | null } = {
+  currentPagePermissions: { showAllProyects: true },
+  user: { idEmployee: 'emp-1' },
+};
+
 const sampleProjects: Proyect[] = [
   {
     id: 'PR-1',
@@ -65,6 +70,10 @@ vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   }),
 }));
 
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => authState,
+}));
+
 vi.mock('@/app/stores/useProyectsStore/useProyectsStore', () => ({
   useProyectsStore: (selector: any) =>
     selector({
@@ -82,6 +91,10 @@ vi.mock('@/app/stores/useProyectsStore/useProyectsStore', () => ({
 
 describe('useProyectList', () => {
   beforeEach(() => {
+    authState = {
+      currentPagePermissions: { showAllProyects: true },
+      user: { idEmployee: 'emp-1' },
+    };
     fetchProyectsMock.mockClear();
     deleteProyectMock.mockReset();
     setCurrentProyectMock.mockClear();
@@ -100,8 +113,50 @@ describe('useProyectList', () => {
     await waitFor(() => {
       expect(fetchProyectsMock).toHaveBeenCalledTimes(1);
     });
+    expect(fetchProyectsMock).toHaveBeenCalledWith();
     expect(hideSpinnerMock).toHaveBeenCalled();
     expect(resetFlagsMock).toHaveBeenCalled();
+  });
+
+  it('filtra por empleado cuando no tiene permiso showAllProyects', async () => {
+    authState = {
+      currentPagePermissions: { showAllProyects: false },
+      user: { idEmployee: 'emp-99' },
+    };
+
+    renderHook(() => useProyectList());
+
+    await waitFor(() => {
+      expect(fetchProyectsMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(fetchProyectsMock).toHaveBeenCalledWith(true, 'emp-99');
+  });
+
+  it('no consulta proyectos si aun no estan listos los permisos', async () => {
+    authState = {
+      currentPagePermissions: undefined,
+      user: { idEmployee: 'emp-1' },
+    };
+
+    renderHook(() => useProyectList());
+
+    await waitFor(() => {
+      expect(fetchProyectsMock).not.toHaveBeenCalled();
+    });
+  });
+
+  it('no consulta proyectos filtrados sin id de empleado', async () => {
+    authState = {
+      currentPagePermissions: { showAllProyects: false },
+      user: {},
+    };
+
+    renderHook(() => useProyectList());
+
+    await waitFor(() => {
+      expect(fetchProyectsMock).not.toHaveBeenCalled();
+    });
   });
 
   it('navega a la pantalla de nuevo proyecto', () => {

@@ -86,6 +86,7 @@ const useAdvanceForm = (currentModelName: string) => {
 
     useEffect(() => {
         if (!canStart) return;
+        if (loadingLocations) return;
         if (locations.length === 0 && proyectFromQuery) {
             fetchLocations(String(proyectFromQuery));
             return;
@@ -96,7 +97,7 @@ const useAdvanceForm = (currentModelName: string) => {
             helperText: "",
             value: report?.location?.id || ""
         });
-    }, [fetchLocations, locations, proyectFromQuery, updateField, reportCategories, canStart]);
+    }, [fetchLocations, locations, proyectFromQuery, updateField, report?.location?.id, canStart, loadingLocations]);
 
     useEffect(() => {
         if (!canStart) return;

@@ -16,6 +16,7 @@ type CrudFormTemplateProps = {
   responsiveLayout: ResponsiveLayoutMatrix;
   onSubmit: (values: Record<string, unknown>) => void;
   onCancel: () => void;
+  showSecondaryButton?: boolean;
   dataTestId: string;
   children?: React.ReactNode;
   mergeChildrenInSingleCard?: boolean;
@@ -34,6 +35,7 @@ const CrudFormTemplate = ({
   responsiveLayout,
   onSubmit,
   onCancel,
+  showSecondaryButton = true,
   dataTestId,
   children,
   mergeChildrenInSingleCard = false,
@@ -86,7 +88,7 @@ const CrudFormTemplate = ({
       primaryLabel={primaryLabel}
       onPrimaryClick={() => submitRef.current?.()}
       primaryDisabled={!formReady}
-      showSecondaryButton
+      showSecondaryButton={showSecondaryButton}
       secondaryLabel="Cancelar"
       onSecondaryClick={onCancel}
       cardClassName={cardClassName}

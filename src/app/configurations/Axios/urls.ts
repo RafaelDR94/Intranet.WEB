@@ -139,6 +139,9 @@ export const HMPRComments = process.env.NEXT_PUBLIC_HM_PRCOMMENTS ?? "/HumanReso
 export const HMEmployeeTalents = process.env.NEXT_PUBLIC_HM_EMPLOYEETALENTS ?? "/HumanResources/EmployeesTalents";
 
 export const ReportsProyects = process.env.NEXT_PUBLIC_REPORTS_PROYECTS ?? "/Reports/Proyects";
+export const ReportsProyectsByIdEmployee =
+  process.env.NEXT_PUBLIC_REPORTS_PROYECTS_BY_ID_EMPLOYEE ??
+  "/Reports/ProyectsByIdEmployee";
 export const ReportsTypesReports = process.env.NEXT_PUBLIC_REPORTS_TYPESREPORTS ?? "/Reports/TypesReports";
 export const ReportsCategories = process.env.NEXT_PUBLIC_REPORTS_REPORTSCATEGORIES ?? "/Reports/ReportCategories";
 export const ReportsCategoriesByIdType = process.env.NEXT_PUBLIC_REPORTS_REPORTSCATEGORIESBYIDTYPE ?? "/Reports/ReportCategoriesByIdType";
@@ -156,6 +159,8 @@ export const ReportsLocationProyect = process.env.NEXT_PUBLIC_REPORTS_LOCATIONPR
 export const ReportsGenericEquipment =
   process.env.NEXT_PUBLIC_REPORTS_GENERIC_EQUIPMENT ??
   "/Reports/GenericEquipment";
+export const ReportsSuppliers =
+  process.env.NEXT_PUBLIC_REPORTS_SUPPLIERS ?? "/Reports/Suppliers";
 export const ReportsSpareParts =
   process.env.NEXT_PUBLIC_REPORTS_SPARE_PARTS ?? "/Reports/SpareParts";
 export const ReportsSparePartsByProyectId =

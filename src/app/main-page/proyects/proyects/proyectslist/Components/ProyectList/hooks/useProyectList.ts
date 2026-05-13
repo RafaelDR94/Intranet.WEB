@@ -30,7 +30,7 @@ const useProyectList = () => {
 
     const { showSpinner, hideSpinner } = usePrincipalLoading;
 
-    const { currentPagePermissions } = useAuth();
+    const { currentPagePermissions, user } = useAuth();
 
     const { reset } = useProyectLocationStore();
 
@@ -74,7 +74,20 @@ const useProyectList = () => {
 
 
 
-    useEffect(() => { fetchProyects(); }, [fetchProyects]);
+    useEffect(() => {
+        if (!currentPagePermissions) return;
+
+        const shouldShowAllProjects = Boolean(currentPagePermissions.showAllProyects);
+        const employeeId = user?.idEmployee;
+
+        if (shouldShowAllProjects) {
+            fetchProyects();
+            return;
+        }
+
+        if (!employeeId) return;
+        fetchProyects(true, employeeId);
+    }, [currentPagePermissions, fetchProyects, user?.idEmployee]);
 
     useEffect(() => {
 

@@ -111,12 +111,12 @@ const ProyectList = () => {
                 <DataTable
                     actionLabel="Nuevo Proyecto"
                     onTableActionClick={handleNew}
-                    showButton={currentPagePermissions?.create}
+                    showButton={!isMobile && currentPagePermissions?.create}
                     showDownloadTable={false}
                     showViewSwitcher
                     showCalendar={false}
                     useCardsView={true}
-                    showFilter={false}
+                    showFilter={isMobile}
                     tables={[{
                         hidetitle: true,
                         data: proyects,
@@ -128,16 +128,28 @@ const ProyectList = () => {
                         defaultSortDirection: 'asc',
                         cardAdapt: {
                             titleKey: 'proyectKey' as any,
-                            labelKey: 'name' as any,
+                            labelKey: () => 'Proyecto',
                             // descriptionKey: 'client' as any,
                             imageKey: (p: any) => p.imageUrl,
-                            onPrimaryAction: (p: Proyect) => handleView(p),
-                            onSecondaryAction: (p: Proyect) => handeReport(p),
-                            primaryLabel: 'Ver Proyecto',
-                            secondaryLabel: 'Nuevo Reporte',
+                            onPrimaryAction: (p: Proyect) =>
+                                isMobile && currentPagePermissions?.createreport
+                                    ? handeReport(p)
+                                    : handleView(p),
+                            onSecondaryAction: (p: Proyect) =>
+                                isMobile ? handleView(p) : handeReport(p),
+                            primaryLabel:
+                                isMobile && currentPagePermissions?.createreport
+                                    ? 'Aceptar'
+                                    : 'Ver Proyecto',
+                            secondaryLabel:
+                                currentPagePermissions?.createreport
+                                    ? (isMobile ? 'Ver Proyecto' : 'Aceptar')
+                                    : "",
                             showPrimaryButton: true,
                             showSecondaryButton: currentPagePermissions?.createreport,
+                            secondaryVariant: isMobile ? 'solid' : 'outline',
                             enableImagePreview: false,
+                            cardsPerPage: isMobile ? 4 : undefined,
                             actionMenuProps: (row) => ({
                                 row,
                                 onEdit: handleEdit,
@@ -146,6 +158,19 @@ const ProyectList = () => {
                         }
                     }]}
                 />
+                {isMobile && currentPagePermissions?.create && (
+                    <div className="mt-5">
+                        <Button
+                            variant="solid"
+                            hideIcon
+                            size="medium"
+                            className="w-full"
+                            onClick={handleNew}
+                        >
+                            Nuevo Proyecto
+                        </Button>
+                    </div>
+                )}
             </div>
 
             <PopUp

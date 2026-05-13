@@ -5,6 +5,9 @@ import type {
   GenericEquipmentSparePart,
   GenericEquipmentSparePartPost,
   GenericEquipmentSparePartPut,
+  Supplier,
+  SupplierPost,
+  SupplierPut,
   SparePart,
   SparePartPost,
   SparePartPut,
@@ -17,6 +20,8 @@ export type ProyectInventoryState = {
   sparePartsByDevice: SparePart[];
   sparePartsByGenericEquipment: SparePart[];
   genericEquipmentSpareParts: GenericEquipmentSparePart[];
+  suppliers: Supplier[];
+  currentSupplier: Supplier | null;
   currentGenericEquipment: GenericEquipment | null;
   lastSparePartsIsActive: boolean | null;
   lastSparePartsByProyectId: string | null;
@@ -24,6 +29,7 @@ export type ProyectInventoryState = {
   lastSparePartsByGenericEquipmentId: string | null;
   lastGenericEquipmentSparePartsIsActive: boolean | null;
   lastGenericEquipmentId: string | null;
+  lastSupplierId: string | null;
 
   loading: boolean;
   loadingCurrent: boolean;
@@ -32,6 +38,8 @@ export type ProyectInventoryState = {
   loadingSparePartsByDevice: boolean;
   loadingSparePartsByGenericEquipment: boolean;
   loadingGenericEquipmentSpareParts: boolean;
+  loadingSuppliers: boolean;
+  loadingCurrentSupplier: boolean;
   creating: boolean;
   updating: boolean;
   removing: boolean;
@@ -43,6 +51,8 @@ export type ProyectInventoryState = {
   successGetSparePartsByDevice: boolean;
   successGetSparePartsByGenericEquipment: boolean;
   successGetGenericEquipmentSpareParts: boolean;
+  successGetSuppliers: boolean;
+  successGetCurrentSupplier: boolean;
   successPost: boolean;
   successPut: boolean;
   successDelete: boolean;
@@ -74,6 +84,8 @@ export type ProyectInventoryState = {
     isActive?: boolean,
     force?: boolean
   ) => Promise<GenericEquipmentSparePart[]>;
+  fetchSuppliers: (force?: boolean) => Promise<Supplier[]>;
+  fetchSupplierById: (id: string, force?: boolean) => Promise<Supplier | null>;
 
   createGenericEquipment: (
     payload: GenericEquipmentPost
@@ -94,6 +106,9 @@ export type ProyectInventoryState = {
     payload: GenericEquipmentSparePartPut
   ) => Promise<GenericEquipmentSparePart | null>;
   deleteGenericEquipmentSparePart: (id: string) => Promise<boolean>;
+  createSupplier: (payload: SupplierPost) => Promise<Supplier | null>;
+  updateSupplier: (payload: SupplierPut) => Promise<Supplier | null>;
+  deleteSupplier: (id: string) => Promise<boolean>;
 
   setCurrentGenericEquipment: (equipment: GenericEquipment | null) => void;
   clearCurrentGenericEquipment: () => void;

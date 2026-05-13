@@ -34,8 +34,8 @@ export const useProyectsStore = createWithEqualityFn<ProyectsState>()(
     error: undefined,
 
     /** Obtiene proyectos del backend */
-    fetchProyects: async (force = false) => {
-      await fetchProyects(set, get, force)
+    fetchProyects: async (force = false, idEmployee) => {
+      await fetchProyects(set, get, force, idEmployee)
       set({ successGet: true })
     },
     /** Refetch forzado */

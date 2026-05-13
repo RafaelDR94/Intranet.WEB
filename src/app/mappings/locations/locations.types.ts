@@ -6,3 +6,16 @@ export type ProyectLocationType = {
   address: string;
   proyect: Proyect[];
 };
+
+export type LocationPost = {
+  name: string;
+  linkmaps: string;
+  address: string;
+};
+
+export type LocationPut = {
+  id: string;
+  name: string;
+  linkmaps: string;
+  address: string;
+};

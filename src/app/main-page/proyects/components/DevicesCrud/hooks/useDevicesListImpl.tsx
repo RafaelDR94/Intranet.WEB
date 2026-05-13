@@ -14,6 +14,8 @@ import { devicesConfig, devicesDefinition } from '../../crudDefinitions';
 import { useCrudModule } from '../../crudShared';
 import type { CrudScope } from '../../types';
 import { useDevicesData, type DeviceListType } from './useDevicesData';
+import { useProyectInventoryStore } from '@/app/stores/useProyectInventoryStore/useProyectInventoryStore';
+import useReportDevicesStore from '@/app/stores/useReportDevicesStore/useReportDevicesStore';
 
 type DeviceListRow = {
   id: string;
@@ -210,16 +212,16 @@ export const useDevicesList = (scope: CrudScope) => {
   const columnsMobile = useMemo<ColumnDefinition<DeviceListRow>[]>(
     () => [
       {
-        key: 'id',
-        label: 'ID',
-        cellClass: 'w-2/12 min-w-0 px-2',
-        headerClass: 'w-2/12 min-w-0 px-2',
-      },
-      {
         key: 'device',
         label: 'EQUIPO',
         cellClass: 'w-7/12 min-w-0 px-2',
         headerClass: 'w-7/12 min-w-0 px-2',
+      },
+      {
+        key: 'brand',
+        label: 'MARCA',
+        cellClass: 'w-[24%] min-w-0 px-2',
+        headerClass: 'w-[24%] min-w-0 px-2',
       },
       commonActionColumn(),
     ],
@@ -235,9 +237,41 @@ export const useDevicesList = (scope: CrudScope) => {
     if (!rowPendingDeletion) return;
     crud.hideAlert();
     crud.showSpinner({ message: 'Eliminando dispositivo...' });
-    await Promise.resolve();
+    const success =
+      deviceListType === 'generic'
+        ? await data.deleteGenericEquipment(rowPendingDeletion.id)
+        : await data.deleteCompleteDevice(rowPendingDeletion.id);
+
+    if (success) {
+      await data.refreshRows();
+    }
+
     crud.hideSpinner();
     setRowPendingDeletion(null);
+
+    if (!success) {
+      const description =
+        deviceListType === 'generic'
+          ? useProyectInventoryStore.getState().error
+          : useReportDevicesStore.getState().error;
+
+      crud.showAlert({
+        type: 'error',
+        variant: 'subtle',
+        title: 'No fue posible eliminar el dispositivo',
+        description: description ?? 'Ocurrio un error inesperado.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+      });
+
+      if (deviceListType === 'generic') {
+        data.resetInventoryFlags();
+      } else {
+        data.resetReportDevicesFlags();
+      }
+      return;
+    }
+
     crud.showAlert({
       type: 'success',
       variant: 'subtle',
@@ -246,6 +280,12 @@ export const useDevicesList = (scope: CrudScope) => {
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
+
+    if (deviceListType === 'generic') {
+      data.resetInventoryFlags();
+    } else {
+      data.resetReportDevicesFlags();
+    }
   };
 
   return {
@@ -266,7 +306,7 @@ export const useDevicesList = (scope: CrudScope) => {
     popupTitle: rowPendingDeletion
       ? `Eliminar ${rowPendingDeletion.device}`
       : 'Eliminar dispositivo',
-    popupContent: 'Esta accion solo representa el flujo visual del CRUD compartido.',
+    popupContent: 'Esta accion eliminara el dispositivo seleccionado.',
     onCreate: crud.goCreate,
     onConfirmDelete: handleConfirmDelete,
     onCloseDelete: () => setRowPendingDeletion(null),

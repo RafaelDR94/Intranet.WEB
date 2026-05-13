@@ -71,7 +71,12 @@ const useReportsTable = () => {
 
   const RefreshData = () => {
     reset();
-    fetchAllReportsByProyect(String(idproyect), true);
+    const canSeeAllReports = Boolean(currentPagePermissions?.canSeeAllReports);
+    if (canSeeAllReports) {
+      fetchAllReportsByProyect(String(idproyect), true);
+    } else {
+      fetchAllReportsByProyect(String(idproyect), true, user?.idEmployee);
+    }
     loadLocalReports(true, String(idproyect));
   }
 

@@ -34,6 +34,7 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
   showSecondaryButton = false,
   primaryLabel = 'Aceptar',
   secondaryLabel = 'Cancelar',
+  secondaryVariant = 'outline',
   actionMenuProps,
   enableImagePreview = true,
   enableRemoteImageRecovery = true,
@@ -168,7 +169,7 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
           {showSecondaryButton && (
             <Button
               size='small'
-              variant='outline'
+              variant={secondaryVariant}
               onClick={onCancel}
               hideIcon
               className={cardStyles.CancelBtn}

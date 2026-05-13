@@ -5,6 +5,9 @@ import type {
   GenericEquipmentSparePart,
   GenericEquipmentSparePartPost,
   GenericEquipmentSparePartPut,
+  Supplier,
+  SupplierPost,
+  SupplierPut,
   SparePart,
   SparePartPost,
   SparePartPut,
@@ -12,7 +15,14 @@ import type {
 
 export const mapGenericEquipment = (raw: any): GenericEquipment => ({
   id: String(raw?.id ?? ""),
-  typeOfEquipment: String(raw?.typeOfEquipment ?? raw?.typeofEquipment ?? ""),
+  typeOfEquipment: String(
+    raw?.typeOfEquipment ??
+      raw?.typeofEquipment ??
+      raw?.typeequipment ??
+      raw?.equipmentType ??
+      raw?.name ??
+      ""
+  ),
   brand: String(raw?.brand ?? ""),
   model: String(raw?.model ?? ""),
   createdBy: String(raw?.createdBy ?? ""),
@@ -26,7 +36,14 @@ export const mapGenericEquipments = (list: any[]): GenericEquipment[] =>
 export const mapGenericEquipmentPost = (
   src: Partial<GenericEquipmentPost> | any
 ): GenericEquipmentPost => ({
-  typeOfEquipment: String(src?.typeOfEquipment ?? src?.typeofEquipment ?? ""),
+  name: String(
+    src?.name ??
+      src?.typeOfEquipment ??
+      src?.typeofEquipment ??
+      src?.typeequipment ??
+      src?.equipmentType ??
+      ""
+  ),
   brand: String(src?.brand ?? ""),
   model: String(src?.model ?? ""),
 });
@@ -62,7 +79,10 @@ export const mapSpareParts = (list: any[]): SparePart[] =>
 
 export const mapSparePartPost = (
   src: Partial<SparePartPost> | any
-): SparePartPost => ({
+): SparePartPost => {
+  const supplierIds = src?.idSuppliers ?? src?.idsuppliers;
+
+  return {
   sku: String(src?.sku ?? ""),
   stock: Number(src?.stock ?? 0),
   name: String(src?.name ?? ""),
@@ -70,14 +90,20 @@ export const mapSparePartPost = (
   model: String(src?.model ?? ""),
   serialNumber: String(src?.serialNumber ?? src?.serialnumber ?? ""),
   characteristic: String(src?.characteristic ?? ""),
-  provider: String(src?.provider ?? ""),
   website: String(src?.website ?? ""),
   phoneNumber: String(src?.phoneNumber ?? src?.phonenumber ?? ""),
-});
+  idSuppliers: Array.isArray(supplierIds)
+    ? supplierIds.map((id: unknown) => String(id))
+    : [],
+  };
+};
 
 export const mapSparePartPut = (
   src: Partial<SparePartPut> | any
-): SparePartPut => ({
+): SparePartPut => {
+  const supplierIds = src?.idSuppliers ?? src?.idsuppliers;
+
+  return {
   id: String(src?.id ?? ""),
   sku: String(src?.sku ?? ""),
   stock: Number(src?.stock ?? 0),
@@ -86,10 +112,13 @@ export const mapSparePartPut = (
   model: String(src?.model ?? ""),
   serialNumber: String(src?.serialNumber ?? src?.serialnumber ?? ""),
   characteristic: String(src?.characteristic ?? ""),
-  provider: String(src?.provider ?? ""),
   website: String(src?.website ?? ""),
   phoneNumber: String(src?.phoneNumber ?? src?.phonenumber ?? ""),
-});
+  idSuppliers: Array.isArray(supplierIds)
+    ? supplierIds.map((id: unknown) => String(id))
+    : [],
+  };
+};
 
 export const mapGenericEquipmentSparePart = (
   raw: any
@@ -110,12 +139,18 @@ export const mapGenericEquipmentSpareParts = (
 
 export const mapGenericEquipmentSparePartPost = (
   src: Partial<GenericEquipmentSparePartPost> | any
-): GenericEquipmentSparePartPost => ({
-  idGenericEquipment: String(
-    src?.idGenericEquipment ?? src?.idgenericEquipment ?? ""
-  ),
-  idSparePart: String(src?.idSparePart ?? src?.idsparePart ?? ""),
-});
+): GenericEquipmentSparePartPost => {
+  const sparePartValue = src?.idSparePart ?? src?.idsparePart;
+
+  return {
+    idGenericEquipment: String(
+      src?.idGenericEquipment ?? src?.idgenericEquipment ?? ""
+    ),
+    idSparePart: Array.isArray(sparePartValue)
+      ? sparePartValue.map((id: unknown) => String(id))
+      : String(sparePartValue ?? ""),
+  };
+};
 
 export const mapGenericEquipmentSparePartPut = (
   src: Partial<GenericEquipmentSparePartPut> | any
@@ -125,4 +160,35 @@ export const mapGenericEquipmentSparePartPut = (
     src?.idGenericEquipment ?? src?.idgenericEquipment ?? ""
   ),
   idSparePart: String(src?.idSparePart ?? src?.idsparePart ?? ""),
+});
+
+export const mapSupplier = (raw: any): Supplier => ({
+  id: String(raw?.id ?? ""),
+  nombreProveedor: String(
+    raw?.nombreProveedor ?? raw?.nombreproveedor ?? raw?.supplierName ?? ""
+  ),
+  paginaWeb: String(raw?.paginaWeb ?? raw?.paginaweb ?? raw?.website ?? ""),
+  telefono: String(
+    raw?.telefono ?? raw?.phonenumber ?? raw?.phoneumber ?? raw?.phoneNumber ?? ""
+  ),
+});
+
+export const mapSuppliers = (list: any[]): Supplier[] =>
+  Array.isArray(list) ? list.map(mapSupplier) : [];
+
+export const mapSupplierPost = (
+  src: Partial<SupplierPost> | any
+): SupplierPost => ({
+  supplierName: String(src?.supplierName ?? src?.nombreProveedor ?? src?.nombreproveedor ?? ""),
+  website: String(src?.website ?? src?.paginaWeb ?? src?.paginaweb ?? ""),
+  phonenumber: String(src?.phonenumber ?? src?.telefono ?? ""),
+});
+
+export const mapSupplierPut = (
+  src: Partial<SupplierPut> | any
+): SupplierPut => ({
+  id: String(src?.id ?? ""),
+  supplierName: String(src?.supplierName ?? src?.nombreProveedor ?? src?.nombreproveedor ?? ""),
+  website: String(src?.website ?? src?.paginaWeb ?? src?.paginaweb ?? ""),
+  phonenumber: String(src?.phonenumber ?? src?.telefono ?? ""),
 });

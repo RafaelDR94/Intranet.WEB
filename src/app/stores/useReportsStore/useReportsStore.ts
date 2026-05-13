@@ -45,8 +45,8 @@ export const useReportsStore = createWithEqualityFn<ReportsState>()(
     error: undefined,
 
     fetchAllReports: async (force = false) => fetchAllReports(set, get, force),
-    fetchAllReportsByProyect: async (idproyect: string, force = false) =>
-      fetchAllReportsByProyect(idproyect, set, get, force),
+    fetchAllReportsByProyect: async (idproyect: string, force = false, idEmployee?: string) =>
+      fetchAllReportsByProyect(idproyect, set, get, force, idEmployee),
     fetchReportsById: async (idreport: string, force = false) =>
       fetchReportsById(idreport, set, get, force),
     fetchLocalReportById: async (idreport: string, force = false) =>

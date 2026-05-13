@@ -1,4 +1,5 @@
-﻿import type { ActionMenuCellProps } from '../ActionMenuCell/types'
+import type { ActionMenuCellProps } from '../ActionMenuCell/types'
+import type { Variant } from '../Button/types'
 
 /** Props for Card component */
 export type CardProps<TRow extends Record<string, unknown> = Record<string, unknown>> = {
@@ -26,6 +27,9 @@ export type CardProps<TRow extends Record<string, unknown> = Record<string, unkn
   primaryLabel?: string
   /** Secondary button label (default: 'Cancelar') */
   secondaryLabel?: string
+  /** Secondary button visual variant (default: 'outline') */
+  secondaryVariant?: Variant
+  showSecundaryButton?: boolean
   /** Optional props to display contextual action menu */
   actionMenuProps?: ActionMenuCellProps<TRow>
   /** Enables opening the image in fullscreen preview on click (default: true) */
@@ -33,4 +37,5 @@ export type CardProps<TRow extends Record<string, unknown> = Record<string, unkn
   /** Enables a one-time remote image recovery via fetch/blob when first paint fails */
   enableRemoteImageRecovery?: boolean
 }
+
 

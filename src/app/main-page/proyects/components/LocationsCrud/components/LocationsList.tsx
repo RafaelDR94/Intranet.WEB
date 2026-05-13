@@ -1,16 +1,18 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
-import { Copy, Ellipsis, Link2 } from 'lucide-react';
+import { Copy, Link2 } from "lucide-react";
 
-import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery';
-import { DataTable } from '@/app/components/DataTable/DataTable';
-import type { ColumnDefinition } from '@/app/components/DataTable/types';
-import { PopUp } from '@/app/components/PopUp/PopUp';
+import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import { DataTable } from "@/app/components/DataTable/DataTable";
+import type { ColumnDefinition } from "@/app/components/DataTable/types";
+import { PopUp } from "@/app/components/PopUp/PopUp";
 
-import { useLocationsList } from '../hooks/useLocationsList';
-import type { CrudRecord, CrudScope } from '../../types';
+import { useLocationsList } from "../hooks/useLocationsList";
+import type { CrudRecord, CrudScope } from "../../types";
+import { Button } from "@/app/components/Button/Button";
 
 type LocationsListProps = {
   scope: CrudScope;
@@ -27,39 +29,47 @@ const LocationsList = ({ scope }: LocationsListProps) => {
 
   const actionColumn = useMemo<ColumnDefinition<CrudRecord>>(
     () => ({
-      key: 'actions',
-      label: 'ENLACE',
-      cellClass: 'w-[12%] min-w-0 px-2',
-      headerClass: 'w-[12%] min-w-0 px-2',
-      render: (row) => (
-        <div className="flex items-center justify-end gap-3 text-blue-60">
-          <a
-            href={row.mapLink}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-6 w-6 items-center justify-center"
-            aria-label={`Abrir enlace de ${row.primary}`}
-          >
-            <Link2 className="h-5 w-5" strokeWidth={1.75} />
-          </a>
-          <button
-            type="button"
-            onClick={() => void handleCopy(row.mapLink)}
-            className="inline-flex h-6 w-6 items-center justify-center"
-            aria-label={`Copiar enlace de ${row.primary}`}
-          >
-            <Copy className="h-5 w-5" strokeWidth={1.75} />
-          </button>
-          <button
-            type="button"
-            onClick={() => state.onDetail(row.id)}
-            className="inline-flex h-6 w-6 items-center justify-center"
-            aria-label={`Ver detalle de ${row.primary}`}
-          >
-            <Ellipsis className="h-5 w-5" strokeWidth={1.75} />
-          </button>
-        </div>
-      ),
+      key: "actions",
+      label: "ENLACE",
+      cellClass: "w-[12%] min-w-0 px-2",
+      headerClass: "w-[12%] min-w-0 px-2",
+      render: (row) => {
+        const mapUrl = (row.linkmaps ?? row.mapLink ?? "").trim();
+        const hasMapLink = mapUrl.length > 0;
+
+        return (
+          <div className="text-blue-60 flex items-center justify-end gap-3">
+            {hasMapLink ? (
+              <>
+                <a
+                  href={mapUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-6 w-6 items-center justify-center"
+                  aria-label={`Abrir enlace de ${row.primary}`}
+                >
+                  <Link2 className="h-5 w-5" strokeWidth={1.75} />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => void handleCopy(mapUrl)}
+                  className="inline-flex h-6 w-6 items-center justify-center"
+                  aria-label={`Copiar enlace de ${row.primary}`}
+                >
+                  <Copy className="h-5 w-5" strokeWidth={1.75} />
+                </button>
+              </>
+            ) : null}
+            <ActionMenuCell
+              row={row}
+              editLabel="Ver mas"
+              onDetails={() => state.onDetail(row.id)}
+              onDelete={() => state.onRequestDelete(row)}
+              permissions={{ details: true, delete: true }}
+            />
+          </div>
+        );
+      },
     }),
     [state],
   );
@@ -69,42 +79,36 @@ const LocationsList = ({ scope }: LocationsListProps) => {
       isMobile
         ? [
             {
-              key: 'secondary',
-              label: 'PROYECTO',
-              cellClass: 'w-[40%] min-w-0 px-2',
-              headerClass: 'w-[40%] min-w-0 px-2',
-            },
-            {
-              key: 'primary',
-              label: 'NOMBRE',
-              cellClass: 'w-[44%] min-w-0 px-2',
-              headerClass: 'w-[44%] min-w-0 px-2',
+              key: "primary",
+              label: "NOMBRE",
+              cellClass: "w-[50%] min-w-0 px-2",
+              headerClass: "w-[50%] min-w-0 px-2",
             },
             {
               ...actionColumn,
-              label: '',
-              cellClass: 'w-[16%] min-w-0 px-2',
-              headerClass: 'w-[16%] min-w-0 px-2',
+              label: "",
+              cellClass: "w-[50%] min-w-0",
+              headerClass: "w-[50%] min-w-0",
             },
           ]
         : [
             {
-              key: 'secondary',
-              label: 'PROYECTO',
-              cellClass: 'w-[21%] min-w-0 px-2',
-              headerClass: 'w-[21%] min-w-0 px-2',
+              key: "secondary",
+              label: "PROYECTO",
+              cellClass: "w-[21%] min-w-0 px-2",
+              headerClass: "w-[21%] min-w-0 px-2",
             },
             {
-              key: 'primary',
-              label: 'NOMBRE',
-              cellClass: 'w-[22%] min-w-0 px-2',
-              headerClass: 'w-[22%] min-w-0 px-2',
+              key: "primary",
+              label: "NOMBRE",
+              cellClass: "w-[22%] min-w-0 px-2",
+              headerClass: "w-[22%] min-w-0 px-2",
             },
             {
-              key: 'tertiary',
-              label: 'DIRECCION',
-              cellClass: 'w-[45%] min-w-0 px-2',
-              headerClass: 'w-[45%] min-w-0 px-2',
+              key: "tertiary",
+              label: "DIRECCION",
+              cellClass: "w-[45%] min-w-0 px-2",
+              headerClass: "w-[45%] min-w-0 px-2",
             },
             actionColumn,
           ],
@@ -130,14 +134,23 @@ const LocationsList = ({ scope }: LocationsListProps) => {
         <DataTable
           showCalendar={false}
           showFilter={false}
-          showButton
-          actionLabel={state.actionLabel}
-          onTableActionClick={state.onCreate}
+          showButton={false}
           enableInternalSearch
           searchableKeys={state.searchableKeys}
-          textSize={{ mobile: 'text-d3', desktop: 'text-b3' }}
+          textSize={{ mobile: "text-d3", desktop: "text-b3" }}
           searchDataTour="locations-crud-list-search"
-          actionButtonDataTour="locations-crud-list-create"
+          rightContent={
+            <Button
+              variant="solid"
+              hideIcon
+              size="medium"
+              onClick={state.onCreate}
+              data-tour="locations-crud-list-create"
+              className={isMobile ? "w-full mt-3" : ""}
+            >
+              Nueva ubicación
+            </Button>
+          }
           tables={[
             {
               data: state.rows,
