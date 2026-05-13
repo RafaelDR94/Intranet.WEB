@@ -41,7 +41,7 @@ const ProvidersDetail = ({ scope, open }: ProvidersDetailProps) => {
 
           <div className="flex justify-end">
             <button type="button" onClick={state.onEdit} className={actionButtonClass}>
-              <span>Editar informacion</span>
+              <span>Editar Información</span>
               <Edit3 className="h-6 w-6 text-green-100" strokeWidth={1.75} />
             </button>
           </div>

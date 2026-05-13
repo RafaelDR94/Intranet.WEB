@@ -71,12 +71,14 @@ vi.mock("@/app/stores/useFormFieldsStore/useFormFieldsStore", () => ({
     selector
       ? selector({
         fieldsByFormId: { [FORM_ID]: storedFields },
+        formVersionsByFormId: { [FORM_ID]: 1 },
         setFields: setFieldsMock,
         updateField: updateFieldMock,
         resetFields: resetFieldsMock,
       })
       : {
         fieldsByFormId: { [FORM_ID]: storedFields },
+        formVersionsByFormId: { [FORM_ID]: 1 },
         setFields: setFieldsMock,
         updateField: updateFieldMock,
         resetFields: resetFieldsMock,
@@ -166,16 +168,79 @@ describe("useAdvanceForm", () => {
     });
 
     expect(result.current.formFields).toEqual(storedFields);
+    expect(result.current.formVersion).toBe(1);
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 200));
     });
 
     expect(result.current.canStart).toBe(true);
-    expect(resetFieldsMock).toHaveBeenCalledWith(FORM_ID);
+    expect(resetFieldsMock).not.toHaveBeenCalled();
     expect(updateFieldMock).toHaveBeenCalledWith(
       FORM_ID,
       "location",
       expect.objectContaining({ disabled: false })
+    );
+  });
+
+  it("conserva valores y opciones al cambiar la estructura del formulario", async () => {
+    storedFields = [
+      {
+        type: "input",
+        name: "ticket",
+        label: "Ticket*",
+        value: "TK-LOCAL",
+        validations: [{ type: "required" }],
+      },
+      {
+        type: "select",
+        name: "category",
+        label: "Categoria*",
+        value: "CAT-1",
+        options: [{ value: "CAT-1", label: "Correctivo" }],
+        validations: [{ type: "required" }],
+        disabled: false,
+      },
+      {
+        type: "select",
+        name: "location",
+        label: "Ubicacion*",
+        value: "LOC-1",
+        options: [{ value: "LOC-1", label: "Edificio Norte" }],
+        validations: [{ type: "required" }],
+        disabled: false,
+      },
+      {
+        type: "textarea",
+        name: "remarks",
+        label: "Observaciones",
+        value: "Observacion capturada",
+      },
+    ];
+
+    renderHook(() => useAdvanceForm("Correctivo"));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(setFieldsMock).toHaveBeenCalledWith(
+      FORM_ID,
+      expect.arrayContaining([
+        expect.objectContaining({ name: "ticket", value: "TK-001" }),
+        expect.objectContaining({
+          name: "category",
+          value: "CAT-1",
+          options: [{ value: "CAT-1", label: "Correctivo" }, { value: "CAT-2", label: "Preventivo" }],
+        }),
+        expect.objectContaining({
+          name: "location",
+          value: "LOC-1",
+          options: [{ value: "LOC-1", label: "Edificio Norte" }],
+        }),
+        expect.objectContaining({ name: "remarks", value: "Observaciones" }),
+        expect.objectContaining({ name: "diagnostic", value: "Diagnostico inicial" }),
+        expect.objectContaining({ name: "solution", value: "Solucion aplicada" }),
+      ])
     );
   });
 
@@ -201,6 +266,16 @@ describe("useAdvanceForm", () => {
       });
     });
 
+    expect(updateFieldMock).toHaveBeenCalledWith(
+      FORM_ID,
+      "category",
+      expect.objectContaining({ value: "CAT-2" })
+    );
+    expect(updateFieldMock).toHaveBeenCalledWith(
+      FORM_ID,
+      "location",
+      expect.objectContaining({ value: "LOC-1" })
+    );
     expect(updateAdvanceMock).toHaveBeenCalledWith(
       expect.objectContaining({
         ticket: "TK-100",

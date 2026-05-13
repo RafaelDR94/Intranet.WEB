@@ -131,8 +131,8 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
       {
         key: "xmlUrl" as unknown as keyof BillingDocumentDetailsTable,
         label: "ARCHIVOS",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        cellClass: "basis-[110px] flex-none text-left",
+        headerClass: "basis-[110px] flex-none text-left",
         render: (row) => {
           return (
             <div className="flex items-center gap-1">
@@ -173,56 +173,65 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
       {
         key: "fecha",
         label: "FECHA CONSUMO",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "basis-[150px] flex-none text-left whitespace-nowrap",
+        headerClass: "basis-[150px] flex-none text-left whitespace-nowrap",
       },
       {
         key: "uuid",
         label: "UUID",
-        cellClass: "w-5/15 text-left truncate",
-        headerClass: "w-5/15 text-left",
+        showSortIndicator: false,
+        cellClass: "basis-[360px] flex-none text-left truncate",
+        headerClass: "basis-[360px] flex-none text-left",
       },
       {
         key: "numpersons",
         label: "No. PERS.",
-        cellClass: "w-1/15 text-left",
-        headerClass: "w-1/15 text-left",
+        showSortIndicator: false,
+        cellClass: "basis-[100px] flex-none text-center",
+        headerClass: "basis-[100px] flex-none text-center",
       },
       {
         key: "numnights",
         label: "No. NOCHES",
-        cellClass: "w-1/15 text-left",
-        headerClass: "w-1/15 text-left",
+        showSortIndicator: false,
+        cellClass: "basis-[120px] flex-none text-center",
+        headerClass: "basis-[120px] flex-none text-center",
       },
       {
         key: "subtotal",
         label: "SUBTOTAL",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "basis-[120px] flex-none text-right",
+        headerClass: "basis-[120px] flex-none text-right",
       },
       {
         key: "iva",
         label: "IVA",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "basis-[90px] flex-none text-right",
+        headerClass: "basis-[90px] flex-none text-right",
       },
       {
         key: "otherinvoices",
         label: "OTROS IMP.",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "basis-[130px] flex-none text-right",
+        headerClass: "basis-[130px] flex-none text-right",
       },
       {
         key: "total",
         label: "TOTAL.",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "basis-[120px] flex-none text-right",
+        headerClass: "basis-[120px] flex-none text-right",
       },
       {
         key: "authorization" as unknown as keyof BillingDocumentDetailsTable,
         label: "Estatus validación",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "basis-[170px] flex-none text-left",
+        headerClass: "basis-[170px] flex-none text-left",
         render: (row) => renderValidationStatus(row),
       },
       {
@@ -239,8 +248,8 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
             Ver Detalles
           </Button>
         ),
-        cellClass: "w-1/15 text-center",
-        headerClass: "w-1/15 text-right",
+        cellClass: "basis-[160px] flex-none whitespace-nowrap text-center",
+        headerClass: "basis-[160px] flex-none text-right",
       },
     ],
     [handleOpenDetails],
@@ -310,14 +319,14 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
             </>
           )}
         showButton={false}
-        enablePagination={false}
+        rowsPerPage={8}
         tables={[
           {
             data: filteredRows,
             columns: isMobile ? filteredMobileColumns : filteredColumns,
             enableSelection: false,
             title: "Reporte de gastos",
-            enableCollaps: true,
+            enableCollaps: false,
             defaultSortKey: "fecha",
             defaultSortDirection: "desc",
           },

@@ -26,7 +26,7 @@ export const ownRequisitionsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="ownrequisitions-refresh"]',
         title: 'Actualizar',
-        description: 'Recarga el listado con la informacion mas reciente.',
+        description: 'Recarga el listado con la Información mas reciente.',
       },
       {
         target: '[data-tour="ownrequisitions-row-details"]',
@@ -53,7 +53,7 @@ export const ownRequisitionsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="ownrequisitions-detail-form"]',
         title: 'Formulario',
-        description: 'Revisa la informacion general de la requisicion.',
+        description: 'Revisa la Información general de la requisicion.',
       },
       {
         target: '[data-tour="ownrequisitions-detail-balance"]',

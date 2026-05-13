@@ -46,8 +46,9 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({
     canStart,
     handleSubmit,
     handleValidChange,
-    formCompleted,
     isReadOnly,
+    isEditing,
+    formCompleted,
   } = useCreateEemployee({
     loggedUser: loggedUser ?? undefined,
     onSuccess,
@@ -61,8 +62,8 @@ const CreateEmployee: React.FC<CreateEmployeeProps> = ({
   return (
     <div data-tour="createemployee-form">
     <FormsLayout
-      title="Registra aquí a un nuevo empleado"
-      primaryLabel="Registrar empleado"
+      title={isEditing ? "Actualiza la información del empleado" : "Registra aquí a un nuevo empleado"}
+      primaryLabel={isEditing ? "Actualizar empleado" : "Registrar empleado"}
       enableCollapse={variant === "panel" ? false : !onConfigurations}
       showBackground={variant === "panel" ? false : true}
       showDivider={variant === "panel" ? false : true}

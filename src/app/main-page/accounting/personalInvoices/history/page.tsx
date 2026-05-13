@@ -66,6 +66,7 @@ const PersonalInvoicesHistory = () => {
     {
       key: "requisitionkey",
       label: "CÓDIGO DE SOLICITUD",
+      showSortIndicator: false,
     },
     {
       key: "status",
@@ -80,6 +81,7 @@ const PersonalInvoicesHistory = () => {
     {
       key: "dateCreate",
       label: "FECHA DE CREACIÓN",
+      showSortIndicator: false,
     },
 
     {
@@ -109,6 +111,7 @@ const PersonalInvoicesHistory = () => {
     {
       key: "requisitionkey",
       label: "C. SOLICITUD",
+      showSortIndicator: false,
     },
     {
       key: "project",
@@ -150,7 +153,7 @@ const PersonalInvoicesHistory = () => {
               columns,
               enableSelection: true,
               title: "Rechazadas",
-              enableCollaps: true,
+              enableCollaps: false,
               defaultSortKey: "dateCreate",
               defaultSortDirection: "desc",
             },
@@ -166,7 +169,7 @@ const PersonalInvoicesHistory = () => {
               columns,
               enableSelection: true,
               title: "Historial",
-              enableCollaps: true,
+              enableCollaps: false,
               defaultSortKey: "dateCreate",
               defaultSortDirection: "desc",
             },

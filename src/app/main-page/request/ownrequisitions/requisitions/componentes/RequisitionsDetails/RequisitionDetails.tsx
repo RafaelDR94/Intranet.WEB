@@ -18,8 +18,11 @@ const RequisitionDetails: React.FC = () => {
   const { currentRequisition } = useRequisitionsDetails();
   const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
-  if (currentRequisition)
-    return (
+  if (!currentRequisition) {
+    return null;
+  }
+
+  return (
       <>
         {currentPagePermissions?.sapprofile ? (
           <CollapsibleSection
@@ -96,6 +99,7 @@ const RequisitionDetails: React.FC = () => {
                   startDisabled
                   startCollaps={isMobile}
                   enableCollaps
+                  showEditForm={false}
                   responsiveLayoutMatrix={{
                     sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
                     md: [

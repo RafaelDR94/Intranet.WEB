@@ -1,5 +1,10 @@
 export const departmentsStyles = {
-  listGrid: "flex flex-wrap gap-2",
+  searchRow: "flex w-full items-center",
+  searchWrapper: "flex w-full items-center justify-between gap-4",
+  searchInputWrapper: "w-full max-w-[380px]",
+  searchInput: "w-full",
+  listGrid:
+    "grid w-full grid-cols-1 justify-items-center gap-4 sm:grid-cols-2 xl:grid-cols-4",
   emptyState:
     "bg-white-100 text-b3 text-gray-70 shadow-200 rounded-lg p-6",
   errorState:

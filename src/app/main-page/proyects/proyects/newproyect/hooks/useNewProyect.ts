@@ -15,6 +15,7 @@ const useNewProyect = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams?.get("id") ?? "";
+  const isEditing = editId.length > 0;
 
   const [client, setClient] = useState("");
   const [name, setName] = useState("");
@@ -22,6 +23,10 @@ const useNewProyect = () => {
   const [locationId, setLocationId] = useState("");
   const [pendingCollaboratorId, setPendingCollaboratorId] = useState("");
   const [collaboratorIds, setCollaboratorIds] = useState<string[]>([]);
+  const getEmployeeId = useCallback(
+    (employee: EmployeeType): string => String(employee.employee_id ?? employee.id ?? ""),
+    []
+  );
   const getEmployeeUserId = useCallback(
     (employee: EmployeeType): string =>
       String(
@@ -58,8 +63,9 @@ const useNewProyect = () => {
   );
 
   const {
-    proyects,
-    fetchProyects,
+    currentProyect,
+    fetchProyectById,
+    clearCurrentProyect,
     createProyect,
     updateProyect,
     creating,
@@ -70,8 +76,9 @@ const useNewProyect = () => {
     resetFlags,
   } = useProyectsStore(
     (s) => ({
-      proyects: s.proyects,
-      fetchProyects: s.fetchProyects,
+      currentProyect: s.currentProyect,
+      fetchProyectById: s.fetchProyectById,
+      clearCurrentProyect: s.clearCurrentProyect,
       createProyect: s.createProyect,
       updateProyect: s.updateProyect,
       creating: s.creating,
@@ -90,30 +97,33 @@ const useNewProyect = () => {
   }, [fetchAllLocations, fetchEmployees]);
 
   useEffect(() => {
-    if (editId) void fetchProyects();
-  }, [editId, fetchProyects]);
+    if (!editId) {
+      clearCurrentProyect();
+      return;
+    }
+
+    void fetchProyectById(editId);
+  }, [clearCurrentProyect, editId, fetchProyectById]);
 
   useEffect(() => {
-    if (!editId) return;
-    const found = proyects.find((p) => p.id === editId);
-    if (!found) return;
+    if (!editId || !currentProyect || currentProyect.id !== editId) return;
 
-    setClient(found.client ?? "");
-    setName(found.name ?? "");
-    setProyectKey(found.proyectKey ?? "");
+    setClient(currentProyect.client ?? "");
+    setName(currentProyect.name ?? "");
+    setProyectKey(currentProyect.proyectKey ?? "");
     setCollaboratorIds(
-      (found.collaborators ?? [])
-        .map((collaborator) => getEmployeeUserId(collaborator))
+      (currentProyect.collaborators ?? [])
+        .map((collaborator) => getEmployeeId(collaborator))
         .filter((id) => id.length > 0)
     );
-  }, [editId, getEmployeeUserId, proyects]);
+  }, [currentProyect, editId, getEmployeeId]);
 
   useEffect(() => {
     if (!employeesError && !locationError) return;
     showAlert({
       type: "error",
       variant: "filled",
-      title: "No se pudo cargar la informacion del formulario",
+      title: "No se pudo cargar la Información del formulario",
       description: String(employeesError || locationError || "Intenta refrescar."),
       showPrimaryButton: true,
       primaryLabel: "Entendido",
@@ -187,9 +197,9 @@ const useNewProyect = () => {
   const collaboratorOptions = useMemo(
     () =>
       employees
-        .map((employee) => ({ label: employee.fullname, value: getEmployeeUserId(employee) }))
+        .map((employee) => ({ label: employee.fullname, value: getEmployeeId(employee) }))
         .filter((option) => option.value.length > 0),
-    [employees, getEmployeeUserId]
+    [employees, getEmployeeId]
   );
 
   const locationOptions = useMemo(
@@ -200,9 +210,34 @@ const useNewProyect = () => {
   const collaborators = useMemo(
     () =>
       collaboratorIds
-        .map((id) => employees.find((employee) => getEmployeeUserId(employee) === id))
+        .map((id) => employees.find((employee) => getEmployeeId(employee) === id))
         .filter(Boolean) as Array<(typeof employees)[number]>,
-    [collaboratorIds, employees, getEmployeeUserId]
+    [collaboratorIds, employees, getEmployeeId]
+  );
+
+  const collaboratorRows = useMemo(
+    () =>
+      collaborators.map((collaborator) => {
+        const id = getEmployeeId(collaborator);
+        const fullName = collaborator.fullname?.trim() || "Sin nombre";
+        const avatarInitials = fullName
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part) => part[0]?.toUpperCase() ?? "")
+          .join("");
+
+        return {
+          id,
+          fullname: fullName,
+          workPosition: collaborator.workposition_name?.trim() || "Sin puesto",
+          phone: collaborator.employee_phone?.trim() || collaborator.phone_number?.trim() || "N/A",
+          email: collaborator.employee_email?.trim() || collaborator.email?.trim() || "N/A",
+          avatarSrc: collaborator.image_url?.trim() || "",
+          avatarInitials,
+        };
+      }),
+    [collaborators, getEmployeeId]
   );
 
   const addCollaborator = () => {
@@ -221,19 +256,20 @@ const useNewProyect = () => {
     () =>
       client.trim().length > 0 &&
       name.trim().length > 0 &&
-      proyectKey.trim().length > 0 &&
-      collaboratorIds.length > 0,
-    [client, name, proyectKey, collaboratorIds.length]
+      proyectKey.trim().length > 0,
+    [client, name, proyectKey]
   );
 
   const submit = useCallback(async () => {
     if (!formReady) return;
+    const managerId =
+      collaborators.length > 0 ? getEmployeeUserId(collaborators[0]) : "";
 
     const payload: ProyectPost = {
       client: client.trim(),
       name: name.trim(),
       proyectKey: proyectKey.trim(),
-      managerId: collaboratorIds[0],
+      managerId,
       collaborators: collaboratorIds,
     };
 
@@ -243,7 +279,18 @@ const useNewProyect = () => {
     }
 
     await createProyect(payload);
-  }, [client, collaboratorIds, createProyect, editId, formReady, name, proyectKey, updateProyect]);
+  }, [
+    client,
+    collaboratorIds,
+    collaborators,
+    createProyect,
+    editId,
+    formReady,
+    getEmployeeUserId,
+    name,
+    proyectKey,
+    updateProyect,
+  ]);
 
   const registerLocation = useCallback(
     async (payload: { name: string; address: string; linkmaps: string }) => {
@@ -295,8 +342,10 @@ const useNewProyect = () => {
     name,
     proyectKey,
     locationId,
+    isEditing,
     pendingCollaboratorId,
     collaborators,
+    collaboratorRows,
     collaboratorOptions,
     locationOptions,
     loadingFormInfo: employeesLoading || loadingLocations,

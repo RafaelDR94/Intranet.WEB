@@ -94,7 +94,7 @@ const LoginPage = () => {
             </div>
 
             <div className={mfaViewStyles.methods}>
-              <div className={mfaViewStyles.methodsLabel}>MÃ©todo de verificación</div>
+              <div className={mfaViewStyles.methodsLabel}>Método de verificación</div>
               {mfaOptions.map((option) => {
                 const selected = selectedMfaMethod === option.type;
                 const Icon = option.type === "Email" ? MailIcon : SmartphoneIcon;
@@ -224,13 +224,13 @@ const LoginPage = () => {
               <>
                 <button
                   type="button"
-                  className="mb-4 flex h-12 w-full items-center justify-center rounded-xl bg-green-80 text-[16px] font-semibold leading-[29px] text-white transition hover:bg-[#67cfc5] disabled:cursor-not-allowed disabled:bg-[#295f68]"
+                  className={loginStyles.passkeyButton}
                   onClick={() => {
                     void handlePasskeyLogin();
                   }}
                   disabled={isLoading}
                 >
-                  Iniciar sesión con Passkey
+                  Iniciar sesión con Dispositivo
                 </button>
 
                 <div className="mb-4 flex items-center gap-4 text-white/70">

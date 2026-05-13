@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import DetailsPanelLayout from './DetailsPanelLayout';
 
@@ -14,9 +14,18 @@ vi.mock('@/assets/icons/navegacion/sidebar-collapse.svg', () => ({
   default: (props: any) => <svg data-testid="icon-collapse" aria-hidden="true" {...props} />,
 }));
 
+let mockIsMobile = false;
+vi.mock('../DataTable/components/DataTableLayout/hooks/useMediaQuery', () => ({
+  useIsMobile: () => mockIsMobile,
+}));
+
 
 describe('DetailsPanel', () => {
-  it('muestra labels y ejecuta handlers', () => {
+  beforeEach(() => {
+    mockIsMobile = false;
+  });
+
+  it('muestra labels y ejecuta handlers en desktop', () => {
     const onClose = vi.fn();
     const onExpandedChange = vi.fn();
 
@@ -43,5 +52,22 @@ describe('DetailsPanel', () => {
     // Close
     fireEvent.click(screen.getByRole('button', { name: /cerrar panel/i }));
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('en mobile oculta el boton de expandir y mantiene visible el de cerrar', () => {
+    mockIsMobile = true;
+    const onClose = vi.fn();
+    const onExpandedChange = vi.fn();
+
+    render(
+      <DetailsPanelLayout open onClose={onClose} onExpandedChange={onExpandedChange}>
+        <div>Contenido</div>
+      </DetailsPanelLayout>
+    );
+
+    expect(screen.queryByRole('button', { name: /expandir|colapsar/i })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /cerrar panel/i }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onExpandedChange).not.toHaveBeenCalled();
   });
 });

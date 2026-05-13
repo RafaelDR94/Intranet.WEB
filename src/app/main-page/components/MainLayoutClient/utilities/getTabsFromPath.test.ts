@@ -212,4 +212,28 @@ describe('getTabsFromPath utility', () => {
       },
     ]);
   });
+
+  it('returns organigrama tabs for the standalone module', () => {
+    const result = getTabsFromPath('/main-page/organigrama/departments');
+
+    expect(result).toEqual([
+      { label: 'Departamentos', path: '/main-page/organigrama/departments' },
+      { label: 'Directorio General', path: '/main-page/organigrama/generaldirectory' },
+    ]);
+  });
+
+  it('adds the dynamic department detail tab for organigrama', () => {
+    const result = getTabsFromPath(
+      '/main-page/organigrama/departments',
+      '?view=detail&id=dep-1&label=TI',
+    );
+
+    expect(result).toEqual([
+      { label: 'Departamentos', path: '/main-page/organigrama/departments' },
+      {
+        label: 'TI',
+        path: '/main-page/organigrama/departments?view=detail&id=dep-1&label=TI',
+      },
+    ]);
+  });
 });

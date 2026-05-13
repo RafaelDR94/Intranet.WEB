@@ -8,10 +8,8 @@ import type { ProyectLocationType } from '@/app/mappings/locations/locations.typ
 import type { CrudRecord, CrudScope } from '../../types';
 
 const locationToCrudRecord = (location: ProyectLocationType): CrudRecord => {
-  const projectLabel =
-    location.proyect?.[0]?.proyectKey ||
-    location.proyect?.[0]?.name ||
-    'Sin proyecto';
+  const firstProject = Array.isArray(location.proyect) ? location.proyect[0] : undefined;
+  const projectLabel = firstProject?.proyectKey || firstProject?.name || 'Sin proyecto';
 
   return {
     id: String(location.id ?? ''),
@@ -22,6 +20,7 @@ const locationToCrudRecord = (location: ProyectLocationType): CrudRecord => {
     description: String(location.address ?? ''),
     mapLink: String(location.linkmaps ?? ''),
     linkmaps: String(location.linkmaps ?? ''),
+    projectId: String(firstProject?.id ?? '').trim() || undefined,
     projectCode: projectLabel,
   };
 };

@@ -65,11 +65,11 @@ const buildCommonFields = (
 };
 
 const buildCommonDetails = (row: CrudRecord | null): CrudDetailItem[] => [
-  { label: 'Nombre', value: row?.primary ?? 'Sin informacion' },
-  { label: 'Dato secundario', value: row?.secondary ?? 'Sin informacion' },
-  { label: 'Dato terciario', value: row?.tertiary ?? 'Sin informacion' },
-  { label: 'Estado', value: row?.status ?? 'Sin informacion' },
-  { label: 'Descripcion', value: row?.description ?? 'Sin informacion' },
+  { label: 'Nombre', value: row?.primary ?? 'Sin Información' },
+  { label: 'Dato secundario', value: row?.secondary ?? 'Sin Información' },
+  { label: 'Dato terciario', value: row?.tertiary ?? 'Sin Información' },
+  { label: 'Estado', value: row?.status ?? 'Sin Información' },
+  { label: 'Descripcion', value: row?.description ?? 'Sin Información' },
 ];
 
 const refactionsResponsiveLayout: ResponsiveLayoutMatrix = {

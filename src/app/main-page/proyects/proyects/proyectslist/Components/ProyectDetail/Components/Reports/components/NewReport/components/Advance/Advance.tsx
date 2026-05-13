@@ -10,6 +10,7 @@ const Advance: React.FC<AdvanceProps> = ({ submitRef, currentModelName, onStepVa
     report,
     canStart,
     formFields,
+    formVersion,
     onFormSubmit,
     formId,
     categoriesLoading,
@@ -39,6 +40,8 @@ const Advance: React.FC<AdvanceProps> = ({ submitRef, currentModelName, onStepVa
           onValuesChange={handleValuesChange}
           loadingFormInfo={categoriesLoading}
           dataTestId={formId}
+          valuesVersion={formVersion}
+          valuesVersionActive
           responsiveLayoutMatrix={{ sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]], md: [[3.3, 3.3, 3.3], [3.3, 3.3, 3.3], [10], [10], [10], [10], [10]] }}
         />
       }

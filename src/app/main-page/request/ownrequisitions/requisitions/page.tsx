@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation'
 
 import RequisitionDetails from './componentes/RequisitionsDetails/RequisitionDetails'
 import RequisitionsTable from './componentes/RequisitionsTable/RequisitionsTable'
-import BillableFilesPage from '@/app/main-page/request/ownrequisitions/uploadbillablefiles/page'
+import BillableFilesPage from '@/app/main-page/request/ownrequisitions/billablefiles/page'
 import useTutorialAutoRun from '@/tutorials/engine/useTutorialAutoRun'
 
 const Requisitions: React.FC = () => {
@@ -31,7 +31,7 @@ const Requisitions: React.FC = () => {
   }
 
   return (<>
-    <RequisitionDetails/>
+    {requisitionId ? <RequisitionDetails /> : null}
     <RequisitionsTable />
   </>)
 }

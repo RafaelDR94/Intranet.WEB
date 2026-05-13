@@ -70,7 +70,7 @@ export const useLocationsList = (scope: CrudScope) => {
     popupTitle: rowPendingDeletion
       ? `Eliminar ${rowPendingDeletion.primary}`
       : 'Eliminar ubicacion',
-    popupContent: 'Esta accion eliminara la ubicacion seleccionada.',
+    popupContent: 'Esta acción eliminará la ubicación seleccionada.',
     onCreate: crud.goCreate,
     onDetail: crud.goEdit,
     onCloseDelete: () => setRowPendingDeletion(null),

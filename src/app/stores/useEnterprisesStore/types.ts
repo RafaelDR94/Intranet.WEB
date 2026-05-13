@@ -13,10 +13,14 @@ export type EnterprisesState = {
   enterprises: Enterprise[];
   /** Cache de puestos por empresa (clave enterpriseId o "__all__") */
   workpositionsByEnterprise: WorkpositionsMap;
+  /** Cache de puestos por departamento */
+  workpositionsByDepartment: WorkpositionsMap;
   /** Listado activo de puestos tras la ultima consulta */
   workpositions: WorkPositionType[];
   /** Identificador de empresa usada en la ultima consulta de puestos */
   currentEnterpriseId?: string;
+  /** Identificador de departamento usado en la ultima consulta de puestos */
+  currentDepartmentId?: string;
 
   /** Flags de proceso */
   loadingEnterprises: boolean;
@@ -37,6 +41,10 @@ export type EnterprisesState = {
   fetchEnterprises: (force?: boolean) => Promise<void>;
   fetchWorkpositions: (
     enterpriseId?: string,
+    force?: boolean
+  ) => Promise<WorkPositionType[]>;
+  fetchWorkpositionsByDepartment: (
+    departmentId: string,
     force?: boolean
   ) => Promise<WorkPositionType[]>;
   createEnterprise: (payload: EnterprisePost) => Promise<Enterprise | null>;

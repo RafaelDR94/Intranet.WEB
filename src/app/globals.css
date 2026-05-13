@@ -321,6 +321,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   font-weight: 600;
   padding: 8px 14px;
   border-radius: 8px;
@@ -414,4 +415,6 @@ body {
 .driver-popover.driver-popover--mobile .driver-popover-footer button {
   flex: 1 1 auto;
   min-width: 110px;
+  justify-content: center;
+  text-align: center;
 }

@@ -3,8 +3,6 @@ import type {
   GenericEquipmentPost,
   GenericEquipmentPut,
   GenericEquipmentSparePart,
-  GenericEquipmentSparePartPost,
-  GenericEquipmentSparePartPut,
   Supplier,
   SupplierPost,
   SupplierPut,
@@ -23,6 +21,8 @@ export type ProyectInventoryState = {
   suppliers: Supplier[];
   currentSupplier: Supplier | null;
   currentGenericEquipment: GenericEquipment | null;
+  lastGenericEquipmentsScope: "all" | "project" | null;
+  lastGenericEquipmentsByProyectId: string | null;
   lastSparePartsIsActive: boolean | null;
   lastSparePartsByProyectId: string | null;
   lastSparePartsByDeviceId: string | null;
@@ -60,6 +60,10 @@ export type ProyectInventoryState = {
   error?: string;
 
   fetchGenericEquipments: (force?: boolean) => Promise<GenericEquipment[]>;
+  fetchGenericEquipmentsByProyectId: (
+    idProyect: string,
+    force?: boolean
+  ) => Promise<GenericEquipment[]>;
   fetchGenericEquipmentById: (
     id: string,
     force?: boolean
@@ -99,12 +103,6 @@ export type ProyectInventoryState = {
   updateSparePart: (payload: SparePartPut) => Promise<SparePart | null>;
   deleteSparePart: (id: string) => Promise<boolean>;
 
-  createGenericEquipmentSparePart: (
-    payload: GenericEquipmentSparePartPost
-  ) => Promise<GenericEquipmentSparePart | null>;
-  updateGenericEquipmentSparePart: (
-    payload: GenericEquipmentSparePartPut
-  ) => Promise<GenericEquipmentSparePart | null>;
   deleteGenericEquipmentSparePart: (id: string) => Promise<boolean>;
   createSupplier: (payload: SupplierPost) => Promise<Supplier | null>;
   updateSupplier: (payload: SupplierPut) => Promise<Supplier | null>;

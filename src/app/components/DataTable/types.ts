@@ -44,6 +44,10 @@ export interface ColumnDefinition<T> {
   headerClass?: string;
   /** Clases extra de Tailwind para la celda. */
   cellClass?: string;
+  /** Si es `false`, desactiva el ordenamiento en esta columna. */
+  sortable?: boolean;
+  /** Si es `false`, oculta el indicador visual de ordenamiento sin desactivar el sort. */
+  showSortIndicator?: boolean;
   /** Si `true`, oculta la columna tanto en encabezado como en filas. */
   invisible?: boolean;
 }

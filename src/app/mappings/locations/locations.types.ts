@@ -11,6 +11,7 @@ export type LocationPost = {
   name: string;
   linkmaps: string;
   address: string;
+  proyects?: string[];
 };
 
 export type LocationPut = {
@@ -18,4 +19,5 @@ export type LocationPut = {
   name: string;
   linkmaps: string;
   address: string;
+  proyects?: string[];
 };

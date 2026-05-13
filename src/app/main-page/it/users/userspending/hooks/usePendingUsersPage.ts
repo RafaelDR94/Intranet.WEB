@@ -433,7 +433,7 @@ const usePendingUsersPage = () => {
       if (!username || !password || !roleId) {
         showAlert({
           type: 'warning',
-          title: 'Informacion incompleta',
+          title: 'Información incompleta',
           description:
             'Completa los campos obligatorios antes de activar la cuenta.',
           showPrimaryButton: false,

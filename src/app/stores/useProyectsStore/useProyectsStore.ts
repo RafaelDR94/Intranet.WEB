@@ -5,7 +5,13 @@ import { devtools } from 'zustand/middleware'
 import { createWithEqualityFn } from 'zustand/traditional'
 
 import type { ProyectsState } from './types'
-import { createProyect, updateProyect, deleteProyect } from './utilities'
+import {
+  createProyect,
+  updateProyect,
+  deleteProyect,
+  fetchProyectById,
+  linkLocationsToProyect,
+} from './utilities'
 import { fetchProyects } from './utilities/fetchProyects'
 
 /**
@@ -22,12 +28,14 @@ export const useProyectsStore = createWithEqualityFn<ProyectsState>()(
     loading: false,
     creating: false,
     updating: false,
+    linkingLocations: false,
     removing: false,
 
     /** Flags de éxito */
     successGet: false,
     successPost: false,
     successPut: false,
+    successLinkLocations: false,
     successDelete: false,
 
     /** Mensaje de error del último request */
@@ -38,6 +46,11 @@ export const useProyectsStore = createWithEqualityFn<ProyectsState>()(
       await fetchProyects(set, get, force, idEmployee)
       set({ successGet: true })
     },
+    fetchProyectById: async (id) => {
+      const proyect = await fetchProyectById(set, get, id)
+      set({ successGet: true })
+      return proyect
+    },
     /** Refetch forzado */
     forceFetchProyects: async () => { await fetchProyects(set, get, true) },
 
@@ -45,6 +58,8 @@ export const useProyectsStore = createWithEqualityFn<ProyectsState>()(
     createProyect: (payload) => createProyect(set, get, payload),
     /** Actualiza un proyecto */
     updateProyect: (payload) => updateProyect(set, get, payload),
+    /** Vincula ubicaciones existentes a un proyecto */
+    linkLocationsToProyect: (payload) => linkLocationsToProyect(set, get, payload),
     /** Elimina un proyecto */
     deleteProyect: (id) => deleteProyect(set, get, id),
 
@@ -60,10 +75,12 @@ export const useProyectsStore = createWithEqualityFn<ProyectsState>()(
       loading: false,
       creating: false,
       updating: false,
+      linkingLocations: false,
       removing: false,
       successGet: false,
       successPost: false,
       successPut: false,
+      successLinkLocations: false,
       successDelete: false,
     }),
     /** Limpia solo los flags */
@@ -71,10 +88,12 @@ export const useProyectsStore = createWithEqualityFn<ProyectsState>()(
       loading: false,
       creating: false,
       updating: false,
+      linkingLocations: false,
       removing: false,
       successGet: false,
       successPost: false,
       successPut: false,
+      successLinkLocations: false,
       successDelete: false,
       error: undefined,
     }),

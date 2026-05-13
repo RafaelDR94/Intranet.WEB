@@ -15,7 +15,11 @@ export const fetchLocalReportById = async (
         if (!document) {
             throw new Error('No se encontro ningun reporte local con el identificador proporcionado.');
         }
-        const report = { ...document.report, front_identifier: idreport };
+        const report = {
+            ...document.report,
+            idSpareParts: document.report?.idSpareParts ?? [],
+            front_identifier: idreport,
+        };
         set({ currentReport: report, loadingCurrent: false, succesCurrent: true })
 
     } catch (e) {

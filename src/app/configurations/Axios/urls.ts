@@ -76,6 +76,9 @@ export const CustomAccessControlerAccesRequirementExternalComments = process.env
 export const CustomAccessControlerTemplate = process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLER_TEMPLATE || "/CustomsAccessControler/Template"
 export const Persons = process.env.NEXT_PUBLIC_PERSONS ?? "/Persons";
 export const WorkPosition = process.env.NEXT_PUBLIC_WORK_POSITION ?? "/Enterprises/WorkPosition";
+export const WorkPositionsByDepartment =
+  process.env.NEXT_PUBLIC_WORKPOSITIONS_BY_DEPARTMENT ??
+  "/Enterprises/WorkPositions/ByDepartment";
 
 export const Transport = process.env.NEXT_PUBLIC_TRANSPORT ?? "/Transport";
 export const TransportGetAssigment = process.env.NEXT_PUBLIC_TRANSPORT_GET_ASSIGMENT ?? "/Transport/GetAssigment";
@@ -155,10 +158,16 @@ export const ReportsDevicesByProyectId =
 export const ReportsDevicesByLocation = process.env.NEXT_PUBLIC_REPORTS_DEVICESBYLOCATION ?? "/Reports/DevicesByProyectLocationId";
 export const ReportsLocation = process.env.NEXT_PUBLIC_REPORTS_LOCATION ?? "/Reports/Location";
 export const LocationProyect = process.env.NEXT_PUBLIC_LOCATION_REPORTS ?? "/Reports/ProyectLocation";
+export const LocationProyectByProyect =
+  process.env.NEXT_PUBLIC_LOCATION_REPORTS_BY_PROYECT ??
+  "/Reports/ProyectLocation/ByProyect";
 export const ReportsLocationProyect = process.env.NEXT_PUBLIC_REPORTS_LOCATIONPROYECT ?? "/Reports/LocationProyect";
 export const ReportsGenericEquipment =
   process.env.NEXT_PUBLIC_REPORTS_GENERIC_EQUIPMENT ??
   "/Reports/GenericEquipment";
+export const ReportsGenericEquipmentByProyectId =
+  process.env.NEXT_PUBLIC_REPORTS_GENERIC_EQUIPMENT_BY_PROYECT_ID ??
+  "/Reports/GenericEquipmentByProyectId";
 export const ReportsSuppliers =
   process.env.NEXT_PUBLIC_REPORTS_SUPPLIERS ?? "/Reports/Suppliers";
 export const ReportsSpareParts =

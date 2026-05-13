@@ -13,7 +13,7 @@ const hookState = {
   submitRef: { current: null as null | (() => void | Promise<void>) },
   handleSubmit: vi.fn(),
   title: "Registrar equipo",
-  description: "Completa la informacion.",
+  description: "Completa la Información.",
 };
 
 const dynamicFormSpy = vi.fn();

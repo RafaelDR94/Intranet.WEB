@@ -1,12 +1,13 @@
 ﻿'use client';
 
 import { useAuth } from '@/app/context/AuthContext/AuthContext';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { shallow } from 'zustand/shallow';
 
 import type { GenericEquipmentPost, GenericEquipmentPut } from '@/app/mappings/inventory/inventory.types';
 import { useProyectInventoryStore } from '@/app/stores/useProyectInventoryStore/useProyectInventoryStore';
 import useProyectLocationStore from '@/app/stores/useProyectLocationStore/useProyectLocationStore';
+import { useProyectsStore } from '@/app/stores/useProyectsStore/useProyectsStore';
 import { useReportDevicesStore } from '@/app/stores/useReportDevicesStore/useReportDevicesStore';
 import { devicesDefinition } from '../../crudDefinitions';
 import { useCrudModule } from '../../crudShared';
@@ -14,6 +15,7 @@ import type { CrudScope } from '../../types';
 import { useDevicesData } from './useDevicesData';
 
 type DeviceFormType = 'complete' | 'generic';
+type ProjectEquipmentMode = 'existing' | 'generic-inline';
 
 export type DevicesFormValues = {
   equipmentId: string;
@@ -21,6 +23,7 @@ export type DevicesFormValues = {
   brand: string;
   model: string;
   serial: string;
+  projectId: string;
   location: string;
   status: string;
   description: string;
@@ -54,6 +57,7 @@ const EMPTY_VALUES: DevicesFormValues = {
   brand: '',
   model: '',
   serial: '',
+  projectId: '',
   location: '',
   status: '',
   description: '',
@@ -98,6 +102,7 @@ export const useDevicesForm = (scope: CrudScope) => {
     currentGenericEquipment,
     loading,
     loadingCurrent,
+    loadingSparePartsByGenericEquipment,
     creating,
     updating,
     error,
@@ -108,12 +113,8 @@ export const useDevicesForm = (scope: CrudScope) => {
     fetchSpareParts,
     fetchSparePartsByGenericEquipmentId,
     sparePartsByGenericEquipment,
-    fetchGenericEquipmentSpareParts,
-    createGenericEquipmentSparePart,
-    updateGenericEquipmentSparePart,
     createSparePart,
     spareParts,
-    genericEquipmentSpareParts,
     resetFlags,
   } = useProyectInventoryStore(
     (state) => ({
@@ -121,6 +122,7 @@ export const useDevicesForm = (scope: CrudScope) => {
       currentGenericEquipment: state.currentGenericEquipment,
       loading: state.loading,
       loadingCurrent: state.loadingCurrent,
+      loadingSparePartsByGenericEquipment: state.loadingSparePartsByGenericEquipment,
       creating: state.creating,
       updating: state.updating,
       error: state.error,
@@ -131,22 +133,25 @@ export const useDevicesForm = (scope: CrudScope) => {
       fetchSpareParts: state.fetchSpareParts,
       fetchSparePartsByGenericEquipmentId: state.fetchSparePartsByGenericEquipmentId,
       sparePartsByGenericEquipment: state.sparePartsByGenericEquipment,
-      fetchGenericEquipmentSpareParts: state.fetchGenericEquipmentSpareParts,
-      createGenericEquipmentSparePart: state.createGenericEquipmentSparePart,
-      updateGenericEquipmentSparePart: state.updateGenericEquipmentSparePart,
       createSparePart: state.createSparePart,
       spareParts: state.spareParts,
-      genericEquipmentSpareParts: state.genericEquipmentSpareParts,
       resetFlags: state.resetFlags,
     }),
     shallow,
   );
 
-  const { locations, fetchLocations, fetchAllLocations } = useProyectLocationStore(
+  const { locations, fetchLocations } = useProyectLocationStore(
     (state) => ({
       locations: state.locations,
       fetchLocations: state.fetchLocations,
-      fetchAllLocations: state.fetchAllLocations,
+    }),
+    shallow,
+  );
+
+  const { proyects, fetchProyects } = useProyectsStore(
+    (state) => ({
+      proyects: state.proyects,
+      fetchProyects: state.fetchProyects,
     }),
     shallow,
   );
@@ -184,19 +189,24 @@ export const useDevicesForm = (scope: CrudScope) => {
   );
   const [values, setValues] = useState<DevicesFormValues>(EMPTY_VALUES);
   const [showErrors, setShowErrors] = useState(false);
+  const [projectEquipmentMode, setProjectEquipmentMode] =
+    useState<ProjectEquipmentMode>('existing');
+  const [previousSelectedEquipmentId, setPreviousSelectedEquipmentId] = useState('');
+  const [createdInlineGenericEquipmentId, setCreatedInlineGenericEquipmentId] = useState('');
   const [selectedDraftRefactionIds, setSelectedDraftRefactionIds] = useState<string[]>([]);
   const [assignedRefactionIds, setAssignedRefactionIds] = useState<string[]>([]);
   const [showAddRefactionForm, setShowAddRefactionForm] = useState(false);
   const [newRefactionValues, setNewRefactionValues] =
     useState<NewRefactionFormValues>(EMPTY_REFACTION_FORM);
-  const resolvedProjectIdFromLocation = useMemo(() => {
-    if (!values.location) return '';
-    const selectedLocation = locations.find((location) => location.id === values.location);
-    const projectRef = Array.isArray(selectedLocation?.proyect)
-      ? selectedLocation?.proyect?.[0]
-      : undefined;
-    return sanitize((projectRef as { id?: string } | undefined)?.id ?? '');
-  }, [locations, values.location]);
+  const lastFormSessionKeyRef = useRef('');
+  const lastHydratedGenericSessionKeyRef = useRef('');
+  const allowInlineGenericEquipment = formType === 'complete' && crud.crudMode === 'create';
+  const isInlineGenericEquipmentMode =
+    allowInlineGenericEquipment && projectEquipmentMode === 'generic-inline';
+  const shouldLockProjectSelection = scope === 'project' && resolvedProjectId.length > 0;
+  const selectedProjectId = shouldLockProjectSelection
+    ? resolvedProjectId
+    : sanitize(values.projectId);
 
   const equipmentOptions = useMemo(
     () =>
@@ -210,6 +220,15 @@ export const useDevicesForm = (scope: CrudScope) => {
             equipment.id,
         })),
     [genericEquipments],
+  );
+
+  const projectOptions = useMemo(
+    () =>
+      proyects.map((project) => ({
+        value: project.id,
+        label: project.proyectKey?.trim() || project.name?.trim() || project.id,
+      })),
+    [proyects],
   );
 
   const locationOptions = useMemo(
@@ -234,7 +253,7 @@ export const useDevicesForm = (scope: CrudScope) => {
 
   const title = useMemo(() => {
     if (formType === 'generic') {
-      return crud.crudMode === 'edit' ? 'Actualizar equipo genÃ©rico' : 'Nuevo equipo genÃ©rico';
+      return crud.crudMode === 'edit' ? 'Actualizar equipo genérico' : 'Nuevo equipo genérico';
     }
 
     return crud.crudMode === 'edit'
@@ -245,26 +264,26 @@ export const useDevicesForm = (scope: CrudScope) => {
   const primaryLabel = title;
 
   useEffect(() => {
+    if (formType === 'complete') {
+      void fetchProyects(true);
+    }
+
     void fetchGenericEquipments(formType === 'complete');
 
     if (formType === 'generic') {
       void fetchSpareParts(true);
-      void fetchGenericEquipmentSpareParts(true, true);
     }
 
-    if (formType === 'complete' && resolvedProjectId) {
-      void fetchLocations(resolvedProjectId, true);
-    } else if (formType === 'complete') {
-      void fetchAllLocations(true);
+    if (formType === 'complete' && selectedProjectId) {
+      void fetchLocations(selectedProjectId, true);
     }
   }, [
-    fetchAllLocations,
     fetchGenericEquipments,
-    fetchGenericEquipmentSpareParts,
     fetchLocations,
+    fetchProyects,
     fetchSpareParts,
     formType,
-    resolvedProjectId,
+    selectedProjectId,
   ]);
 
   useEffect(() => {
@@ -291,7 +310,7 @@ export const useDevicesForm = (scope: CrudScope) => {
     crud.showAlert({
       type: 'error',
       variant: 'subtle',
-      title: 'No fue posible cargar la informaciÃ³n del formulario',
+      title: 'No fue posible cargar la información del formulario',
       description: error,
       showPrimaryButton: false,
       showSecondaryButton: false,
@@ -300,25 +319,56 @@ export const useDevicesForm = (scope: CrudScope) => {
   }, [crud, error, resetFlags]);
 
   useEffect(() => {
-    setShowErrors(false);
-    setSelectedDraftRefactionIds([]);
+    if (!allowInlineGenericEquipment) {
+      setProjectEquipmentMode('existing');
+      setPreviousSelectedEquipmentId('');
+      setCreatedInlineGenericEquipmentId('');
+      return;
+    }
+
+    setProjectEquipmentMode('existing');
+    setPreviousSelectedEquipmentId('');
+    setCreatedInlineGenericEquipmentId('');
+  }, [allowInlineGenericEquipment, crud.crudItemId, crud.crudMode, formType]);
+
+  useEffect(() => {
+    const nextSessionKey = `${formType}:${crud.crudMode}:${crud.crudItemId ?? 'new'}`;
+    const isSameSession = lastFormSessionKeyRef.current === nextSessionKey;
+
+    if (!isSameSession) {
+      lastFormSessionKeyRef.current = nextSessionKey;
+      lastHydratedGenericSessionKeyRef.current = '';
+      setShowErrors(false);
+      setSelectedDraftRefactionIds([]);
+    }
+
+    if (formType === 'complete' && crud.crudMode === 'create') {
+      if (isSameSession) return;
+      setAssignedRefactionIds([]);
+      setValues(
+        shouldLockProjectSelection
+          ? {
+              ...EMPTY_VALUES,
+              projectId: resolvedProjectId,
+            }
+          : EMPTY_VALUES,
+      );
+      return;
+    }
 
     if (formType === 'generic') {
       if (
         crud.crudMode === 'edit' &&
         currentGenericEquipment &&
-        currentGenericEquipment.id === crud.crudItemId
+        currentGenericEquipment.id === crud.crudItemId &&
+        !loadingSparePartsByGenericEquipment &&
+        lastHydratedGenericSessionKeyRef.current !== nextSessionKey
       ) {
-        const assignedFromStore = genericEquipmentSpareParts
-          .filter((item) => item.idGenericEquipment === currentGenericEquipment.id)
-          .map((item) => item.idSparePart);
         const assignedFromDevice = sparePartsByGenericEquipment.map((item) => item.id);
-        const assignedIds =
-          assignedFromDevice.length > 0 ? assignedFromDevice : assignedFromStore;
-
-        const normalizedAssignedIds = Array.from(new Set(assignedIds));
+        const normalizedAssignedIds = Array.from(new Set(assignedFromDevice));
         setAssignedRefactionIds(normalizedAssignedIds);
         setSelectedDraftRefactionIds(normalizedAssignedIds);
+        lastHydratedGenericSessionKeyRef.current = nextSessionKey;
 
         setValues({
           equipmentId: currentGenericEquipment.id,
@@ -326,12 +376,15 @@ export const useDevicesForm = (scope: CrudScope) => {
           brand: currentGenericEquipment.brand,
           model: currentGenericEquipment.model,
           serial: '',
+          projectId: '',
           location: '',
           status: '',
           description: '',
         });
         return;
       }
+
+      if (isSameSession) return;
 
       setAssignedRefactionIds([]);
       setSelectedDraftRefactionIds([]);
@@ -348,13 +401,11 @@ export const useDevicesForm = (scope: CrudScope) => {
       return;
     }
 
-    setAssignedRefactionIds([]);
-    setSelectedDraftRefactionIds([]);
+    if (isSameSession) return;
 
-    if (crud.crudMode === 'create') {
-      setValues(EMPTY_VALUES);
-      return;
-    }
+    setAssignedRefactionIds([]);
+
+    if (crud.crudMode === 'create') return;
 
     const matchedEquipment = genericEquipments.find(
       (equipment) =>
@@ -373,6 +424,10 @@ export const useDevicesForm = (scope: CrudScope) => {
       brand: matchedEquipment?.brand ?? '',
       model: matchedEquipment?.model ?? '',
       serial: crud.currentRecord?.serialOrPart ?? '',
+      projectId:
+        shouldLockProjectSelection
+          ? resolvedProjectId
+          : crud.currentRecord?.projectId ?? '',
       location: matchedLocation?.id ?? '',
       status: normalizeCompleteStatusToOption(crud.currentRecord?.status),
       description: crud.currentRecord?.description ?? '',
@@ -384,10 +439,21 @@ export const useDevicesForm = (scope: CrudScope) => {
     currentGenericEquipment,
     formType,
     genericEquipments,
-    genericEquipmentSpareParts,
+    loadingSparePartsByGenericEquipment,
     locations,
+    resolvedProjectId,
     sparePartsByGenericEquipment,
+    shouldLockProjectSelection,
   ]);
+
+  useEffect(() => {
+    if (formType !== 'complete' || !selectedProjectId) return;
+
+    const validLocationIds = new Set(locations.map((location) => sanitize(location.id)));
+    if (values.location && !validLocationIds.has(sanitize(values.location))) {
+      setValues((current) => ({ ...current, location: '' }));
+    }
+  }, [formType, locations, selectedProjectId, values.location]);
 
   const refactionOptions = useMemo(
     () =>
@@ -437,18 +503,37 @@ export const useDevicesForm = (scope: CrudScope) => {
       );
     }
 
+    if (isInlineGenericEquipmentMode) {
+      return (
+        sanitize(values.typeOfEquipment).length > 0 &&
+        sanitize(values.brand).length > 0 &&
+        sanitize(values.model).length > 0 &&
+        sanitize(values.serial).length > 0 &&
+        selectedProjectId.length > 0 &&
+        sanitize(values.location).length > 0 &&
+        sanitize(values.status).length > 0 
+      );
+    }
+
     return (
       sanitize(values.equipmentId).length > 0 &&
       sanitize(values.brand).length > 0 &&
       sanitize(values.model).length > 0 &&
       sanitize(values.serial).length > 0 &&
+      selectedProjectId.length > 0 &&
       sanitize(values.location).length > 0 &&
-      sanitize(values.status).length > 0 &&
-      sanitize(values.description).length > 0
+      sanitize(values.status).length > 0 
     );
-  }, [formType, values]);
+  }, [formType, isInlineGenericEquipmentMode, selectedProjectId, values]);
 
   const updateValue = (name: keyof DevicesFormValues, value: string) => {
+    if (
+      createdInlineGenericEquipmentId &&
+      ['equipmentId', 'typeOfEquipment', 'brand', 'model'].includes(name)
+    ) {
+      setCreatedInlineGenericEquipmentId('');
+    }
+
     setValues((current) => {
       if (name !== 'equipmentId') {
         return {
@@ -469,6 +554,48 @@ export const useDevicesForm = (scope: CrudScope) => {
     });
   };
 
+  const updateProject = (value: string) => {
+    setValues((current) => ({
+      ...current,
+      projectId: value,
+      location: '',
+    }));
+  };
+
+  const toggleProjectEquipmentMode = () => {
+    if (!allowInlineGenericEquipment) return;
+
+    crud.hideAlert();
+    setShowErrors(false);
+    setCreatedInlineGenericEquipmentId('');
+
+    if (projectEquipmentMode === 'existing') {
+      setPreviousSelectedEquipmentId(values.equipmentId);
+      setProjectEquipmentMode('generic-inline');
+      setValues((current) => ({
+        ...current,
+        equipmentId: '',
+        typeOfEquipment: '',
+        brand: '',
+        model: '',
+      }));
+      return;
+    }
+
+    const restoredEquipment = genericEquipments.find(
+      (equipment) => equipment.id === previousSelectedEquipmentId,
+    );
+
+    setProjectEquipmentMode('existing');
+    setValues((current) => ({
+      ...current,
+      equipmentId: restoredEquipment?.id ?? '',
+      typeOfEquipment: restoredEquipment?.typeOfEquipment ?? '',
+      brand: restoredEquipment?.brand ?? '',
+      model: restoredEquipment?.model ?? '',
+    }));
+  };
+
   const handleSubmit = async () => {
     setShowErrors(true);
     if (!canSubmit) return;
@@ -480,25 +607,17 @@ export const useDevicesForm = (scope: CrudScope) => {
         name: sanitize(values.typeOfEquipment),
         brand: sanitize(values.brand),
         model: sanitize(values.model),
+        idSpareParts: assignedRefactionIds,
       };
 
       crud.showSpinner({
         message:
           crud.crudMode === 'edit'
-            ? 'Actualizando equipo genÃ©rico...'
-            : 'Registrando equipo genÃ©rico...',
+            ? 'Actualizando equipo genérico...'
+            : 'Registrando equipo genérico...',
       });
 
       let result = null;
-      const previousAssignedIds =
-        crud.crudMode === 'edit' && (currentGenericEquipment?.id || crud.crudItemId)
-          ? genericEquipmentSpareParts
-              .filter(
-                (item) =>
-                  item.idGenericEquipment === (currentGenericEquipment?.id ?? crud.crudItemId ?? ''),
-              )
-              .map((item) => item.idSparePart)
-          : [];
 
       if (crud.crudMode === 'edit' && crud.crudItemId) {
         const createdBy =
@@ -510,6 +629,7 @@ export const useDevicesForm = (scope: CrudScope) => {
           model: sanitize(values.model),
           id: crud.crudItemId,
           createdBy,
+          idSpareParts: assignedRefactionIds,
         } as GenericEquipmentPut);
       } else {
         result = await createGenericEquipment(payloadBase);
@@ -521,10 +641,10 @@ export const useDevicesForm = (scope: CrudScope) => {
         crud.showAlert({
           type: 'error',
           variant: 'subtle',
-          title: 'No fue posible guardar el equipo genÃ©rico',
+          title: 'No fue posible guardar el equipo genérico',
           description:
             useProyectInventoryStore.getState().error ??
-            'OcurriÃ³ un error al guardar la informaciÃ³n.',
+            'Ocurrió un error al guardar la información.',
           showPrimaryButton: false,
           showSecondaryButton: false,
         });
@@ -541,8 +661,8 @@ export const useDevicesForm = (scope: CrudScope) => {
         crud.showAlert({
           type: 'error',
           variant: 'subtle',
-          title: 'No fue posible actualizar las refacciones',
-          description: 'No se obtuvo el identificador del equipo genÃ©rico.',
+          title: 'No fue posible guardar el equipo genérico',
+          description: 'No se obtuvo el identificador del equipo genérico.',
           showPrimaryButton: false,
           showSecondaryButton: false,
         });
@@ -550,88 +670,14 @@ export const useDevicesForm = (scope: CrudScope) => {
         return;
       }
 
-      if (crud.crudMode !== 'edit' && assignedRefactionIds.length > 0) {
-        const relationCreated = await createGenericEquipmentSparePart({
-          idGenericEquipment: genericEquipmentId,
-          idSparePart: assignedRefactionIds,
-        });
-
-        if (!relationCreated) {
-          crud.showAlert({
-            type: 'error',
-            variant: 'subtle',
-            title: 'Equipo guardado con refacciones pendientes',
-            description:
-              useProyectInventoryStore.getState().error ??
-              'Se registrÃ³ el equipo, pero no fue posible asociar las refacciones.',
-            showPrimaryButton: false,
-            showSecondaryButton: false,
-          });
-          resetFlags();
-          return;
-        }
-      }
-
-      const previousSet = new Set(previousAssignedIds);
-
-      const idsToCreate = assignedRefactionIds.filter((id) => !previousSet.has(id));
-
-      if (crud.crudMode === 'edit') {
-        const relationSeedId =
-          genericEquipmentSpareParts.find((item) => item.idGenericEquipment === genericEquipmentId)
-            ?.id ?? genericEquipmentId;
-        const relationUpdated = await updateGenericEquipmentSparePart({
-          id: relationSeedId,
-          idGenericEquipment: genericEquipmentId,
-          idSparePart: assignedRefactionIds,
-        });
-
-        if (!relationUpdated && assignedRefactionIds.length > 0) {
-          crud.showAlert({
-            type: 'error',
-            variant: 'subtle',
-            title: 'No fue posible actualizar las refacciones',
-            description:
-              useProyectInventoryStore.getState().error ??
-              'FallÃ³ la actualizaciÃ³n de relaciones de refacciones.',
-            showPrimaryButton: false,
-            showSecondaryButton: false,
-          });
-          resetFlags();
-          return;
-        }
-
-        if (idsToCreate.length > 0) {
-          const relationCreated = await createGenericEquipmentSparePart({
-            idGenericEquipment: genericEquipmentId,
-            idSparePart: idsToCreate,
-          });
-
-          if (!relationCreated) {
-            crud.showAlert({
-              type: 'error',
-              variant: 'subtle',
-              title: 'No fue posible actualizar las refacciones',
-              description:
-                useProyectInventoryStore.getState().error ??
-                'Se guardÃ³ el equipo, pero fallÃ³ la actualizaciÃ³n de refacciones.',
-              showPrimaryButton: false,
-              showSecondaryButton: false,
-            });
-            resetFlags();
-            return;
-          }
-        }
-      }
-
       crud.showAlert({
         type: 'success',
         variant: 'subtle',
         title:
           crud.crudMode === 'edit'
-            ? 'Equipo genÃ©rico actualizado'
-            : 'Equipo genÃ©rico registrado',
-        description: 'La informaciÃ³n se guardÃ³ correctamente.',
+            ? 'Equipo genérico actualizado'
+            : 'Equipo genérico registrado',
+        description: 'La información se guardó correctamente.',
         showPrimaryButton: false,
         showSecondaryButton: false,
       });
@@ -641,30 +687,81 @@ export const useDevicesForm = (scope: CrudScope) => {
       return;
     }
 
-    crud.showSpinner({
-      message:
-        crud.crudMode === 'edit' ? 'Actualizando dispositivo...' : 'Registrando dispositivo...',
-    });
-
-    const idProyect = resolvedProjectId || resolvedProjectIdFromLocation;
+    const idProyect = selectedProjectId;
     if (!idProyect) {
-      crud.hideSpinner();
       crud.showAlert({
         type: 'error',
         variant: 'subtle',
         title: 'No fue posible guardar el dispositivo',
-        description: 'No se encontrÃ³ el proyecto seleccionado.',
+        description: 'No se encontró el proyecto seleccionado.',
         showPrimaryButton: false,
         showSecondaryButton: false,
       });
       return;
     }
 
+    let genericEquipmentId = sanitize(values.equipmentId);
+
+    if (isInlineGenericEquipmentMode && crud.crudMode === 'create') {
+      genericEquipmentId = sanitize(createdInlineGenericEquipmentId);
+
+      if (!genericEquipmentId) {
+        crud.showSpinner({ message: 'Registrando equipo generico...' });
+
+        const createdGenericEquipment = await createGenericEquipment({
+          name: sanitize(values.typeOfEquipment),
+          brand: sanitize(values.brand),
+          model: sanitize(values.model),
+          idSpareParts: [],
+        });
+
+        crud.hideSpinner();
+
+        if (!createdGenericEquipment) {
+          crud.showAlert({
+            type: 'error',
+            variant: 'subtle',
+            title: 'No fue posible guardar el equipo generico',
+            description:
+              useProyectInventoryStore.getState().error ??
+              'Ocurrio un error al registrar el equipo generico.',
+            showPrimaryButton: false,
+            showSecondaryButton: false,
+          });
+          resetFlags();
+          return;
+        }
+
+        genericEquipmentId = sanitize(createdGenericEquipment.id);
+
+        if (!genericEquipmentId) {
+          crud.showAlert({
+            type: 'error',
+            variant: 'subtle',
+            title: 'No fue posible continuar con el registro',
+            description: 'No se obtuvo el identificador del equipo generico creado.',
+            showPrimaryButton: false,
+            showSecondaryButton: false,
+          });
+          resetFlags();
+          return;
+        }
+
+        setCreatedInlineGenericEquipmentId(genericEquipmentId);
+        resetFlags();
+      }
+    }
+
+    crud.showSpinner({
+      message:
+        crud.crudMode === 'edit' ? 'Actualizando dispositivo...' : 'Registrando dispositivo...',
+    });
+
     const payloadBase = {
       brand: sanitize(values.brand),
       model: sanitize(values.model),
       serialnumber: sanitize(values.serial),
-      idGenericEquipment: sanitize(values.equipmentId),
+      idGenericEquipment: genericEquipmentId,
       idLocation: sanitize(values.location),
       idProyect,
     };
@@ -677,6 +774,21 @@ export const useDevicesForm = (scope: CrudScope) => {
     crud.hideSpinner();
 
     if (!result) {
+      if (isInlineGenericEquipmentMode && sanitize(createdInlineGenericEquipmentId || genericEquipmentId)) {
+        crud.showAlert({
+          type: 'error',
+          variant: 'subtle',
+          title: 'Equipo generico creado con dispositivo pendiente',
+          description:
+            useReportDevicesStore.getState().error ??
+            deviceExternalError ??
+            'El equipo generico se registro correctamente, pero no fue posible registrar el dispositivo. Puedes reintentar sin volver a crear el equipo.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+        });
+        return;
+      }
+
       crud.showAlert({
         type: 'error',
         variant: 'subtle',
@@ -684,18 +796,20 @@ export const useDevicesForm = (scope: CrudScope) => {
         description:
           useReportDevicesStore.getState().error ??
           deviceExternalError ??
-          'OcurriÃ³ un error al registrar el dispositivo.',
+          'Ocurrió un error al registrar el dispositivo.',
         showPrimaryButton: false,
         showSecondaryButton: false,
       });
       return;
     }
 
+    setCreatedInlineGenericEquipmentId('');
+
     crud.showAlert({
       type: 'success',
       variant: 'subtle',
       title: crud.crudMode === 'edit' ? 'Dispositivo actualizado' : 'Dispositivo registrado',
-      description: 'La informaciÃ³n se guardÃ³ correctamente.',
+      description: 'La información se guardó correctamente.',
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
@@ -736,10 +850,10 @@ export const useDevicesForm = (scope: CrudScope) => {
       crud.showAlert({
         type: 'error',
         variant: 'subtle',
-        title: 'No fue posible guardar la refacciÃ³n',
+        title: 'No fue posible guardar la refacción',
         description:
           useProyectInventoryStore.getState().error ??
-          'OcurriÃ³ un error al guardar la refacciÃ³n.',
+          'Ocurrió un error al guardar la refacción.',
         showPrimaryButton: false,
         showSecondaryButton: false,
       });
@@ -764,11 +878,20 @@ export const useDevicesForm = (scope: CrudScope) => {
     primaryLabel,
     values,
     equipmentOptions,
-    loadingFormInfo: loading || (formType === 'generic' && crud.crudMode === 'edit' && loadingCurrent),
+    projectOptions,
+    selectedProjectId,
+    shouldLockProjectSelection,
+    loadingFormInfo:
+      loading ||
+      (formType === 'generic' &&
+        crud.crudMode === 'edit' &&
+        (loadingCurrent || loadingSparePartsByGenericEquipment)),
     submitting: creating || updating || creatingDeviceExternal || updatingDeviceExternal,
     completeDisabled,
     showErrors,
     canSubmit,
+    allowInlineGenericEquipment,
+    isInlineGenericEquipmentMode,
     locationOptions,
     statusOptions,
     refactionOptions,
@@ -776,7 +899,15 @@ export const useDevicesForm = (scope: CrudScope) => {
     assignedRefactions,
     onCancel: crud.goList,
     onSubmit: handleSubmit,
-    onChange: updateValue,
+    onChange: (name: keyof DevicesFormValues, value: string) => {
+      if (name === 'projectId') {
+        updateProject(value);
+        return;
+      }
+
+      updateValue(name, value);
+    },
+    onToggleProjectEquipmentMode: toggleProjectEquipmentMode,
     onSelectDraftRefactions: (ids: string[]) => {
       setSelectedDraftRefactionIds(ids);
       setAssignedRefactionIds(ids);

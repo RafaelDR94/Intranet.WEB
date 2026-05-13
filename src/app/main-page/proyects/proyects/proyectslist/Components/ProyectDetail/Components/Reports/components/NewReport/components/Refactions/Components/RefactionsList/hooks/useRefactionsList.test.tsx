@@ -3,24 +3,120 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import useRefactionsList from "./useRefactionsList";
 
-import { createSampleReport } from "@/app/main-page/proyects/proyects/proyectslist/Components/ProyectDetail/Components/Reports/testUtils/reportFixtures";
+const {
+  showAlertMock,
+  hideAlertMock,
+  showSpinnerMock,
+  hideSpinnerMock,
+  updateRefactionsMock,
+  fetchSparePartsByProyectIdMock,
+  deleteSparePartMock,
+  resetFlagsMock,
+  report,
+  inventoryState,
+  reportStoreMock,
+  inventoryStoreMock,
+} = vi.hoisted(() => {
+  const showAlertMock = vi.fn();
+  const hideAlertMock = vi.fn();
+  const showSpinnerMock = vi.fn();
+  const hideSpinnerMock = vi.fn();
+  const updateRefactionsMock = vi.fn();
+  const fetchSparePartsByProyectIdMock = vi.fn();
+  const deleteSparePartMock = vi.fn();
+  const resetFlagsMock = vi.fn();
 
-const showAlertMock = vi.fn();
-const hideAlertMock = vi.fn();
-const showSpinnerMock = vi.fn();
-const hideSpinnerMock = vi.fn();
-const updateRefactionsMock = vi.fn();
+  const report = {
+    proyect: { id: "PROY-1" },
+    idSpareParts: ["sp-1"],
+    refactions: [
+      {
+        description: "Kit de limpieza",
+        brand: "OptiClean",
+        model: "OC-200",
+        serialnumber: "SN-100",
+        partnumber: "PN-200",
+      },
+    ],
+    clientsign: { url: null },
+  } as any;
 
-const report = createSampleReport({
-  refactions: [
+  const inventoryState = {
+    sparePartsByProyect: [
+      {
+        id: "sp-1",
+        sku: "PN-200",
+        stock: 8,
+        name: "Kit de limpieza",
+        brand: "OptiClean",
+        model: "OC-200",
+        serialNumber: "SN-100",
+        characteristic: "",
+        provider: "",
+        website: "",
+        phoneNumber: "",
+        isActive: true,
+      },
+      {
+        id: "sp-2",
+        sku: "PN-900",
+        stock: 2,
+        name: "Bujia industrial",
+        brand: "Caterpillar",
+        model: "CT-2",
+        serialNumber: "SN-900",
+        characteristic: "",
+        provider: "",
+        website: "",
+        phoneNumber: "",
+        isActive: true,
+      },
+    ],
+    loadingSparePartsByProyect: false,
+    removing: false,
+    error: undefined as string | undefined,
+    fetchSparePartsByProyectId: fetchSparePartsByProyectIdMock,
+    deleteSparePart: deleteSparePartMock,
+    resetFlags: resetFlagsMock,
+  };
+
+  const reportStoreMock = Object.assign(
+    (selector?: any) =>
+      selector
+        ? selector({
+            report,
+            updateRefactions: updateRefactionsMock,
+          })
+        : { report, updateRefactions: updateRefactionsMock },
     {
-      description: "Kit de limpieza",
-      brand: "OptiClean",
-      model: "OC-200",
-      serialnumber: "SN-100",
-      partnumber: "PN-200",
+      getState: () => ({
+        report,
+        updateRefactions: updateRefactionsMock,
+      }),
     },
-  ],
+  );
+
+  const inventoryStoreMock = Object.assign(
+    (selector?: any) => (selector ? selector(inventoryState) : inventoryState),
+    {
+      getState: () => inventoryState,
+    },
+  );
+
+  return {
+    showAlertMock,
+    hideAlertMock,
+    showSpinnerMock,
+    hideSpinnerMock,
+    updateRefactionsMock,
+    fetchSparePartsByProyectIdMock,
+    deleteSparePartMock,
+    resetFlagsMock,
+    report,
+    inventoryState,
+    reportStoreMock,
+    inventoryStoreMock,
+  };
 });
 
 vi.mock("@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery", () => ({
@@ -40,15 +136,21 @@ vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
   }),
 }));
 
+vi.mock("@/app/hooks/useQuery/useQuery", () => ({
+  __esModule: true,
+  default: () => ({
+    all: { id: "PROY-1" },
+  }),
+}));
+
 vi.mock("@/app/stores/useReportBuilderStore/useReportBuilderStore", () => ({
   __esModule: true,
-  default: (selector?: any) =>
-    selector
-      ? selector({
-          report,
-          updateRefactions: updateRefactionsMock,
-        })
-      : { report, updateRefactions: updateRefactionsMock },
+  default: reportStoreMock,
+}));
+
+vi.mock("@/app/stores/useProyectInventoryStore/useProyectInventoryStore", () => ({
+  __esModule: true,
+  default: inventoryStoreMock,
 }));
 
 describe("useRefactionsList", () => {
@@ -63,22 +165,77 @@ describe("useRefactionsList", () => {
         partnumber: "PN-200",
       },
     ];
+    report.idSpareParts = ["sp-1"];
+    inventoryState.error = undefined;
+    inventoryState.loadingSparePartsByProyect = false;
+    inventoryState.removing = false;
+    fetchSparePartsByProyectIdMock.mockResolvedValue(inventoryState.sparePartsByProyect);
+    deleteSparePartMock.mockResolvedValue(true);
   });
 
-  it("expone las filas mapeadas y props de soporte", () => {
+  it("carga refacciones del proyecto y construye filas preseleccionadas", () => {
     const { result } = renderHook(() => useRefactionsList());
 
-    expect(result.current.rows).toHaveLength(1);
+    expect(fetchSparePartsByProyectIdMock).toHaveBeenCalledWith("PROY-1", true);
+    expect(result.current.rows).toHaveLength(2);
     expect(result.current.rows[0]).toMatchObject({
+      id: "sp-1",
       description: "Kit de limpieza",
-      index: 0,
-      id: "0",
+      partnumber: "PN-200",
     });
-    expect(result.current.pageSize).toBeGreaterThan(0);
-    expect(result.current.report).toEqual(report);
+    expect(result.current.initialSelectedIds).toEqual(["sp-1"]);
   });
 
-  it("permite marcar una refaccion para eliminar y actualiza la lista al confirmar", async () => {
+  it("sincroniza la seleccion con ids y snapshot textual", () => {
+    const { result } = renderHook(() => useRefactionsList());
+
+    act(() => {
+      result.current.onSelectedChange([]);
+    });
+
+    act(() => {
+      result.current.onSelectedChange([result.current.rows[1]]);
+    });
+
+    expect(updateRefactionsMock).toHaveBeenCalledWith(
+      [
+        {
+          description: "Bujia industrial",
+          brand: "Caterpillar",
+          model: "CT-2",
+          serialnumber: "SN-900",
+          partnumber: "PN-900",
+        },
+      ],
+      ["sp-2"],
+    );
+  });
+
+  it("sincroniza el primer click cuando el reporte no trae idSpareParts", () => {
+    report.idSpareParts = [];
+    report.refactions = [];
+
+    const { result } = renderHook(() => useRefactionsList());
+
+    act(() => {
+      result.current.onSelectedChange([result.current.rows[0]]);
+    });
+
+    expect(updateRefactionsMock).toHaveBeenCalledWith(
+      [
+        {
+          description: "Kit de limpieza",
+          brand: "OptiClean",
+          model: "OC-200",
+          serialnumber: "SN-100",
+          partnumber: "PN-200",
+        },
+      ],
+      ["sp-1"],
+    );
+  });
+
+  it("elimina una refaccion del inventario y del reporte al confirmar", async () => {
     const { result, rerender } = renderHook(() => useRefactionsList());
     const row = result.current.rows[0];
 
@@ -95,13 +252,19 @@ describe("useRefactionsList", () => {
       await popUp.props.onPrimaryButtonClick();
     });
 
-    expect(showSpinnerMock).toHaveBeenCalledWith(
-      expect.objectContaining({ message: expect.stringContaining("Eliminando") })
-    );
-    expect(updateRefactionsMock).toHaveBeenCalledWith([]);
+    expect(deleteSparePartMock).toHaveBeenCalledWith("sp-1");
+    expect(fetchSparePartsByProyectIdMock).toHaveBeenLastCalledWith("PROY-1", true);
+    expect(updateRefactionsMock).toHaveBeenCalledWith([], []);
     expect(showAlertMock).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Refacci\u00F3n eliminada", type: "warning" })
+      expect.objectContaining({ title: "Refacción eliminada", type: "warning" }),
     );
-    expect(hideSpinnerMock).toHaveBeenCalled();
+  });
+
+  it("no preselecciona filas para reportes legacy sin idSpareParts", () => {
+    report.idSpareParts = [];
+
+    const { result } = renderHook(() => useRefactionsList());
+
+    expect(result.current.initialSelectedIds).toEqual([]);
   });
 });

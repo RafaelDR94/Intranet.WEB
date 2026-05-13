@@ -122,6 +122,8 @@ const SAT = () => {
     <>
       <div data-tour="accounting-sat-table-valid">
       <DataTable
+        enablePagination
+        rowsPerPage={6}
         tables={[
           {
             title: "CFDIs Válidos",
@@ -164,6 +166,8 @@ const SAT = () => {
 
       <div className="mt-5" data-tour="accounting-sat-table-others">
         <DataTable
+          enablePagination
+          rowsPerPage={6}
           enableInternalSearch
           showDownloadTable
           showButton={false}

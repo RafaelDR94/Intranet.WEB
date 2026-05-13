@@ -3,7 +3,8 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import HelpIcon from '@/assets/icons/acciones/help-circle.svg';
+import TutorialIcon from '@/assets/icons/Fotos y Videos/media-video-list.svg';
+
 
 export type HelpButtonProps = {
   onClick: () => void;
@@ -21,7 +22,7 @@ export const HelpButton: React.FC<HelpButtonProps> = ({ onClick, className }) =>
       className
     )}
   >
-    <HelpIcon aria-hidden />
+    <TutorialIcon aria-hidden />
   </button>
 );
 

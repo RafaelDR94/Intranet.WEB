@@ -1,11 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React from "react";
 
 import { loginStyles } from "../styles";
 
-import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import logoDesktop from "@/assets/images/Walpapers/Wallpaper-1.png";
 import logoMobile from "@/assets/images/Walpapers/wallpaper-mobile.png";
 
@@ -18,15 +17,6 @@ const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({
   header,
   children,
 }) => {
-  const { usePrincipalTheme } = usePrincipal();
-  const { setDarkTheme, theme } = usePrincipalTheme;
-
-  useEffect(() => {
-    if (theme === "light") {
-      setDarkTheme();
-    }
-  }, [setDarkTheme, theme]);
-
   return (
     <div className={loginStyles.page}>
       <div className={loginStyles.formContainer}>

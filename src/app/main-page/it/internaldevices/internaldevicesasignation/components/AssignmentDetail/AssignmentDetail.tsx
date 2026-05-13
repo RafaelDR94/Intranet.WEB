@@ -73,7 +73,7 @@ const AssignmentDetail = ({
             >
               <ButtonsNavigation.Item
                 id="info"
-                label="Informacion"
+                label="Información"
                 renderContent={
                   <InformationAssignment
                     device={resolvedDevice}

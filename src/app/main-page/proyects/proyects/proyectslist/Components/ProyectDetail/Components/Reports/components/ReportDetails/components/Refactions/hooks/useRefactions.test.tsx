@@ -47,6 +47,7 @@ describe("useRefactions", () => {
         id: "1",
         index: 1,
         description: "Sensor",
+        compactDescription: "Sensor · Bosch B1 · Serie: SN-1 · Parte: PN-1",
         brand: "Bosch",
         model: "B1",
         serialnumber: "SN-1",
@@ -62,5 +63,23 @@ describe("useRefactions", () => {
 
     const { result } = renderHook(() => useRefactions());
     expect(result.current.rows).toEqual([]);
+  });
+
+  it("omite segmentos vacios en la descripcion compacta", () => {
+    currentReportMock = createSampleReport({
+      refactions: [
+        {
+          description: "PRUEBA",
+          brand: "",
+          model: "",
+          serialnumber: "",
+          partnumber: "PN-9",
+        },
+      ],
+    });
+
+    const { result } = renderHook(() => useRefactions());
+
+    expect(result.current.rows[0]?.compactDescription).toBe("PRUEBA · Parte: PN-9");
   });
 });

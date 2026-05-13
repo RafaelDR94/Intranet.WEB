@@ -249,7 +249,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
         closeButtonLabel={close ?? "Cerrar"}
       />
 
-      {multiple && images && (
+      {multiple && images.length > 0 && (
         <div className={galleryWrapper}>
           <div className={galleryGrid}>
             {images.map((img) => (
@@ -287,6 +287,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
               <Button
                 variant="outline"
                 size="small"
+                hideIcon
                 onClick={clearImages}
                 disabled={disabled}
               >

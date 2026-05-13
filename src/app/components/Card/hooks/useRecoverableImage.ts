@@ -12,6 +12,20 @@ type UseRecoverableImageOptions = {
 }
 
 const trimValue = (value?: string) => (value ?? '').trim()
+const loadedImageSrcCache = new Set<string>()
+
+const rememberLoadedImageSrc = (...sources: Array<string | undefined>) => {
+  sources
+    .map((source) => trimValue(source))
+    .filter(Boolean)
+    .forEach((source) => loadedImageSrcCache.add(source))
+}
+
+const hasLoadedImageSrc = (...sources: Array<string | undefined>) =>
+  sources
+    .map((source) => trimValue(source))
+    .filter(Boolean)
+    .some((source) => loadedImageSrcCache.has(source))
 
 const hasRenderableExtension = (src: string) => {
   try {
@@ -26,6 +40,10 @@ const hasRenderableExtension = (src: string) => {
 const shouldPrefetchRemoteRecovery = (src: string) =>
   isRemoteImageCandidate(src) && !hasRenderableExtension(src)
 
+export const clearLoadedImageSrcCache = () => {
+  loadedImageSrcCache.clear()
+}
+
 export const useRecoverableImage = ({
   imageSrc,
   fallbackSrc,
@@ -34,6 +52,7 @@ export const useRecoverableImage = ({
   const primarySrc = useMemo(() => trimValue(imageSrc), [imageSrc])
   const fallback = useMemo(() => trimValue(fallbackSrc), [fallbackSrc])
   const initialSrc = primarySrc || fallback
+  const isInitiallyLoaded = hasLoadedImageSrc(initialSrc, primarySrc, fallback)
 
   const objectUrlRef = useRef<string | null>(null)
   const recoveryAttemptCountRef = useRef(0)
@@ -41,7 +60,7 @@ export const useRecoverableImage = ({
 
   const [currentSrc, setCurrentSrc] = useState(initialSrc)
   const [hasPlaceholder, setHasPlaceholder] = useState(!initialSrc)
-  const [isLoading, setIsLoading] = useState(Boolean(initialSrc))
+  const [isLoading, setIsLoading] = useState(Boolean(initialSrc) && !isInitiallyLoaded)
 
   const revokeObjectUrl = useCallback(() => {
     if (!objectUrlRef.current) return
@@ -108,7 +127,7 @@ export const useRecoverableImage = ({
       return
     }
 
-    setIsLoading(true)
+    setIsLoading(!hasLoadedImageSrc(initialSrc, primarySrc, fallback))
   }, [enableRemoteImageRecovery, fallback, initialSrc, primarySrc, revokeObjectUrl, runRemoteRecovery])
 
   useEffect(() => revokeObjectUrl, [revokeObjectUrl])
@@ -147,6 +166,9 @@ export const useRecoverableImage = ({
     hasPlaceholder,
     isLoading,
     handleImageError,
-    handleImageLoaded: () => setIsLoading(false),
+    handleImageLoaded: (loadedSrc?: string) => {
+      rememberLoadedImageSrc(loadedSrc, currentSrc, primarySrc, fallback)
+      setIsLoading(false)
+    },
   }
 }

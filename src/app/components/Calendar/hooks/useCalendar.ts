@@ -120,8 +120,13 @@ export const useCalendar = ({
    * Ejecuta la acción de confirmación de rango actual
    */
   const handleGo = useCallback(() => {
-    return goWithRange(startDate, endDate);
-  }, [startDate, endDate, goWithRange]);
+    const didApply = goWithRange(startDate, endDate);
+    if (didApply) {
+      setShowCustomRange(false);
+      setIsOpen(false);
+    }
+    return didApply;
+  }, [goWithRange, startDate, endDate]);
 
   /**
    * Presets predefinidos de rangos comunes (hoy, semana, mes, personalizado)

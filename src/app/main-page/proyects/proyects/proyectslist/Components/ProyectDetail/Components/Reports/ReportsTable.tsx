@@ -19,7 +19,6 @@ import dostIcon from '@/assets/icons/navegacion/more-vert.svg'
 const ReportsTable: React.FC = () => {
   const { user, currentPagePermissions } = useAuth();
   const canSeeAllReports = currentPagePermissions?.canSeeAllReports;
-  console.log('canSeeAllReports REPORTS', canSeeAllReports);
   
   const {
     reportPendingDelete,
@@ -206,14 +205,14 @@ const ReportsTable: React.FC = () => {
         open={!!reportId || !!reportIdFront}
         actionButton={
           shouldShowActionButton && currentReport ? (
-            <>
+            <div className="flex items-center gap-2">
               <Button hideIcon onClick={() => handleEdit(currentReport)}>
                 Completar
               </Button>
               <Button hideIcon onClick={() => setReportPendingDelete(currentReport)} variant='outline'>
                 Eliminar
               </Button>
-            </>
+            </div>
 
           ) : null
         }

@@ -20,8 +20,10 @@ export const fetchAllReportsByProyect = async (
   if (_get().reports.length > 0 && !force) return
   set({ reports: [], loading: true, error: undefined, successGet: false })
   try {
+    console.log("idEmployee", idEmployee);
     const getFn = requireGateway('get')
     const baseUrl = `${ReportsAllReportsByIdProyect}/${encodeURIComponent(idproyect)}`
+    // const baseUrl = `${ReportsAllReportsByIdProyect}?idproyect=${idproyect}`
     const query = new URLSearchParams()
     if (idEmployee) {
       query.set('idEmployee', idEmployee)

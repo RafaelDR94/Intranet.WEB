@@ -26,6 +26,7 @@ import { useBillingRequisitionImageUrlStore } from "@/app/stores/useBillingRequi
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { useRequisitionsStore } from "@/app/stores/useRequisitionStore/useRequisitionStore";
 import { useTutorials } from "@/tutorials/engine/TutorialProvider";
+import CheckIcon from "@/assets/icons/acciones/check.svg";
 /**
  * Muestra el formulario de requisición junto con información adicional como
  * el balance de viáticos y los documentos relacionados. Renderiza secciones
@@ -202,6 +203,11 @@ const RequisitionDetails: React.FC = () => {
     [billingDocuments],
   );
 
+  const hasExpenseReportDocuments = useMemo(
+    () => (billingDocuments ?? []).some((doc) => Boolean(doc.xml || doc.pdf || doc.image)),
+    [billingDocuments],
+  );
+
   const allPendingAuthorizations = useMemo(() => {
     if (!billingDocuments || billingDocuments.length === 0) return false;
     return billingDocuments.every((doc) => !doc.authorization);
@@ -214,6 +220,7 @@ const RequisitionDetails: React.FC = () => {
     : !hasHistory || (hasPendingAuthorization && !allPendingAuthorizations);
 
   const shouldShowHistoryButton = isTutorialActive ? true : hasHistory;
+  const shouldDisableRequestButton = !isTutorialActive && !hasExpenseReportDocuments;
 
 
   const handleCancelAuthorizer = useCallback(() => {
@@ -522,6 +529,8 @@ const RequisitionDetails: React.FC = () => {
                         {shouldShowRequestButton ? (
                           <Button
                             variant="solid"
+                            icon={CheckIcon}
+                            disabled={shouldDisableRequestButton}
                             className={clsx(
                               "border-teal-70 text-teal-70",
                               !shouldShowHistoryButton && "w-full justify-center",
@@ -529,12 +538,13 @@ const RequisitionDetails: React.FC = () => {
                             onClick={handleOpenAuthorizer}
                             data-tour="requisitions-detail-request"
                           >
-                            Solicitar autorizacion
+                            Solicitar autorización
                           </Button>
                         ) : null}
                         {shouldShowHistoryButton ? (
                           <Button
                             variant="outline"
+                            hideIcon
                             className={clsx(
                               "border-teal-70 text-teal-70",
                               !shouldShowRequestButton && "w-full justify-center",

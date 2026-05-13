@@ -9,11 +9,12 @@ vi.mock('@/app/utilities/PicturesHelper/recoverRemoteImage', () => ({
   clearRecoveredImageCache: vi.fn(),
 }))
 
-import { useRecoverableImage } from './useRecoverableImage'
+import { clearLoadedImageSrcCache, useRecoverableImage } from './useRecoverableImage'
 
 describe('useRecoverableImage', () => {
   beforeEach(() => {
     resolveImageWithFallbackMock.mockReset()
+    clearLoadedImageSrcCache()
     Object.defineProperty(URL, 'createObjectURL', {
       writable: true,
       configurable: true,
@@ -194,5 +195,28 @@ describe('useRecoverableImage', () => {
     expect(result.current.currentSrc).toBe('https://cdn.example.com/evidence.jpg')
     expect(result.current.isLoading).toBe(true)
     expect(resolveImageWithFallbackMock).not.toHaveBeenCalled()
+  })
+
+  it('does not restart loading for sources that were already loaded in a previous mount', () => {
+    const firstMount = renderHook(() =>
+      useRecoverableImage({
+        imageSrc: 'https://cdn.example.com/evidence.jpg',
+      })
+    )
+
+    act(() => {
+      firstMount.result.current.handleImageLoaded('https://cdn.example.com/evidence.jpg')
+    })
+
+    firstMount.unmount()
+
+    const secondMount = renderHook(() =>
+      useRecoverableImage({
+        imageSrc: 'https://cdn.example.com/evidence.jpg',
+      })
+    )
+
+    expect(secondMount.result.current.currentSrc).toBe('https://cdn.example.com/evidence.jpg')
+    expect(secondMount.result.current.isLoading).toBe(false)
   })
 })

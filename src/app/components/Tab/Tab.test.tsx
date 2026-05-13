@@ -48,4 +48,9 @@ describe('Tab component', () => {
     const icon = screen.getByTestId('arrow-icon');
     expect(icon).toBeInTheDocument();
   });
+
+  it('hides the arrow icon when showTrailingIcon is false', () => {
+    render(<Tab label="Without Icon" showTrailingIcon={false} />);
+    expect(screen.queryByTestId('arrow-icon')).not.toBeInTheDocument();
+  });
 });

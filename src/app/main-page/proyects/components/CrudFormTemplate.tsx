@@ -10,6 +10,7 @@ import type { FieldModel, ResponsiveLayoutMatrix } from '@/app/components/Dynami
 type CrudFormTemplateProps = {
   title: string;
   primaryLabel: string;
+  primaryDisabled?: boolean;
   fields: FieldModel[];
   loading: boolean;
   loadingFormInfo: boolean;
@@ -29,6 +30,7 @@ type CrudFormTemplateProps = {
 const CrudFormTemplate = ({
   title,
   primaryLabel,
+  primaryDisabled = false,
   fields,
   loading,
   loadingFormInfo,
@@ -87,7 +89,8 @@ const CrudFormTemplate = ({
       title={title}
       primaryLabel={primaryLabel}
       onPrimaryClick={() => submitRef.current?.()}
-      primaryDisabled={!formReady}
+      primaryDisabled={primaryDisabled || !formReady}
+      enableCollapse={false}
       showSecondaryButton={showSecondaryButton}
       secondaryLabel="Cancelar"
       onSecondaryClick={onCancel}

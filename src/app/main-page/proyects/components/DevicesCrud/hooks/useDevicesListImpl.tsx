@@ -306,7 +306,7 @@ export const useDevicesList = (scope: CrudScope) => {
     popupTitle: rowPendingDeletion
       ? `Eliminar ${rowPendingDeletion.device}`
       : 'Eliminar dispositivo',
-    popupContent: 'Esta accion eliminara el dispositivo seleccionado.',
+    popupContent: 'Esta acción eliminará el dispositivo seleccionado.',
     onCreate: crud.goCreate,
     onConfirmDelete: handleConfirmDelete,
     onCloseDelete: () => setRowPendingDeletion(null),

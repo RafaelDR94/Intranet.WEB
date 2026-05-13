@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 
-import { Button } from "@/app/components/Button/Button";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import { Input } from "@/app/components/Input/Input";
 import { PopUp } from "@/app/components/PopUp/PopUp";
-import { Select } from "@/app/components/Select/Select";
 import { Spinner } from "@/app/components/Spinner/Spinner";
 import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
+import CollaboratorsSection from "./components/CollaboratorsSection";
 import useNewProyect from "./hooks/useNewProyect";
 
 const NewProyectPage = () => {
@@ -19,6 +18,14 @@ const NewProyectPage = () => {
   const [newLocationName, setNewLocationName] = useState("");
   const [newLocationAddress, setNewLocationAddress] = useState("");
   const [newLocationLink, setNewLocationLink] = useState("");
+  const formTitle = state.isEditing ? "Actualiza aqui un proyecto" : "Registra aqui un nuevo proyecto";
+  const primaryLabel = state.isEditing ? "Actualizar Proyecto" : "Registrar Proyecto";
+  const confirmTitle = state.isEditing
+    ? "Confirmacion de actualizacion de proyecto"
+    : "Confirmacion Nuevo Proyecto";
+  const confirmContent = state.isEditing
+    ? "Se actualizara el nuevo proyecto. ¿Deseas continuar?"
+    : "Se creara el nuevo proyecto. ¿Deseas continuar?";
 
   const resetLocationModal = () => {
     setNewLocationName("");
@@ -35,11 +42,13 @@ const NewProyectPage = () => {
   return (
     <div data-tour="proyects-newproyect-form">
       <FormsLayout
-        title="Registra aqui un nuevo proyecto"
-        primaryLabel="Registrar Proyecto"
+        title={formTitle}
+        primaryLabel={primaryLabel}
         onPrimaryClick={() => setConfirmOpen(true)}
         primaryDisabled={!state.formReady || state.creating || state.loadingFormInfo}
         primaryButtonDataTour="proyects-newproyect-submit"
+        enableCollapse={false}
+        showDivider={false}
       >
         <div className="w-full">
           {state.loadingFormInfo ? (
@@ -92,59 +101,21 @@ const NewProyectPage = () => {
           )}
         </div>
 
-        <div className="w-full">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="md:col-span-3 text-b4 text-blue-60">Colaboradores</div>
-
-            <div className="md:col-span-1">
-              <Select
-                label="Seleccionar Colaborador"
-                placeholder="Colaborador del Proyecto"
-                selected={state.pendingCollaboratorId ? [state.pendingCollaboratorId] : []}
-                onChange={(selected) => state.setPendingCollaboratorId(selected[0] ?? "")}
-                options={state.collaboratorOptions}
-              />
-            </div>
-
-            <div className="md:col-span-2 flex items-end">
-              <Button
-                variant="ghost"
-                hideIcon
-                onClick={state.addCollaborator}
-                disabled={!state.pendingCollaboratorId}
-              >
-                Agregar Colaborador
-              </Button>
-            </div>
-
-            {state.collaborators.length > 0 && (
-              <div className="md:col-span-3 space-y-2">
-                {state.collaborators.map((collaborator) => (
-                  <div
-                    key={collaborator.user?.user_id ?? collaborator.employee_id}
-                    className="flex items-center justify-between rounded-md border border-gray-200 px-3 py-2"
-                  >
-                    <span className="text-b3 text-gray-700">{collaborator.fullname}</span>
-                    <Button
-                      variant="ghost"
-                      hideIcon
-                      onClick={() => state.removeCollaborator(collaborator.user?.user_id ?? "")}
-                    >
-                      Eliminar
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        <CollaboratorsSection
+          pendingCollaboratorId={state.pendingCollaboratorId}
+          collaboratorOptions={state.collaboratorOptions}
+          collaboratorRows={state.collaboratorRows}
+          setPendingCollaboratorId={state.setPendingCollaboratorId}
+          addCollaborator={state.addCollaborator}
+          removeCollaborator={state.removeCollaborator}
+        />
       </FormsLayout>
 
       <PopUp
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
-        title="Confirmacion Nuevo Proyecto"
-        content="Se creara el nuevo proyecto. ¿Deseas continuar?"
+        title={confirmTitle}
+        content={confirmContent}
         showSecondaryButton
         secondaryButtonText="Cancelar"
         showPrimaryButton

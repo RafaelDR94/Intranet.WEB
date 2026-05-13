@@ -208,7 +208,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
       const selectedChannel = options.find((option) => option.type === method);
 
       if (!selectedChannel) {
-        setFailMessage("No hay un mÃ©todo vÃ¡lido para enviar el código.");
+        setFailMessage("No hay un método válido para enviar el código.");
         return false;
       }
 
@@ -226,7 +226,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
 
         if (!challenge) {
           setFailMessage(
-            "No se pudo iniciar la verificación MFA. IntÃ©ntalo de nuevo.",
+            "No se pudo iniciar la verificación MFA. Inténtalo de nuevo.",
           );
           return false;
         }
@@ -269,7 +269,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
     const normalizedEmail = enteredEmail.trim();
 
     if (!normalizedEmail || !EMAIL_PATTERN.test(normalizedEmail)) {
-      setFailMessage("Escribe un correo electrónico vÃ¡lido.");
+      setFailMessage("Escribe un correo electrónico válido.");
       return;
     }
 
@@ -363,7 +363,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
         appError?.response?.data?.error_Message ??
         appError?.error_Message ??
         appError?.message ??
-        "No se logró acceder, revise sus datos e intÃ©ntelo de nuevo";
+        "No se logró acceder, revise sus datos e inténtelo de nuevo";
       setFailMessage(messageError);
     } finally {
       setIsLoading(false);
@@ -453,7 +453,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
 
       const authenticatedUser = await PasskeyService.loginWithPasskey(email);
       if (!authenticatedUser?.token) {
-        throw new Error("LoginVerify no devolvió un token vÃ¡lido.");
+        throw new Error("LoginVerify no devolvió un token válido.");
       }
 
       const normalizedUser = {

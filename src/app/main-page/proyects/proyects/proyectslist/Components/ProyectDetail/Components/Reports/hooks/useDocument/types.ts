@@ -1,28 +1,33 @@
-export interface Infohelperreturninferface {
-    newPagePoints: number;
-    residualdata: any;
-    currentPageData: any
+export interface Infohelperreturninferface<TData = any> {
+    remainingHeight: number;
+    residualdata: TData | null;
+    currentPageData: TData | null;
+    consumedHeight: number;
 }
+
 export interface LineObject {
     txt: string;
     length: number;
-    points: number;
     lines: number;
 }
-export interface Infointerface {
-    PagePoints: number;
-    Infodata: any;
+
+export interface Infointerface<TData = any> {
+    remainingHeight: number;
+    Infodata: TData;
     LinePoints?: number;
 }
+
 export interface Diagnosticsolutioninterface {
-    PagePoints: number;
+    remainingHeight: number;
     diagnostic: string;
     solution: string;
 }
+
 export interface Diagnosticreturn {
-    newPagePoints: number;
-    residualsolution: any;
-    residualdiagnostic: any;
-    currentsolution: any;
-    currentdiagnostic: any;
+    remainingHeight: number;
+    residualsolution: string | null;
+    residualdiagnostic: string | null;
+    currentsolution: string | null;
+    currentdiagnostic: string | null;
+    consumedHeight: number;
 }
