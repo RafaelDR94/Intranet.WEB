@@ -26,6 +26,24 @@ describe('deleteUserPasskey util', () => {
     const state: Partial<AuthState> = {
       deletingUserPasskey: false,
       successDeleteUserPasskey: false,
+      user: {
+        idUser: 'u-1',
+      } as AuthState['user'],
+      userMfaById: {
+        idUser: 'u-1',
+        twoFactorEnabled: true,
+        methods: [
+          {
+            method: 'Passkey',
+            isEnabled: true,
+            isVerified: true,
+            destinationMasked: null,
+            destination: null,
+            challengeId: null,
+          },
+        ],
+      },
+      changeMfaMethodStatus: vi.fn().mockResolvedValue(undefined),
       userPasskeys: [
         {
           id: 'pk-1',
@@ -61,5 +79,54 @@ describe('deleteUserPasskey util', () => {
         lastUsedAt: null,
       },
     ])
+  })
+
+  it('apaga el metodo de autenticacion con dispositivo al eliminar el ultimo dispositivo', async () => {
+    const state: Partial<AuthState> = {
+      deletingUserPasskey: false,
+      successDeleteUserPasskey: false,
+      user: {
+        idUser: 'u-1',
+      } as AuthState['user'],
+      userMfaById: {
+        idUser: 'u-1',
+        twoFactorEnabled: true,
+        methods: [
+          {
+            method: 'Passkey',
+            isEnabled: true,
+            isVerified: true,
+            destinationMasked: null,
+            destination: null,
+            challengeId: null,
+          },
+        ],
+      },
+      changeMfaMethodStatus: vi.fn().mockResolvedValue(undefined),
+      userPasskeys: [
+        {
+          id: 'pk-1',
+          idUser: 'u-1',
+          friendlyName: 'iPhone Tania',
+          createdAt: null,
+          lastUsedAt: null,
+        },
+      ],
+    }
+    const set: Set = (partial) =>
+      Object.assign(state, typeof partial === 'function' ? partial(state as AuthState) : partial)
+    const get: Get = () => state as AuthState
+
+    const ok = await deleteUserPasskey(set, get, 'pk-1')
+
+    expect(ok).toBe(true)
+    expect(state.changeMfaMethodStatus).toHaveBeenCalledWith({
+      idUser: 'u-1',
+      method: 'Passkey',
+      isEnabled: false,
+      idPasskey: 'pk-1',
+    })
+    expect(state.userPasskeys).toEqual([])
+    expect(state.userMfaById?.methods[0]?.isEnabled).toBe(false)
   })
 })

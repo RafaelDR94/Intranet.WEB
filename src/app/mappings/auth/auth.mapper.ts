@@ -18,7 +18,8 @@ import {
   FirebaseConfig,
   FirebaseData,
   PostAuthChallengeVerify,
-  AuthChallengeVerifyResponse
+  AuthChallengeVerifyResponse,
+  AuthenticationMethod,
 } from './auth.types';
 
 /**
@@ -143,10 +144,21 @@ export const RecoverPasswordResponseMap = (
 };
 
 export const RecoverChannelsMap = (raw: any): RecoverChannel[] => {
+  return AuthenticationMethodsMap(raw).filter(
+    (item): item is RecoverChannel => item.type === 'Email' || item.type === 'SMS',
+  )
+}
+
+export const AuthenticationMethodsMap = (raw: any): AuthenticationMethod[] => {
   const items = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : []
 
   return items.map((item: any) => ({
-    type: toString(item?.type).toUpperCase() === "SMS" ? "SMS" : "Email",
+    type:
+      toString(item?.type).toUpperCase() === "SMS"
+        ? "SMS"
+        : toString(item?.type).toUpperCase() === 'PASSKEY'
+          ? 'Passkey'
+          : "Email",
     value: item?.value == null ? null : toString(item?.value),
   }))
 }

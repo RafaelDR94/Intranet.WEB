@@ -7,6 +7,8 @@ import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 
+const isMfaChannelMethod = (method: string) => method === 'SMS' || method === 'Email'
+
 export const changeMfaMethodStatus = async (
   set: Set,
   get: Get,
@@ -29,6 +31,10 @@ export const changeMfaMethodStatus = async (
             : method,
         )
       : null
+    const nextTwoFactorEnabled =
+      nextMethods?.some(
+        (method) => isMfaChannelMethod(method.method) && method.isEnabled,
+      ) ?? currentMfa?.twoFactorEnabled ?? false
 
     set({
       changingMFAMethod: false,
@@ -41,6 +47,7 @@ export const changeMfaMethodStatus = async (
       userMfaById: currentMfa
         ? {
             ...currentMfa,
+            twoFactorEnabled: nextTwoFactorEnabled,
             methods: nextMethods ?? currentMfa.methods,
           }
         : null,

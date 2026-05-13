@@ -3,7 +3,7 @@
   "version": "1.50.30",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/dev.js",
     "build": "next build",
     "start": "next start",
     "format": "prettier --write .",

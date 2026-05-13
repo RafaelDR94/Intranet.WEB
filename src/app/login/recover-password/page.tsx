@@ -85,7 +85,7 @@ const RecoverPasswordPage = () => {
 
       if (!challenge) {
         setSubmitError(
-          "No se pudo enviar el cÃ³digo de verificaciÃ³n. IntÃ©ntalo de nuevo.",
+          "No se pudo enviar el código de verificación. IntÃ©ntalo de nuevo.",
         );
         return;
       }

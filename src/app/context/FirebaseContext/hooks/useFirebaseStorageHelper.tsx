@@ -47,11 +47,11 @@ const useFirebaseStorageHelper = (storage: FirebaseStorage | null): FirebaseStor
         const finalPath = buildUniqueStoragePath(filePath, disableTime);
         const fileUrl = await FiletoURL(file);
         const originalSize = await getBase64FileSizeInKB(fileUrl);
-        console.log(`TamaÃ±o original: ${originalSize} KB`);
+        console.log(`Tamaño original: ${originalSize} KB`);
         const imageCompressed = await compressImage(fileUrl, qualitycompressed);
         if (imageCompressed) {
             const sizeInKB = await getBase64FileSizeInKB(imageCompressed);
-            console.log(`TamaÃ±o de la imagen: ${sizeInKB} KB`);
+            console.log(`Tamaño de la imagen: ${sizeInKB} KB`);
             const filecompressedImage = await urlToFile(imageCompressed, file.name, file.type);
             return await uploadFile(filecompressedImage, finalPath, true);
         } else {
@@ -68,21 +68,21 @@ const useFirebaseStorageHelper = (storage: FirebaseStorage | null): FirebaseStor
         return await getDownloadURL(snapshot.ref);
     };
 
-    // FunciÃ³n para descargar un archivo
+    // Función para descargar un archivo
     const downloadFile = async (filePath: string) => {
         if (!storage) throw "Firebase no configurado correctamente";
         const storageRef = ref(storage, filePath);
         return await getDownloadURL(storageRef);
     };
 
-    // FunciÃ³n para eliminar un archivo
+    // Función para eliminar un archivo
     const deleteFile = async (filePath: string) => {
         if (!storage) throw "Firebase no configurado correctamente";
         const storageRef = ref(storage, filePath);
         await deleteObject(storageRef);
     };
 
-    // Ejemplo de actualizaciÃ³n de archivo (sube el nuevo archivo con el mismo nombre, lo que sobrescribe el anterior)
+    // Ejemplo de actualización de archivo (sube el nuevo archivo con el mismo nombre, lo que sobrescribe el anterior)
     const updateFile = async (file: any, filePath: string) => {
         await deleteFile(filePath); // Primero elimina el archivo existente
         return await uploadFile(file, filePath); // Luego sube el nuevo archivo

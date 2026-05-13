@@ -16,7 +16,7 @@ describe('changeMfaMethodStatus util', () => {
     putMock.mockResolvedValue({ status: 200, data: {} })
   })
 
-  it('llama el endpoint de método MFA con payload SMS', async () => {
+  it('llama el endpoint de método MFA con payload SMS y enciende twoFactorEnabled', async () => {
     const state: Partial<AuthState> = {
       changingMFAMethod: false,
       successChangeMFAMethod: false,
@@ -64,10 +64,10 @@ describe('changeMfaMethodStatus util', () => {
     })
     expect(state.successChangeMFAMethod).toBe(true)
     expect(state.mfaSmsEnabled).toBe(true)
-    expect(state.userMfaById?.twoFactorEnabled).toBe(false)
+    expect(state.userMfaById?.twoFactorEnabled).toBe(true)
   })
 
-  it('normaliza method EMAIL al mapear payload', async () => {
+  it('normaliza method EMAIL al mapear payload y apaga twoFactorEnabled si ya no quedan canales activos', async () => {
     const state: Partial<AuthState> = {
       changingMFAMethod: false,
       successChangeMFAMethod: false,
@@ -115,6 +115,55 @@ describe('changeMfaMethodStatus util', () => {
     })
     expect(state.successChangeMFAMethod).toBe(true)
     expect(state.mfaEmailEnabled).toBe(false)
-    expect(state.userMfaById?.twoFactorEnabled).toBe(true)
+    expect(state.userMfaById?.twoFactorEnabled).toBe(false)
+  })
+
+  it('mantiene twoFactorEnabled sin cambios cuando solo cambia passkey', async () => {
+    const state: Partial<AuthState> = {
+      changingMFAMethod: false,
+      successChangeMFAMethod: false,
+      mfaSmsEnabled: false,
+      mfaEmailEnabled: false,
+      userMfaById: {
+        idUser: 'F0CCF87B-C135-476E-AFE1-8B86A67269D5',
+        twoFactorEnabled: false,
+        methods: [
+          {
+            method: 'Passkey',
+            isEnabled: false,
+            isVerified: false,
+            destinationMasked: null,
+            destination: null,
+            challengeId: null,
+          },
+          {
+            method: 'Email',
+            isEnabled: false,
+            isVerified: true,
+            destinationMasked: 'cu***@gmail.com',
+            destination: 'cuenta@gmail.com',
+            challengeId: null,
+          },
+        ],
+      },
+    }
+    const set: Set = (partial) =>
+      Object.assign(state, typeof partial === 'function' ? partial(state as AuthState) : partial)
+    const get: Get = () => state as AuthState
+
+    await changeMfaMethodStatus(set, get, {
+      idUser: 'F0CCF87B-C135-476E-AFE1-8B86A67269D5',
+      method: 'Passkey',
+      isEnabled: true,
+      idPasskey: 'passkey-1',
+    })
+
+    expect(putMock).toHaveBeenCalledWith('/Users/Mfa/Method', {
+      idUser: 'F0CCF87B-C135-476E-AFE1-8B86A67269D5',
+      method: 'Passkey',
+      isEnabled: true,
+      idPasskey: 'passkey-1',
+    })
+    expect(state.userMfaById?.twoFactorEnabled).toBe(false)
   })
 })

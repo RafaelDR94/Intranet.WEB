@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { Input } from "@/app/components/Input/Input";
 import { PopUp } from "@/app/components/PopUp/PopUp";
+import { getPasskeyDeviceName } from "@/app/services/passkeys/deviceName";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
 import {
@@ -28,6 +29,8 @@ import {
   toggleThumbOn,
 } from "./styles";
 
+type MfaChannelMethod = "SMS" | "Email";
+
 const MfaSecurityPanel = () => {
   const router = useRouter();
   const [isPasskeyPopupOpen, setIsPasskeyPopupOpen] = useState(false);
@@ -47,6 +50,7 @@ const MfaSecurityPanel = () => {
   const changeMfaStatus = useAuthStore((state) => state.changeMfaStatus);
   const changeMfaMethodStatus = useAuthStore((state) => state.changeMfaMethodStatus);
   const fetchUserMfaById = useAuthStore((state) => state.fetchUserMfaById);
+
   const mfaEnabled = useMemo(
     () => Boolean(userMfaById?.twoFactorEnabled ?? user?.twoFactorEnabled ?? false),
     [user, userMfaById],
@@ -55,6 +59,7 @@ const MfaSecurityPanel = () => {
     () => Boolean(userMfaById?.methods.find((method) => method.method === "Passkey")?.isEnabled),
     [userMfaById],
   );
+  const enabledMfaChannelsCount = Number(mfaSmsEnabled) + Number(mfaEmailEnabled);
 
   useEffect(() => {
     if (!user?.idUser) return;
@@ -63,27 +68,61 @@ const MfaSecurityPanel = () => {
   }, [fetchUserMfaById, fetchUserPasskeys, user?.idUser]);
 
   useEffect(() => {
-    if (typeof navigator === "undefined") return;
-    const platform = navigator.platform || "Dispositivo";
-    const userAgent = navigator.userAgent || "";
-    let browser = "Navegador";
-    if (userAgent.includes("Edg/")) browser = "Edge";
-    else if (userAgent.includes("Chrome/")) browser = "Chrome";
-    else if (userAgent.includes("Firefox/")) browser = "Firefox";
-    else if (userAgent.includes("Safari/") && !userAgent.includes("Chrome/")) browser = "Safari";
-    setDeviceName(`${platform} - ${browser}`);
+    setDeviceName(getPasskeyDeviceName());
   }, []);
+
+  const handleToggleMfaMethod = async (method: MfaChannelMethod, isEnabled: boolean) => {
+    if (!user?.idUser || changingMFAMethod) return;
+
+    if (isEnabled && !mfaEnabled) {
+      await changeMfaStatus({
+        idUser: user.idUser,
+        twoFactorEnabled: true,
+      });
+    }
+
+    const methodEntry = userMfaById?.methods.find((item) => item.method === method);
+
+    await changeMfaMethodStatus({
+      idUser: user.idUser,
+      method,
+      isEnabled,
+      destination: methodEntry?.destination ?? user.email ?? undefined,
+    });
+
+    if (!isEnabled && enabledMfaChannelsCount === 1) {
+      await changeMfaStatus({
+        idUser: user.idUser,
+        twoFactorEnabled: false,
+      });
+    }
+  };
 
   const handleToggleMfa = async () => {
     if (!user?.idUser || changingMFA) return;
     const nextMfaEnabled = !mfaEnabled;
 
+    if (!nextMfaEnabled) {
+      if (mfaSmsEnabled) {
+        await handleToggleMfaMethod("SMS", false);
+      }
+      if (mfaEmailEnabled) {
+        await handleToggleMfaMethod("Email", false);
+      }
+
+      await changeMfaStatus({
+        idUser: user.idUser,
+        twoFactorEnabled: false,
+      });
+      return;
+    }
+
     await changeMfaStatus({
       idUser: user.idUser,
-      twoFactorEnabled: nextMfaEnabled,
+      twoFactorEnabled: true,
     });
 
-    if (nextMfaEnabled && !mfaEmailEnabled) {
+    if (!mfaEmailEnabled) {
       await changeMfaMethodStatus({
         idUser: user.idUser,
         method: "Email",
@@ -93,29 +132,17 @@ const MfaSecurityPanel = () => {
     }
   };
 
-  const handleToggleMfaMethod = async (
-    method: "SMS" | "Email" | "Passkey",
-    isEnabled: boolean,
-  ) => {
-    if (!user?.idUser || changingMFAMethod) return;
-    const methodEntry = userMfaById?.methods.find((item) => item.method === method);
-    const firstPasskeyId = userPasskeys[0]?.id;
-
-    await changeMfaMethodStatus({
-      idUser: user.idUser,
-      method,
-      isEnabled,
-      ...(method === "Passkey"
-        ? { idPasskey: firstPasskeyId }
-        : { destination: methodEntry?.destination ?? user.email ?? undefined }),
-    });
-  };
-
   const handlePasskeyToggle = async () => {
     if (!user?.idUser || changingMFAMethod) return;
 
     if (mfaPasskeyEnabled) {
-      await handleToggleMfaMethod("Passkey", false);
+      const firstPasskeyId = userPasskeys[0]?.id;
+      await changeMfaMethodStatus({
+        idUser: user.idUser,
+        method: "Passkey",
+        isEnabled: false,
+        idPasskey: firstPasskeyId,
+      });
       return;
     }
 
@@ -143,8 +170,11 @@ const MfaSecurityPanel = () => {
 
     setIsPasskeyPopupOpen(false);
   };
-  const isMethodToggleDisabled =
+
+  const isMfaMethodToggleDisabled =
     changingMFAMethod || fetchingUserMfaById || !user?.idUser || !mfaEnabled;
+  const isPasskeyToggleDisabled =
+    changingMFAMethod || fetchingUserMfaById || !user?.idUser;
 
   return (
     <section className={panel}>
@@ -168,71 +198,75 @@ const MfaSecurityPanel = () => {
       </div>
 
       <div className={rows}>
+        {mfaEnabled && (
+          <>
+            <div className={row}>
+              <div className={rowContent}>
+                <h3 className={rowTitle}>Mensaje de texto</h3>
+                <p className={rowDescription}>
+                  Recibe códigos de verificación de 6 dígitos por SMS o WhatsApp según
+                  tu código de país
+                </p>
+              </div>
+
+              <div className={actionColumn}>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={mfaSmsEnabled}
+                  aria-label="Activar método SMS"
+                  disabled={isMfaMethodToggleDisabled}
+                  className={clsx(
+                    mfaSmsEnabled ? toggleOn : toggleOff,
+                    isMfaMethodToggleDisabled && "cursor-not-allowed opacity-70",
+                  )}
+                  data-testid="mfa-sms-toggle"
+                  onClick={() => handleToggleMfaMethod("SMS", !mfaSmsEnabled)}
+                >
+                  <span className={mfaSmsEnabled ? toggleThumbOn : toggleThumbOff} />
+                </button>
+                <button type="button" className={linkAction}>
+                  Cambiar número
+                </button>
+              </div>
+            </div>
+
+            <div className={row}>
+              <div className={rowContent}>
+                <h3 className={rowTitle}>Mensaje por correo electrónico</h3>
+                <p className={rowDescription}>
+                  Recibe códigos de verificación de 6 dígitos a tu correo electrónico
+                  empresarial.
+                </p>
+              </div>
+
+              <div className={toggleOnlyAction}>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={mfaEmailEnabled}
+                  aria-label="Activar método email"
+                  disabled={isMfaMethodToggleDisabled}
+                  className={clsx(
+                    mfaEmailEnabled ? toggleOn : toggleOff,
+                    isMfaMethodToggleDisabled && "cursor-not-allowed opacity-70",
+                  )}
+                  data-testid="mfa-email-toggle"
+                  onClick={() => handleToggleMfaMethod("Email", !mfaEmailEnabled)}
+                >
+                  <span className={mfaEmailEnabled ? toggleThumbOn : toggleThumbOff} />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
         <div className={row}>
           <div className={rowContent}>
-            <h3 className={rowTitle}>Mensaje de texto</h3>
+            <h3 className={rowTitle}>Autenticación con dispositivo</h3>
             <p className={rowDescription}>
-              Recibe códigos de verificación de 6 dígitos por SMS o WhatsApp
-              según tu código de país
-            </p>
-          </div>
-
-          <div className={actionColumn}>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={mfaSmsEnabled}
-              aria-label="Activar método SMS"
-              disabled={isMethodToggleDisabled}
-              className={clsx(
-                mfaSmsEnabled ? toggleOn : toggleOff,
-                isMethodToggleDisabled && "cursor-not-allowed opacity-70",
-              )}
-              data-testid="mfa-sms-toggle"
-              onClick={() => handleToggleMfaMethod("SMS", !mfaSmsEnabled)}
-            >
-              <span className={mfaSmsEnabled ? toggleThumbOn : toggleThumbOff} />
-            </button>
-            <button type="button" className={linkAction}>
-              Cambiar número
-            </button>
-          </div>
-        </div>
-
-        <div className={row}>
-          <div className={rowContent}>
-            <h3 className={rowTitle}>Mensaje por correo electrónico</h3>
-            <p className={rowDescription}>
-              Recibe códigos de verificación de 6 dígitos a tu correo
-              electrónico empresarial.
-            </p>
-          </div>
-
-          <div className={toggleOnlyAction}>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={mfaEmailEnabled}
-              aria-label="Activar método email"
-              disabled={isMethodToggleDisabled}
-              className={clsx(
-                mfaEmailEnabled ? toggleOn : toggleOff,
-                isMethodToggleDisabled && "cursor-not-allowed opacity-70",
-              )}
-              data-testid="mfa-email-toggle"
-              onClick={() => handleToggleMfaMethod("Email", !mfaEmailEnabled)}
-            >
-              <span className={mfaEmailEnabled ? toggleThumbOn : toggleThumbOff} />
-            </button>
-          </div>
-        </div>
-
-        <div className={row}>
-          <div className={rowContent}>
-            <h3 className={rowTitle}>Acceso con huella o passkey</h3>
-            <p className={rowDescription}>
-              Inicia sesión con tu dispositivo (huella, Face ID o PIN). Tu
-              identidad se valida sin compartir información.
+              Inicia sesión con tu dispositivo (huella, Face ID o PIN). Tu identidad se
+              valida sin compartir información.
             </p>
           </div>
 
@@ -241,11 +275,11 @@ const MfaSecurityPanel = () => {
               type="button"
               role="switch"
               aria-checked={mfaPasskeyEnabled}
-              aria-label="Activar acceso con huella o passkey"
-              disabled={isMethodToggleDisabled}
+              aria-label="Activar autenticación con dispositivo"
+              disabled={isPasskeyToggleDisabled}
               className={clsx(
                 mfaPasskeyEnabled ? toggleOn : toggleOff,
-                isMethodToggleDisabled && "cursor-not-allowed opacity-70",
+                isPasskeyToggleDisabled && "cursor-not-allowed opacity-70",
               )}
               data-testid="mfa-passkey-toggle"
               onClick={() => {
@@ -259,21 +293,10 @@ const MfaSecurityPanel = () => {
               className={linkAction}
               onClick={() => router.push("/main-page/configuration/devices")}
             >
-              Administrar dispositivos
+              Gestionar dispositivos
             </button>
           </div>
         </div>
-
-        {/* <div className={row}>
-          <div className={rowContent}>
-            <h3 className={rowTitle}>Dispositivos de confianza</h3>
-            <p className={rowDescription}>
-              Cuando inicies sesión en otro dispositivo, se añadirá aquí y podrá
-              recibir automáticamente solicitudes de inicio de sesión en el
-              dispositivo.
-            </p>
-          </div>
-        </div> */}
 
         <div className={row}>
           <div className={rowContent}>
@@ -287,13 +310,10 @@ const MfaSecurityPanel = () => {
 
         <div className={row}>
           <div className={rowContent}>
-            <h3 className={rowTitle}>
-              Cerrar sesión en todos los dispositivos
-            </h3>
+            <h3 className={rowTitle}>Cerrar sesión en todos los dispositivos</h3>
             <p className={rowDescription}>
-              Cerrar sesión en todos los dispositivos con sesiones activas,
-              incluida la actual. El cierre en otros dispositivos puede tardar
-              hasta 30 minutos.
+              Cerrar sesión en todos los dispositivos con sesiones activas, incluida la
+              actual. El cierre en otros dispositivos puede tardar hasta 30 minutos.
             </p>
           </div>
 
@@ -306,8 +326,8 @@ const MfaSecurityPanel = () => {
       <PopUp
         open={isPasskeyPopupOpen}
         onClose={() => setIsPasskeyPopupOpen(false)}
-        title="Activar acceso con huella o passkey"
-        content="Registra este dispositivo para que puedas iniciar sesión con huella, Face ID, Touch ID, Windows Hello o PIN."
+        title="Activar autenticación con dispositivo"
+        content="Registra este dispositivo para que puedas autenticarte con huella, Face ID, Touch ID, Windows Hello o PIN."
         showSecondaryButton
         secondaryButtonText="Cancelar"
         onSecondaryButtonClick={() => setIsPasskeyPopupOpen(false)}

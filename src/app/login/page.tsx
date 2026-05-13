@@ -43,18 +43,26 @@ const mfaViewStyles = {
 
 const LoginPage = () => {
   const {
+    step,
+    enteredEmail,
+    maskedResolvedEmail,
     handleLogin,
+    handleEnteredEmailChange,
+    handleEmailStepSubmit,
+    handleEditEmail,
     handleRemember,
     handleForgotPassword,
     handleLoginValuesChange,
     rememberStatus,
     failMessage,
     isLoading,
+    lookupLoading,
     loginFields,
     mfaRequiredData,
     selectedMfaMethod,
     mfaOptions,
     mfaLoading,
+    canUsePasskey,
     setSelectedMfaMethod,
     handleSendMfaCode,
     handleBackToLoginFromMfa,
@@ -86,7 +94,7 @@ const LoginPage = () => {
             </div>
 
             <div className={mfaViewStyles.methods}>
-              <div className={mfaViewStyles.methodsLabel}>Método de verificación</div>
+              <div className={mfaViewStyles.methodsLabel}>MÃ©todo de verificación</div>
               {mfaOptions.map((option) => {
                 const selected = selectedMfaMethod === option.type;
                 const Icon = option.type === "Email" ? MailIcon : SmartphoneIcon;
@@ -164,23 +172,93 @@ const LoginPage = () => {
               </button>
             </div>
           </div>
+        ) : step === "emailLookup" ? (
+          <div className={loginStyles.emailStepPanel}>
+            <form
+              className={loginStyles.emailStepForm}
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleEmailStepSubmit();
+              }}
+            >
+              <div>
+                <label className={loginStyles.emailStepLabel} htmlFor="login-email">
+                  Correo electrónico
+                </label>
+                <input
+                  id="login-email"
+                  data-testid="login-email"
+                  type="email"
+                  value={enteredEmail}
+                  onChange={(event) => handleEnteredEmailChange(event.target.value)}
+                  placeholder="tu@empresa.com"
+                  className={loginStyles.emailStepInput}
+                  autoComplete="email"
+                />
+              </div>
+
+              {failMessage && (
+                <Alert
+                  type="error"
+                  variant="subtle"
+                  title="No se pudo continuar"
+                  description={failMessage}
+                  showPrimaryButton={false}
+                  showSecondaryButton={false}
+                />
+              )}
+
+              <button
+                type="submit"
+                className={loginStyles.emailStepButton}
+                disabled={lookupLoading}
+                data-testid="login-next"
+              >
+                {lookupLoading ? "Validando..." : "Siguiente"}
+              </button>
+            </form>
+          </div>
         ) : (
           <>
-            <button
-              type="button"
-              className="mb-4 flex h-12 w-full items-center justify-center rounded-xl bg-green-80 text-[16px] font-semibold leading-[29px] text-white transition hover:bg-[#67cfc5] disabled:cursor-not-allowed disabled:bg-[#295f68]"
-              onClick={() => {
-                void handlePasskeyLogin();
-              }}
-              disabled={isLoading}
-            >
-              Iniciar sesión con Passkey
-            </button>
+            {canUsePasskey && (
+              <>
+                <button
+                  type="button"
+                  className="mb-4 flex h-12 w-full items-center justify-center rounded-xl bg-green-80 text-[16px] font-semibold leading-[29px] text-white transition hover:bg-[#67cfc5] disabled:cursor-not-allowed disabled:bg-[#295f68]"
+                  onClick={() => {
+                    void handlePasskeyLogin();
+                  }}
+                  disabled={isLoading}
+                >
+                  Iniciar sesión con Passkey
+                </button>
 
-            <div className="mb-4 flex items-center gap-4 text-white/70">
-              <span className="h-px flex-1 bg-white/40" />
-              <span className="text-sm font-medium">ó</span>
-              <span className="h-px flex-1 bg-white/40" />
+                <div className="mb-4 flex items-center gap-4 text-white/70">
+                  <span className="h-px flex-1 bg-white/40" />
+                  <span className="text-sm font-medium">ó</span>
+                  <span className="h-px flex-1 bg-white/40" />
+                </div>
+              </>
+            )}
+
+            <div className={loginStyles.readOnlyEmailWrap}>
+              <div className={loginStyles.readOnlyEmailHeader}>
+                <span className={loginStyles.emailStepLabel}>Correo electrónico</span>
+                <button
+                  type="button"
+                  onClick={handleEditEmail}
+                  className={loginStyles.editEmailButton}
+                  data-testid="login-edit-email"
+                >
+                  Cambiar correo
+                </button>
+              </div>
+              <div
+                className={loginStyles.readOnlyEmailValue}
+                data-testid="login-email-masked"
+              >
+                {maskedResolvedEmail}
+              </div>
             </div>
 
             <DynamicForm
@@ -240,4 +318,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-

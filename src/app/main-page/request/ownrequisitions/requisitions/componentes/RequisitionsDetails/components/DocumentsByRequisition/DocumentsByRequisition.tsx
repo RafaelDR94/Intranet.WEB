@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { shallow } from 'zustand/shallow'
 
 import { DataTable } from '@/app/components/DataTable/DataTable'
+import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
 import type { ColumnDefinition } from '@/app/components/DataTable/types'
 import { Button } from '@/app/components/Button/Button'
 import Label from '@/app/components/Label/Label'
@@ -27,6 +28,7 @@ import ChatIcon from '@/assets/icons/Comunicacion/chat-lines.svg'
 const DocumentsByRequisition: React.FC = () => {
   const searchParams = useSearchParams()
   const requisitionId = searchParams.get('id') ?? undefined
+  const isMobile = useIsMobile()
   const { usePrincipalAlert } = usePrincipal()
   const { showAlert } = usePrincipalAlert
 
@@ -233,6 +235,82 @@ const DocumentsByRequisition: React.FC = () => {
     [handleOpenDetails],
   )
 
+  const mobileColumns: ColumnDefinition<BillingDocuments>[] = useMemo(
+    () => [
+      {
+        key: 'summary' as keyof BillingDocuments,
+        label: 'REPORTE',
+        cellClass: 'min-w-0',
+        headerClass: 'min-w-0 text-left',
+        render: (row) => (
+          <div className="min-w-0 py-1">
+            <span
+              className="block truncate text-[11px] font-medium leading-4 text-blue-95"
+              title={row.uuid || '-'}
+            >
+              {row.uuid || '-'}
+            </span>
+            <span
+              className="mt-1 block truncate text-[10px] leading-4 text-neutral-500"
+              title={`${row.fecha || '-'} - ${row.category?.name || '-'}`}
+            >
+              {`${row.fecha || '-'} - ${row.category?.name || '-'}`}
+            </span>
+          </div>
+        ),
+      },
+      {
+        key: 'status',
+        label: 'ESTATUS',
+        cellClass: 'w-[88px] text-center',
+        headerClass: 'w-[88px] text-center',
+        render: (row) =>
+          row.status ? (
+            <Label
+              type={row.status.toLocaleLowerCase() as any}
+              text={row.status}
+              className="px-2 py-0.5 text-[10px] leading-4"
+            />
+          ) : (
+            '-'
+          ),
+      },
+      {
+        key: 'acciones' as keyof BillingDocuments,
+        label: '',
+        cellClass: 'w-10 text-right',
+        headerClass: 'w-10 text-right',
+        render: (row) => {
+          const hasDetails = Boolean(
+            row.billingdocument_id ||
+              row.id ||
+              row.xml ||
+              row.pdf ||
+              row.image ||
+              row.fecha ||
+              row.category?.name ||
+              row.status ||
+              row.comments ||
+              row.user_comments,
+          )
+
+          return hasDetails ? (
+            <Button
+              size="small"
+              onClick={() => handleOpenDetails(row)}
+              variant="ghost"
+              hideIcon
+              data-tour="ownrequisitions-detail-docs-view"
+            >
+              ...
+            </Button>
+          ) : null
+        },
+      },
+    ],
+    [handleOpenDetails],
+  )
+
   return (
     <div className="space-y-6">
       <div className="relative">
@@ -253,7 +331,7 @@ const DocumentsByRequisition: React.FC = () => {
           tables={[
             {
               data: rows,
-              columns,
+              columns: isMobile ? mobileColumns : columns,
               enableSelection: false,
               title: 'Reporte de gastos',
               enableCollaps: true,

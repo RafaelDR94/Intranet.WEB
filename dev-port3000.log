@@ -1,0 +1,12 @@
+
+> intranet.web@1.50.30 dev
+> node scripts/dev.js
+
+   ▲ Next.js 15.4.3
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.100.27:3002
+   - Environments: .env
+   - Experiments (use with caution):
+     ⨯ useLightningcss
+
+ ✓ Starting...

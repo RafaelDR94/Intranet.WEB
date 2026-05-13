@@ -8,6 +8,21 @@ export const loginStyles = {
     "text-[28px] font-semibold leading-[34px] text-white sm:text-[32px] sm:leading-[38px]",
   subtitle:
     "text-[16px] font-semibold leading-6 text-white/80 sm:text-[18px] sm:leading-7",
+  emailStepPanel:
+    "rounded-2xl px-[32px] py-[32px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]",
+  emailStepForm: "flex flex-col gap-5",
+  emailStepLabel:
+    "mb-1 text-[12px] font-medium leading-4 text-white/70",
+  emailStepInput:
+    "h-12 w-full rounded-xl border-[1.5px] border-gray-40 bg-transparent px-3 py-3 text-sm leading-5 text-white placeholder:text-white/40 hover:border-white/80 focus:border-green-40 focus:outline-none",
+  emailStepButton:
+    "flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-green-80 px-5 text-[16px] font-semibold leading-[29px] text-white transition hover:bg-[#67cfc5] disabled:cursor-not-allowed disabled:bg-[#295f68]",
+  readOnlyEmailWrap: "mb-5 flex flex-col gap-2",
+  readOnlyEmailHeader: "flex items-center justify-between gap-3",
+  readOnlyEmailValue:
+    "flex h-12 items-center rounded-xl border-[1.5px] border-gray-40 px-3 py-3 text-sm leading-5 text-white/90",
+  editEmailButton:
+    "text-[12px] font-medium leading-4 text-[#66f3ec] transition-colors hover:text-[#8cf7f1]",
   panel:
     "rounded-2xl px-0 pt-0 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]",
   formSkin: [

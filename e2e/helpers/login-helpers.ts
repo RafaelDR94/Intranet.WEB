@@ -67,8 +67,9 @@ export const fastLogin = async (page: Page, email: string, password: string) => 
     await page.goto('/login');
     await page.waitForLoadState('networkidle');
     const emailBox = page.getByTestId('login-email');
-    const passBox = page.getByTestId('login-password');
     await fillStable(emailBox, email);
+    await page.getByTestId('login-next').click();
+    const passBox = page.getByTestId('login-password');
     await fillStable(passBox, password);
     const clickPromise = page.getByTestId('login-primary')
         .or(page.getByRole('button', { name: /Iniciar sesi/i }))
