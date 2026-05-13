@@ -4,6 +4,7 @@ import { describe, it, expect, vi } from 'vitest'
 
 import RequisitionsTable from './RequisitionsTable'
 
+const actionMenuCellMock = vi.fn(() => <div data-testid="action-menu-cell" />)
 const mockHook = vi.fn().mockReturnValue({
   rows: [
     {
@@ -53,9 +54,24 @@ vi.mock('./hooks/useRequisitionsTable', () => ({
 }))
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
-  DataTable: ({ tables }: any) => (
-    <div data-testid="table">{tables?.[0]?.data?.[0]?.projectname ?? 'no-data'}</div>
-  ),
+  DataTable: ({ tables }: any) => {
+    const firstRow = tables?.[0]?.data?.[0]
+
+    return (
+      <div data-testid="table">
+        <div>{firstRow?.projectname ?? 'no-data'}</div>
+        {firstRow
+          ? tables?.[0]?.columns?.map((column: any, index: number) => (
+              <div key={String(column.key) || index}>
+                {typeof column.render === 'function'
+                  ? column.render(firstRow)
+                  : null}
+              </div>
+            ))
+          : null}
+      </div>
+    )
+  },
 }))
 
 vi.mock('@/app/components/PopUp/PopUp', () => ({
@@ -63,6 +79,12 @@ vi.mock('@/app/components/PopUp/PopUp', () => ({
 }))
 vi.mock('@/app/components/Button/Button', () => ({ Button: () => <button /> }))
 vi.mock('@/app/components/ContextMenu/ContextMenu', () => ({ ContextMenu: ({ trigger }: any) => <div>{trigger}</div> }))
+vi.mock('@/app/components/ActionMenuCell/ActionMenuCell', () => ({
+  default: (props: any) => actionMenuCellMock(props),
+}))
+vi.mock('@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery', () => ({
+  useIsMobile: vi.fn(() => false),
+}))
 vi.mock('@/assets/icons/navegacion/more-horiz.svg', () => ({ default: () => <svg /> }))
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   useAuth: () => ({ currentPagePermissions: { read: true, update: true, delete: true } }),
@@ -78,7 +100,7 @@ describe('RequisitionsTable', () => {
   it('shows confirmation popup when hook flag is true', () => {
     mockHook.mockReturnValueOnce({
       rows: [{
-        id: '1', snCode: 'REQ-1', requisitionkey: 'REQ-1', debtorName: 'John', employeeName: 'John', projectCode: 'PRJ-1', projectname: 'Proyecto 1', date_created: '2025-01-01',
+        id: '1', snCode: 'REQ-1', requisitionkey: 'REQ-1', debtorName: 'John', employeeName: 'John', projectCode: 'PRJ-1', projectname: 'Proyecto 1', date_created: '2025-01-01', status: 'Activa',
       }],
       activeRows: [],
       setQuery: vi.fn(),
@@ -95,5 +117,17 @@ describe('RequisitionsTable', () => {
     })
     render(<RequisitionsTable />)
     expect(screen.getByText('¿Deseas eliminar el documento seleccionado?')).toBeInTheDocument()
+  })
+
+  it('passes explicit mobile permissions to action menu', async () => {
+    const { useIsMobile } = await import('@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery')
+    vi.mocked(useIsMobile).mockReturnValue(true)
+
+    render(<RequisitionsTable />)
+
+    expect(actionMenuCellMock).toHaveBeenCalled()
+    expect(actionMenuCellMock.mock.calls[0][0]).toMatchObject({
+      permissions: { details: true, delete: true },
+    })
   })
 })

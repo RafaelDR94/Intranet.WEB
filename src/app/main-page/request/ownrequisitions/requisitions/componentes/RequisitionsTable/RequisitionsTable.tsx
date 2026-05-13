@@ -94,7 +94,16 @@ const RequisitionsTable = ({ forceVisible = false }) => {
         label: "",
         render: (row) => (
           <div className="flex justify-end" data-tour="ownrequisitions-row-actions">
-            <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+            <ActionMenuCell
+              row={row}
+              onEdit={onEdit}
+              editLabel="Ver detalle"
+              onDelete={onDelete}
+              permissions={{
+                details: canRead,
+                delete: currentPagePermissions?.delete,
+              }}
+            />
           </div>
         ),
         cellClass: "w-12 text-right",
@@ -102,7 +111,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
         invisible: false,
       },
     ],
-    [onEdit, onDelete],
+    [canRead, currentPagePermissions?.delete, onEdit, onDelete],
   );
 
   // Filtra columnas si currentPagePermissions.sapprofile es true

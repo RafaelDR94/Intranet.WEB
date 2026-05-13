@@ -36,6 +36,11 @@ export type RecoverChannel = {
   value: string | null
 }
 
+export type AuthenticationMethod = {
+  type: "Email" | "SMS" | "Passkey",
+  value: string | null
+}
+
 export type RecoverPasswordResponse = {
   type: "Email" | "SMS",
   challengeId: string,

@@ -430,7 +430,7 @@ const usePendingUsersPage = () => {
       const phoneNumber = String(payload.businessPhone ?? '').trim()
       const signature = String(payload.signature ?? '')
 
-      if (!username || !password || !roleId || !signature) {
+      if (!username || !password || !roleId) {
         showAlert({
           type: 'warning',
           title: 'Informacion incompleta',

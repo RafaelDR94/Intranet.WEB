@@ -37,7 +37,11 @@ describe('SecurityPage', () => {
         name: /autenticación de múltiples factores \(mfa\)/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /cambiar número/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        name: /autenticación con dispositivo/i,
+      }),
+    ).toBeInTheDocument();
     expect(screen.queryByText('CreateEmployee')).toBeNull();
   });
 });

@@ -4,16 +4,17 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FieldModel } from "../../components/DynamicForm/types";
 import { useRecoverPasswordFlow } from "../context/RecoverPasswordFlowContext";
 import { useAuth } from "../../context/AuthContext/AuthContext";
-import { PasskeyService, isPasskeySupported } from "@/app/services/passkeys/PasskeyService";
 import { saveUser } from "@/app/context/AuthContext/utilities/AuthService";
+import type { RecoverPasswordResponse } from "@/app/mappings/auth/auth.types";
+import { fetchAuthenticationMethods } from "@/app/services/auth/AuthenticationMethodsService";
+import { PasskeyService, isPasskeySupported } from "@/app/services/passkeys/PasskeyService";
+import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 import { setInterceptor } from "@/app/stores/useAuthStore/utilities/interceptor";
 import {
   LoginMfaRequiredError,
   type LoginMfaMethod,
   type LoginMfaRequiredPayload,
 } from "../../context/AuthContext/utilities/AuthService";
-import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
-import type { RecoverPasswordResponse } from "@/app/mappings/auth/auth.types";
 
 const loginInputClassName =
   "h-12 rounded-xl border-[1.5px] border-gray-40 bg-transparent px-3 py-3 text-sm leading-5 text-white placeholder:text-white/40 hover:border-white/80 focus:border-green-40 focus:bg-transparent";
@@ -23,7 +24,7 @@ const baseLoginFields: FieldModel[] = [
     name: "email",
     type: "email",
     label: "Correo electrónico",
-    placeholder: "Escribe aquí tu correo electrónico",
+    placeholder: "Escribe aquí­ tu correo electrónico",
     value: "",
     validations: [{ type: "required" }, { type: "email" }],
     className: loginInputClassName,
@@ -32,22 +33,50 @@ const baseLoginFields: FieldModel[] = [
     name: "password",
     type: "password",
     label: "Contraseña",
-    placeholder: "Escribe aquí tu contraseña",
+    placeholder: "Escribe aquí­ tu contraseña",
     value: "",
     validations: [{ type: "required" }, { type: "minLength", value: 6 }],
     className: `${loginInputClassName} pr-11`,
   },
 ];
 
+const passwordOnlyLoginFields: FieldModel[] = [baseLoginFields[1]];
+
+export type LoginStep = "emailLookup" | "passwordLogin";
+
+const REMEMBER_EMAIL_KEY = "drs.remember.email";
+const REMEMBER_PASS_KEY = "drs.remember.password";
+const REMEMBER_FLAG_KEY = "drs.remember.flag";
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const maskEmailAddress = (email: string): string => {
+  const [localPart = "", domain = ""] = email.split("@");
+  if (!localPart || !domain) return email;
+
+  const visibleChars = Math.max(1, Math.floor(localPart.length / 2));
+  const hiddenChars = Math.max(0, localPart.length - visibleChars);
+
+  return `${localPart.slice(0, visibleChars)}${"*".repeat(hiddenChars)}@${domain}`;
+};
+
 export interface UseLogin {
+  step: LoginStep;
+  enteredEmail: string;
+  resolvedEmail: string;
+  maskedResolvedEmail: string;
   rememberStatus: boolean;
   isLoading: boolean;
+  lookupLoading: boolean;
   mfaLoading: boolean;
+  canUsePasskey: boolean;
   failMessage: string;
   loginFields: FieldModel[];
   mfaRequiredData: LoginMfaRequiredPayload | null;
   selectedMfaMethod: "Email" | "SMS";
   mfaOptions: LoginMfaMethod[];
+  handleEnteredEmailChange: (value: string) => void;
+  handleEmailStepSubmit: () => Promise<void>;
+  handleEditEmail: () => void;
   handleForgotPassword: () => Promise<void>;
   handleLoginValuesChange: (values: Record<string, unknown>) => void;
   handleRemember: (
@@ -61,11 +90,6 @@ export interface UseLogin {
   handleBackToLoginFromMfa: () => void;
   handlePasskeyLogin: () => Promise<void>;
 }
-
-const REMEMBER_EMAIL_KEY = "drs.remember.email";
-const REMEMBER_PASS_KEY = "drs.remember.password";
-const REMEMBER_FLAG_KEY = "drs.remember.flag";
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
   const routerFromHook = useRouter();
@@ -81,10 +105,13 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
     (state) => state.clearRecoverPasswordState,
   );
 
+  const [step, setStep] = useState<LoginStep>("emailLookup");
+  const [enteredEmail, setEnteredEmail] = useState("");
+  const [resolvedEmail, setResolvedEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [lookupLoading, setLookupLoading] = useState(false);
   const [rememberStatus, setRememberStatus] = useState(false);
   const [failMessage, setFailMessage] = useState("");
-  const [rememberedEmail, setRememberedEmail] = useState<string>("");
   const [rememberedPassword, setRememberedPassword] = useState<string>("");
   const [loginValues, setLoginValues] = useState<Record<string, unknown>>({});
   const [mfaRequiredData, setMfaRequiredData] =
@@ -93,6 +120,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
     "Email",
   );
   const [mfaLoading, setMfaLoading] = useState(false);
+  const [canUsePasskey, setCanUsePasskey] = useState(false);
 
   useEffect(() => {
     try {
@@ -100,8 +128,8 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
       const email = localStorage.getItem(REMEMBER_EMAIL_KEY) || "";
       const pass = localStorage.getItem(REMEMBER_PASS_KEY) || "";
       setRememberStatus(flag);
-      setRememberedEmail(flag ? email : "");
       setRememberedPassword(flag ? pass : "");
+      setEnteredEmail(flag ? email : "");
     } catch {
       // localStorage may be unavailable during SSR-like test environments.
     }
@@ -109,20 +137,24 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
 
   const loginFields = useMemo<FieldModel[]>(
     () =>
-      baseLoginFields.map((field) => {
-        if (field.name === "email") return { ...field, value: rememberedEmail };
+      passwordOnlyLoginFields.map((field) => {
         if (field.name === "password") {
           return { ...field, value: rememberedPassword };
         }
         return field;
       }),
-    [rememberedEmail, rememberedPassword],
+    [rememberedPassword],
   );
 
   const mfaOptions = useMemo<LoginMfaMethod[]>(() => {
     const options = mfaRequiredData?.availableMethods ?? [];
     return options.filter((option) => Boolean(option.value?.trim()));
   }, [mfaRequiredData]);
+
+  const maskedResolvedEmail = useMemo(
+    () => maskEmailAddress(resolvedEmail),
+    [resolvedEmail],
+  );
 
   const persistRemember = (
     remember: boolean,
@@ -152,16 +184,17 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
     currentEmail?: string,
     currentPassword?: string,
   ) => {
+    const nextEmail = currentEmail ?? resolvedEmail ?? enteredEmail;
+    const nextPassword =
+      currentPassword ?? String(loginValues.password ?? rememberedPassword ?? "");
+
     setRememberStatus(remember);
     if (remember) {
-      if (currentEmail !== undefined) setRememberedEmail(currentEmail ?? "");
-      if (currentPassword !== undefined)
-        setRememberedPassword(currentPassword ?? "");
-      persistRemember(true, currentEmail, currentPassword);
+      setRememberedPassword(nextPassword);
+      persistRemember(true, nextEmail, nextPassword);
       return;
     }
 
-    setRememberedEmail("");
     setRememberedPassword("");
     persistRemember(false);
   };
@@ -175,7 +208,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
       const selectedChannel = options.find((option) => option.type === method);
 
       if (!selectedChannel) {
-        setFailMessage("No hay un método válido para enviar el código.");
+        setFailMessage("No hay un mÃ©todo vÃ¡lido para enviar el código.");
         return false;
       }
 
@@ -193,7 +226,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
 
         if (!challenge) {
           setFailMessage(
-            "No se pudo iniciar la verificación MFA. Inténtalo de nuevo.",
+            "No se pudo iniciar la verificación MFA. IntÃ©ntalo de nuevo.",
           );
           return false;
         }
@@ -227,25 +260,71 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
     ],
   );
 
+  const handleEnteredEmailChange = (value: string) => {
+    setEnteredEmail(value);
+    setFailMessage("");
+  };
+
+  const handleEmailStepSubmit = useCallback(async () => {
+    const normalizedEmail = enteredEmail.trim();
+
+    if (!normalizedEmail || !EMAIL_PATTERN.test(normalizedEmail)) {
+      setFailMessage("Escribe un correo electrónico vÃ¡lido.");
+      return;
+    }
+
+    setLookupLoading(true);
+    setFailMessage("");
+
+    try {
+      const methods = await fetchAuthenticationMethods(normalizedEmail);
+      const hasPasskey = methods.some(
+        (method) => method.type === "Passkey" && Boolean(method.value?.trim()),
+      );
+      const supported = hasPasskey ? await isPasskeySupported() : false;
+
+      setCanUsePasskey(hasPasskey && supported);
+    } catch {
+      setCanUsePasskey(false);
+    } finally {
+      setResolvedEmail(normalizedEmail);
+      setEnteredEmail(normalizedEmail);
+      setStep("passwordLogin");
+      setLookupLoading(false);
+    }
+  }, [enteredEmail]);
+
+  const handleEditEmail = () => {
+    setFailMessage("");
+    setCanUsePasskey(false);
+    setResolvedEmail("");
+    setMfaRequiredData(null);
+    clearRecoverPasswordState();
+    setStep("emailLookup");
+  };
+
   const handleLogin = async (values: Record<string, unknown>) => {
+    const email = resolvedEmail.trim();
+    const password = String(values.password ?? "");
+
+    if (!email || !EMAIL_PATTERN.test(email)) {
+      setFailMessage("Primero confirma tu correo electrónico.");
+      return;
+    }
+
     setIsLoading(true);
     setFailMessage("");
     setMfaRequiredData(null);
-    const currentLoginValues = {
-      email: String(values.email ?? ""),
-      password: String(values.password ?? ""),
-    };
+    const currentLoginValues = { email, password };
 
     try {
       await login(currentLoginValues);
 
       if (rememberStatus) {
         persistRemember(true, currentLoginValues.email, currentLoginValues.password);
-        setRememberedEmail(currentLoginValues.email);
         setRememberedPassword(currentLoginValues.password);
       } else {
         persistRemember(false);
-        setRememberedEmail("");
         setRememberedPassword("");
       }
 
@@ -284,7 +363,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
         appError?.response?.data?.error_Message ??
         appError?.error_Message ??
         appError?.message ??
-        "No se logró acceder, revise sus datos e inténtelo de nuevo";
+        "No se logró acceder, revise sus datos e intÃ©ntelo de nuevo";
       setFailMessage(messageError);
     } finally {
       setIsLoading(false);
@@ -301,7 +380,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
   };
 
   const handleForgotPassword = async () => {
-    const email = String(loginValues.email ?? "").trim();
+    const email = resolvedEmail.trim();
 
     clearRecoverPasswordState();
 
@@ -363,9 +442,9 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
     setIsLoading(true);
 
     try {
-      const email = String(loginValues.email ?? "").trim();
+      const email = resolvedEmail.trim();
       if (!email || !EMAIL_PATTERN.test(email)) {
-        throw new Error("Escribe tu correo antes de continuar con passkey.");
+        throw new Error("Primero confirma tu correo antes de continuar con passkey.");
       }
 
       if (!(await isPasskeySupported())) {
@@ -374,7 +453,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
 
       const authenticatedUser = await PasskeyService.loginWithPasskey(email);
       if (!authenticatedUser?.token) {
-        throw new Error("LoginVerify no devolvió un token válido.");
+        throw new Error("LoginVerify no devolvió un token vÃ¡lido.");
       }
 
       const normalizedUser = {
@@ -403,7 +482,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
         appError?.response?.data?.error_Message ??
         appError?.error_Message ??
         appError?.message ??
-        "No se logr� acceder con passkey, int�ntalo de nuevo.";
+        "No se logrï¿½ acceder con passkey, intï¿½ntalo de nuevo.";
       setFailMessage(messageError);
     } finally {
       setIsLoading(false);
@@ -411,14 +490,23 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
   };
 
   return {
+    step,
+    enteredEmail,
+    resolvedEmail,
+    maskedResolvedEmail,
     rememberStatus,
     isLoading,
+    lookupLoading,
     mfaLoading,
+    canUsePasskey,
     failMessage,
     loginFields,
     mfaRequiredData,
     selectedMfaMethod,
     mfaOptions,
+    handleEnteredEmailChange,
+    handleEmailStepSubmit,
+    handleEditEmail,
     handleForgotPassword,
     handleLoginValuesChange,
     handleRemember,
@@ -431,5 +519,3 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
 };
 
 export default useLogin;
-
-
