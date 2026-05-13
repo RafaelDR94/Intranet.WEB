@@ -52,6 +52,10 @@ export const useProvidersData = () => {
 
   const rows = useMemo(() => suppliers.map(supplierToCrudRecord), [suppliers]);
 
+  const refreshRows = async () => {
+    await fetchSuppliers(true);
+  };
+
   return {
     rows,
     loading: loadingSuppliers || creating || updating || removing,
@@ -61,5 +65,6 @@ export const useProvidersData = () => {
     updateSupplier,
     deleteSupplier,
     resetFlags,
+    refreshRows,
   };
 };

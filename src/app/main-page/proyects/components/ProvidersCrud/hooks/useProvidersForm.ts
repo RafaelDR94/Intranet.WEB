@@ -117,6 +117,7 @@ export const useProvidersForm = (scope: CrudScope) => {
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
+    await data.refreshRows();
     data.resetFlags();
     crud.goList();
   };

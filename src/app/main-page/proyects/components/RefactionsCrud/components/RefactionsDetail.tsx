@@ -16,70 +16,11 @@ type RefactionsDetailProps = {
   open: boolean;
 };
 
-type ProviderMock = {
-  id: string;
-  name: string;
-  phone: string;
-  website: string;
-};
-
-const buildMockProviders = (refactionId?: string): ProviderMock[] => {
-  if (refactionId === '0126') {
-    return [
-      {
-        id: 'prov-0126-1',
-        name: 'Refacciones del Norte',
-        phone: '81 8888 1111',
-        website: 'www.refaccionesnorte.com',
-      },
-      {
-        id: 'prov-0126-2',
-        name: 'Motores y Energia MX',
-        phone: '81 4567 2300',
-        website: 'www.motoresenergia.mx',
-      },
-    ];
-  }
-
-  if (refactionId === '0127') {
-    return [
-      {
-        id: 'prov-0127-1',
-        name: 'Hidraulica Total',
-        phone: '33 4444 9922',
-        website: 'www.hidraulicatotal.mx',
-      },
-      {
-        id: 'prov-0127-2',
-        name: 'Power Seals',
-        phone: '33 2211 8700',
-        website: 'www.powerseals.mx',
-      },
-    ];
-  }
-
-  return [
-    {
-      id: 'prov-default-1',
-      name: 'Industrial Supply',
-      phone: '55 5555 5555',
-      website: 'www.industrialsupply.com',
-    },
-    {
-      id: 'prov-default-2',
-      name: 'Industrial México',
-      phone: '55 5555 5555',
-      website: 'www.industrialmexico.com',
-    },
-  ];
-};
-
 const cardClass =
   'rounded-[18px] bg-white-100 px-5 py-4 shadow-[0px_8px_22px_rgba(19,25,39,0.10)]';
 
 const RefactionsDetail = ({ scope, open }: RefactionsDetailProps) => {
   const state = useRefactionsDetail(scope);
-  const providers = buildMockProviders(state.refaction?.id);
 
   return (
     <DetailsPanelLayout
@@ -225,16 +166,20 @@ const RefactionsDetail = ({ scope, open }: RefactionsDetailProps) => {
                     </div>
 
                     <div className="space-y-6 pt-6">
-                      {providers.map((provider) => (
-                        <div
-                          key={provider.id}
-                          className="grid grid-cols-[1.2fr_1.8fr_1fr] gap-4 text-[15px] leading-[1.25] text-gray-80"
-                        >
-                          <p>{provider.name}</p>
-                          <p className="break-all">{provider.website}</p>
-                          <p>{provider.phone}</p>
-                        </div>
-                      ))}
+                      {state.providers.length === 0 ? (
+                        <p className="text-[14px] text-gray-70">No hay proveedores relacionados.</p>
+                      ) : (
+                        state.providers.map((provider) => (
+                          <div
+                            key={provider.id}
+                            className="grid grid-cols-[1.2fr_1.8fr_1fr] gap-4 text-[15px] leading-[1.25] text-gray-80"
+                          >
+                            <p>{provider.name}</p>
+                            <p className="break-all">{provider.website}</p>
+                            <p>{provider.phone}</p>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>

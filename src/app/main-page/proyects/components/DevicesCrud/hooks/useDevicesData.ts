@@ -33,6 +33,8 @@ export const buildCompleteDeviceRow = (record: ReportDeviceView): CrudRecord => 
 
   return {
     id: String(record?.id ?? device?.id ?? ''),
+    idGenericEquipment: String(device?.idGenericEquipment ?? '').trim() || undefined,
+    idLocation: String(device?.idlocation ?? '').trim() || undefined,
     primary: title || serial || 'Sin informacion',
     secondary: String(device?.brand ?? '').trim() || 'Sin informacion',
     tertiary: location || 'Sin informacion',

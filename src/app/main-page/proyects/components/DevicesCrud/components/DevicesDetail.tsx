@@ -1,15 +1,15 @@
 ﻿'use client';
 
 import { useEffect, useState } from 'react';
-import { Copy, Link2, Pencil } from 'lucide-react';
+import { Copy, Link2, Pencil, Plus } from 'lucide-react';
 
 import ButtonsNavigation from '@/app/components/ButtonsNavigation/ButtonsNavigation';
-import { DataTable } from '@/app/components/DataTable/DataTable';
 import DetailsPanelLayout from '@/app/components/DetailsPanelLayout/DetailsPanelLayout';
 import Label from '@/app/components/Label/Label';
 
 import { useDevicesDetail } from '../hooks/useDevicesDetail';
 import type { CrudScope } from '../../types';
+import { Button } from '@/app/components/Button/Button';
 
 type DevicesDetailProps = {
   scope: CrudScope;
@@ -19,8 +19,9 @@ type DevicesDetailProps = {
 type RefactionRow = {
   id: string;
   name: string;
-  code: string;
-  quantity: string;
+  brand: string;
+  model: string;
+  serialNumber: string;
 };
 
 const cardClass =
@@ -40,6 +41,7 @@ const DevicesDetail = ({ scope, open }: DevicesDetailProps) => {
     statusLabelType,
     onClose,
     onEdit,
+    onNewRefaction,
   } = state;
 
   useEffect(() => {
@@ -101,14 +103,13 @@ const DevicesDetail = ({ scope, open }: DevicesDetailProps) => {
               renderContent={
                 <div className="space-y-4 pt-2">
                   <div className="flex justify-end">
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      icon={Pencil}
                       onClick={onEdit}
-                      className="inline-flex items-center gap-2 text-[14px] font-medium text-blue-60"
                     >
                       Editar información
-                      <Pencil className="h-4 w-4" strokeWidth={1.75} />
-                    </button>
+                    </Button>
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -194,45 +195,51 @@ const DevicesDetail = ({ scope, open }: DevicesDetailProps) => {
               label="Refacciones"
               className="h-[24px] rounded-[8px] px-4 py-[6px]"
               renderContent={
-                <div className="pt-2">
+                <div className="space-y-3 pt-2">
+                  <div className="flex justify-end">
+                    <Button
+                      variant="ghost"
+                      icon={Plus}
+                      onClick={onNewRefaction}
+                    >
+                      Nueva refacción
+                    </Button>
+                  </div>
                   {loadingRefactions ? (
                     <div className="py-6 text-center text-gray-70">Cargando refacciones...</div>
                   ) : (
-                    <DataTable<RefactionRow>
-                      showCalendar={false}
-                      showSearch={false}
-                      showFilter={false}
-                      showButton={false}
-                      enableInternalSearch={false}
-                      enablePagination={false}
-                      textSize={{ mobile: 'text-d3', desktop: 'text-b4' }}
-                      tables={[
-                        {
-                          title: 'Refacciones relacionadas',
-                          data: refactions,
-                          columns: [
-                            {
-                              key: 'name',
-                              label: 'REFACCION',
-                              cellClass: 'w-[46%] min-w-0 px-2',
-                              headerClass: 'w-[46%] min-w-0 px-2',
-                            },
-                            {
-                              key: 'code',
-                              label: 'CODIGO',
-                              cellClass: 'w-[24%] min-w-0 px-2',
-                              headerClass: 'w-[24%] min-w-0 px-2',
-                            },
-                            {
-                              key: 'quantity',
-                              label: 'CANTIDAD',
-                              cellClass: 'w-[30%] min-w-0 px-2',
-                              headerClass: 'w-[30%] min-w-0 px-2',
-                            },
-                          ],
-                        },
-                      ]}
-                    />
+                    <div className="overflow-hidden rounded-[14px] bg-white-100 shadow-[0px_2px_8px_rgba(19,25,39,0.12)]">
+                      <div>
+                        <table className="w-full border-collapse table-fixed">
+                          <thead>
+                            <tr className="border-b border-[#9EB8C4]">
+                              <th className="px-3 py-4 text-left text-[13px] font-semibold text-green-100">NOMBRE</th>
+                              <th className="px-3 py-4 text-left text-[13px] font-semibold text-green-100">MARCA</th>
+                              <th className="px-3 py-4 text-left text-[13px] font-semibold text-green-100">MODELO</th>
+                              <th className="px-3 py-4 text-left text-[13px] font-semibold text-green-100">No.SERIE</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {refactions.length === 0 ? (
+                              <tr>
+                                <td colSpan={5} className="px-3 py-6 text-center text-[13px] text-gray-70">
+                                  No hay refacciones relacionadas.
+                                </td>
+                              </tr>
+                            ) : (
+                              refactions.map((row: RefactionRow) => (
+                                <tr key={row.id} className="border-b border-gray-30 last:border-b-0">
+                                  <td className="px-3 py-3 text-[13px] text-gray-70">{row.name}</td>
+                                  <td className="px-3 py-3 text-[13px] text-gray-70">{row.brand}</td>
+                                  <td className="px-3 py-3 text-[13px] text-gray-70">{row.model}</td>
+                                  <td className="px-3 py-3 text-[13px] text-gray-70">{row.serialNumber}</td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   )}
                 </div>
               }

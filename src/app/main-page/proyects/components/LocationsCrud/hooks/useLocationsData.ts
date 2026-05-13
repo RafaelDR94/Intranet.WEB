@@ -67,6 +67,16 @@ export const useLocationsData = (scope: CrudScope) => {
 
   const rows = useMemo(() => locations.map(locationToCrudRecord), [locations]);
 
+  const refreshRows = async () => {
+    if (scope === 'project') {
+      if (!projectId) return;
+      await fetchLocations(projectId, true);
+      return;
+    }
+
+    await fetchAllLocations(true);
+  };
+
   return {
     rows,
     loading: loadingLocations,
@@ -75,5 +85,6 @@ export const useLocationsData = (scope: CrudScope) => {
     updateLocation,
     deleteLocation,
     resetFlags,
+    refreshRows,
   };
 };
