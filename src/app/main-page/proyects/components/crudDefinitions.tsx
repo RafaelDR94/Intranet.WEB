@@ -73,9 +73,9 @@ const buildCommonDetails = (row: CrudRecord | null): CrudDetailItem[] => [
 ];
 
 const refactionsResponsiveLayout: ResponsiveLayoutMatrix = {
-  sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10]],
-  md: [[5, 5], [3.34, 3.33, 3.33], [3.34, 3.33, 3.33], [10], [3.34, 3.33, 3.33]],
-  lg: [[5, 5], [3.34, 3.33, 3.33], [3.34, 3.33, 3.33], [10], [3.34, 3.33, 3.33]],
+  sm: [[10], [10], [10], [10], [10], [10]],
+  md: [[5, 5], [3.34, 3.33, 3.33], [10]],
+  lg: [[5, 5], [3.34, 3.33, 3.33], [10]],
 };
 
 const buildRefactionFields = (
@@ -89,7 +89,6 @@ const buildRefactionFields = (
     label: 'ID / SKU',
     placeholder: 'Captura el identificador',
     value: current?.id ?? '',
-    validations: [{ type: 'required' }],
   },
   {
     type: 'input',
@@ -97,7 +96,6 @@ const buildRefactionFields = (
     label: 'Piezas en stock',
     placeholder: 'Captura el stock',
     value: current?.stock ?? '',
-    validations: [{ type: 'required' }],
   },
   {
     type: 'input',
@@ -105,14 +103,6 @@ const buildRefactionFields = (
     label: 'Nombre',
     placeholder: 'Captura el nombre de la refaccion',
     value: current?.primary ?? '',
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'input',
-    name: 'equipment',
-    label: 'Equipo relacionado',
-    placeholder: 'Captura el equipo relacionado',
-    value: current?.secondary ?? '',
     validations: [{ type: 'required' }],
   },
   {
@@ -133,41 +123,10 @@ const buildRefactionFields = (
   },
   {
     type: 'input',
-    name: 'serialOrPart',
-    label: 'Numero de Serie / Parte',
-    placeholder: 'Captura el numero de serie o parte',
-    value: current?.serialOrPart ?? '',
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'select',
-    name: 'status',
-    label: 'Estatus',
-    placeholder: 'Selecciona un estatus',
-    value: current?.status ?? '',
-    options: [
-      { label: 'Disponible', value: 'Disponible' },
-      { label: 'En uso', value: 'En uso' },
-      { label: 'Agotado', value: 'Agotado' },
-    ],
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'textarea',
-    name: 'description',
-    label: 'Caracteristicas adicionales',
-    placeholder: 'Describe caracteristicas adicionales',
-    value: current?.description ?? '',
-    rows: 3,
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'input',
     name: 'provider',
     label: 'Proveedor',
     placeholder: 'Captura el proveedor',
     value: current?.provider ?? '',
-    validations: [{ type: 'required' }],
   },
   {
     type: 'input',
@@ -175,7 +134,6 @@ const buildRefactionFields = (
     label: 'Pagina web',
     placeholder: 'Captura la pagina web',
     value: current?.website ?? '',
-    validations: [{ type: 'required' }],
   },
   {
     type: 'input',
@@ -183,7 +141,6 @@ const buildRefactionFields = (
     label: 'Telefono',
     placeholder: 'Captura el telefono',
     value: current?.phone ?? '',
-    validations: [{ type: 'required' }],
   },
 ];
 

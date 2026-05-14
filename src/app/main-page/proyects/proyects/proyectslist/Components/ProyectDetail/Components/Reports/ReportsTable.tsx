@@ -17,7 +17,9 @@ import Label from '@/app/components/Label/Label'
 import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import dostIcon from '@/assets/icons/navegacion/more-vert.svg'
 const ReportsTable: React.FC = () => {
-  const { user } = useAuth();
+  const { user, currentPagePermissions } = useAuth();
+  const canSeeAllReports = currentPagePermissions?.canSeeAllReports;
+  console.log('canSeeAllReports REPORTS', canSeeAllReports);
   
   const {
     reportPendingDelete,
@@ -26,7 +28,6 @@ const ReportsTable: React.FC = () => {
     reportList,
     newReport,
     isMobile,
-    currentPagePermissions,
     currentReport,
     reportLocalList,
     forceActionButton,
@@ -41,7 +42,7 @@ const ReportsTable: React.FC = () => {
     controlFilterOptions,
     handleFilterChange,
     activeFilter
-  } = useReportsTable();
+  } = useReportsTable({ canSeeAllReports });
   const buildColumns = useCallback(
     (forceButton: boolean, online: boolean): ColumnDefinition<ReportsTableI>[] => {
       if (isMobile) {

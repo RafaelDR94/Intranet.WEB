@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useAuth } from '@/app/context/AuthContext/AuthContext';
 import { useEffect, useMemo, useState } from 'react';
@@ -234,7 +234,7 @@ export const useDevicesForm = (scope: CrudScope) => {
 
   const title = useMemo(() => {
     if (formType === 'generic') {
-      return crud.crudMode === 'edit' ? 'Actualizar equipo genérico' : 'Nuevo equipo genérico';
+      return crud.crudMode === 'edit' ? 'Actualizar equipo genÃ©rico' : 'Nuevo equipo genÃ©rico';
     }
 
     return crud.crudMode === 'edit'
@@ -291,7 +291,7 @@ export const useDevicesForm = (scope: CrudScope) => {
     crud.showAlert({
       type: 'error',
       variant: 'subtle',
-      title: 'No fue posible cargar la información del formulario',
+      title: 'No fue posible cargar la informaciÃ³n del formulario',
       description: error,
       showPrimaryButton: false,
       showSecondaryButton: false,
@@ -485,8 +485,8 @@ export const useDevicesForm = (scope: CrudScope) => {
       crud.showSpinner({
         message:
           crud.crudMode === 'edit'
-            ? 'Actualizando equipo genérico...'
-            : 'Registrando equipo genérico...',
+            ? 'Actualizando equipo genÃ©rico...'
+            : 'Registrando equipo genÃ©rico...',
       });
 
       let result = null;
@@ -521,10 +521,10 @@ export const useDevicesForm = (scope: CrudScope) => {
         crud.showAlert({
           type: 'error',
           variant: 'subtle',
-          title: 'No fue posible guardar el equipo genérico',
+          title: 'No fue posible guardar el equipo genÃ©rico',
           description:
             useProyectInventoryStore.getState().error ??
-            'Ocurrió un error al guardar la información.',
+            'OcurriÃ³ un error al guardar la informaciÃ³n.',
           showPrimaryButton: false,
           showSecondaryButton: false,
         });
@@ -542,7 +542,7 @@ export const useDevicesForm = (scope: CrudScope) => {
           type: 'error',
           variant: 'subtle',
           title: 'No fue posible actualizar las refacciones',
-          description: 'No se obtuvo el identificador del equipo genérico.',
+          description: 'No se obtuvo el identificador del equipo genÃ©rico.',
           showPrimaryButton: false,
           showSecondaryButton: false,
         });
@@ -563,7 +563,7 @@ export const useDevicesForm = (scope: CrudScope) => {
             title: 'Equipo guardado con refacciones pendientes',
             description:
               useProyectInventoryStore.getState().error ??
-              'Se registró el equipo, pero no fue posible asociar las refacciones.',
+              'Se registrÃ³ el equipo, pero no fue posible asociar las refacciones.',
             showPrimaryButton: false,
             showSecondaryButton: false,
           });
@@ -593,7 +593,7 @@ export const useDevicesForm = (scope: CrudScope) => {
             title: 'No fue posible actualizar las refacciones',
             description:
               useProyectInventoryStore.getState().error ??
-              'Falló la actualización de relaciones de refacciones.',
+              'FallÃ³ la actualizaciÃ³n de relaciones de refacciones.',
             showPrimaryButton: false,
             showSecondaryButton: false,
           });
@@ -614,7 +614,7 @@ export const useDevicesForm = (scope: CrudScope) => {
               title: 'No fue posible actualizar las refacciones',
               description:
                 useProyectInventoryStore.getState().error ??
-                'Se guardó el equipo, pero falló la actualización de refacciones.',
+                'Se guardÃ³ el equipo, pero fallÃ³ la actualizaciÃ³n de refacciones.',
               showPrimaryButton: false,
               showSecondaryButton: false,
             });
@@ -629,9 +629,9 @@ export const useDevicesForm = (scope: CrudScope) => {
         variant: 'subtle',
         title:
           crud.crudMode === 'edit'
-            ? 'Equipo genérico actualizado'
-            : 'Equipo genérico registrado',
-        description: 'La información se guardó correctamente.',
+            ? 'Equipo genÃ©rico actualizado'
+            : 'Equipo genÃ©rico registrado',
+        description: 'La informaciÃ³n se guardÃ³ correctamente.',
         showPrimaryButton: false,
         showSecondaryButton: false,
       });
@@ -653,7 +653,7 @@ export const useDevicesForm = (scope: CrudScope) => {
         type: 'error',
         variant: 'subtle',
         title: 'No fue posible guardar el dispositivo',
-        description: 'No se encontró el proyecto seleccionado.',
+        description: 'No se encontrÃ³ el proyecto seleccionado.',
         showPrimaryButton: false,
         showSecondaryButton: false,
       });
@@ -684,7 +684,7 @@ export const useDevicesForm = (scope: CrudScope) => {
         description:
           useReportDevicesStore.getState().error ??
           deviceExternalError ??
-          'Ocurrió un error al registrar el dispositivo.',
+          'OcurriÃ³ un error al registrar el dispositivo.',
         showPrimaryButton: false,
         showSecondaryButton: false,
       });
@@ -695,7 +695,7 @@ export const useDevicesForm = (scope: CrudScope) => {
       type: 'success',
       variant: 'subtle',
       title: crud.crudMode === 'edit' ? 'Dispositivo actualizado' : 'Dispositivo registrado',
-      description: 'La información se guardó correctamente.',
+      description: 'La informaciÃ³n se guardÃ³ correctamente.',
       showPrimaryButton: false,
       showSecondaryButton: false,
     });
@@ -714,8 +714,10 @@ export const useDevicesForm = (scope: CrudScope) => {
       return;
     }
 
+    const linkedGenericEquipmentId = sanitize(currentGenericEquipment?.id ?? crud.crudItemId ?? '');
+
     crud.showSpinner({ message: 'Guardando refacción...' });
-      const created = await createSparePart({
+    const created = await createSparePart({
         sku: sanitize(newRefactionValues.sku),
         stock: Number.isFinite(stockNumber) ? stockNumber : 0,
         name: sanitize(newRefactionValues.name),
@@ -726,6 +728,7 @@ export const useDevicesForm = (scope: CrudScope) => {
         website: sanitize(newRefactionValues.website),
         phoneNumber: sanitize(newRefactionValues.phoneNumber),
         idSuppliers: [],
+        idGenericEquipments: linkedGenericEquipmentId ? [linkedGenericEquipmentId] : [],
       });
     crud.hideSpinner();
 
@@ -733,10 +736,10 @@ export const useDevicesForm = (scope: CrudScope) => {
       crud.showAlert({
         type: 'error',
         variant: 'subtle',
-        title: 'No fue posible guardar la refacción',
+        title: 'No fue posible guardar la refacciÃ³n',
         description:
           useProyectInventoryStore.getState().error ??
-          'Ocurrió un error al guardar la refacción.',
+          'OcurriÃ³ un error al guardar la refacciÃ³n.',
         showPrimaryButton: false,
         showSecondaryButton: false,
       });
@@ -789,4 +792,6 @@ export const useDevicesForm = (scope: CrudScope) => {
     onSaveNewRefaction: handleSaveNewRefaction,
   };
 };
+
+
 

@@ -17,6 +17,7 @@ import { Button } from '@/app/components/Button/Button';
 import { shallow } from 'zustand/shallow';
 
 import useProyectInventoryStore from '@/app/stores/useProyectInventoryStore/useProyectInventoryStore';
+import useQuery from '@/app/hooks/useQuery/useQuery';
 
 type RefactionsListProps = {
   scope: CrudScope;
@@ -43,21 +44,32 @@ const statusToLabelType = (status: string) => {
   return 'invalido' as const;
 };
 
+const toSingleQueryValue = (value: string | string[] | undefined): string =>
+  Array.isArray(value) ? value[0] ?? '' : value ?? '';
+
 const RefactionsList = ({ scope }: RefactionsListProps) => {
   const isMobile = useIsMobile();
   const [rowPendingDeletion, setRowPendingDeletion] = useState<RefactionListRow | null>(null);
+  const { all } = useQuery();
+  const projectId = toSingleQueryValue(all.id);
 
   const {
     spareParts,
+    sparePartsByProyect,
     loadingSpareParts,
+    loadingSparePartsByProyect,
     fetchSpareParts,
+    fetchSparePartsByProyectId,
     deleteSparePart,
     resetFlags,
   } = useProyectInventoryStore(
     (state) => ({
       spareParts: state.spareParts,
+      sparePartsByProyect: state.sparePartsByProyect,
       loadingSpareParts: state.loadingSpareParts,
+      loadingSparePartsByProyect: state.loadingSparePartsByProyect,
       fetchSpareParts: state.fetchSpareParts,
+      fetchSparePartsByProyectId: state.fetchSparePartsByProyectId,
       deleteSparePart: state.deleteSparePart,
       resetFlags: state.resetFlags,
     }),
@@ -65,12 +77,22 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
   );
 
   useEffect(() => {
+    if (scope === 'project') {
+      if (!projectId) return;
+      void fetchSparePartsByProyectId(projectId, true);
+      return;
+    }
+
     void fetchSpareParts(true);
-  }, [fetchSpareParts]);
+  }, [fetchSpareParts, fetchSparePartsByProyectId, projectId, scope]);
+
+  const dataSource = scope === 'project' ? sparePartsByProyect : spareParts;
+  const isLoading =
+    scope === 'project' ? loadingSparePartsByProyect : loadingSpareParts;
 
   const rows = useMemo<RefactionListRow[]>(
     () =>
-      spareParts.map((sparePart) => ({
+      dataSource.map((sparePart) => ({
         id: sparePart.id,
         primary: sparePart.name,
         equipment: sparePart.characteristic,
@@ -82,7 +104,7 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
         status: sparePart.isActive === false ? 'Inactivo' : 'Disponible',
         actions: '',
       })),
-    [spareParts],
+    [dataSource],
   );
 
   const rowsOverride = useMemo<CrudRecord[]>(
@@ -217,7 +239,11 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
     const success = await deleteSparePart(rowPendingDeletion.id);
 
     if (success) {
-      await fetchSpareParts(true, true);
+      if (scope === 'project' && projectId) {
+        await fetchSparePartsByProyectId(projectId, true);
+      } else {
+        await fetchSpareParts(true, true);
+      }
     }
 
     crud.hideSpinner();
@@ -301,7 +327,7 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
             {
               data: rows,
               columns: isMobile ? columnsMobile : columnsDesktop,
-              title: loadingSpareParts ? 'Cargando refacciones...' : crud.title,
+              title: isLoading ? 'Cargando refacciones...' : crud.title,
             },
           ]}
         />

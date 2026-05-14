@@ -33,11 +33,29 @@ export type RefactionProviderFormValue = {
   phone: string;
 };
 
+export type RefactionEquipmentFormValue = {
+  id: string;
+  equipmentId: string;
+  brand: string;
+  model: string;
+  characteristic: string;
+};
+
+const DEFAULT_EQUIPMENT_ROW: RefactionEquipmentFormValue = {
+  id: 'equipment-1',
+  equipmentId: '',
+  brand: '',
+  model: '',
+  characteristic: '',
+};
+
 export const useRefactionsForm = (scope: CrudScope) => {
   const {
     spareParts,
     loadingSpareParts,
     fetchSpareParts,
+    genericEquipments,
+    fetchGenericEquipments,
     suppliers,
     fetchSuppliers,
     createSparePart,
@@ -51,6 +69,8 @@ export const useRefactionsForm = (scope: CrudScope) => {
       spareParts: state.spareParts,
       loadingSpareParts: state.loadingSpareParts,
       fetchSpareParts: state.fetchSpareParts,
+      genericEquipments: state.genericEquipments,
+      fetchGenericEquipments: state.fetchGenericEquipments,
       suppliers: state.suppliers,
       fetchSuppliers: state.fetchSuppliers,
       createSparePart: state.createSparePart,
@@ -65,8 +85,9 @@ export const useRefactionsForm = (scope: CrudScope) => {
 
   useEffect(() => {
     void fetchSpareParts(true);
+    void fetchGenericEquipments();
     void fetchSuppliers();
-  }, [fetchSpareParts, fetchSuppliers]);
+  }, [fetchGenericEquipments, fetchSpareParts, fetchSuppliers]);
 
   const rowsOverride = useMemo<CrudRecord[]>(
     () =>
@@ -92,19 +113,94 @@ export const useRefactionsForm = (scope: CrudScope) => {
   });
   const onlyProveedor = getSingleValue(crud.all.onlyproveedor) === 'true';
   const initialProviders = useMemo<RefactionProviderFormValue[]>(
-    () => [
-      {
-        id: 'provider-1',
-        supplierId:
-          suppliers.find((supplier) => supplier.nombreProveedor === (crud.currentRecord?.provider ?? ''))
-            ?.id ?? '',
-        provider: crud.currentRecord?.provider ?? '',
-        website: crud.currentRecord?.website ?? '',
-        phone: crud.currentRecord?.phone ?? '',
-      },
+    () => {
+      const currentSparePart = spareParts.find((sparePart) => sparePart.id === crud.currentRecord?.id);
+
+      const embeddedSuppliers = currentSparePart?.suppliers ?? [];
+      if (embeddedSuppliers.length > 0) {
+        return embeddedSuppliers.map((supplier, index) => ({
+          id: `provider-${index + 1}`,
+          supplierId: supplier.id,
+          provider: supplier.nombreProveedor,
+          website: supplier.paginaWeb,
+          phone: supplier.telefono,
+        }));
+      }
+
+      const supplierIds = currentSparePart?.idSuppliers ?? [];
+      const providersFromIds = supplierIds
+        .map((supplierId, index) => {
+          const supplier = suppliers.find((item) => item.id === supplierId);
+          if (!supplier) return null;
+
+          return {
+            id: `provider-${index + 1}`,
+            supplierId: supplier.id,
+            provider: supplier.nombreProveedor,
+            website: supplier.paginaWeb,
+            phone: supplier.telefono,
+          };
+        })
+        .filter((provider): provider is RefactionProviderFormValue => Boolean(provider));
+
+      if (providersFromIds.length > 0) return providersFromIds;
+
+      return [
+        {
+          id: 'provider-1',
+          supplierId:
+            suppliers.find((supplier) => supplier.nombreProveedor === (crud.currentRecord?.provider ?? ''))
+              ?.id ?? '',
+          provider: crud.currentRecord?.provider ?? '',
+          website: crud.currentRecord?.website ?? '',
+          phone: crud.currentRecord?.phone ?? '',
+        },
+      ];
+    },
+    [
+      crud.currentRecord?.id,
+      crud.currentRecord?.phone,
+      crud.currentRecord?.provider,
+      crud.currentRecord?.website,
+      spareParts,
+      suppliers,
     ],
-    [crud.currentRecord?.phone, crud.currentRecord?.provider, crud.currentRecord?.website, suppliers],
   );
+
+  const initialEquipments = useMemo<RefactionEquipmentFormValue[]>(() => {
+    const currentSparePart = spareParts.find((sparePart) => sparePart.id === crud.currentRecord?.id);
+    const embeddedEquipments = currentSparePart?.genericEquipments ?? [];
+
+    if (embeddedEquipments.length > 0) {
+      return embeddedEquipments.map((equipment, index) => ({
+        id: `equipment-${index + 1}`,
+        equipmentId: equipment.id,
+        brand: equipment.brand,
+        model: equipment.model,
+        characteristic: '',
+      }));
+    }
+
+    const equipmentIds = currentSparePart?.idGenericEquipments ?? [];
+    const equipmentsFromIds = equipmentIds
+      .map((equipmentId, index) => {
+        const equipment = genericEquipments.find((item) => item.id === equipmentId);
+        if (!equipment) return null;
+
+        return {
+          id: `equipment-${index + 1}`,
+          equipmentId: equipment.id,
+          brand: equipment.brand,
+          model: equipment.model,
+          characteristic: '',
+        };
+      })
+      .filter((equipment): equipment is RefactionEquipmentFormValue => Boolean(equipment));
+
+    if (equipmentsFromIds.length > 0) return equipmentsFromIds;
+
+    return [DEFAULT_EQUIPMENT_ROW];
+  }, [crud.currentRecord?.id, genericEquipments, spareParts]);
 
   const fields: FieldModel[] = refactionsDefinition
     .fields(scope, crud.crudMode, crud.currentRecord)
@@ -135,6 +231,7 @@ export const useRefactionsForm = (scope: CrudScope) => {
   const handleSubmit = async (
     values: Record<string, unknown>,
     providers: RefactionProviderFormValue[],
+    equipments: RefactionEquipmentFormValue[],
   ) => {
     const selectedSupplierIds = providers
       .map((provider) => provider.supplierId.trim())
@@ -153,15 +250,20 @@ export const useRefactionsForm = (scope: CrudScope) => {
     }
 
     const supplierInfo = suppliers.find((supplier) => supplier.id === selectedSupplierIds[0]);
+    const selectedEquipmentIds = equipments
+      .map((equipment) => equipment.equipmentId.trim())
+      .filter(
+        (equipmentId, index, array) =>
+          equipmentId.length > 0 && array.indexOf(equipmentId) === index,
+      );
     const sku = String(values.sku ?? crud.currentRecord?.id ?? '').trim();
     const stock = Number(values.stock ?? crud.currentRecord?.stock ?? 0);
     const name = String(values.name ?? crud.currentRecord?.primary ?? '').trim();
     const brand = String(values.brand ?? crud.currentRecord?.tertiary ?? '').trim();
     const model = String(values.model ?? crud.currentRecord?.model ?? '').trim();
     const serialNumber = String(values.serialOrPart ?? crud.currentRecord?.serialOrPart ?? '').trim();
-    const equipment = String(values.equipment ?? crud.currentRecord?.secondary ?? '').trim();
     const description = String(values.description ?? crud.currentRecord?.description ?? '').trim();
-    const characteristic = description.length > 0 ? description : equipment;
+    const characteristic = description;
     const website = supplierInfo?.paginaWeb ?? providers[0]?.website ?? '';
     const phoneNumber = supplierInfo?.telefono ?? providers[0]?.phone ?? '';
 
@@ -186,6 +288,7 @@ export const useRefactionsForm = (scope: CrudScope) => {
             website,
             phoneNumber,
             idSuppliers: selectedSupplierIds,
+            idGenericEquipments: selectedEquipmentIds,
           })
         : await createSparePart({
             sku,
@@ -198,6 +301,7 @@ export const useRefactionsForm = (scope: CrudScope) => {
             website,
             phoneNumber,
             idSuppliers: selectedSupplierIds,
+            idGenericEquipments: selectedEquipmentIds,
           });
 
     crud.hideSpinner();
@@ -238,7 +342,9 @@ export const useRefactionsForm = (scope: CrudScope) => {
     primaryLabel: 'Guardar informacion',
     fields,
     initialProviders,
+    initialEquipments,
     suppliers,
+    genericEquipments,
     onlyProveedor,
     loading: creating || updating,
     loadingFormInfo: loadingSpareParts,

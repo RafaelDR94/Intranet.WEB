@@ -62,6 +62,16 @@ export const useRefactionsDetail = (scope: CrudScope) => {
     const currentSparePart = spareParts.find((sparePart) => sparePart.id === crud.currentRecord?.id);
     if (!currentSparePart) return [];
 
+    const embeddedSuppliers = currentSparePart.suppliers ?? [];
+    if (embeddedSuppliers.length > 0) {
+      return embeddedSuppliers.map((supplier) => ({
+        id: supplier.id,
+        name: supplier.nombreProveedor,
+        website: supplier.paginaWeb,
+        phone: supplier.telefono,
+      }));
+    }
+
     const supplierIds = currentSparePart.idSuppliers ?? [];
 
     if (supplierIds.length === 0) return [];

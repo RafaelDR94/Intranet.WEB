@@ -12,7 +12,11 @@ import { ReportView, ReportsTable } from '@/app/mappings/reports/reports.types'
 import useReportBuilderStore from '@/app/stores/useReportBuilderStore/useReportBuilderStore'
 import { ReportsTableMap } from '@/app/mappings/reports/report.mapper'
 import { shallow } from 'zustand/shallow'
-const useReportsTable = () => {
+interface UseReportsTableProps {
+  canSeeAllReports?: boolean;
+}
+
+const useReportsTable = ({ canSeeAllReports = false }: UseReportsTableProps = {}) => {
   const [reportPendingDelete, setReportPendingDelete] = useState<ReportView | null>(null);
   const [forceActionButton, setForceActionButton] = useState(false);
   const searchParams = useSearchParams()
@@ -55,13 +59,9 @@ const useReportsTable = () => {
     error: s.error
   }), shallow)
 
-
   const { updateQuery } = useQuery();
   const reportList = ReportsTableMap(reports);
   const reportLocalList = ReportsTableMap(localReports);
-
-
-
   const handleCloseDetails = useCallback(() => {
     updateQuery({ reportId: null, frontId: null }) // elimina reportId de la URL
     updateQuery({ reportId: null, frontId: null }) // elimina reportId de la URL
@@ -71,9 +71,8 @@ const useReportsTable = () => {
 
   const RefreshData = () => {
     reset();
-    const canSeeAllReports = Boolean(currentPagePermissions?.canSeeAllReports);
     if (canSeeAllReports) {
-      fetchAllReportsByProyect(String(idproyect), true);
+      fetchAllReportsByProyect(String(idproyect));
     } else {
       fetchAllReportsByProyect(String(idproyect), true, user?.idEmployee);
     }
@@ -85,7 +84,7 @@ const useReportsTable = () => {
       RefreshData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newReport]);
+  }, [newReport, canSeeAllReports, idproyect, user?.idEmployee]);
 
   useEffect(() => {
     if (error) {
@@ -200,14 +199,23 @@ const useReportsTable = () => {
 
 
   const [activeFilter, setActiveFilter] = useState<string>('all:mine');
-  const controlFilterOptions = [
-    { label: "Todos", value: "all" },
-    { label: "Reportes completos", value: "all:complete" },
-    { label: "Reportes incompletos", value: "all:incomplete" },
-    { label: "Mis Reportes", value: "all:mine" },
-    { label: "Mis Completos", value: "all:minecomplete" },
-    { label: "Mis Incompletos", value: "all:mineincomplete" },
-  ];
+  const controlFilterOptions = useMemo(() => {
+    if (canSeeAllReports) {
+      return [
+        { label: "Todos", value: "all" },
+        { label: "Reportes completos", value: "all:complete" },
+        { label: "Reportes incompletos", value: "all:incomplete" },
+        { label: "Mis Reportes", value: "all:mine" },
+        { label: "Mis Completos", value: "all:minecomplete" },
+        { label: "Mis Incompletos", value: "all:mineincomplete" },
+      ];
+    }
+    return [
+      { label: "Mis Reportes", value: "all:mine" },
+      { label: "Mis Completos", value: "all:minecomplete" },
+      { label: "Mis Incompletos", value: "all:mineincomplete" },
+    ];
+  }, [canSeeAllReports]);
 
   const normalizeName = useCallback((value?: string) => {
     if (!value) return '';
@@ -251,6 +259,13 @@ const useReportsTable = () => {
   const handleFilterChange = useCallback((value: string) => {
     setActiveFilter(value);
   }, []);
+
+  useEffect(() => {
+    const allowedValues = new Set(controlFilterOptions.map((option) => option.value));
+    if (!allowedValues.has(activeFilter)) {
+      setActiveFilter("all:mine");
+    }
+  }, [activeFilter, controlFilterOptions]);
 
   const reportListFiltered = useMemo(
     () => computeFilteredReports(activeFilter, reportList),
