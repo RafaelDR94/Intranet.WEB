@@ -147,10 +147,10 @@ describe("useReportsTable", () => {
   });
 
   it("solicita los reportes del proyecto presente en la URL", async () => {
-    renderHook(() => useReportsTable());
+    renderHook(() => useReportsTable({ canSeeAllReports: true }));
 
     await waitFor(() => {
-      expect(fetchAllReportsByProyectMock).toHaveBeenCalledWith("PROY-1", true);
+      expect(fetchAllReportsByProyectMock).toHaveBeenCalledWith("PROY-1");
     });
     expect(fetchLocalReportsMock).toHaveBeenCalledWith(true, "PROY-1");
     expect(hideSpinnerMock).toHaveBeenCalled();
@@ -164,7 +164,7 @@ describe("useReportsTable", () => {
       fullname: sampleReports[0].employe.fullname,
     };
 
-    renderHook(() => useReportsTable());
+    renderHook(() => useReportsTable({ canSeeAllReports: false }));
 
     await waitFor(() => {
       expect(fetchAllReportsByProyectMock).toHaveBeenCalledWith("PROY-1", true, "EMP-99");
@@ -246,5 +246,26 @@ describe("useReportsTable", () => {
     });
 
     expect(setCurrentReportMock).toHaveBeenCalledWith(sampleReports[0]);
+  });
+
+  it("muestra todos los filtros cuando canSeeAllReports es true", () => {
+    const { result } = renderHook(() => useReportsTable({ canSeeAllReports: true }));
+    expect(result.current.controlFilterOptions.map((f) => f.value)).toEqual([
+      "all",
+      "all:complete",
+      "all:incomplete",
+      "all:mine",
+      "all:minecomplete",
+      "all:mineincomplete",
+    ]);
+  });
+
+  it("muestra solo filtros de mis reportes cuando canSeeAllReports es false", () => {
+    const { result } = renderHook(() => useReportsTable({ canSeeAllReports: false }));
+    expect(result.current.controlFilterOptions.map((f) => f.value)).toEqual([
+      "all:mine",
+      "all:minecomplete",
+      "all:mineincomplete",
+    ]);
   });
 });

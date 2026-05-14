@@ -35,6 +35,9 @@ export type SparePart = {
   website: string;
   phoneNumber: string;
   idSuppliers?: string[];
+  idGenericEquipments?: string[];
+  suppliers?: Supplier[];
+  genericEquipments?: GenericEquipment[];
   isActive?: boolean;
 };
 
@@ -49,6 +52,7 @@ export type SparePartPost = {
   website: string;
   phoneNumber: string;
   idSuppliers: string[];
+  idGenericEquipments: string[];
 };
 
 export type SparePartPut = {
@@ -63,6 +67,7 @@ export type SparePartPut = {
   website: string;
   phoneNumber: string;
   idSuppliers: string[];
+  idGenericEquipments: string[];
 };
 
 export type GenericEquipmentSparePart = {

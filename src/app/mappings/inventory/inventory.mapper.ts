@@ -67,6 +67,9 @@ export const mapGenericEquipmentPut = (
 
 export const mapSparePart = (raw: any): SparePart => {
   const supplierIds = raw?.idSuppliers ?? raw?.idsuppliers;
+  const genericEquipmentIds = raw?.idGenericEquipments ?? raw?.idgenericequipments;
+  const embeddedSuppliers = raw?.suppliers ?? raw?.Suppliers;
+  const embeddedGenericEquipments = raw?.genericEquipments ?? raw?.GenericEquipments;
 
   return {
   id: String(raw?.id ?? ""),
@@ -83,6 +86,45 @@ export const mapSparePart = (raw: any): SparePart => {
   idSuppliers: Array.isArray(supplierIds)
     ? supplierIds.map((id: unknown) => String(id))
     : [],
+  idGenericEquipments: Array.isArray(genericEquipmentIds)
+    ? genericEquipmentIds.map((id: unknown) => String(id))
+    : [],
+  suppliers: Array.isArray(embeddedSuppliers)
+    ? embeddedSuppliers.map((supplierRaw: any) => ({
+        id: String(supplierRaw?.id ?? ""),
+        nombreProveedor: String(
+          supplierRaw?.nombreProveedor ?? supplierRaw?.nombreproveedor ?? supplierRaw?.supplierName ?? ""
+        ),
+        paginaWeb: String(
+          supplierRaw?.paginaWeb ?? supplierRaw?.paginaweb ?? supplierRaw?.website ?? ""
+        ),
+        telefono: String(
+          supplierRaw?.telefono ??
+            supplierRaw?.phonenumber ??
+            supplierRaw?.phoneumber ??
+            supplierRaw?.phoneNumber ??
+            ""
+        ),
+      }))
+    : [],
+  genericEquipments: Array.isArray(embeddedGenericEquipments)
+    ? embeddedGenericEquipments.map((equipmentRaw: any) => ({
+        id: String(equipmentRaw?.id ?? ""),
+        typeOfEquipment: String(
+          equipmentRaw?.typeOfEquipment ??
+            equipmentRaw?.typeofEquipment ??
+            equipmentRaw?.typeequipment ??
+            equipmentRaw?.equipmentType ??
+            equipmentRaw?.name ??
+            ""
+        ),
+        brand: String(equipmentRaw?.brand ?? ""),
+        model: String(equipmentRaw?.model ?? ""),
+        createdBy: String(equipmentRaw?.createdBy ?? ""),
+        isActive:
+          typeof equipmentRaw?.isActive === "boolean" ? equipmentRaw.isActive : undefined,
+      }))
+    : [],
   isActive:
     typeof raw?.isActive === "boolean" ? raw.isActive : undefined,
   };
@@ -95,6 +137,7 @@ export const mapSparePartPost = (
   src: Partial<SparePartPost> | any
 ): SparePartPost => {
   const supplierIds = src?.idSuppliers ?? src?.idsuppliers;
+  const genericEquipmentIds = src?.idGenericEquipments ?? src?.idgenericequipments;
 
   return {
   sku: String(src?.sku ?? ""),
@@ -109,6 +152,9 @@ export const mapSparePartPost = (
   idSuppliers: Array.isArray(supplierIds)
     ? supplierIds.map((id: unknown) => String(id))
     : [],
+  idGenericEquipments: Array.isArray(genericEquipmentIds)
+    ? genericEquipmentIds.map((id: unknown) => String(id))
+    : [],
   };
 };
 
@@ -116,6 +162,7 @@ export const mapSparePartPut = (
   src: Partial<SparePartPut> | any
 ): SparePartPut => {
   const supplierIds = src?.idSuppliers ?? src?.idsuppliers;
+  const genericEquipmentIds = src?.idGenericEquipments ?? src?.idgenericequipments;
 
   return {
   id: String(src?.id ?? ""),
@@ -130,6 +177,9 @@ export const mapSparePartPut = (
   phoneNumber: String(src?.phoneNumber ?? src?.phonenumber ?? ""),
   idSuppliers: Array.isArray(supplierIds)
     ? supplierIds.map((id: unknown) => String(id))
+    : [],
+  idGenericEquipments: Array.isArray(genericEquipmentIds)
+    ? genericEquipmentIds.map((id: unknown) => String(id))
     : [],
   };
 };
