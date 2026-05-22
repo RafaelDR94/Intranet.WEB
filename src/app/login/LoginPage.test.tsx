@@ -74,9 +74,11 @@ vi.mock("../components/DynamicForm/DynamicForm", () => {
       loading,
       children,
       onValuesChange,
+      dataTestId,
     }: any) => (
       <form
         aria-label="dynamic-form"
+        data-testid={dataTestId}
         onSubmit={(e) => {
           e.preventDefault();
           onSubmit?.({ password: "secret123" });
@@ -110,12 +112,13 @@ vi.mock("../components/Alert/Alert", () => {
 
 vi.mock("../components/CheckBox/CheckBox", () => {
   return {
-    Checkbox: ({ checked, onChange, label, ...rest }: any) => (
+    Checkbox: ({ checked, onChange, label, dataTestId, ...rest }: any) => (
       <button
         type="button"
         aria-pressed={!!checked}
         aria-label={label ?? "checkbox"}
         onClick={() => onChange?.(!checked)}
+        data-testid={dataTestId}
         {...rest}
       >
         {label ?? "checkbox"}
@@ -256,7 +259,7 @@ describe("LoginPage", () => {
     render(<LoginPage />);
 
     expect(
-      screen.getByRole("button", { name: "Iniciar sesión con Passkey" }),
+      screen.getByRole("button", { name: "Iniciar sesión con Dispositivo" }),
     ).toBeInTheDocument();
   });
 
@@ -270,7 +273,7 @@ describe("LoginPage", () => {
     });
 
     render(<LoginPage />);
-    await user.click(screen.getByRole("button", { name: "Iniciar sesión con Passkey" }));
+    await user.click(screen.getByRole("button", { name: "Iniciar sesión con Dispositivo" }));
 
     expect(passkeySpy).toHaveBeenCalledTimes(1);
   });

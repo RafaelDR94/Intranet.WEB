@@ -2,7 +2,7 @@
  * Tipos de alerta disponibles.
  * - `default`: Estado neutro
  * - `success`: Operacion exitosa
- * - `info`: Informacion adicional
+ * - `info`: Información adicional
  * - `warning`: Advertencia al usuario
  * - `error`: Operacion fallida
  */

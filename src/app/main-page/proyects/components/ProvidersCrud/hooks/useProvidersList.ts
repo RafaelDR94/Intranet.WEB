@@ -71,7 +71,7 @@ export const useProvidersList = (scope: CrudScope) => {
     popupTitle: rowPendingDeletion
       ? `Eliminar ${rowPendingDeletion.primary}`
       : 'Eliminar proveedor',
-    popupContent: 'Esta accion eliminara el proveedor seleccionado.',
+    popupContent: 'Esta acción eliminará el proveedor seleccionado.',
     onCreate: crud.goCreate,
     onDetail: crud.goEdit,
     onCloseDelete: () => setRowPendingDeletion(null),

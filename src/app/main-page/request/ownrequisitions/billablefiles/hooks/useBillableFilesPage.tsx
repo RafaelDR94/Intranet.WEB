@@ -34,6 +34,11 @@ const statusToLabel = (status: BillableFileStatus): LabelType => {
   return "pendiente";
 };
 
+const openFileUrl = (url?: string | null) => {
+  if (!url) return;
+  window.open(url, "_blank", "noopener,noreferrer");
+};
+
 const useBillableFilesPage = () => {
   const router = useRouter();
   const { user, currentPagePermissions } = useAuth();
@@ -99,6 +104,32 @@ const useBillableFilesPage = () => {
   const handleOpenDetails = useCallback((row: BillableFileRow) => {
     setSelected(row.source);
     setPanelOpen(true);
+  }, []);
+
+  const handleOpenXml = useCallback((row: BillableFileRow) => {
+    const source = row.source as Partial<BillingDocuments> | null;
+    openFileUrl(source?.xml);
+  }, []);
+
+  const handleOpenPdf = useCallback((row: BillableFileRow) => {
+    const source = row.source as Partial<BillingDocuments> | null;
+    openFileUrl(source?.pdf);
+  }, []);
+
+  const handleOpenImage = useCallback((row: BillableFileRow) => {
+    const source = row.source as
+      | Partial<BillingDocuments>
+      | Partial<BillingImages>
+      | null;
+
+    if (source && "image" in source && typeof source.image === "string") {
+      openFileUrl(source.image);
+      return;
+    }
+
+    if (source && "images" in source && Array.isArray(source.images)) {
+      openFileUrl(source.images[0]?.image);
+    }
   }, []);
 
   const refresh = useCallback(() => {
@@ -208,6 +239,7 @@ const useBillableFilesPage = () => {
                 variant="ghost"
                 icon={XMLIcon}
                 iconOnly
+                onClick={() => handleOpenXml(row)}
                 data-tour="ownrequisitions-billablefiles-xml"
               />
             )}
@@ -217,6 +249,7 @@ const useBillableFilesPage = () => {
                 variant="ghost"
                 icon={PDFIcon}
                 iconOnly
+                onClick={() => handleOpenPdf(row)}
                 data-tour="ownrequisitions-billablefiles-pdf"
               />
             )}
@@ -226,19 +259,21 @@ const useBillableFilesPage = () => {
                 variant="ghost"
                 icon={ImageIcon}
                 iconOnly
+                onClick={() => handleOpenImage(row)}
                 data-tour="ownrequisitions-billablefiles-image"
               />
             )}
           </div>
         ),
-        headerClass: "basis-[140px] flex-none text-center",
-        cellClass: "basis-[140px] flex-none text-center",
+        headerClass: "flex-1 text-center",
+        cellClass: "flex-1 text-center",
       },
       {
         key: "date",
         label: "FECHA",
-        headerClass: "basis-[140px] flex-none",
-        cellClass: "basis-[140px] flex-none whitespace-nowrap",
+        showSortIndicator: false,
+        headerClass: "flex-1",
+        cellClass: "flex-1 whitespace-nowrap",
       },
       {
         key: "category",
@@ -251,8 +286,8 @@ const useBillableFilesPage = () => {
             {row.category}
           </span>
         ),
-        headerClass: "basis-[260px] flex-none",
-        cellClass: "basis-[260px] flex-none pr-6 overflow-hidden",
+        headerClass: "flex-1",
+        cellClass: "flex-1 pr-6 overflow-hidden",
       },
       {
         key: "project",
@@ -262,8 +297,8 @@ const useBillableFilesPage = () => {
             {row.project}
           </span>
         ),
-        headerClass: "basis-[180px] flex-none",
-        cellClass: "basis-[180px] flex-none whitespace-nowrap",
+        headerClass: "flex-1",
+        cellClass: "flex-1 whitespace-nowrap",
       },
       {
         key: "status",
@@ -273,8 +308,8 @@ const useBillableFilesPage = () => {
             <Label type={statusToLabel(row.status)} text={row.status} />
           </div>
         ),
-        headerClass: "basis-[140px] flex-none text-center",
-        cellClass: "basis-[140px] flex-none text-center",
+        headerClass: "flex-1 text-center",
+        cellClass: "flex-1 text-center",
       },
       {
         key: "comments",
@@ -291,8 +326,8 @@ const useBillableFilesPage = () => {
               <ChatIcon className="h-6 w-6" />
             </Button>
           ) : null,
-        headerClass: "basis-[140px] flex-none text-center",
-        cellClass: "basis-[140px] flex-none text-center",
+        headerClass: "flex-1 text-center",
+        cellClass: "flex-1 text-center",
       },
       {
         key: "details" as unknown as keyof BillableFileRow,
@@ -310,11 +345,11 @@ const useBillableFilesPage = () => {
             </Button>
           </div>
         ),
-        headerClass: "basis-[140px] flex-none text-center",
-        cellClass: "basis-[140px] flex-none text-center",
+        headerClass: "flex-1 text-center",
+        cellClass: "flex-1 text-center",
       },
     ],
-    [handleOpenDetails],
+    [handleOpenDetails, handleOpenImage, handleOpenPdf, handleOpenXml],
   );
 
   const statusFilterOptions = useMemo(

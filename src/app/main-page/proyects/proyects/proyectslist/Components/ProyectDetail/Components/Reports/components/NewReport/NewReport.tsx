@@ -68,25 +68,27 @@ const NewReport = () => {
         />
       </div>
 
-      <div className={clsx("w-full ", !isMobile && "h-[60vh]")}>
+      <div className={clsx("flex w-full min-h-0 flex-col gap-4", !isMobile && "h-[60vh]")}>
         {(!isSaveValid && currentStep != "avance") && <div className="flex bg-white-70  text-blue-60 font-semibold text-label">
           <WarningIcon className="mr-5" />
           {"Para poder guardar tu reporte o pasarlo a firma del cliente, asegúrate de completar la sección de Avances. Así garantizamos un registro claro y completo de este."}
         </div>}
 
 
-        <Breadcrumbs activeId={currentStep} onActiveChange={(id) => onStepChange(id as StepId)}>
-          {steps.map((step) => (
-            <Breadcrumbs.Item
-              key={step.id}
-              id={step.id}
-              label={step.label}
-              renderContent={() => <div className={clsx("w-full ", !isMobile && "h-[50vh]")}>{renderStepContent(step.id, step.label)}</div>}
-            />
-          ))}
-        </Breadcrumbs>
+        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white p-4">
+          <Breadcrumbs activeId={currentStep} onActiveChange={(id) => onStepChange(id as StepId)}>
+            {steps.map((step) => (
+              <Breadcrumbs.Item
+                key={step.id}
+                id={step.id}
+                label={step.label}
+                renderContent={() => <div className={clsx("w-full overflow-y-auto pr-1", !isMobile && "h-[42vh]")}>{renderStepContent(step.id, step.label)}</div>}
+              />
+            ))}
+          </Breadcrumbs>
+        </div>
 
-        <div className={clsx(!isMobile && "flex justify-end gap-5", isMobile && "flex flex-col gap-6")}>
+        <div className={clsx("shrink-0 pt-2", !isMobile && "flex justify-end gap-5", isMobile && "flex flex-col gap-6")}>
           <Button onClick={handleBack} disabled={!isBackValid} hideIcon variant='outline'>
             Regresar
           </Button>

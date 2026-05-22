@@ -101,7 +101,7 @@ const useInternalDevicesList = () => {
       return
     }
     if (updatingDevice) {
-      showSpinner({ message: 'Guardando informacion...' })
+      showSpinner({ message: 'Guardando Información...' })
       return
     }
     if (creatingDeviceReview) {
@@ -146,7 +146,7 @@ const useInternalDevicesList = () => {
     if (successUpdateDevice) {
       showAlert({
         type: 'info',
-        title: 'Informacion guardada',
+        title: 'Información guardada',
         description: 'El dispositivo fue actualizado correctamente.',
         showPrimaryButton: false,
         showSecondaryButton: false,

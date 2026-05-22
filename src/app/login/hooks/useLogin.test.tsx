@@ -286,7 +286,7 @@ describe("useLogin hook", () => {
   it("muestra error normalizado cuando falla login", async () => {
     mockFetchAuthenticationMethods.mockResolvedValueOnce([]);
     mockLogin.mockRejectedValueOnce({
-      response: { data: { error_Message: "Credenciales invÃ¡lidas" } },
+      response: { data: { error_Message: "Credenciales inválidas" } },
     });
 
     const { result } = renderHook(() => useLogin());
@@ -304,7 +304,7 @@ describe("useLogin hook", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.failMessage).toBe("Credenciales invÃ¡lidas");
+      expect(result.current.failMessage).toBe("Credenciales inválidas");
     });
   });
 });

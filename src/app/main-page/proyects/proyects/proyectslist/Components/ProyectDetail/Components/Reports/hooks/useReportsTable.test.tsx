@@ -15,7 +15,8 @@ const resetReportsStoreMock = vi.fn();
 
 const makePictureDocumentMock = vi.fn();
 const exportExcelMock = vi.fn();
-const createPDFMock = vi.fn();
+const createPDFBlobMock = vi.fn();
+const saveAsMock = vi.fn();
 
 const showSpinnerMock = vi.fn();
 const hideSpinnerMock = vi.fn();
@@ -26,7 +27,6 @@ let searchParamsValue = "";
 let currentReportRef = createSampleReport();
 let localReportsRef: typeof sampleReports = [];
 let loadingRef = false;
-let windowOpenSpy: ReturnType<typeof vi.spyOn>;
 let authPermissionsRef: Record<string, unknown> = { reportdetails: true, canSeeAllReports: true };
 let authUserRef = {
   idEmployee: sampleReports[0].employe.employee_id,
@@ -115,9 +115,11 @@ vi.mock("./useDocument/useDocument", () => ({
 }));
 
 vi.mock("@/app/utilities/PDF/PDF", () => ({
-  CreatePDF: (payload: unknown, resolve: (url: string) => void) => {
-    createPDFMock(payload, resolve);
-  },
+  CreatePDFBlob: (...args: any[]) => createPDFBlobMock(...args),
+}));
+
+vi.mock("file-saver", () => ({
+  saveAs: (...args: any[]) => saveAsMock(...args),
 }));
 
 describe("useReportsTable", () => {
@@ -139,11 +141,6 @@ describe("useReportsTable", () => {
     deleteRemoteReportMock.mockResolvedValue(true);
     exportExcelMock.mockResolvedValue(undefined);
     resetReportsStoreMock.mockImplementation(() => {});
-    windowOpenSpy = vi.spyOn(window, "open").mockImplementation(() => null);
-  });
-
-  afterEach(() => {
-    windowOpenSpy.mockRestore();
   });
 
   it("solicita los reportes del proyecto presente en la URL", async () => {
@@ -202,7 +199,7 @@ describe("useReportsTable", () => {
 
   it("descarga el reporte fotografico mostrando mensajes en el flujo feliz", async () => {
     makePictureDocumentMock.mockResolvedValue({ pages: [] });
-    createPDFMock.mockImplementation((_, resolve) => resolve("blob:report"));
+    createPDFBlobMock.mockResolvedValue(new Blob(["pdf"]));
 
     const { result } = renderHook(() => useReportsTable());
 
@@ -214,8 +211,11 @@ describe("useReportsTable", () => {
       expect.objectContaining({ message: expect.stringContaining("Generando reporte") })
     );
     expect(makePictureDocumentMock).toHaveBeenCalled();
-    expect(createPDFMock).toHaveBeenCalled();
-    expect(windowOpenSpy).toHaveBeenCalledWith("blob:report", "_blank");
+    expect(createPDFBlobMock).toHaveBeenCalled();
+    expect(saveAsMock).toHaveBeenCalledWith(
+      expect.any(Blob),
+      expect.stringMatching(/^reporte_fotografico(?:_.*)?\.pdf$/)
+    );
     expect(showAlertMock).toHaveBeenCalled();
     expect(hideSpinnerMock).toHaveBeenCalled();
   });

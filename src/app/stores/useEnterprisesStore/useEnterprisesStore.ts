@@ -8,6 +8,7 @@ import type { EnterprisesState } from "./types";
 import {
   fetchEnterprises as fetchEnterprisesRequest,
   fetchWorkpositions as fetchWorkpositionsRequest,
+  fetchWorkpositionsByDepartment as fetchWorkpositionsByDepartmentRequest,
   createEnterprise as createEnterpriseRequest,
   updateEnterprise as updateEnterpriseRequest,
   createExternalEnterprise as createExternalEnterpriseRequest,
@@ -15,12 +16,19 @@ import {
 
 const initialCollections: Pick<
   EnterprisesState,
-  "enterprises" | "workpositions" | "workpositionsByEnterprise" | "currentEnterpriseId"
+  | "enterprises"
+  | "workpositions"
+  | "workpositionsByEnterprise"
+  | "workpositionsByDepartment"
+  | "currentEnterpriseId"
+  | "currentDepartmentId"
 > = {
   enterprises: [],
   workpositions: [],
   workpositionsByEnterprise: {},
+  workpositionsByDepartment: {},
   currentEnterpriseId: undefined,
+  currentDepartmentId: undefined,
 };
 
 const initialFlags: Pick<
@@ -57,6 +65,8 @@ export const useEnterprisesStore = createWithEqualityFn<EnterprisesState>()(
       fetchEnterprisesRequest(set, get, force),
     fetchWorkpositions: (enterpriseId, force = false) =>
       fetchWorkpositionsRequest(enterpriseId, set, get, force),
+    fetchWorkpositionsByDepartment: (departmentId, force = false) =>
+      fetchWorkpositionsByDepartmentRequest(departmentId, set, get, force),
     createEnterprise: (payload) =>
       createEnterpriseRequest(set, get, payload),
     updateEnterprise: (payload) =>

@@ -26,7 +26,7 @@ export const internalDevicesTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="internaldevices-list-refresh"]',
         title: 'Actualizar',
-        description: 'Recarga el listado con la informacion mas reciente.',
+        description: 'Recarga el listado con la Información mas reciente.',
       },
       {
         target: '[data-tour="internaldevices-list-create"]',

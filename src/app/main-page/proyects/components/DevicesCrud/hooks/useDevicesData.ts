@@ -34,10 +34,11 @@ export const buildCompleteDeviceRow = (record: ReportDeviceView): CrudRecord => 
   return {
     id: String(record?.id ?? device?.id ?? ''),
     idGenericEquipment: String(device?.idGenericEquipment ?? '').trim() || undefined,
+    projectId: String(device?.idproyect ?? '').trim() || undefined,
     idLocation: String(device?.idlocation ?? '').trim() || undefined,
-    primary: title || serial || 'Sin informacion',
-    secondary: String(device?.brand ?? '').trim() || 'Sin informacion',
-    tertiary: location || 'Sin informacion',
+    primary: title || serial || 'Sin Información',
+    secondary: String(device?.brand ?? '').trim() || 'Sin Información',
+    tertiary: location || 'Sin Información',
     status: resolveStatus(device?.is_active),
     description: serial ? `Serie: ${serial}` : 'Sin numero de serie',
     projectCode: String(device?.keyproyect ?? '').trim(),
@@ -48,11 +49,11 @@ export const buildCompleteDeviceRow = (record: ReportDeviceView): CrudRecord => 
 
 export const buildGenericDeviceRow = (equipment: GenericEquipment): CrudRecord => ({
   id: String(equipment?.id ?? ''),
-  primary: String(equipment?.typeOfEquipment ?? '').trim() || 'Sin informacion',
-  secondary: String(equipment?.brand ?? '').trim() || 'Sin informacion',
+  primary: String(equipment?.typeOfEquipment ?? '').trim() || 'Sin Información',
+  secondary: String(equipment?.brand ?? '').trim() || 'Sin Información',
   tertiary: 'Inventario general',
   status: resolveStatus(equipment?.isActive),
-  description: String(equipment?.model ?? '').trim() || 'Sin informacion',
+  description: String(equipment?.model ?? '').trim() || 'Sin Información',
   model: String(equipment?.model ?? '').trim(),
 });
 

@@ -4,7 +4,7 @@ import type { Set } from './types'
 
 vi.mock('./utilities/fetchProyects', () => ({
   fetchProyects: vi.fn(async (set: Set) => {
-    set({ proyects: [{ id: 'p1' }], loading: false })
+    set({ proyects: [{ id: 'p1' } as any], loading: false })
   })
 }))
 
@@ -39,18 +39,26 @@ describe('useProyectsStore', () => {
       loading: true,
       creating: true,
       updating: true,
+      linkingLocations: true,
       removing: true,
       successGet: true,
       successPost: true,
       successPut: true,
+      successLinkLocations: true,
       successDelete: true,
       error: 'x',
     } as any)
 
     useProyectsStore.getState().resetFlags()
     const s1 = useProyectsStore.getState()
-    expect(s1.loading || s1.creating || s1.updating || s1.removing).toBe(false)
-    expect(s1.successGet || s1.successPost || s1.successPut || s1.successDelete).toBe(false)
+    expect(s1.loading || s1.creating || s1.updating || s1.linkingLocations || s1.removing).toBe(false)
+    expect(
+      s1.successGet ||
+      s1.successPost ||
+      s1.successPut ||
+      s1.successLinkLocations ||
+      s1.successDelete,
+    ).toBe(false)
     expect(s1.error).toBeUndefined()
 
     useProyectsStore.getState().reset()

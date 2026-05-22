@@ -36,6 +36,9 @@ const ProyectList = () => {
         isMobile
     } = useProyectList();
 
+    const canCreateReport = Boolean(currentPagePermissions?.createreport);
+    const canViewProject = Boolean(currentPagePermissions?.currentproyect);
+
 
     /**
      * Column definitions reused by the table and the cards layout.
@@ -104,7 +107,7 @@ const ProyectList = () => {
             },
 
         ])
-    }, [currentPagePermissions, isMobile, handleAskDelete, handleEdit, handleView]);
+    }, [canCreateReport, canViewProject, currentPagePermissions, isMobile, handeReport, handleAskDelete, handleEdit, handleView]);
     return (
         <>
             <div className="overflow-auto">
@@ -132,28 +135,22 @@ const ProyectList = () => {
                             // descriptionKey: 'client' as any,
                             imageKey: (p: any) => p.imageUrl,
                             onPrimaryAction: (p: Proyect) =>
-                                isMobile && currentPagePermissions?.createreport
-                                    ? handeReport(p)
-                                    : handleView(p),
-                            onSecondaryAction: (p: Proyect) =>
-                                isMobile ? handleView(p) : handeReport(p),
-                            primaryLabel:
-                                isMobile && currentPagePermissions?.createreport
-                                    ? 'Aceptar'
-                                    : 'Ver Proyecto',
-                            secondaryLabel:
-                                currentPagePermissions?.createreport
-                                    ? (isMobile ? 'Ver Proyecto' : 'Aceptar')
-                                    : "",
-                            showPrimaryButton: true,
-                            showSecondaryButton: currentPagePermissions?.createreport,
-                            secondaryVariant: isMobile ? 'solid' : 'outline',
+                                canCreateReport ? handeReport(p) : handleView(p),
+                            onSecondaryAction: canCreateReport && canViewProject
+                                ? (p: Proyect) => handleView(p)
+                                : undefined,
+                            primaryLabel: canCreateReport ? 'Crear reporte' : 'Ver Proyecto',
+                            secondaryLabel: 'Ver Proyecto',
+                            showPrimaryButton: canCreateReport || canViewProject,
+                            showSecondaryButton: canCreateReport && canViewProject,
+                            secondaryVariant: 'outline',
                             enableImagePreview: false,
                             cardsPerPage: isMobile ? 4 : undefined,
                             actionMenuProps: (row) => ({
                                 row,
                                 onEdit: handleEdit,
                                 onDelete: handleAskDelete,
+                                triggerIcon: 'dots',
                             }),
                         }
                     }]}

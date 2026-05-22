@@ -11,6 +11,7 @@ import type {
   ActionMenuCellProps,
   ActionMenuCellResolvedProps,
   ActionMenuPermissions,
+  ActionMenuTriggerIcon,
 } from "./types";
 
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
@@ -33,8 +34,8 @@ export type { ActionMenuPermissions } from "./types";
  * @remarks
  * - Usa `ContextMenu` para la capa de visualizacion, por lo que respeta
  *   navegacion con teclado y cierre al hacer clic fuera.
- * - El icono del trigger cambia entre tres puntos (desktop) y flecha
- *   (mobile) usando `useIsMobile`.
+ * - El icono del trigger puede cambiar entre tres puntos y flecha
+ *   segun el viewport, o forzarse mediante `triggerIcon`.
  * - Permite sustituir `ContextMenu` y `Button` mediante props internas,
  *   lo que simplifica los tests sin dependencias pesadas.
  *
@@ -55,6 +56,7 @@ export type { ActionMenuPermissions } from "./types";
 const ActionMenuCell = <T extends Record<string, any>>({
   permissions: permissionsOverride,
   isMobile: isMobileOverride,
+  triggerIcon,
   ...props
 }: ActionMenuCellProps<T>) => {
   const { currentPagePermissions } = useAuth();
@@ -76,6 +78,7 @@ const ActionMenuCell = <T extends Record<string, any>>({
       {...props}
       isMobile={isMobile}
       permissions={normalizedPermissions}
+      triggerIcon={triggerIcon}
     />
   );
 };
@@ -144,6 +147,7 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
   onRenewDay,
   permissions,
   isMobile,
+  triggerIcon = "auto",
   menuComponent: MenuComponent = ContextMenu,
   buttonComponent: ButtonComponent = Button,
 }: ActionMenuCellViewProps<T>) => {
@@ -174,7 +178,7 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
     [row, onEdit, editLabel, onDelete, onDetails, onRenewDay, permissions]
   );
 
-  const TriggerIcon = isMobile ? RightArrowIcon : DotsIcon;
+  const TriggerIcon = resolveTriggerIcon(triggerIcon, isMobile);
 
   return (
     <MenuComponent
@@ -193,6 +197,15 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
       }
     />
   );
+};
+
+const resolveTriggerIcon = (
+  triggerIcon: ActionMenuTriggerIcon,
+  isMobile: boolean
+) => {
+  if (triggerIcon === "dots") return DotsIcon;
+  if (triggerIcon === "arrow") return RightArrowIcon;
+  return isMobile ? RightArrowIcon : DotsIcon;
 };
 
 

@@ -29,7 +29,7 @@ vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   usePrincipal: () => usePrincipal(),
 }));
 
-vi.mock('@/app/main-page/request/ownrequisitions/uploadbillablefiles/page', () => ({
+vi.mock('@/app/main-page/request/ownrequisitions/billablefiles/page', () => ({
   __esModule: true,
   default: BillableFilesPage,
 }));
@@ -91,12 +91,26 @@ describe('PersonalInvoices Requisitions page', () => {
     usePathname.mockReturnValue('/main-page/request/ownrequisitions/requisitions');
     useRouter.mockReturnValue({ push: vi.fn(), replace: vi.fn(), back: vi.fn() });
     useSearchParams.mockReturnValue({
-      get: () => null,
+      get: (key: string) => (key === 'id' ? 'REQ-1' : null),
     });
 
     render(<Requisitions />);
 
     expect(screen.getByText('RequisitionDetailsMock')).toBeInTheDocument();
+    expect(screen.getByText('RequisitionsTableMock')).toBeInTheDocument();
+  });
+
+  it('renders only requisitions table when view is not billablefiles and there is no id', () => {
+    usePrincipal.mockReturnValue(principalMock);
+    usePathname.mockReturnValue('/main-page/request/ownrequisitions/requisitions');
+    useRouter.mockReturnValue({ push: vi.fn(), replace: vi.fn(), back: vi.fn() });
+    useSearchParams.mockReturnValue({
+      get: () => null,
+    });
+
+    render(<Requisitions />);
+
+    expect(screen.queryByText('RequisitionDetailsMock')).not.toBeInTheDocument();
     expect(screen.getByText('RequisitionsTableMock')).toBeInTheDocument();
   });
 });

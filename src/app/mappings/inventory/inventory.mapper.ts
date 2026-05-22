@@ -3,8 +3,6 @@ import type {
   GenericEquipmentPost,
   GenericEquipmentPut,
   GenericEquipmentSparePart,
-  GenericEquipmentSparePartPost,
-  GenericEquipmentSparePartPut,
   Supplier,
   SupplierPost,
   SupplierPut,
@@ -35,35 +33,49 @@ export const mapGenericEquipments = (list: any[]): GenericEquipment[] =>
 
 export const mapGenericEquipmentPost = (
   src: Partial<GenericEquipmentPost> | any
-): GenericEquipmentPost => ({
-  name: String(
-    src?.name ??
-      src?.typeOfEquipment ??
-      src?.typeofEquipment ??
-      src?.typeequipment ??
-      src?.equipmentType ??
-      ""
-  ),
-  brand: String(src?.brand ?? ""),
-  model: String(src?.model ?? ""),
-});
+): GenericEquipmentPost => {
+  const sparePartIds = src?.idSpareParts ?? src?.idspareparts ?? src?.id_spare_parts;
+
+  return {
+    name: String(
+      src?.name ??
+        src?.typeOfEquipment ??
+        src?.typeofEquipment ??
+        src?.typeequipment ??
+        src?.equipmentType ??
+        ""
+    ),
+    brand: String(src?.brand ?? ""),
+    model: String(src?.model ?? ""),
+    idSpareParts: Array.isArray(sparePartIds)
+      ? sparePartIds.map((id: unknown) => String(id))
+      : [],
+  };
+};
 
 export const mapGenericEquipmentPut = (
   src: Partial<GenericEquipmentPut> | any
-): GenericEquipmentPut => ({
-  id: String(src?.id ?? ""),
-  name: String(
-    src?.name ??
-      src?.typeOfEquipment ??
-      src?.typeofEquipment ??
-      src?.typeequipment ??
-      src?.equipmentType ??
-      ""
-  ),
-  brand: String(src?.brand ?? ""),
-  model: String(src?.model ?? ""),
-  createdBy: String(src?.createdBy ?? ""),
-});
+): GenericEquipmentPut => {
+  const sparePartIds = src?.idSpareParts ?? src?.idspareparts ?? src?.id_spare_parts;
+
+  return {
+    id: String(src?.id ?? ""),
+    name: String(
+      src?.name ??
+        src?.typeOfEquipment ??
+        src?.typeofEquipment ??
+        src?.typeequipment ??
+        src?.equipmentType ??
+        ""
+    ),
+    brand: String(src?.brand ?? ""),
+    model: String(src?.model ?? ""),
+    createdBy: String(src?.createdBy ?? ""),
+    idSpareParts: Array.isArray(sparePartIds)
+      ? sparePartIds.map((id: unknown) => String(id))
+      : [],
+  };
+};
 
 export const mapSparePart = (raw: any): SparePart => {
   const supplierIds = raw?.idSuppliers ?? raw?.idsuppliers;
@@ -72,14 +84,50 @@ export const mapSparePart = (raw: any): SparePart => {
   const embeddedGenericEquipments = raw?.genericEquipments ?? raw?.GenericEquipments;
 
   return {
-  id: String(raw?.id ?? ""),
-  sku: String(raw?.sku ?? ""),
+  id: String(
+    raw?.id ??
+      raw?.Id ??
+      raw?.idSparePart ??
+      raw?.idsparePart ??
+      raw?.idsparepart ??
+      ""
+  ),
+  sku: String(
+    raw?.sku ??
+      raw?.partNumber ??
+      raw?.partnumber ??
+      raw?.numeroParte ??
+      raw?.numeroparte ??
+      ""
+  ),
   stock: Number(raw?.stock ?? 0),
-  name: String(raw?.name ?? ""),
-  brand: String(raw?.brand ?? ""),
-  model: String(raw?.model ?? ""),
-  serialNumber: String(raw?.serialNumber ?? raw?.serialnumber ?? ""),
-  characteristic: String(raw?.characteristic ?? ""),
+  name: String(
+    raw?.name ??
+      raw?.description ??
+      raw?.descripcion ??
+      raw?.characteristic ??
+      raw?.nombre ??
+      ""
+  ),
+  brand: String(raw?.brand ?? raw?.marca ?? ""),
+  model: String(raw?.model ?? raw?.modelo ?? ""),
+  serialNumber: String(
+    raw?.serialNumber ??
+      raw?.serialnumber ??
+      raw?.serialOrPart ??
+      raw?.serialorpart ??
+      raw?.numeroSerie ??
+      raw?.numeroserie ??
+      ""
+  ),
+  characteristic: String(
+    raw?.characteristic ??
+      raw?.description ??
+      raw?.descripcion ??
+      raw?.equipment ??
+      raw?.equipo ??
+      ""
+  ),
   provider: String(raw?.provider ?? ""),
   website: String(raw?.website ?? ""),
   phoneNumber: String(raw?.phoneNumber ?? raw?.phonenumber ?? ""),
@@ -201,36 +249,6 @@ export const mapGenericEquipmentSpareParts = (
 ): GenericEquipmentSparePart[] =>
   Array.isArray(list) ? list.map(mapGenericEquipmentSparePart) : [];
 
-export const mapGenericEquipmentSparePartPost = (
-  src: Partial<GenericEquipmentSparePartPost> | any
-): GenericEquipmentSparePartPost => {
-  const sparePartValue = src?.idSparePart ?? src?.idsparePart;
-
-  return {
-    idGenericEquipment: String(
-      src?.idGenericEquipment ?? src?.idgenericEquipment ?? ""
-    ),
-    idSparePart: Array.isArray(sparePartValue)
-      ? sparePartValue.map((id: unknown) => String(id))
-      : String(sparePartValue ?? ""),
-  };
-};
-
-export const mapGenericEquipmentSparePartPut = (
-  src: Partial<GenericEquipmentSparePartPut> | any
-): GenericEquipmentSparePartPut => {
-  const sparePartValue = src?.idSparePart ?? src?.idsparePart;
-
-  return {
-    id: String(src?.id ?? ""),
-    idGenericEquipment: String(
-      src?.idGenericEquipment ?? src?.idgenericEquipment ?? ""
-    ),
-    idSparePart: Array.isArray(sparePartValue)
-      ? sparePartValue.map((id: unknown) => String(id))
-      : String(sparePartValue ?? ""),
-  };
-};
 
 export const mapSupplier = (raw: any): Supplier => ({
   id: String(raw?.id ?? ""),

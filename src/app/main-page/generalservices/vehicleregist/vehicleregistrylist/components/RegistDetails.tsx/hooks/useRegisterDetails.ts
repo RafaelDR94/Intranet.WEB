@@ -40,7 +40,7 @@ const useRegisterDetails = () => {
         if (!hasData) {
             showAlert({
                 type: "warning",
-                title: "Informacion incompleta",
+                title: "Información incompleta",
                 description: `No se encontro un registro de ${isArrival ? "llegada" : "salida"} para generar el documento.`,
                 showPrimaryButton: false,
                 showSecondaryButton: false,
@@ -101,7 +101,7 @@ const useRegisterDetails = () => {
         if (!currentAssignment.transport?.transport_id) {
             showAlert({
                 type: "warning",
-                title: "Informacion incompleta",
+                title: "Información incompleta",
                 description: "No se pudo identificar el vehiculo asignado.",
                 showPrimaryButton: false,
                 showSecondaryButton: false,

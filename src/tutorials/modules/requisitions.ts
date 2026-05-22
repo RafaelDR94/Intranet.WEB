@@ -26,7 +26,7 @@ export const requisitionsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="requisitions-form-submit"]',
         title: 'Guardar requisicion',
-        description: 'Guarda la informacion para enviar tu solicitud.',
+        description: 'Guarda la Información para enviar tu solicitud.',
       },
     ],
   },
@@ -55,7 +55,7 @@ export const requisitionsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="requisitions-refresh"]',
         title: 'Actualizar',
-        description: 'Recarga el listado cuando necesites informacion actualizada.',
+        description: 'Recarga el listado cuando necesites Información actualizada.',
       },
       {
         target: '[data-tour="requisitions-add"]',
@@ -127,7 +127,7 @@ export const requisitionsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="requisitions-ticket-details"]',
         title: 'Detalle del ticket',
-        description: 'Abre el detalle para ver informacion y acciones.',
+        description: 'Abre el detalle para ver Información y acciones.',
         nextAction: 'click',
       },
       {
@@ -245,7 +245,7 @@ export const requisitionsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="requisitions-detail-form"]',
         title: 'Formulario de requisicion',
-        description: 'Aqui puedes revisar la informacion general de la requisicion.',
+        description: 'Aqui puedes revisar la Información general de la requisicion.',
       },
       {
         target: '[data-tour="requisitions-detail-balance"]',

@@ -9,9 +9,7 @@ import type { CrudScope } from '../../types';
 import { useProvidersData } from './useProvidersData';
 import { useProyectInventoryStore } from '@/app/stores/useProyectInventoryStore/useProyectInventoryStore';
 
-const ACTIVE_LABEL_CLASS = 'text-label font-medium leading-4 text-gray-70';
-const ACTIVE_CONTROL_CLASS =
-  'h-[40px] rounded-[8px] border-[1.5px] border-[#afafaf] bg-white px-3 py-2 text-b3 leading-5 text-black-100 shadow-none placeholder:text-gray-50';
+
 
 export const useProvidersForm = (scope: CrudScope) => {
   const data = useProvidersData();
@@ -41,8 +39,7 @@ export const useProvidersForm = (scope: CrudScope) => {
       placeholder: 'Industria Suply',
       value: crud.currentRecord?.primary ?? '',
       validations: [{ type: 'required' }],
-      labelClassName: ACTIVE_LABEL_CLASS,
-      className: ACTIVE_CONTROL_CLASS,
+
     },
     {
       type: 'input',
@@ -51,8 +48,7 @@ export const useProvidersForm = (scope: CrudScope) => {
       placeholder: 'www.industriasuply.com',
       value: crud.currentRecord?.secondary ?? '',
       validations: [{ type: 'required' }],
-      labelClassName: ACTIVE_LABEL_CLASS,
-      className: ACTIVE_CONTROL_CLASS,
+
     },
     {
       type: 'input',
@@ -61,8 +57,7 @@ export const useProvidersForm = (scope: CrudScope) => {
       placeholder: '55 5555 5555',
       value: crud.currentRecord?.tertiary ?? '',
       validations: [{ type: 'required' }],
-      labelClassName: ACTIVE_LABEL_CLASS,
-      className: ACTIVE_CONTROL_CLASS,
+
     },
   ];
 
@@ -113,7 +108,7 @@ export const useProvidersForm = (scope: CrudScope) => {
       type: 'success',
       variant: 'subtle',
       title: crud.crudMode === 'edit' ? 'Proveedor actualizado' : 'Proveedor registrado',
-      description: 'La informacion se guardo correctamente.',
+      description: 'La Información se guardo correctamente.',
       showPrimaryButton: false,
       showSecondaryButton: false,
     });

@@ -165,7 +165,7 @@ const DeviceTypeForm: React.FC<DeviceTypeFormProps> = ({
       showAlert({
         type: 'error',
         title: 'Tipo no disponible',
-        description: 'No se encontro informacion del tipo de dispositivo.',
+        description: 'No se encontro Información del tipo de dispositivo.',
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1200,
@@ -205,12 +205,12 @@ const DeviceTypeForm: React.FC<DeviceTypeFormProps> = ({
           enableCollapse={false}
           rightContent={
             <Button hideIcon disabled className={isMobile ? 'w-full mt-3' : ''}>
-              Guardar informacion
+              Guardar Información
             </Button>
           }
         >
           <div className="rounded-2xl bg-white-100 p-6 text-gray-70 shadow-md">
-            Cargando informacion del tipo...
+            Cargando Información del tipo...
           </div>
         </CollapsibleSection>
       </div>
@@ -242,7 +242,7 @@ const DeviceTypeForm: React.FC<DeviceTypeFormProps> = ({
             disabled={isSaving || (!deviceType && !isCreate)}
             className={isMobile ? 'w-full mt-3' : ''}
           >
-            Guardar informacion
+            Guardar Información
           </Button>
         }
       >

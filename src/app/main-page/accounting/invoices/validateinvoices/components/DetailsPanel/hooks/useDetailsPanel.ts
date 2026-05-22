@@ -241,7 +241,7 @@ export const useDetailsPanel = ({
       showSpinner({
         message:
           currentUpdateAction === "json_sap"
-            ? "Actualizando informacion SAP..."
+            ? "Actualizando Información SAP..."
             : "Espera un momento, se esta enviando el comentario.",
       });
       return;
@@ -319,7 +319,7 @@ export const useDetailsPanel = ({
         description:
           String(error) ||
           (currentUpdateAction === "json_sap"
-            ? "Hubo un problema al actualizar la informacion SAP."
+            ? "Hubo un problema al actualizar la Información SAP."
             : "Hubo un problema al enviar tus comentarios."),
         showPrimaryButton: false,
         showSecondaryButton: false,

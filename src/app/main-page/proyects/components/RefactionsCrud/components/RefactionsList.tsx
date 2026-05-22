@@ -284,7 +284,7 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
             ? `Eliminar ${rowPendingDeletion.primary}`
             : 'Eliminar refaccion'
         }
-        content="Esta accion eliminara la refaccion seleccionada."
+        content="Esta acción eliminará la refaccion seleccionada."
         showPrimaryButton
         showSecondaryButton
         primaryButtonText="Eliminar"
@@ -328,6 +328,7 @@ const RefactionsList = ({ scope }: RefactionsListProps) => {
               data: rows,
               columns: isMobile ? columnsMobile : columnsDesktop,
               title: isLoading ? 'Cargando refacciones...' : crud.title,
+              enableCollaps: false,
             },
           ]}
         />

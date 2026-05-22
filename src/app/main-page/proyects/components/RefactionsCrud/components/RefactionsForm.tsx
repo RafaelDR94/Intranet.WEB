@@ -2,24 +2,30 @@
 
 import { useEffect, useState } from 'react';
 
-import { Minus, UserRoundPlus, Wrench } from 'lucide-react';
+import TrashIcon from '@/assets/icons/acciones/trash.svg';
+import AddUserIcon from '@/assets/icons/Users/Users/add-user.svg';
+import WrenchIcon from '@/assets/icons/tools/tools/wrench.svg';
+import { Button } from '@/app/components/Button/Button';
+import { Input } from '@/app/components/Input/Input';
+import { Select } from '@/app/components/Select/Select';
 
 import CrudFormTemplate from '../../CrudFormTemplate';
+import type { CrudScope } from '../../types';
 import {
   useRefactionsForm,
   type RefactionEquipmentFormValue,
   type RefactionProviderFormValue,
 } from '../hooks/useRefactionsForm';
-import type { CrudScope } from '../../types';
 
 type RefactionsFormProps = {
   scope: CrudScope;
 };
 
-const LABEL_CLASS = 'text-label font-medium leading-4 text-gray-70';
-const CONTROL_CLASS =
-  'h-[40px] w-full rounded-[8px] border-[1.5px] border-[#afafaf] bg-white px-3 py-2 text-b3 leading-5 text-black-100 shadow-none placeholder:text-gray-50';
-const SELECT_CLASS = `${CONTROL_CLASS} w-full`;
+const buildEquipmentOptionLabel = (typeOfEquipment: string, brand: string, model: string) =>
+  [typeOfEquipment.trim(), brand.trim(), model.trim()].filter(Boolean).join(' - ');
+
+const actionWrapperClasses = 'flex items-end md:min-h-[56px] md:justify-end';
+const actionButtonClasses = 'flex-row-reverse gap-2 px-0 text-label font-medium text-gray-70';
 
 const RefactionsForm = ({ scope }: RefactionsFormProps) => {
   const state = useRefactionsForm(scope);
@@ -34,6 +40,29 @@ const RefactionsForm = ({ scope }: RefactionsFormProps) => {
     setEquipments(state.initialEquipments);
   }, [state.initialEquipments]);
 
+  const hasSelectedEquipment = equipments.some((equipment) => equipment.equipmentId.trim().length > 0);
+  const equipmentHelperText =
+    state.genericEquipments.length === 0
+      ? 'No hay equipos genericos disponibles para seleccionar.'
+      : !hasSelectedEquipment
+        ? 'Selecciona al menos un equipo generico.'
+        : undefined;
+
+  const equipmentOptions = state.genericEquipments.map((genericEquipment) => ({
+    value: genericEquipment.id,
+    label:
+      buildEquipmentOptionLabel(
+        genericEquipment.typeOfEquipment,
+        genericEquipment.brand,
+        genericEquipment.model,
+      ) || genericEquipment.id,
+  }));
+
+  const supplierOptions = state.suppliers.map((supplier) => ({
+    value: supplier.id,
+    label: supplier.nombreProveedor,
+  }));
+
   const handleAddProvider = () => {
     setProviders((current) => [
       ...current,
@@ -47,6 +76,10 @@ const RefactionsForm = ({ scope }: RefactionsFormProps) => {
     ]);
   };
 
+  const handleRemoveProvider = (providerId: string) => {
+    setProviders((current) => current.filter((provider) => provider.id !== providerId));
+  };
+
   const handleAddEquipment = () => {
     setEquipments((current) => [
       ...current,
@@ -55,7 +88,6 @@ const RefactionsForm = ({ scope }: RefactionsFormProps) => {
         equipmentId: '',
         brand: '',
         model: '',
-        characteristic: '',
       },
     ]);
   };
@@ -73,21 +105,11 @@ const RefactionsForm = ({ scope }: RefactionsFormProps) => {
           ? {
               ...equipment,
               equipmentId: selectedEquipmentId,
-              brand: selectedEquipment?.brand ?? equipment.brand,
-              model: selectedEquipment?.model ?? equipment.model,
+              brand: selectedEquipment?.brand ?? '',
+              model: selectedEquipment?.model ?? '',
             }
           : equipment,
       ),
-    );
-  };
-
-  const handleEquipmentFieldChange = (
-    rowId: string,
-    field: 'brand' | 'model' | 'characteristic',
-    value: string,
-  ) => {
-    setEquipments((current) =>
-      current.map((equipment) => (equipment.id === rowId ? { ...equipment, [field]: value } : equipment)),
     );
   };
 
@@ -109,114 +131,123 @@ const RefactionsForm = ({ scope }: RefactionsFormProps) => {
     );
   };
 
+  const handleSubmit = (values: Record<string, unknown>) => {
+    void state.onSubmit(values, providers, equipments);
+  };
+
   return (
-    <CrudFormTemplate {...state} onSubmit={(values) => state.onSubmit(values, providers, equipments)}>
-      <div className="flex flex-col gap-5 pt-1">
+    <CrudFormTemplate
+      {...state}
+      primaryDisabled={!hasSelectedEquipment}
+      onSubmit={handleSubmit}
+    >
+      <div className="flex flex-col gap-6 pt-1">
         {equipments.map((equipment, index) => (
           <div
             key={equipment.id}
-            className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,3.34fr)_minmax(0,3.33fr)_minmax(0,3.33fr)] md:gap-[30px]"
+            className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,2.8fr)_minmax(0,1.6fr)_minmax(0,1.6fr)_auto] md:items-end"
           >
-            <div>
-              <p className={LABEL_CLASS}>Equipo relacionado</p>
-              <select
-                id={`equipment-select-${equipment.id}`}
-                value={equipment.equipmentId}
-                onChange={(event) => handleEquipmentSelected(equipment.id, event.target.value)}
-                className={SELECT_CLASS}
-              >
-                <option value="">Selecciona una opción</option>
-                {state.genericEquipments.map((genericEquipment) => (
-                  <option key={genericEquipment.id} value={genericEquipment.id}>
-                    {genericEquipment.typeOfEquipment}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <p className={LABEL_CLASS}>Marca</p>
-              <input
-                value={equipment.brand}
-                onChange={(event) => handleEquipmentFieldChange(equipment.id, 'brand', event.target.value)}
-                placeholder="Marca"
-                className={CONTROL_CLASS}
-              />
-            </div>
-            <div>
-              <p className={LABEL_CLASS}>Modelo</p>
-              <input
-                value={equipment.model}
-                onChange={(event) => handleEquipmentFieldChange(equipment.id, 'model', event.target.value)}
-                placeholder="Modelo"
-                className={CONTROL_CLASS}
-              />
-            </div>
-            <div className="md:col-span-2">
-              <p className={LABEL_CLASS}>Características adicionales</p>
-              <input
-                value={equipment.characteristic}
-                onChange={(event) => handleEquipmentFieldChange(equipment.id, 'characteristic', event.target.value)}
-                placeholder="Características adicionales"
-                className={CONTROL_CLASS}
-              />
-            </div>
-            <div className="flex items-end">
+            <Select
+              label="Equipo al que pertenece la refacciÃ³n*"
+              placeholder="Selecciona equipo"
+              selected={equipment.equipmentId ? [equipment.equipmentId] : []}
+              onChange={(selected) => handleEquipmentSelected(equipment.id, selected[0] ?? '')}
+              options={equipmentOptions}
+              helperText={index === 0 ? equipmentHelperText : undefined}
+            />
+            <Input
+              label="Marca"
+              placeholder="Marca del equipo"
+              value={equipment.brand}
+              disabled
+              variant="disabled"
+            />
+            <Input
+              label="Modelo"
+              placeholder="Modelo del equipo"
+              value={equipment.model}
+              disabled
+              variant="disabled"
+            />
+            <div className={actionWrapperClasses}>
               {index === equipments.length - 1 ? (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  icon={WrenchIcon}
                   onClick={handleAddEquipment}
-                  className="inline-flex h-[40px] items-center gap-2 whitespace-nowrap text-label font-medium text-gray-70"
+                  className={actionButtonClasses}
                 >
-                  <Wrench className="h-5 w-5 text-blue-60" strokeWidth={1.75} />
-                  <span>Agregar equipo</span>
-                </button>
+                  Agregar equipo
+                </Button>
               ) : (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  icon={TrashIcon}
                   onClick={() => handleRemoveEquipment(equipment.id)}
-                  className="inline-flex h-[40px] items-center gap-2 whitespace-nowrap text-label font-medium text-gray-70"
+                  className={actionButtonClasses}
                 >
-                  <Minus className="h-5 w-5 text-blue-60" strokeWidth={2} />
-                  <span>Eliminar equipo</span>
-                </button>
+                  Eliminar equipo
+                </Button>
               )}
             </div>
           </div>
         ))}
 
-        {providers.map((provider, index) => (
-          <div key={provider.id} className="flex flex-col gap-3">
-            <p className={LABEL_CLASS}>Proveedor</p>
-
-            <div className="flex w-full items-end gap-4 max-md:flex-col max-md:items-stretch">
-              <div className="w-full max-w-[360px]">
-                <select
-                  id={`provider-select-${provider.id}`}
-                  value={provider.supplierId}
-                  onChange={(event) => handleProviderSelected(provider.id, event.target.value)}
-                  className={SELECT_CLASS}
-                >
-                  <option value="">Selecciona un proveedor</option>
-                  {state.suppliers.map((supplier) => (
-                    <option key={supplier.id} value={supplier.id}>
-                      {supplier.nombreProveedor}
-                    </option>
-                  ))}
-                </select>
+        <div className="flex flex-col gap-4">
+          {providers.map((provider, index) => (
+            <div
+              key={provider.id}
+              className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,1.2fr)_auto] md:items-end"
+            >
+              <Select
+                label="Proveedor"
+                placeholder="Selecciona un proveedor"
+                selected={provider.supplierId ? [provider.supplierId] : []}
+                onChange={(selected) => handleProviderSelected(provider.id, selected[0] ?? '')}
+                options={supplierOptions}
+              />
+              <Input
+                label="Página web"
+                placeholder="Sin pagina web"
+                value={provider.website}
+                disabled
+                variant="disabled"
+              />
+              <Input
+                label="Telefono"
+                placeholder="Sin telefono"
+                value={provider.phone}
+                disabled
+                variant="disabled"
+              />
+              <div className={actionWrapperClasses}>
+                {index === providers.length - 1 ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    icon={AddUserIcon}
+                    onClick={handleAddProvider}
+                    className={actionButtonClasses}
+                  >
+                    Agregar proveedor
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    icon={TrashIcon}
+                    onClick={() => handleRemoveProvider(provider.id)}
+                    className={actionButtonClasses}
+                  >
+                    Eliminar proveedor
+                  </Button>
+                )}
               </div>
-              {index === 0 ? (
-                <button
-                  type="button"
-                  onClick={handleAddProvider}
-                  className="inline-flex h-[40px] items-center gap-2 whitespace-nowrap text-label font-medium text-gray-70"
-                >
-                  <UserRoundPlus className="h-5 w-5 text-blue-60" strokeWidth={1.75} />
-                  <span>Agregar proveedor</span>
-                </button>
-              ) : null}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </CrudFormTemplate>
   );

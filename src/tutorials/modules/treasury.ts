@@ -46,7 +46,7 @@ export const treasuryTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="treasury-control-refresh"]',
         title: 'Actualizar',
-        description: 'Recarga la informacion mas reciente.',
+        description: 'Recarga la Información mas reciente.',
       },
       {
         target: '[data-tour="treasury-control-row-actions"]',

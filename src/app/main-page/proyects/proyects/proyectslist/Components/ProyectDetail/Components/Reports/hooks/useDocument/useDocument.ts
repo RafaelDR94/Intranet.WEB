@@ -1,12 +1,19 @@
-
 import { saveAs } from "file-saver";
 import { useRef } from "react";
 
-import { Infohelperreturninferface } from "./types";
-import { ActivitiesHelper, InfoHelper,TableHelper,DiagnosticSolutionHelper,SignatureHelper,SingleTextHelper} from "./utilities/reportUtilities";
+import type { Diagnosticreturn, Infohelperreturninferface } from "./types";
+import {
+    ActivitiesHelper,
+    DiagnosticSolutionHelper,
+    InfoHelper,
+    SignatureHelper,
+    SingleTextHelper,
+    TableHelper,
+} from "./utilities/reportUtilities";
 
 import { useReportsStore } from "@/app/stores/useReportsStore/useReportsStore";
-import { exportExcelPro, type SheetInput, type ColumnDef } from "@/app/utilities/Excel/ExportExcel";
+import { exportExcelPro, type ColumnDef, type SheetInput } from "@/app/utilities/Excel/ExportExcel";
+import { getUsablePageHeight } from "@/app/utilities/PDF/layout";
 import { Table, SingleElement, DataChartElement, ImageElement, newDocument } from "@/app/utilities/PDF/types";
 import { urlToBase64 } from "@/app/utilities/PicturesHelper/PictureHelper";
 import { resolveImageWithFallback } from "@/app/utilities/PicturesHelper/recoverRemoteImage";
@@ -16,6 +23,12 @@ const sanitizeText = (value: unknown, fallback = "No disponible") => {
     if (value === null || value === undefined) return fallback;
     const str = String(value).trim();
     return str.length > 0 ? str : fallback;
+};
+
+const getResidualSize = (value: unknown) => {
+    if (Array.isArray(value)) return value.length;
+    if (typeof value === "string") return value.length;
+    return value ? 1 : 0;
 };
 
 let cachedLogoBase64: string | null = null;
@@ -32,10 +45,10 @@ const getLogoBase64 = async (): Promise<string | undefined> => {
     return base64 || undefined;
 };
 
-
 const useDocument = () => {
     const imageCacheRef = useRef(new Map<string, string>());
     const { currentReport } = useReportsStore();
+
     const loadImageFromDataUrl = (dataUrl: string): Promise<HTMLImageElement> =>
         new Promise((resolve, reject) => {
             const img = new Image();
@@ -86,9 +99,6 @@ const useDocument = () => {
 
         const outputMime = options.preserveAlpha ? "image/png" : "image/jpeg";
 
-        // Al exportar a JPEG se pierde el canal alpha; si la imagen original es transparente
-        // (por ejemplo firmas), el fondo por defecto queda negro. Pintamos un fondo blanco
-        // para evitar "recuadros" negros en el PDF.
         if (outputMime === "image/jpeg") {
             ctx.fillStyle = "#FFFFFF";
             ctx.fillRect(0, 0, targetWidth, targetHeight);
@@ -150,48 +160,55 @@ const useDocument = () => {
 
     const makePictureDocument = async () => {
         if (!currentReport) return;
+
         let iteration = 0;
         const MAX_ITERATIONS = 50;
-        const DevicesList = currentReport?.reportDeviceView;
-        const  RefactionList = currentReport?.refactions;
+        const DevicesList = currentReport.reportDeviceView;
+        const RefactionList = currentReport.refactions;
         let DevicesTable: Table = {
             title: "Equipos",
-            headers: ["Marca ", "Modelo", "Número de serie"],
+            headers: ["Marca ", "Modelo", "Numero de serie"],
             datatable: [[]],
         };
         let RefationsTable: Table = {
             title: "Refacciones",
             headers: [
-                "Descripción ",
+                "Descripcion ",
                 "Marca",
                 "Modelo",
-                "Número de serie",
-                "Número de parte",
+                "Numero de serie",
+                "Numero de parte",
             ],
             datatable: [[]],
         };
         let SolutionDiagnosticTable: Table = {
-            title: "Diagnóstico/Solución",
-            headers: ["Diagnóstico", "Solución"],
+            title: "Diagnostico/Solucion",
+            headers: ["Diagnostico", "Solucion"],
             datatable: [[]],
         };
 
         const observations: SingleElement = {
             singletitle: "Observaciones",
-            text: currentReport?.remarks || "Sin observaciones",
+            text: currentReport.remarks || "Sin observaciones",
         };
         const diagnostic: SingleElement = {
-            singletitle: "Diagnóstico",
-            text: currentReport?.diagnostic || "Sin diagnóstico",
+            singletitle: "Diagnostico",
+            text: currentReport.diagnostic || "Sin diagnostico",
         };
         const solution: SingleElement = {
-            singletitle: "Solución",
-            text: currentReport?.solution || "Ninguna solución encontrada",
+            singletitle: "Solucion",
+            text: currentReport.solution || "Ninguna solucion encontrada",
         };
         const documentdata: DataChartElement[] = [];
         const picturesdata: ImageElement[] = [];
         const mapsdata: ImageElement[] = [];
-        const documentData = { "Ticket": currentReport?.ticket, "Categoría": currentReport?.reportcategories?.name, "Tipo de Reporte": currentReport.reportcategories?.typesofreports?.name, "Ubicación": currentReport.location?.name }
+        const documentData = {
+            "Ticket": currentReport.ticket,
+            "Categoria": currentReport.reportcategories?.name,
+            "Tipo de Reporte": currentReport.reportcategories?.typesofreports?.name,
+            "Ubicacion": currentReport.location?.name,
+        };
+
         for (const key in documentData) {
             if (documentData[key as keyof typeof documentData]) {
                 documentdata.push({
@@ -200,6 +217,7 @@ const useDocument = () => {
                 });
             }
         }
+
         if (currentReport.activities.length > 0) {
             const normalizedActivities = await Promise.all(
                 currentReport.activities.map(async (picture) => ({
@@ -210,6 +228,7 @@ const useDocument = () => {
             );
             picturesdata.push(...normalizedActivities);
         }
+
         if (currentReport.maps.length > 0) {
             const normalizedMaps = await Promise.all(
                 currentReport.maps.map(async (picture) => ({
@@ -222,12 +241,12 @@ const useDocument = () => {
             );
             mapsdata.push(...normalizedMaps);
         }
+
         let Info = { title: "Información", data: documentdata };
         const Pictures = (pictures: ImageElement[]) => ({
             title: "Evidencias de actividades",
             pictures,
         });
-
         const Maps = (pictures: ImageElement[]) => ({
             title: "Ubicaciones de trabajo",
             pictures,
@@ -236,65 +255,72 @@ const useDocument = () => {
             title: "Firma de responsable",
             signatures: [
                 {
-                    signature: await ensurePdfImageUrl(currentReport?.employeesignurl || "", { preserveAlpha: true }),
-                    name: currentReport?.employe?.fullname || "Nombre del responsable",
-                    charge: currentReport?.employe?.workposition?.name || "Cargo del responsable",
+                    signature: await ensurePdfImageUrl(currentReport.employeesignurl || "", { preserveAlpha: true }),
+                    name: currentReport.employe?.fullname || "Nombre del responsable",
+                    charge: currentReport.employe?.workposition?.name || "Cargo del responsable",
                 },
             ],
-
         };
-        if (currentReport?.model?.clientsign) {
+
+        if (currentReport.model?.clientsign) {
             Signature.signatures.push({
-                signature: await ensurePdfImageUrl(currentReport?.clientsign.url || "", { preserveAlpha: true }),
-                name: currentReport?.clientsign.clientname || "Nombre del cliente",
-                charge: currentReport?.clientsign.clientworkposition || "Cargo del cliente",
-            })
+                signature: await ensurePdfImageUrl(currentReport.clientsign.url || "", { preserveAlpha: true }),
+                name: currentReport.clientsign.clientname || "Nombre del cliente",
+                charge: currentReport.clientsign.clientworkposition || "Cargo del cliente",
+            });
         }
+
         const pages: newDocument[] = [];
 
         let InforResult: Infohelperreturninferface = {
-            newPagePoints: 0,
-            residualdata: Info?.data && Info.data.length > 0 ? Info.data : null,
+            remainingHeight: 0,
+            residualdata: Info.data.length > 0 ? Info.data : null,
             currentPageData: null,
+            consumedHeight: 0,
         };
         let DevicesResult: Infohelperreturninferface = {
-            newPagePoints: 0,
+            remainingHeight: 0,
             residualdata: DevicesList && DevicesList.length > 0 ? DevicesList : null,
             currentPageData: null,
+            consumedHeight: 0,
         };
         let RefactionsResult: Infohelperreturninferface = {
-            newPagePoints: 0,
-            residualdata:
-                RefactionList && RefactionList.length > 0 ? RefactionList : null,
+            remainingHeight: 0,
+            residualdata: RefactionList && RefactionList.length > 0 ? RefactionList : null,
             currentPageData: null,
+            consumedHeight: 0,
         };
-        let DiagnosticResult = {
-            newPagePoints: 0,
-            residualsolution: solution?.text || "",
-            residualdiagnostic: diagnostic?.text || "",
+        let DiagnosticResult: Diagnosticreturn = {
+            remainingHeight: 0,
+            residualsolution: solution.text || "",
+            residualdiagnostic: diagnostic.text || "",
             currentsolution: null,
             currentdiagnostic: null,
+            consumedHeight: 0,
         };
         let ActivitiesResult: Infohelperreturninferface = {
-            newPagePoints: 0,
-            residualdata:
-                picturesdata && picturesdata.length > 0 ? picturesdata : null,
+            remainingHeight: 0,
+            residualdata: picturesdata.length > 0 ? picturesdata : null,
             currentPageData: null,
+            consumedHeight: 0,
         };
         let MapsResults: Infohelperreturninferface = {
-            newPagePoints: 0,
-            residualdata: mapsdata && mapsdata.length > 0 ? mapsdata : null,
+            remainingHeight: 0,
+            residualdata: mapsdata.length > 0 ? mapsdata : null,
             currentPageData: null,
+            consumedHeight: 0,
         };
         let ObservationsResults: Infohelperreturninferface = {
-            newPagePoints: 0,
-            residualdata: observations?.text || "",
+            remainingHeight: 0,
+            residualdata: observations.text || "",
             currentPageData: null,
+            consumedHeight: 0,
         };
         let SignaturesResults: Infohelperreturninferface = {
-            newPagePoints: 0,
+            remainingHeight: 0,
             residualdata: Signature.signatures,
             currentPageData: null,
+            consumedHeight: 0,
         };
 
         let finishvalidations = {
@@ -308,13 +334,13 @@ const useDocument = () => {
             signatureValidations: false,
         };
 
-        let NewPagePoints = 12; // Inicializa con 13 solo para la primera vuelta
         let First = true;
         while (
             !finishvalidations.infovalidation ||
             !finishvalidations.devicevalidation ||
             !finishvalidations.refactionsvalidations ||
             !finishvalidations.diagnosticvalidation ||
+            !finishvalidations.activitiesvalidation ||
             !finishvalidations.observationsValidations ||
             !finishvalidations.signatureValidations ||
             !finishvalidations.mapsvalidation
@@ -322,34 +348,52 @@ const useDocument = () => {
             iteration++;
             if (iteration > MAX_ITERATIONS) {
                 console.warn(
-                    `⚠️ makeUniversalPhotographyDocument: excedido max de ${MAX_ITERATIONS} páginas—aborto para evitar bucle infinito.`
+                    `makeUniversalPhotographyDocument: excedido max de ${MAX_ITERATIONS} paginas; aborto para evitar bucle infinito.`
                 );
                 break;
             }
-            const NewPageelements: any = [];
-    
-            if (InforResult?.residualdata && InforResult.residualdata.length > 0) {
+
+            const NewPageelements: newDocument["elements"] = [];
+            const snapshotBefore = JSON.stringify({
+                info: getResidualSize(InforResult.residualdata),
+                devices: getResidualSize(DevicesResult.residualdata),
+                refactions: getResidualSize(RefactionsResult.residualdata),
+                diagnostic: getResidualSize(DiagnosticResult.residualdiagnostic),
+                solution: getResidualSize(DiagnosticResult.residualsolution),
+                activities: getResidualSize(ActivitiesResult.residualdata),
+                maps: getResidualSize(MapsResults.residualdata),
+                observations: getResidualSize(ObservationsResults.residualdata),
+                signatures: getResidualSize(SignaturesResults.residualdata),
+                finishvalidations,
+            });
+            let remainingHeight = getUsablePageHeight(First);
+            let consumedThisIteration = 0;
+
+            if (InforResult.residualdata && InforResult.residualdata.length > 0) {
                 InforResult = InfoHelper({
-                    PagePoints: NewPagePoints,
-                    Infodata: InforResult?.residualdata,
+                    remainingHeight,
+                    Infodata: InforResult.residualdata,
                 });
-                NewPagePoints = InforResult.newPagePoints;
-                Info = { ...Info, data: InforResult.currentPageData };
-                NewPageelements.push(Info);
+                remainingHeight = InforResult.remainingHeight;
+                consumedThisIteration += InforResult.consumedHeight;
+                if (InforResult.currentPageData?.length) {
+                    Info = { ...Info, data: InforResult.currentPageData };
+                    NewPageelements.push(Info);
+                }
+                if (!InforResult.residualdata?.length) {
+                    finishvalidations = { ...finishvalidations, infovalidation: true };
+                }
             } else {
                 finishvalidations = { ...finishvalidations, infovalidation: true };
             }
 
-
-            if (
-                DevicesResult?.residualdata &&
-                DevicesResult.residualdata.length > 0
-            ) {
+            if (DevicesResult.residualdata && DevicesResult.residualdata.length > 0) {
                 DevicesResult = TableHelper({
-                    PagePoints: NewPagePoints,
-                    Infodata: DevicesResult?.residualdata,
+                    remainingHeight,
+                    Infodata: DevicesResult.residualdata,
                 });
-                NewPagePoints = DevicesResult.newPagePoints;
+                remainingHeight = DevicesResult.remainingHeight;
+                consumedThisIteration += DevicesResult.consumedHeight;
                 if (DevicesResult.currentPageData) {
                     DevicesTable = {
                         ...DevicesTable,
@@ -361,33 +405,38 @@ const useDocument = () => {
                     };
                     NewPageelements.push(DevicesTable);
                 }
+                if (!DevicesResult.residualdata?.length) {
+                    finishvalidations = { ...finishvalidations, devicevalidation: true };
+                }
             } else {
                 finishvalidations = { ...finishvalidations, devicevalidation: true };
             }
 
-            if (
-                RefactionsResult?.residualdata &&
-                RefactionsResult.residualdata.length > 0
-            ) {
+            if (RefactionsResult.residualdata && RefactionsResult.residualdata.length > 0) {
                 RefactionsResult = TableHelper({
-                    PagePoints: NewPagePoints,
-                    Infodata: RefactionsResult?.residualdata,
+                    remainingHeight,
+                    Infodata: RefactionsResult.residualdata,
                 });
-                NewPagePoints = RefactionsResult.newPagePoints;
+                remainingHeight = RefactionsResult.remainingHeight;
+                consumedThisIteration += RefactionsResult.consumedHeight;
                 if (RefactionsResult.currentPageData) {
                     RefationsTable = {
                         ...RefationsTable,
-                        datatable: RefactionsResult.currentPageData.map(
-                            (refaction: any) => [
-                                refaction.description,
-                                refaction.brand,
-                                refaction.model,
-                                refaction.serialnumber,
-                                refaction?.partnumber,
-                            ]
-                        ),
+                        datatable: RefactionsResult.currentPageData.map((refaction: any) => [
+                            refaction.description,
+                            refaction.brand,
+                            refaction.model,
+                            refaction.serialnumber,
+                            refaction?.partnumber,
+                        ]),
                     };
                     NewPageelements.push(RefationsTable);
+                }
+                if (!RefactionsResult.residualdata?.length) {
+                    finishvalidations = {
+                        ...finishvalidations,
+                        refactionsvalidations: true,
+                    };
                 }
             } else {
                 finishvalidations = {
@@ -396,23 +445,19 @@ const useDocument = () => {
                 };
             }
 
-
             if (
                 currentReport.model?.diagnostic &&
                 currentReport.model?.solution &&
-                (DiagnosticResult?.residualdiagnostic ||
-                    DiagnosticResult?.residualsolution)
+                (DiagnosticResult.residualdiagnostic || DiagnosticResult.residualsolution)
             ) {
                 DiagnosticResult = DiagnosticSolutionHelper({
-                    PagePoints: NewPagePoints,
-                    diagnostic: DiagnosticResult?.residualdiagnostic,
-                    solution: DiagnosticResult?.residualsolution,
+                    remainingHeight,
+                    diagnostic: DiagnosticResult.residualdiagnostic || "",
+                    solution: DiagnosticResult.residualsolution || "",
                 });
-                NewPagePoints = DiagnosticResult.newPagePoints;
-                if (
-                    DiagnosticResult.currentdiagnostic ||
-                    DiagnosticResult.currentsolution
-                ) {
+                remainingHeight = DiagnosticResult.remainingHeight;
+                consumedThisIteration += DiagnosticResult.consumedHeight;
+                if (DiagnosticResult.currentdiagnostic || DiagnosticResult.currentsolution) {
                     SolutionDiagnosticTable = {
                         ...SolutionDiagnosticTable,
                         datatable: [
@@ -424,6 +469,12 @@ const useDocument = () => {
                     };
                     NewPageelements.push(SolutionDiagnosticTable);
                 }
+                if (!DiagnosticResult.residualdiagnostic && !DiagnosticResult.residualsolution) {
+                    finishvalidations = {
+                        ...finishvalidations,
+                        diagnosticvalidation: true,
+                    };
+                }
             } else {
                 finishvalidations = {
                     ...finishvalidations,
@@ -431,21 +482,22 @@ const useDocument = () => {
                 };
             }
 
-
-            if (
-                ActivitiesResult?.residualdata &&
-                ActivitiesResult.residualdata.length > 0
-            ) {
+            if (ActivitiesResult.residualdata && ActivitiesResult.residualdata.length > 0) {
                 ActivitiesResult = ActivitiesHelper({
-                    PagePoints: NewPagePoints,
+                    remainingHeight,
                     Infodata: ActivitiesResult.residualdata,
-                    LinePoints: 3,
                 });
+                remainingHeight = ActivitiesResult.remainingHeight;
+                consumedThisIteration += ActivitiesResult.consumedHeight;
                 if (ActivitiesResult.currentPageData) {
                     NewPageelements.push(Pictures(ActivitiesResult.currentPageData));
                 }
-
-                NewPagePoints = ActivitiesResult.newPagePoints;
+                if (!ActivitiesResult.residualdata?.length) {
+                    finishvalidations = {
+                        ...finishvalidations,
+                        activitiesvalidation: true,
+                    };
+                }
             } else {
                 finishvalidations = {
                     ...finishvalidations,
@@ -453,39 +505,41 @@ const useDocument = () => {
                 };
             }
 
-
-            if (MapsResults?.residualdata && MapsResults.residualdata.length > 0) {
+            if (MapsResults.residualdata && MapsResults.residualdata.length > 0) {
                 MapsResults = ActivitiesHelper({
-                    PagePoints: NewPagePoints,
+                    remainingHeight,
                     Infodata: MapsResults.residualdata,
-                    LinePoints: 5,
                 });
+                remainingHeight = MapsResults.remainingHeight;
+                consumedThisIteration += MapsResults.consumedHeight;
                 if (MapsResults.currentPageData) {
                     NewPageelements.push(Maps(MapsResults.currentPageData));
                 }
-                NewPagePoints = MapsResults.newPagePoints;
+                if (!MapsResults.residualdata?.length) {
+                    finishvalidations = { ...finishvalidations, mapsvalidation: true };
+                }
             } else {
                 finishvalidations = { ...finishvalidations, mapsvalidation: true };
             }
 
-            if (
-                ObservationsResults?.residualdata &&
-                ObservationsResults.residualdata.length > 0
-            ) {
+            if (ObservationsResults.residualdata && ObservationsResults.residualdata.length > 0) {
                 ObservationsResults = SingleTextHelper({
-                    PagePoints: NewPagePoints,
+                    remainingHeight,
                     Infodata: ObservationsResults.residualdata,
                 });
-                NewPagePoints = ObservationsResults.newPagePoints;
-                if (
-                    ObservationsResults.currentPageData &&
-                    ObservationsResults.currentPageData.length > 0
-                ) {
-
+                remainingHeight = ObservationsResults.remainingHeight;
+                consumedThisIteration += ObservationsResults.consumedHeight;
+                if (ObservationsResults.currentPageData && ObservationsResults.currentPageData.length > 0) {
                     NewPageelements.push({
                         ...observations,
                         text: ObservationsResults.currentPageData,
                     });
+                }
+                if (!ObservationsResults.residualdata?.length) {
+                    finishvalidations = {
+                        ...finishvalidations,
+                        observationsValidations: true,
+                    };
                 }
             } else {
                 finishvalidations = {
@@ -494,23 +548,24 @@ const useDocument = () => {
                 };
             }
 
-            if (
-                SignaturesResults?.residualdata &&
-                SignaturesResults.residualdata.length > 0
-            ) {
+            if (SignaturesResults.residualdata && SignaturesResults.residualdata.length > 0) {
                 SignaturesResults = SignatureHelper({
-                    PagePoints: NewPagePoints,
+                    remainingHeight,
                     Infodata: SignaturesResults.residualdata,
                 });
-                NewPagePoints = SignaturesResults.newPagePoints;
-                if (
-                    SignaturesResults.currentPageData &&
-                    SignaturesResults.currentPageData.length > 0
-                ) {
+                remainingHeight = SignaturesResults.remainingHeight;
+                consumedThisIteration += SignaturesResults.consumedHeight;
+                if (SignaturesResults.currentPageData && SignaturesResults.currentPageData.length > 0) {
                     NewPageelements.push({
                         ...Signature,
                         signatures: SignaturesResults.currentPageData,
                     });
+                }
+                if (!SignaturesResults.residualdata?.length) {
+                    finishvalidations = {
+                        ...finishvalidations,
+                        signatureValidations: true,
+                    };
                 }
             } else {
                 finishvalidations = {
@@ -519,12 +574,26 @@ const useDocument = () => {
                 };
             }
 
-            if (NewPageelements.length === 0) {
+            const snapshotAfter = JSON.stringify({
+                info: getResidualSize(InforResult.residualdata),
+                devices: getResidualSize(DevicesResult.residualdata),
+                refactions: getResidualSize(RefactionsResult.residualdata),
+                diagnostic: getResidualSize(DiagnosticResult.residualdiagnostic),
+                solution: getResidualSize(DiagnosticResult.residualsolution),
+                activities: getResidualSize(ActivitiesResult.residualdata),
+                maps: getResidualSize(MapsResults.residualdata),
+                observations: getResidualSize(ObservationsResults.residualdata),
+                signatures: getResidualSize(SignaturesResults.residualdata),
+                finishvalidations,
+            });
+
+            if (NewPageelements.length === 0 || consumedThisIteration <= 0 || snapshotBefore === snapshotAfter) {
                 console.warn(
-                    "⚠️ makeUniversalPhotographyDocument: ninguna sección aportó elementos en esta iteración, aborto para evitar bucle infinito."
+                    "makeUniversalPhotographyDocument: ninguna seccion avanzo en esta iteracion, aborto para evitar bucle infinito."
                 );
                 break;
             }
+
             let newPage: newDocument = {
                 folio: "",
                 elements: NewPageelements,
@@ -532,22 +601,20 @@ const useDocument = () => {
             if (First) {
                 newPage = {
                     ...newPage,
-                    title: currentReport.reportcategories?.typesofreports?.name|| "Reporte",
+                    title: currentReport.reportcategories?.typesofreports?.name || "Reporte",
                     progress: currentReport.progress,
-                    folio: currentReport.startdate+" - "+currentReport.enddate,
+                    folio: currentReport.startdate + " - " + currentReport.enddate,
                 };
                 First = false;
             }
 
-            if (newPage.elements.length > 0) pages.push(newPage);
-
-            // Asegurar que las siguientes iteraciones usen 15
-
-            NewPagePoints = 13;
+            if (newPage.elements.length > 0) {
+                pages.push(newPage);
+            }
         }
 
         return { pages };
-    }
+    };
 
     const exportExcel = async () => {
         if (!currentReport) {
@@ -586,7 +653,7 @@ const useDocument = () => {
 
         const sheets: SheetInput[] = [
             {
-                name: "Informacion general",
+                name: "Información general",
                 columns: generalColumns,
                 rows: generalRows,
             },
@@ -672,7 +739,7 @@ const useDocument = () => {
                 { key: "marca", header: "Marca", width: 25 },
                 { key: "modelo", header: "Modelo", width: 25 },
                 { key: "numeroSerie", header: "Numero de serie", width: 30 },
-                { key: "informacion", header: "Informacion adicional", width: 60 },
+                { key: "Información", header: "Información adicional", width: 60 },
             ];
 
             const deviceRows: Record<string, string>[] = devices.map((item) => ({
@@ -729,7 +796,6 @@ const useDocument = () => {
     };
 
     return { makePictureDocument, exportExcel };
+};
 
-}
 export default useDocument;
-

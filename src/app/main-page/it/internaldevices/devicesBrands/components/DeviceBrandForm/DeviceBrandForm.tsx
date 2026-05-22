@@ -165,7 +165,7 @@ const DeviceBrandForm: React.FC<DeviceBrandFormProps> = ({
       showAlert({
         type: 'error',
         title: 'Marca no disponible',
-        description: 'No se encontro informacion de la marca.',
+        description: 'No se encontro Información de la marca.',
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1200,
@@ -205,12 +205,12 @@ const DeviceBrandForm: React.FC<DeviceBrandFormProps> = ({
           enableCollapse={false}
           rightContent={
             <Button hideIcon disabled className={isMobile ? 'w-full mt-3' : ''}>
-              Guardar informacion
+              Guardar Información
             </Button>
           }
         >
           <div className="rounded-2xl bg-white-100 p-6 text-gray-70 shadow-md">
-            Cargando informacion de la marca...
+            Cargando Información de la marca...
           </div>
         </CollapsibleSection>
       </div>
@@ -242,7 +242,7 @@ const DeviceBrandForm: React.FC<DeviceBrandFormProps> = ({
             disabled={isSaving || (!brand && !isCreate)}
             className={isMobile ? 'w-full mt-3' : ''}
           >
-            Guardar informacion
+            Guardar Información
           </Button>
         }
       >

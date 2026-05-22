@@ -34,6 +34,7 @@ vi.mock('@/assets/icons/Connectivity/wifi.svg', () => ({ default: () => <svg /> 
 vi.mock('@/assets/icons/System/System/darkmode.svg', () => ({ default: () => <svg /> }));
 vi.mock('@/assets/icons/System/System/settings.svg', () => ({ default: () => <svg /> }));
 vi.mock('@/assets/icons/acciones/help-circle.svg', () => ({ default: () => <svg /> }));
+vi.mock('@/assets/icons/Fotos y Videos/video-camera.svg', () => ({ default: () => <svg /> }));
 vi.mock('@/assets/icons/acciones/open-in-window.svg', () => ({ default: () => <svg /> }));
 vi.mock('../ToogleButton.tsx/ToogleButton', () => ({
   ToggleButton: ({ onChange }: any) => <input type="checkbox" onChange={e => onChange(e.target.checked)} />,

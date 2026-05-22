@@ -77,7 +77,7 @@ const RequisitionDetailsDocument: React.FC = () => {
       {
         key: "xmlUrl" as unknown as keyof BillingDocumentDetailsTable,
         label: "ARCHIVOS",
-        cellClass: "w-1/15 text-left", headerClass: "w-1/15 text-left",
+        cellClass: "basis-[110px] flex-none text-left", headerClass: "basis-[110px] flex-none text-left",
         render: (row) => (
           <div className="flex items-center gap-1">
             {row.xmlUrl && (
@@ -101,23 +101,23 @@ const RequisitionDetailsDocument: React.FC = () => {
           </div>
         ),
       },
-      { key: "fecha", label: "FECHA CONSUMO", cellClass: "w-2/15 text-center", headerClass: "w-2/15 text-center" },
-      { key: "description", label: "DESCRIPCIÓN", cellClass: "w-2/15 text-center", headerClass: "w-2/15", },
-      { key: "numpersons", label: "No. PERS.", cellClass: "w-1/15 text-center", headerClass: "w-1/15 text-center" },
-      { key: "numnights", label: "No. NOCHES", cellClass: "w-1/15 text-center", headerClass: "w-1/15 text-center" },
+      { key: "fecha", label: "FECHA CONSUMO", cellClass: "basis-[130px] flex-none text-center", headerClass: "basis-[130px] flex-none text-center" },
+      { key: "description", label: "DESCRIPCIÓN", cellClass: "basis-[220px] flex-none text-left", headerClass: "basis-[220px] flex-none text-left", },
+      { key: "numpersons", label: "No. PERS.", cellClass: "basis-[90px] flex-none text-center", headerClass: "basis-[90px] flex-none text-center" },
+      { key: "numnights", label: "No. NOCHES", cellClass: "basis-[100px] flex-none text-center", headerClass: "basis-[100px] flex-none text-center" },
       {
         key: "uuid",
         label: "No. FACTURA/TICKET",
-        cellClass: "w-3/15", headerClass: "w-3/15"
+        cellClass: "basis-[220px] flex-none", headerClass: "basis-[220px] flex-none"
       },
-      { key: "subtotal", label: "SUBTOTAL", cellClass: "w-1/15", headerClass: "w-1/15" },
-      { key: "iva", label: "IVA", cellClass: "w-1/15", headerClass: "w-1/15" },
-      { key: "otherinvoices", label: "OTROS IMP.", cellClass: "w-1/15", headerClass: "w-1/15" },
-      { key: "total", label: "TOTAL", cellClass: "w-1/15", headerClass: "w-1/15" },
+      { key: "subtotal", label: "SUBTOTAL", cellClass: "basis-[110px] flex-none", headerClass: "basis-[110px] flex-none" },
+      { key: "iva", label: "IVA", cellClass: "basis-[90px] flex-none", headerClass: "basis-[90px] flex-none" },
+      { key: "otherinvoices", label: "OTROS IMP.", cellClass: "basis-[110px] flex-none", headerClass: "basis-[110px] flex-none" },
+      { key: "total", label: "TOTAL", cellClass: "basis-[110px] flex-none", headerClass: "basis-[110px] flex-none" },
       {
         key: "status",
         label: "STATUS",
-        cellClass: "w-1/15", headerClass: "w-1/15",
+        cellClass: "basis-[120px] flex-none", headerClass: "basis-[120px] flex-none",
         render: (row) => (
           <Label
             type={row.status.toLocaleLowerCase() as any}
@@ -138,7 +138,7 @@ const RequisitionDetailsDocument: React.FC = () => {
             Ver Detalles
           </Button>
         ),
-        cellClass: "w-1/15 text-right", headerClass: "w-1/15 text-right",
+        cellClass: "basis-[150px] flex-none whitespace-nowrap text-right", headerClass: "basis-[150px] flex-none text-right",
       },
     ],
     [handleOpenDetails],
@@ -203,14 +203,14 @@ const RequisitionDetailsDocument: React.FC = () => {
         )}
         showButton={false}
         showCalendar={false}
-        enablePagination={false}
+        rowsPerPage={8}
         tables={[
           {
             data: rows,
             columns: isMobile ? filteredMobileColumns : filteredColumns,
             enableSelection: false,
             title: sapprofile ? "Reporte de gastos" : "Comprobantes de Consumo",
-            enableCollaps: true,
+            enableCollaps: false,
             defaultSortKey: "fecha",
             defaultSortDirection: "desc",
           },

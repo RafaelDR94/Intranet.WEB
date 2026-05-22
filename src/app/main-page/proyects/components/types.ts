@@ -15,6 +15,7 @@ export type CrudRecord = {
   tertiary: string;
   status: string;
   description: string;
+  projectId?: string;
   projectCode?: string;
   mapLink?: string;
   linkmaps?: string;

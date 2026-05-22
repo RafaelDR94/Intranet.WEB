@@ -89,6 +89,7 @@ const buildReport = () => {
   return createSampleReport({
     id: "",
     front_identifier: "FR-NEW",
+    idSpareParts: ["SP-1", "SP-2"],
     activities: [
       {
         title: "Actividad 1",
@@ -186,6 +187,7 @@ describe("useReportSaver", () => {
     expect(payload.employe.employee_id).toBe("EMP-1");
     expect(payload.workposition.workposition_id).toBe("WP-1");
     expect(payload.datecreate).toBe("2024-05-10");
+    expect(payload.idSpareParts).toEqual(["SP-1", "SP-2"]);
 
     expect(updateBackIdMock).toHaveBeenCalledWith("REP-999");
     expect(updateQueryMock).toHaveBeenCalledWith({

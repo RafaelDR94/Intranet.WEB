@@ -156,6 +156,7 @@ const LocationsList = ({ scope }: LocationsListProps) => {
               data: state.rows,
               columns,
               title: state.title,
+              enableCollaps: false,
             },
           ]}
         />

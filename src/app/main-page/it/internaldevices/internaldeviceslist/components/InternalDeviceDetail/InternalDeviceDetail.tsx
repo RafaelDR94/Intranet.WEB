@@ -69,7 +69,7 @@ const InternalDeviceDetail: React.FC<InternalDeviceDetailProps> = ({
           >
             <ButtonsNavigation.Item
               id="info"
-              label="Informacion"
+              label="Información"
               renderContent={<Information device={device} onEdit={onEditInformation} />}
             />
             <ButtonsNavigation.Item

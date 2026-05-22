@@ -17,6 +17,8 @@ export const loginStyles = {
     "h-12 w-full rounded-xl border-[1.5px] border-gray-40 bg-transparent px-3 py-3 text-sm leading-5 text-white placeholder:text-white/40 hover:border-white/80 focus:border-green-40 focus:outline-none",
   emailStepButton:
     "flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-green-80 px-5 text-[16px] font-semibold leading-[29px] text-white transition hover:bg-[#67cfc5] disabled:cursor-not-allowed disabled:bg-[#295f68]",
+  passkeyButton:
+    "mb-4 flex h-12 w-full items-center justify-center rounded-xl bg-green-80 text-[16px] font-semibold leading-[29px] text-white transition hover:bg-[#67cfc5] disabled:cursor-not-allowed disabled:bg-[#295f68]",
   readOnlyEmailWrap: "mb-5 flex flex-col gap-2",
   readOnlyEmailHeader: "flex items-center justify-between gap-3",
   readOnlyEmailValue:

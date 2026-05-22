@@ -15,7 +15,11 @@ export const fetchGenericEquipments = async (
   get: Get,
   force = false
 ): Promise<GenericEquipment[]> => {
-  if (get().genericEquipments.length > 0 && !force) {
+  if (
+    get().genericEquipments.length > 0 &&
+    get().lastGenericEquipmentsScope === "all" &&
+    !force
+  ) {
     set({ successGet: true, error: undefined });
     return get().genericEquipments;
   }
@@ -30,6 +34,8 @@ export const fetchGenericEquipments = async (
 
     set({
       genericEquipments,
+      lastGenericEquipmentsScope: "all",
+      lastGenericEquipmentsByProyectId: null,
       loading: false,
       successGet: true,
     });

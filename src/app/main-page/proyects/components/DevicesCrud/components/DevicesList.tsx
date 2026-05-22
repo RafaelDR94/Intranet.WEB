@@ -62,6 +62,7 @@ const DevicesList = ({ scope }: DevicesListProps) => {
               data: state.rows,
               columns: state.columns,
               title: state.title,
+              enableCollaps: false,
             },
           ]}
         />

@@ -202,6 +202,10 @@ export const getTabsFromPath = (
       { label: 'Departamentos', path: '/main-page/humanresources/organizationchart/departments' },
       { label: 'Directorio General', path: '/main-page/humanresources/organizationchart/generaldirectory' },
     ],
+    organigrama: [
+      { label: 'Departamentos', path: '/main-page/organigrama/departments' },
+      { label: 'Directorio General', path: '/main-page/organigrama/generaldirectory' },
+    ],
     'humanresources/companies': [
       { label: 'Empresas', path: '/main-page/humanresources/companies' },
     ],
@@ -422,6 +426,16 @@ export const getTabsFromPath = (
 
     if (!tabs.some(t => t.path === detailPath || t.label === detailLabel)) {
       tabs = [...tabs, { label: detailLabel, path: detailPath }];
+    }
+
+    if (view === 'billablefiles') {
+      const billableQs = new URLSearchParams(qs);
+      billableQs.set('view', 'billablefiles');
+      const billablePath = `${clean}?${billableQs.toString()}`;
+
+      if (!tabs.some((t) => t.path === billablePath || t.label === 'Archivos Facturables')) {
+        tabs = [...tabs, { label: 'Archivos Facturables', path: billablePath }];
+      }
     }
   }
 
@@ -655,6 +669,24 @@ export const getTabsFromPath = (
         {
           label: departmentLabel,
           path: `/main-page/humanresources/organizationchart/departments?${detailQs.toString()}`,
+        },
+      ];
+    }
+  }
+
+  if (first === 'organigrama' && second === 'departments') {
+    if (view === 'detail' && id) {
+      const departmentLabel = labelparam || 'Departamento';
+      const detailQs = new URLSearchParams();
+      detailQs.set('view', 'detail');
+      detailQs.set('id', id);
+      if (departmentLabel) detailQs.set('label', departmentLabel);
+
+      tabs = [
+        { label: 'Departamentos', path: '/main-page/organigrama/departments' },
+        {
+          label: departmentLabel,
+          path: `/main-page/organigrama/departments?${detailQs.toString()}`,
         },
       ];
     }

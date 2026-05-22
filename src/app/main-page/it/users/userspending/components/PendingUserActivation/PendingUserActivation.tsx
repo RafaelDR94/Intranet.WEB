@@ -154,7 +154,6 @@ const getEmployeeFields = (
     name: 'businessPhone',
     label: 'Teléfono*',
     value: user.businessPhone,
-    validations: [{ type: 'required' }],
   },
   {
     type: 'select',

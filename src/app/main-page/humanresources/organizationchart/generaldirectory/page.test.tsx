@@ -24,6 +24,7 @@ const DataTable = vi.hoisted(() =>
 
 const useEmployeesStore = vi.hoisted(() => vi.fn());
 const useAuth = vi.hoisted(() => vi.fn());
+const useRouter = vi.hoisted(() => vi.fn(() => ({ push: vi.fn() })));
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
   DataTable,
@@ -38,6 +39,10 @@ vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   useAuth: () => useAuth(),
 }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => useRouter(),
+}));
+
 vi.mock(
   '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery',
   () => ({
@@ -50,6 +55,8 @@ describe('GeneralDirectoryPage', () => {
     DataTable.mockClear();
     useEmployeesStore.mockReset();
     useAuth.mockReset();
+    useRouter.mockReset();
+    useRouter.mockReturnValue({ push: vi.fn() });
     useAuth.mockReturnValue({
       currentPagePermissions: {
         canSeeDetails: true,

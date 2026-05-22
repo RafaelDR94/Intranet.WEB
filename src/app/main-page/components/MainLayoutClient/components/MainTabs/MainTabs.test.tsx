@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Static assets
 vi.mock('@/assets/icons/acciones/menu.svg', () => ({ default: () => <svg data-testid="menu" /> }));
-vi.mock('@/assets/icons/acciones/help-circle.svg', () => ({ default: () => <svg data-testid="help" /> }));
+vi.mock('@/assets/icons/Fotos y Videos/media-video-list.svg', () => ({ default: () => <svg data-testid="tutorial" /> }));
 vi.mock('@/assets/icons/Comunicacion/bell.svg', () => ({ default: () => <svg data-testid="bell" /> }));
 vi.mock('@/assets/icons/Comunicacion/bell-notification.svg', () => ({ default: () => <svg data-testid="bell-notification" /> }));
 vi.mock('../Notification/Notification', () => ({ __esModule: true, default: () => <div>Notification</div> }));
@@ -20,8 +20,9 @@ vi.mock('next/navigation', () => ({
 }))
 
 // Responsive hook
+let mockIsMobile = false;
 vi.mock('@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery', () => ({
-  useIsMobile: () => false,
+  useIsMobile: () => mockIsMobile,
 }))
 
 import MainTabs from './MainTabs';
@@ -32,7 +33,10 @@ const tabs = [
 ];
 
 describe('MainTabs', () => {
-  beforeEach(() => { mockQS = '' })
+  beforeEach(() => {
+    mockQS = '';
+    mockIsMobile = false;
+  });
   it('renders tabs', () => {
     render(<MainTabs tabs={tabs} pathname="/a" validPermissionsbyroute={() => true} />);
     expect(screen.getByText('Tab1')).toBeInTheDocument();
@@ -74,5 +78,34 @@ describe('MainTabs', () => {
     );
     expect(screen.getByText('List').className).toMatch(/text-gray-70/);
     expect(screen.getByText('Detail').className).toMatch(/text-gray-100/);
+  });
+
+  it('uses white icon classes in the mobile top bar', () => {
+    mockIsMobile = true;
+
+    render(<MainTabs tabs={tabs} pathname="/a" validPermissionsbyroute={() => true} />);
+
+    expect(screen.getByRole('button', { name: 'Centro de tutoriales' }).className).toMatch(/text-white-100/);
+    expect(screen.getByTestId('top-bar-notifications').className).toMatch(/text-white-100/);
+    expect(screen.getByTestId('open-mobile-menu').className).toMatch(/text-white-100/);
+  });
+
+  it('enables horizontal scrolling for tabs on mobile', () => {
+    mockIsMobile = true;
+
+    render(
+      <MainTabs
+        tabs={[
+          { label: 'Tab 1 larga', path: '/a' },
+          { label: 'Tab 2 larga', path: '/b' },
+          { label: 'Tab 3 larga', path: '/c' },
+        ]}
+        pathname="/a"
+        validPermissionsbyroute={() => true}
+      />
+    );
+
+    expect(screen.getByTestId('main-tabs-scroll').className).toMatch(/overflow-x-auto/);
+    expect(screen.getByTestId('tab:/a').className).toMatch(/whitespace-nowrap/);
   });
 });

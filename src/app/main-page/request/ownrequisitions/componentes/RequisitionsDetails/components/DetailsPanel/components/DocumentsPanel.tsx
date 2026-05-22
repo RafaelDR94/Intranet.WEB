@@ -206,7 +206,7 @@ const DocumentsPanel: React.FC<DocumentsPanelProps> = ({
                   size="xsmall"
                   variant="ghost"
                   icon={ImageIcon}
-                  disabled={!selected.pdf}
+                  disabled={!selected.image}
                   onClick={() => window.open(selected?.image, "_blank")}
                   data-tour="ownrequisitions-billablefiles-panel-image"
                 />

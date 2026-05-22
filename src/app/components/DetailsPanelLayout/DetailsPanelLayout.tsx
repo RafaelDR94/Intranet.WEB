@@ -37,13 +37,14 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
     expanded ?? false,
   );
   const isControlled = typeof onExpandedChange === "function";
-  const isExpanded = isControlled ? Boolean(expanded) : internalExpanded;
   const isMobile = useIsMobile();
+  const isExpanded = isControlled ? Boolean(expanded) : internalExpanded;
+  const effectiveExpanded = isMobile ? true : isExpanded;
   const widthClass = !open
     ? "w-0"
     : isMobile
       ? "w-full max-w-full min-w-0"
-    : isExpanded
+    : effectiveExpanded
       ? "w-full"
       : collapsedWidthClass ?? "w-2/5 min-w-[320px]";
 
@@ -81,14 +82,14 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
           <div className={s.headerRight}>
             {renderActions?.()}
             {label?.()}
-            {open && (
+            {!isMobile && open && (
               <Button
                 variant="ghost"
                 size="small"
                 iconOnly
-                aria-label={isExpanded ? "Colapsar panel" : "Expandir panel"}
+                aria-label={effectiveExpanded ? "Colapsar panel" : "Expandir panel"}
                 icon={() =>
-                  isExpanded ? (
+                  effectiveExpanded ? (
                     <CollapseIcon className={detailsPanelStyles.iconButtons} />
                   ) : (
                     <ExpandIcon className={detailsPanelStyles.iconButtons} />

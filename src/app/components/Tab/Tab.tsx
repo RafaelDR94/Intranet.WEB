@@ -33,6 +33,7 @@ export const Tab: React.FC<TabProps> = ({
   label,
   selected = false,
   disabled = false,
+  showTrailingIcon = true,
   onClick,
 }) => {
   // Determina el color de texto basado en el estado de la pestaña
@@ -61,7 +62,7 @@ export const Tab: React.FC<TabProps> = ({
       <span className={tabStyles.tabLabel}>{label}</span>
 
       {/* Icono de flecha que indica navegación */}
-      <ArrowIcon className={tabStyles.tabIcon} />
+      {showTrailingIcon && <ArrowIcon className={tabStyles.tabIcon} />}
     </button>
   );
 };

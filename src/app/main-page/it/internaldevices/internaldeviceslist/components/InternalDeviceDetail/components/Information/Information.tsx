@@ -61,7 +61,7 @@ const Information: React.FC<InternalDeviceInformationProps> = ({
           className="gap-2"
           onClick={onEdit}
         >
-          Editar informacion
+          Editar Información
         </Button>
       </div>
 

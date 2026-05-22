@@ -20,7 +20,7 @@ export const sidebarRoutes = [
     icon: HomeIcon,
   },
   {
-    label: 'Tesoreria',
+    label: 'Tesorería',
     path: '/main-page/treasury',
     icon: ServerIcon,
     subroutes: [
@@ -93,6 +93,15 @@ export const sidebarRoutes = [
       { label: 'Organigrama', path: '/main-page/humanresources/organizationchart' },
       { label: 'Empresas', path: '/main-page/humanresources/companies' },
       { label: 'Departamentos', path: '/main-page/humanresources/departments' },
+    ],
+  },
+  {
+    label: 'Organigrama',
+    path: '/main-page/organigrama',
+    icon: ServerIcon,
+    subroutes: [
+      { label: 'Departamentos', path: '/main-page/organigrama/departments' },
+      { label: 'Directorio General', path: '/main-page/organigrama/generaldirectory' },
     ],
   },
   {
@@ -183,7 +192,7 @@ export const useMainPage = () => {
     const message1 =
       'Al activar el modo offline la funcionalidad puede estar limitada y los datos que se mostraran pueden no ser los mas actuales.';
     const message2 =
-      'Al activar el modo online se trabajara con la informacion mas actual de la nube.';
+      'Al activar el modo online se trabajara con la Información mas actual de la nube.';
 
     setOfflineMeMessage({
       open: true,

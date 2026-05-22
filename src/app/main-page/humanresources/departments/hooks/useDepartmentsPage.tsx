@@ -61,6 +61,7 @@ const useDepartmentsPage = () => {
   const hasHydratedEdit = useRef(false);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchValue, setSearchValue] = useState("");
   const [formState, setFormState] = useState<DepartmentFormState>(defaultFormState);
 
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
@@ -116,21 +117,42 @@ const useDepartmentsPage = () => {
     fetchEnterprises(true);
   }, [fetchEnterprises]);
 
+  const filteredDepartments = useMemo(() => {
+    const search = normalizeText(searchValue.trim());
+    if (!search) return departments;
+
+    return departments.filter((department) => {
+      const searchableValues = [
+        department.name,
+        department.enterprice_name,
+        department.description,
+      ]
+        .filter(Boolean)
+        .map((value) => normalizeText(value ?? ""));
+
+      return searchableValues.some((value) => value.includes(search));
+    });
+  }, [departments, searchValue]);
+
   const totalPages = useMemo(() => {
-    if (!departments.length) return 1;
-    return Math.ceil(departments.length / PAGE_SIZE);
-  }, [departments.length]);
+    if (!filteredDepartments.length) return 1;
+    return Math.ceil(filteredDepartments.length / PAGE_SIZE);
+  }, [filteredDepartments.length]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(1);
   }, [currentPage, totalPages]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchValue]);
+
   const paginatedDepartments = useMemo(() => {
     const start = (currentPage - 1) * PAGE_SIZE;
-    return departments.slice(start, start + PAGE_SIZE);
-  }, [departments, currentPage]);
+    return filteredDepartments.slice(start, start + PAGE_SIZE);
+  }, [currentPage, filteredDepartments]);
 
-  const showPagination = departments.length > PAGE_SIZE;
+  const showPagination = filteredDepartments.length > PAGE_SIZE;
 
   const resolveImageSrc = useCallback(
     (department: DepartmentType) =>
@@ -343,12 +365,15 @@ const useDepartmentsPage = () => {
     primaryLabel,
     isReady,
     departments,
+    filteredDepartments,
     creating: isSubmitting,
     paginatedDepartments,
     currentPage,
     totalPages,
     showPagination,
+    searchValue,
     setCurrentPage,
+    setSearchValue,
     loading,
     error,
     resolveImageSrc,

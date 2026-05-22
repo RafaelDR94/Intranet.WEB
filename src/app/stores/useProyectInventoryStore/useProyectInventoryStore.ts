@@ -7,7 +7,6 @@ import type { ProyectInventoryState } from './types';
 import {
   createGenericEquipment as createGenericEquipmentRequest,
   createSupplier as createSupplierRequest,
-  createGenericEquipmentSparePart as createGenericEquipmentSparePartRequest,
   createSparePart as createSparePartRequest,
   deleteGenericEquipment as deleteGenericEquipmentRequest,
   deleteSupplier as deleteSupplierRequest,
@@ -17,6 +16,7 @@ import {
   fetchSupplierById as fetchSupplierByIdRequest,
   fetchGenericEquipmentSpareParts as fetchGenericEquipmentSparePartsRequest,
   fetchGenericEquipments as fetchGenericEquipmentsRequest,
+  fetchGenericEquipmentsByProyectId as fetchGenericEquipmentsByProyectIdRequest,
   fetchSuppliers as fetchSuppliersRequest,
   fetchSpareParts as fetchSparePartsRequest,
   fetchSparePartsByDeviceId as fetchSparePartsByDeviceIdRequest,
@@ -24,7 +24,6 @@ import {
   fetchSparePartsByProyectId as fetchSparePartsByProyectIdRequest,
   updateGenericEquipment as updateGenericEquipmentRequest,
   updateSupplier as updateSupplierRequest,
-  updateGenericEquipmentSparePart as updateGenericEquipmentSparePartRequest,
   updateSparePart as updateSparePartRequest,
 } from './utilities';
 
@@ -40,6 +39,8 @@ export const useProyectInventoryStore =
       suppliers: [],
       currentSupplier: null,
       currentGenericEquipment: null,
+      lastGenericEquipmentsScope: null,
+      lastGenericEquipmentsByProyectId: null,
       lastSparePartsIsActive: null,
       lastSparePartsByProyectId: null,
       lastSparePartsByDeviceId: null,
@@ -78,6 +79,8 @@ export const useProyectInventoryStore =
 
       fetchGenericEquipments: (force = false) =>
         fetchGenericEquipmentsRequest(set, get, force),
+      fetchGenericEquipmentsByProyectId: (idProyect, force = false) =>
+        fetchGenericEquipmentsByProyectIdRequest(idProyect, set, get, force),
       fetchGenericEquipmentById: (id, force = false) =>
         fetchGenericEquipmentByIdRequest(id, set, get, force),
       fetchSpareParts: (isActive = true, force = false) =>
@@ -113,10 +116,6 @@ export const useProyectInventoryStore =
       updateSparePart: (payload) => updateSparePartRequest(set, get, payload),
       deleteSparePart: (id) => deleteSparePartRequest(set, get, id),
 
-      createGenericEquipmentSparePart: (payload) =>
-        createGenericEquipmentSparePartRequest(set, get, payload),
-      updateGenericEquipmentSparePart: (payload) =>
-        updateGenericEquipmentSparePartRequest(set, get, payload),
       deleteGenericEquipmentSparePart: (id) =>
         deleteGenericEquipmentSparePartRequest(set, get, id),
       createSupplier: (payload) => createSupplierRequest(set, get, payload),
@@ -139,6 +138,8 @@ export const useProyectInventoryStore =
           suppliers: [],
           currentSupplier: null,
           currentGenericEquipment: null,
+          lastGenericEquipmentsScope: null,
+          lastGenericEquipmentsByProyectId: null,
           lastSparePartsIsActive: null,
           lastSparePartsByProyectId: null,
           lastSparePartsByDeviceId: null,

@@ -10,6 +10,7 @@ import {
 } from "@/app/services/passkeys/deviceName";
 import { isPasskeySupported } from "@/app/services/passkeys/PasskeyService";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+import LogoDr from "@/assets/images/LogosDR/DReDIT.png";
 
 const PASSKEY_PROMPT_SESSION_KEY = "home-announcements-passkey-prompt-dismissed";
 
@@ -148,9 +149,9 @@ const Announcements = () => {
           "
         >
           <div className="flex flex-col items-center justify-center py-8 text-center md:py-0">
-            <div className="relative mb-5 h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28">
+            <div className="relative mb-5 h-[92px] w-[160px] sm:h-[110px] sm:w-[190px] md:h-[128px] md:w-[220px]">
               <Image
-                src="/images/DR_Logo.svg"
+                src={LogoDr}
                 alt="DR Security"
                 fill
                 className="object-contain"
@@ -163,7 +164,7 @@ const Announcements = () => {
             </h1>
 
             <p className="mt-4 max-w-[860px] font-sans text-b2 font-semibold text-blue-50 sm:mt-5 sm:text-s1">
-              Un nuevo espacio donde podras acceder a informacion, herramientas y recursos clave.
+              Un nuevo espacio donde podras acceder a Información, herramientas y recursos clave.
             </p>
 
             <p className="mt-3 font-sans text-c1 font-medium text-blue-50 sm:mt-4 sm:text-b2">

@@ -6,7 +6,7 @@ export const mapProyectLocation = (loc: any): ProyectLocationType => ({
   name: loc?.name,
   linkmaps: loc?.linkmaps,
   address: loc?.address,
-  proyect: loc?.proyect ?? [],
+  proyect: loc?.proyect ?? loc?.proyects ?? [],
 });
 
 export const mapProyectLocations = (locs: any[]): ProyectLocationType[] =>
@@ -16,6 +16,11 @@ export const mapLocationPost = (src: Partial<LocationPost> | any): LocationPost 
   name: String(src?.name ?? ""),
   linkmaps: String(src?.linkmaps ?? ""),
   address: String(src?.address ?? ""),
+  proyects: Array.isArray(src?.proyects)
+    ? src.proyects
+        .map((projectId: unknown) => String(projectId ?? "").trim())
+        .filter(Boolean)
+    : undefined,
 });
 
 export const mapLocationPut = (src: Partial<LocationPut> | any): LocationPut => ({
@@ -23,4 +28,9 @@ export const mapLocationPut = (src: Partial<LocationPut> | any): LocationPut => 
   name: String(src?.name ?? ""),
   linkmaps: String(src?.linkmaps ?? ""),
   address: String(src?.address ?? ""),
+  proyects: Array.isArray(src?.proyects)
+    ? src.proyects
+        .map((projectId: unknown) => String(projectId ?? "").trim())
+        .filter(Boolean)
+    : undefined,
 });

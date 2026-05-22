@@ -116,6 +116,12 @@ describe('ProyectList', () => {
       handleConfirmDelete,
       toRemove: sampleProjects[0],
       removing: false,
+      currentPagePermissions: {
+        create: true,
+        createreport: true,
+        currentproyect: true,
+      },
+      isMobile: false,
     });
   });
 
@@ -145,5 +151,35 @@ describe('ProyectList', () => {
 
     fireEvent.click(screen.getByText('Eliminar'));
     expect(handleConfirmDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it('prioriza Crear reporte y deja Ver Proyecto como outline en mobile cards', () => {
+    mockUseProyectList.mockReturnValue({
+      proyects: sampleProjects,
+      openDelete: false,
+      setOpenDelete: vi.fn(),
+      handleView: vi.fn(),
+      handleEdit: vi.fn(),
+      handleNew,
+      handleAskDelete: vi.fn(),
+      handleConfirmDelete,
+      handeReport: vi.fn(),
+      toRemove: sampleProjects[0],
+      removing: false,
+      currentPagePermissions: {
+        create: true,
+        createreport: true,
+        currentproyect: true,
+      },
+      isMobile: true,
+    });
+
+    render(<ProyectList />);
+
+    const cardAdapt = dataTableSpy.mock.calls[0][0].tables[0].cardAdapt;
+    expect(cardAdapt.primaryLabel).toBe('Crear reporte');
+    expect(cardAdapt.secondaryLabel).toBe('Ver Proyecto');
+    expect(cardAdapt.secondaryVariant).toBe('outline');
+    expect(cardAdapt.actionMenuProps(sampleProjects[0]).triggerIcon).toBe('dots');
   });
 });

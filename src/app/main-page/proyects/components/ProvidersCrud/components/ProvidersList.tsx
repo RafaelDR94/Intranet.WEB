@@ -113,6 +113,7 @@ const ProvidersList = ({ scope }: ProvidersListProps) => {
               data: state.rows,
               columns,
               title: state.title,
+              enableCollaps: false,
             },
           ]}
         />

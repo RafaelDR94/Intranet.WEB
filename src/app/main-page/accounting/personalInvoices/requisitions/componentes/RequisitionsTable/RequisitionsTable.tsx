@@ -51,7 +51,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
     () => [
       { key: "projectname", label: "PROYECTO"},
       { key: "state", label: "ESTADO" },
-      { key: "requisitionkey", label: "CÓDIGO DE SOLICITUD" },
+      { key: "requisitionkey", label: "CÓDIGO DE SOLICITUD", showSortIndicator: false },
       { key: "period", label: "PERIODO" },
       { key: "current_days", label: "DÍA CORRIENTE" },
       {
@@ -81,7 +81,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
-      { key: "requisitionkey", label: "CÓDIGO SN" },
+      { key: "requisitionkey", label: "CÓDIGO SN", showSortIndicator: false },
       {
         key: "status",
         label: "",
@@ -172,7 +172,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
                 columns: columns,
                 enableSelection: false,
                 title: "Historial",
-                enableCollaps: true,
+                enableCollaps: false,
                 defaultSortKey: "date_created",
                 defaultSortDirection: "desc",
               },
