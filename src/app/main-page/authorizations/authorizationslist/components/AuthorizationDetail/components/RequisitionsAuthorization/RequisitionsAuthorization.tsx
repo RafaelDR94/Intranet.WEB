@@ -100,7 +100,7 @@ const RequisitionsAuthorization = () => {
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4" data-tour="authorizations-requisition-header">
-        <div className="flex min-w-[240px] flex-1 items-center gap-3">
+        <div className="flex min-w-[240px] flex-1 items-center gap-3 md:pr-6">
           <p className="text-b3 text-blue-60">
             Reporte de gastos{' '}
             <span className="font-semibold text-blue-60">
@@ -111,7 +111,7 @@ const RequisitionsAuthorization = () => {
         </div>
 
         {!isOperationsRequisitionListContext && isPendingStatus && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 md:pl-2">
             <Button
               variant="outline"
               size="medium"

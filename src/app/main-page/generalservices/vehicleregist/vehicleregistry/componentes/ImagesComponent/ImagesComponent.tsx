@@ -37,6 +37,7 @@ const ImagesComponent: React.FC<ImagesComponentProps> = ({ formId }) => {
     handleResponsiveDownload,
     currentAssignment
   } = useImagesComponent({ formId });
+  const hasCapturedSignature = Boolean(signatureBox?.imageUrl);
 
   return (
     <section className={containerClass}>
@@ -85,7 +86,12 @@ const ImagesComponent: React.FC<ImagesComponentProps> = ({ formId }) => {
               ) : null}
 
               {shouldShowSignatureButton ? (
-                <Button hideIcon onClick={openSignature} className={signatureButtonClass}>
+                <Button
+                  hideIcon
+                  onClick={openSignature}
+                  className={signatureButtonClass}
+                  disabled={hasCapturedSignature}
+                >
                   Firma del Responsable de la Unidad
                 </Button>
               ) : null}

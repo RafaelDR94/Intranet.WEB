@@ -201,8 +201,8 @@ const useAuthorizationsList = () => {
         key: 'status',
         label: 'ESTATUS',
         render: (row) => <Label type={statusToLabelType(row.status)} text={row.status} />,
-        cellClass: 'w-1/16 text-left',
-        headerClass: 'w-1/16 text-left',
+        cellClass: 'w-2/16 text-left',
+        headerClass: 'w-2/16 text-left',
       },
       {
         key: 'id',
@@ -218,8 +218,8 @@ const useAuthorizationsList = () => {
             Ver Solicitud
           </Button>
         ),
-        cellClass: 'w-1/16 text-right',
-        headerClass: 'w-1/16 text-right',
+        cellClass: 'w-2/16 text-right pr-4',
+        headerClass: 'w-2/16 text-right pr-4',
       },
     ],
     [handleViewRequest],

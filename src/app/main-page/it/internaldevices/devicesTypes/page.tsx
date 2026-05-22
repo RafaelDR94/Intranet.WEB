@@ -54,7 +54,7 @@ const DevicesTypesPage = () => {
             title: 'Registro de tipo de dispositivo',
             columns,
             data: rows,
-            enableCollaps: true,
+            enableCollaps: false,
             enableSelection: false,
           },
         ]}

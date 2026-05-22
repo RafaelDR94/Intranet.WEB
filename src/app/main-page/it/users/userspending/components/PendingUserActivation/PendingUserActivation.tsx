@@ -18,10 +18,8 @@ import type {
 } from '../../types'
 
 import {
-  card,
   description,
   emptyMessage,
-  header,
   previewContainer,
   previewImage,
   title,
@@ -201,17 +199,14 @@ const SignatureDraftCard = ({
   signature: string
   onOpenPad: () => void
 }) => (
-  <section className={card}>
-    <header className={header}>
-      <h3 className={title}>Firma Digital</h3>
-      <p className={description}>
-        La firma se insertará en los documentos después de haber autorizado una
-        acción
-      </p>
-    </header>
-
-    <div className="flex flex-col gap-4">
-      <div className={previewContainer}>
+  <section className="space-y-4">
+    <h3 className={title}>Firma Digital</h3>
+    <p className={description}>
+      La firma se insertará en los documentos después de haber autorizado una
+      acción
+    </p>
+    <div className="flex flex-col items-center gap-4">
+      <div className={clsx(previewContainer, 'w-full max-w-[280px]')}>
         {signature ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
@@ -226,13 +221,14 @@ const SignatureDraftCard = ({
         )}
       </div>
 
-      <Button onClick={onOpenPad} variant="solid" hideIcon>
+      <Button
+        onClick={onOpenPad}
+        variant="solid"
+        hideIcon
+        className="h-8 px-6 text-c3 min-w-[110px]"
+      >
         {signature ? 'Actualizar Firma' : 'Crear Firma'}
       </Button>
-
-      <p className="text-label text-gray-70">
-        La firma se guardará hasta hacer click en activar cuenta.
-      </p>
     </div>
   </section>
 )
@@ -403,7 +399,7 @@ const PendingUserActivation: React.FC<PendingUserActivationProps> = ({
               />
             </Breadcrumbs>
 
-            <div className="flex items-center justify-between border-t border-gray-20 pt-5">
+            <div className="flex items-center justify-between pt-5">
               <Button
                 type="button"
                 variant="outline"

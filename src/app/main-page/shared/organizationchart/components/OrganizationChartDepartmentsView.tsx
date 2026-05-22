@@ -15,7 +15,9 @@ import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
+import type { DepartmentType } from "@/app/mappings/department/department.types";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
+import { useDepartmentsStore } from "@/app/stores/useDepartmentsStore/useDepartmentsStore";
 import SearchIcon from "@/assets/icons/organization/search.svg";
 import ListIcon from "@/assets/icons/Editor/list.svg";
 import GridIcon from "@/assets/icons/Layout/view-grid.svg";
@@ -124,11 +126,16 @@ const OrganizationChartDepartmentsView = ({
     null,
   );
   const [isDeletePopUpOpen, setIsDeletePopUpOpen] = useState(false);
+  const [departmentToDelete, setDepartmentToDelete] = useState<DepartmentType | null>(null);
+  const [isDeleteDepartmentPopUpOpen, setIsDeleteDepartmentPopUpOpen] = useState(false);
   const deleteEmployee = useEmployeesStore((state) => state.deleteEmployee);
   const deletingEmployee = useEmployeesStore((state) => state.deleting);
+  const deleteDepartment = useDepartmentsStore((state) => state.deleteDepartment);
+  const deletingDepartment = useDepartmentsStore((state) => state.updating);
   const fetchEmployeesByDepartment = useEmployeesStore(
     (state) => state.fetchEmployeesByDepartment,
   );
+  const fetchDepartments = useDepartmentsStore((state) => state.fetchDepartments);
 
   useEffect(() => {
     if (!isDetailView) {
@@ -213,6 +220,25 @@ const OrganizationChartDepartmentsView = ({
     !error &&
     departments.length > 0 &&
     filteredDepartments.length === 0;
+
+  const handleOpenDeleteDepartmentPopUp = (department: DepartmentType) => {
+    if (!canDeleteEmployee) return;
+    setDepartmentToDelete(department);
+    setIsDeleteDepartmentPopUpOpen(true);
+  };
+
+  const handleCloseDeleteDepartmentPopUp = () => {
+    setIsDeleteDepartmentPopUpOpen(false);
+    setDepartmentToDelete(null);
+  };
+
+  const handleDeleteDepartment = async () => {
+    if (!canDeleteEmployee || !departmentToDelete) return;
+    const deleted = await deleteDepartment(String(departmentToDelete.department_id));
+    if (!deleted) return;
+    await fetchDepartments(true);
+    handleCloseDeleteDepartmentPopUp();
+  };
 
   if (isDetailView) {
     const isEmployeesEmpty =
@@ -598,6 +624,13 @@ const OrganizationChartDepartmentsView = ({
               }
               primaryLabel="Ver Departamento"
               onAccept={() => handleViewDepartment(department)}
+              actionMenuProps={{
+                row: department,
+                onDelete: () => handleOpenDeleteDepartmentPopUp(department),
+                permissions: {
+                  delete: canDeleteEmployee,
+                },
+              }}
             />
           ))}
         </div>
@@ -611,6 +644,20 @@ const OrganizationChartDepartmentsView = ({
             onPageChange={setCurrentPage}
           />
         </div>
+      ) : null}
+      {departmentToDelete ? (
+        <PopUp
+          open={isDeleteDepartmentPopUpOpen}
+          onClose={handleCloseDeleteDepartmentPopUp}
+          title={`Deseas eliminar el departamento ${departmentToDelete.name || "seleccionado"}?`}
+          content="Esta accion confirmara la eliminacion del departamento."
+          showPrimaryButton
+          showSecondaryButton
+          primaryButtonText={deletingDepartment ? "Eliminando..." : "Eliminar"}
+          secondaryButtonText="Cancelar"
+          onPrimaryButtonClick={handleDeleteDepartment}
+          onSecondaryButtonClick={handleCloseDeleteDepartmentPopUp}
+        />
       ) : null}
     </div>
   );

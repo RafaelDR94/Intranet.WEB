@@ -76,7 +76,7 @@ export const internalDevicesTutorials: TutorialDefinition[] = [
       },
       {
         target: '[data-tour="internaldevices-asignation-create"]',
-        title: 'Nueva asignacion',
+        title: 'Nueva asignación',
         description: 'Inicia el flujo para asignar un dispositivo.',
       },
       {
