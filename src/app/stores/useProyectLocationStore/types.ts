@@ -1,4 +1,8 @@
-import type { ProyectLocationType } from '@/app/mappings/locations/locations.types';
+import type {
+  LocationPost,
+  LocationPut,
+  ProyectLocationType,
+} from '@/app/mappings/locations/locations.types';
 import type { ReportDeviceView } from '@/app/mappings/reports/reports.types';
 
 export type ProyectLocationState = {
@@ -18,6 +22,10 @@ export type ProyectLocationState = {
   loadingCurrentDevice: boolean;
   error?: string;
   fetchLocations: (proyectId: string, force?: boolean)   => Promise<ProyectLocationType[] | null | undefined>
+  fetchAllLocations: (force?: boolean) => Promise<ProyectLocationType[] | null | undefined>
+  createLocation: (payload: LocationPost) => Promise<ProyectLocationType | null>
+  updateLocation: (payload: LocationPut) => Promise<ProyectLocationType | null>
+  deleteLocation: (id: string) => Promise<boolean>
   fetchDevicesByLocation: (locationId: string, force?: boolean)  => Promise<void>
   fetchDevicesByProyectId: (proyectId: string, force?: boolean) => Promise<void>;
   fetchDeviceById: (deviceId: string, force?: boolean) => Promise<ReportDeviceView | null>;

@@ -5,7 +5,7 @@ export const administrationUsersTutorials: TutorialDefinition[] = [
     id: 'administration-createemployee:form',
     moduleId: 'administration-createemployee',
     title: 'Registro de empleado',
-    description: 'Captura la informacion del empleado.',
+    description: 'Captura la Información del empleado.',
     version: 1,
     steps: [
       {

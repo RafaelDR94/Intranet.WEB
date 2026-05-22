@@ -4,11 +4,15 @@ import { createWithEqualityFn } from 'zustand/traditional';
 
 import type { ProyectLocationState } from './types';
 import {
+  createLocation,
+  deleteLocation,
+  fetchAllLocations,
   fetchAllReportsDevices,
   fetchDeviceById,
   fetchDevicesByLocation,
   fetchDevicesByProyectId,
   fetchLocationsByProyect,
+  updateLocation,
 } from './utilities';
 
 export const useProyectLocationStore = createWithEqualityFn<ProyectLocationState>()((set, get) => ({
@@ -30,6 +34,10 @@ export const useProyectLocationStore = createWithEqualityFn<ProyectLocationState
 
   fetchLocations: async (proyectId: string, force = false) =>
     fetchLocationsByProyect(proyectId, set, get, force),
+  fetchAllLocations: async (force = false) => fetchAllLocations(set, get, force),
+  createLocation: async (payload) => createLocation(set, get, payload),
+  updateLocation: async (payload) => updateLocation(set, get, payload),
+  deleteLocation: async (id) => deleteLocation(set, get, id),
 
   fetchDevicesByLocation: async (locationId: string, force = false) =>
     fetchDevicesByLocation(locationId, set, get, force),

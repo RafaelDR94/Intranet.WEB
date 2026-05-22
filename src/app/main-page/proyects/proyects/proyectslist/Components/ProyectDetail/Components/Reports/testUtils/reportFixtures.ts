@@ -97,6 +97,7 @@ const baseReport: ReportView = {
   ],
   diagnostic: "Camaras con perdida de enfoque por suciedad.",
   solution: "Limpieza de lentes y recalibracion.",
+  idSpareParts: ["SP-1"],
   refactions: [
     {
       description: "Kit de limpieza de lentes",
@@ -145,6 +146,7 @@ export const createSampleReport = (overrides: Partial<ReportView> = {}): ReportV
   proyect: { ...baseReport.proyect, ...overrides.proyect },
   activities: overrides.activities ?? baseReport.activities,
   maps: overrides.maps ?? baseReport.maps,
+  idSpareParts: overrides.idSpareParts ?? baseReport.idSpareParts,
   refactions: overrides.refactions ?? baseReport.refactions,
   reportDeviceView: overrides.reportDeviceView ?? baseReport.reportDeviceView,
   clientsign: { ...baseReport.clientsign, ...(overrides.clientsign ?? {}) },

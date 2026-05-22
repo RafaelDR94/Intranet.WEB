@@ -18,7 +18,11 @@ export const readReportDB = async (
       throw new Error('No se encontro ningun reporte local con el identificador proporcionado.');
     }
 
-    const report = { ...document.report, front_identifier: frontId };
+    const report = {
+      ...document.report,
+      idSpareParts: document.report?.idSpareParts ?? [],
+      front_identifier: frontId,
+    };
     set({
       report,
       readingDB: false,

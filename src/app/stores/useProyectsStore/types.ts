@@ -1,4 +1,9 @@
-import type { Proyect, ProyectPost, ProyectPut } from '@/app/mappings/proyects/proyects.types'
+import type {
+  LinkProyectLocationsPayload,
+  Proyect,
+  ProyectPost,
+  ProyectPut,
+} from '@/app/mappings/proyects/proyects.types'
 
 /**
  * Shape of the projects store state.
@@ -13,19 +18,23 @@ export type ProyectsState = {
   loading: boolean
   creating: boolean
   updating: boolean
+  linkingLocations: boolean
   removing: boolean
 
   /** Flags de éxito */
   successGet: boolean
   successPost: boolean
   successPut: boolean
+  successLinkLocations: boolean
   successDelete: boolean
 
   /** Mensaje de error si ocurre */
   error?: string
 
   /** Obtiene proyectos */
-  fetchProyects: (force?: boolean) => Promise<void>
+  fetchProyects: (force?: boolean, idEmployee?: string) => Promise<void>
+  /** Obtiene un proyecto por id */
+  fetchProyectById: (id: string) => Promise<Proyect | null>
   /** Refetch forzado */
   forceFetchProyects: () => Promise<void>
 
@@ -33,6 +42,8 @@ export type ProyectsState = {
   createProyect: (payload: ProyectPost) => Promise<Proyect | null>
   /** Actualiza un proyecto */
   updateProyect: (payload: ProyectPut) => Promise<Proyect | null>
+  /** Vincula ubicaciones existentes a un proyecto */
+  linkLocationsToProyect: (payload: LinkProyectLocationsPayload) => Promise<boolean>
   /** Elimina un proyecto */
   deleteProyect: (id: string) => Promise<boolean>
 

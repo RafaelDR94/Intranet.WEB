@@ -275,7 +275,7 @@ export const useCompaniesPage = () => {
       showAlert({
         type: "error",
         title: "No se pudo cargar el logotipo",
-        description: err instanceof Error ? err.message : "OcurriÃ³ un error.",
+        description: err instanceof Error ? err.message : "Ocurrió un error.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,

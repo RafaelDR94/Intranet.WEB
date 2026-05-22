@@ -10,12 +10,14 @@ import type { FieldModel, ResponsiveLayoutMatrix } from '@/app/components/Dynami
 type CrudFormTemplateProps = {
   title: string;
   primaryLabel: string;
+  primaryDisabled?: boolean;
   fields: FieldModel[];
   loading: boolean;
   loadingFormInfo: boolean;
   responsiveLayout: ResponsiveLayoutMatrix;
   onSubmit: (values: Record<string, unknown>) => void;
   onCancel: () => void;
+  showSecondaryButton?: boolean;
   dataTestId: string;
   children?: React.ReactNode;
   mergeChildrenInSingleCard?: boolean;
@@ -28,12 +30,14 @@ type CrudFormTemplateProps = {
 const CrudFormTemplate = ({
   title,
   primaryLabel,
+  primaryDisabled = false,
   fields,
   loading,
   loadingFormInfo,
   responsiveLayout,
   onSubmit,
   onCancel,
+  showSecondaryButton = true,
   dataTestId,
   children,
   mergeChildrenInSingleCard = false,
@@ -85,8 +89,9 @@ const CrudFormTemplate = ({
       title={title}
       primaryLabel={primaryLabel}
       onPrimaryClick={() => submitRef.current?.()}
-      primaryDisabled={!formReady}
-      showSecondaryButton
+      primaryDisabled={primaryDisabled || !formReady}
+      enableCollapse={false}
+      showSecondaryButton={showSecondaryButton}
       secondaryLabel="Cancelar"
       onSecondaryClick={onCancel}
       cardClassName={cardClassName}

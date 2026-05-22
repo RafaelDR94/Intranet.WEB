@@ -26,6 +26,7 @@ export const createReportDB = async (
     if (existing) {
       const report: ReportView = {
         ...existing.report,
+        idSpareParts: existing.report?.idSpareParts ?? [],
         front_identifier: frontIdFromState,
       };
       set({
@@ -47,6 +48,7 @@ export const createReportDB = async (
     const timestamp = formatNow();
     const report: ReportView = {
       ...state.report,
+      idSpareParts: state.report.idSpareParts ?? [],
       front_identifier: newGuid,
     };
     const newDocument: ReportDocument = {

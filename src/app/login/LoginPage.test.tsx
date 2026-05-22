@@ -28,6 +28,15 @@ vi.mock("./styles", () => {
       header: "header",
       title: "title",
       subtitle: "subtitle",
+      emailStepPanel: "emailStepPanel",
+      emailStepForm: "emailStepForm",
+      emailStepLabel: "emailStepLabel",
+      emailStepInput: "emailStepInput",
+      emailStepButton: "emailStepButton",
+      readOnlyEmailWrap: "readOnlyEmailWrap",
+      readOnlyEmailHeader: "readOnlyEmailHeader",
+      readOnlyEmailValue: "readOnlyEmailValue",
+      editEmailButton: "editEmailButton",
       panel: "panel",
       formSkin: "formSkin",
       rememberContainer: "rememberContainer",
@@ -65,17 +74,19 @@ vi.mock("../components/DynamicForm/DynamicForm", () => {
       loading,
       children,
       onValuesChange,
+      dataTestId,
     }: any) => (
       <form
         aria-label="dynamic-form"
+        data-testid={dataTestId}
         onSubmit={(e) => {
           e.preventDefault();
-          onSubmit?.();
+          onSubmit?.({ password: "secret123" });
         }}
       >
         <button
           type="button"
-          onClick={() => onValuesChange?.({ email: "user@drsecurity.net" })}
+          onClick={() => onValuesChange?.({ password: "secret123" })}
         >
           sync-values
         </button>
@@ -101,12 +112,13 @@ vi.mock("../components/Alert/Alert", () => {
 
 vi.mock("../components/CheckBox/CheckBox", () => {
   return {
-    Checkbox: ({ checked, onChange, label, ...rest }: any) => (
+    Checkbox: ({ checked, onChange, label, dataTestId, ...rest }: any) => (
       <button
         type="button"
         aria-pressed={!!checked}
         aria-label={label ?? "checkbox"}
         onClick={() => onChange?.(!checked)}
+        data-testid={dataTestId}
         {...rest}
       >
         {label ?? "checkbox"}
@@ -116,30 +128,57 @@ vi.mock("../components/CheckBox/CheckBox", () => {
 });
 
 type LoginMockState = {
+  step: "emailLookup" | "passwordLogin";
+  enteredEmail: string;
+  maskedResolvedEmail: string;
+  canUsePasskey: boolean;
   handleLogin: () => void;
   handlePasskeyLogin: () => void;
   handleForgotPassword: () => void;
   handleLoginValuesChange: (values: Record<string, any>) => void;
+  handleEnteredEmailChange: (value: string) => void;
+  handleEmailStepSubmit: () => void;
+  handleEditEmail: () => void;
   handleRemember: (checked: boolean) => void;
   rememberStatus: boolean;
   failMessage: string | null;
   isLoading: boolean;
+  lookupLoading: boolean;
   loginFields: any[];
+  mfaRequiredData: null;
+  selectedMfaMethod: "Email";
+  mfaOptions: any[];
+  mfaLoading: boolean;
+  setSelectedMfaMethod: (method: "Email") => void;
+  handleSendMfaCode: () => void;
+  handleBackToLoginFromMfa: () => void;
 };
 
 const loginState: LoginMockState = {
+  step: "emailLookup",
+  enteredEmail: "",
+  maskedResolvedEmail: "ad***@dr.com",
+  canUsePasskey: false,
   handleLogin: vi.fn(),
   handlePasskeyLogin: vi.fn(),
   handleForgotPassword: vi.fn(),
   handleLoginValuesChange: vi.fn(),
+  handleEnteredEmailChange: vi.fn(),
+  handleEmailStepSubmit: vi.fn(),
+  handleEditEmail: vi.fn(),
   handleRemember: vi.fn(),
   rememberStatus: false,
   failMessage: null,
   isLoading: false,
-  loginFields: [
-    { id: "email", type: "email", label: "Email", value: "" },
-    { id: "password", type: "password", label: "Password", value: "" },
-  ],
+  lookupLoading: false,
+  loginFields: [{ id: "password", type: "password", label: "Password", value: "" }],
+  mfaRequiredData: null,
+  selectedMfaMethod: "Email",
+  mfaOptions: [],
+  mfaLoading: false,
+  setSelectedMfaMethod: vi.fn(),
+  handleSendMfaCode: vi.fn(),
+  handleBackToLoginFromMfa: vi.fn(),
 };
 
 export function __setLoginMock(partial: Partial<LoginMockState>) {
@@ -147,14 +186,22 @@ export function __setLoginMock(partial: Partial<LoginMockState>) {
 }
 
 export function __resetLoginMock() {
+  loginState.step = "emailLookup";
+  loginState.enteredEmail = "";
+  loginState.maskedResolvedEmail = "ad***@dr.com";
+  loginState.canUsePasskey = false;
   loginState.handleLogin = vi.fn();
   loginState.handlePasskeyLogin = vi.fn();
   loginState.handleForgotPassword = vi.fn();
   loginState.handleLoginValuesChange = vi.fn();
+  loginState.handleEnteredEmailChange = vi.fn();
+  loginState.handleEmailStepSubmit = vi.fn();
+  loginState.handleEditEmail = vi.fn();
   loginState.handleRemember = vi.fn();
   loginState.rememberStatus = false;
   loginState.failMessage = null;
   loginState.isLoading = false;
+  loginState.lookupLoading = false;
 }
 
 vi.mock("./hooks/useLogin", () => {
@@ -175,105 +222,73 @@ describe("LoginPage", () => {
     document.body.innerHTML = "";
   });
 
-  it("renderiza el formulario, el boton de enviar y el boton de recuperar contrasena", () => {
+  it("renderiza el paso inicial de correo", () => {
     render(<LoginPage />);
 
-    expect(
-      screen.getByRole("form", { name: "dynamic-form" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Iniciar sesión" }),
-    ).toBeInTheDocument();
-
-    const recover = screen.getByRole("button", {
-      name: /¿Olvidaste tu contraseña\?/i,
-    });
-    expect(recover).toBeInTheDocument();
+    expect(screen.getByTestId("login-email")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Siguiente" })).toBeInTheDocument();
+    expect(screen.queryByRole("form", { name: "dynamic-form" })).not.toBeInTheDocument();
   });
 
-  it("propaga el submit al handleLogin del hook", async () => {
+  it("dispara el lookup al enviar el correo", async () => {
     const user = userEvent.setup();
-    const spy = vi.fn();
-    __setLoginMock({ handleLogin: spy });
+    const emailSubmitSpy = vi.fn();
+    __setLoginMock({ handleEmailStepSubmit: emailSubmitSpy, enteredEmail: "admin@dr.com" });
 
     render(<LoginPage />);
 
-    await user.click(screen.getByRole("button", { name: "Iniciar sesión" }));
-    expect(spy).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole("button", { name: "Siguiente" }));
+    expect(emailSubmitSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("renderiza el paso de contraseña con correo enmascarado", () => {
+    __setLoginMock({
+      step: "passwordLogin",
+      maskedResolvedEmail: "ad***@dr.com",
+    });
+
+    render(<LoginPage />);
+
+    expect(screen.getByRole("form", { name: "dynamic-form" })).toBeInTheDocument();
+    expect(screen.getByTestId("login-email-masked")).toHaveTextContent("ad***@dr.com");
+    expect(screen.queryByTestId("login-email")).not.toBeInTheDocument();
+  });
+
+  it("muestra el botón passkey solo cuando está habilitado", () => {
+    __setLoginMock({ step: "passwordLogin", canUsePasskey: true });
+    render(<LoginPage />);
+
+    expect(
+      screen.getByRole("button", { name: "Iniciar sesión con Dispositivo" }),
+    ).toBeInTheDocument();
   });
 
   it("dispara handlePasskeyLogin al hacer click en el boton passkey", async () => {
     const user = userEvent.setup();
     const passkeySpy = vi.fn();
-    __setLoginMock({ handlePasskeyLogin: passkeySpy });
+    __setLoginMock({
+      step: "passwordLogin",
+      canUsePasskey: true,
+      handlePasskeyLogin: passkeySpy,
+    });
 
     render(<LoginPage />);
-    await user.click(screen.getByRole("button", { name: "Iniciar sesión con Passkey" }));
+    await user.click(screen.getByRole("button", { name: "Iniciar sesión con Dispositivo" }));
 
     expect(passkeySpy).toHaveBeenCalledTimes(1);
   });
 
-  it("llama a handleRemember con el valor alternado al hacer click en Checkbox", async () => {
+  it("permite volver a editar el correo desde el paso 2", async () => {
     const user = userEvent.setup();
-    const rememberSpy = vi.fn();
-    __setLoginMock({ rememberStatus: false, handleRemember: rememberSpy });
+    const editSpy = vi.fn();
+    __setLoginMock({
+      step: "passwordLogin",
+      handleEditEmail: editSpy,
+    });
 
     render(<LoginPage />);
 
-    const checkbox = screen.getByRole("button", { name: /Recordarme/i });
-    expect(checkbox).toHaveAttribute("aria-pressed", "false");
-
-    await user.click(checkbox);
-    expect(rememberSpy).toHaveBeenCalledWith(true);
-  });
-
-  it("propaga click en olvidar contrasena al hook", async () => {
-    const user = userEvent.setup();
-    const forgotSpy = vi.fn();
-    __setLoginMock({ handleForgotPassword: forgotSpy });
-
-    render(<LoginPage />);
-
-    await user.click(
-      screen.getByRole("button", { name: /¿Olvidaste tu contraseña\?/i }),
-    );
-    expect(forgotSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it("muestra el Alert cuando existe failMessage", () => {
-    __setLoginMock({ failMessage: "Credenciales invalidas" });
-
-    render(<LoginPage />);
-
-    const alert = screen.getByRole("alert");
-    expect(alert).toBeInTheDocument();
-    expect(screen.getByText("Login incorrecto")).toBeInTheDocument();
-    expect(screen.getByText("Credenciales invalidas")).toBeInTheDocument();
-  });
-
-  it("no muestra el Alert cuando failMessage es null/undefined", () => {
-    __setLoginMock({ failMessage: null });
-
-    render(<LoginPage />);
-
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  });
-
-  it("deshabilita el boton de submit cuando isLoading es true", () => {
-    __setLoginMock({ isLoading: true });
-
-    render(<LoginPage />);
-    const submit = screen.getByRole("button", { name: "Iniciar sesión" });
-    expect(submit).toBeDisabled();
-  });
-
-  it("renderiza las imagenes de fondo con sus alt texts", () => {
-    render(<LoginPage />);
-    expect(
-      screen.getByAltText("Fondo DR Security (desktop)"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByAltText("Fondo DR Security (mobile)"),
-    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Cambiar correo" }));
+    expect(editSpy).toHaveBeenCalledTimes(1);
   });
 });

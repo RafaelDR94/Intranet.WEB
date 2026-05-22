@@ -77,7 +77,6 @@ const getEmployeeFields = (
     buttonLabel: 'Subir imagen',
     accept: 'image/*',
     className: '!min-h-[290px] !w-full',
-    validations: [{ type: 'required' }],
   },
   {
     type: 'input',
@@ -155,7 +154,6 @@ const getEmployeeFields = (
     name: 'businessPhone',
     label: 'Teléfono*',
     value: user.businessPhone,
-    validations: [{ type: 'required' }],
   },
   {
     type: 'select',
@@ -277,7 +275,7 @@ const PendingUserActivation: React.FC<PendingUserActivationProps> = ({
   const currentStepIndex = TAB_ORDER.indexOf(activeStep)
   const canGoBack = currentStepIndex > 0
   const canGoNext = currentStepIndex < TAB_ORDER.length - 1
-  const canActivate = Boolean(user?.id && draftSignature && employeeFormValid)
+  const canActivate = Boolean(user?.id && employeeFormValid)
 
   const handlePreviousStep = () => {
     if (!canGoBack) return
@@ -376,7 +374,7 @@ const PendingUserActivation: React.FC<PendingUserActivationProps> = ({
           onSecondaryClick={onClose}
           secondaryLabel="Cancelar"
           onPrimaryClick={() => {
-            if (!user || !draftSignature) return
+            if (!user) return
             onActivate({
               userId: user.id,
               ...formValues,
@@ -427,7 +425,7 @@ const PendingUserActivation: React.FC<PendingUserActivationProps> = ({
                 </Button>
               ) : (
                 <p className="text-right text-label text-gray-70">
-                  La cuenta se activará cuando confirmes la firma.
+                  La firma es opcional para activar la cuenta.
                 </p>
               )}
             </div>

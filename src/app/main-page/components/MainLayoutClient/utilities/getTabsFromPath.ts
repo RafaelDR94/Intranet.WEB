@@ -183,9 +183,11 @@ export const getTabsFromPath = (
       { label: 'Refacciones', path: '/main-page/proyects/proyects/refactions' },
     ],
     'proyects/inventory': [
-      { label: 'Dispositivos', path: '/main-page/proyects/inventory/devices' },
+      { label: 'Equipos', path: '/main-page/proyects/inventory/devices' },
       { label: 'Refacciones', path: '/main-page/proyects/inventory/refactions' },
       { label: 'Ubicaciones', path: '/main-page/proyects/inventory/locations' },
+      { label: 'Proveedores', path: '/main-page/proyects/inventory/providers' },
+
     ],
     'generalservices/vehicleregist': [
       { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist/vehicleregistry' },
@@ -199,6 +201,10 @@ export const getTabsFromPath = (
     'humanresources/organizationchart': [
       { label: 'Departamentos', path: '/main-page/humanresources/organizationchart/departments' },
       { label: 'Directorio General', path: '/main-page/humanresources/organizationchart/generaldirectory' },
+    ],
+    organigrama: [
+      { label: 'Departamentos', path: '/main-page/organigrama/departments' },
+      { label: 'Directorio General', path: '/main-page/organigrama/generaldirectory' },
     ],
     'humanresources/companies': [
       { label: 'Empresas', path: '/main-page/humanresources/companies' },
@@ -420,6 +426,16 @@ export const getTabsFromPath = (
 
     if (!tabs.some(t => t.path === detailPath || t.label === detailLabel)) {
       tabs = [...tabs, { label: detailLabel, path: detailPath }];
+    }
+
+    if (view === 'billablefiles') {
+      const billableQs = new URLSearchParams(qs);
+      billableQs.set('view', 'billablefiles');
+      const billablePath = `${clean}?${billableQs.toString()}`;
+
+      if (!tabs.some((t) => t.path === billablePath || t.label === 'Archivos Facturables')) {
+        tabs = [...tabs, { label: 'Archivos Facturables', path: billablePath }];
+      }
     }
   }
 
@@ -658,11 +674,32 @@ export const getTabsFromPath = (
     }
   }
 
+  if (first === 'organigrama' && second === 'departments') {
+    if (view === 'detail' && id) {
+      const departmentLabel = labelparam || 'Departamento';
+      const detailQs = new URLSearchParams();
+      detailQs.set('view', 'detail');
+      detailQs.set('id', id);
+      if (departmentLabel) detailQs.set('label', departmentLabel);
+
+      tabs = [
+        { label: 'Departamentos', path: '/main-page/organigrama/departments' },
+        {
+          label: departmentLabel,
+          path: `/main-page/organigrama/departments?${detailQs.toString()}`,
+        },
+      ];
+    }
+  }
+
   if (first === 'proyects' && second === 'proyects') {
-    const baseProjectTabs: Tab[] = [
-      { label: 'Nuevo Proyecto', path: '/main-page/proyects/proyects/newproyect' },
-      { label: 'Proyectos', path: '/main-page/proyects/proyects/proyectslist' },
-    ];
+    const isNewProjectView = third === 'newproyect';
+    const baseProjectTabs: Tab[] = isNewProjectView
+      ? [
+          { label: 'Proyectos', path: '/main-page/proyects/proyects/proyectslist' },
+          { label: 'Nuevo Proyecto', path: '/main-page/proyects/proyects/newproyect' },
+        ]
+      : [{ label: 'Proyectos', path: '/main-page/proyects/proyects/proyectslist' }];
     const hasProjectContext = Boolean(id && labelparam);
 
     if (!hasProjectContext) {

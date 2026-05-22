@@ -5,7 +5,7 @@ export const proyectsProjectsTutorials: TutorialDefinition[] = [
     id: 'proyects-newproyect:form',
     moduleId: 'proyects-newproyect',
     title: 'Nuevo proyecto',
-    description: 'Captura la informacion del proyecto.',
+    description: 'Captura la Información del proyecto.',
     version: 1,
     steps: [
       {

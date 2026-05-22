@@ -154,6 +154,20 @@ describe("ActionMenuCellView", () => {
 
     expect(lastButtonIcon).toBe(DotsIcon);
   });
+
+  it("permite forzar el icono de tres puntos en mobile", () => {
+    render(
+      <ActionMenuCellView
+        row={row}
+        onEdit={onEdit}
+        permissions={{ details: true }}
+        isMobile={true}
+        triggerIcon="dots"
+      />
+    );
+
+    expect(lastButtonIcon).toBe(DotsIcon);
+  });
 });
 
 describe("ActionMenuCell", () => {

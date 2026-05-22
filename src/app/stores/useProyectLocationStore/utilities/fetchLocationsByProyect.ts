@@ -21,8 +21,9 @@ export const fetchLocationsByProyect = async (
     return;
   }
 
-  const { lastProyectId, locations } = get();
-  if (!force && lastProyectId === trimmed && locations.length > 0) return;
+  const { lastProyectId, loadingLocations } = get();
+  if (loadingLocations && lastProyectId === trimmed) return;
+  if (!force && lastProyectId === trimmed) return;
 
   set({ loadingLocations: true, error: undefined });
 

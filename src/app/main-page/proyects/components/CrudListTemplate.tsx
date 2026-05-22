@@ -59,6 +59,7 @@ const CrudListTemplate = ({
             data: rows,
             columns,
             title,
+            enableCollaps: false,
           },
         ]}
         searchDataTour={`${dataTourPrefix}-search`}

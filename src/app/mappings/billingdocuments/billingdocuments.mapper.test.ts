@@ -51,7 +51,7 @@ describe("billingdocuments.mapper", () => {
   });
 
   describe("BillingDocumentMap", () => {
-    it("prioritizes json_sap totals when present", () => {
+    it("prioritizes json_sap totals when present except otherinvoices", () => {
       const mapped = BillingDocumentMap({
         billingdocument_id: "bd-1",
         total: 100,
@@ -81,10 +81,56 @@ describe("billingdocuments.mapper", () => {
       expect(mapped.total).toBe(593);
       expect(mapped.subtotal).toBe(511.21);
       expect(mapped.iva).toBe(81.79);
-      expect(mapped.otherinvoices).toBe(0);
+      expect(mapped.otherinvoices).toBe(1);
       expect(mapped.json_sap?.moneda).toBe("MXN");
       expect(mapped.json_sap?.expenseType).toBe("6");
       expect(mapped.json_sap?.items).toHaveLength(1);
+    });
+
+    it("keeps otherinvoices from the root payload even if json_sap sends a different value", () => {
+      const mapped = BillingDocumentMap({
+        billingdocument_id: "bd-1b",
+        total: 100,
+        subtotal: 80,
+        iva: 20,
+        otherinvoices: 9.45,
+        json_sap: {
+          iva: 0,
+          subtotal: 70.37,
+          total: 76,
+          otherinvoices: 5.63,
+          moneda: "MXN",
+          expenseType: "6",
+          iscompleted: true,
+          items: [],
+        },
+      });
+
+      expect(mapped.otherinvoices).toBe(9.45);
+      expect(mapped.json_sap?.otherInvoices).toBe(5.63);
+    });
+
+    it("parses json_sap when the backend sends it as a string", () => {
+      const mapped = BillingDocumentMap({
+        billingdocument_id: "bd-1c",
+        total: 950,
+        subtotal: 798.32,
+        iva: 127.73,
+        otherinvoices: 0,
+        json_sap: JSON.stringify({
+          iva: 127.73,
+          subtotal: 798.32,
+          total: 950,
+          otherinvoices: 23.95,
+          moneda: "MXN",
+          expenseType: "6",
+          iscompleted: true,
+          items: [],
+        }),
+      });
+
+      expect(mapped.otherinvoices).toBe(0);
+      expect(mapped.json_sap?.otherInvoices).toBe(23.95);
     });
 
     it("falls back to legacy totals when json_sap is missing", () => {

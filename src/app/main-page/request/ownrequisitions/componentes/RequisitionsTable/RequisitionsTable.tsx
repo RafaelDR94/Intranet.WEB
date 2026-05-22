@@ -52,7 +52,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
     () => [
       { key: "projectname", label: "PROYECTO"},
       { key: "state", label: "ESTADO" },
-      { key: "requisitionkey", label: "CÓDIGO DE SOLICITUD" },
+      { key: "requisitionkey", label: "CÓDIGO DE SOLICITUD", showSortIndicator: false },
       { key: "period", label: "PERIODO" },
       { key: "current_days", label: "DÍA CORRIENTE" },
       {
@@ -82,7 +82,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
-      { key: "requisitionkey", label: "CÓDIGO SN" },
+      { key: "requisitionkey", label: "CÓDIGO SN", showSortIndicator: false },
       {
         key: "status",
         label: "",
@@ -93,7 +93,16 @@ const RequisitionsTable = ({ forceVisible = false }) => {
         label: "",
         render: (row) => (
           <div className="flex justify-end">
-            <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+            <ActionMenuCell
+              row={row}
+              onEdit={onEdit}
+              editLabel="Ver detalle"
+              onDelete={onDelete}
+              permissions={{
+                details: canRead,
+                delete: currentPagePermissions?.delete,
+              }}
+            />
           </div>
         ),
         cellClass: "w-12 text-right",
@@ -101,7 +110,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
         invisible: false,
       },
     ],
-    [onEdit, onDelete],
+    [canRead, currentPagePermissions?.delete, onEdit, onDelete],
   );
 
   // Filtra columnas si currentPagePermissions.sapprofile es true
@@ -173,7 +182,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
                 columns: columns,
                 enableSelection: false,
                 title: "Historial",
-                enableCollaps: true,
+                enableCollaps: false,
                 defaultSortKey: "date_created",
                 defaultSortDirection: "desc",
               },

@@ -49,7 +49,7 @@ const LocationsDetail = ({ scope, open }: LocationsDetailProps) => {
 
           <div className="flex justify-end">
             <button type="button" onClick={state.onEdit} className={actionButtonClass}>
-              <span>Editar informacion</span>
+              <span>Editar Información</span>
               <Edit3 className="h-6 w-6 text-green-100" strokeWidth={1.75} />
             </button>
           </div>
@@ -86,7 +86,7 @@ const LocationsDetail = ({ scope, open }: LocationsDetailProps) => {
                 className="mt-5 inline-flex items-center gap-2 break-all text-[18px] leading-[1.3] text-blue-60 underline-offset-2 hover:underline"
               >
                 <Link2 className="h-5 w-5 shrink-0" />
-                <span>{state.location.mapLink ?? 'Sin informacion'}</span>
+                <span>{state.location.mapLink ?? 'Sin Información'}</span>
               </a>
             </div>
             <div className={`${cardClass} min-h-[132px] sm:col-span-2`}>

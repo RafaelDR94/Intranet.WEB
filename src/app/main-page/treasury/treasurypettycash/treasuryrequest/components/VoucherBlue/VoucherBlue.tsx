@@ -85,7 +85,7 @@ const TreasuryVoucherBlue: React.FC<VoucherFormProps> = ({
             currentPagePermissions?.updaterequisitionForm &&
             (mode === "edit" || startDisabled)
           }
-          secondaryLabel={disableForm ? "Editar informacion" : "Cancelar"}
+          secondaryLabel={disableForm ? "Editar Información" : "Cancelar"}
           onSecondaryClick={() => {
             onClose?.();
             setDisableForm((prev) => !prev);

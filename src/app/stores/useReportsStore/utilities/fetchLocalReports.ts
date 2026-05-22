@@ -19,6 +19,7 @@ const toReportView = (doc: ReportDocument | undefined): ReportView | null => {
   return {
     ...stored,
     id: reportId,
+    idSpareParts: stored.idSpareParts ?? [],
     front_identifier: frontIdentifier ?? reportId,
     datecreate: doc.dateCreated ?? stored.datecreate ?? '',
   }

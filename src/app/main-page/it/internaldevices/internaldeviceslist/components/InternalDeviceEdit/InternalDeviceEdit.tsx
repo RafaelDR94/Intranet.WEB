@@ -488,7 +488,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
       showAlert({
         type: 'error',
         title: 'Dispositivo no disponible',
-        description: 'No se encontro informacion del dispositivo.',
+        description: 'No se encontro Información del dispositivo.',
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1200,
@@ -589,12 +589,12 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
           enableCollapse={false}
           rightContent={
             <Button hideIcon disabled className={isMobile ? 'w-full mt-3' : ''}>
-              Guardar informacion
+              Guardar Información
             </Button>
           }
         >
           <div className="rounded-2xl bg-white-100 p-6 text-gray-70 shadow-md">
-            Cargando informacion del dispositivo...
+            Cargando Información del dispositivo...
           </div>
         </CollapsibleSection>
       </div>
@@ -669,7 +669,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
             disabled={isCreate ? creatingDevice : !device || updatingDevice}
             className={isMobile ? 'w-full mt-3' : ''}
           >
-            {isCreate ? 'Crear dispositivo' : 'Guardar informacion'}
+            {isCreate ? 'Crear dispositivo' : 'Guardar Información'}
           </Button>
         }
       >

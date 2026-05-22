@@ -32,7 +32,7 @@ describe("Information component", () => {
     currentReportMock = { id: "REP-1" };
   });
 
-  it("muestra la informacion del reporte cuando hay datos", () => {
+  it("muestra la Información del reporte cuando hay datos", () => {
     render(<Information />);
 
     expect(screen.getByTestId("employee-name")).toBeInTheDocument();

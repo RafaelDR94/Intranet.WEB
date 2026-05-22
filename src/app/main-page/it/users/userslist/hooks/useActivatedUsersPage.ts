@@ -112,7 +112,7 @@ const useActivatedUsersPage = () => {
     }
 
     if (loadingUserById) {
-      showSpinner({ message: 'Cargando informacion del usuario...' })
+      showSpinner({ message: 'Cargando Información del usuario...' })
       return
     }
 
@@ -198,7 +198,7 @@ const useActivatedUsersPage = () => {
 
     showAlert({
       type: 'error',
-      title: 'No fue posible cargar la informacion del usuario',
+      title: 'No fue posible cargar la Información del usuario',
       description: usersStoreError!,
       showPrimaryButton: false,
       showSecondaryButton: false,

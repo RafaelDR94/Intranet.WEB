@@ -100,8 +100,14 @@ export const useReportBuilderStore = createWithEqualityFn<ReportBuilderState>()(
       persistIfHydrated();
     },
 
-    updateRefactions: (refactions) => {
-      set((state) => ({ report: { ...state.report, refactions } }));
+    updateRefactions: (refactions, idSpareParts) => {
+      set((state) => ({
+        report: {
+          ...state.report,
+          refactions,
+          idSpareParts: idSpareParts ?? state.report.idSpareParts,
+        },
+      }));
       persistIfHydrated();
     },
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
 import { Button } from "@/app/components/Button/Button";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
@@ -17,7 +18,7 @@ import ChatIcon from "@/assets/icons/Comunicacion/chat-bubble.svg";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
-import { BillingImages } from "@/app/mappings/billingimages/billingimages.types";
+import type { BillingImages } from "@/app/mappings/billingimages/billingimages.types";
 import type { BillableFileRow, BillableFileStatus } from "../types";
 
 const normalizeStatus = (status?: string | null): BillableFileStatus => {
@@ -33,9 +34,14 @@ const statusToLabel = (status: BillableFileStatus): LabelType => {
   return "pendiente";
 };
 
+const openFileUrl = (url?: string | null) => {
+  if (!url) return;
+  window.open(url, "_blank", "noopener,noreferrer");
+};
+
 const useBillableFilesPage = () => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, currentPagePermissions } = useAuth();
   const isGatewayReady = useIntranetGatewayStore((s) => s.isReady);
   const isMobile = useIsMobile();
   const [panelOpen, setPanelOpen] = useState(false);
@@ -93,10 +99,37 @@ const useBillableFilesPage = () => {
   const recentRows = useMemo(() => sortedRows.slice(0, 4), [sortedRows]);
   const historyRows = sortedRows;
   const requisitionId = selected?.requisition?.billingrequisition_id;
+  const canRead = currentPagePermissions?.read !== false;
 
   const handleOpenDetails = useCallback((row: BillableFileRow) => {
     setSelected(row.source);
     setPanelOpen(true);
+  }, []);
+
+  const handleOpenXml = useCallback((row: BillableFileRow) => {
+    const source = row.source as Partial<BillingDocuments> | null;
+    openFileUrl(source?.xml);
+  }, []);
+
+  const handleOpenPdf = useCallback((row: BillableFileRow) => {
+    const source = row.source as Partial<BillingDocuments> | null;
+    openFileUrl(source?.pdf);
+  }, []);
+
+  const handleOpenImage = useCallback((row: BillableFileRow) => {
+    const source = row.source as
+      | Partial<BillingDocuments>
+      | Partial<BillingImages>
+      | null;
+
+    if (source && "image" in source && typeof source.image === "string") {
+      openFileUrl(source.image);
+      return;
+    }
+
+    if (source && "images" in source && Array.isArray(source.images)) {
+      openFileUrl(source.images[0]?.image);
+    }
   }, []);
 
   const refresh = useCallback(() => {
@@ -109,40 +142,88 @@ const useBillableFilesPage = () => {
     router.push("/main-page/request/ownrequisitions/uploadbillablefiles/");
   }, [router]);
 
+  const getRowUid = useCallback((row: BillableFileRow) => {
+    const source = row.source as Partial<BillingDocuments> | Partial<BillingImages> | null;
+    const requisitionCode =
+      source &&
+      "requisition" in source &&
+      source.requisition &&
+      typeof source.requisition === "object" &&
+      "requisitionkey" in source.requisition &&
+      typeof source.requisition.requisitionkey === "string"
+        ? source.requisition.requisitionkey.trim()
+        : "";
+
+    return requisitionCode || row.requisitionKey || row.id;
+  }, []);
+
+  const getRowUuid = useCallback((row: BillableFileRow) => {
+    const source = row.source as Partial<BillingDocuments> | Partial<BillingImages> | null;
+    const billingUuid =
+      source && "uuid" in source && typeof source.uuid === "string"
+        ? source.uuid.trim()
+        : "";
+
+    return billingUuid || row.id;
+  }, []);
+
   const mobileColumns = useMemo<ColumnDefinition<BillableFileRow>[]>(
     () => [
       {
         key: "project",
-        label: "PROYECTO",
+        label: "REQUISICION",
         render: (row) => (
-          <span className="block truncate" title={row.project}>
-            {row.project}
-          </span>
+          <div className="min-w-0 py-1">
+            <span
+              className="block truncate text-[11px] font-medium leading-4 text-blue-95"
+              title={getRowUuid(row)}
+            >
+              {getRowUuid(row)}
+            </span>
+            <span
+              className="mt-1 block truncate text-[10px] leading-4 text-neutral-500"
+              title={`${row.project || "-"} - ${getRowUid(row)}`}
+            >
+              {`${row.project || "-"} - ${getRowUid(row)}`}
+            </span>
+          </div>
         ),
-        headerClass: "basis-[180px] flex-none",
-        cellClass: "basis-[180px] flex-none whitespace-nowrap",
+        headerClass: "min-w-0",
+        cellClass: "min-w-0",
+      },
+      {
+        key: "status",
+        label: "ESTATUS",
+        render: (row) => (
+          <div className="flex justify-center">
+            <Label
+              type={statusToLabel(row.status)}
+              text={row.status}
+              className="px-2 py-0.5 text-[10px] leading-4"
+            />
+          </div>
+        ),
+        headerClass: "w-[88px] text-center",
+        cellClass: "w-[88px] text-center",
       },
       {
         key: "details" as unknown as keyof BillableFileRow,
-        label: "DETALLES",
+        label: "",
         render: (row) => (
-          <div className="flex justify-center">
-            <Button
-              size="small"
-              variant="ghost"
-              hideIcon
-              onClick={() => handleOpenDetails(row)}
-              data-tour="ownrequisitions-billablefiles-details"
-            >
-              Ver Detalle
-            </Button>
+          <div className="flex justify-end" data-tour="ownrequisitions-billablefiles-details">
+            <ActionMenuCell
+              row={row}
+              onEdit={handleOpenDetails}
+              editLabel="Ver detalle"
+              permissions={{ details: canRead }}
+            />
           </div>
         ),
-        headerClass: "basis-[140px] flex-none text-end",
-        cellClass: "basis-[140px] flex-none text-center",
+        headerClass: "w-10 text-right",
+        cellClass: "w-10 text-right",
       },
     ],
-    [handleOpenDetails],
+    [canRead, getRowUid, getRowUuid, handleOpenDetails],
   );
 
   const desktopColumns = useMemo<ColumnDefinition<BillableFileRow>[]>(
@@ -158,6 +239,7 @@ const useBillableFilesPage = () => {
                 variant="ghost"
                 icon={XMLIcon}
                 iconOnly
+                onClick={() => handleOpenXml(row)}
                 data-tour="ownrequisitions-billablefiles-xml"
               />
             )}
@@ -167,6 +249,7 @@ const useBillableFilesPage = () => {
                 variant="ghost"
                 icon={PDFIcon}
                 iconOnly
+                onClick={() => handleOpenPdf(row)}
                 data-tour="ownrequisitions-billablefiles-pdf"
               />
             )}
@@ -176,19 +259,21 @@ const useBillableFilesPage = () => {
                 variant="ghost"
                 icon={ImageIcon}
                 iconOnly
+                onClick={() => handleOpenImage(row)}
                 data-tour="ownrequisitions-billablefiles-image"
               />
             )}
           </div>
         ),
-        headerClass: "basis-[140px] flex-none text-center",
-        cellClass: "basis-[140px] flex-none text-center",
+        headerClass: "flex-1 text-center",
+        cellClass: "flex-1 text-center",
       },
       {
         key: "date",
         label: "FECHA",
-        headerClass: "basis-[140px] flex-none",
-        cellClass: "basis-[140px] flex-none whitespace-nowrap",
+        showSortIndicator: false,
+        headerClass: "flex-1",
+        cellClass: "flex-1 whitespace-nowrap",
       },
       {
         key: "category",
@@ -201,8 +286,8 @@ const useBillableFilesPage = () => {
             {row.category}
           </span>
         ),
-        headerClass: "basis-[260px] flex-none",
-        cellClass: "basis-[260px] flex-none pr-6 overflow-hidden",
+        headerClass: "flex-1",
+        cellClass: "flex-1 pr-6 overflow-hidden",
       },
       {
         key: "project",
@@ -212,8 +297,8 @@ const useBillableFilesPage = () => {
             {row.project}
           </span>
         ),
-        headerClass: "basis-[180px] flex-none",
-        cellClass: "basis-[180px] flex-none whitespace-nowrap",
+        headerClass: "flex-1",
+        cellClass: "flex-1 whitespace-nowrap",
       },
       {
         key: "status",
@@ -223,8 +308,8 @@ const useBillableFilesPage = () => {
             <Label type={statusToLabel(row.status)} text={row.status} />
           </div>
         ),
-        headerClass: "basis-[140px] flex-none text-center",
-        cellClass: "basis-[140px] flex-none text-center",
+        headerClass: "flex-1 text-center",
+        cellClass: "flex-1 text-center",
       },
       {
         key: "comments",
@@ -241,8 +326,8 @@ const useBillableFilesPage = () => {
               <ChatIcon className="h-6 w-6" />
             </Button>
           ) : null,
-        headerClass: "basis-[140px] flex-none text-center",
-        cellClass: "basis-[140px] flex-none text-center",
+        headerClass: "flex-1 text-center",
+        cellClass: "flex-1 text-center",
       },
       {
         key: "details" as unknown as keyof BillableFileRow,
@@ -260,11 +345,11 @@ const useBillableFilesPage = () => {
             </Button>
           </div>
         ),
-        headerClass: "basis-[140px] flex-none text-center",
-        cellClass: "basis-[140px] flex-none text-center",
+        headerClass: "flex-1 text-center",
+        cellClass: "flex-1 text-center",
       },
     ],
-    [handleOpenDetails],
+    [handleOpenDetails, handleOpenImage, handleOpenPdf, handleOpenXml],
   );
 
   const statusFilterOptions = useMemo(

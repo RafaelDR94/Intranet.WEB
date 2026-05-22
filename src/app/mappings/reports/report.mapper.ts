@@ -82,6 +82,30 @@ const parseMaybeJson = <T = any>(val: any): T | undefined => {
   return undefined as any
 }
 
+const normalizeStringArray = (value: any): string[] => {
+  const parsed = parseMaybeJson<any>(value) ?? value
+  if (!Array.isArray(parsed)) return []
+  return parsed.map((item) => String(item ?? '')).filter(Boolean)
+}
+
+const resolveMappedReportTypeId = (src: any, reportCategory?: CategoriesType): string => {
+  const directType =
+    src?.idtype ??
+    src?.idType ??
+    src?.IdType ??
+    src?.type;
+
+  if (typeof directType === 'string' && directType.trim()) {
+    return directType;
+  }
+
+  return String(reportCategory?.typesofreports?.id ?? '');
+}
+
+const resolveViewReportTypeId = (view: Partial<ReportView>): string => {
+  return String(view.type?.trim?.() || view.reportcategories?.typesofreports?.id || '');
+}
+
 // Mapea un registro de Report. Soporta que las relaciones vengan como string JSON.
 export const ReportMap = (raw: any): ReportView => {
 
@@ -91,6 +115,13 @@ export const ReportMap = (raw: any): ReportView => {
   const modelRaw = parseMaybeJson<any>(src?.model ?? src?.Model) ?? []
   const devicesRaw = parseMaybeJson<any>(src?.reportDeviceView ?? src?.devices ?? src?.reportDevices) ?? []
   const refaccionsRaw = parseMaybeJson<any>(src?.refactions ?? src?.Refactions) ?? []
+  const idSparePartsRaw =
+    src?.idSpareParts ??
+    src?.idspareparts ??
+    src?.IdSpareParts ??
+    src?.id_spare_parts ??
+    src?.idSparePart ??
+    src?.idsparepart
   const clientSignRaw = parseMaybeJson<any>(src?.Clientsign ?? src?.Clientsign) ?? {}
   const proyectLocation = mapProyectLocation(src?.location ?? src?.ProyectLocation)
   const rawEmployee = mapEmployee(src?.employe ?? src?.Employee)
@@ -118,6 +149,7 @@ export const ReportMap = (raw: any): ReportView => {
   const refactions = mapRefactions(refactionsList)
   const activities = mapActivities(activitiesList)
   const maps = mapActivities(mapsList)
+  const idSpareParts = normalizeStringArray(idSparePartsRaw)
   return {
     "id": String(src?.id ?? ''),
     "model": modelRaw,
@@ -125,7 +157,7 @@ export const ReportMap = (raw: any): ReportView => {
     "enddate": formatDateOnlyDate(src?.enddate) ?? '',
     "datecreate": formatDateHour(src?.datecreate) ?? '',
     "proyect": ProyectMap(src?.proyect ?? {}),
-    "type": src?.type ?? '',
+    "type": resolveMappedReportTypeId(src, reportCategory),
     "reportcategories": reportCategory,
     "location": proyectLocation,
     "employe": rawEmployee,
@@ -138,6 +170,7 @@ export const ReportMap = (raw: any): ReportView => {
     "maps": maps,
     "diagnostic": src?.Diagnostic ?? '',
     "solution": src?.Solution ?? '',
+    "idSpareParts": idSpareParts,
     "refactions": refactions,
     "clientsign": clientSign,
     "front_identifier": src?.front_identifier ?? '',
@@ -145,13 +178,14 @@ export const ReportMap = (raw: any): ReportView => {
   }
 }
 export const mapReportViewToPost = (view: ReportView): ReportPost => {
+  const reportTypeId = resolveViewReportTypeId(view);
   return {
     model: JSON.stringify(view.model ?? []) || "",                          // asumiendo que Model tiene un campo id
     startdate: view.startdate,
     enddate: view.enddate.replaceAll("/", "-"),
     datecreated: view.datecreate.replaceAll("/", "-"),                         // ojo: en ReportView es "datecreate"
     idproyect: view.proyect?.id || "",
-    idtype: view.type || "",                              // depende si "type" es string o un objeto
+    idtype: reportTypeId,
     idreportcategories: view.reportcategories?.id || "",
     idlocation: view.location?.id || "",
     idemploye: view.employe?.employee_id || "",
@@ -164,6 +198,7 @@ export const mapReportViewToPost = (view: ReportView): ReportPost => {
     Maps: JSON.stringify(view.maps ?? []),
     Diagnostic: view.diagnostic,
     Solution: view.solution,
+    idSpareParts: view.idSpareParts ?? [],
     Refactions: JSON.stringify(view.refactions ?? []),
     Clientsign: JSON.stringify(view.clientsign ?? {}),    // si es objeto lo serializamos
     front_identifier: view.front_identifier,
@@ -195,6 +230,7 @@ export const ReportsTableMap = (reports: ReportView[]): ReportsTable[] => {
 }
 
 export const mapReportViewToPut = (view: ReportView): ReportPut => {
+  const reportTypeId = resolveViewReportTypeId(view);
   return {
     id: view.id,
     model: JSON.stringify(view.model ?? []) || "",                          // asumiendo que Model tiene un campo id
@@ -202,7 +238,7 @@ export const mapReportViewToPut = (view: ReportView): ReportPut => {
     enddate: view.enddate.replaceAll("/", "-"),
     datecreated: currentDate(),                         // ojo: en ReportView es "datecreate"
     idproyect: view.proyect?.id || "",
-    idtype: view.type || "",                              // depende si "type" es string o un objeto
+    idtype: reportTypeId,
     idreportcategories: view.reportcategories?.id || "",
     idlocation: view.location?.id || "",
     idemploye: view.employe?.employee_id || "",
@@ -215,6 +251,7 @@ export const mapReportViewToPut = (view: ReportView): ReportPut => {
     Maps: JSON.stringify(view.maps ?? []),
     Diagnostic: view.diagnostic,
     Solution: view.solution,
+    idSpareParts: view.idSpareParts ?? [],
     Refactions: JSON.stringify(view.refactions ?? []),
     Clientsign: JSON.stringify(view.clientsign ?? {}),    // si es objeto lo serializamos
     front_identifier: view.front_identifier,

@@ -271,7 +271,7 @@ const useInternalDevicesAsignationPage = () => {
     if (suppressCreateSuccessRef.current) return
 
     if (loadingDevices || loadingDeviceStatuses || loadingActive || creatingDeviceAssignment) {
-      showSpinner({ message: 'Cargando informacion...' })
+      showSpinner({ message: 'Cargando Información...' })
       return
     }
 

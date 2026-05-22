@@ -47,6 +47,7 @@ vi.mock("@/app/context/AuthContext/AuthContext", () => ({
       idEmployee: sampleReports[0].employe.employee_id,
       fullName: sampleReports[0].employe.fullname,
     },
+    currentPagePermissions: { reportdetails: true, canSeeAllReports: true },
   }),
 }));
 

@@ -124,6 +124,7 @@ const RequisitionDetailsDocument: React.FC = () => {
       {
         key: "fecha",
         label: "FECHA",
+        showSortIndicator: false,
         cellClass: "w-2/15 text-left",
         headerClass: "w-2/15 text-left",
       },
@@ -264,7 +265,7 @@ const RequisitionDetailsDocument: React.FC = () => {
             columns: isMobile ? filteredMobileColumns : filteredColumns,
             enableSelection: false,
             title: "Reporte de gastos",
-            enableCollaps: true,
+            enableCollaps: false,
             defaultSortKey: "fecha",
             defaultSortDirection: "desc",
           },

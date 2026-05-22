@@ -27,11 +27,13 @@ export const ProyectsMap = (list: any[]): Proyect[] =>
  * ProyectPostMap
  * Construye el payload para crear un proyecto (POST).
  */
-export const ProyectPostMap = (src: Partial<ProyectPost> | any): ProyectPost => ({
+export const ProyectPostMap = (src: Partial<ProyectPost> | any) => ({
   name: String(src?.name ?? ""),
+  proyectkey: String(src?.proyectKey ?? src?.proyectkey ?? ""),
   proyectKey: String(src?.proyectKey ?? src?.proyectkey ?? ""),
   client: String(src?.client ?? ""),
-  collaborators: Array.isArray(src?.collaborators) ? src.collaborators : [],
+  collaborators_ids: Array.isArray(src?.collaborators) ? src.collaborators : [],
+  collabarators_ids: Array.isArray(src?.collaborators) ? src.collaborators : [],
   managerId: String(src?.managerId ?? ""),
 });
 
@@ -39,11 +41,13 @@ export const ProyectPostMap = (src: Partial<ProyectPost> | any): ProyectPost => 
  * ProyectPutMap
  * Construye el payload para actualizar un proyecto (PUT).
  */
-export const ProyectPutMap = (src: Partial<ProyectPut> | any): ProyectPut => ({
+export const ProyectPutMap = (src: Partial<ProyectPut> | any) => ({
   id: String(src?.id ?? ""),
   name: String(src?.name ?? ""),
+  proyectkey: String(src?.proyectKey ?? src?.proyectkey ?? ""),
   proyectKey: String(src?.proyectKey ?? src?.proyectkey ?? ""),
   client: String(src?.client ?? ""),
-  collaborators: Array.isArray(src?.collaborators) ? src.collaborators : [],
+  collaborators_ids: Array.isArray(src?.collaborators) ? src.collaborators : [],
+  collabarators_ids: Array.isArray(src?.collaborators) ? src.collaborators : [],
   managerId: String(src?.managerId ?? ""),
 });

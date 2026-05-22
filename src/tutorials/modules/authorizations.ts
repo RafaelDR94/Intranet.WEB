@@ -26,7 +26,7 @@ export const authorizationsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="authorizations-refresh"]',
         title: 'Actualizar',
-        description: 'Recarga la informacion mas reciente.',
+        description: 'Recarga la Información mas reciente.',
       },
       {
         target: '[data-tour="authorizations-row-view"]',

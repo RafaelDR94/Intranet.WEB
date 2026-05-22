@@ -38,23 +38,41 @@ export const DataTableHeader = <T,>({
 
       {columns.map((col) => {
         const isActiveSort = sortKey === col.key
+        const isSortable = col.sortable !== false
+        const showSortIndicator = col.showSortIndicator !== false
 
         let arrow = null
-        if (isActiveSort) {
+        if (isSortable && showSortIndicator && isActiveSort) {
           arrow = sortDirection === 'asc' ? <UpNavigation /> : <DownNavigation />
         }
         if (col.invisible) return null
+
+        const headerClassName =
+          isMobile
+            ? `${DataTableHeaderStyles.headerTextMobile} min-w-0 ${col.headerClass ?? 'flex-1'}`
+            : `${DataTableHeaderStyles.headerTextDesk} min-w-0 ${col.headerClass ?? 'flex-1'}`
+
+        if (!isSortable) {
+          return (
+            <div
+              key={String(col.key)}
+              className={`${DataTableHeaderStyles.headerTextStatic} min-w-0 ${col.headerClass ?? 'flex-1'}`}
+            >
+              <span className="inline-flex min-w-0 items-center gap-1">
+                <span className="truncate">
+                  {col.headerRender ? col.headerRender() : col.label?.toUpperCase()}
+                </span>
+              </span>
+            </div>
+          )
+        }
 
         return (
           <button
             key={String(col.key)}
             type="button"
             onClick={() => onSort(col.key)}
-            className={
-              isMobile
-                ? `${DataTableHeaderStyles.headerTextMobile} min-w-0 ${col.headerClass ?? 'flex-1'}`
-                : `${DataTableHeaderStyles.headerTextDesk} min-w-0 ${col.headerClass ?? 'flex-1'}`
-            }
+            className={headerClassName}
           >
             <span className="inline-flex min-w-0 items-center gap-1">
               <span className="truncate">

@@ -6,7 +6,7 @@ import { User } from "../types";
 interface UsePermissionProp {
   user: User | null;
 }
-const normalizeRoute = (route: string) => {
+export const normalizeRoute = (route: string) => {
   if (!route) return route;
   // intenta parseo robusto (soporta relativas con base dummy)
   try {
@@ -14,6 +14,15 @@ const normalizeRoute = (route: string) => {
     route = u.pathname; // solo path, sin ? ni #
   } catch {
     route = route.split('#')[0].split('?')[0];
+  }
+  if (
+    route === "/main-page/organigrama" ||
+    route.startsWith("/main-page/organigrama/")
+  ) {
+    route = route.replace(
+      "/main-page/organigrama",
+      "/main-page/humanresources/organizationchart",
+    );
   }
   // quita slash final excepto root
   if (route.length > 1 && route.endsWith('/')) route = route.slice(0, -1);

@@ -49,16 +49,27 @@ const mapJsonSapItem = (raw: any): BillingDocumentJsonSapItem => ({
 });
 
 const mapJsonSap = (raw: any): BillingDocumentJsonSap | null => {
-  if (!raw || typeof raw !== 'object') return null;
+  if (!raw) return null;
+  let normalizedRaw = raw;
+
+  if (typeof raw === 'string') {
+    try {
+      normalizedRaw = JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  if (!normalizedRaw || typeof normalizedRaw !== 'object') return null;
   return {
-    iva: Number(raw?.iva ?? 0),
-    subtotal: Number(raw?.subtotal ?? 0),
-    total: Number(raw?.total ?? 0),
-    otherInvoices: Number(raw?.otherInvoices ?? 0),
-    moneda: toString(raw?.moneda),
-    expenseType : toString(raw?.expenseType),
-    iscompleted: Boolean(raw?.iscompleted),
-    items: Array.isArray(raw?.items) ? raw.items.map(mapJsonSapItem) : [],
+    iva: Number(normalizedRaw?.iva ?? 0),
+    subtotal: Number(normalizedRaw?.subtotal ?? 0),
+    total: Number(normalizedRaw?.total ?? 0),
+    otherInvoices: Number(normalizedRaw?.otherInvoices ?? normalizedRaw?.otherinvoices ?? 0),
+    moneda: toString(normalizedRaw?.moneda),
+    expenseType : toString(normalizedRaw?.expenseType),
+    iscompleted: Boolean(normalizedRaw?.iscompleted),
+    items: Array.isArray(normalizedRaw?.items) ? normalizedRaw.items.map(mapJsonSapItem) : [],
   };
 };
 
@@ -164,7 +175,7 @@ export const BillingDocumentMap = (raw: any): BillingDocuments => {
   total: Number(jsonSap?.total ?? raw?.total ?? 0),
   subtotal: Number(jsonSap?.subtotal ?? raw?.subtotal ?? 0),
   iva: Number(jsonSap?.iva ?? raw?.iva ?? 0),
-  otherinvoices: Number(jsonSap?.otherInvoices ?? raw?.otherinvoices ?? 0),
+  otherinvoices: Number(raw?.otherinvoices ?? 0),
   json_sap: jsonSap,
   category: BillingDocumentCategoryMap(raw?.category ?? raw?.Category),
   validatedbyoperations: Boolean(raw?.validatedbyoperations),

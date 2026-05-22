@@ -2,6 +2,7 @@ import { pdf, Document, Page, Text, View, Image, Font } from '@react-pdf/rendere
 import { StaticImageData } from 'next/dist/shared/lib/image-external';
 import React from 'react';
 
+import { chunkPicturesIntoRows, getPictureDimensions } from './layout';
 import { styles } from './styles';
 import type { Table, FullDocument } from './types';
 
@@ -181,20 +182,28 @@ const MyDocument: React.FC<{ data: FullDocument | null, membret?: 'DR' | 'DISITR
                   </View>
                 );
               } else if ('pictures' in element) {
+                const pictureRows = chunkPicturesIntoRows(element.pictures);
                 return (
                   <View key={index} style={styles.section}>
                     {element.pictures.length > 0 && (
                       <>
                         <Text style={styles.tableHeader}>{element.title}</Text>
                         <View style={styles.imageContainer}>
-                          {element.pictures.map((picture, idx) => (
-                            <View key={idx} style={{ ...styles.imageCard, width: picture.width || styles.imageCard.width }}>
-                              <Text style={styles.imageTitle}>{picture.title}</Text>
-                              {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                              <Image style={{ ...styles.imageStyle, width: picture.width || styles.imageStyle.width, height: picture.height || styles.imageStyle.height }} src={picture.urlimage} />
-                              {picture.description && (
-                                <Text style={styles.imageDescription}>{picture.description}</Text>
-                              )}
+                          {pictureRows.map((row, rowIndex) => (
+                            <View key={rowIndex} style={styles.imageRow} wrap={false}>
+                              {row.map((picture, pictureIndex) => {
+                                const { width, height } = getPictureDimensions(picture);
+                                return (
+                                  <View key={`${rowIndex}-${pictureIndex}`} style={{ ...styles.imageCard, width }}>
+                                    <Text style={styles.imageTitle}>{picture.title}</Text>
+                                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                                    <Image style={{ ...styles.imageStyle, width, height }} src={picture.urlimage} />
+                                    {picture.description && (
+                                      <Text style={styles.imageDescription}>{picture.description}</Text>
+                                    )}
+                                  </View>
+                                );
+                              })}
                             </View>
                           ))}
                         </View>

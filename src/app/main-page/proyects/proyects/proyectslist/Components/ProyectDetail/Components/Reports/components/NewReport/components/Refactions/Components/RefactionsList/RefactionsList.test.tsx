@@ -7,20 +7,36 @@ import RefactionsList from "./RefactionsList";
 const hookState = {
   rows: [
     {
-      id: "0",
-      index: 0,
+      id: "sp-1",
       description: "Kit de limpieza",
       brand: "OptiClean",
       model: "OC-200",
       serialnumber: "SN-100",
       partnumber: "PN-200",
+      source: {
+        id: "sp-1",
+        sku: "PN-200",
+        stock: 8,
+        name: "Kit de limpieza",
+        brand: "OptiClean",
+        model: "OC-200",
+        serialNumber: "SN-100",
+        characteristic: "",
+        provider: "",
+        website: "",
+        phoneNumber: "",
+      },
     },
   ],
+  onSelectedChange: vi.fn(),
   pageSize: 8,
   deleteRow: vi.fn(),
   confirmDeleteUI: <div data-testid="refactions-popup" />,
+  initialSelectedIds: ["sp-1"],
   report: { clientsign: { url: null } },
   isMobile: false,
+  loading: false,
+  projectSelected: true,
 };
 
 const dataTableSpy = vi.fn();
@@ -55,51 +71,78 @@ describe("RefactionsList", () => {
     vi.clearAllMocks();
     hookState.rows = [
       {
-        id: "0",
-        index: 0,
+        id: "sp-1",
         description: "Kit de limpieza",
         brand: "OptiClean",
         model: "OC-200",
         serialnumber: "SN-100",
         partnumber: "PN-200",
+        source: {
+          id: "sp-1",
+          sku: "PN-200",
+          stock: 8,
+          name: "Kit de limpieza",
+          brand: "OptiClean",
+          model: "OC-200",
+          serialNumber: "SN-100",
+          characteristic: "",
+          provider: "",
+          website: "",
+          phoneNumber: "",
+        },
       },
     ];
     hookState.report = { clientsign: { url: null } };
     hookState.isMobile = false;
+    hookState.loading = false;
+    hookState.projectSelected = true;
+    hookState.initialSelectedIds = ["sp-1"];
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renderiza la tabla de refacciones con acciones habilitadas", () => {
+  it("renderiza la tabla seleccionable de refacciones con acciones habilitadas", () => {
     const onCreate = vi.fn();
     const onEdit = vi.fn();
 
     render(<RefactionsList onCreate={onCreate} onEdit={onEdit} />);
 
-    expect(screen.getByTestId("data-table")).toHaveTextContent("Lista de Refacciones");
+    expect(screen.getByTestId("data-table")).toHaveTextContent("Refacciones registradas");
     expect(dataTableSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         onTableActionClick: onCreate,
         searchableKeys: expect.arrayContaining(["description"]),
       })
     );
-    const columns = dataTableSpy.mock.calls.at(-1)?.[0]?.tables?.[0]?.columns ?? [];
-    const actionColumn = columns.find((column: any) => column.key === "actions" || column.label === "");
-    expect(actionColumn?.render).toBeTruthy();
+    expect(dataTableSpy.mock.calls.at(-1)?.[0]?.tables?.[0]).toEqual(
+      expect.objectContaining({
+        enableSelection: true,
+        initialSelectedRowIds: ["sp-1"],
+      })
+    );
     expect(screen.getByTestId("refactions-popup")).toBeInTheDocument();
   });
 
-  it("muestra estado vacio cuando no hay refacciones registradas", () => {
+  it("muestra estado vacío cuando no hay refacciones disponibles", () => {
     hookState.rows = [];
 
     render(<RefactionsList onCreate={vi.fn()} onEdit={vi.fn()} />);
 
-    expect(screen.getByText(/Aún no has registrado refacciones/i)).toBeInTheDocument();
+    expect(screen.getByText(/No se encontraron refacciones disponibles/i)).toBeInTheDocument();
   });
 
-  it("oculta el menu de acciones cuando el reporte ya esta firmado", () => {
+  it("muestra mensaje cuando no se encontró el proyecto del reporte", () => {
+    hookState.projectSelected = false;
+
+    render(<RefactionsList onCreate={vi.fn()} onEdit={vi.fn()} />);
+
+    expect(screen.getByText(/No se encontró el proyecto del reporte/i)).toBeInTheDocument();
+    expect(dataTableSpy).not.toHaveBeenCalled();
+  });
+
+  it("oculta el menú de acciones cuando el reporte ya está firmado", () => {
     hookState.report = { clientsign: { url: "https://cdn.example.com/sign.png" } };
 
     render(<RefactionsList onCreate={vi.fn()} onEdit={vi.fn()} />);

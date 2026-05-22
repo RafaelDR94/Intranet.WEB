@@ -12,4 +12,4 @@ export const mapContainerCls =
   'w-full min-h-[260px] rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm flex items-center justify-center';
 
 export const dashedUploaderWrapperCls =
-  'w-full min-h-[260px] rounded-xl border border-dashed border-slate-200 flex items-center justify-center';
+  'w-full min-h-[260px] flex items-center justify-center';

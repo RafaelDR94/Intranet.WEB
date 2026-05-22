@@ -19,6 +19,7 @@ vi.mock('@/assets/icons/navegacion/long-arrow-down-right.svg', () => ({ default:
 vi.mock('@/assets/icons/Connectivity/wifi.svg', () => ({ default: () => <svg data-testid="wifi" /> }))
 vi.mock('@/assets/icons/System/System/darkmode.svg', () => ({ default: () => <svg data-testid="theme" /> }))
 vi.mock('@/assets/icons/acciones/help-circle.svg', () => ({ default: () => <svg data-testid="help" /> }))
+vi.mock('@/assets/icons/Fotos y Videos/media-video-list.svg', () => ({ default: () => <svg data-testid="tutorial" /> }))
 vi.mock('@/assets/icons/acciones/open-in-window.svg', () => ({ default: () => <svg data-testid="logout" /> }))
 vi.mock('@/assets/icons/Comunicacion/bell.svg', () => ({ default: () => <svg data-testid="bell" /> }))
 vi.mock('@/assets/icons/Comunicacion/bell-notification.svg', () => ({ default: () => <svg data-testid="bell-notification" /> }))

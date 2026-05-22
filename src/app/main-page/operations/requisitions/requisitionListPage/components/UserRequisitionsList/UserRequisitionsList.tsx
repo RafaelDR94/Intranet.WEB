@@ -58,7 +58,7 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
   const desktopColumns: ColumnDefinition<RequisitionRow>[] = useMemo(
     () => [
       { key: "debtorName", label: "Nombre" },
-      { key: "snCode", label: "Código" },
+      { key: "snCode", label: "Código", showSortIndicator: false },
       {
         key: "status",
         label: "Estatus",
@@ -85,7 +85,12 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
         label: "",
         render: (row) => (
           <div className={actionCell}>
-            <ActionMenuCell row={row} onEdit={onViewDetails} onDelete={onDelete} />
+            <ActionMenuCell
+              row={row}
+              onEdit={onViewDetails}
+              onDelete={onDelete}
+              editLabel="Ver detalles"
+            />
           </div>
         ),
         invisible: false,
@@ -96,7 +101,7 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = useMemo(
     () => [
-      { key: "snCode", label: "Código" },
+      { key: "snCode", label: "Código", showSortIndicator: false },
       {
         key: "status",
         label: "Estatus",
@@ -129,7 +134,12 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
         label: "",
         render: (row) => (
           <div className="flex justify-end pr-1">
-            <ActionMenuCell row={row} onEdit={onViewDetails} onDelete={onDelete} />
+            <ActionMenuCell
+              row={row}
+              onEdit={onViewDetails}
+              onDelete={onDelete}
+              editLabel="Ver detalles"
+            />
           </div>
         ),
         cellClass: "w-1/12 text-right",
@@ -180,7 +190,7 @@ const UserRequisitionsList: React.FC<UserRequisitionsListProps> = ({
             data: rows,
             columns: isMobile ? mobileColumns : desktopColumns,
             title: "Historial",
-            enableCollaps: true,
+            enableCollaps: false,
             enableSelection: false,
             defaultSortKey: "snCode",
             defaultSortDirection: "desc",

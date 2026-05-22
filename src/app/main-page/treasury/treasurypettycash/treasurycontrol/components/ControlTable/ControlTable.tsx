@@ -214,6 +214,7 @@ const ControlTable = () => {
       {
         key: "applicationDate",
         label: "FECHA",
+        showSortIndicator: false,
         render: (row) => <span>{formatDate(row.applicationDate) || "—"}</span>,
       },
       {
@@ -245,7 +246,7 @@ const ControlTable = () => {
       },
       {
         key: "status",
-        label: "STATUS",
+        label: "ESTATUS",
         render: (row) => <StatusBadge status={row.status} />,
       },
       {
@@ -267,7 +268,7 @@ const ControlTable = () => {
       { key: "employeeName", label: "COLABORADOR" },
       {
         key: "status",
-        label: "STATUS",
+        label: "ESTATUS",
         render: (row) => <StatusBadge status={row.status} />,
       },
       {

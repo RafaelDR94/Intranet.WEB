@@ -44,6 +44,7 @@ const useCreateEemployee = ({
   const isReadOnly = Boolean(loggedUser);
   const {
     fetchWorkPosition,
+    fetchWorkpositionsByDepartment,
     fetchEnterprises,
     resetEnterprisesFlags,
     enterprisesList,
@@ -51,6 +52,7 @@ const useCreateEemployee = ({
   } = useEnterprisesStore(
     (s) => ({
       fetchWorkPosition: s.fetchWorkpositions,
+      fetchWorkpositionsByDepartment: s.fetchWorkpositionsByDepartment,
       // workpositionList: s.workpositions,
       fetchEnterprises: s.fetchEnterprises,
       enterprisesList: s.enterprises,
@@ -59,7 +61,7 @@ const useCreateEemployee = ({
     }),
     shallow,
   );
- 
+
   const {
     fetchEmployeeById,
     fetchActiveEmployees,
@@ -92,7 +94,7 @@ const useCreateEemployee = ({
     }),
     shallow,
   );
- 
+
   const { fieldsByFormId, setFields, updateField, resetFields } =
     useFormFieldsStore();
   const formVersion = useFormFieldsStore(
@@ -106,12 +108,15 @@ const useCreateEemployee = ({
       return;
     }
     let image_url = "";
- 
+
     const rawImage = values.image_url;
- 
+
     // 1️⃣ Validar que image_url es string con https
     if (typeof rawImage === "string" && /^https?:\/\//i.test(rawImage)) {
       image_url = rawImage;
+    } else if (rawImage && typeof rawImage === "object" && rawImage.url) {
+      // 2️⃣ Es el objeto inicial que pusimos nosotros
+      image_url = rawImage.url;
     } else if (rawImage) {
       try {
         showSpinner({ message: "Subiendo imagen de perfil" });
@@ -125,7 +130,7 @@ const useCreateEemployee = ({
         image_url = ""; // fallback
       }
     }
- 
+
     // 3️⃣ Construir payload final
     const postPayload = {
       employee_number: values.employee_number,
@@ -143,7 +148,7 @@ const useCreateEemployee = ({
       manager_id: values.manager,
       gtstype: values.gtstype,
     };
- 
+
     // 4️⃣ Crear o actualizar
     if (currentEmployee) {
       await updateEmployee({
@@ -154,8 +159,55 @@ const useCreateEemployee = ({
       await createEmployee({ ...postPayload });
     }
   };
- 
-  const completeSelect = async (idEnterprise: string) => {
+
+  const loadWorkpositionsByDepartment = async (
+    departmentId?: string,
+    initialWorkpositionId?: string,
+  ) => {
+    const normalizedDepartmentId = String(departmentId ?? "").trim();
+
+    if (!normalizedDepartmentId) {
+      updateField(formId, "workposition", {
+        options: [],
+        value: "",
+        disabled: true,
+      });
+      return;
+    }
+
+    updateField(formId, "workposition", {
+      options: [],
+      value: "",
+      disabled: true,
+    });
+
+    const workpositions = await fetchWorkpositionsByDepartment(
+      normalizedDepartmentId,
+      true,
+    );
+    const resolvedWorkpositionId =
+      initialWorkpositionId ||
+      currentEmployee?.workposition?.workposition_id ||
+      "";
+    const hasInitialWorkposition = workpositions.some(
+      (wp) => wp.workposition_id === resolvedWorkpositionId,
+    );
+
+    updateField(formId, "workposition", {
+      options: workpositions.map((wp) => ({
+        label: wp.name,
+        value: wp.workposition_id,
+      })),
+      value: hasInitialWorkposition ? resolvedWorkpositionId : "",
+      disabled: isReadOnly,
+    });
+  };
+
+  const completeSelect = async (
+    idEnterprise: string,
+    initialData?: { department_id?: string; workposition_id?: string },
+  ) => {
+    if (!idEnterprise) return;
     setLoadingForm(true);
 
     try {
@@ -163,37 +215,55 @@ const useCreateEemployee = ({
         value: idEnterprise,
         disabled: isReadOnly,
       });
-
-      const workposition = await fetchWorkPosition(idEnterprise, true);
-      updateField(formId, "workposition", {
-        options: workposition.map((workposition) => ({
-          label: workposition.name,
-          value: workposition.workposition_id,
-        })),
-        value: currentEmployee?.workposition?.workposition_id || "",
-        disabled: isReadOnly,
-      });
+      void fetchWorkPosition(idEnterprise, true);
 
       const enterpriseSelected = enterprisesList.find(
         (enterprise) => enterprise.enterprise_id === idEnterprise,
       );
       const departments = enterpriseSelected?.departments ?? [];
+      const selectedDepartmentId =
+        initialData?.department_id ||
+        currentEmployee?.department?.department_id ||
+        "";
 
       updateField(formId, "departments", {
-        options: departments.map((deparments) => ({
-          label: deparments.name,
-          value: deparments.department_id,
+        options: departments.map((dept) => ({
+          label: dept.name,
+          value: dept.department_id,
         })),
-        value: currentEmployee?.department?.department_id || "",
+        value: selectedDepartmentId,
         disabled: isReadOnly,
+        onChange: isReadOnly
+          ? undefined
+          : (value: string) => {
+              void loadWorkpositionsByDepartment(value);
+              return value;
+            },
       });
+
+      updateField(formId, "workposition", {
+        options: [],
+        value: "",
+        disabled: true,
+      });
+
+      if (selectedDepartmentId) {
+        await loadWorkpositionsByDepartment(
+          selectedDepartmentId,
+          initialData?.workposition_id,
+        );
+      }
     } finally {
       setLoadingForm(false);
     }
   };
- 
+
   const loadInitialFields = () => {
+    // Si ya existen campos en el store para este formId, no los sobrescribimos 
+    // a menos que sea necesario (por ejemplo al cambiar de empleado).
+    // Pero aquí permitimos que se ejecute si hasInitFields.current es falso.
     if (hasInitFields.current) return;
+
     const initialFields: () => FieldModel[] = () => {
       const model: FieldModel[] = [
         {
@@ -204,11 +274,11 @@ const useCreateEemployee = ({
             name: "Imagen de perfil",
             url: currentEmployee?.image_url,
           },
-          value: { name: "Imagen de perfil", url: currentEmployee?.image_url },
+          value: currentEmployee?.image_url ? { name: "Imagen de perfil", url: currentEmployee?.image_url } : "",
           accept: ".jpg,.png",
           preview: true,
           previewCoverMode: true,
-          buttonLabel: currentEmployee ? "" : "Seleccionar Imagen",
+          buttonLabel: currentEmployee ? "Cambiar Imagen" : "Seleccionar Imagen",
           validations: [{ type: "required" }],
           disabled: isReadOnly,
         },
@@ -266,7 +336,7 @@ const useCreateEemployee = ({
           name: "departments",
           label: "Departamento",
           placeholder: "Seleccione el departamento",
-          value: currentEmployee?.department?.department_id || "",
+          value: currentEmployee?.department?.department_id || (all.sourceDepartmentId as string) || "",
           options: [],
           validations: [{ type: "required" }],
           disabled: isReadOnly,
@@ -279,7 +349,7 @@ const useCreateEemployee = ({
           value: currentEmployee?.workposition?.workposition_id || "",
           options: [],
           validations: [{ type: "required" }],
-          disabled: isReadOnly,
+          disabled: true,
         },
         {
           type: "select",
@@ -295,14 +365,14 @@ const useCreateEemployee = ({
           name: "email",
           value: currentEmployee?.email || "",
           label: "Correo Electrónico",
-          disabled: isReadOnly,
+          disabled: true, // Always disabled as per user request
         },
         {
           type: "number",
           name: "phone_number",
-          value: currentEmployee?.phone_number.replaceAll(" ", "") || "",
+          value: currentEmployee?.phone_number?.replaceAll(" ", "") || "",
           label: "Número De Teléfono",
-          disabled: isReadOnly,
+          disabled: true, // Always disabled as per user request
         },
         {
           type: "select",
@@ -326,7 +396,7 @@ const useCreateEemployee = ({
           ],
           value: currentEmployee?.gtstype || "",
           label: "Tipo de empleado",
-          placeholder: "Seleccione el tipo de empleadoo",
+          placeholder: "Seleccione el tipo de empleado",
           validations: [{ type: "required" }],
           disabled: isReadOnly,
         },
@@ -343,11 +413,11 @@ const useCreateEemployee = ({
     setFields(formId, initialFields());
     hasInitFields.current = true;
   };
- 
+
   useEffect(() => {
     if (creatingEmployee) {
       showSpinner({ message: "Creando empleado" });
- 
+
       return;
     }
     if (updatingEmployee) {
@@ -424,7 +494,7 @@ const useCreateEemployee = ({
     onSuccess,
     redirectOnSuccess,
   ]);
- 
+
   useEffect(() => {
     if (canStart) {
       loadInitialFields();
@@ -458,14 +528,24 @@ const useCreateEemployee = ({
             label: enterprise.name,
             value: enterprise.enterprise_id,
           })),
-          value: currentEmployee?.department?.enterprise_id, // reset value
+          value: currentEmployee?.department?.enterprise_id || "", // reset value
           disabled: isReadOnly,
           onChange: isReadOnly
             ? undefined
             : (value: string) => {
-                void completeSelect(value);
-                return value;
-              },
+              updateField(formId, "departments", {
+                value: "",
+                options: [],
+                disabled: true,
+              });
+              updateField(formId, "workposition", {
+                value: "",
+                options: [],
+                disabled: true,
+              });
+              void completeSelect(value);
+              return value;
+            },
         });
       }
     }
@@ -476,15 +556,50 @@ const useCreateEemployee = ({
     setLoadingForm,
     canStart,
     isReadOnly,
+    currentEmployee,
   ]);
- 
+
+  // Sync all values when currentEmployee arrives or changes
+  useEffect(() => {
+    if (canStart && currentEmployee) {
+      const fieldsToUpdate = [
+        { name: "employee_number", val: currentEmployee.employee_number },
+        { name: "firstname", val: currentEmployee.firstname },
+        { name: "secondname", val: currentEmployee.secondname },
+        { name: "lastname", val: currentEmployee.lastname },
+        { name: "motherlast_name", val: currentEmployee.motherlast_name },
+        { name: "gender", val: currentEmployee.gender },
+        { name: "gtstype", val: currentEmployee.gtstype },
+        { name: "extension", val: currentEmployee.extension },
+        { name: "email", val: currentEmployee.email, forceDisabled: true },
+        { name: "phone_number", val: currentEmployee.phone_number?.replaceAll(" ", ""), forceDisabled: true },
+      ];
+
+      fieldsToUpdate.forEach(({ name, val, forceDisabled }) => {
+        updateField(formId, name, {
+          value: val || "",
+          disabled: forceDisabled || isReadOnly,
+
+
+        });
+      });
+
+      updateField(formId, "image_url", {
+        value: { name: "Imagen de perfil", url: currentEmployee.image_url },
+        initialFile: { name: "Imagen de perfil", url: currentEmployee.image_url },
+        disabled: isReadOnly,
+        buttonLabel: "Cambiar Imagen"
+      });
+    }
+  }, [canStart, currentEmployee, isReadOnly]);
+
   const getEmployeeInfo = async (employeeId: string) => {
     if (!currentEmployee || currentEmployee.employee_id !== employeeId) {
       await fetchEmployeeById(String(employeeId));
     }
     setCanStart(true);
   };
- 
+
   useEffect(() => {
     if (!hasresetedfields.current) {
       resetFields(formId);
@@ -497,20 +612,38 @@ const useCreateEemployee = ({
       resetCurrentEmployee();
       setCanStart(true);
     }
-  }, [targetEmployeeId, resetCurrentEmployee, resetFields]);
- 
+    // Si targetEmployeeId cambia, permitimos que loadInitialFields se ejecute de nuevo
+    hasInitFields.current = false;
+    hasUpdateList.current = false;
+    hasInitTheOtherList.current = false;
+  }, [targetEmployeeId]);
+
   useEffect(() => {
     if (
-      currentEmployee &&
+      canStart &&
       enterprisesList.length > 0 &&
-      employeesList.length > 0 &&
       !hasInitTheOtherList.current
     ) {
-      hasInitTheOtherList.current = true;
-      completeSelect(currentEmployee?.department?.enterprise_id || "");
+      if (currentEmployee) {
+        const entId = currentEmployee.department?.enterprise_id;
+        if (entId) {
+          hasInitTheOtherList.current = true;
+          void completeSelect(entId);
+        }
+      } else if (all.sourceDepartmentId) {
+        // Mode create with sourceDepartmentId
+        const deptId = all.sourceDepartmentId as string;
+        const enterprise = enterprisesList.find((e) =>
+          e.departments?.some((d) => d.department_id === deptId)
+        );
+        if (enterprise) {
+          hasInitTheOtherList.current = true;
+          void completeSelect(enterprise.enterprise_id, { department_id: deptId });
+        }
+      }
     }
-  }, [currentEmployee, enterprisesList, employeesList]);
- 
+  }, [canStart, enterprisesList, currentEmployee, all.sourceDepartmentId]);
+
   return {
     loadingForm,
     fields: fieldsByFormId[formId],
@@ -521,6 +654,8 @@ const useCreateEemployee = ({
     handleValidChange,
     formCompleted,
     isReadOnly,
+    isEditing: !!targetEmployeeId,
   };
 };
 export default useCreateEemployee;
+

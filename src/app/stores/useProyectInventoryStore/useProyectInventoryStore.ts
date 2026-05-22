@@ -6,20 +6,24 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import type { ProyectInventoryState } from './types';
 import {
   createGenericEquipment as createGenericEquipmentRequest,
-  createGenericEquipmentSparePart as createGenericEquipmentSparePartRequest,
+  createSupplier as createSupplierRequest,
   createSparePart as createSparePartRequest,
   deleteGenericEquipment as deleteGenericEquipmentRequest,
+  deleteSupplier as deleteSupplierRequest,
   deleteGenericEquipmentSparePart as deleteGenericEquipmentSparePartRequest,
   deleteSparePart as deleteSparePartRequest,
   fetchGenericEquipmentById as fetchGenericEquipmentByIdRequest,
+  fetchSupplierById as fetchSupplierByIdRequest,
   fetchGenericEquipmentSpareParts as fetchGenericEquipmentSparePartsRequest,
   fetchGenericEquipments as fetchGenericEquipmentsRequest,
+  fetchGenericEquipmentsByProyectId as fetchGenericEquipmentsByProyectIdRequest,
+  fetchSuppliers as fetchSuppliersRequest,
   fetchSpareParts as fetchSparePartsRequest,
   fetchSparePartsByDeviceId as fetchSparePartsByDeviceIdRequest,
   fetchSparePartsByGenericEquipmentId as fetchSparePartsByGenericEquipmentIdRequest,
   fetchSparePartsByProyectId as fetchSparePartsByProyectIdRequest,
   updateGenericEquipment as updateGenericEquipmentRequest,
-  updateGenericEquipmentSparePart as updateGenericEquipmentSparePartRequest,
+  updateSupplier as updateSupplierRequest,
   updateSparePart as updateSparePartRequest,
 } from './utilities';
 
@@ -32,13 +36,18 @@ export const useProyectInventoryStore =
       sparePartsByDevice: [],
       sparePartsByGenericEquipment: [],
       genericEquipmentSpareParts: [],
+      suppliers: [],
+      currentSupplier: null,
       currentGenericEquipment: null,
+      lastGenericEquipmentsScope: null,
+      lastGenericEquipmentsByProyectId: null,
       lastSparePartsIsActive: null,
       lastSparePartsByProyectId: null,
       lastSparePartsByDeviceId: null,
       lastSparePartsByGenericEquipmentId: null,
       lastGenericEquipmentSparePartsIsActive: null,
       lastGenericEquipmentId: null,
+      lastSupplierId: null,
 
       loading: false,
       loadingCurrent: false,
@@ -47,6 +56,8 @@ export const useProyectInventoryStore =
       loadingSparePartsByDevice: false,
       loadingSparePartsByGenericEquipment: false,
       loadingGenericEquipmentSpareParts: false,
+      loadingSuppliers: false,
+      loadingCurrentSupplier: false,
       creating: false,
       updating: false,
       removing: false,
@@ -58,6 +69,8 @@ export const useProyectInventoryStore =
       successGetSparePartsByDevice: false,
       successGetSparePartsByGenericEquipment: false,
       successGetGenericEquipmentSpareParts: false,
+      successGetSuppliers: false,
+      successGetCurrentSupplier: false,
       successPost: false,
       successPut: false,
       successDelete: false,
@@ -66,6 +79,8 @@ export const useProyectInventoryStore =
 
       fetchGenericEquipments: (force = false) =>
         fetchGenericEquipmentsRequest(set, get, force),
+      fetchGenericEquipmentsByProyectId: (idProyect, force = false) =>
+        fetchGenericEquipmentsByProyectIdRequest(idProyect, set, get, force),
       fetchGenericEquipmentById: (id, force = false) =>
         fetchGenericEquipmentByIdRequest(id, set, get, force),
       fetchSpareParts: (isActive = true, force = false) =>
@@ -86,6 +101,9 @@ export const useProyectInventoryStore =
         ),
       fetchGenericEquipmentSpareParts: (isActive = true, force = false) =>
         fetchGenericEquipmentSparePartsRequest(isActive, set, get, force),
+      fetchSuppliers: (force = false) => fetchSuppliersRequest(set, get, force),
+      fetchSupplierById: (id, force = false) =>
+        fetchSupplierByIdRequest(id, set, get, force),
 
       createGenericEquipment: (payload) =>
         createGenericEquipmentRequest(set, get, payload),
@@ -98,12 +116,11 @@ export const useProyectInventoryStore =
       updateSparePart: (payload) => updateSparePartRequest(set, get, payload),
       deleteSparePart: (id) => deleteSparePartRequest(set, get, id),
 
-      createGenericEquipmentSparePart: (payload) =>
-        createGenericEquipmentSparePartRequest(set, get, payload),
-      updateGenericEquipmentSparePart: (payload) =>
-        updateGenericEquipmentSparePartRequest(set, get, payload),
       deleteGenericEquipmentSparePart: (id) =>
         deleteGenericEquipmentSparePartRequest(set, get, id),
+      createSupplier: (payload) => createSupplierRequest(set, get, payload),
+      updateSupplier: (payload) => updateSupplierRequest(set, get, payload),
+      deleteSupplier: (id) => deleteSupplierRequest(set, get, id),
 
       setCurrentGenericEquipment: (equipment) =>
         set({ currentGenericEquipment: equipment ?? null }),
@@ -118,13 +135,18 @@ export const useProyectInventoryStore =
           sparePartsByDevice: [],
           sparePartsByGenericEquipment: [],
           genericEquipmentSpareParts: [],
+          suppliers: [],
+          currentSupplier: null,
           currentGenericEquipment: null,
+          lastGenericEquipmentsScope: null,
+          lastGenericEquipmentsByProyectId: null,
           lastSparePartsIsActive: null,
           lastSparePartsByProyectId: null,
           lastSparePartsByDeviceId: null,
           lastSparePartsByGenericEquipmentId: null,
           lastGenericEquipmentSparePartsIsActive: null,
           lastGenericEquipmentId: null,
+          lastSupplierId: null,
           loading: false,
           loadingCurrent: false,
           loadingSpareParts: false,
@@ -132,6 +154,8 @@ export const useProyectInventoryStore =
           loadingSparePartsByDevice: false,
           loadingSparePartsByGenericEquipment: false,
           loadingGenericEquipmentSpareParts: false,
+          loadingSuppliers: false,
+          loadingCurrentSupplier: false,
           creating: false,
           updating: false,
           removing: false,
@@ -142,6 +166,8 @@ export const useProyectInventoryStore =
           successGetSparePartsByDevice: false,
           successGetSparePartsByGenericEquipment: false,
           successGetGenericEquipmentSpareParts: false,
+          successGetSuppliers: false,
+          successGetCurrentSupplier: false,
           successPost: false,
           successPut: false,
           successDelete: false,
@@ -157,6 +183,8 @@ export const useProyectInventoryStore =
           loadingSparePartsByDevice: false,
           loadingSparePartsByGenericEquipment: false,
           loadingGenericEquipmentSpareParts: false,
+          loadingSuppliers: false,
+          loadingCurrentSupplier: false,
           creating: false,
           updating: false,
           removing: false,
@@ -167,6 +195,8 @@ export const useProyectInventoryStore =
           successGetSparePartsByDevice: false,
           successGetSparePartsByGenericEquipment: false,
           successGetGenericEquipmentSpareParts: false,
+          successGetSuppliers: false,
+          successGetCurrentSupplier: false,
           successPost: false,
           successPut: false,
           successDelete: false,

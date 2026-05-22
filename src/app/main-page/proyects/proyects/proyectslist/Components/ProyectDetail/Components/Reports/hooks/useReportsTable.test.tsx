@@ -15,7 +15,8 @@ const resetReportsStoreMock = vi.fn();
 
 const makePictureDocumentMock = vi.fn();
 const exportExcelMock = vi.fn();
-const createPDFMock = vi.fn();
+const createPDFBlobMock = vi.fn();
+const saveAsMock = vi.fn();
 
 const showSpinnerMock = vi.fn();
 const hideSpinnerMock = vi.fn();
@@ -26,7 +27,12 @@ let searchParamsValue = "";
 let currentReportRef = createSampleReport();
 let localReportsRef: typeof sampleReports = [];
 let loadingRef = false;
-let windowOpenSpy: ReturnType<typeof vi.spyOn>;
+let authPermissionsRef: Record<string, unknown> = { reportdetails: true, canSeeAllReports: true };
+let authUserRef = {
+  idEmployee: sampleReports[0].employe.employee_id,
+  fullName: sampleReports[0].employe.fullname,
+  fullname: sampleReports[0].employe.fullname,
+};
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/main-page/proyects/proyects/proyectslist",
@@ -37,12 +43,8 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/app/context/AuthContext/AuthContext", () => ({
   useAuth: () => ({
-    currentPagePermissions: { reportdetails: true },
-    user: {
-      idEmployee: sampleReports[0].employe.employee_id,
-      fullName: sampleReports[0].employe.fullname,
-      fullname: sampleReports[0].employe.fullname,
-    },
+    currentPagePermissions: authPermissionsRef,
+    user: authUserRef,
   }),
 }));
 
@@ -113,9 +115,11 @@ vi.mock("./useDocument/useDocument", () => ({
 }));
 
 vi.mock("@/app/utilities/PDF/PDF", () => ({
-  CreatePDF: (payload: unknown, resolve: (url: string) => void) => {
-    createPDFMock(payload, resolve);
-  },
+  CreatePDFBlob: (...args: any[]) => createPDFBlobMock(...args),
+}));
+
+vi.mock("file-saver", () => ({
+  saveAs: (...args: any[]) => saveAsMock(...args),
 }));
 
 describe("useReportsTable", () => {
@@ -123,6 +127,12 @@ describe("useReportsTable", () => {
     vi.clearAllMocks();
     routerReplaceMock = vi.fn();
     searchParamsValue = "id=PROY-1";
+    authPermissionsRef = { reportdetails: true, canSeeAllReports: true };
+    authUserRef = {
+      idEmployee: sampleReports[0].employe.employee_id,
+      fullName: sampleReports[0].employe.fullname,
+      fullname: sampleReports[0].employe.fullname,
+    };
     currentReportRef = null as any;
     localReportsRef = [];
     loadingRef = false;
@@ -131,21 +141,32 @@ describe("useReportsTable", () => {
     deleteRemoteReportMock.mockResolvedValue(true);
     exportExcelMock.mockResolvedValue(undefined);
     resetReportsStoreMock.mockImplementation(() => {});
-    windowOpenSpy = vi.spyOn(window, "open").mockImplementation(() => null);
-  });
-
-  afterEach(() => {
-    windowOpenSpy.mockRestore();
   });
 
   it("solicita los reportes del proyecto presente en la URL", async () => {
-    renderHook(() => useReportsTable());
+    renderHook(() => useReportsTable({ canSeeAllReports: true }));
 
     await waitFor(() => {
-      expect(fetchAllReportsByProyectMock).toHaveBeenCalledWith("PROY-1", true);
+      expect(fetchAllReportsByProyectMock).toHaveBeenCalledWith("PROY-1");
     });
     expect(fetchLocalReportsMock).toHaveBeenCalledWith(true, "PROY-1");
     expect(hideSpinnerMock).toHaveBeenCalled();
+  });
+
+  it("solicita reportes por proyecto y empleado cuando no puede ver todos", async () => {
+    authPermissionsRef = { reportdetails: true, canSeeAllReports: false };
+    authUserRef = {
+      idEmployee: "EMP-99",
+      fullName: sampleReports[0].employe.fullname,
+      fullname: sampleReports[0].employe.fullname,
+    };
+
+    renderHook(() => useReportsTable({ canSeeAllReports: false }));
+
+    await waitFor(() => {
+      expect(fetchAllReportsByProyectMock).toHaveBeenCalledWith("PROY-1", true, "EMP-99");
+    });
+    expect(fetchLocalReportsMock).toHaveBeenCalledWith(true, "PROY-1");
   });
 
   it("limpia el reporte actual y elimina el query reportId al cerrar detalles", () => {
@@ -178,7 +199,7 @@ describe("useReportsTable", () => {
 
   it("descarga el reporte fotografico mostrando mensajes en el flujo feliz", async () => {
     makePictureDocumentMock.mockResolvedValue({ pages: [] });
-    createPDFMock.mockImplementation((_, resolve) => resolve("blob:report"));
+    createPDFBlobMock.mockResolvedValue(new Blob(["pdf"]));
 
     const { result } = renderHook(() => useReportsTable());
 
@@ -190,8 +211,11 @@ describe("useReportsTable", () => {
       expect.objectContaining({ message: expect.stringContaining("Generando reporte") })
     );
     expect(makePictureDocumentMock).toHaveBeenCalled();
-    expect(createPDFMock).toHaveBeenCalled();
-    expect(windowOpenSpy).toHaveBeenCalledWith("blob:report", "_blank");
+    expect(createPDFBlobMock).toHaveBeenCalled();
+    expect(saveAsMock).toHaveBeenCalledWith(
+      expect.any(Blob),
+      expect.stringMatching(/^reporte_fotografico(?:_.*)?\.pdf$/)
+    );
     expect(showAlertMock).toHaveBeenCalled();
     expect(hideSpinnerMock).toHaveBeenCalled();
   });
@@ -222,5 +246,26 @@ describe("useReportsTable", () => {
     });
 
     expect(setCurrentReportMock).toHaveBeenCalledWith(sampleReports[0]);
+  });
+
+  it("muestra todos los filtros cuando canSeeAllReports es true", () => {
+    const { result } = renderHook(() => useReportsTable({ canSeeAllReports: true }));
+    expect(result.current.controlFilterOptions.map((f) => f.value)).toEqual([
+      "all",
+      "all:complete",
+      "all:incomplete",
+      "all:mine",
+      "all:minecomplete",
+      "all:mineincomplete",
+    ]);
+  });
+
+  it("muestra solo filtros de mis reportes cuando canSeeAllReports es false", () => {
+    const { result } = renderHook(() => useReportsTable({ canSeeAllReports: false }));
+    expect(result.current.controlFilterOptions.map((f) => f.value)).toEqual([
+      "all:mine",
+      "all:minecomplete",
+      "all:mineincomplete",
+    ]);
   });
 });

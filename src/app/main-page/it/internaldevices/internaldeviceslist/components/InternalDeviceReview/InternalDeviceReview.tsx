@@ -108,7 +108,7 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
       showAlert({
         type: 'error',
         title: 'Dispositivo no disponible',
-        description: 'No se encontro informacion del dispositivo.',
+        description: 'No se encontro Información del dispositivo.',
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1200,
@@ -170,12 +170,12 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
           enableCollapse={false}
           rightContent={
             <Button hideIcon disabled className={isMobile ? 'w-full mt-3' : ''}>
-              Guardar Informacion
+              Guardar Información
             </Button>
           }
         >
           <div className="rounded-2xl bg-white-100 p-6 text-gray-70 shadow-md">
-            Cargando informacion del dispositivo...
+            Cargando Información del dispositivo...
           </div>
         </CollapsibleSection>
       </div>
@@ -203,7 +203,7 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
             disabled={!isValid || creatingDeviceReview}
             className={isMobile ? 'w-full mt-3' : ''}
           >
-            Guardar Informacion
+            Guardar Información
           </Button>
         }
       >

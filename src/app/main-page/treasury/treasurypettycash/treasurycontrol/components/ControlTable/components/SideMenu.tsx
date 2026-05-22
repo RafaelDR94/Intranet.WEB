@@ -172,9 +172,6 @@ const SideMenu: React.FC<ControlSideMenuProps> = ({
       return bTime - aTime;
     });
   }, [amountHistory]);
-
-
-  console.log("datail",detail);
   const employeeName = detail?.employeename || selected?.employeeName || "";
   const projectCode =
     detail?.project?.proyectkey || detail?.petty_cash_funds?.year_month || "";

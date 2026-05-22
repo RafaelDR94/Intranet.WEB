@@ -42,7 +42,8 @@ function useCardsGrid<T>({ rowsPerPage, adapt, data }: CardsGridProps<T>) {
     const CARD_HEIGHT = isMobile ? 105 : 226; // px aprox.
     const RESERVED_SPACE = 450; // header/footer, margen inferior, etc.
     const usableHeight = Math.max(0, viewportHeight - RESERVED_SPACE);
-    const rowsThatFit = Math.max(1, Math.floor(usableHeight / CARD_HEIGHT));
+    const minRows = isMobile ? 1 : 2;
+    const rowsThatFit = Math.max(minRows, Math.floor(usableHeight / CARD_HEIGHT));
 
 
     // como mó¡ximo 2 filas => pageSize = cols * 2; respeta un valor menor si lo envó­an

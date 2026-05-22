@@ -2,25 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 import { Button } from "@/app/components/Button/Button";
-import { PopUp } from "@/app/components/PopUp/PopUp";
 import { Input } from "@/app/components/Input/Input";
-
-const getDynamicDeviceName = () => {
-  if (typeof navigator === "undefined") return "Mi dispositivo";
-
-  const platform = navigator.platform || "Dispositivo";
-  const userAgent = navigator.userAgent || "";
-
-  let browser = "Navegador";
-  if (userAgent.includes("Edg/")) browser = "Edge";
-  else if (userAgent.includes("Chrome/")) browser = "Chrome";
-  else if (userAgent.includes("Firefox/")) browser = "Firefox";
-  else if (userAgent.includes("Safari/") && !userAgent.includes("Chrome/")) browser = "Safari";
-
-  return `${platform} - ${browser}`;
-};
+import { PopUp } from "@/app/components/PopUp/PopUp";
+import { getPasskeyDeviceName } from "@/app/services/passkeys/deviceName";
+import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
 
 const DevicesPage = () => {
   const [isNewDevicePopupOpen, setIsNewDevicePopupOpen] = useState(false);
@@ -41,7 +27,7 @@ const DevicesPage = () => {
   }, [fetchUserPasskeys, user?.idUser]);
 
   useEffect(() => {
-    setDeviceName(getDynamicDeviceName());
+    setDeviceName(getPasskeyDeviceName());
   }, []);
 
   const handleRegisterDevice = async () => {
@@ -70,22 +56,26 @@ const DevicesPage = () => {
           hideIcon
           onClick={() => setIsNewDevicePopupOpen(true)}
         >
-          Nuevo dispositivo
+          Registrar dispositivo
         </Button>
       </div>
 
       <section className="rounded-[10px] bg-white-100 p-6 shadow-[0px_2px_4px_-2px_rgba(19,25,39,0.12),0px_4px_4px_-2px_rgba(19,25,39,0.08)]">
-        <h2 className="text-b4 font-medium text-blue-70">Dispositivos con inicio de sesión en la intranet</h2>
+        <h2 className="text-b4 font-medium text-blue-70">
+          Dispositivos registrados para autenticación
+        </h2>
 
         {fetchingUserPasskeys ? (
           <p className="mt-5 text-b4 text-gray-70">Cargando dispositivos...</p>
         ) : userPasskeys.length === 0 ? (
-          <p className="mt-5 text-b4 text-gray-70">No hay dispositivos vinculados.</p>
+          <p className="mt-5 text-b4 text-gray-70">No hay dispositivos registrados.</p>
         ) : (
           <div className="mt-5 flex flex-col gap-4">
             {userPasskeys.map((passkey) => (
               <div key={passkey.id} className="flex items-center justify-between gap-4">
-                <p className="text-b4 text-blue-70">{passkey.friendlyName || "Dispositivo sin nombre"}</p>
+                <p className="text-b4 text-blue-70">
+                  {passkey.friendlyName || "Dispositivo sin nombre"}
+                </p>
 
                 <Button
                   variant="solid"
@@ -106,13 +96,13 @@ const DevicesPage = () => {
       <PopUp
         open={isNewDevicePopupOpen}
         onClose={() => setIsNewDevicePopupOpen(false)}
-        title="Activar acceso con huella o passkey"
-        content="Vamos a registrar este dispositivo para que puedas iniciar sesión con huella, Face ID, Touch ID, Windows Hello o PIN."
+        title="Activar autenticación con dispositivo"
+        content="Vamos a registrar este dispositivo para que puedas autenticarte con huella, Face ID, Touch ID, Windows Hello o PIN."
         showSecondaryButton
         secondaryButtonText="Cancelar"
         onSecondaryButtonClick={() => setIsNewDevicePopupOpen(false)}
         showPrimaryButton
-        primaryButtonText={registeringUserPasskey ? "Activando..." : "Aceptar"}
+        primaryButtonText={registeringUserPasskey ? "Registrando..." : "Registrar dispositivo"}
         onPrimaryButtonClick={() => {
           void handleRegisterDevice();
         }}
@@ -131,7 +121,7 @@ const DevicesPage = () => {
         open={isConfirmIdentityPopupOpen}
         onClose={() => setIsConfirmIdentityPopupOpen(false)}
         title="Confirma tu identidad"
-        content="Sigue las instrucciones de tu dispositivo. Tu huella nunca se comparte con DR Security."
+        content="Sigue las instrucciones de tu dispositivo. Tu autenticación biométrica nunca se comparte con DR Security."
         showSecondaryButton
         secondaryButtonText="Cancelar"
         onSecondaryButtonClick={() => setIsConfirmIdentityPopupOpen(false)}
