@@ -31,6 +31,7 @@ const initialValue: InvoicesContextType = {
   updateField: () => {},
   resetFields: () => {},
   user: null,
+  targetEmployeeId: "",
 };
 
 // 3️⃣ Crear contexto
@@ -42,6 +43,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
   const searchParams = useSearchParams();
   const urlEmployeeId = searchParams.get("idEmployee") ?? "";
   const { user } = useAuth();
+  const normalizedPath = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
   const formId1 = "invoices-form";
   const formId2 = "ticket-form";
   const { usePrincipalAlert } = usePrincipal();
@@ -96,7 +98,11 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
   const field1 = f1 ?? EMPTY_ARRAY; // coalesce fuera del selector
   const field2 = f2 ?? EMPTY_ARRAY;
 
-  const targetEmployeeId = urlEmployeeId || user?.idEmployee || "";
+  const shouldUseAuthenticatedEmployeeOnly =
+    normalizedPath.startsWith("/main-page/request/");
+  const targetEmployeeId = shouldUseAuthenticatedEmployeeOnly
+    ? user?.idEmployee || ""
+    : urlEmployeeId || user?.idEmployee || "";
 
   useEffect(() => {
     if (pathname == "/main-page/accounting/invoices/addFiles/") {
@@ -210,6 +216,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
       updateField,
       resetFields,
       user,
+      targetEmployeeId,
     }),
     [
       billingDocumentDescription,
@@ -220,6 +227,7 @@ export const InvoicesProvider = ({ children }: { children: ReactNode }) => {
       formId1,
       formId2,
       user,
+      targetEmployeeId,
       setFields,
       updateField,
       resetFields,

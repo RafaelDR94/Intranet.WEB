@@ -9,33 +9,39 @@ const validateBillingDocumentOperations = vi.fn();
 const rejectBillingDocument = vi.fn();
 const fetchExpenseTypeCatalog = vi.fn();
 const updateBillingDocumentJsonSap = vi.fn(async () => true);
+const resetFlags = vi.fn();
+const showAlert = vi.fn();
+const showSpinner = vi.fn();
+const hideSpinner = vi.fn();
+
+const storeState = {
+  updateBillingDocument,
+  updateBillingDocumentJsonSap,
+  validateBillingDocument,
+  validateBillingDocumentOperations,
+  rejectBillingDocument,
+  fetchExpenseTypeCatalog,
+  expenseTypeCatalog: [],
+  updating: false,
+  successPut: false,
+  succesReject: false,
+  succesValidate: false,
+  rejecting: false,
+  validating: false,
+  resetFlags,
+  error: null,
+};
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   usePrincipal: () => ({
-    usePrincipalAlert: { showAlert: vi.fn() },
-    usePrincipalLoading: { showSpinner: vi.fn(), hideSpinner: vi.fn() },
+    usePrincipalAlert: { showAlert },
+    usePrincipalLoading: { showSpinner, hideSpinner },
   }),
 }));
 
 vi.mock('@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore', () => ({
   useBillingDocumentsStore: (selector: any) =>
-    selector({
-      updateBillingDocument,
-      updateBillingDocumentJsonSap,
-      validateBillingDocument,
-      validateBillingDocumentOperations,
-      rejectBillingDocument,
-      fetchExpenseTypeCatalog,
-      expenseTypeCatalog: [],
-      updating: false,
-      successPut: false,
-      succesReject: false,
-      succesValidate: false,
-      rejecting: false,
-      validating: false,
-      resetFlags: vi.fn(),
-      error: null,
-    }),
+    selector(storeState),
 }));
 
 vi.mock('@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore', () => ({
@@ -53,6 +59,18 @@ describe('useDetailsPanel', () => {
     rejectBillingDocument.mockClear();
     fetchExpenseTypeCatalog.mockClear();
     updateBillingDocumentJsonSap.mockClear();
+    resetFlags.mockClear();
+    showAlert.mockClear();
+    showSpinner.mockClear();
+    hideSpinner.mockClear();
+    storeState.expenseTypeCatalog = [];
+    storeState.updating = false;
+    storeState.successPut = false;
+    storeState.succesReject = false;
+    storeState.succesValidate = false;
+    storeState.rejecting = false;
+    storeState.validating = false;
+    storeState.error = null;
   });
 
   it('envia acciones de comentario, rechazo y validacion', () => {
@@ -102,8 +120,8 @@ describe('useDetailsPanel', () => {
 
     await act(async () => {
       await Promise.all([
-        result.current.handleUpdateJsonSapItem(0, 'NEW-1'),
-        result.current.handleUpdateJsonSapItem(1, 'NEW-2'),
+        result.current.handleUpdateJsonSapItem(0, { claveInterna: 'NEW-1' }),
+        result.current.handleUpdateJsonSapItem(1, { claveInterna: 'NEW-2' }),
       ]);
     });
 
@@ -117,5 +135,35 @@ describe('useDetailsPanel', () => {
     expect(firstJson.items[0].claveInterna).toBe('NEW-1');
     expect(secondJson.items[0].claveInterna).toBe('NEW-1');
     expect(secondJson.items[1].claveInterna).toBe('NEW-2');
+  });
+
+  it('invoca onJsonSapUpdated cuando un ajuste json_sap se guarda con exito', async () => {
+    const setPanelOpen = vi.fn();
+    const onJsonSapUpdated = vi.fn();
+    const { result, rerender } = renderHook(() =>
+      useDetailsPanel({
+        selected: {
+          billingdocument_id: 'doc-99',
+          requisition: {},
+          json_sap: {
+            items: [{ claveInterna: 'OLD-1', claveProdServ: 'SAT-1', importe: '10' }],
+          },
+        } as any,
+        rejectType: false,
+        setPanelOpen,
+        operations: false,
+        reqisition: 'r1',
+        onJsonSapUpdated,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleUpdateJsonSapItem(0, { importe: '20' });
+    });
+
+    storeState.successPut = true;
+    rerender();
+
+    expect(onJsonSapUpdated).toHaveBeenCalledWith('doc-99');
   });
 });

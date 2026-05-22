@@ -7,15 +7,23 @@ import RequisitionListPage from './page';
 const useSearchParamsMock = vi.fn(() => new URLSearchParams());
 const requisitionsFilesMock = vi.fn();
 const useRouterMock = vi.fn(() => ({ push: vi.fn() }));
+const billableFilesFlowMock = vi.fn();
 
 vi.mock('next/navigation', () => ({
   useSearchParams: () => useSearchParamsMock(),
   useRouter: () => useRouterMock(),
+  usePathname: () => '/main-page/operations/requisitions/requisitionListPage',
 }));
 vi.mock('@/tutorials/engine/useTutorialAutoRun', () => ({
   __esModule: true,
   default: () => null,
 }));
+vi.mock(
+  '@/app/main-page/accounting/personalInvoices/invoices/context/InvoicesContext',
+  () => ({
+    InvoicesProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  }),
+);
 
 vi.mock('./components/RequisitionDetails/RequisitionDetails', () => ({
   __esModule: true,
@@ -43,6 +51,14 @@ vi.mock('./components/TicketsFiles/TicketsFiles', () => ({
   default: () => <div>Tickets</div>,
 }));
 
+vi.mock('./components/BillableFilesFlow/BillableFilesFlow', () => ({
+  __esModule: true,
+  default: (props: unknown) => {
+    billableFilesFlowMock(props);
+    return <div>BillableFilesFlow</div>;
+  },
+}));
+
 vi.mock('./components/InvoicesFiles/InvoicesFiles', () => ({
   __esModule: true,
   default: () => <div>Facturas</div>,
@@ -60,6 +76,7 @@ describe('RequisitionListPage', () => {
   beforeEach(() => {
     useSearchParamsMock.mockReturnValue(new URLSearchParams());
     requisitionsFilesMock.mockClear();
+    billableFilesFlowMock.mockClear();
   });
 
   it('renders details and table when there is no label', () => {
@@ -91,6 +108,24 @@ describe('RequisitionListPage', () => {
     expect(container.childElementCount).toBeGreaterThan(0);
     expect(requisitionsFilesMock).toHaveBeenCalledWith(
       expect.objectContaining({ forceVisible: true, userId: '99' }),
+    );
+  });
+
+  it('renders billable files flow when view=billablefiles', () => {
+    useSearchParamsMock.mockReturnValueOnce(
+      new URLSearchParams('view=billablefiles&idEmployee=emp-1&idRequisition=req-1'),
+    );
+
+    render(<RequisitionListPage />);
+
+    expect(screen.getByText('BillableFilesFlow')).toBeInTheDocument();
+    expect(screen.queryByText('Detalle')).not.toBeInTheDocument();
+    expect(screen.queryByText('Tickets')).not.toBeInTheDocument();
+    expect(billableFilesFlowMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        selectedTicket: null,
+        onSelectedTicketChange: expect.any(Function),
+      }),
     );
   });
 });

@@ -528,7 +528,7 @@ export const getTabsFromPath = (
     }
 
     if (view === 'billablefiles' && requisitionIdForContext) {
-      const billableLabel = 'Subir Facturas';
+      const billableLabel = 'Subir una Factura';
       const billableQs = new URLSearchParams();
       if (employeeIdForContext) {
         billableQs.set('id', employeeIdForContext);
@@ -538,6 +538,7 @@ export const getTabsFromPath = (
       billableQs.set('idRequisition', requisitionIdForContext);
       if (labelparam) billableQs.set('label', labelparam);
       billableQs.set('view', view);
+      billableQs.set('uploadSection', 'invoice');
       if (idEmployee) billableQs.set('idEmployee', idEmployee);
       if (requisitionsLabel) billableQs.set('requisitionsLabel', requisitionsLabel);
       const billablePath = `${clean}?${billableQs.toString()}`;

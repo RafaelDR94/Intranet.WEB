@@ -60,5 +60,6 @@ describe('RequisitionMap', () => {
     expect(document.category).toBe('HOSPEDAJE')
     expect(document.description).toBe('OTROS')
     expect(document.total).toBe(447)
+    expect(mapped.state).toBe('Aguascalientes')
   })
 })

@@ -1,13 +1,16 @@
-import { RefObject } from 'react';
+import { RefObject } from "react";
 
-import { FieldModel } from '@/app/components/DynamicForm/types';
-import { HistoryRow } from '@/app/mappings/billinghistory/billinghistory.types';
-import { BillingImagesTable } from '@/app/mappings/billingimages/billingimages.types';
+import { FieldModel } from "@/app/components/DynamicForm/types";
+import { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
+import { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
+import { InvoiceSubmitResult } from "../../types";
 
 /** Values returned by {@link useInvoicesForm}. */
 export type UseInvoicesFormReturn = {
   /** Current field models. */
   fields: FieldModel[];
+  /** Monotonic version used to force intentional form reinitialization only. */
+  formVersion: number;
   /** Loading state while fetching options. */
   loadingFormInfo: boolean;
   /** External submit reference. */
@@ -22,6 +25,10 @@ export type UseInvoicesFormReturn = {
   ResetForm: () => void;
   /** Displays an image in modal. */
   handleImageClick: (image: string) => void;
+  /** Stores the latest form values for imperative submission. */
+  handleValuesChange: (values: Record<string, any>) => void;
+  /** Submits the latest captured values and returns a typed result. */
+  submitCurrentValues: () => Promise<InvoiceSubmitResult>;
 };
 
 /** Options for {@link useInvoicesForm}. */
@@ -32,6 +39,8 @@ export interface UseInvoicesFormProps {
   billingImages?: BillingImagesTable | null;
   /** Skip debtor name field. */
   withoutName?: boolean;
+  /** Optional unique form id for multi-instance rendering. */
+  formId?: string;
   /** Callback when closing image preview. */
   onCloseImage?: () => void;
   /** Disable all fields. */

@@ -20,13 +20,10 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   reqisition,
   closeButtonDataTour,
   documentLabel = "Factura",
+  onJsonSapUpdated,
 }) => {
   const { currentPagePermissions, handleSendToSap } = useSAPDetailsPanel({
     selected,
-    rejectType,
-    setPanelOpen,
-    operations,
-    reqisition,
   });
 
 
@@ -46,6 +43,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       allowSendToSapAction={!currentPagePermissions?.canSendToSap}
       closeButtonDataTour={closeButtonDataTour}
       documentLabel={documentLabel}
+      onJsonSapUpdated={onJsonSapUpdated}
     />
   );
 };

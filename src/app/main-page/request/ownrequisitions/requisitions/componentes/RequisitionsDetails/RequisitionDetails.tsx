@@ -1,5 +1,6 @@
 import clsx from "clsx";
-import React from "react";
+import React, { useEffect } from "react";
+import { shallow } from "zustand/shallow";
 
 import RequisitionsForm from "@/app/main-page/accounting/requisitions/components/RequisitionsForm/RequisitionsForm";
 import PerDiemBalanceCard from "./components/DemoPerDiemBalanceCard/PerDiemBalanceCard";
@@ -9,6 +10,7 @@ import useRequisitionsDetails from "./hooks/useRequisitionsDetails";
 import CollapsibleSection from "@/app/components/CollapsibleSection/CollapsibleSection";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 /**
  * Muestra el formulario de requisición junto con información adicional como
  * el balance de viáticos y los documentos relacionados. Renderiza secciones
@@ -18,6 +20,31 @@ const RequisitionDetails: React.FC = () => {
   const { currentRequisition } = useRequisitionsDetails();
   const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
+  const {
+    montoComprobado,
+    montoAFavorEmpresa,
+    montoAFavorColaborador,
+    hasPerDiemTotals,
+    fetchBillingDocumentByIdRequisition,
+  } = useBillingDocumentsStore(
+    (s) => ({
+      montoComprobado: s.montoComprobado,
+      montoAFavorEmpresa: s.montoAFavorEmpresa,
+      montoAFavorColaborador: s.montoAFavorColaborador,
+      hasPerDiemTotals: s.hasPerDiemTotals,
+      fetchBillingDocumentByIdRequisition: s.fetchBillingDocumentByIdRequisition,
+    }),
+    shallow,
+  );
+
+  useEffect(() => {
+    if (!currentRequisition?.billingrequisition_id) return;
+    fetchBillingDocumentByIdRequisition(
+      currentRequisition.billingrequisition_id,
+      true,
+    );
+  }, [currentRequisition?.billingrequisition_id, fetchBillingDocumentByIdRequisition]);
+
   if (!currentRequisition) {
     return null;
   }
@@ -40,7 +67,13 @@ const RequisitionDetails: React.FC = () => {
                       requestedAmount={Number(
                         currentRequisition.amountdeposited,
                       )}
-                      verifiedAmount={Number(currentRequisition.provenamount)}
+                      verifiedAmount={
+                        hasPerDiemTotals
+                          ? montoComprobado
+                          : Number(currentRequisition.provenamount)
+                      }
+                      enterpriseAmount={hasPerDiemTotals ? montoAFavorEmpresa : undefined}
+                      employeeAmount={hasPerDiemTotals ? montoAFavorColaborador : undefined}
                     />
                   )}
                 </div>
@@ -126,7 +159,13 @@ const RequisitionDetails: React.FC = () => {
                     startDate={currentRequisition.assignmentdate}
                     endDate={currentRequisition.endDate}
                     requestedAmount={Number(currentRequisition.amountdeposited)}
-                    verifiedAmount={Number(currentRequisition.provenamount)}
+                    verifiedAmount={
+                      hasPerDiemTotals
+                        ? montoComprobado
+                        : Number(currentRequisition.provenamount)
+                    }
+                    enterpriseAmount={hasPerDiemTotals ? montoAFavorEmpresa : undefined}
+                    employeeAmount={hasPerDiemTotals ? montoAFavorColaborador : undefined}
                   />
                 )}
               </div>
@@ -145,7 +184,13 @@ const RequisitionDetails: React.FC = () => {
                   startDate={currentRequisition.assignmentdate}
                   endDate={currentRequisition.endDate}
                   requestedAmount={Number(currentRequisition.amountdeposited)}
-                  verifiedAmount={Number(currentRequisition.provenamount)}
+                  verifiedAmount={
+                    hasPerDiemTotals
+                      ? montoComprobado
+                      : Number(currentRequisition.provenamount)
+                  }
+                  enterpriseAmount={hasPerDiemTotals ? montoAFavorEmpresa : undefined}
+                  employeeAmount={hasPerDiemTotals ? montoAFavorColaborador : undefined}
                 />
               )}
             </div>
