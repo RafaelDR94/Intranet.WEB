@@ -32,6 +32,7 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
   withinContainer = false,
   divider = true,
   contentClassName,
+  showExpandButton = true,
 }) => {
   const [internalExpanded, setInternalExpanded] = useState<boolean>(
     expanded ?? false,
@@ -82,7 +83,7 @@ export const DetailsPanelLayout: React.FC<DetailsPanelProps> = ({
           <div className={s.headerRight}>
             {renderActions?.()}
             {label?.()}
-            {!isMobile && open && (
+            {!isMobile && open && showExpandButton && (
               <Button
                 variant="ghost"
                 size="small"

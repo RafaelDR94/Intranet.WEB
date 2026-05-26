@@ -74,7 +74,10 @@ const useVehicleRegistryList = () => {
   const handleArrive = useCallback((assignment: TransportAssignament) => {
     resetCurrentAssignment();
     setCurrentAssignment(assignment);
-    router.push('/main-page/generalservices/vehicleregist/vehicleregistry?id='+assignment.vehicleassignments_id);
+    router.push(
+      '/main-page/generalservices/vehicleregist/vehicleregistry?place=arrive&id=' +
+        assignment.vehicleassignments_id
+    );
   }, [router]);
 
   const handleOpenDetails = useCallback((assignment: TransportAssignament) => {

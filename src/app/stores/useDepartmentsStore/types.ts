@@ -16,6 +16,7 @@ export type DepartmentsState = {
   fetchDepartments: (force?: boolean) => Promise<void>
   createDepartment: (payload: DepartmentPost) => Promise<DepartmentType | null>
   updateDepartment: (payload: DepartmentPut) => Promise<DepartmentType | null>
+  deleteDepartment: (id: string) => Promise<boolean>
   reset: () => void
   resetFlags: () => void
 }

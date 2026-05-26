@@ -24,7 +24,7 @@ vi.mock("./Components/RefactionsList/RefactionsList", () => ({
   },
 }));
 
-vi.mock("./Components/ReportRefactionsCrudForm/ReportRefactionsCrudForm", () => ({
+vi.mock("./Components/RefactionsForm/RefactionsForm", () => ({
   __esModule: true,
   default: (props: any) => {
     formSpy(props);

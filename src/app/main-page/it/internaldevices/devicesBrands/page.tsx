@@ -54,7 +54,7 @@ const DevicesBrandsPage = () => {
             title: 'Registro de marcas',
             columns,
             data: rows,
-            enableCollaps: true,
+            enableCollaps: false,
             enableSelection: false,
           },
         ]}

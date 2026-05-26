@@ -115,7 +115,7 @@ describe('useVehicleRegistryList', () => {
     expect(resetCurrentAssignment).toHaveBeenCalled();
     expect(setCurrentAssignment).toHaveBeenCalledWith(assignment);
     expect(routerPush).toHaveBeenCalledWith(
-      `/main-page/generalservices/vehicleregist/vehicleregistry?id=${assignment.vehicleassignments_id}`
+      `/main-page/generalservices/vehicleregist/vehicleregistry?place=arrive&id=${assignment.vehicleassignments_id}`
     );
 
     act(() => {

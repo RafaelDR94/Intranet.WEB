@@ -180,7 +180,7 @@ const useHistoryAssignment = ({
     showAlert({
       type: 'info',
       title: 'Usuario desvinculado',
-      description: 'El dispositivo quedo disponible para una nueva asignacion.',
+      description: 'El dispositivo quedo disponible para una nueva asignación.',
       showPrimaryButton: false,
       showSecondaryButton: false,
       autoCloseMs: 1200,

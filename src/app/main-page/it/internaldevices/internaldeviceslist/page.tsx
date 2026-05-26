@@ -70,7 +70,7 @@ const InternalDevicesListPage = () => {
                 title: 'Inventario de Dispositivos',
                 columns,
                 data: rows,
-                enableCollaps: true,
+                enableCollaps: false,
                 enableSelection: false,
               },
             ]}

@@ -3,7 +3,7 @@
 
 import React, { useCallback, useState } from 'react';
 
-import ReportRefactionsCrudForm from './Components/ReportRefactionsCrudForm/ReportRefactionsCrudForm';
+import RefactionsForm from './Components/RefactionsForm/RefactionsForm';
 import RefactionsList from './Components/RefactionsList/RefactionsList';
 
 export const NEW_REFACTION_ID = '__new__';
@@ -25,7 +25,7 @@ const Refactions: React.FC = () => {
       )}
 
       {selectedRowId && (
-        <ReportRefactionsCrudForm
+        <RefactionsForm
           selectedRowId={selectedRowId}
           onClose={handleCloseForm}
           onSaved={handleCloseForm}

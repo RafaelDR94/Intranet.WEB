@@ -135,6 +135,7 @@ describe('ImagesComponent', () => {
     closeSignature.mockClear();
     hookReturn.isSignatureOpen = false;
     hookReturn.shouldShowSignatureButton = true;
+    hookReturn.signatureBox = { title: 'Driver', imageUrl: 'signature.png' };
     hookReturn.currentAssignment = null;
   });
 
@@ -144,8 +145,9 @@ describe('ImagesComponent', () => {
     expect(screen.getByTestId('card-Frontal')).toBeInTheDocument();
     expect(screen.getByTestId('image-uploader-rear')).toBeInTheDocument();
     expect(screen.getByTestId('signature-box')).toHaveTextContent('Driver');
+    expect(screen.getByTestId('signature-button')).toBeDisabled();
     fireEvent.click(screen.getByTestId('signature-button'));
-    expect(openSignature).toHaveBeenCalledTimes(1);
+    expect(openSignature).not.toHaveBeenCalled();
   });
 
   it('calls remove handler when delete action is triggered', () => {
@@ -166,5 +168,13 @@ describe('ImagesComponent', () => {
     hookReturn.currentAssignment = { vehicleassignments_id: '123' };
     render(<ImagesComponent formId="departure-form" />);
     expect(screen.queryByTestId('signature-button')).not.toBeInTheDocument();
+  });
+
+  it('enables signature button when there is no captured signature', () => {
+    hookReturn.signatureBox = null as any;
+    render(<ImagesComponent formId="departure-form" />);
+    expect(screen.getByTestId('signature-button')).toBeEnabled();
+    fireEvent.click(screen.getByTestId('signature-button'));
+    expect(openSignature).toHaveBeenCalledTimes(1);
   });
 });

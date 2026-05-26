@@ -60,7 +60,7 @@ const HistoryAssignment = ({ deviceId, onCreateAssignment }: HistoryAssignmentPr
             handleCreateAssignment()
           }}
         >
-          {hasActiveAssignment ? 'Desvincular usuario' : 'Nueva Asignacion'}
+          {hasActiveAssignment ? 'Desvincular usuario' : 'Nueva Asignación'}
         </Button>
       </div>
 

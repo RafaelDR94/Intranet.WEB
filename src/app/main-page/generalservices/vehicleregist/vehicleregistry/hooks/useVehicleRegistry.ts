@@ -67,10 +67,10 @@ const useVehicleRegistry = () => {
   } = useInitForm(formType);
   const title =
     place === "arrive"
-      ? "Registro Vehicular de Entrada"
+      ? "Registro Vehicular de Llegada"
       : "Registro Vehicular de Salida";
   const submitLabel =
-    place === "arrive" ? "Registrar Entrada" : "Registrar Salida";
+    place === "arrive" ? "Registrar Llegada" : "Registrar Salida";
 
   const hasSignature = Boolean(signature);
 
