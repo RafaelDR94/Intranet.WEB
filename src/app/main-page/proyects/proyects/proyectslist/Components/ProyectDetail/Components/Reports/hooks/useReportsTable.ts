@@ -9,7 +9,7 @@ import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayo
 import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import useQuery from '@/app/hooks/useQuery/useQuery'
-import { ReportsTableMap } from '@/app/mappings/reports/report.mapper'
+import { ProjectReportsTableMap, ReportsTableMap } from '@/app/mappings/reports/report.mapper'
 import { ReportView, ReportsTable } from '@/app/mappings/reports/reports.types'
 import useReportBuilderStore from '@/app/stores/useReportBuilderStore/useReportBuilderStore'
 import { useReportsStore } from '@/app/stores/useReportsStore/useReportsStore'
@@ -48,7 +48,7 @@ const useReportsTable = ({ canSeeAllReports = undefined }: UseReportsTableProps 
   const { setReport } = useReportBuilderStore()
   const {
     currentReport,
-    reports,
+    projectReports,
     localReports,
     loadLocalReports,
     deleteLocal,
@@ -61,7 +61,7 @@ const useReportsTable = ({ canSeeAllReports = undefined }: UseReportsTableProps 
     error,
   } = useReportsStore((s) => ({
     currentReport: s.currentReport,
-    reports: s.reports,
+    projectReports: s.projectReports,
     localReports: s.localReports,
     loadLocalReports: s.fetchLocalReports,
     deleteLocal: s.deleteLocal,
@@ -75,7 +75,7 @@ const useReportsTable = ({ canSeeAllReports = undefined }: UseReportsTableProps 
   }), shallow)
 
   const { updateQuery } = useQuery()
-  const reportList = ReportsTableMap(reports)
+  const reportList = ProjectReportsTableMap(projectReports)
   const reportLocalList = ReportsTableMap(localReports)
 
   const handleCloseDetails = useCallback(() => {
@@ -274,13 +274,9 @@ const useReportsTable = ({ canSeeAllReports = undefined }: UseReportsTableProps 
 
   const handleSelectReportOnline = useCallback(
     (row: ReportsTable, options?: { forceButton?: boolean }) => {
-      const latestreports = useReportsStore.getState().reports
-      const report = latestreports.find((report) => row.id == report.id)
-      if (report) {
-        setForceActionButton(Boolean(options?.forceButton))
-        setCurrentReport(report)
-        updateQuery({ reportId: report.id, frontId: report.front_identifier })
-      }
+      setForceActionButton(Boolean(options?.forceButton))
+      setCurrentReport(null)
+      updateQuery({ reportId: row.id, frontId: null })
     },
     [setCurrentReport, updateQuery, setForceActionButton],
   )
@@ -414,7 +410,7 @@ const useReportsTable = ({ canSeeAllReports = undefined }: UseReportsTableProps 
     setReportPendingDelete,
     forceActionButton,
     currentReport,
-    reports,
+    reports: projectReports,
     reportList: reportListFiltered,
     reportLocalList,
     localReports,

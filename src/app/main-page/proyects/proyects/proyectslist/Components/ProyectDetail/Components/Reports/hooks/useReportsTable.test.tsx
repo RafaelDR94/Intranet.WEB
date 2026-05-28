@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createSampleReport, sampleReports } from "../testUtils/reportFixtures";
+import { createSampleReport, sampleProjectReports, sampleReports } from "../testUtils/reportFixtures";
 
 import useReportsTable from "./useReportsTable";
 
@@ -76,7 +76,7 @@ vi.mock("@/app/stores/useReportsStore/useReportsStore", () => {
   const useReportsStore = (selector?: any) => {
     const state = {
       currentReport: currentReportRef,
-      reports: sampleReports,
+      projectReports: sampleProjectReports,
       localReports: localReportsRef,
       fetchLocalReports: fetchLocalReportsMock,
       deleteLocal: deleteLocalMock,
@@ -92,7 +92,7 @@ vi.mock("@/app/stores/useReportsStore/useReportsStore", () => {
   // getState must return current values (closure vars updated in beforeEach)
   (useReportsStore as any).getState = () => ({
     currentReport: currentReportRef,
-    reports: sampleReports,
+    projectReports: sampleProjectReports,
     localReports: localReportsRef,
     fetchLocalReports: fetchLocalReportsMock,
     deleteLocal: deleteLocalMock,
@@ -191,10 +191,10 @@ describe("useReportsTable", () => {
       result.current.handleSelectReportOnline(result.current.reportList[0]);
     });
 
-    expect(setCurrentReportMock).toHaveBeenCalledWith(sampleReports[0]);
+    expect(setCurrentReportMock).toHaveBeenCalledWith(null);
     const lastCall = routerReplaceMock.mock.calls.at(-1)?.[0] ?? "";
     expect(lastCall).toContain(`reportId=${sampleReports[0].id}`);
-    expect(lastCall).toContain(`frontId=${sampleReports[0].front_identifier}`);
+    expect(lastCall).not.toContain("frontId=");
   });
 
   it("descarga el reporte fotografico mostrando mensajes en el flujo feliz", async () => {
@@ -238,14 +238,14 @@ describe("useReportsTable", () => {
   it("expone helpers utiles para la tabla", () => {
     const { result } = renderHook(() => useReportsTable());
 
-    expect(result.current.reports).toEqual(sampleReports);
+    expect(result.current.reports).toEqual(sampleProjectReports);
     expect(result.current.searchableKeys).toEqual(["name", "description", "createdAt", "id"]);
 
     act(() => {
       result.current.handleSelectReportOnline(result.current.reportList[0]);
     });
 
-    expect(setCurrentReportMock).toHaveBeenCalledWith(sampleReports[0]);
+    expect(setCurrentReportMock).toHaveBeenCalledWith(null);
   });
 
   it("muestra todos los filtros cuando canSeeAllReports es true", () => {

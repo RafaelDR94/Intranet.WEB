@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const uploadImageMock = vi.fn();
 let targetEmployeeIdMock = '1';
@@ -24,16 +24,18 @@ vi.mock('../../../context/InvoicesContext', () => ({
     targetEmployeeId: targetEmployeeIdMock,
   }),
 }));
+const initInvoicesFormsState = {
+  loadingFormInfo: false,
+  submitRef: { current: null as null | (() => void | Promise<void>) },
+  formReady: true,
+  setFormReady: vi.fn(),
+  ResetForm: vi.fn(),
+  updateField: vi.fn(),
+};
+
 vi.mock('../../../hooks/useInitInvoicesForms', () => ({
   __esModule: true,
-  default: () => ({
-    loadingFormInfo: false,
-    submitRef: { current: null },
-    formReady: true,
-    setFormReady: vi.fn(),
-    ResetForm: vi.fn(),
-    updateField: vi.fn(),
-  }),
+  default: () => initInvoicesFormsState,
 }));
 
 const createBillingImageMock = vi.fn();
@@ -75,8 +77,26 @@ vi.mock('next/navigation', () => ({
 import useTicketForm from './useTicketForm';
 
 describe('useTicketForm', () => {
-  it('exposes handleSubmit function', () => {
+  beforeEach(() => {
     targetEmployeeIdMock = '1';
+    uploadImageMock.mockReset();
+    createBillingImageMock.mockReset();
+    updateBillingImageMock.mockReset();
+    resetFlagsMock.mockReset();
+    forceFetchBillingHistoryMock.mockReset();
+    fetchBillingAllDocumentsByEmployeeMock.mockReset();
+    billingImagesStoreState.creating = false;
+    billingImagesStoreState.updating = false;
+    billingImagesStoreState.error = undefined;
+    billingImagesStoreState.successPost = false;
+    billingImagesStoreState.successPut = false;
+    initInvoicesFormsState.submitRef.current = null;
+    initInvoicesFormsState.setFormReady.mockReset();
+    initInvoicesFormsState.ResetForm.mockReset();
+    initInvoicesFormsState.updateField.mockReset();
+  });
+
+  it('exposes handleSubmit function', () => {
     const { result } = renderHook(() => useTicketForm({}));
     expect(typeof result.current.handleSubmit).toBe('function');
   });
@@ -101,7 +121,6 @@ describe('useTicketForm', () => {
   });
 
   it('sends image string in PUT when editing', async () => {
-    targetEmployeeIdMock = '1';
     const dataEdit: any = {
       billing_image_id: 'BILL-1',
       billingrequisition_id: 'REQ-EDIT',
@@ -153,7 +172,6 @@ describe('useTicketForm', () => {
   });
 
   it('invokes onSubmitSuccess after a successful POST', async () => {
-    targetEmployeeIdMock = '1';
     billingImagesStoreState.successPost = true;
     const onSubmitSuccess = vi.fn();
 

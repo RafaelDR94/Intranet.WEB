@@ -1,8 +1,9 @@
-import type { ReportView, TypesOfReportType, CategoriesType } from '@/app/mappings/reports/reports.types'
+import type { ReportView, TypesOfReportType, CategoriesType, ProjectReportSummary } from '@/app/mappings/reports/reports.types'
 
 export type ReportsState = {
   // Datos
   reports: ReportView[]
+  projectReports: ProjectReportSummary[]
   localReports: ReportView[]
   typesofReports: TypesOfReportType[]
   reportCategories: CategoriesType[]

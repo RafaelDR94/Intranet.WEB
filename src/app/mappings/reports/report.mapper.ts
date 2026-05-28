@@ -4,7 +4,7 @@ import { mapProyectLocation } from "../locations/location.mapper";
 import { ProyectMap } from "../proyects/proyects.mapper";
 import { mapWorkPosition } from "../workposition/workposition.mapper";
 import { formatDateHour, currentDate ,formatDateOnlyDate} from "@/app/utilities/DatesHelper/Dateshelper";
-import { Activities, Refaction, ClientSignatureinterface, CategoriesType, TypesOfReportType, ReportDeviceView, ReportView, ReportPost, ReportPut, ReportsTable } from "./reports.types";
+import { Activities, Refaction, ClientSignatureinterface, CategoriesType, TypesOfReportType, ReportDeviceView, ReportView, ReportPost, ReportPut, ReportsTable, ProjectReportSummary } from "./reports.types";
 
 export const mapTypeReport = (type: any): TypesOfReportType => ({
   id: type?.id,
@@ -227,6 +227,50 @@ export const ReportsTableMap = (reports: ReportView[]): ReportsTable[] => {
   )
 
 
+}
+
+const mapReportStatus = (status: unknown): ReportsTable["status"] => {
+  switch (String(status ?? "").trim().toUpperCase()) {
+    case "COMPLETO":
+      return { text: "COMPLETO", type: "valido" }
+    case "SFC":
+      return { text: "SFC", type: "invalido" }
+    case "EN PROCESO":
+      return { text: "EN PROCESO", type: "pendiente" }
+    case "SIN ACT":
+      return { text: "SIN ACT", type: "prohibido" }
+    default:
+      return { text: "Pendiente", type: "pendiente" }
+  }
+}
+
+export const ProjectReportSummaryMap = (report: any): ProjectReportSummary => ({
+  reportId: String(report?.reportId ?? ""),
+  date: String(report?.date ?? ""),
+  ticket: String(report?.ticket ?? ""),
+  type: String(report?.type ?? ""),
+  category: String(report?.category ?? ""),
+  location: String(report?.location ?? ""),
+  user: String(report?.user ?? ""),
+  status: String(report?.status ?? ""),
+})
+
+export const ProjectReportsSummaryMap = (list: any[]): ProjectReportSummary[] => {
+  if (!Array.isArray(list)) return []
+  return list.map(ProjectReportSummaryMap)
+}
+
+export const ProjectReportsTableMap = (reports: ProjectReportSummary[]): ReportsTable[] => {
+  return reports.map((report) => ({
+    id: report.reportId,
+    datecreate: report.date,
+    ticket: report.ticket,
+    type: report.type,
+    category: report.category,
+    location: report.location,
+    employe: report.user,
+    status: mapReportStatus(report.status),
+  }))
 }
 
 export const mapReportViewToPut = (view: ReportView): ReportPut => {

@@ -30,11 +30,15 @@ export const deleteReport = async (
       const updatedReports = state.reports.filter((report) => {
         return ![report.id, report.front_identifier].includes(identifier)
       })
+      const updatedProjectReports = state.projectReports.filter((report) => {
+        return report.reportId !== identifier
+      })
 
       return {
         deleting: false,
         successDelete: true,
         reports: updatedReports,
+        projectReports: updatedProjectReports,
         currentReport: shouldClearCurrent ? null : state.currentReport,
       }
     })
