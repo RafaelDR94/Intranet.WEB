@@ -1,9 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 import {
+  clearFirebaseToken,
   getDeviceId,
   saveFirebaseToken,
+  readNotificationPermission,
   readFirebaseToken,
+  saveNotificationPermission,
 } from './AuthService';
 
 
@@ -33,5 +36,18 @@ describe('AuthService', () => {
   it('retorna null si no existe firebaseToken', async () => {
     const token = await readFirebaseToken();
     expect(token).toBe(null);
+  });
+
+  it('limpia el firebaseToken guardado', async () => {
+    await saveFirebaseToken('abc123');
+    await clearFirebaseToken();
+    const token = await readFirebaseToken();
+    expect(token).toBe(null);
+  });
+
+  it('guarda y lee el permiso de notificaciones', async () => {
+    await saveNotificationPermission('granted');
+    const permission = await readNotificationPermission();
+    expect(permission).toBe('granted');
   });
 });

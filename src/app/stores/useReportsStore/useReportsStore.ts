@@ -21,6 +21,7 @@ import {
 export const useReportsStore = createWithEqualityFn<ReportsState>()(
   devtools((set, get) => ({
     reports: [],
+    projectReports: [],
     localReports: [],
     typesofReports: [],
     reportCategories: [],
@@ -65,6 +66,7 @@ export const useReportsStore = createWithEqualityFn<ReportsState>()(
 
     reset: () => set({
       reports: [],
+      projectReports: [],
       localReports: [],
       typesofReports: [],
       reportCategories: [],

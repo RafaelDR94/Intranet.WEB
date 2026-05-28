@@ -44,6 +44,7 @@ describe("SAP Operations DetailsPanel", () => {
   });
 
   it("delegates to the shared SAT details panel with the operations SAP handler", () => {
+    const onJsonSapUpdated = vi.fn();
     render(
       <DetailsPanel
         panelOpen
@@ -53,6 +54,7 @@ describe("SAP Operations DetailsPanel", () => {
         validInvoice={false}
         operations
         rejectType={false}
+        onJsonSapUpdated={onJsonSapUpdated}
       />,
     );
 
@@ -64,6 +66,7 @@ describe("SAP Operations DetailsPanel", () => {
         sendInvoiceToSap: true,
         onSendToSap: handleSendToSap,
         allowSendToSapAction: true,
+        onJsonSapUpdated,
       }),
     );
   });

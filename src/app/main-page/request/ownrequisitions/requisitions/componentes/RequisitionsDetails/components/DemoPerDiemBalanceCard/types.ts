@@ -12,10 +12,13 @@
  * @property percentage - Percentage of verified amount (0-100).
  */
 export type PerDiemBalanceCardProps = {
+  "data-tour"?: string;
   startDate: string;
   endDate: string;
   requestedAmount: number;
   verifiedAmount: number;
+  enterpriseAmount?: number;
+  employeeAmount?: number;
   bodyClassName?: string;
   donutSize?: number;
   cardClassName?: string;

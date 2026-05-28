@@ -9,8 +9,8 @@ import InvoicesFiles from "./components/InvoicesFiles/InvoicesFiles";
 import UserRequisitionsList from "./components/UserRequisitionsList/UserRequisitionsList";
 import RequisitionDetails from "./components/RequisitionDetails/RequisitionDetails";
 import HistoryTable from "./components/RequisitionDetails/components/HistoryTable/HistoryTable";
+import BillableFilesFlow from "./components/BillableFilesFlow/BillableFilesFlow";
 import RequisitionsAuthorization from "@/app/main-page/authorizations/authorizationslist/components/AuthorizationDetail/components/RequisitionsAuthorization/RequisitionsAuthorization";
-import InvoicesForm from "@/app/main-page/accounting/personalInvoices/invoices/components/InvoicesForm/InvoicesForm";
 import { InvoicesProvider } from "@/app/main-page/accounting/personalInvoices/invoices/context/InvoicesContext";
 import type { BillingImagesTable } from "@/app/mappings/billingimages/billingimages.types";
 
@@ -56,29 +56,9 @@ const RequisitionListPage: React.FC = () => {
   if (isBillableFilesView) {
     return (
       <InvoicesProvider>
-        <InvoicesForm
-          responsiveLayoutMatrix={{
-            sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-            md: [
-              [5, 5],
-              [5, 5],
-              [2.5, 2.5, 5],
-              [5, 5],
-            ],
-            lg: [
-              [5, 5],
-              [3.3, 3.3, 3.3],
-              [2, 2, 3, 3],
-            ],
-          }}
-          withoutName
-          billingImages={selectedTicket}
-          onCloseImage={() => setSelectedTicket(null)}
-        />
-        <TicketsFiles
-          eneableSelection={true}
+        <BillableFilesFlow
+          selectedTicket={selectedTicket}
           onSelectedTicketChange={setSelectedTicket}
-          selectedTicketId={selectedTicket?.billing_image_id ?? null}
         />
       </InvoicesProvider>
     );

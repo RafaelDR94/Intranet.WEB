@@ -199,9 +199,10 @@ const NonDeductiblesPage = () => {
         panelOpen={panelOpen}
         setPanelOpen={setPanelOpen}
         selected={selected}
-        validInvoice
+        validInvoice={false}
         rejectInvoice
         sendInvoiceToSap
+        allowSendToSapAction
         documentLabel="Archivo"
         onSendToSap={handleSendSelectedNonDeductibleToSap}
       />

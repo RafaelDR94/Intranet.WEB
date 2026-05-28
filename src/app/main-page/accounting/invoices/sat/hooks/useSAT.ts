@@ -146,6 +146,17 @@ const useSAT = () => {
     sendToSapBillingDocument(ids);
   };
 
+  const handleJsonSapUpdated = useCallback(
+    async (billingDocumentId?: string) => {
+      const targetId = billingDocumentId ?? selected?.billingdocument_id;
+      await fetchSatBillingDocument(true, satBillingFilter);
+      if (!targetId) return;
+      const refreshed = await fetchBillingDocumentById(targetId, true);
+      if (refreshed) setSelected(refreshed);
+    },
+    [fetchBillingDocumentById, fetchSatBillingDocument, satBillingFilter, selected],
+  );
+
   // Efecto inicial: carga los CFDIs del SAT
   useEffect(() => {
     fetchSatBillingDocument(true, satBillingFilter);
@@ -253,6 +264,7 @@ const useSAT = () => {
     handleMultiSelect,
     handleSendToSap,
     closeDetailsPanel,
+    handleJsonSapUpdated,
   };
 };
 

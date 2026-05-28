@@ -74,6 +74,7 @@ describe("SAP Administration DetailsPanel", () => {
   });
 
   it("delegates to the shared SAT details panel with SAP upload behavior", () => {
+    const onJsonSapUpdated = vi.fn();
     render(
       <DetailsPanel
         panelOpen
@@ -82,6 +83,7 @@ describe("SAP Administration DetailsPanel", () => {
         sendInvoiceToSap
         validInvoice={false}
         rejectType={false}
+        onJsonSapUpdated={onJsonSapUpdated}
       />,
     );
 
@@ -92,6 +94,7 @@ describe("SAP Administration DetailsPanel", () => {
         sendInvoiceToSap: true,
         onSendToSap: handleSendToSap,
         allowSendToSapAction: true,
+        onJsonSapUpdated,
       }),
     );
   });

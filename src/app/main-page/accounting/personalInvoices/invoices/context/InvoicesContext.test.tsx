@@ -4,12 +4,22 @@ import { describe, it, expect, vi } from 'vitest';
 
 import { InvoicesProvider, useInvoices } from './InvoicesContext';
 
-vi.mock('@/app/context/AuthContext/AuthContext', () => ({ useAuth: () => ({ user: null, currentPagePermissions: {} }) }));
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/',
-  useSearchParams: () => ({ get: () => null }),
+let pathnameMock = '/';
+let searchParamsMock = new URLSearchParams();
+let authUserMock: { idEmployee?: string } | null = null;
+
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({ user: authUserMock, currentPagePermissions: {} }),
 }));
-vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({ usePrincipal: () => ({ usePrincipalAlert: { showAlert: vi.fn(), hideAlert: vi.fn() } }) }));
+vi.mock('next/navigation', () => ({
+  usePathname: () => pathnameMock,
+  useSearchParams: () => ({ get: (key: string) => searchParamsMock.get(key) }),
+}));
+vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
+  usePrincipal: () => ({
+    usePrincipalAlert: { showAlert: vi.fn(), hideAlert: vi.fn() },
+  }),
+}));
 vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
   useRequisitionsStore: (sel: any) =>
     sel({
@@ -34,7 +44,12 @@ vi.mock('@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore', () => 
     }),
 }));
 vi.mock('@/app/stores/useFormFieldsStore/useFormFieldsStore', () => {
-  const state = { setFields: vi.fn(), updateField: vi.fn(), resetFields: vi.fn(), fieldsByFormId: {} };
+  const state = {
+    setFields: vi.fn(),
+    updateField: vi.fn(),
+    resetFields: vi.fn(),
+    fieldsByFormId: {},
+  };
   const hook: any = (selector: any) => selector(state);
   hook.getState = () => state;
   return { useFormFieldsStore: hook };
@@ -42,16 +57,54 @@ vi.mock('@/app/stores/useFormFieldsStore/useFormFieldsStore', () => {
 
 const TestComponent = () => {
   const ctx = useInvoices();
-  return <div>{ctx.formId1}</div>;
+  return (
+    <div>
+      <span>{ctx.formId1}</span>
+      <span data-testid="target-employee">{ctx.targetEmployeeId}</span>
+    </div>
+  );
 };
 
 describe('InvoicesContext', () => {
   it('provides default formId1', () => {
+    pathnameMock = '/';
+    searchParamsMock = new URLSearchParams();
+    authUserMock = null;
+
     render(
       <InvoicesProvider>
         <TestComponent />
-      </InvoicesProvider>
+      </InvoicesProvider>,
     );
+
     expect(screen.getByText('invoices-form')).toBeInTheDocument();
+  });
+
+  it('uses idEmployee from query on accounting flows', () => {
+    pathnameMock = '/main-page/accounting/personalInvoices/invoices';
+    searchParamsMock = new URLSearchParams('idEmployee=query-employee');
+    authUserMock = { idEmployee: 'auth-employee' };
+
+    render(
+      <InvoicesProvider>
+        <TestComponent />
+      </InvoicesProvider>,
+    );
+
+    expect(screen.getByTestId('target-employee')).toHaveTextContent('query-employee');
+  });
+
+  it('uses authenticated employee on request flows even if query idEmployee exists', () => {
+    pathnameMock = '/main-page/request/ownrequisitions/uploadbillablefiles';
+    searchParamsMock = new URLSearchParams('idEmployee=query-employee');
+    authUserMock = { idEmployee: 'auth-employee' };
+
+    render(
+      <InvoicesProvider>
+        <TestComponent />
+      </InvoicesProvider>,
+    );
+
+    expect(screen.getByTestId('target-employee')).toHaveTextContent('auth-employee');
   });
 });

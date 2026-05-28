@@ -24,9 +24,30 @@ import {  toInputDateTimeString } from '@/app/utilities/FormatHelpers/FormatHelp
 
 /** ---------------------- Helpers ---------------------- */
 const toString = (v: unknown, fallback = "") => (v == null ? fallback : String(v));
+const toBoolean = (value: unknown, fallback = false): boolean => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true") return true;
+    if (normalized === "false") return false;
+  }
+  if (typeof value === "number") {
+    if (value === 1) return true;
+    if (value === 0) return false;
+  }
+  return fallback;
+};
 const toNumberOrUndefined = (value: unknown): number | undefined => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+};
+const pickJsonSapNumber = (value: unknown, fallback: unknown): number => {
+  const normalizedValue = typeof value === "string" ? value.trim() : value;
+  const parsedValue = toNumberOrUndefined(normalizedValue);
+  if (parsedValue != null) return parsedValue;
+
+  const parsedFallback = toNumberOrUndefined(fallback);
+  return parsedFallback ?? 0;
 };
 
 /** ---------------------- Conceptos ---------------------- */
@@ -45,7 +66,10 @@ const mapJsonSapItem = (raw: any): BillingDocumentJsonSapItem => ({
   claveInterna: toString(raw?.claveInterna),
   claveProdServ: toString(raw?.claveProdServ),
   descripcion: toString(raw?.descripcion),
-  importe: Number(raw?.importe ?? 0),
+  importe: toString(raw?.importe),
+  importeImpuesto: toString(raw?.importeImpuesto),
+  impuesto: toString(raw?.impuesto),
+  tasaCuota: toString(raw?.tasaCuota),
 });
 
 const mapJsonSap = (raw: any): BillingDocumentJsonSap | null => {
@@ -62,13 +86,17 @@ const mapJsonSap = (raw: any): BillingDocumentJsonSap | null => {
 
   if (!normalizedRaw || typeof normalizedRaw !== 'object') return null;
   return {
-    iva: Number(normalizedRaw?.iva ?? 0),
-    subtotal: Number(normalizedRaw?.subtotal ?? 0),
-    total: Number(normalizedRaw?.total ?? 0),
-    otherInvoices: Number(normalizedRaw?.otherInvoices ?? normalizedRaw?.otherinvoices ?? 0),
+    iva: toString(normalizedRaw?.iva),
+    subtotal: toString(normalizedRaw?.subtotal),
+    total: toString(normalizedRaw?.total),
+    otherInvoices: toString(
+      normalizedRaw?.otherInvoices ??
+        normalizedRaw?.otherinvoices ??
+        normalizedRaw?.OtherInvoices,
+    ),
     moneda: toString(normalizedRaw?.moneda),
     expenseType : toString(normalizedRaw?.expenseType),
-    iscompleted: Boolean(normalizedRaw?.iscompleted),
+    iscompleted: toBoolean(normalizedRaw?.iscompleted),
     items: Array.isArray(normalizedRaw?.items) ? normalizedRaw.items.map(mapJsonSapItem) : [],
   };
 };
@@ -172,9 +200,9 @@ export const BillingDocumentMap = (raw: any): BillingDocuments => {
   description: BillingDocumentDescriptionMap(raw?.description ?? raw?.Description),
   numpersons: Number(raw?.numpersons ?? 0),
   numnights: Number(raw?.numnights ?? 0),
-  total: Number(jsonSap?.total ?? raw?.total ?? 0),
-  subtotal: Number(jsonSap?.subtotal ?? raw?.subtotal ?? 0),
-  iva: Number(jsonSap?.iva ?? raw?.iva ?? 0),
+  total: pickJsonSapNumber(jsonSap?.total, raw?.total),
+  subtotal: pickJsonSapNumber(jsonSap?.subtotal, raw?.subtotal),
+  iva: pickJsonSapNumber(jsonSap?.iva, raw?.iva),
   otherinvoices: Number(raw?.otherinvoices ?? 0),
   json_sap: jsonSap,
   category: BillingDocumentCategoryMap(raw?.category ?? raw?.Category),

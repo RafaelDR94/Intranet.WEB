@@ -15,6 +15,9 @@ import {
 } from "@/app/configurations/DataBase/crud";
 
 const USER_DOC_ID = 1;
+export const DEVICE_ID_STORAGE_KEY = "deviceIdDoc";
+export const FIREBASE_TOKEN_STORAGE_KEY = "firebaseTokenDoc";
+export const NOTIFICATION_PERMISSION_STORAGE_KEY = "notificationPermissionDoc";
 
 export type LoginMfaMethod = {
   type: "Email" | "SMS";
@@ -214,14 +217,13 @@ export const forgetUser = async (): Promise<void> => {
  * Retorna el ID único del dispositivo actual o lo genera si no existe.
  */
 export const getDeviceId = async (): Promise<string> => {
-  const docId = "deviceIdDoc";
   try {
-    const deviceId = localStorage.getItem(docId);
+    const deviceId = localStorage.getItem(DEVICE_ID_STORAGE_KEY);
     if (deviceId) {
       return deviceId;
     } else {
       const newDeviceId = uuidv4();
-      localStorage.setItem(docId, newDeviceId);
+      localStorage.setItem(DEVICE_ID_STORAGE_KEY, newDeviceId);
       return newDeviceId;
     }
   } catch (err) {
@@ -235,9 +237,8 @@ export const getDeviceId = async (): Promise<string> => {
  */
 
 export const saveFirebaseToken = async (token: string): Promise<void> => {
-  const docId = "firebaseTokenDoc";
   try {
-    localStorage.setItem(docId, token);
+    localStorage.setItem(FIREBASE_TOKEN_STORAGE_KEY, token);
   } catch (err) {
     console.error("Error al guardar firebaseToken:", err);
     throw err;
@@ -247,12 +248,45 @@ export const saveFirebaseToken = async (token: string): Promise<void> => {
  * Lee el token de Firebase almacenado localmente.
  */
 export const readFirebaseToken = async (): Promise<string | null> => {
-  const docId = "firebaseTokenDoc";
   try {
-    const token = localStorage.getItem(docId);
+    const token = localStorage.getItem(FIREBASE_TOKEN_STORAGE_KEY);
     return token ? token : null;
   } catch (err) {
     console.error("Error al leer firebaseToken:", err);
+    throw err;
+  }
+};
+
+export const clearFirebaseToken = async (): Promise<void> => {
+  try {
+    localStorage.removeItem(FIREBASE_TOKEN_STORAGE_KEY);
+  } catch (err) {
+    console.error("Error al limpiar firebaseToken:", err);
+    throw err;
+  }
+};
+
+export const saveNotificationPermission = async (
+  permission: NotificationPermission | "unsupported",
+): Promise<void> => {
+  try {
+    localStorage.setItem(NOTIFICATION_PERMISSION_STORAGE_KEY, permission);
+  } catch (err) {
+    console.error("Error al guardar notificationPermission:", err);
+    throw err;
+  }
+};
+
+export const readNotificationPermission = async (): Promise<
+  NotificationPermission | "unsupported" | null
+> => {
+  try {
+    const permission = localStorage.getItem(NOTIFICATION_PERMISSION_STORAGE_KEY);
+    return permission
+      ? (permission as NotificationPermission | "unsupported")
+      : null;
+  } catch (err) {
+    console.error("Error al leer notificationPermission:", err);
     throw err;
   }
 };

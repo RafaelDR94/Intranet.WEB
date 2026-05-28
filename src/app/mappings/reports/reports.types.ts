@@ -93,6 +93,17 @@ export interface ReportsTable {
   },
 }
 
+export interface ProjectReportSummary {
+  reportId: string,
+  date: string,
+  ticket: string,
+  type: string,
+  category: string,
+  location: string,
+  user: string,
+  status: string,
+}
+
 export type ReportPost = {
   "model": string,
   "startdate": string,

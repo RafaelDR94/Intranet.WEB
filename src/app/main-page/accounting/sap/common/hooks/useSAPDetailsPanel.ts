@@ -1,34 +1,17 @@
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { shallow } from "zustand/shallow";
 
-import { useDetailsPanel } from "@/app/main-page/accounting/invoices/validateinvoices/components/DetailsPanel/hooks/useDetailsPanel";
-import type { DetailsPanelProps } from "@/app/main-page/accounting/invoices/validateinvoices/components/DetailsPanel/types";
-
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
 
-type UseSAPDetailsPanelParams = Pick<
-  DetailsPanelProps,
-  "selected" | "rejectType" | "setPanelOpen" | "operations" | "reqisition"
->;
+type UseSAPDetailsPanelParams = {
+  selected: { id?: string | number | null; subtotal?: unknown; iva?: unknown; total?: unknown } | null;
+};
 
 export const useSAPDetailsPanel = ({
   selected,
-  rejectType,
-  setPanelOpen,
-  operations,
-  reqisition,
 }: UseSAPDetailsPanelParams) => {
-  
-  const detailsPanelState = useDetailsPanel({
-    selected,
-    rejectType,
-    setPanelOpen,
-    operations,
-    reqisition,
-  });
-
   const { currentPagePermissions } = useAuth();
   const isMobile = useIsMobile();
 
@@ -83,7 +66,6 @@ export const useSAPDetailsPanel = ({
   }, [completeProcessToSAP, selected]);
 
   return {
-    ...detailsPanelState,
     currentPagePermissions,
     isMobile,
     isEditing,
