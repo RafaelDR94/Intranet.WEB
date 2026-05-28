@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 
 import { useAuth } from '../../../../context/AuthContext/AuthContext';
 import { useFirebase } from '../../../../context/FirebaseContext/FirebaseContext';
+import { buildNotificationPendingPath } from '../../../../context/FirebaseContext/notificationPaths';
 import { usePrincipal } from '../../../../context/PrincipalContext/PrincipalContext';
 import { getTabsFromPath } from '../utilities/getTabsFromPath';
 import { OfflineMessage, PendingNotification } from './types';
@@ -227,7 +228,7 @@ export const useMainPage = () => {
       if (!user?.idUser || !firebaserealtime) return;
       try {
         await firebaserealtime.deleteData(
-          `Notifications/${user.idUser}/Pending/${notificationId}`
+          `${buildNotificationPendingPath(user.idUser)}/${notificationId}`
         );
       } catch (err) {
         console.error('Error removing pending notification', err);
@@ -299,7 +300,7 @@ export const useMainPage = () => {
 
   useEffect(() => {
     if (!user?.idUser || !firebaserealtime) return;
-    const path = `Notifications/${user.idUser}/Pending`;
+    const path = buildNotificationPendingPath(user.idUser);
     let unsubscribe: (() => void) | undefined;
     try {
       unsubscribe = firebaserealtime.subscribe(path, (data) => {

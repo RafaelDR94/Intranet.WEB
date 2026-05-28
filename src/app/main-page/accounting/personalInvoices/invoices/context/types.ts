@@ -27,4 +27,6 @@ export interface InvoicesContextType {
     resetFields: (formId: string) => void;
     /** Authenticated user. */
     user: User | null;
+    /** Employee id the form flow should operate on. */
+    targetEmployeeId: string;
 }

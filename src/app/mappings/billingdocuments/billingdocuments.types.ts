@@ -53,14 +53,17 @@ export type BillingDocumentJsonSapItem = {
   claveInterna: string
   claveProdServ: string
   descripcion: string
-  importe: number
+  importe: string
+  importeImpuesto: string
+  impuesto: string
+  tasaCuota: string
 }
 
 export type BillingDocumentJsonSap = {
-  iva: number
-  subtotal: number
-  total: number
-  otherInvoices: number
+  iva: string
+  subtotal: string
+  total: string
+  otherInvoices: string
   moneda: string
   expenseType :string
   iscompleted: boolean

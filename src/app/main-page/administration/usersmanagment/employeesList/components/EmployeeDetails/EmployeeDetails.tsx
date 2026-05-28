@@ -10,7 +10,7 @@ const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ open, onClose }) => {
     const employee = useEmployeesStore((state) => state.employee);
 
     return (
-        <DetailsPanelLayout open={open} onClose={onClose}>
+        <DetailsPanelLayout open={open} onClose={onClose} showExpandButton={false}>
             <ButtonsNavigation
                 dataTestId="reportdetails-nav"
                 ariaLabel="Secciones del reporte"

@@ -249,7 +249,11 @@ export const RequisitionMap = (raw: unknown): Requisition => {
     assignmentdate: assignmentYmd,
     endDate: endYmd,
     motive: String((billingData as any)?.motive ?? ''),
-    state: String((billingData as any)?.State ?? ''),
+    state: String(
+      (billingData as any)?.State ??
+      (billingData as any)?.state ??
+      ''
+    ),
     amountdeposited: String((billingData as any)?.amountdeposited ?? ''),
     provenamount: String((billingData as any)?.provenamount ?? ''),
     amountdifference: String((billingData as any)?.amountdifference ?? ''),

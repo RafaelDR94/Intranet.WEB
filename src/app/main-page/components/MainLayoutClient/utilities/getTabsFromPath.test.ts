@@ -213,6 +213,26 @@ describe('getTabsFromPath utility', () => {
     ]);
   });
 
+  it('adds the operations billable files tab with the invoice upload section path', () => {
+    const result = getTabsFromPath(
+      '/main-page/operations/requisitions/requisitionListPage',
+      '?id=777&idEmployee=777&idRequisition=555&label=Archivos%20Bruno&requisitionsLabel=Archivos%20Bruno&view=billablefiles',
+    );
+
+    expect(result).toEqual([
+      { label: 'Requisiciones', path: '/main-page/operations/requisitions/requisitionsPage' },
+      { label: 'Listado Beneficiarios', path: '/main-page/operations/requisitions/requisitionListPage' },
+      {
+        label: 'Archivos Bruno',
+        path: '/main-page/operations/requisitions/requisitionListPage?id=777&label=Archivos+Bruno&idEmployee=777&requisitionsLabel=Archivos+Bruno',
+      },
+      {
+        label: 'Subir una Factura',
+        path: '/main-page/operations/requisitions/requisitionListPage?id=777&idRequisition=555&label=Archivos+Bruno&view=billablefiles&uploadSection=invoice&idEmployee=777&requisitionsLabel=Archivos+Bruno',
+      },
+    ]);
+  });
+
   it('returns organigrama tabs for the standalone module', () => {
     const result = getTabsFromPath('/main-page/organigrama/departments');
 

@@ -66,6 +66,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
       query.set("label", label);
     }
     query.set("view", "billablefiles");
+    query.set("uploadSection", "invoice");
 
     router.push(`${pathname}?${query.toString()}`);
   };
@@ -76,7 +77,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
         <DataTable
           showCalendar={true}
           showDownloadTable={false}
-          actionLabel="Subir Factura"
+          actionLabel="Subir una Factura"
           showFilter
         showRefresh
         filterOptions={filterOptions}

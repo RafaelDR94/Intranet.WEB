@@ -24,7 +24,7 @@ const UpdateUser = () => {
   }
 
   return (
-    <div className="rounded-2xl ">
+    <div className="rounded-2xl p-6 shadow-200">
       <DynamicForm
         fields={fields}
         onSubmit={handleSubmit}

@@ -4,6 +4,7 @@ import { describe, it, expect, vi } from 'vitest'
 import useRequisitionsDetails from './useRequisitionsDetails'
 
 const fetchCurrentRequisition = vi.fn()
+const resetCurrentReq = vi.fn()
 
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams('id=1'),
@@ -17,7 +18,7 @@ vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
       gettincurrentReq: false,
       error: undefined,
       fetchCurrentRequisition,
-      resetCurrentReq: vi.fn(),
+      resetCurrentReq,
       resetFlags: vi.fn(),
     }),
 }))
@@ -36,6 +37,7 @@ vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
 describe('useRequisitionsDetails', () => {
   it('fetches requisition on mount when id exists', () => {
     renderHook(() => useRequisitionsDetails())
-    expect(fetchCurrentRequisition).toHaveBeenCalledWith('1')
+    expect(resetCurrentReq).toHaveBeenCalled()
+    expect(fetchCurrentRequisition).toHaveBeenCalledWith('1', true)
   })
 })

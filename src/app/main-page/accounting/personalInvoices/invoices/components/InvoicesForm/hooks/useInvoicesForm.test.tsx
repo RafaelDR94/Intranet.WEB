@@ -14,7 +14,12 @@ vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   }),
 }));
 vi.mock('../../../context/InvoicesContext', () => ({
-  useInvoices: () => ({ field1: [], formId1: 'form1', user: { idEmployee: '1' } }),
+  useInvoices: () => ({
+    field1: [],
+    formId1: 'form1',
+    user: { idEmployee: '1' },
+    targetEmployeeId: '1',
+  }),
 }));
 vi.mock('../../../hooks/useInitInvoicesForms', () => ({
   __esModule: true,

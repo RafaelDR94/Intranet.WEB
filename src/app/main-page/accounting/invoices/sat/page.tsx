@@ -32,6 +32,7 @@ const SAT = () => {
     handleSendToSap,
     handleMultiSelect,
     closeDetailsPanel,
+    handleJsonSapUpdated,
   } = useSAT();
   const { currentPagePermissions } = useAuth();
   useTutorialAutoRun({
@@ -240,6 +241,7 @@ const SAT = () => {
             ? () => handleSendToSap()
             : undefined
         }
+        onJsonSapUpdated={handleJsonSapUpdated}
       />
     </>
   );

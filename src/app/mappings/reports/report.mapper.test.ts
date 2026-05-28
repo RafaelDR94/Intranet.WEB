@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { ReportMap, mapReportViewToPost, mapReportViewToPut } from "./report.mapper";
-import type { ReportView } from "./reports.types";
+import { ProjectReportSummaryMap, ProjectReportsSummaryMap, ProjectReportsTableMap, ReportMap, mapReportViewToPost, mapReportViewToPut } from "./report.mapper";
+import type { ProjectReportSummary, ReportView } from "./reports.types";
 
 vi.mock("@/app/utilities/DatesHelper/Dateshelper", () => ({
   currentDate: () => "2026-05-14",
@@ -159,5 +159,70 @@ describe("report.mapper", () => {
 
     expect(postPayload.idtype).toBe("TYPE-1");
     expect(putPayload.idtype).toBe("TYPE-1");
+  });
+
+  it("ProjectReportSummaryMap mantiene el contrato plano del listado por proyecto", () => {
+    const mapped = ProjectReportSummaryMap({
+      reportId: "REP-10",
+      date: "2026-05-11T00:00:00",
+      ticket: "S/T",
+      type: "Avance",
+      category: "Civil",
+      location: "Coatzacoalcos",
+      user: "SHANTAL SAN JUAN DZYSIUK",
+      status: "COMPLETO",
+    });
+
+    expect(mapped).toEqual<ProjectReportSummary>({
+      reportId: "REP-10",
+      date: "2026-05-11T00:00:00",
+      ticket: "S/T",
+      type: "Avance",
+      category: "Civil",
+      location: "Coatzacoalcos",
+      user: "SHANTAL SAN JUAN DZYSIUK",
+      status: "COMPLETO",
+    });
+  });
+
+  it("ProjectReportsSummaryMap devuelve una lista vacia si la entrada no es arreglo", () => {
+    expect(ProjectReportsSummaryMap(undefined as any)).toEqual([]);
+  });
+
+  it("ProjectReportsTableMap adapta el status remoto a la tabla", () => {
+    const rows = ProjectReportsTableMap([
+      {
+        reportId: "REP-10",
+        date: "2026-05-11T00:00:00",
+        ticket: "S/T",
+        type: "Avance",
+        category: "Civil",
+        location: "Coatzacoalcos",
+        user: "SHANTAL SAN JUAN DZYSIUK",
+        status: "SIN ACT",
+      },
+      {
+        reportId: "REP-11",
+        date: "2026-05-12T00:00:00",
+        ticket: "TK-11",
+        type: "Instalacion",
+        category: "Electrica",
+        location: "Minatitlan",
+        user: "JUAN PEREZ",
+        status: "",
+      },
+    ]);
+
+    expect(rows[0]).toEqual({
+      id: "REP-10",
+      datecreate: "2026-05-11T00:00:00",
+      ticket: "S/T",
+      type: "Avance",
+      category: "Civil",
+      location: "Coatzacoalcos",
+      employe: "SHANTAL SAN JUAN DZYSIUK",
+      status: { text: "SIN ACT", type: "prohibido" },
+    });
+    expect(rows[1]?.status).toEqual({ text: "Pendiente", type: "pendiente" });
   });
 });

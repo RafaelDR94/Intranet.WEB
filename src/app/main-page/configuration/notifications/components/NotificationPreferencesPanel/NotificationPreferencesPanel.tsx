@@ -1,9 +1,16 @@
 "use client";
 
 import clsx from "clsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ToggleButton } from "@/app/components/ToogleButton/ToogleButton";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
+import {
+  NotificationPreferences,
+  buildNotificationPreferencesPath,
+  defaultNotificationPreferences,
+} from "@/app/context/FirebaseContext/notificationPaths";
 
 import {
   group,
@@ -26,7 +33,7 @@ type NotificationPreferenceItem = {
   id: string;
   title: string;
   description: string;
-  enabled: boolean;
+  enabledKey: keyof NotificationPreferences;
 };
 
 type NotificationPreferenceGroup = {
@@ -35,7 +42,7 @@ type NotificationPreferenceGroup = {
   item: NotificationPreferenceItem;
 };
 
-const initialPreferences: NotificationPreferenceGroup[] = [
+const preferenceGroups: NotificationPreferenceGroup[] = [
   {
     id: "intranet",
     title: "Activación de notificaciones dentro de la intranet",
@@ -44,7 +51,7 @@ const initialPreferences: NotificationPreferenceGroup[] = [
       title: "Solicitudes, respuestas y proyectos (push)",
       description:
         "Recibe notificaciones cuando te respondan a una solicitud o tengas solicitudes de tareas.",
-      enabled: true,
+      enabledKey: "pushEnabled",
     },
   },
   {
@@ -55,7 +62,7 @@ const initialPreferences: NotificationPreferenceGroup[] = [
       title: "Solicitudes y respuestas",
       description:
         "Recibe un correo electrónico cuando te respondan a una solicitud o tengas solicitudes de tareas.",
-      enabled: false,
+      enabledKey: "emailEnabled",
     },
   },
   {
@@ -66,34 +73,58 @@ const initialPreferences: NotificationPreferenceGroup[] = [
       title: "Solicitudes y respuestas",
       description:
         "Recibe un sms cuando te respondan a una solicitud o tengas solicitudes de tareas.",
-      enabled: true,
+      enabledKey: "smsEnabled",
     },
   },
 ];
 
 const NotificationPreferencesPanel = () => {
-  const [preferences, setPreferences] = useState(initialPreferences);
+  const { user } = useAuth();
+  const { firebaserealtime } = useFirebase();
+  const [preferences, setPreferences] = useState(defaultNotificationPreferences);
 
-  const handleToggle = (groupId: string) => {
-    setPreferences((currentPreferences) =>
-      currentPreferences.map((groupItem) =>
-        groupItem.id === groupId
-          ? {
-              ...groupItem,
-              item: {
-                ...groupItem.item,
-                enabled: !groupItem.item.enabled,
-              },
-            }
-          : groupItem,
-      ),
-    );
+  useEffect(() => {
+    if (!user?.idUser || !firebaserealtime) return;
+
+    const preferencesPath = buildNotificationPreferencesPath(user.idUser);
+    let cancelled = false;
+
+    void firebaserealtime.getData(preferencesPath).then((storedPreferences) => {
+      if (cancelled || !storedPreferences) return;
+
+      setPreferences((currentPreferences) => ({
+        ...currentPreferences,
+        ...storedPreferences,
+      }));
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [firebaserealtime, user?.idUser]);
+
+  const handleToggle = (enabledKey: keyof NotificationPreferences) => {
+    setPreferences((currentPreferences) => {
+      const nextPreferences = {
+        ...currentPreferences,
+        [enabledKey]: !currentPreferences[enabledKey],
+      };
+
+      if (user?.idUser && firebaserealtime) {
+        const preferencesPath = buildNotificationPreferencesPath(user.idUser);
+        void firebaserealtime.updateData(preferencesPath, {
+          [enabledKey]: nextPreferences[enabledKey],
+        });
+      }
+
+      return nextPreferences;
+    });
   };
 
   return (
     <section className={panel}>
       <div className={groups}>
-        {preferences.map((groupItem) => (
+        {preferenceGroups.map((groupItem) => (
           <article key={groupItem.id} className={group}>
             <h2 className={groupTitle}>{groupItem.title}</h2>
 
@@ -106,19 +137,21 @@ const NotificationPreferencesPanel = () => {
               </div>
 
               <ToggleButton
-                checked={groupItem.item.enabled}
-                onChange={() => handleToggle(groupItem.id)}
+                checked={preferences[groupItem.item.enabledKey]}
+                onChange={() => handleToggle(groupItem.item.enabledKey)}
                 ariaLabel={groupItem.item.title}
                 className={toggleContainer}
                 trackClassName={clsx(
                   toggleTrack,
-                  groupItem.item.enabled
+                  preferences[groupItem.item.enabledKey]
                     ? toggleTrackEnabled
                     : toggleTrackDisabled,
                 )}
                 thumbClassName={clsx(
                   toggleThumb,
-                  groupItem.item.enabled ? toggleThumbEnabled : undefined,
+                  preferences[groupItem.item.enabledKey]
+                    ? toggleThumbEnabled
+                    : undefined,
                 )}
                 dataTestId={`${groupItem.id}-notification-toggle`}
               />

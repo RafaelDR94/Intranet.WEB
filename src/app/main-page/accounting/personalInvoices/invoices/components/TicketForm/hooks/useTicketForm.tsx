@@ -11,7 +11,6 @@ import { ticketFormDropzoneClasses } from '../styles'
 import { UseTicketFormReturn, UseInvoicesFormProps } from './types'
 
 import { FieldModel } from '@/app/components/DynamicForm/types'
-import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useBillingHistoryStore } from '@/app/stores/useBillingHistoryStore/useBillingHistoryStore'
@@ -22,6 +21,7 @@ const useTicketForm = ({
   dataEdit,
   disabled,
   suppressInitialTicketImage,
+  onSubmitSuccess,
 }: UseInvoicesFormProps): UseTicketFormReturn => {
   const isEdit = Boolean(dataEdit)
   const { firebasestorage } = useFirebase()
@@ -60,8 +60,6 @@ const useTicketForm = ({
     }),
     shallow,
   );
-
-  const { user: authUser } = useAuth()
 
   // 🔁 Campos iniciales del formulario (condicional por modo)
   const initialformFields: FieldModel[] = useMemo(() => {
@@ -108,7 +106,7 @@ const useTicketForm = ({
     return createTicketFields()
   }, [dataEdit, isEdit, suppressInitialTicketImage])
 
-  const { field2, formId2, user } = useInvoices()
+  const { field2, formId2, user, targetEmployeeId } = useInvoices()
   const searchParams = useSearchParams()
   const requisitionIdFromQuery = searchParams.get('idRequisition') ?? searchParams.get('id') ?? ''
   const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm, updateField } =
@@ -189,12 +187,12 @@ const useTicketForm = ({
       } else {
         // CREATE
         const employeeId =
-          authUser?.idEmployee ??
-          user?.idEmployee ??
-          (user as { employee_id?: string | null } | null)?.employee_id ??
+          targetEmployeeId ||
+          user?.idEmployee ||
+          (user as { employee_id?: string | null } | null)?.employee_id ||
           ''
         if (!employeeId) {
-          throw new Error('No se pudo identificar el empleado logueado')
+          throw new Error('No se pudo identificar al empleado destino')
         }
         const payload = {
           requisition_id: requisition || undefined,
@@ -266,12 +264,13 @@ const useTicketForm = ({
         setFormKey((prev) => prev + 1);
       }
       if (putOk) {
-        const employeeId = authUser?.idEmployee ?? user?.idEmployee ?? "";
+        const employeeId = targetEmployeeId || user?.idEmployee || "";
         if (employeeId) {
           forceFetchBillingHistory(employeeId);
           fetchBillingAllDocumentsByEmployee(employeeId, true);
         }
       }
+      onSubmitSuccess?.()
       showAlert({
         type: 'success',
         variant: 'filled',
@@ -294,6 +293,8 @@ const useTicketForm = ({
     successPut,
     submitRef,
     isEdit,
+    onSubmitSuccess,
+    targetEmployeeId,
   ])
 
   const resolvedFields = useMemo(
