@@ -49,6 +49,21 @@ const REMEMBER_PASS_KEY = "drs.remember.password";
 const REMEMBER_FLAG_KEY = "drs.remember.flag";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const extractErrorMessage = (error: unknown, fallbackMessage: string): string => {
+  const appError = error as {
+    response?: { data?: { error_Message?: string } };
+    error_Message?: string;
+    message?: string;
+  };
+
+  return (
+    appError?.response?.data?.error_Message ??
+    appError?.error_Message ??
+    appError?.message ??
+    fallbackMessage
+  );
+};
+
 const maskEmailAddress = (email: string): string => {
   const [localPart = "", domain = ""] = email.split("@");
   if (!localPart || !domain) return email;
@@ -247,6 +262,14 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
         setVerificationChallenge(challengeWithDestination, method, "LoginMfa");
         router.push("/login/recover-password/recovery-email/");
         return true;
+      } catch (error: unknown) {
+        setFailMessage(
+          extractErrorMessage(
+            error,
+            "No se pudo iniciar la verificaci\u00f3n MFA. Int\u00e9ntalo de nuevo.",
+          ),
+        );
+        return false;
       } finally {
         setMfaLoading(false);
       }
@@ -353,6 +376,14 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
         setSelectedMfaMethod(method);
         return;
       }
+
+      setFailMessage(
+        extractErrorMessage(
+          error,
+          "No se logró acceder, revise sus datos e inténtelo de nuevo",
+        ),
+      );
+      return;
 
       const appError = error as {
         response?: { data?: { error_Message?: string } };
@@ -473,6 +504,14 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
       setInterceptor(normalizedUser.token);
       router.push("/main-page");
     } catch (error: unknown) {
+      setFailMessage(
+        extractErrorMessage(
+          error,
+          "No se logró acceder con passkey, inténtalo de nuevo.",
+        ),
+      );
+      return;
+
       const appError = error as {
         response?: { data?: { error_Message?: string } };
         error_Message?: string;

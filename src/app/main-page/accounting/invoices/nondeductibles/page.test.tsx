@@ -58,6 +58,7 @@ describe('NonDeductiblesPage', () => {
         validInvoice: false,
         sendInvoiceToSap: true,
         allowSendToSapAction: true,
+        bypassSendToSapValidation: true,
         documentLabel: 'Archivo',
       }),
     );

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 
@@ -13,7 +13,7 @@ const useDetailsPanelMock = {
   setOpenRejectInvoice: vi.fn(),
   setOpenValidInvoice: vi.fn(),
   handleSubmitComment: vi.fn(),
-  handleUpdateJsonSapItem: vi.fn(),
+  handleUpdateJsonSapItem: vi.fn(async () => true),
   handleUpdateJsonSapExpenseType: vi.fn(),
   handleSubmitReject: vi.fn(),
   handleSubmitValid: vi.fn(),
@@ -50,17 +50,28 @@ vi.mock('@/app/components/PopUp/PopUp', () => ({
 }));
 
 vi.mock('@/app/components/Input/Input', () => ({
-  Input: ({ label, value, onChange, onBlur, onKeyDown, helperText, disabled }: any) => (
+  Input: ({ as, label, value, onChange, onBlur, onKeyDown, helperText, disabled }: any) => (
     <label>
       <span>{label}</span>
-      <input
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
-        onKeyDown={onKeyDown}
-        readOnly={!onChange}
-        disabled={disabled}
-      />
+      {as === 'textarea' ? (
+        <textarea
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          onKeyDown={onKeyDown}
+          readOnly={!onChange}
+          disabled={disabled}
+        />
+      ) : (
+        <input
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          onKeyDown={onKeyDown}
+          readOnly={!onChange}
+          disabled={disabled}
+        />
+      )}
       {helperText ? <span>{helperText}</span> : null}
     </label>
   ),
@@ -92,6 +103,9 @@ vi.mock('@/app/components/DetailsPanelLayout/DetailsPanelLayout', () => ({
 }));
 
 describe('DetailsPanel', () => {
+  const longDescription =
+    'Descripcion extremadamente larga para validar que el usuario pueda corregirla antes de enviar a SAP y que el sistema marque el error cuando supere el limite permitido.';
+
   it('renderiza impuestos e importe editable desde json_sap en la ruta SAT', () => {
     useDetailsPanelMock.expenseTypeCatalog = [
       {
@@ -245,6 +259,126 @@ describe('DetailsPanel', () => {
     expect(
       screen.queryByText('Captura un importe valido mayor o igual a 0 con maximo 2 decimales.'),
     ).not.toBeInTheDocument();
+  });
+
+  it('permite editar la descripcion cuando excede 120 caracteres y bloquea Enviar a SAP', () => {
+    useDetailsPanelMock.expenseTypeCatalog = [];
+    const setPanelOpen = vi.fn();
+
+    render(
+      <DetailsPanel
+        panelOpen
+        setPanelOpen={setPanelOpen}
+        selected={{
+          billingdocument_id: 'doc-2c',
+          json_sap: {
+            items: [
+              {
+                itemIndex: 1,
+                claveInterna: '138',
+                claveProdServ: '90101501',
+                descripcion: longDescription,
+                importe: '150.45',
+                importeImpuesto: '24.07',
+                impuesto: '2',
+                tasaCuota: '0.16',
+              },
+            ],
+          },
+        } as any}
+        rejectType={false}
+        operations={false}
+        sendInvoiceToSap
+        onSendToSap={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByDisplayValue(longDescription)).toBeInTheDocument();
+    expect(
+      screen.getByText(/La descripcion no puede exceder 120 caracteres/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Enviar a SAP' })).toBeDisabled();
+  });
+
+  it('habilita Enviar a SAP en no deducibles aunque falte claveInterna en json_sap', () => {
+    useDetailsPanelMock.expenseTypeCatalog = [];
+    const setPanelOpen = vi.fn();
+    render(
+      <DetailsPanel
+        panelOpen
+        setPanelOpen={setPanelOpen}
+        selected={{
+          billingdocument_id: 'doc-1',
+          json_sap: {
+            items: [
+              {
+                itemIndex: 1,
+                claveInterna: '',
+                claveProdServ: '90101501',
+                importe: '10',
+                importeImpuesto: '1.6',
+                impuesto: '2',
+                tasaCuota: '0.16',
+              },
+            ],
+          },
+        } as any}
+        rejectType={false}
+        operations={false}
+        sendInvoiceToSap
+        bypassSendToSapValidation
+        onSendToSap={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Enviar a SAP' })).toBeEnabled();
+  });
+
+  it('guarda la descripcion corregida y habilita Enviar a SAP cuando queda dentro del limite', async () => {
+    useDetailsPanelMock.expenseTypeCatalog = [];
+    useDetailsPanelMock.handleUpdateJsonSapItem.mockResolvedValueOnce(true);
+    const setPanelOpen = vi.fn();
+
+    render(
+      <DetailsPanel
+        panelOpen
+        setPanelOpen={setPanelOpen}
+        selected={{
+          billingdocument_id: 'doc-2d',
+          json_sap: {
+            items: [
+              {
+                itemIndex: 1,
+                claveInterna: '138',
+                claveProdServ: '90101501',
+                descripcion: longDescription,
+                importe: '150.45',
+                importeImpuesto: '24.07',
+                impuesto: '2',
+                tasaCuota: '0.16',
+              },
+            ],
+          },
+        } as any}
+        rejectType={false}
+        operations={false}
+        sendInvoiceToSap
+        onSendToSap={vi.fn()}
+      />,
+    );
+
+    const textarea = screen.getByDisplayValue(longDescription);
+    const validDescription = 'Descripcion corregida para SAP';
+
+    fireEvent.change(textarea, { target: { value: validDescription } });
+    fireEvent.blur(textarea);
+
+    await waitFor(() => {
+      expect(useDetailsPanelMock.handleUpdateJsonSapItem).toHaveBeenCalledWith(0, {
+        descripcion: validDescription,
+      });
+    });
+    expect(screen.getByRole('button', { name: 'Enviar a SAP' })).toBeEnabled();
   });
 
   it('habilita Enviar a SAP cuando el importe tiene mas de 2 decimales', () => {

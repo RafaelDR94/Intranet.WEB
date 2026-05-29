@@ -16,6 +16,9 @@ import NewReport from './components/NewReport/NewReport'
 import Label from '@/app/components/Label/Label'
 import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import dostIcon from '@/assets/icons/navegacion/more-vert.svg'
+
+const MIN_REPORT_ROWS = 5
+
 const ReportsTable: React.FC = () => {
   const { user, currentPagePermissions } = useAuth();
   const canSeeAllReports = currentPagePermissions?.canSeeAllReports;
@@ -252,7 +255,7 @@ const ReportsTable: React.FC = () => {
           showFilter={false}
           showButton={false}
           textSize={{ mobile: "text-c1" }}
-          rowsPerPage={3}
+          rowsPerPage={MIN_REPORT_ROWS}
           dataTableTitle={'Reportes Locales'}
         />
       )}
@@ -265,7 +268,7 @@ const ReportsTable: React.FC = () => {
         showFilter={true}
         showButton={false}
         showDownloadTable={false}
-        rowsPerPage={3}
+        rowsPerPage={MIN_REPORT_ROWS}
         textSize={{ mobile: "text-c1" }}
         dataTableTitle={'Historial de reportes'}
         filterOptions={controlFilterOptions}
