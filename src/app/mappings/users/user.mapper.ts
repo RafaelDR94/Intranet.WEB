@@ -73,18 +73,28 @@ export const mapUserEmployeeSummary = (employee: any): UserEmployeeSummary => ({
   fullname: toString(employee?.fullname),
   department: toString(employee?.department),
   workposition: toString(
-    employee?.workposition ?? employee?.workposition_name ?? employee?.position
+    employee?.workposition ?? employee?.workposition_name ?? employee?.position,
   ),
   employee_number: toString(
-    employee?.employee_number ?? employee?.employeeNumber ?? employee?.employee
+    employee?.employee_number ?? employee?.employeeNumber ?? employee?.employee,
+  ),
+  phone_number: toString(
+    employee?.phone_number ?? employee?.phoneNumber ?? employee?.phone,
+  ),
+  employee_phone: toString(
+    employee?.employee_phone ??
+      employee?.employeePhone ??
+      employee?.phone_number ??
+      employee?.phoneNumber ??
+      employee?.phone,
   ),
   dr_fingerprint: toBoolean(
-    employee?.dr_fingerprint ?? employee?.accessWithFingerprint
+    employee?.dr_fingerprint ?? employee?.accessWithFingerprint,
   ),
 });
 
 export const mapUserEmployeeSummaries = (
-  employees: any[] | undefined
+  employees: any[] | undefined,
 ): UserEmployeeSummary[] =>
   Array.isArray(employees) ? employees.map(mapUserEmployeeSummary) : [];
 
@@ -93,11 +103,7 @@ export const mapUser = (user: any): UserType => {
   const fallbackRoleCandidate =
     user?.rolename || user?.role_name || user?.name_role || user?.roleName
       ? {
-          id:
-            user?.role_id ??
-            user?.id_role ??
-            user?.idrole ??
-            user?.roleId,
+          id: user?.role_id ?? user?.id_role ?? user?.idrole ?? user?.roleId,
           name:
             user?.rolename ??
             user?.role_name ??
@@ -113,12 +119,12 @@ export const mapUser = (user: any): UserType => {
   const roles = Array.isArray(user?.roles)
     ? mapUserRoles(user.roles)
     : role
-    ? [role]
-    : [];
+      ? [role]
+      : [];
 
   const employeeId = toNullableString(user?.employee_id ?? user?.idemployee);
   const roleId = toNullableString(
-    user?.role_id ?? user?.id_role ?? user?.idrole ?? role?.id
+    user?.role_id ?? user?.id_role ?? user?.idrole ?? role?.id,
   );
 
   return {
@@ -150,7 +156,7 @@ export const mapUsers = (users: any[] | undefined): UserType[] =>
   Array.isArray(users) ? users.map(mapUser) : [];
 
 export const mapUserPost = (
-  payload: Partial<CreateUserPayload | UserPost> | any
+  payload: Partial<CreateUserPayload | UserPost> | any,
 ): UserPost => ({
   username: toString(payload?.username),
   image_url: toString(payload?.imageUrl ?? payload?.image_url),
@@ -159,7 +165,7 @@ export const mapUserPost = (
   dr_fingerprint: toBoolean(
     payload?.drFingerprint ??
       payload?.dr_fingerprint ??
-      payload?.accessWithFingerprint
+      payload?.accessWithFingerprint,
   ),
   password: toString(payload?.password),
   signature: toString(payload?.signature),
@@ -168,7 +174,7 @@ export const mapUserPost = (
       payload?.role_id ??
       payload?.id_role ??
       payload?.idrole ??
-      payload?.role?.id
+      payload?.role?.id,
   ),
   idemployee: toString(
     payload?.employeeId ??
@@ -176,16 +182,16 @@ export const mapUserPost = (
       payload?.idemployee ??
       payload?.id_employee ??
       payload?.user?.employee_id ??
-      payload?.user?.id
+      payload?.user?.id,
   ),
   change_password: toBoolean(
     payload?.changePassword ?? payload?.change_password,
-    true
+    true,
   ),
 });
 
 export const mapUserPut = (
-  payload: Partial<UpdateUserPayload | UserPut> | any
+  payload: Partial<UpdateUserPayload | UserPut> | any,
 ): UserPut => {
   const result: UserPut = {
     user_id: toString(
@@ -194,7 +200,7 @@ export const mapUserPut = (
         payload?.id_user ??
         payload?.idemployee ??
         payload?.employeeId ??
-        payload?.id
+        payload?.id,
     ),
     username: toString(payload?.username),
     id_role: toString(
@@ -202,7 +208,7 @@ export const mapUserPut = (
         payload?.role_id ??
         payload?.id_role ??
         payload?.role?.id ??
-        payload?.idrole
+        payload?.idrole,
     ),
   };
 
@@ -218,14 +224,12 @@ export const mapUserPut = (
     }
   }
 
-  const changePassword =
-    payload?.changePassword ?? payload?.change_password;
+  const changePassword = payload?.changePassword ?? payload?.change_password;
   if (changePassword !== undefined) {
     result.change_password = toBoolean(changePassword);
   }
 
-  const twoFactor =
-    payload?.twoFactorEnabled ?? payload?.two_factor_enabled;
+  const twoFactor = payload?.twoFactorEnabled ?? payload?.two_factor_enabled;
   if (twoFactor !== undefined) {
     result.two_factor_enabled = toBoolean(twoFactor);
   }
@@ -234,30 +238,28 @@ export const mapUserPut = (
 };
 
 export const mapUserProfilePut = (
-  payload: Partial<UpdateUserProfilePayload | UserProfilePut> | any
+  payload: Partial<UpdateUserProfilePayload | UserProfilePut> | any,
 ): UserProfilePut => ({
   user_id: toString(
-    payload?.userId ?? payload?.user_id ?? payload?.id_user ?? payload?.id
+    payload?.userId ?? payload?.user_id ?? payload?.id_user ?? payload?.id,
   ),
   employee_id: toString(
     payload?.employeeId ??
       payload?.employee_id ??
       payload?.idemployee ??
-      payload?.id_employee
+      payload?.id_employee,
   ),
   role_id: toString(
-    payload?.roleId ?? payload?.role_id ?? payload?.id_role ?? payload?.idrole
+    payload?.roleId ?? payload?.role_id ?? payload?.id_role ?? payload?.idrole,
   ),
   email: toString(payload?.email),
   phone_number: toString(payload?.phoneNumber ?? payload?.phone_number),
   image_url: toString(payload?.imageUrl ?? payload?.image_url),
   is_gerence: toBoolean(payload?.isGerence ?? payload?.is_gerence),
-  dr_fingerprint: toBoolean(
-    payload?.drFingerprint ?? payload?.dr_fingerprint
-  ),
+  dr_fingerprint: toBoolean(payload?.drFingerprint ?? payload?.dr_fingerprint),
   password: toString(payload?.password),
   change_password: toBoolean(
-    payload?.changePassword ?? payload?.change_password
+    payload?.changePassword ?? payload?.change_password,
   ),
 });
 
@@ -268,14 +270,14 @@ export const mapUserRole = (role: any): UserRole => ({
       role?.id_role ??
       role?.idrol ??
       role?.idRole ??
-      role?.roleId
+      role?.roleId,
   ),
   name: toString(
     role?.name ??
       role?.rolename ??
       role?.role_name ??
       role?.name_role ??
-      role?.roleName
+      role?.roleName,
   ),
   description: toNullableString(role?.description),
   isActive: toBoolean(role?.isActive ?? role?.is_active ?? role?.active, true),
@@ -298,31 +300,31 @@ export const mapRolePost = (payload: Partial<RolePost> | any): RolePost => {
 };
 
 export const mapUserSignaturePayload = (
-  payload: Partial<UserSignaturePayload> | any
+  payload: Partial<UserSignaturePayload> | any,
 ): UserSignaturePayload => ({
   idemployee: toString(
     payload?.idemployee ??
       payload?.employeeId ??
       payload?.employee_id ??
       payload?.user_id ??
-      payload?.id
+      payload?.id,
   ),
   signature: toString(payload?.signature),
 });
 
 export const mapToggleUserActivePayload = (
-  payload: Partial<ToggleUserActivePayload> | any
+  payload: Partial<ToggleUserActivePayload> | any,
 ): ToggleUserActivePayload => ({
   id: toString(
     payload?.id ??
       payload?.userId ??
       payload?.user_id ??
       payload?.idemployee ??
-      payload?.employeeId
+      payload?.employeeId,
   ),
   isActive: toBoolean(
     payload?.isActive ?? payload?.is_active ?? payload?.active,
-    false
+    false,
   ),
 });
 
@@ -368,7 +370,9 @@ export const mapUserMfaMethodPayload = (
 export const mapUserPasskeyResponse = (raw: any): UserPasskeyResponse => ({
   id: toString(raw?.id ?? raw?.passkeyId ?? raw?.credentialId),
   idUser: toString(raw?.idUser ?? raw?.userId ?? raw?.id_user),
-  friendlyName: toNullableString(raw?.friendlyName ?? raw?.name ?? raw?.deviceName),
+  friendlyName: toNullableString(
+    raw?.friendlyName ?? raw?.name ?? raw?.deviceName,
+  ),
   createdAt: toNullableString(raw?.createdAt ?? raw?.created_at),
   lastUsedAt: toNullableString(raw?.lastUsedAt ?? raw?.last_used_at),
 });

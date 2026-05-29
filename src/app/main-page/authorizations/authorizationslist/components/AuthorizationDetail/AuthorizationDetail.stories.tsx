@@ -16,6 +16,14 @@ vi.mock('./components/RequisitionsAuthorization/RequisitionsAuthorization', () =
   default: () => <div>RequisitionsAuthorization</div>,
 }))
 
+vi.mock(
+  './components/RequisitionsAuthorization/PreRequisitionsAuthorization/PreRequisitionsAuthorizationCatalog',
+  () => ({
+    __esModule: true,
+    default: () => <div>PreRequisitionsAuthorizationCatalog</div>,
+  }),
+)
+
 vi.mock('./components/ValesAuthorization/ValesAuthorization', () => ({
   __esModule: true,
   default: () => <div>ValesAuthorization</div>,
@@ -23,7 +31,7 @@ vi.mock('./components/ValesAuthorization/ValesAuthorization', () => ({
 
 type StoryArgs = {
   theme?: 'light' | 'dark'
-  mode?: 'requisition' | 'vale'
+  mode?: 'preRequisition' | 'requisition' | 'vale'
 }
 
 const meta: Meta<StoryArgs> = {
@@ -36,9 +44,15 @@ const meta: Meta<StoryArgs> = {
   },
   render: (args) => {
     mockUseAuthorizationDetail.mockReturnValue({
-      isRequisition: args.mode === 'requisition',
+      isPreRequisition: args.mode === 'preRequisition',
+      isRequisition: args.mode === 'preRequisition' || args.mode === 'requisition',
       isVale: args.mode === 'vale',
-      kind: args.mode === 'requisition' ? 'Requisicion' : 'Vale',
+      kind:
+        args.mode === 'preRequisition'
+          ? 'Solicitud de Requisición'
+          : args.mode === 'requisition'
+            ? 'Requisicion'
+            : 'Vale',
       normalizedKind: args.mode,
     })
 
@@ -56,6 +70,10 @@ type Story = StoryObj<StoryArgs>
 
 export const RequisitionDetail: Story = {
   args: { mode: 'requisition' },
+}
+
+export const PreRequisitionDetail: Story = {
+  args: { mode: 'preRequisition' },
 }
 
 export const ValeDetail: Story = {

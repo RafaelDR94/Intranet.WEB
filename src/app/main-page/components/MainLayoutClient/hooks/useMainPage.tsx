@@ -33,11 +33,8 @@ export const sidebarRoutes = [
     path: "/main-page/operations",
     icon: ServerIcon,
     subroutes: [
-      { label: "Requisiciones", path: "/main-page/operations/requisitions" },
-      {
-        label: "Historico de facturas",
-        path: "/main-page/operations/documentshistory",
-      },
+      { label: 'Requisiciones', path: '/main-page/operations/requisitions' },
+      { label: 'Requisiciones II', path: '/main-page/operations/expenserequisitions' },
     ],
   },
   {
@@ -45,14 +42,12 @@ export const sidebarRoutes = [
     path: "/main-page/request",
     icon: FileIcon,
     subroutes: [
-      { label: "Caja Chica", path: "/main-page/request/pettycash" },
-      { label: "Documentos", path: "/main-page/request/documents" },
-      { label: "Accesos", path: "/main-page/request/acces" },
-      { label: "Requisiciones", path: "/main-page/request/ownrequisitions" },
-      {
-        label: "Prestamo Vehicular",
-        path: "/main-page/request/vehicleassignament",
-      },
+      { label: 'Caja Chica', path: '/main-page/request/pettycash' },
+      { label: 'Documentos', path: '/main-page/request/documents' },
+      { label: 'Accesos', path: '/main-page/request/acces' },
+      { label: 'Requisiciones', path: '/main-page/request/ownrequisitions' },
+      { label: 'Solicitud de viáticos', path: '/main-page/request/expenserequisitions' },
+      { label: 'Prestamo Vehicular', path: '/main-page/request/vehicleassignament' }
     ],
   },
   {

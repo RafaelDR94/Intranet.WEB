@@ -103,7 +103,7 @@ const FormsLayout = ({
           </div>
         }
       >
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           {childArray.map((child, index) => {
             const key = (child as any)?.key ?? index;
             return (

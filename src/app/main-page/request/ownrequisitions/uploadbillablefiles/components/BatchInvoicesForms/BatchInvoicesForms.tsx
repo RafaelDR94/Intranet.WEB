@@ -287,7 +287,7 @@ const BatchInvoicesForms: React.FC<BatchInvoicesFormsProps> = ({
             onClick={handleAddInvoice}
             dataTestId="uploadbillablefiles-add-invoice"
           >
-            +Agregar factura
+            +Agregar facturassssss
           </Button>
         </div>
       </div>

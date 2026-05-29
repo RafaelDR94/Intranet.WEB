@@ -512,6 +512,31 @@ export const BillingPettyCashVoucherByIdEmployee =
 export const BillingPettyCashVoucherHistoryAmount =
   process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_HISTORYAMOUNT ??
   "/Billings/PettyCashVoucher/HistoryAmount";
+export const BillingTravelExpenses =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES ??
+  "/Billings/TravelExpenses";
+export const BillingTravelExpensesReject =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_REJECT ??
+  "/Billings/TravelExpenses/Reject";
+export const BillingTravelExpensesApprove =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_APPROVE ??
+  "/Billings/TravelExpenses/Approve";
+export const BillingTravelExpensesCancel =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CANCEL ??
+  "/Billings/TravelExpenses/Cancel";
+export const BillingTravelExpensesResend =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_RESEND ??
+  "/Billings/TravelExpenses/Resend";
+export const BillingTravelExpensesCancelOrResend =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CANCEL_OR_RESEND ??
+  "/Billings/TravelExpenses/CancelOrResend";
+export const BillingRequisitionRequestSendAuthorization =
+  process.env
+    .NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_SEND_AUTHORIZATION ??
+  "/Billings/RequisitionRequest/SendAuthorization";
+export const BillingTravelExpensesCalculations =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CALCULATIONS ??
+  "/Billings/TravelExpensesCalculations";
 export const BillingsSAPPendingDocuments =
   process.env.NEXT_PUBLIC_BILLINGS_SAP_PENDING_DOCUMENTS ??
   "/Billings/SAPPendingDocuments";

@@ -12,6 +12,8 @@ export type UserEmployeeSummary = {
   department: string;
   workposition: string;
   employee_number: string;
+  phone_number?: string;
+  employee_phone?: string;
   dr_fingerprint: boolean;
 };
 
@@ -163,7 +165,5 @@ export type UserPasskeyResponse = {
   createdAt: string | null;
   lastUsedAt: string | null;
 };
-
-
 
 export type UserRol = UserRole;
