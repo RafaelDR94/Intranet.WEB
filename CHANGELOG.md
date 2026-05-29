@@ -1,3 +1,10 @@
+### 1.50.32 Formulario contextual reutilizable 04-06-2026
+
+Feature:
+
+- Agrega ContextualInfoForm en sharedComponents para mostrar informacion de empresa, proyecto, deudor, cliente, fechas y personal asignado desde query params o valores controlados, con variantes configurables por URL. (Agente IA) [#]()
+- Mueve EditableViaticsTable al nivel raiz de sharedComponents y elimina la carpeta requisitionValidation. (Agente IA) [#]()
+
 ### 1.50.31 Corregir tests de LoginPage 15-05-2026
 
 Fix:
@@ -987,8 +994,5 @@ Feature:
 
 - Adjustments to the Invoices Form.
   (Katherine Negrete) [347#](https://github.com/DR-Mexico/dr.intranet.web/pull/347#)
-
-
-
 
 
