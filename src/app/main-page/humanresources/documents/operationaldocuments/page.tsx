@@ -94,8 +94,15 @@ const OperationalDocuments = () => {
     {
       key: "description",
       label: "DESCRIPCIÓN",
+      headerClass: "flex-[1.2]",
+      cellClass: "flex-[1.2] pr-4",
     },
-    { key: "documentType", label: "TIPO" },
+    {
+      key: "documentType",
+      label: "TIPO",
+      headerClass: "flex-[1.8] pl-6",
+      cellClass: "flex-[1.8] pl-6",
+    },
     {
       key: "actions" as unknown as keyof ManagementDocumentTableRow,
       label: "",
