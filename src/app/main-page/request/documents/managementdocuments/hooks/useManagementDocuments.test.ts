@@ -3,8 +3,11 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 import type { ManagementDocument } from '@/app/mappings/documents/documents.types'
 
-const fetchMock = vi.fn<Promise<void>, [boolean?]>(() => Promise.resolve())
+const fetchMock = vi.fn((): Promise<void> => Promise.resolve())
 const deleteMock = vi.fn()
+const replaceMock = vi.fn()
+let pathnameMock = '/main-page/request/documents/managementdocuments'
+let authUserMock: { isGerence?: boolean } | null = { isGerence: true }
 
 const managementDocuments: ManagementDocument[] = [
   {
@@ -44,6 +47,7 @@ vi.mock('@/app/stores/useDocumentsStore/useDocumentsStore', () => ({
     selector({
       managementDocuments,
       documents: managementDocuments,
+      operationalDocuments: [],
       loading: false,
       successGet: true,
       error: undefined,
@@ -56,12 +60,26 @@ vi.mock('@/app/stores/useDocumentsStore/useDocumentsStore', () => ({
     }),
 }))
 
+vi.mock('next/navigation', () => ({
+  usePathname: () => pathnameMock,
+  useRouter: () => ({ replace: replaceMock }),
+}))
+
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({
+    user: authUserMock,
+  }),
+}))
+
 import { useManagementDocuments } from './useManagementDocuments'
 
 describe('useManagementDocuments hook', () => {
   beforeEach(() => {
+    pathnameMock = '/main-page/request/documents/managementdocuments'
+    authUserMock = { isGerence: true }
     fetchMock.mockClear()
     deleteMock.mockClear()
+    replaceMock.mockClear()
   })
 
   it('maps store documents into table rows and triggers fetch', async () => {
@@ -87,7 +105,7 @@ describe('useManagementDocuments hook', () => {
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledTimes(1)
-      expect(fetchMock).toHaveBeenLastCalledWith()
+      expect(fetchMock).toHaveBeenLastCalledWith(true)
     })
 
     fetchMock.mockClear()
@@ -98,5 +116,28 @@ describe('useManagementDocuments hook', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(true)
+  })
+
+  it('does not fetch management documents while another documents tab is active', async () => {
+    pathnameMock = '/main-page/request/documents/operationaldocuments'
+
+    renderHook(() => useManagementDocuments())
+
+    await waitFor(() => {
+      expect(fetchMock).not.toHaveBeenCalled()
+    })
+  })
+
+  it('redirects and skips fetching when user is not gerence', async () => {
+    authUserMock = { isGerence: false }
+
+    renderHook(() => useManagementDocuments())
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith(
+        '/main-page/request/documents/operationaldocuments',
+      )
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 })

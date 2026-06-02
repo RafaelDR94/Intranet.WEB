@@ -28,6 +28,9 @@ export const deleteDocument = async (
       managementDocuments: state.managementDocuments.filter(
         (doc) => doc.document_id !== id,
       ),
+      operationalDocuments: state.operationalDocuments.filter(
+        (doc) => doc.document_id !== id,
+      ),
       deletingDocument: false,
       successDeleteDocument: true,
     }))

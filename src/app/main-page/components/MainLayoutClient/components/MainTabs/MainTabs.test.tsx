@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -12,11 +12,38 @@ vi.mock('@/app/components/PersonalAvatar/PersonalAvatar', () => ({ default: () =
 
 // Next mocks
 vi.mock('next/image', () => ({ default: (props: any) => <img alt={props.alt} /> }));
-vi.mock('next/link', () => ({ default: (props: any) => <a href={props.href} {...props} /> }));
+vi.mock('next/link', () => ({
+  default: ({ onClick, ...props }: any) => (
+    <a
+      {...props}
+      onClick={(event) => {
+        event.preventDefault()
+        onClick?.(event)
+      }}
+    />
+  ),
+}));
 
 let mockQS = ''
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(mockQS),
+}))
+
+const fetchDocumentsMock = vi.fn()
+const fetchDocumentsByUserMock = vi.fn()
+
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({
+    user: { idUser: 'user-1' },
+  }),
+}))
+
+vi.mock('@/app/stores/useDocumentsStore/useDocumentsStore', () => ({
+  useDocumentsStore: (selector: any) =>
+    selector({
+      fetchDocuments: fetchDocumentsMock,
+      fetchDocumentsByUser: fetchDocumentsByUserMock,
+    }),
 }))
 
 // Responsive hook
@@ -36,6 +63,8 @@ describe('MainTabs', () => {
   beforeEach(() => {
     mockQS = '';
     mockIsMobile = false;
+    fetchDocumentsMock.mockClear();
+    fetchDocumentsByUserMock.mockClear();
   });
   it('renders tabs', () => {
     render(<MainTabs tabs={tabs} pathname="/a" validPermissionsbyroute={() => true} />);
@@ -107,5 +136,45 @@ describe('MainTabs', () => {
 
     expect(screen.getByTestId('main-tabs-scroll').className).toMatch(/overflow-x-auto/);
     expect(screen.getByTestId('tab:/a').className).toMatch(/whitespace-nowrap/);
+  });
+
+  it('fetches management documents when clicking the management documents tab', () => {
+    render(
+      <MainTabs
+        tabs={[
+          {
+            label: 'Documentos Gerenciales',
+            path: '/main-page/request/documents/managementdocuments',
+          },
+        ]}
+        pathname="/main-page/request/documents/operationaldocuments"
+        validPermissionsbyroute={() => true}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('tab:/main-page/request/documents/managementdocuments'));
+
+    expect(fetchDocumentsMock).toHaveBeenCalledWith(true);
+    expect(fetchDocumentsByUserMock).not.toHaveBeenCalled();
+  });
+
+  it('fetches operational documents by user when clicking the operational documents tab', () => {
+    render(
+      <MainTabs
+        tabs={[
+          {
+            label: 'Documentos Operativos',
+            path: '/main-page/request/documents/operationaldocuments',
+          },
+        ]}
+        pathname="/main-page/request/documents/managementdocuments"
+        validPermissionsbyroute={() => true}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('tab:/main-page/request/documents/operationaldocuments'));
+
+    expect(fetchDocumentsByUserMock).toHaveBeenCalledWith('user-1', true);
+    expect(fetchDocumentsMock).not.toHaveBeenCalled();
   });
 });

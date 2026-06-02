@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo } from 'react'
+import { usePathname } from 'next/navigation'
 
 import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { mapOperationalDocumentsToTableRows } from '@/app/mappings/documents/documents.mapper'
@@ -9,7 +10,7 @@ import { useDocumentsStore } from '@/app/stores/useDocumentsStore/useDocumentsSt
 
 export const useOperationalDocuments = () => {
   const {
-    documents,
+    operationalDocuments,
     loading,
     error,
     successGet,
@@ -19,7 +20,7 @@ export const useOperationalDocuments = () => {
     deletingDocument,
     successDeleteDocument,
   } = useDocumentsStore((state) => ({
-    documents: state.documents,
+    operationalDocuments: state.operationalDocuments,
     loading: state.loading,
     error: state.error,
     successGet: state.successGet,
@@ -31,19 +32,23 @@ export const useOperationalDocuments = () => {
   }))
 
   const { user } = useAuth()
+  const pathname = usePathname()
+  const isOperationalDocumentsRoute = pathname?.includes('/documents/operationaldocuments')
 
   useEffect(() => {
+    if (!isOperationalDocumentsRoute) return
+
     if (user?.idUser) {
-      void fetchDocumentsByUser(user.idUser)
+      void fetchDocumentsByUser(user.idUser, true)
       return
     }
 
-    void fetchDocuments()
-  }, [fetchDocuments, fetchDocumentsByUser, user?.idUser])
+    void fetchDocuments(true)
+  }, [fetchDocuments, fetchDocumentsByUser, isOperationalDocumentsRoute, user?.idUser])
 
   const rows: ManagementDocumentTableRow[] = useMemo(
-    () => mapOperationalDocumentsToTableRows(documents),
-    [documents],
+    () => mapOperationalDocumentsToTableRows(operationalDocuments),
+    [operationalDocuments],
   )
 
   return {

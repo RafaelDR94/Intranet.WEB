@@ -3,6 +3,7 @@ import type { ManagementDocument } from '@/app/mappings/documents/documents.type
 export type DocumentsState = {
   documents: ManagementDocument[]
   managementDocuments: ManagementDocument[]
+  operationalDocuments: ManagementDocument[]
   loading: boolean
   successGet: boolean
   deletingDocument: boolean

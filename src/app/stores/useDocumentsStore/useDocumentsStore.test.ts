@@ -68,6 +68,7 @@ const fetchDocumentsMock = vi.fn(async (set: Set) => {
         created_at: '2025-10-24',
       },
     ],
+    operationalDocuments: [],
     loading: false,
     successGet: true,
   })
@@ -79,9 +80,9 @@ const fetchDocumentsByUserMock = vi.fn(async (set: Set) => {
 const deleteDocumentMock = vi.fn()
 
 vi.mock('./utilities', () => ({
-  fetchDocuments: (...args: any[]) => fetchDocumentsMock(...args),
-  fetchDocumentsByUser: (...args: any[]) => fetchDocumentsByUserMock(...args),
-  deleteDocument: (...args: any[]) => deleteDocumentMock(...args),
+  fetchDocuments: (set: Set) => fetchDocumentsMock(set),
+  fetchDocumentsByUser: (set: Set) => fetchDocumentsByUserMock(set),
+  deleteDocument: () => deleteDocumentMock(),
 }))
 
 import { useDocumentsStore } from './useDocumentsStore'
@@ -93,6 +94,7 @@ describe('useDocumentsStore', () => {
     useDocumentsStore.setState({
       documents: [],
       managementDocuments: [],
+      operationalDocuments: [],
       loading: false,
       successGet: false,
       deletingDocument: false,
@@ -110,6 +112,7 @@ describe('useDocumentsStore', () => {
     const state = useDocumentsStore.getState()
     expect(state.documents).toEqual([])
     expect(state.managementDocuments).toEqual([])
+    expect(state.operationalDocuments).toEqual([])
   })
 
   it('fetchDocuments loads data', async () => {
@@ -118,6 +121,7 @@ describe('useDocumentsStore', () => {
     expect(fetchDocumentsMock).toHaveBeenCalled()
     expect(state.documents).toHaveLength(1)
     expect(state.managementDocuments).toHaveLength(1)
+    expect(state.operationalDocuments).toHaveLength(0)
     expect(state.successGet).toBe(true)
   })
 
@@ -127,6 +131,7 @@ describe('useDocumentsStore', () => {
     expect(fetchDocumentsByUserMock).toHaveBeenCalled()
     expect(state.documents).toHaveLength(1)
     expect(state.managementDocuments).toHaveLength(1)
+    expect(state.operationalDocuments).toHaveLength(0)
     expect(state.successGet).toBe(true)
   })
 
@@ -162,6 +167,7 @@ describe('useDocumentsStore', () => {
         extension: 'pdf',
       } as any],
       managementDocuments: [] as any,
+      operationalDocuments: [] as any,
       loading: false,
       successGet: true,
       deletingDocument: true,
@@ -178,6 +184,7 @@ describe('useDocumentsStore', () => {
     const state = useDocumentsStore.getState()
     expect(state.documents).toEqual([])
     expect(state.managementDocuments).toEqual([])
+    expect(state.operationalDocuments).toEqual([])
     expect(state.successGet).toBe(false)
     expect(state.deletingDocument).toBe(false)
     expect(state.successDeleteDocument).toBe(false)

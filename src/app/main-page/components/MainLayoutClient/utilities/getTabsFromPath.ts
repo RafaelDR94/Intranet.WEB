@@ -77,6 +77,10 @@ export const getTabsFromPath = (
     ],
     "request/documents": [
       {
+        label: "Registro de Documentos",
+        path: "/main-page/request/documents/documentregistry",
+      },
+      {
         label: "Documentos Gerenciales",
         path: "/main-page/request/documents/managementdocuments",
       },
@@ -192,11 +196,6 @@ export const getTabsFromPath = (
     'generalservices/vehicleregist': [
       { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist/vehicleregistry' },
       { label: 'Lista de Registros', path: '/main-page/generalservices/vehicleregist/vehicleregistrylist' },
-    ],
-    'humanresources/documents': [
-      { label: 'Registro de Documentos', path: '/main-page/humanresources/documents/documentregistry' },
-      { label: 'Documentos Gerenciales', path: '/main-page/humanresources/documents/managementdocuments' },
-      { label: 'Documentos Operativos', path: '/main-page/humanresources/documents/operationaldocuments' },
     ],
     'humanresources/organizationchart': [
       { label: 'Departamentos', path: '/main-page/humanresources/organizationchart/departments' },
