@@ -10,13 +10,18 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import DocumentActionsMenuCell from "@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell";
 import type { ManagementDocumentTableRow } from "@/app/mappings/documents/documents.types";
 import DocIcon from "@/assets/icons/Docs/page.svg";
+import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import { useManagementDocuments } from "./hooks/useManagementDocuments";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
+import { useAuth } from "../../../../context/AuthContext/AuthContext";
 
 const ManagementDocuments = () => {
   const router = useRouter();
   const isMobile = useIsMobile();
+  const { currentPagePermissions } = useAuth();
+  const canDowload = currentPagePermissions?.canDownload;
+  const canEdit = currentPagePermissions?.canEdit ?? true;
   const { rows, refresh, deleteDocument, deletingDocument } =
     useManagementDocuments();
   useTutorialAutoRun({
@@ -93,20 +98,32 @@ const ManagementDocuments = () => {
     {
       key: "description",
       label: "DESCRIPCIÓN",
+      headerClass: "flex-[1.2]",
+      cellClass: "flex-[1.2] pr-4",
     },
-    { key: "documentType", label: "TIPO" },
+    {
+      key: "documentType",
+      label: "TIPO",
+      headerClass: "flex-[1.8] pl-6",
+      cellClass: "flex-[1.8] pl-6",
+    },
     {
       key: "actions" as unknown as keyof ManagementDocumentTableRow,
       label: "",
-      render: (row) => (
-        <div className="flex justify-end pr-2" data-tour="humanresources-managementdocuments-actions">
-          <DocumentActionsMenuCell
-            row={row}
-            onView={handleViewDocument}
-            onDelete={handleRequestDelete}
-          />
-        </div>
-      ),
+      render: (row) =>
+        canEdit === true ? (
+          <div className="flex justify-end pr-2" data-tour="humanresources-managementdocuments-actions">
+            <DocumentActionsMenuCell
+              row={row}
+              onView={handleViewDocument}
+              onDelete={handleRequestDelete}
+            />
+          </div>
+        ) : (
+          <div className="flex justify-end pr-2" data-tour="humanresources-managementdocuments-actions">
+            <Button variant="ghost" icon={DownloadIcon} />
+          </div>
+        ),
 
       invisible: false,
     },
@@ -157,7 +174,7 @@ const ManagementDocuments = () => {
           {
             title: "",
             enableCollaps: false,
-            enableSelection: true,
+            enableSelection: canDowload,
             data: rows,
             columns: isMobile ? columnsMobile : columns,
             defaultSortKey: "name",
@@ -177,7 +194,7 @@ const ManagementDocuments = () => {
         showCalendar={false}
         showFilter={false}
         showButton={false}
-        showDownloadTable
+        showDownloadTable={canDowload}
         dateKey={(row) => row.rawDate ?? row.date}
         searchDataTour="humanresources-managementdocuments-search"
         refreshDataTour="humanresources-managementdocuments-refresh"

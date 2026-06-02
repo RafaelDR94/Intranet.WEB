@@ -9,6 +9,7 @@ export type DocumentsState = {
   successDeleteDocument: boolean
   error?: string
   fetchDocuments: (force?: boolean) => Promise<void>
+  fetchDocumentsByUser: (idUser: string, force?: boolean) => Promise<void>
   deleteDocument: (id: string) => Promise<boolean>
   reset: () => void
   resetFlags: () => void

@@ -72,11 +72,15 @@ const fetchDocumentsMock = vi.fn(async (set: Set) => {
     successGet: true,
   })
 })
+const fetchDocumentsByUserMock = vi.fn(async (set: Set) => {
+  await fetchDocumentsMock(set)
+})
 
 const deleteDocumentMock = vi.fn()
 
 vi.mock('./utilities', () => ({
   fetchDocuments: (...args: any[]) => fetchDocumentsMock(...args),
+  fetchDocumentsByUser: (...args: any[]) => fetchDocumentsByUserMock(...args),
   deleteDocument: (...args: any[]) => deleteDocumentMock(...args),
 }))
 
@@ -85,6 +89,7 @@ import { useDocumentsStore } from './useDocumentsStore'
 describe('useDocumentsStore', () => {
   beforeEach(() => {
     fetchDocumentsMock.mockClear()
+    fetchDocumentsByUserMock.mockClear()
     useDocumentsStore.setState({
       documents: [],
       managementDocuments: [],
@@ -94,6 +99,7 @@ describe('useDocumentsStore', () => {
       successDeleteDocument: false,
       error: undefined,
       fetchDocuments: useDocumentsStore.getState().fetchDocuments,
+      fetchDocumentsByUser: useDocumentsStore.getState().fetchDocumentsByUser,
       deleteDocument: useDocumentsStore.getState().deleteDocument,
       reset: useDocumentsStore.getState().reset,
       resetFlags: useDocumentsStore.getState().resetFlags,
@@ -110,6 +116,15 @@ describe('useDocumentsStore', () => {
     await useDocumentsStore.getState().fetchDocuments()
     const state = useDocumentsStore.getState()
     expect(fetchDocumentsMock).toHaveBeenCalled()
+    expect(state.documents).toHaveLength(1)
+    expect(state.managementDocuments).toHaveLength(1)
+    expect(state.successGet).toBe(true)
+  })
+
+  it('fetchDocumentsByUser loads data', async () => {
+    await useDocumentsStore.getState().fetchDocumentsByUser('user-1')
+    const state = useDocumentsStore.getState()
+    expect(fetchDocumentsByUserMock).toHaveBeenCalled()
     expect(state.documents).toHaveLength(1)
     expect(state.managementDocuments).toHaveLength(1)
     expect(state.successGet).toBe(true)
@@ -153,6 +168,7 @@ describe('useDocumentsStore', () => {
       successDeleteDocument: true,
       error: undefined,
       fetchDocuments: useDocumentsStore.getState().fetchDocuments,
+      fetchDocumentsByUser: useDocumentsStore.getState().fetchDocumentsByUser,
       deleteDocument: useDocumentsStore.getState().deleteDocument,
       reset: useDocumentsStore.getState().reset,
       resetFlags: useDocumentsStore.getState().resetFlags,
