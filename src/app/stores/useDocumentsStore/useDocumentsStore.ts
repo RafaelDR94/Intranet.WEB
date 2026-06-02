@@ -11,6 +11,7 @@ const initialState: Pick<
   |
     'documents'
     | 'managementDocuments'
+    | 'operationalDocuments'
     | 'loading'
     | 'successGet'
     | 'deletingDocument'
@@ -19,6 +20,7 @@ const initialState: Pick<
 > = {
   documents: [],
   managementDocuments: [],
+  operationalDocuments: [],
   loading: false,
   successGet: false,
   deletingDocument: false,

@@ -3,9 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ManagementDocument } from '@/app/mappings/documents/documents.types'
 
-const fetchMock = vi.fn<Promise<void>, [boolean?]>(() => Promise.resolve())
-const fetchByUserMock = vi.fn<Promise<void>, [string, boolean?]>(() => Promise.resolve())
+const fetchMock = vi.fn((): Promise<void> => Promise.resolve())
+const fetchByUserMock = vi.fn((): Promise<void> => Promise.resolve())
 const deleteMock = vi.fn()
+let pathnameMock = '/main-page/request/documents/operationaldocuments'
 
 const documents: ManagementDocument[] = [
   {
@@ -81,6 +82,7 @@ vi.mock('@/app/stores/useDocumentsStore/useDocumentsStore', () => ({
     selector({
       documents,
       managementDocuments: documents.filter((doc) => doc.management),
+      operationalDocuments: documents.filter((doc) => !doc.management),
       loading: false,
       successGet: true,
       error: undefined,
@@ -100,10 +102,15 @@ vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   }),
 }))
 
+vi.mock('next/navigation', () => ({
+  usePathname: () => pathnameMock,
+}))
+
 import { useOperationalDocuments } from './useOperationalDocuments'
 
 describe('useOperationalDocuments hook', () => {
   beforeEach(() => {
+    pathnameMock = '/main-page/request/documents/operationaldocuments'
     fetchMock.mockClear()
     fetchByUserMock.mockClear()
     deleteMock.mockClear()
@@ -113,7 +120,7 @@ describe('useOperationalDocuments hook', () => {
     const { result } = renderHook(() => useOperationalDocuments())
 
     await waitFor(() => {
-      expect(fetchByUserMock).toHaveBeenCalledWith('user-1')
+      expect(fetchByUserMock).toHaveBeenCalledWith('user-1', true)
     })
 
     expect(result.current.rows).toHaveLength(1)
@@ -132,7 +139,7 @@ describe('useOperationalDocuments hook', () => {
 
     await waitFor(() => {
       expect(fetchByUserMock).toHaveBeenCalledTimes(1)
-      expect(fetchByUserMock).toHaveBeenLastCalledWith('user-1')
+      expect(fetchByUserMock).toHaveBeenLastCalledWith('user-1', true)
     })
 
     fetchByUserMock.mockClear()
@@ -143,5 +150,16 @@ describe('useOperationalDocuments hook', () => {
 
     expect(fetchByUserMock).toHaveBeenCalledTimes(1)
     expect(fetchByUserMock).toHaveBeenCalledWith('user-1', true)
+  })
+
+  it('does not fetch operational documents while another documents tab is active', async () => {
+    pathnameMock = '/main-page/request/documents/managementdocuments'
+
+    renderHook(() => useOperationalDocuments())
+
+    await waitFor(() => {
+      expect(fetchByUserMock).not.toHaveBeenCalled()
+      expect(fetchMock).not.toHaveBeenCalled()
+    })
   })
 })

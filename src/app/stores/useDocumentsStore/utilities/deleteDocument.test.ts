@@ -33,6 +33,11 @@ const createState = () => {
         document_id: 'bb31479c-9997-4cfd-8f26-318372a20c4d',
       } as any,
     ],
+    operationalDocuments: [
+      {
+        document_id: 'bb31479c-9997-4cfd-8f26-318372a20c4d',
+      } as any,
+    ],
     deletingDocument: false,
     successDeleteDocument: false,
     error: undefined,
@@ -72,6 +77,7 @@ describe('deleteDocument', () => {
     )
     expect(state.documents).toHaveLength(0)
     expect(state.managementDocuments).toHaveLength(0)
+    expect(state.operationalDocuments).toHaveLength(0)
     expect(state.deletingDocument).toBe(false)
     expect(state.successDeleteDocument).toBe(true)
   })

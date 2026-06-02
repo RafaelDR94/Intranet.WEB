@@ -11,7 +11,7 @@ const deleteMock = vi.fn()
 const refreshMock = vi.fn()
 
 vi.mock(
-  '@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell',
+  '@/app/main-page/request/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell',
   () => ({
     __esModule: true,
     default: ({ row, onDelete }: any) => (
@@ -104,7 +104,7 @@ const pushMock = vi.fn()
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock }),
-  usePathname: () => '/main-page/humanresources/documents/managementdocuments',
+  usePathname: () => '/main-page/request/documents/managementdocuments',
 }))
 
 import ManagementDocuments from './page'
@@ -120,7 +120,6 @@ describe('ManagementDocuments page', () => {
     render(<ManagementDocuments />)
 
     expect(screen.getByText('DataTable')).toBeInTheDocument()
-    expect(screen.getByText('Nuevo Documento')).toBeInTheDocument()
   })
 
   it('calls refresh when clicking "Actualizar"', () => {

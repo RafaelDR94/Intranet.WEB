@@ -90,7 +90,6 @@ export const sidebarRoutes = [
     icon: ServerIcon,
     subroutes: [
       { label: 'Comunicados', path: '/main-page/humanresources/release' },
-      { label: 'Documentos', path: '/main-page/humanresources/documents' },
       { label: 'Organigrama', path: '/main-page/humanresources/organizationchart' },
       { label: 'Empresas', path: '/main-page/humanresources/companies' },
       { label: 'Departamentos', path: '/main-page/humanresources/departments' },
@@ -122,6 +121,31 @@ export const sidebarRoutes = [
     ],
   },
 ];
+
+const MANAGEMENT_DOCUMENTS_PATH = '/main-page/request/documents/managementdocuments';
+
+const filterManagementDocumentsTabs = <T extends { path: string }>(
+  routes: T[],
+  canViewManagementDocuments: boolean,
+): T[] => {
+  if (canViewManagementDocuments) return routes;
+
+  return routes.filter((route) => route.path !== MANAGEMENT_DOCUMENTS_PATH);
+};
+
+const filterManagementDocumentsRoutes = (
+  routes: typeof sidebarRoutes,
+  canViewManagementDocuments: boolean,
+): typeof sidebarRoutes => {
+  if (canViewManagementDocuments) return routes;
+
+  return routes.map((route) => ({
+    ...route,
+    subroutes: route.subroutes
+      ? filterManagementDocumentsTabs(route.subroutes, canViewManagementDocuments)
+      : route.subroutes,
+  }));
+};
 
 /**
  * Estado del mensaje modal de confirmacion para activar/desactivar el modo offline.
@@ -168,13 +192,22 @@ export const useMainPage = () => {
     [router]
   );
 
-  const tabs = useMemo(
-    () => getTabsFromPath(pathname, searchParams),
-    [pathname, searchParams]
-  );
-
   const { user, offlineMode, handleOfflineMode, logout, validPermissionsbyroute } = useAuth();
   const { firebaseMessaging, firebaserealtime } = useFirebase();
+  const canViewManagementDocuments = user?.isGerence === true;
+
+  const tabs = useMemo(
+    () => filterManagementDocumentsTabs(
+      getTabsFromPath(pathname, searchParams),
+      canViewManagementDocuments,
+    ),
+    [pathname, searchParams, canViewManagementDocuments]
+  );
+
+  const visibleSidebarRoutes = useMemo(
+    () => filterManagementDocumentsRoutes(sidebarRoutes, canViewManagementDocuments),
+    [canViewManagementDocuments],
+  );
 
   const [offlineLoggin, setOfflineLoggin] = useState(offlineMode);
   const [pendingNotifications, setPendingNotifications] = useState<PendingNotification[]>([]);
@@ -346,7 +379,7 @@ export const useMainPage = () => {
     handleOkMessageOffline,
     handleCancelMessageOffline,
     handleAlertClose,
-    sidebarRoutes,
+    sidebarRoutes: visibleSidebarRoutes,
     usePrincipalImage,
     pendingNotifications,
     handleOpenPending,

@@ -5,7 +5,7 @@ vi.mock('@/assets/icons/navegacion/home.svg', () => ({ default: 'home' }));
 vi.mock('@/assets/icons/Docs/archive.svg', () => ({ default: 'archive' }));
 
 vi.mock('../utilities/getTabsFromPath', () => ({
-  getTabsFromPath: () => [{ label: 'Tab1', path: '/main-page/home/tab1' }],
+  getTabsFromPath: () => tabsMock,
 }));
 
 const showAlert = vi.fn();
@@ -15,6 +15,8 @@ const logout = vi.fn();
 const validPermissionsbyroute = vi.fn();
 
 let firebaseState: { firebaseMessaging: any; permissionsChanged: boolean };
+let authUser: { fullName: string; isGerence?: boolean };
+let tabsMock: { label: string; path: string }[];
 
 vi.mock('@/app//context/PrincipalContext/PrincipalContext', () => ({
   usePrincipal: () => ({
@@ -25,7 +27,7 @@ vi.mock('@/app//context/PrincipalContext/PrincipalContext', () => ({
 
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   useAuth: () => ({
-    user: { fullName: 'John Doe' },
+    user: authUser,
     offlineMode: false,
     handleOfflineMode,
     logout,
@@ -49,6 +51,8 @@ describe('useMainPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     firebaseState = { firebaseMessaging: null, permissionsChanged: false };
+    authUser = { fullName: 'John Doe', isGerence: true };
+    tabsMock = [{ label: 'Tab1', path: '/main-page/home/tab1' }];
   });
 
   it('maneja el cambio offline', () => {
@@ -76,6 +80,29 @@ describe('useMainPage', () => {
     firebaseState.firebaseMessaging = { notification: { notification: { title: 't', body: 'b' } } };
     renderHook(() => useMainPage());
     expect(showAlert).toHaveBeenCalled();
+  });
+
+  it('oculta el tab de documentos gerenciales cuando el usuario no es gerencia', () => {
+    authUser = { fullName: 'John Doe', isGerence: false };
+    tabsMock = [
+      {
+        label: 'Documentos Gerenciales',
+        path: '/main-page/request/documents/managementdocuments',
+      },
+      {
+        label: 'Documentos Operativos',
+        path: '/main-page/request/documents/operationaldocuments',
+      },
+    ];
+
+    const { result } = renderHook(() => useMainPage());
+
+    expect(result.current.tabs).toEqual([
+      {
+        label: 'Documentos Operativos',
+        path: '/main-page/request/documents/operationaldocuments',
+      },
+    ]);
   });
 
 
