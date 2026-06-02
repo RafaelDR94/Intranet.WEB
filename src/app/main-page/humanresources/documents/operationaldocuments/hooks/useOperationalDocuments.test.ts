@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ManagementDocument } from '@/app/mappings/documents/documents.types'
 
 const fetchMock = vi.fn<Promise<void>, [boolean?]>(() => Promise.resolve())
+const fetchByUserMock = vi.fn<Promise<void>, [string, boolean?]>(() => Promise.resolve())
 const deleteMock = vi.fn()
 
 const documents: ManagementDocument[] = [
@@ -83,6 +84,7 @@ vi.mock('@/app/stores/useDocumentsStore/useDocumentsStore', () => ({
       loading: false,
       successGet: true,
       error: undefined,
+      fetchDocumentsByUser: fetchByUserMock,
       fetchDocuments: fetchMock,
       deleteDocument: deleteMock,
       deletingDocument: false,
@@ -92,11 +94,18 @@ vi.mock('@/app/stores/useDocumentsStore/useDocumentsStore', () => ({
     }),
 }))
 
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({
+    user: { idUser: 'user-1' },
+  }),
+}))
+
 import { useOperationalDocuments } from './useOperationalDocuments'
 
 describe('useOperationalDocuments hook', () => {
   beforeEach(() => {
     fetchMock.mockClear()
+    fetchByUserMock.mockClear()
     deleteMock.mockClear()
   })
 
@@ -104,7 +113,7 @@ describe('useOperationalDocuments hook', () => {
     const { result } = renderHook(() => useOperationalDocuments())
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled()
+      expect(fetchByUserMock).toHaveBeenCalledWith('user-1')
     })
 
     expect(result.current.rows).toHaveLength(1)
@@ -122,17 +131,17 @@ describe('useOperationalDocuments hook', () => {
     const { result } = renderHook(() => useOperationalDocuments())
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(1)
-      expect(fetchMock).toHaveBeenLastCalledWith()
+      expect(fetchByUserMock).toHaveBeenCalledTimes(1)
+      expect(fetchByUserMock).toHaveBeenLastCalledWith('user-1')
     })
 
-    fetchMock.mockClear()
+    fetchByUserMock.mockClear()
 
     await act(async () => {
       await result.current.refresh()
     })
 
-    expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(fetchMock).toHaveBeenCalledWith(true)
+    expect(fetchByUserMock).toHaveBeenCalledTimes(1)
+    expect(fetchByUserMock).toHaveBeenCalledWith('user-1', true)
   })
 })

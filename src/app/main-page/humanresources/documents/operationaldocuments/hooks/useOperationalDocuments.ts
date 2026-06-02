@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from 'react'
 
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { mapOperationalDocumentsToTableRows } from '@/app/mappings/documents/documents.mapper'
 import type { ManagementDocumentTableRow } from '@/app/mappings/documents/documents.types'
 import { useDocumentsStore } from '@/app/stores/useDocumentsStore/useDocumentsStore'
@@ -12,6 +13,7 @@ export const useOperationalDocuments = () => {
     loading,
     error,
     successGet,
+    fetchDocumentsByUser,
     fetchDocuments,
     deleteDocument,
     deletingDocument,
@@ -21,15 +23,23 @@ export const useOperationalDocuments = () => {
     loading: state.loading,
     error: state.error,
     successGet: state.successGet,
+    fetchDocumentsByUser: state.fetchDocumentsByUser,
     fetchDocuments: state.fetchDocuments,
     deleteDocument: state.deleteDocument,
     deletingDocument: state.deletingDocument,
     successDeleteDocument: state.successDeleteDocument,
   }))
 
+  const { user } = useAuth()
+
   useEffect(() => {
+    if (user?.idUser) {
+      void fetchDocumentsByUser(user.idUser)
+      return
+    }
+
     void fetchDocuments()
-  }, [fetchDocuments])
+  }, [fetchDocuments, fetchDocumentsByUser, user?.idUser])
 
   const rows: ManagementDocumentTableRow[] = useMemo(
     () => mapOperationalDocumentsToTableRows(documents),
@@ -44,7 +54,7 @@ export const useOperationalDocuments = () => {
     deletingDocument,
     successDeleteDocument,
     deleteDocument,
-    refresh: () => fetchDocuments(true),
+    refresh: () => (user?.idUser ? fetchDocumentsByUser(user.idUser, true) : fetchDocuments(true)),
   }
 }
 

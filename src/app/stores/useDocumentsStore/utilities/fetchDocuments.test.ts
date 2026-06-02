@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import type { DocumentsState, Set, Get } from '../types'
 
-import { fetchDocuments } from './fetchDocuments'
+import { fetchDocuments, fetchDocumentsByUser } from './fetchDocuments'
 
 const requireGatewayMock = vi.fn()
 const getRequestMock = vi.fn()
@@ -99,5 +99,34 @@ describe('fetchDocuments', () => {
     expect(state.loading).toBe(false)
     expect(state.successGet).toBe(false)
     expect(state.error).toBe('fail')
+  })
+})
+
+describe('fetchDocumentsByUser', () => {
+  beforeEach(() => {
+    requireGatewayMock.mockReset()
+    getRequestMock.mockReset()
+  })
+
+  it('maps and stores documents returned by user endpoint', async () => {
+    getRequestMock.mockResolvedValue({ data: { data: [sampleDocument] } })
+    const { state, set, get } = createState()
+
+    await fetchDocumentsByUser(set, get, 'user-123')
+
+    expect(getRequestMock).toHaveBeenCalledWith('/Documents/ByUser/user-123')
+    expect(state.loading).toBe(false)
+    expect(state.successGet).toBe(true)
+    expect(state.documents).toHaveLength(1)
+  })
+
+  it('sets a validation error when idUser is empty', async () => {
+    const { state, set, get } = createState()
+
+    await fetchDocumentsByUser(set, get, '')
+
+    expect(getRequestMock).not.toHaveBeenCalled()
+    expect(state.successGet).toBe(false)
+    expect(state.error).toBe('idUser is required')
   })
 })

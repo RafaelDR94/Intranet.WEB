@@ -711,7 +711,7 @@ const uploadDocumentFile = useCallback(
   );
 
   return {
-    title: documentId ? "Edición de Documento" : "Registro de Documentos",
+    title: documentId ? "Edición de Documento" : "Aqui puedes hacer el registro de documentos que necesites",
     submitLabel: documentId ? "Guardar Cambios" : "Registrar Documento",
     submitRef,
     formReady,

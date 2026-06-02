@@ -222,6 +222,7 @@ export const DeviceAssignmentResponsiveUrl =
 
 export const DocumentType = process.env.NEXT_PUBLIC_DOCUMENT_TYPE ?? "/Documents/DocumentType";
 export const Documents = process.env.NEXT_PUBLIC_DOCUMENTS ?? "/Documents";
+export const DocumentsByUser = process.env.NEXT_PUBLIC_DOCUMENTS_BY_USER ?? "/Documents/ByUser";
 
 export const Releases = process.env.NEXT_PUBLIC_RELEASES ?? "/Releases/Reaction";
 export const ReleasesReaction = process.env.NEXT_PUBLIC_RELEASES_REACTION ?? "/Releases/Reaction";
