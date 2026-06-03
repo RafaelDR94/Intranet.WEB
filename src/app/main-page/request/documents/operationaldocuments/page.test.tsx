@@ -11,7 +11,7 @@ const deleteMock = vi.fn()
 const refreshMock = vi.fn()
 
 vi.mock(
-  '@/app/main-page/humanresources/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell',
+  '@/app/main-page/request/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell',
   () => ({
     __esModule: true,
     default: ({ row, onDelete }: any) => (

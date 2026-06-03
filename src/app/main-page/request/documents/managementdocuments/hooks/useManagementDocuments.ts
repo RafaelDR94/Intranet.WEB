@@ -1,12 +1,15 @@
 'use client'
 
 import { useEffect, useMemo } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 
 import { mapManagementDocumentsToTableRows } from '@/app/mappings/documents/documents.mapper'
 import type { ManagementDocumentTableRow } from '@/app/mappings/documents/documents.types'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { useDocumentsStore } from '@/app/stores/useDocumentsStore/useDocumentsStore'
 
 export const useManagementDocuments = () => {
+  const { user } = useAuth()
   const {
     managementDocuments,
     loading,
@@ -28,14 +31,29 @@ export const useManagementDocuments = () => {
       successDeleteDocument: state.successDeleteDocument,
     }),
   )
+  const pathname = usePathname()
+  const router = useRouter()
+  const isManagementDocumentsRoute = pathname?.includes('/documents/managementdocuments')
+  const canViewManagementDocuments = user?.isGerence === true
 
   useEffect(() => {
-    void fetchDocuments()
-  }, [fetchDocuments])
+    if (!isManagementDocumentsRoute || canViewManagementDocuments) return
+
+    router.replace('/main-page/request/documents/operationaldocuments')
+  }, [canViewManagementDocuments, isManagementDocumentsRoute, router])
+
+  useEffect(() => {
+    if (!isManagementDocumentsRoute || !canViewManagementDocuments) return
+
+    void fetchDocuments(true)
+  }, [canViewManagementDocuments, fetchDocuments, isManagementDocumentsRoute])
 
   const rows: ManagementDocumentTableRow[] = useMemo(
-    () => mapManagementDocumentsToTableRows(managementDocuments),
-    [managementDocuments],
+    () =>
+      canViewManagementDocuments
+        ? mapManagementDocumentsToTableRows(managementDocuments)
+        : [],
+    [canViewManagementDocuments, managementDocuments],
   )
 
   return {
@@ -46,7 +64,8 @@ export const useManagementDocuments = () => {
     deletingDocument,
     successDeleteDocument,
     deleteDocument,
-    refresh: () => fetchDocuments(true),
+    refresh: () =>
+      canViewManagementDocuments ? fetchDocuments(true) : Promise.resolve(),
   }
 }
 

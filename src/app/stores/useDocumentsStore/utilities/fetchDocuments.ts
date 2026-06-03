@@ -25,7 +25,7 @@ export const fetchDocuments = async (
   force = false,
 ): Promise<void> => {
   const state = get()
-  if (!force && state.documents.length > 0) return
+  if (!force && state.managementDocuments.length > 0) return
 
   set({ loading: true, error: undefined, successGet: false })
 
@@ -63,7 +63,7 @@ export const fetchDocumentsByUser = async (
   }
 
   const state = get()
-  if (!force && state.documents.length > 0) return
+  if (!force && state.operationalDocuments.length > 0) return
 
   set({ loading: true, error: undefined, successGet: false })
 
@@ -76,11 +76,11 @@ export const fetchDocumentsByUser = async (
     const payload = response?.data?.data ?? response?.data ?? []
 
     const mapped: ManagementDocument[] = mapManagementDocuments(toArray(payload))
-    const managementDocuments = mapped.filter((doc) => doc.management)
+    const operationalDocuments = mapped.filter((doc) => !doc.management)
 
     set({
       documents: mapped,
-      managementDocuments,
+      operationalDocuments,
       loading: false,
       successGet: true,
     })

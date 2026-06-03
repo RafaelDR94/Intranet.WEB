@@ -53,6 +53,7 @@ const createState = () => {
   const state: Partial<DocumentsState> = {
     documents: [],
     managementDocuments: [],
+    operationalDocuments: [],
     loading: false,
     successGet: false,
   }
@@ -85,6 +86,7 @@ describe('fetchDocuments', () => {
     expect(state.successGet).toBe(true)
     expect(state.documents).toHaveLength(1)
     expect(state.managementDocuments).toHaveLength(1)
+    expect(state.operationalDocuments).toHaveLength(0)
     expect(state.documents?.[0]?.name).toBe('Bruno')
   })
 
@@ -109,7 +111,18 @@ describe('fetchDocumentsByUser', () => {
   })
 
   it('maps and stores documents returned by user endpoint', async () => {
-    getRequestMock.mockResolvedValue({ data: { data: [sampleDocument] } })
+    getRequestMock.mockResolvedValue({
+      data: {
+        data: [
+          sampleDocument,
+          {
+            ...sampleDocument,
+            document_id: 'operational-1',
+            management: false,
+          },
+        ],
+      },
+    })
     const { state, set, get } = createState()
 
     await fetchDocumentsByUser(set, get, 'user-123')
@@ -117,7 +130,9 @@ describe('fetchDocumentsByUser', () => {
     expect(getRequestMock).toHaveBeenCalledWith('/Documents/ByUser/user-123')
     expect(state.loading).toBe(false)
     expect(state.successGet).toBe(true)
-    expect(state.documents).toHaveLength(1)
+    expect(state.documents).toHaveLength(2)
+    expect(state.operationalDocuments).toHaveLength(1)
+    expect(state.managementDocuments).toHaveLength(0)
   })
 
   it('sets a validation error when idUser is empty', async () => {

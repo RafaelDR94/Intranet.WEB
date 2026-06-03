@@ -10,7 +10,9 @@ import { container, mobileTabsScroller, tabsScroller, tabsWrapper } from "./styl
 import { MainTabsProps } from "./types";
 
 import Notification from "../Notification/Notification";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import PersonalAvatar from "@/app/components/PersonalAvatar/PersonalAvatar";
+import { useDocumentsStore } from "@/app/stores/useDocumentsStore/useDocumentsStore";
 import HelpButton from "@/components/help/HelpButton";
 import TutorialCenterModal from "@/components/help/TutorialCenterModal";
 import MenuIcon from "@/assets/icons/acciones/menu.svg";
@@ -33,6 +35,11 @@ export const MainTabs: React.FC<MainTabsProps> = ({
 }) => {
   const { filtered, isMobile, isActive } = useMainTab({ tabs, pathname, validPermissionsbyroute });
   const searchParams = useSearchParams();
+  const { user } = useAuth();
+  const { fetchDocuments, fetchDocumentsByUser } = useDocumentsStore((state) => ({
+    fetchDocuments: state.fetchDocuments,
+    fetchDocumentsByUser: state.fetchDocumentsByUser,
+  }));
   const BellIcon = hasNotification ? BellNotification : Bell;
   const desktopIconToneClass = "text-black-100";
   const mobileIconToneClass = "text-white-100";
@@ -116,15 +123,6 @@ export const MainTabs: React.FC<MainTabsProps> = ({
     if (pathname.includes("/main-page/generalservices/vehicleregist/vehicleregistrylist")) {
       return "generalservices-vehicleregistrylist";
     }
-    if (pathname.includes("/main-page/humanresources/documents/documentregistry")) {
-      return "humanresources-documentregistry";
-    }
-    if (pathname.includes("/main-page/humanresources/documents/managementdocuments")) {
-      return "humanresources-managementdocuments";
-    }
-    if (pathname.includes("/main-page/humanresources/documents/operationaldocuments")) {
-      return "humanresources-operationaldocuments";
-    }
     if (pathname.includes("/main-page/administration/usersmanagment/createemployee")) {
       return "administration-createemployee";
     }
@@ -161,6 +159,25 @@ export const MainTabs: React.FC<MainTabsProps> = ({
   const handleDismissNotification = (notificationId: string) => {
     onDismissPending?.(notificationId);
   };
+
+  const handleTabClick = React.useCallback(
+    (tabPath: string) => {
+      if (tabPath.includes("/main-page/request/documents/managementdocuments")) {
+        void fetchDocuments(true);
+        return;
+      }
+
+      if (tabPath.includes("/main-page/request/documents/operationaldocuments")) {
+        if (user?.idUser) {
+          void fetchDocumentsByUser(user.idUser, true);
+          return;
+        }
+
+        void fetchDocuments(true);
+      }
+    },
+    [fetchDocuments, fetchDocumentsByUser, user?.idUser],
+  );
 
   const renderNotificationBell = (toneClass: string) => (
     <div className="relative" ref={menuRef}>
@@ -261,6 +278,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
                 <Link
                   data-testid={`tab:${tab.path}`}
                   href={tab.path}
+                  onClick={() => handleTabClick(tab.path)}
                   className={`shrink-0 whitespace-nowrap transition-colors ${isActive(tab.path)
                     ? `${isMobile ? "text-b3" : "text-s1"} text-gray-100`
                     : `${isMobile ? "text-b3" : "text-s1"} text-gray-70 hover:text-gray-80`
