@@ -5,6 +5,7 @@ import type {
   PutEmployees,
 } from "@/app/mappings/employees/employee.types";
 import type { InternalDeviceAssignmentHistory } from "@/app/mappings/internaldevices/internaldevices.types";
+import type { FetchEmployeesOptions } from "./utilities/buildEmployeesUrl";
 
 /**
  * Payload expected by the update employee endpoint.
@@ -68,7 +69,7 @@ export type EmployeesState = {
   warning?: string;
 
   /** Fetch full employees list */
-  fetchEmployees: (force?: boolean) => Promise<void>;
+  fetchEmployees: (force?: boolean, options?: FetchEmployeesOptions) => Promise<void>;
   /** Fetch only active employees */
   fetchActiveEmployees: (force?: boolean) => Promise<void>;
   /** Fetch employees by department id */
@@ -98,7 +99,7 @@ export type EmployeesState = {
   /** Reset only process flags and messages */
   resetFlags: () => void;
   resetEmployee: () => void;
-  setCurrentEmployee: (employee: EmployeeType) => void
+  setCurrentEmployee: (employee: EmployeeType) => void;
 };
 
 export type Set = (

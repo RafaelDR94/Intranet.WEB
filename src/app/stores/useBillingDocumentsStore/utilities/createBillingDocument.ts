@@ -37,12 +37,7 @@ export const createBillingDocument = async (
     const raw = res.data?.data
 
     if (responseSuccess === false || (!raw && responseErrorMessage)) {
-      set({
-        creating: false,
-        successPost: false,
-        error: responseErrorMessage || 'No se pudo crear la factura',
-      })
-      return null
+      throw new Error(responseErrorMessage || 'No se pudo crear la factura')
     }
 
     const created = raw ? (raw as BillingDocuments) : null
@@ -53,6 +48,6 @@ export const createBillingDocument = async (
     return created
   } catch (e) {
     set({ creating: false, successPost: false, error: normalizeApiError(e).message })
-    return null
+    throw e instanceof Error ? e : new Error(normalizeApiError(e).message)
   }
 }

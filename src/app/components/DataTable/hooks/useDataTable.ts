@@ -1,4 +1,4 @@
-// useDataTable.ts
+﻿// useDataTable.ts
 import { useState, useCallback } from "react";
 
 import { DataTableGroup } from "../types";
@@ -10,7 +10,7 @@ import {
   endOfWeekMonday,
   startOfMonth,
   endOfMonth,
-} from "../utilities/datesTable"; // ajusta la ruta según tu estructura
+} from "../utilities/datesTable"; // ajusta la ruta segÃºn tu estructura
 import { exportFiles } from "../utilities/exportations";
 
 import { Table, UseDataTableParams } from "./types";
@@ -68,6 +68,7 @@ const useDataTable = <T extends { id: string | number }>({
   const getFilteredData = useCallback(
     (table: Table<T>): T[] => {
       const data = table.data ?? [];
+      if (!enableInternalSearch) return data;
 
       const raw = typeof searchTerm === "string" ? searchTerm : "";
       const term = raw.trim().toLowerCase();
@@ -76,9 +77,9 @@ const useDataTable = <T extends { id: string | number }>({
         searchableKeys ?? (Object.keys(data[0] ?? {}) as (keyof T)[]);
 
       return data.filter((row) => {
-        // --- filtro de búsqueda ---
+        // --- filtro de bÃºsqueda ---
         const matchesSearch =
-          !enableInternalSearch || !term
+          !term
             ? true
             : keys.some((key) =>
               String((row as any)[key] ?? "").toLowerCase().includes(term)
@@ -98,7 +99,7 @@ const useDataTable = <T extends { id: string | number }>({
             matchesDate = ts >= from && ts <= to;
           } else {
             // Si la fila no tiene fecha, decide si la incluyes o no:
-            matchesDate = true; // cámbialo a false si quieres excluirlas
+            matchesDate = true; // cÃ¡mbialo a false si quieres excluirlas
           }
         }
 
@@ -108,7 +109,7 @@ const useDataTable = <T extends { id: string | number }>({
     [searchTerm, searchableKeys, enableInternalSearch, startDate, endDate, getRowDate]
   );
 
-  // Presets opcionales para “Hoy / Semana / Mes”
+  // Presets opcionales para â€œHoy / Semana / Mesâ€
   const setQuickRange = useCallback(
     (preset: "today" | "thisWeek" | "thisMonth") => {
       const now = new Date();
@@ -158,3 +159,4 @@ const useDataTable = <T extends { id: string | number }>({
 };
 
 export default useDataTable;
+

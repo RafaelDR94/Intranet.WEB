@@ -1,4 +1,4 @@
-export type SelectionMode = "single" | "multiple"
+Ôªøexport type SelectionMode = "single" | "multiple"
 
 export type SortDirection = "asc" | "desc" | null;
 
@@ -9,15 +9,17 @@ export interface UseTableContentProps<T extends { id: string | number }> {
   initialSelectedIds?: Array<T['id']>;
   selectionMode?: SelectionMode;
 }
-/** Props adicionales para paginaciÛn/scroll */
+/** Props adicionales para paginaci√≥n/scroll */
 export interface UseDataTableContentProps<T extends { id: string | number }> extends UseTableContentProps<T> {
   enablePagination?: boolean;
   rowsPerPage?: number;
+  paginationMode?: "client" | "server";
+  currentPage?: number;
   totalRows?: number;
   enableInternalSearch?: boolean;
   onPageChange?: (page: number) => void;
   /** alto estimado de cada fila, en px */
   rowHeight?: number;
-  /** si lo defines, este valor manda (px o cualquier CSS v·lido) */
+  /** si lo defines, este valor manda (px o cualquier CSS v√°lido) */
   scrollMaxHeight?: number | string;
 }

@@ -1,4 +1,4 @@
-// hooks/useTableContent.ts
+﻿// hooks/useTableContent.ts
 import { useEffect, useMemo, useState } from "react";
 
 import { SortDirection,UseDataTableContentProps,UseTableContentProps } from "./types";
@@ -9,7 +9,7 @@ const haveSameIds = <T extends { id: string | number }>(a: T[], b: T[]) => {
   if (ids.size !== b.length) return false;
   return b.every((item) => ids.has(String(item.id)));
 };
-/** 🔹 Hook base: selección y ordenamiento */
+/** ðŸ”¹ Hook base: selecciÃ³n y ordenamiento */
 export const useTableContent = <T extends { id: string | number }>({
   data,
   defaultSortKey,
@@ -138,7 +138,9 @@ export const useDataTableContent = <T extends { id: string | number }>(
     defaultSortKey,
     defaultSortDirection,
     enablePagination = true,
+    paginationMode = "client",
     rowsPerPage = 10,
+    currentPage,
     totalRows,
     enableInternalSearch = true,
     onPageChange,
@@ -158,28 +160,39 @@ export const useDataTableContent = <T extends { id: string | number }>(
     handleSort,
     sortedData,
   } = useTableContent<T>({ data, defaultSortKey, defaultSortDirection, initialSelectedIds, selectionMode });
-  
-  // paginación
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalItems = enableInternalSearch ? sortedData.length : (totalRows ?? sortedData.length);
+  const isServerPagination = paginationMode === "server";
+
+  // paginaciÃ³n
+  const [localCurrentPage, setLocalCurrentPage] = useState(1);
+  const resolvedCurrentPage = isServerPagination
+    ? Math.max(currentPage ?? 1, 1)
+    : localCurrentPage;
+  const totalItems =
+    isServerPagination || !enableInternalSearch
+      ? (totalRows ?? sortedData.length)
+      : sortedData.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage));
 
   useEffect(() => {
-    if (enablePagination && currentPage > totalPages) {
-      setCurrentPage(totalPages);
+    if (!enablePagination || isServerPagination) return;
+    if (localCurrentPage > totalPages) {
+      setLocalCurrentPage(totalPages);
     }
-  }, [enablePagination, totalPages, currentPage]);
+  }, [enablePagination, isServerPagination, totalPages, localCurrentPage]);
 
 
 
   const paginatedData = useMemo(() => {
     if (!enablePagination) return sortedData;
-    const start = (currentPage - 1) * rowsPerPage;
+    if (isServerPagination) return sortedData;
+    const start = (resolvedCurrentPage - 1) * rowsPerPage;
     return sortedData.slice(start, start + rowsPerPage);
-  }, [sortedData, currentPage, rowsPerPage, enablePagination]);
+  }, [sortedData, resolvedCurrentPage, rowsPerPage, enablePagination, isServerPagination]);
 
   const handlePage = (page: number) => {
-    setCurrentPage(page);
+    if (!isServerPagination) {
+      setLocalCurrentPage(page);
+    }
     onPageChange?.(page);
   };
 
@@ -194,7 +207,7 @@ export const useDataTableContent = <T extends { id: string | number }>(
       : `${rowsPerPage * rowHeight}px`;
 
   return {
-    // selección + orden
+    // selecciÃ³n + orden
     selected,
     allSelected,
     toggleSelect,
@@ -205,8 +218,8 @@ export const useDataTableContent = <T extends { id: string | number }>(
     // datos
     sortedData,
     paginatedData,
-    // paginación
-    currentPage,
+    // paginaciÃ³n
+    currentPage: resolvedCurrentPage,
     totalPages,
     handlePage,
     // layout
@@ -214,3 +227,4 @@ export const useDataTableContent = <T extends { id: string | number }>(
     computedMaxHeight,
   };
 };
+

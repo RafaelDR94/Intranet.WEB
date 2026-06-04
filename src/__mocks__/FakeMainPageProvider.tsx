@@ -1,4 +1,4 @@
-// src/__storybook__/FakeMainPageProvider.tsx
+﻿// src/__storybook__/FakeMainPageProvider.tsx
 import React, { createContext, useContext, useState } from 'react';
 
 import FileIcon from '@/assets/icons/Docs/archive.svg';
@@ -13,7 +13,7 @@ export const FakeMainPageProvider = ({ children }: { children: React.ReactNode }
 
   const tabs = [
     { label: 'Inicio', path: '/main-page/home' },
-    { label: 'Facturación', path: '/main-page/request/invoices' },
+    { label: 'Historico de facturas', path: '/main-page/accounting/documentshistory' },
   ];
 
   const sidebarRoutes = [
@@ -23,11 +23,19 @@ export const FakeMainPageProvider = ({ children }: { children: React.ReactNode }
       icon: HomeIcon,
     },
     {
-      label: 'Solicitudes',
-      path: '/main-page/request',
+      label: 'Operaciones',
+      path: '/main-page/operations',
       icon: FileIcon,
       subroutes: [
-        { label: 'Facturación', path: '/main-page/request/invoices' },
+        { label: 'Historico de facturas', path: '/main-page/operations/documentshistory' },
+      ],
+    },
+    {
+      label: 'Contabilidad',
+      path: '/main-page/accounting',
+      icon: FileIcon,
+      subroutes: [
+        { label: 'Historico de facturas', path: '/main-page/accounting/documentshistory' },
       ],
     },
   ];
@@ -48,9 +56,10 @@ export const FakeMainPageProvider = ({ children }: { children: React.ReactNode }
     handleOkMessageOffline: () => {},
     handleCancelMessageOffline: () => {},
     sidebarRoutes,
-    // 👉 cambio visual en Storybook al simular navegación
+    // ðŸ‘‰ cambio visual en Storybook al simular navegaciÃ³n
     simulatePathChange: (newPath: string) => setPathname(newPath),
   };
 
   return <MainPageContext.Provider value={contextValue}>{children}</MainPageContext.Provider>;
 };
+

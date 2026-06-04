@@ -45,9 +45,10 @@ describe('createBillingDocument util', () => {
     const get: Get = () => state as BillingDocumentsState
 
     const payload: BillingDocumentPost = { requisition_id: 'a', Document: 'doc' }
-    const res = await createBillingDocument(set, get, payload)
+    await expect(createBillingDocument(set, get, payload)).rejects.toThrow(
+      'Este documento ya se encuentra registrado',
+    )
 
-    expect(res).toBeNull()
     expect(state.successPost).toBe(false)
     expect(state.error).toBe('Este documento ya se encuentra registrado')
   })
