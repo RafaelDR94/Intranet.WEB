@@ -194,7 +194,8 @@ export const useMainPage = () => {
 
   const { user, offlineMode, handleOfflineMode, logout, validPermissionsbyroute } = useAuth();
   const { firebaseMessaging, firebaserealtime } = useFirebase();
-  const canViewManagementDocuments = user?.isGerence === true;
+  const canViewManagementDocuments =
+    user?.isGerence === true || user?.rolName?.trim().toLowerCase() === 'admin';
 
   const tabs = useMemo(
     () => filterManagementDocumentsTabs(
