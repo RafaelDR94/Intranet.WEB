@@ -34,7 +34,8 @@ export const useManagementDocuments = () => {
   const pathname = usePathname()
   const router = useRouter()
   const isManagementDocumentsRoute = pathname?.includes('/documents/managementdocuments')
-  const canViewManagementDocuments = user?.isGerence === true
+  const canViewManagementDocuments =
+    user?.isGerence === true || user?.rolName?.trim().toLowerCase() === 'admin'
 
   useEffect(() => {
     if (!isManagementDocumentsRoute || canViewManagementDocuments) return
