@@ -7,7 +7,7 @@ const fetchMock = vi.fn((): Promise<void> => Promise.resolve())
 const deleteMock = vi.fn()
 const replaceMock = vi.fn()
 let pathnameMock = '/main-page/request/documents/managementdocuments'
-let authUserMock: { isGerence?: boolean } | null = { isGerence: true }
+let authUserMock: { isGerence?: boolean; rolName?: string } | null = { isGerence: true }
 
 const managementDocuments: ManagementDocument[] = [
   {
@@ -129,7 +129,7 @@ describe('useManagementDocuments hook', () => {
   })
 
   it('redirects and skips fetching when user is not gerence', async () => {
-    authUserMock = { isGerence: false }
+    authUserMock = { isGerence: false, rolName: 'User' }
 
     renderHook(() => useManagementDocuments())
 
@@ -139,5 +139,18 @@ describe('useManagementDocuments hook', () => {
       )
     })
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('fetches management documents when user is Admin even if not gerence', async () => {
+    authUserMock = { isGerence: false, rolName: 'Admin' }
+
+    const { result } = renderHook(() => useManagementDocuments())
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(true)
+    })
+
+    expect(replaceMock).not.toHaveBeenCalled()
+    expect(result.current.rows).toHaveLength(1)
   })
 })

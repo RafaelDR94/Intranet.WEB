@@ -15,7 +15,7 @@ const logout = vi.fn();
 const validPermissionsbyroute = vi.fn();
 
 let firebaseState: { firebaseMessaging: any; permissionsChanged: boolean };
-let authUser: { fullName: string; isGerence?: boolean };
+let authUser: { fullName: string; isGerence?: boolean; rolName?: string };
 let tabsMock: { label: string; path: string }[];
 
 vi.mock('@/app//context/PrincipalContext/PrincipalContext', () => ({
@@ -83,7 +83,7 @@ describe('useMainPage', () => {
   });
 
   it('oculta el tab de documentos gerenciales cuando el usuario no es gerencia', () => {
-    authUser = { fullName: 'John Doe', isGerence: false };
+    authUser = { fullName: 'John Doe', isGerence: false, rolName: 'User' };
     tabsMock = [
       {
         label: 'Documentos Gerenciales',
@@ -103,6 +103,24 @@ describe('useMainPage', () => {
         path: '/main-page/request/documents/operationaldocuments',
       },
     ]);
+  });
+
+  it('muestra el tab de documentos gerenciales cuando el usuario es Admin aunque no sea gerencia', () => {
+    authUser = { fullName: 'John Doe', isGerence: false, rolName: 'Admin' };
+    tabsMock = [
+      {
+        label: 'Documentos Gerenciales',
+        path: '/main-page/request/documents/managementdocuments',
+      },
+      {
+        label: 'Documentos Operativos',
+        path: '/main-page/request/documents/operationaldocuments',
+      },
+    ];
+
+    const { result } = renderHook(() => useMainPage());
+
+    expect(result.current.tabs).toEqual(tabsMock);
   });
 
 
