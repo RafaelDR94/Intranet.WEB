@@ -379,12 +379,11 @@ const useInvoicesForm = ({
           numpersons: formValues.numpersons,
         };
         const created = await createBillingDocument(payload);
-        const createError = useBillingDocumentsStore.getState().error;
         resetFlags();
         if (!created) {
           return {
             ok: false,
-            error: createError ?? "No se pudo enviar la factura.",
+            error: "No se pudo enviar la factura.",
           };
         }
       }
@@ -396,7 +395,7 @@ const useInvoicesForm = ({
       return {
         ok: false,
         error:
-          String(err) ||
+          (err instanceof Error ? err.message : String(err)) ||
           "Ocurrió un error al subir los archivos. Intenta de nuevo.",
       };
     }

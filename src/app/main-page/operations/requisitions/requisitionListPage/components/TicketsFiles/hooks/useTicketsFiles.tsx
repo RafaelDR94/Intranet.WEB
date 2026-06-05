@@ -38,6 +38,9 @@ const DEFAULT_VALIDATION_VALUES: ValidationFormValues = {
   total: 0,
 };
 
+const hasPositiveTotal = (total: number): boolean =>
+  Number.isFinite(total) && total > 0;
+
 const normalizeImages = (
   images: BillingImages["images"] | { image?: string }[],
 ): string[] => {
@@ -433,10 +436,13 @@ const useTicketsFiles = () => {
         className: "max-w-[220px]",
       },
       {
-        type: "input",
+        type: "number",
         name: "total",
         label: "Total",
-        value: String(DEFAULT_VALIDATION_VALUES.total),
+        value: DEFAULT_VALIDATION_VALUES.total,
+        min: 0.01,
+        step: 0.01,
+        validations: [{ type: "required" }, { type: "min", value: 0.01 }],
         className: "max-w-[220px]",
       },
     ],
@@ -566,15 +572,29 @@ const useTicketsFiles = () => {
       return;
     }
     if (!validationValues.requisition_id) return;
+    if (!hasPositiveTotal(validationValues.total)) return;
     setOpenValidateTicket(true);
   }, [
     detailRow,
     markAsNotDeductible,
+    validationValues.total,
     validationValues.requisition_id,
   ]);
 
   const handleConfirmValidate = useCallback(() => {
     if (!detailRow || !validationValues.requisition_id) return;
+    if (!hasPositiveTotal(validationValues.total)) {
+      showAlert({
+        type: "warning",
+        title: "Total requerido",
+        description:
+          "Para marcar un ticket como no deducible, el total debe ser mayor a cero.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2000,
+      });
+      return;
+    }
 
     setOpenValidateTicket(false);
     setLastValidatedTicketId(detailRow.id);
@@ -584,19 +604,21 @@ const useTicketsFiles = () => {
       numpersons: Number(validationValues.numpersons ?? 0),
       total: Number(validationValues.total ?? 0),
     });
-  }, [billingDocumentNotDeductible, detailRow, validationValues]);
+  }, [billingDocumentNotDeductible, detailRow, showAlert, validationValues]);
 
   const isValidateLocked = useMemo(() => {
     if (!detailRow) return true;
     if (!isPendingStatus(detailRow.status)) return true;
     if (!markAsNotDeductible) return true;
     if (notDeducting) return true;
-    return !validationValues.requisition_id;
+    if (!validationValues.requisition_id) return true;
+    return !hasPositiveTotal(validationValues.total);
   }, [
     detailRow,
     markAsNotDeductible,
     notDeducting,
     validationValues.requisition_id,
+    validationValues.total,
   ]);
 
   const isToggleLocked = useMemo(

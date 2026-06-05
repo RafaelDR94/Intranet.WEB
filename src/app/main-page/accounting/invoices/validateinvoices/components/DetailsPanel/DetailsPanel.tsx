@@ -69,8 +69,10 @@ const findMatchingSapOption = (
 };
 
 const amountPattern = /^\d+(\.\d+)?$/;
+const MAX_SAP_DESCRIPTION_LENGTH = 120;
 
 const toAmountInputValue = (value: string) => value.trim();
+const toDescriptionInputValue = (value: string) => value;
 
 const parseAmountInput = (value: string): string | null => {
   const trimmedValue = value.trim();
@@ -93,6 +95,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   reqisition,
   onSendToSap,
   allowSendToSapAction,
+  bypassSendToSapValidation = false,
   documentLabel = "Factura",
   onJsonSapUpdated,
 }) => {
@@ -200,9 +203,20 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   const [sapSelectionByRow, setSapSelectionByRow] = useState<Record<string, string>>({});
   const [amountInputsByRow, setAmountInputsByRow] = useState<Record<string, string>>({});
   const [persistedAmountsByRow, setPersistedAmountsByRow] = useState<Record<string, string>>({});
+  const [descriptionInputsByRow, setDescriptionInputsByRow] = useState<Record<string, string>>(
+    {},
+  );
+  const [persistedDescriptionsByRow, setPersistedDescriptionsByRow] = useState<
+    Record<string, string>
+  >({});
 
   const getAmountInputValue = (row: SatDetailItemRow) =>
     amountInputsByRow[row.id] ?? toAmountInputValue(row.amount);
+  const getDescriptionInputValue = (row: SatDetailItemRow) =>
+    descriptionInputsByRow[row.id] ?? toDescriptionInputValue(row.description);
+  const shouldAllowDescriptionEdit = (row: SatDetailItemRow) =>
+    (persistedDescriptionsByRow[row.id] ?? row.description).length >
+    MAX_SAP_DESCRIPTION_LENGTH;
 
   const hasMissingSapInternalKey = useMemo(
     () =>
@@ -228,7 +242,17 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     [amountInputsByRow, satDetailRows],
   );
 
-  const isSendToSapDisabled = hasMissingSapInternalKey || hasInvalidAmount;
+  const hasDescriptionOverflow = useMemo(
+    () =>
+      satDetailRows.some(
+        (row) => getDescriptionInputValue(row).length > MAX_SAP_DESCRIPTION_LENGTH,
+      ),
+    [descriptionInputsByRow, satDetailRows],
+  );
+
+  const isSendToSapDisabled =
+    !bypassSendToSapValidation &&
+    (hasMissingSapInternalKey || hasInvalidAmount || hasDescriptionOverflow);
 
   useEffect(() => {
     const nextSelections: Record<string, string> = {};
@@ -253,6 +277,22 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       nextAmounts[row.id] = toAmountInputValue(row.amount);
     });
     setPersistedAmountsByRow(nextAmounts);
+  }, [satDetailRows]);
+
+  useEffect(() => {
+    const nextDescriptions: Record<string, string> = {};
+    satDetailRows.forEach((row) => {
+      nextDescriptions[row.id] = toDescriptionInputValue(row.description);
+    });
+    setDescriptionInputsByRow(nextDescriptions);
+  }, [satDetailRows]);
+
+  useEffect(() => {
+    const nextDescriptions: Record<string, string> = {};
+    satDetailRows.forEach((row) => {
+      nextDescriptions[row.id] = toDescriptionInputValue(row.description);
+    });
+    setPersistedDescriptionsByRow(nextDescriptions);
   }, [satDetailRows]);
 
   const commitAmountChange = async (row: SatDetailItemRow) => {
@@ -290,6 +330,34 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
     setAmountInputsByRow((prev) => ({
       ...prev,
       [row.id]: lastSavedAmount,
+    }));
+    return false;
+  };
+
+  const commitDescriptionChange = async (row: SatDetailItemRow) => {
+    const nextDescriptionValue = getDescriptionInputValue(row);
+    const lastSavedDescription =
+      persistedDescriptionsByRow[row.id] ?? toDescriptionInputValue(row.description);
+
+    if (nextDescriptionValue === lastSavedDescription) {
+      return true;
+    }
+
+    const ok = await handleUpdateJsonSapItem(row.jsonSapArrayIndex, {
+      descripcion: nextDescriptionValue,
+    });
+
+    if (ok) {
+      setPersistedDescriptionsByRow((prev) => ({
+        ...prev,
+        [row.id]: nextDescriptionValue,
+      }));
+      return true;
+    }
+
+    setDescriptionInputsByRow((prev) => ({
+      ...prev,
+      [row.id]: lastSavedDescription,
     }));
     return false;
   };
@@ -447,15 +515,45 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                   {satDetailRows.map((row) => {
                     const amountValue = getAmountInputValue(row);
                     const amountIsValid = parseAmountInput(amountValue) != null;
+                    const descriptionValue = getDescriptionInputValue(row);
+                    const descriptionLength = descriptionValue.length;
+                    const descriptionIsValid =
+                      descriptionLength <= MAX_SAP_DESCRIPTION_LENGTH;
+                    const descriptionHelperText = descriptionIsValid
+                      ? shouldAllowDescriptionEdit(row)
+                        ? `${descriptionLength}/${MAX_SAP_DESCRIPTION_LENGTH} caracteres`
+                        : undefined
+                      : `La descripcion no puede exceder ${MAX_SAP_DESCRIPTION_LENGTH} caracteres. Actual: ${descriptionLength}.`;
 
                     return (
                       <div key={row.id} className={satClasses.satItemBlock}>
                         <div className={satClasses.satItemContent}>
                           <div className={satClasses.satLine}>
                             <div className={satClasses.satLineLabel}>DESCRIPCION:</div>
-                            <div className={satClasses.satDescriptionValue}>
-                              {row.description || "-"}
-                            </div>
+                            {shouldAllowDescriptionEdit(row) ? (
+                              <Input
+                                as="textarea"
+                                rows={3}
+                                value={descriptionValue}
+                                variant={descriptionIsValid ? "default" : "error"}
+                                helperText={descriptionHelperText}
+                                containerClassName={satClasses.satDescriptionEditorContainer}
+                                className={satClasses.satDescriptionEditor}
+                                onChange={(event) =>
+                                  setDescriptionInputsByRow((prev) => ({
+                                    ...prev,
+                                    [row.id]: event.target.value,
+                                  }))
+                                }
+                                onBlur={async () => {
+                                  await commitDescriptionChange(row);
+                                }}
+                              />
+                            ) : (
+                              <div className={satClasses.satDescriptionValue}>
+                                {row.description || "-"}
+                              </div>
+                            )}
                           </div>
 
                           <div className={satClasses.satLine}>

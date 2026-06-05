@@ -12,7 +12,7 @@ Store global basado en Zustand para gestionar el catalogo de empleados (listado,
 - `employee?: EmployeeType`
 - Flags: `loading`, `loadingById`, `loadingActive`, `loadingByDepartment`, `creating`, `updating`, `deleting`, `activating`
 - Exito: `successGet`, `successGetById`, `successGetActive`, `successGetByDepartment`, `successPost`, `successPut`, `successDelete`, `successActivate`
-- `fetchEmployees(force?: boolean)`
+- `fetchEmployees(force?: boolean, options?: { isActive?: boolean })`
 - `fetchActiveEmployees(force?: boolean)`
 - `fetchEmployeesByDepartment(departmentId: string, force?: boolean)`
 - `fetchEmployeeById(id: string, force?: boolean)`

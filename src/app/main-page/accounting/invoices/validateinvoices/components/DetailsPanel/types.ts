@@ -26,6 +26,7 @@ export interface DetailsPanelProps {
   reqisition?:string
   onSendToSap?: any
   allowSendToSapAction?: boolean
+  bypassSendToSapValidation?: boolean
   /** Data-tour para botón cerrar */
   closeButtonDataTour?: string
   /** Texto visible para el tipo de documento. */

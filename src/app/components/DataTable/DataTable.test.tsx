@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+﻿import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect , vi } from 'vitest';
 
@@ -49,11 +49,28 @@ describe('DataTable', () => {
     expect(screen.getByText('Bob')).toBeInTheDocument();
   });
 
-  it('filtra las filas mediante la búsqueda interna', () => {
+  it('filtra las filas mediante la bÃºsqueda interna', () => {
     setup();
     const input = screen.getByPlaceholderText('Buscar');
     fireEvent.change(input, { target: { value: 'Alice' } });
     expect(screen.getByText('Alice')).toBeInTheDocument();
     expect(screen.queryByText('Bob')).toBeNull();
   });
+
+  it('no aplica filtrado local cuando la bÃºsqueda es externa', () => {
+    const onSearchChange = vi.fn();
+
+    setup({
+      enableInternalSearch: false,
+      onSearchChange,
+    });
+
+    const input = screen.getByPlaceholderText('Buscar');
+    fireEvent.change(input, { target: { value: 'Alice' } });
+
+    expect(onSearchChange).toHaveBeenCalledWith('Alice', null, null);
+    expect(screen.getByText('Alice')).toBeInTheDocument();
+    expect(screen.getByText('Bob')).toBeInTheDocument();
+  });
 });
+

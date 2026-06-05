@@ -31,7 +31,15 @@ export const createBillingDocument = async (
   try {
     const post = pPost(requireGateway('post'), [200, 201])
     const res: AxiosResponse = await post(BillingDocumentUrl, BillingDocumentsPostMap(payload))
+    const responseData = res.data ?? {}
+    const responseSuccess = responseData?.success
+    const responseErrorMessage = responseData?.error_Message ?? responseData?.message
     const raw = res.data?.data
+
+    if (responseSuccess === false || (!raw && responseErrorMessage)) {
+      throw new Error(responseErrorMessage || 'No se pudo crear la factura')
+    }
+
     const created = raw ? (raw as BillingDocuments) : null
 
     await fetchBillingDocuments(set, get, true)
@@ -40,6 +48,6 @@ export const createBillingDocument = async (
     return created
   } catch (e) {
     set({ creating: false, successPost: false, error: normalizeApiError(e).message })
-    return null
+    throw e instanceof Error ? e : new Error(normalizeApiError(e).message)
   }
 }
