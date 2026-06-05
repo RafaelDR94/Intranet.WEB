@@ -146,6 +146,7 @@ describe("report.mapper", () => {
 
     expect(postPayload.idSpareParts).toEqual(["SP-1", "SP-2"]);
     expect(putPayload.idSpareParts).toEqual(["SP-1", "SP-2"]);
+    expect(putPayload.IdSpareParts).toEqual(["SP-1", "SP-2"]);
     expect(postPayload.Refactions).toBe(JSON.stringify(view.refactions));
     expect(putPayload.Refactions).toBe(JSON.stringify(view.refactions));
   });

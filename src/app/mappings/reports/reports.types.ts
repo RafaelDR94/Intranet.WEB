@@ -151,6 +151,7 @@ export type ReportPut = {
   "Diagnostic": string,
   "Solution": string,
   "idSpareParts": string[],
+  "IdSpareParts": string[],
   "Refactions": string,
   "Clientsign": string,
   "front_identifier": string,
