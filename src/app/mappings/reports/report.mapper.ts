@@ -88,6 +88,9 @@ const normalizeStringArray = (value: any): string[] => {
   return parsed.map((item) => String(item ?? '')).filter(Boolean)
 }
 
+const getReportSparePartIds = (view: Pick<ReportView, "idSpareParts">): string[] =>
+  normalizeStringArray(view.idSpareParts)
+
 const resolveMappedReportTypeId = (src: any, reportCategory?: CategoriesType): string => {
   const directType =
     src?.idtype ??
@@ -179,6 +182,7 @@ export const ReportMap = (raw: any): ReportView => {
 }
 export const mapReportViewToPost = (view: ReportView): ReportPost => {
   const reportTypeId = resolveViewReportTypeId(view);
+  const idSpareParts = getReportSparePartIds(view);
   return {
     model: JSON.stringify(view.model ?? []) || "",                          // asumiendo que Model tiene un campo id
     startdate: view.startdate,
@@ -198,7 +202,7 @@ export const mapReportViewToPost = (view: ReportView): ReportPost => {
     Maps: JSON.stringify(view.maps ?? []),
     Diagnostic: view.diagnostic,
     Solution: view.solution,
-    idSpareParts: view.idSpareParts ?? [],
+    idSpareParts,
     Refactions: JSON.stringify(view.refactions ?? []),
     Clientsign: JSON.stringify(view.clientsign ?? {}),    // si es objeto lo serializamos
     front_identifier: view.front_identifier,
@@ -275,6 +279,7 @@ export const ProjectReportsTableMap = (reports: ProjectReportSummary[]): Reports
 
 export const mapReportViewToPut = (view: ReportView): ReportPut => {
   const reportTypeId = resolveViewReportTypeId(view);
+  const idSpareParts = getReportSparePartIds(view);
   return {
     id: view.id,
     model: JSON.stringify(view.model ?? []) || "",                          // asumiendo que Model tiene un campo id
@@ -295,7 +300,8 @@ export const mapReportViewToPut = (view: ReportView): ReportPut => {
     Maps: JSON.stringify(view.maps ?? []),
     Diagnostic: view.diagnostic,
     Solution: view.solution,
-    idSpareParts: view.idSpareParts ?? [],
+    idSpareParts,
+    IdSpareParts: idSpareParts,
     Refactions: JSON.stringify(view.refactions ?? []),
     Clientsign: JSON.stringify(view.clientsign ?? {}),    // si es objeto lo serializamos
     front_identifier: view.front_identifier,
