@@ -1,4 +1,4 @@
-// utils/navVisibility.ts
+﻿// utils/navVisibility.ts
 import { expect, Page } from '@playwright/test';
 
 export type SidebarRouteCore = {
@@ -12,15 +12,24 @@ export const sidebarRoutesCore: SidebarRouteCore[] = [
   {
     label: 'Solicitudes',
     path: '/main-page/request',
-    subroutes: [{ label: 'Facturación', path: '/main-page/request/invoices' }],
+    subroutes: [{ label: 'FacturaciÃ³n', path: '/main-page/request/invoices' }],
   },
   {
     label: 'Contabilidad',
     path: '/main-page/accounting',
     subroutes: [
-      { label: 'Facturación', path: '/main-page/accounting/invoices' },
-      { label: 'Facturación personal', path: '/main-page/accounting/personalInvoices' },
+      { label: 'FacturaciÃ³n', path: '/main-page/accounting/invoices' },
+      { label: 'FacturaciÃ³n personal', path: '/main-page/accounting/personalInvoices' },
       { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
+      { label: 'Historico de facturas', path: '/main-page/accounting/documentshistory' },
+    ],
+  },
+  {
+    label: 'Operaciones',
+    path: '/main-page/operations',
+    subroutes: [
+      { label: 'Requisiciones', path: '/main-page/operations/requisitions' },
+      { label: 'Historico de facturas', path: '/main-page/operations/documentshistory' },
     ],
   },
 ];
@@ -79,12 +88,12 @@ export function getTabsFromPathLikeYourApp(
   const tabsMap: TabsMap = {
     home: [
       { label: 'Comunicados', path: '/main-page/home/announcements' },
-      { label: 'Información Importante', path: '/main-page/home/important-information' },
+      { label: 'InformaciÃ³n Importante', path: '/main-page/home/important-information' },
     ],
-    request: [{ label: 'Facturación', path: '/main-page/request/invoices' }],
+    request: [{ label: 'FacturaciÃ³n', path: '/main-page/request/invoices' }],
     'accounting/invoices': [
       { label: 'Subir Archivos', path: '/main-page/accounting/invoices/addFiles' },
-      { label: 'Validación de Facturas', path: '/main-page/accounting/invoices/validateinvoices' },
+      { label: 'ValidaciÃ³n de Facturas', path: '/main-page/accounting/invoices/validateinvoices' },
       { label: 'SAT', path: '/main-page/accounting/invoices/sat' },
     ],
     'accounting/personalInvoices': [
@@ -94,6 +103,12 @@ export function getTabsFromPathLikeYourApp(
     'accounting/requisitions': [
       { label: 'Requisiciones', path: '/main-page/accounting/requisitions/requisitions' },
       { label: 'Listado de Requisiciones', path: '/main-page/accounting/requisitions/requisitionsList' },
+    ],
+    'accounting/documentshistory': [
+      { label: 'Historico de facturas', path: '/main-page/accounting/documentshistory' },
+    ],
+    'operations/documentshistory': [
+      { label: 'Historico de facturas', path: '/main-page/operations/documentshistory' },
     ],
   };
 
@@ -108,14 +123,14 @@ export function getTabsFromPathLikeYourApp(
   if (first === 'accounting' && second === 'requisitions' && third === 'requisitionsList' && id) {
     const clean = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
     const detailPath = `${clean}?id=${id}`;
-    if (!tabs.some(t => t.label === 'Detalle de Requisición')) {
-      tabs = [...tabs, { label: 'Detalle de Requisición', path: detailPath }];
+    if (!tabs.some(t => t.label === 'Detalle de RequisiciÃ³n')) {
+      tabs = [...tabs, { label: 'Detalle de RequisiciÃ³n', path: detailPath }];
     }
   }
   return tabs;
 }
 
-/** Abre el menú lateral móvil si aplica */
+/** Abre el menÃº lateral mÃ³vil si aplica */
 async function ensureSidebarOpenIfMobile(page: Page) {
   if (await isMobileViewport(page)) {
     const openBtn = page.getByTestId('open-mobile-menu');
@@ -127,15 +142,15 @@ async function ensureSidebarOpenIfMobile(page: Page) {
   }
 }
 
-/** Valida tabs visibles/ocultas según permisos */
+/** Valida tabs visibles/ocultas segÃºn permisos */
 export async function expectTabsByPermissions(page: Page, permissions: any) {
   const url = new URL(page.url());
   const tabs = getTabsFromPathLikeYourApp(url.pathname, url.search);
   const allowed = tabs.filter(t => hasAccess(normalizeRoute(t.path), permissions));
 
-  // Si no hay tabs permitidas, el contenedor podría no existir
+  // Si no hay tabs permitidas, el contenedor podrÃ­a no existir
   if (allowed.length === 0) {
-    await expect(page.getByTestId('main-tabs')).toBeVisible(); // tu topbar móvil lo muestra igual
+    await expect(page.getByTestId('main-tabs')).toBeVisible(); // tu topbar mÃ³vil lo muestra igual
     return;
   }
 
@@ -145,7 +160,7 @@ export async function expectTabsByPermissions(page: Page, permissions: any) {
   }
 }
 
-/** Valida sidebar (top-level y subrutas) según permisos */
+/** Valida sidebar (top-level y subrutas) segÃºn permisos */
 export async function expectSidebarByPermissions(
   page: Page,
   permissions: any,
@@ -153,7 +168,7 @@ export async function expectSidebarByPermissions(
 ) {
   await ensureSidebarOpenIfMobile(page);
 
-  // Top-level visible si él mismo es accesible o alguna subruta lo es
+  // Top-level visible si Ã©l mismo es accesible o alguna subruta lo es
   const visibleTop = sidebarRoutesCore.filter(r => {
     if (!r.subroutes) return hasAccess(normalizeRoute(r.path), permissions);
     return r.subroutes.some(s => hasAccess(normalizeRoute(s.path), permissions));
@@ -169,7 +184,7 @@ export async function expectSidebarByPermissions(
     if (r.subroutes?.length) {
       const host = page.locator(mobile ? `[data-testid="mobile:${r.path}"]` : `[data-testid="side:${r.path}"]`);
       if (await host.isVisible()) {
-        // El botón para expandir está dentro de ese contenedor
+        // El botÃ³n para expandir estÃ¡ dentro de ese contenedor
         await host.locator('button').first().click();
         for (const s of r.subroutes) {
           const can = hasAccess(normalizeRoute(s.path), permissions);
@@ -184,3 +199,4 @@ export async function expectSidebarByPermissions(
     }
   }
 }
+

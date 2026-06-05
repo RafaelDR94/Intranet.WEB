@@ -1,14 +1,12 @@
 // src/app/stores/useEmployeesStore/utilities/fetchActiveEmployees.ts
 import type { Set, Get } from "../types";
 
-import { Employees } from "@/app/configurations/Axios/urls";
 import { mapEmployees } from "@/app/mappings/employees/employee.mapper";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pGet } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
-
-const ACTIVE_ENDPOINT = `${Employees}?IsActive=true`;
+import { buildEmployeesUrl } from "./buildEmployeesUrl";
 
 /**
  * Fetch only active employees and cache them locally.
@@ -31,7 +29,7 @@ export const fetchActiveEmployees = async (
 
   try {
     const getFn = requireGateway("get");
-    const res = await pGet(getFn)(ACTIVE_ENDPOINT);
+    const res = await pGet(getFn)(buildEmployeesUrl({ isActive: true }));
     const mapped: EmployeeType[] = mapEmployees(res.data?.data ?? res.data ?? []);
     set({
       activeEmployees: mapped,

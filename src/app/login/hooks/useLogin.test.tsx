@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { LoginMfaRequiredError } from "@/app/context/AuthContext/utilities/AuthService";
 import useLogin from "./useLogin";
 
 const pushMock = vi.fn();
@@ -305,6 +306,43 @@ describe("useLogin hook", () => {
 
     await waitFor(() => {
       expect(result.current.failMessage).toBe("Credenciales inválidas");
+    });
+  });
+  it("muestra el error del backend cuando falla el envÃ­o del cÃ³digo MFA", async () => {
+    mockFetchAuthenticationMethods.mockResolvedValueOnce([]);
+    mockLogin.mockRejectedValueOnce(
+      new LoginMfaRequiredError({
+        userName: "user@drsecurity.net",
+        defaultMethod: "Email",
+        availableMethods: [{ type: "Email", value: "us***@drsecurity.net" }],
+      }),
+    );
+    mockRecoverPassword.mockRejectedValueOnce({
+      response: {
+        data: {
+          error_Message: "No fue posible enviar el código MFA por correo.",
+        },
+      },
+    });
+
+    const { result } = renderHook(() => useLogin());
+
+    act(() => {
+      result.current.handleEnteredEmailChange("user@drsecurity.net");
+    });
+
+    await act(async () => {
+      await result.current.handleEmailStepSubmit();
+    });
+
+    await act(async () => {
+      await result.current.handleLogin({ password: "bad" });
+    });
+
+    await waitFor(() => {
+      expect(result.current.failMessage).toBe(
+        "No fue posible enviar el código MFA por correo.",
+      );
     });
   });
 });

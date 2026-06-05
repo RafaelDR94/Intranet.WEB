@@ -14,7 +14,7 @@ import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingComp
 
 type UpdateAction = "comment" | "json_sap" | null;
 type JsonSapItemPatch = Partial<
-  Pick<BillingDocumentJsonSapItem, "claveInterna" | "importe">
+  Pick<BillingDocumentJsonSapItem, "claveInterna" | "descripcion" | "importe">
 >;
 
 export const useDetailsPanel = ({

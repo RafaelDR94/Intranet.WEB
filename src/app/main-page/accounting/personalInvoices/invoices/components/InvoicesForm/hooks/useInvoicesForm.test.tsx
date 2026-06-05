@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const uploadFile = vi.fn().mockResolvedValue('url');
 const showAlert = vi.fn();
@@ -53,7 +53,14 @@ vi.mock('@/app/stores/useBillingHistoryStore/useBillingHistoryStore', () => ({
 import useInvoicesForm from './useInvoicesForm';
 
 describe('useInvoicesForm', () => {
+  beforeEach(() => {
+    createBillingDocument.mockReset();
+    showAlert.mockReset();
+    uploadFile.mockResolvedValue('url');
+  });
+
   it('calls createBillingDocument on submit', async () => {
+    createBillingDocument.mockResolvedValue({ billing_document_id: '1' });
     const { result } = renderHook(() => useInvoicesForm({}));
     await act(async () => {
       await result.current.handleSubmit({
@@ -88,5 +95,32 @@ describe('useInvoicesForm', () => {
 
     expect(createBillingDocument).not.toHaveBeenCalled();
     expect(showAlert).toHaveBeenCalled();
+  });
+
+  it('muestra el mensaje real del backend cuando createBillingDocument falla', async () => {
+    createBillingDocument.mockRejectedValue(
+      new Error('Este documento ya se encuentra registrado en la requisiciÃ³n1233'),
+    );
+
+    const { result } = renderHook(() => useInvoicesForm({}));
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        requisition: '1',
+        description: 1,
+        category: 1,
+        numnights: 1,
+        numpersons: 1,
+        xml: new File(["<cfdi:Comprobante/>"], "a.xml", { type: "text/xml" }),
+        pdf: new File(["%PDF-1.4"], "a.pdf", { type: "application/pdf" }),
+      });
+    });
+
+    expect(showAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'No se pudo enviar',
+        description: 'Este documento ya se encuentra registrado en la requisiciÃ³n1233',
+      }),
+    );
   });
 });

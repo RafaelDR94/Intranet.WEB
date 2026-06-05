@@ -203,6 +203,7 @@ const NonDeductiblesPage = () => {
         rejectInvoice
         sendInvoiceToSap
         allowSendToSapAction
+        bypassSendToSapValidation
         documentLabel="Archivo"
         onSendToSap={handleSendSelectedNonDeductibleToSap}
       />

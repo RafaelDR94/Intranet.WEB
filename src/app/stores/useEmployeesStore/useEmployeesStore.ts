@@ -92,7 +92,8 @@ export const useEmployeesStore = createWithEqualityFn<EmployeesState>()(
     ...initialCollections,
     ...initialFlags,
 
-    fetchEmployees: (force = false) => fetchEmployeesRequest(set, get, force),
+    fetchEmployees: (force = false, options) =>
+      fetchEmployeesRequest(set, get, force, options),
     fetchActiveEmployees: (force = false) =>
       fetchActiveEmployeesRequest(set, get, force),
     fetchEmployeesByDepartment: (departmentId: string, force = false) =>

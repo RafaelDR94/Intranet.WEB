@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+﻿import React, { useEffect, useRef } from "react";
 
 import { useIsMobile } from "../DataTableLayout/hooks/useMediaQuery";
 
@@ -11,7 +11,7 @@ import { DataTableContentProps } from "./types";
 
 import Pagination from "@/app/components/Pagination/Pagination";
 
-// Opcional: pequeño contenedor para las acciones en mobile, por estilo
+// Opcional: pequeÃ±o contenedor para las acciones en mobile, por estilo
 const MobileActionsBar: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="mt-4 flex w-full items-center justify-between gap-3">
     {children}
@@ -21,7 +21,7 @@ const MobileActionsBar: React.FC<{ children: React.ReactNode }> = ({ children })
 type ExtraProps = {
   rowHeight?: number;
   scrollMaxHeight?: number | string;
-  /** Nuevo: tamaños de texto para el body */
+  /** Nuevo: tamaÃ±os de texto para el body */
   textSize?: TextSize;
 };
 
@@ -37,7 +37,9 @@ const DataTableContent = <T extends { id: string | number }>(
     defaultSortKey,
     defaultSortDirection,
     enablePagination = true,
+    paginationMode = "client",
     rowsPerPage = 10,
+    currentPage,
     totalRows,
     enableInternalSearch = true,
     onPageChange,
@@ -60,7 +62,7 @@ const DataTableContent = <T extends { id: string | number }>(
     sortDirection,
     handleSort,
     paginatedData,
-    currentPage,
+    currentPage: resolvedCurrentPage,
     totalPages,
     handlePage,
     showScroll,
@@ -71,7 +73,9 @@ const DataTableContent = <T extends { id: string | number }>(
     defaultSortDirection,
     initialSelectedIds,
     enablePagination,
+    paginationMode,
     rowsPerPage,
+    currentPage,
     totalRows,
     enableInternalSearch,
     onPageChange,
@@ -119,7 +123,7 @@ const DataTableContent = <T extends { id: string | number }>(
 
       {isMobile && (
         <MobileActionsBar>
-          {/* `actionsRender` tiene prioridad sobre el botón, igual que en Layout */}
+          {/* `actionsRender` tiene prioridad sobre el botÃ³n, igual que en Layout */}
           {actionsRender?.()}
         </MobileActionsBar>
       )}
@@ -127,7 +131,7 @@ const DataTableContent = <T extends { id: string | number }>(
       {enablePagination && totalPages > 0 && (
         <div className="mt-4 flex justify-center">
           <Pagination
-            currentPage={currentPage}
+            currentPage={resolvedCurrentPage}
             totalPages={totalPages}
             onPageChange={handlePage}
           />
@@ -138,3 +142,4 @@ const DataTableContent = <T extends { id: string | number }>(
 };
 
 export default DataTableContent;
+
