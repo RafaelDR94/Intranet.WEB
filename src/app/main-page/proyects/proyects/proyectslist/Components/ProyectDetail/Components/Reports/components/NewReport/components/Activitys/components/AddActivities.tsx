@@ -39,7 +39,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
     : ''
 
   const viewerVisible = viewerItems.length > 0 && !hasSelection
-  const uploaderWrapperClasses = 'mx-auto min-h-[222px] lg:w-[300px] flex items-center justify-center rounded-xl border border-slate-200 bg-white p-4'
+  const uploaderWrapperClasses = 'mx-auto min-h-[222px] lg:w-[300px] flex items-center justify-center rounded-xl border border-slate-200 bg-white-100 p-4'
 
   return (
     <section className='flex flex-col gap-6'>
@@ -101,7 +101,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
           {/* Fila superior: Imagen + Uploader */}
           <div className='flex flex-col justify-between gap-10 lg:flex-row lg:items-start'>
             {/* Imagen actual */}
-            <div className='w-[281px] h-[281px] rounded-lg overflow-hidden border border-slate-200 bg-white p-2'>
+            <div className='w-[281px] h-[281px] rounded-lg overflow-hidden border border-slate-200 bg-white-100 p-2'>
 
               {imagePreview && (
                 <>
@@ -136,7 +136,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
 
               </div>
             ) : (
-              <div className='min-h-[222px] lg:w-[300px] rounded-xl border border-slate-200 bg-white p-4'>
+              <div className='min-h-[222px] lg:w-[300px] rounded-xl border border-slate-200 bg-white-100 p-4'>
                 <ImageUploaderExpanded
                   key={`change-activity-uploader-${uploaderVersion}`}
                   placeholder='arrastra/selecciona la imagen que deseas subir'
@@ -151,7 +151,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
           </div>
 
           {/* Fila inferior: Formulario */}
-          <div className='w-full max-w-4xl rounded-xl border border-slate-200 bg-white p-4'>
+          <div className='w-full max-w-4xl rounded-xl border border-slate-200 bg-white-100 p-4'>
             {isMobile && !hideAdd ? (
               <>
                 <ImageUploaderExpanded

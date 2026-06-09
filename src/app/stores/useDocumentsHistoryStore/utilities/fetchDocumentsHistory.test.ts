@@ -147,4 +147,44 @@ describe('fetchDocumentsHistory util', () => {
     expect(getReqMock.mock.calls[0]?.[0]).toContain('Text=')
     expect(getReqMock.mock.calls[0]?.[0]).toContain('Filter=0')
   })
+
+  it('omits date params when no range is selected', async () => {
+    vi.resetModules()
+
+    const getReqMock = vi.fn(async () => ({
+      data: {
+        data: {
+          items: [],
+          totalRows: 0,
+          page: 1,
+          pageSize: 12,
+        },
+      },
+    }))
+
+    vi.doMock('@/app/configurations/Axios/urls', () => ({
+      BillingDocumentsHistory: '/Billings/BillingDocumentPaginated',
+    }))
+    vi.doMock('@/app/utilities/Http/requireGateway', () => ({
+      requireGateway: () => vi.fn(),
+    }))
+    vi.doMock('@/app/utilities/Http/promisifyIntranet', () => ({
+      pGet: () => getReqMock,
+    }))
+
+    const { fetchDocumentsHistory } = await import('./fetchDocumentsHistory')
+
+    const state = createState()
+    const set = createSet(state)
+    const get = createGet(state)
+
+    await fetchDocumentsHistory(set, get, {
+      ...baseQuery,
+      startDate: null,
+      endDate: null,
+    })
+
+    expect(getReqMock.mock.calls[0]?.[0]).not.toContain('StartDate=')
+    expect(getReqMock.mock.calls[0]?.[0]).not.toContain('EndDate=')
+  })
 })

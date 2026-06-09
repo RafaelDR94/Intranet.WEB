@@ -75,7 +75,7 @@ const NewReport = () => {
         </div>}
 
 
-        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white p-4">
+        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white-100 p-4">
           <Breadcrumbs activeId={currentStep} onActiveChange={(id) => onStepChange(id as StepId)}>
             {steps.map((step) => (
               <Breadcrumbs.Item

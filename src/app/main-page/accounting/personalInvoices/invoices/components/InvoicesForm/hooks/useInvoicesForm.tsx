@@ -29,6 +29,7 @@ const useInvoicesForm = ({
   onCloseImage,
   disabled,
   refreshRequisitionId,
+  onSubmitSuccess,
 }: UseInvoicesFormProps): UseInvoicesFormReturn => {
   const isEdit = Boolean(dataEdit);
   const { firebasestorage } = useFirebase();
@@ -267,9 +268,7 @@ const useInvoicesForm = ({
 
       const head = String(await readHeadText(maybeFile, 256)).trim();
       if (head && !head.startsWith("<")) {
-        throw new Error(
-          "El archivo seleccionado no parece ser un XML válido.",
-        );
+        throw new Error("El archivo seleccionado no parece ser un XML válido.");
       }
       const url = await firebasestorage.uploadFile(
         maybeFile,
@@ -455,6 +454,7 @@ const useInvoicesForm = ({
       showSecondaryButton: false,
       autoCloseMs: 1500,
     });
+    onSubmitSuccess?.();
   };
 
   return {

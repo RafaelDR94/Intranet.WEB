@@ -195,7 +195,17 @@ describe('useDocumentHistory', () => {
       result.current.handleSearchChange('Atlas', startDate, endDate)
     })
 
-    expect(fetchDocumentsHistorySpy).not.toHaveBeenCalled()
+    expect(fetchDocumentsHistorySpy).toHaveBeenCalledTimes(1)
+    expect(fetchDocumentsHistorySpy.mock.lastCall?.[0]).toEqual(
+      expect.objectContaining({
+        page: 1,
+        searchText: '',
+        startDate,
+        endDate,
+        scope: 'accounting',
+      }),
+    )
+    fetchDocumentsHistorySpy.mockClear()
 
     act(() => {
       vi.advanceTimersByTime(399)

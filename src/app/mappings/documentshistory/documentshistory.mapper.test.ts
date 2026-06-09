@@ -66,6 +66,38 @@ describe('documentshistory.mapper', () => {
     expect(page.totalRows).toBe(14)
   })
 
+  it('sorts list items from newest to oldest using document dates', () => {
+    const page = DocumentsHistoryPageMap(
+      {
+        items: [
+          {
+            billingdocument_id: 'old-doc',
+            uuid: 'UUID-OLD',
+            status: 'Validado',
+            fecha: '2026-05-01T09:00:00',
+          },
+          {
+            billingdocument_id: 'new-doc',
+            uuid: 'UUID-NEW',
+            status: 'Validado',
+            fecha: '2026-06-01T09:00:00',
+          },
+        ],
+      },
+      {
+        page: 1,
+        pageSize: 12,
+        searchText: '',
+        startDate: null,
+        endDate: null,
+        filter: '0',
+        scope: 'operations',
+      },
+    )
+
+    expect(page.items.map((item) => item.id)).toEqual(['new-doc', 'old-doc'])
+  })
+
   it('prioritizes SAT concepts from json_sap items in the detail payload', () => {
     const detail = DocumentHistoryDetailMap({
       billingdocument_id: 'doc-2',
