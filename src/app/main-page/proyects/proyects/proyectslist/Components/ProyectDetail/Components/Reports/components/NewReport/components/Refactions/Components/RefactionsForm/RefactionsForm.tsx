@@ -75,7 +75,7 @@ const RefactionsForm: React.FC<Props> = ({ selectedRowId, onClose, onSaved }) =>
   const isEditing = refactionIndex !== null;
 
   return (
-    <div className="flex flex-col gap-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="flex flex-col gap-6 rounded-xl border border-slate-200 bg-white-100 p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h3 className="text-lg font-semibold text-slate-700">

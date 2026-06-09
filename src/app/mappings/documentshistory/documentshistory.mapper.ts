@@ -105,6 +105,12 @@ const pickCertificationDate = (
     document.date_created,
   )
 
+const toSortableTimestamp = (value?: string) => {
+  if (!value) return 0
+  const parsed = new Date(value).getTime()
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
 const mapConcept = (concept: any, index: number): DocumentHistoryConcept => ({
   id: `${toStringSafe(concept?.clave_sat, "concept")}-${index}`,
   satKey: toStringSafe(concept?.clave_sat),
@@ -158,6 +164,7 @@ const mapListItem = (raw: unknown): DocumentsHistoryListItem => {
     requisitionCode: pickRequisitionCode(source, mapped),
     uuid: toStringSafe(mapped.uuid),
     status: toStringSafe(mapped.status),
+    sortDate: pickCertificationDate(source, mapped),
     xmlUrl: mapped.xml || null,
     pdfUrl: mapped.pdf || null,
     imageUrl: mapped.image || null,
@@ -245,7 +252,12 @@ export const DocumentsHistoryPageMap = (
   raw: unknown,
   fallbackQuery: DocumentsHistoryQuery,
 ): DocumentsHistoryPage => {
-  const items = extractCollection(raw).map(mapListItem)
+  const items = extractCollection(raw)
+    .map(mapListItem)
+    .sort(
+      (left, right) =>
+        toSortableTimestamp(right.sortDate) - toSortableTimestamp(left.sortDate),
+    )
   const totalRows = toNumberSafe(
     extractMetaValue(raw, [
       "totalRows",

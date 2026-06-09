@@ -47,4 +47,6 @@ export interface UseInvoicesFormProps {
   disabled?: boolean;
   /** Optional requisition id to refresh requisition documents after updates. */
   refreshRequisitionId?: string;
+  /** Optional callback fired after a successful submit/update. */
+  onSubmitSuccess?: () => void;
 }

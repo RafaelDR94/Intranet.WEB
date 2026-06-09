@@ -36,6 +36,44 @@ const areQueriesEqual = (
   left.filter === right.filter &&
   left.scope === right.scope
 
+const matchesDocumentsHistoryFilter = (
+  row: DocumentsHistoryListItem,
+  filter: string | null,
+) => {
+  const normalizedFilter = filter ?? DOCUMENTS_HISTORY_DEFAULT_FILTER
+  if (normalizedFilter === DOCUMENTS_HISTORY_DEFAULT_FILTER) return true
+
+  const normalizedStatus = row.status.trim().toLowerCase()
+
+  if (normalizedFilter === "1") {
+    return (
+      normalizedStatus.includes("valid") &&
+      !normalizedStatus.includes("no valid") &&
+      !normalizedStatus.includes("inval") &&
+      !normalizedStatus.includes("rechaz")
+    )
+  }
+
+  if (normalizedFilter === "2") {
+    return (
+      normalizedStatus.includes("pend") ||
+      normalizedStatus.includes("rechaz") ||
+      normalizedStatus.includes("inval") ||
+      normalizedStatus.includes("no valid")
+    )
+  }
+
+  if (normalizedFilter === "3") {
+    return normalizedStatus.includes("sat")
+  }
+
+  if (normalizedFilter === "4") {
+    return normalizedStatus.includes("sap")
+  }
+
+  return true
+}
+
 export const useDocumentHistory = (scope: DocumentsHistoryScope) => {
   const {
     list,
@@ -255,10 +293,14 @@ export const useDocumentHistory = (scope: DocumentsHistoryScope) => {
   const filterValue =
     (query?.scope === scope ? query.filter : committedQuery.filter) ??
     DOCUMENTS_HISTORY_DEFAULT_FILTER
+  const rows = useMemo(
+    () => list.filter((row) => matchesDocumentsHistoryFilter(row, filterValue)),
+    [filterValue, list],
+  )
 
   return {
     columns,
-    rows: list,
+    rows,
     currentPage: effectivePage,
     pageSize: effectivePageSize,
     totalRows,

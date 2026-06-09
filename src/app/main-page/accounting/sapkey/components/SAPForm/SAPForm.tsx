@@ -45,6 +45,8 @@ const defaultValues: SAPFormValues = {
   gtsType: "",
 };
 
+const digitsOnly = (value: unknown) => String(value ?? "").replace(/\D/g, "");
+
 const SAPForm = ({
   mode = "create",
   sapKey,
@@ -72,10 +74,10 @@ const SAPForm = ({
     if (!sapKey) return;
 
     setFormValues({
-      internalKey: sapKey.internalKey ?? "",
+      internalKey: digitsOnly(sapKey.internalKey),
       descriptionInternalKey: sapKey.descriptionInternalKey ?? "",
       ivaOptionId: getIvaOptionId(sapKey.iva, sapKey),
-      satKey: sapKey.satKey ?? "",
+      satKey: digitsOnly(sapKey.satKey),
       descriptionSatKey: sapKey.descriptionSatKey ?? "",
       gtsType: sapKey.gtsType ?? "",
     });
@@ -90,6 +92,7 @@ const SAPForm = ({
         label: "Tipo de gasto",
         placeholder: "Tipo de gasto",
         value: formValues.internalKey,
+        onChange: digitsOnly,
         validations: [{ type: "required" }],
       },
       {
@@ -118,6 +121,7 @@ const SAPForm = ({
         label: "Clave SAT",
         placeholder: "Clave SAT",
         value: formValues.satKey,
+        onChange: digitsOnly,
         validations: [{ type: "required" }],
       },
       {
@@ -146,10 +150,10 @@ const SAPForm = ({
 
   const handleValuesChange = useCallback((values: Record<string, any>) => {
     setFormValues({
-      internalKey: String(values.internalKey ?? ""),
+      internalKey: digitsOnly(values.internalKey),
       descriptionInternalKey: String(values.descriptionInternalKey ?? ""),
       ivaOptionId: String(values.ivaOptionId ?? ""),
-      satKey: String(values.satKey ?? ""),
+      satKey: digitsOnly(values.satKey),
       descriptionSatKey: String(values.descriptionSatKey ?? ""),
       gtsType: String(values.gtsType ?? ""),
     });
@@ -162,11 +166,11 @@ const SAPForm = ({
   const handleDynamicSubmit = useCallback(
     async (values: Record<string, any>) => {
       const payload = {
-        internalKey: String(values.internalKey ?? "").trim(),
+        internalKey: digitsOnly(values.internalKey).trim(),
         descriptionInternalKey: String(
           values.descriptionInternalKey ?? "",
         ).trim(),
-        satKey: String(values.satKey ?? "").trim(),
+        satKey: digitsOnly(values.satKey).trim(),
         descriptionSatKey: String(values.descriptionSatKey ?? "").trim(),
         gtsType: String(values.gtsType ?? "")
           .trim()

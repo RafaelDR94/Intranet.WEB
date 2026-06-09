@@ -30,6 +30,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
   layoutPrimaryLabel,
   headerContent,
   onValidChange,
+  onSubmitSuccess,
 }) => {
   const {
     fields,
@@ -51,6 +52,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
     onCloseImage,
     disabled,
     refreshRequisitionId,
+    onSubmitSuccess,
   });
 
   const handleValidChange = React.useCallback(
