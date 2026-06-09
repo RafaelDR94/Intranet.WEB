@@ -68,7 +68,7 @@ describe("SAPForm", () => {
           id: "sap-1",
           satKey: "86121700",
           descriptionSatKey: "Servicio",
-          internalKey: "G001",
+          internalKey: "001",
           descriptionInternalKey: "Gasto operativo",
           gtsType: "A",
           iva: 0.16,
@@ -103,7 +103,7 @@ describe("SAPForm", () => {
 
     await act(async () => {
       await dynamicFormProps.onSubmit({
-        internalKey: "G201",
+        internalKey: "201",
         descriptionInternalKey: "Nuevo gasto",
         ivaOptionId: "iva_8",
         satKey: "86121701",
@@ -113,7 +113,50 @@ describe("SAPForm", () => {
     });
 
     expect(onSubmit).toHaveBeenCalledWith({
-      internalKey: "G201",
+      internalKey: "201",
+      descriptionInternalKey: "Nuevo gasto",
+      iva: 0.08,
+      satKey: "86121701",
+      descriptionSatKey: "Servicio nuevo",
+      gtsType: "O",
+    });
+  });
+
+  it("allows only numbers for tipo de gasto and clave SAT", async () => {
+    const onSubmit = vi.fn();
+
+    render(
+      <SAPForm
+        mode="create"
+        sapKey={null}
+        onBack={vi.fn()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    const internalKeyField = dynamicFormProps.fields.find(
+      (field: any) => field.name === "internalKey",
+    );
+    const satKeyField = dynamicFormProps.fields.find(
+      (field: any) => field.name === "satKey",
+    );
+
+    expect(internalKeyField.onChange("GT-201A")).toBe("201");
+    expect(satKeyField.onChange("SAT 86121701")).toBe("86121701");
+
+    await act(async () => {
+      await dynamicFormProps.onSubmit({
+        internalKey: "GT-201A",
+        descriptionInternalKey: "Nuevo gasto",
+        ivaOptionId: "iva_8",
+        satKey: "SAT 86121701",
+        descriptionSatKey: "Servicio nuevo",
+        gtsType: "O",
+      });
+    });
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      internalKey: "201",
       descriptionInternalKey: "Nuevo gasto",
       iva: 0.08,
       satKey: "86121701",

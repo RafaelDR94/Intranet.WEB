@@ -1,11 +1,18 @@
+import React from "react";
+
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { ToggleButton } from "@/app/components/ToogleButton/ToogleButton";
+import TicketForm from "@/app/main-page/accounting/personalInvoices/invoices/components/TicketForm/TicketForm";
+import { InvoicesProvider } from "@/app/main-page/accounting/personalInvoices/invoices/context/InvoicesContext";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { DownloadFile } from "@/app/utilities/FilesHelper/FilesHelper";
+import type { HistoryRow } from "@/app/mappings/billinghistory/billinghistory.types";
 import { BillingImagesTableMap } from "@/app/mappings/billingimages/billingimages.mapper";
+import type { Proyect } from "@/app/mappings/proyects/proyects.types";
 import CancelIcon from "@/assets/icons/acciones/cancel.svg";
 import DownloadIcon from "@/assets/icons/acciones/download.svg";
 import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
@@ -56,6 +63,55 @@ const TicketsFiles = ({
     rejecting,
     notDeducting,
   } = useTicketsFiles();
+  const { currentPagePermissions } = useAuth();
+  const submitRef = React.useRef<(() => void | Promise<void>) | null>(null);
+  const [isResubmitFormValid, setIsResubmitFormValid] = React.useState(false);
+  const canResubmitTicket = Boolean(
+    currentPagePermissions?.canResubmitForms &&
+      detailRow?.status?.toLowerCase().includes("rechaz"),
+  );
+  const projectFallback: Proyect = {
+    id: detailRow?.source.requisition?.idProject ?? "",
+    name: detailRow?.source.requisition?.projectname ?? "",
+    proyectKey: detailRow?.source.requisition?.projectname ?? "",
+    client: "",
+    manager: {} as Proyect["manager"],
+    collaborators: [],
+  };
+  const dataEdit: HistoryRow | null = detailRow
+    ? {
+        id: detailRow.source.billing_image_id ?? detailRow.id,
+        billing_image_id: detailRow.source.billing_image_id ?? detailRow.id,
+        billingdocument_id: "",
+        billingrequisition_id:
+          detailRow.source.requisition?.billingrequisition_id ?? "",
+        project: projectFallback,
+        requisitionkey: detailRow.source.requisition?.requisitionkey ?? "",
+        status:
+          (detailRow.status?.toLowerCase() as HistoryRow["status"]) ??
+          "pendiente",
+        xml: "",
+        pdf: "",
+        image: detailRow.imageUrls[0] ?? "",
+        comments: detailRow.comments ?? "",
+        dateCreate: detailRow.source.dateCreate ?? detailRow.date,
+        certificationDate: detailRow.source.dateCreate ?? detailRow.date,
+        uuid: "",
+        description: detailRow.source.description,
+        category: detailRow.source.category,
+        numpersons: detailRow.source.numpersons ?? null,
+        numnights: detailRow.source.numnights ?? null,
+      }
+    : null;
+
+  React.useEffect(() => {
+    setIsResubmitFormValid(false);
+  }, [detailRow?.id]);
+
+  const handleResubmitSuccess = React.useCallback(() => {
+    setIsResubmitFormValid(false);
+    refresh();
+  }, [refresh]);
 
   const handleSelectedChange = (_index: number, selectedRows: TicketRow[]) => {
     if (!onSelectedTicketChange) return;
@@ -109,33 +165,47 @@ const TicketsFiles = ({
         onClose={closeDetails}
         closeButtonDataTour="requisitions-ticket-close"
         actionButton={
-          <div className="flex items-center gap-2">
-            <Button
-              size="large"
-              variant="solid"
-              hideIcon
-              onClick={handleValidateClick}
-              disabled={isValidateLocked}
-              data-tour="requisitions-ticket-validate"
-            >
-              Validar
-            </Button>
-            <Button
-              size="large"
-              variant="outline"
-              hideIcon
-              onClick={openReject}
-              disabled={
-                detailRow?.status.toLocaleLowerCase() === "validado" ||
-                detailRow?.status.toLocaleLowerCase() === "rechazado" ||
-                rejecting ||
-                notDeducting
-              }
-              data-tour="requisitions-ticket-reject"
-            >
-              Rechazar
-            </Button>
-          </div>
+          canResubmitTicket ? (
+            <div className="flex items-center gap-2">
+              <Button
+                size="large"
+                variant="solid"
+                hideIcon
+                onClick={() => submitRef.current?.()}
+                disabled={!isResubmitFormValid}
+              >
+                Reenviar
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button
+                size="large"
+                variant="solid"
+                hideIcon
+                onClick={handleValidateClick}
+                disabled={isValidateLocked}
+                data-tour="requisitions-ticket-validate"
+              >
+                Validar
+              </Button>
+              <Button
+                size="large"
+                variant="outline"
+                hideIcon
+                onClick={openReject}
+                disabled={
+                  detailRow?.status.toLocaleLowerCase() === "validado" ||
+                  detailRow?.status.toLocaleLowerCase() === "rechazado" ||
+                  rejecting ||
+                  notDeducting
+                }
+                data-tour="requisitions-ticket-reject"
+              >
+                Rechazar
+              </Button>
+            </div>
+          )
         }
         renderActions={() => {
           if (!detailRow) return null;
@@ -174,21 +244,25 @@ const TicketsFiles = ({
           <div className="space-y-4">
             {detailRow.source.requisition?.employeename && (
               <div className="flex items-baseline gap-2">
-                <span className="text-gray-90 text-b4 font-medium">Nombre:</span>
+                <span className="text-gray-90 text-b4 font-medium">
+                  Nombre:
+                </span>
                 <span className="text-gray-90 text-b3 font-regular">
                   {detailRow.source.requisition.employeename}
                 </span>
               </div>
             )}
 
-            <ToggleButton
-              checked={markAsNotDeductible}
-              onChange={handleToggleNotDeductible}
-              disabled={isToggleLocked}
-              label="Marcar como no deducible"
-              dataTour="requisitions-ticket-not-deductible"
-              className="w-fit"
-            />
+            {!canResubmitTicket && (
+              <ToggleButton
+                checked={markAsNotDeductible}
+                onChange={handleToggleNotDeductible}
+                disabled={isToggleLocked}
+                label="Marcar como no deducible"
+                dataTour="requisitions-ticket-not-deductible"
+                className="w-fit"
+              />
+            )}
 
             <div className="flex items-baseline gap-2">
               <span className="text-gray-90 text-b4 font-medium">Fecha:</span>
@@ -215,7 +289,6 @@ const TicketsFiles = ({
               </div>
             )}
 
-
             <div className="space-y-2">
               <div className="flex flex-wrap items-center justify-center gap-2">
                 {detailRow.imageUrls.map((url, index) => (
@@ -236,25 +309,43 @@ const TicketsFiles = ({
                 ))}
               </div>
             </div>
-            
-            {showValidationForm && markAsNotDeductible && (
-              <div className="pt-2">
-                <DynamicForm
-                  fields={validationFields}
-                  valuesVersion={validationFormVersion}
-                  valuesVersionActive
-                  onSubmit={() => undefined}
-                  onValuesChange={(values) =>
-                    setValidationValues({
-                      requisition_id: String(values.requisition_id ?? ""),
-                      numpersons: Number(values.numpersons ?? 0),
-                      total: Number(values.total ?? 0),
-                    })
-                  }
-                  showSubmitIf={() => false}
-                  showSecondaryButtonIf={() => false}
+
+            {!canResubmitTicket &&
+              showValidationForm &&
+              markAsNotDeductible && (
+                <div className="pt-2">
+                  <DynamicForm
+                    fields={validationFields}
+                    valuesVersion={validationFormVersion}
+                    valuesVersionActive
+                    onSubmit={() => undefined}
+                    onValuesChange={(values) =>
+                      setValidationValues({
+                        requisition_id: String(values.requisition_id ?? ""),
+                        numpersons: Number(values.numpersons ?? 0),
+                        total: Number(values.total ?? 0),
+                      })
+                    }
+                    showSubmitIf={() => false}
+                    showSecondaryButtonIf={() => false}
+                  />
+                </div>
+              )}
+
+            {canResubmitTicket && dataEdit && (
+              <InvoicesProvider>
+                <TicketForm
+                  dataEdit={dataEdit}
+                  externalSubmitRef={submitRef}
+                  onValidChange={setIsResubmitFormValid}
+                  onSubmitSuccess={handleResubmitSuccess}
+                  responsiveLayoutMatrix={{
+                    sm: [[10], [10]],
+                    md: [[10], [10]],
+                    lg: [[10], [10]],
+                  }}
                 />
-              </div>
+              </InvoicesProvider>
             )}
           </div>
         ) : (
@@ -292,7 +383,7 @@ const TicketsFiles = ({
               value: "",
               placeholder: "Agregar comentario",
               validations: [{ type: "required" }],
-              className: "bg-white",
+              className: "bg-white-100",
               rows: 2,
             },
           ]}

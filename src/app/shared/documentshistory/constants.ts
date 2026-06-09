@@ -21,28 +21,15 @@ export const DOCUMENTS_HISTORY_STATUS_FILTER_OPTIONS: DataTableFilterOption<Docu
     { label: "SAP", value: "4" },
   ]
 
-const createTodayRange = () => {
-  const now = new Date()
-  const startDate = new Date(now)
-  const endDate = new Date(now)
-
-  startDate.setHours(0, 0, 0, 0)
-  endDate.setHours(23, 59, 59, 999)
-
-  return { startDate, endDate }
-}
-
 export const createInitialDocumentsHistoryQuery = (
   scope: DocumentsHistoryScope,
 ): DocumentsHistoryQuery => {
-  const { startDate, endDate } = createTodayRange()
-
   return {
     page: 1,
     pageSize: DOCUMENTS_HISTORY_PAGE_SIZE,
     searchText: "",
-    startDate,
-    endDate,
+    startDate: null,
+    endDate: null,
     filter: DOCUMENTS_HISTORY_DEFAULT_FILTER,
     scope,
   }

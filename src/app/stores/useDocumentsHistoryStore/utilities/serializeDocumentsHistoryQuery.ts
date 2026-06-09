@@ -8,7 +8,9 @@ const toDateTimeParam = (
   value: Date | null,
   boundary: "start" | "end",
 ) => {
-  const baseDate = value ? new Date(value) : new Date()
+  if (!value) return null
+
+  const baseDate = new Date(value)
 
   if (boundary === "start") {
     baseDate.setHours(0, 0, 0, 0)
@@ -36,8 +38,11 @@ export const serializeDocumentsHistoryQuery = (
 ) => {
   const params = new URLSearchParams()
 
-  params.set("StartDate", toDateTimeParam(query.startDate, "start"))
-  params.set("EndDate", toDateTimeParam(query.endDate, "end"))
+  const startDate = toDateTimeParam(query.startDate, "start")
+  const endDate = toDateTimeParam(query.endDate, "end")
+
+  if (startDate) params.set("StartDate", startDate)
+  if (endDate) params.set("EndDate", endDate)
   params.set("PageNumber", String(query.page))
   params.set("PageSize", String(query.pageSize))
   params.set("Text", query.searchText)

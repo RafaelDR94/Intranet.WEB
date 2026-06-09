@@ -24,6 +24,7 @@ export type DocumentsHistoryListItem = {
   requisitionCode: string
   uuid: string
   status: string
+  sortDate?: string
   xmlUrl?: string | null
   pdfUrl?: string | null
   imageUrl?: string | null
