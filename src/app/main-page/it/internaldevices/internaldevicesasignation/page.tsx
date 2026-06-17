@@ -91,7 +91,7 @@ const InternalDevicesAsignationPage = () => {
     return (
       <div className="space-y-4">
         <CollapsibleSection
-          title="Nueva Asignacion de Dispositivo"
+          title="Nueva Asignación de Dispositivo"
           enableCollapse={false}
           rightContent={
             <Button
@@ -233,7 +233,7 @@ const InternalDevicesAsignationPage = () => {
               title: 'Dispositivos Asignados',
               columns,
               data: rows,
-              enableCollaps: true,
+              enableCollaps: false,
               enableSelection: false,
             },
           ]}
@@ -260,7 +260,7 @@ const InternalDevicesAsignationPage = () => {
               onClick={handleOpenCreate}
               data-tour="internaldevices-asignation-create"
             >
-              Nueva Asignacion
+              Nueva Asignación
             </Button>
           }
         />

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+﻿import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 
@@ -7,8 +7,18 @@ import type { ColumnDefinition } from '../../types';
 import DataTableContent from './DataTableContent';
 
 vi.mock('@/app/components/Pagination/Pagination', () => ({
-  default: ({ onPageChange }: { onPageChange: (page: number) => void }) => (
-    <button onClick={() => onPageChange(2)}>next</button>
+  default: ({
+    currentPage,
+    totalPages,
+    onPageChange,
+  }: {
+    currentPage: number
+    totalPages: number
+    onPageChange: (page: number) => void
+  }) => (
+    <button onClick={() => onPageChange(2)}>
+      page:{currentPage}/{totalPages}
+    </button>
   ),
 }));
 vi.mock('@/assets/icons/navegacion/nav-arrow-down.svg', () => ({ default: () => <span /> }));
@@ -44,8 +54,44 @@ describe('DataTableContent', () => {
         onPageChange={onPageChange}
       />
     );
-    fireEvent.click(screen.getByText('next'));
+    fireEvent.click(screen.getByText('page:1/2'));
     expect(onPageChange).toHaveBeenCalledWith(2);
+  });
+
+  it('keeps client pagination slicing local data', () => {
+    render(
+      <DataTableContent<Person>
+        data={data}
+        columns={columns}
+        rowsPerPage={1}
+      />
+    );
+
+    expect(screen.getByText('Alice')).toBeInTheDocument();
+    expect(screen.queryByText('Bob')).toBeNull();
+    expect(screen.getByText('page:1/2')).toBeInTheDocument();
+  });
+
+  it('renders server page rows without slicing them again', () => {
+    const serverPage: Person[] = [
+      { id: 3, name: 'Charlie' },
+      { id: 4, name: 'Delta' },
+    ];
+
+    render(
+      <DataTableContent<Person>
+        data={serverPage}
+        columns={columns}
+        rowsPerPage={2}
+        paginationMode="server"
+        currentPage={2}
+        totalRows={4}
+      />
+    );
+
+    expect(screen.getByText('Charlie')).toBeInTheDocument();
+    expect(screen.getByText('Delta')).toBeInTheDocument();
+    expect(screen.getByText('page:2/2')).toBeInTheDocument();
   });
 
   it('aplica scroll interno cuando se define scrollMaxHeight', () => {
@@ -83,3 +129,4 @@ describe('DataTableContent', () => {
     expect(rows).toHaveLength(3);
   });
 });
+

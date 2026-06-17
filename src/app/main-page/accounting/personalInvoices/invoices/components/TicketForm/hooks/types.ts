@@ -29,4 +29,6 @@ export interface UseInvoicesFormProps {
   disabled?: boolean;
   /** Avoid preloading the ticket image when editing. */
   suppressInitialTicketImage?: boolean;
+  /** Optional callback fired after a successful submit/update. */
+  onSubmitSuccess?: () => void;
 }

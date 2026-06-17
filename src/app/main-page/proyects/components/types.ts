@@ -7,14 +7,18 @@ export type CrudMode = 'create' | 'edit';
 
 export type CrudRecord = {
   id: string;
+  idGenericEquipment?: string;
+  idLocation?: string;
   actions?: string;
   primary: string;
   secondary: string;
   tertiary: string;
   status: string;
   description: string;
+  projectId?: string;
   projectCode?: string;
   mapLink?: string;
+  linkmaps?: string;
   stock?: string;
   model?: string;
   serialOrPart?: string;

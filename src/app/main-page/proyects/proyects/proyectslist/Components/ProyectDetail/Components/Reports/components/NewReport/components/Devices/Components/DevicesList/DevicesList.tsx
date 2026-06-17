@@ -1,5 +1,5 @@
 "use client"
-'use client';
+
 
 import React, { useMemo } from 'react';
 import { DataTable } from '@/app/components/DataTable/DataTable';
@@ -108,7 +108,7 @@ const DevicesList: React.FC<Props> = ({ onCreate, onEdit }) => {
   if (!locationSelected) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-sm text-slate-500">
-        Selecciona una ubicación en el paso de Avance para consultar los dispositivos disponibles.
+        Para ver los dispositivos disponibles, primero debes seleccionar una ubicación en &quot;Avance&quot; (el primer paso de este reporte).
       </div>
     );
   }
@@ -134,7 +134,7 @@ const DevicesList: React.FC<Props> = ({ onCreate, onEdit }) => {
         />
 
         {rows.length === 0 && !loading && (
-          <div className="rounded-xl border border-slate-200 bg-white px-6 py-10 text-center text-sm text-slate-500">
+          <div className="rounded-xl border border-slate-200 bg-white-100 px-6 py-10 text-center text-sm text-slate-500">
             No se encontraron dispositivos para la ubicación seleccionada.
           </div>
         )}

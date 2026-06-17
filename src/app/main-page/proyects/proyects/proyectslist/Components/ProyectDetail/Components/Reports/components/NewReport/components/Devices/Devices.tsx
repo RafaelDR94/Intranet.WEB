@@ -4,7 +4,7 @@
 
 import React from 'react';
 import DevicesList from './Components/DevicesList/DevicesList';
-import DevicesForm from './Components/DevicesForm/DevicesForm';
+import ReportDevicesCrudForm from './Components/ReportDevicesCrudForm/ReportDevicesCrudForm';
 import useDevices from './hooks/useDevices';
 
 
@@ -24,10 +24,9 @@ const Devices: React.FC = () => {
         onCreate={handleCreate}
         onEdit={handleEdit}
       />}
-      {selectedRowId && <DevicesForm
+      {selectedRowId && <ReportDevicesCrudForm
         selectedRowId={selectedRowId}
         onClose={handleCloseForm}
-
         onSaved={handleCloseForm}
       />}
     </section>

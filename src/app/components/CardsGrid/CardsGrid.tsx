@@ -45,7 +45,13 @@ export function CardsGrid<T>({ data, adapt, rowsPerPage }: Readonly<CardsGridPro
 
   return (
     <div className="w-full">
-      <div className={clsx("grid gap-4 md:gap-5 justify-items-center", isMobile ? "mt-5" : "mt-20", gridCols)}>
+      <div
+        className={clsx(
+          "grid gap-4 md:gap-5 justify-items-center",
+          isMobile ? "mt-5" : "mt-10",
+          gridCols
+        )}
+      >
         {pageItems.map((row, idx) => {
           const absoluteIndex = (page - 1) * pageSize + idx;
           const defaultSrc = defaultImages[absoluteIndex % defaultImages.length];
@@ -68,6 +74,7 @@ export function CardsGrid<T>({ data, adapt, rowsPerPage }: Readonly<CardsGridPro
               showSecondaryButton={!!adapt.showSecondaryButton}
               primaryLabel={adapt.primaryLabel ?? "Ver"}
               secondaryLabel={adapt.secondaryLabel ?? "Cancelar"}
+              secondaryVariant={adapt.secondaryVariant}
               actionMenuProps={menuProps as any}
               enableImagePreview={adapt.enableImagePreview}
             />

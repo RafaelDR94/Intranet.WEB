@@ -65,17 +65,17 @@ const buildCommonFields = (
 };
 
 const buildCommonDetails = (row: CrudRecord | null): CrudDetailItem[] => [
-  { label: 'Nombre', value: row?.primary ?? 'Sin informacion' },
-  { label: 'Dato secundario', value: row?.secondary ?? 'Sin informacion' },
-  { label: 'Dato terciario', value: row?.tertiary ?? 'Sin informacion' },
-  { label: 'Estado', value: row?.status ?? 'Sin informacion' },
-  { label: 'Descripcion', value: row?.description ?? 'Sin informacion' },
+  { label: 'Nombre', value: row?.primary ?? 'Sin Información' },
+  { label: 'Dato secundario', value: row?.secondary ?? 'Sin Información' },
+  { label: 'Dato terciario', value: row?.tertiary ?? 'Sin Información' },
+  { label: 'Estado', value: row?.status ?? 'Sin Información' },
+  { label: 'Descripcion', value: row?.description ?? 'Sin Información' },
 ];
 
 const refactionsResponsiveLayout: ResponsiveLayoutMatrix = {
-  sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10]],
-  md: [[5, 5], [3.34, 3.33, 3.33], [3.34, 3.33, 3.33], [10], [3.34, 3.33, 3.33]],
-  lg: [[5, 5], [3.34, 3.33, 3.33], [3.34, 3.33, 3.33], [10], [3.34, 3.33, 3.33]],
+  sm: [[10], [10], [10], [10], [10], [10]],
+  md: [[5, 5], [3.34, 3.33, 3.33], [10]],
+  lg: [[5, 5], [3.34, 3.33, 3.33], [10]],
 };
 
 const buildRefactionFields = (
@@ -89,7 +89,6 @@ const buildRefactionFields = (
     label: 'ID / SKU',
     placeholder: 'Captura el identificador',
     value: current?.id ?? '',
-    validations: [{ type: 'required' }],
   },
   {
     type: 'input',
@@ -97,7 +96,6 @@ const buildRefactionFields = (
     label: 'Piezas en stock',
     placeholder: 'Captura el stock',
     value: current?.stock ?? '',
-    validations: [{ type: 'required' }],
   },
   {
     type: 'input',
@@ -105,14 +103,6 @@ const buildRefactionFields = (
     label: 'Nombre',
     placeholder: 'Captura el nombre de la refaccion',
     value: current?.primary ?? '',
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'input',
-    name: 'equipment',
-    label: 'Equipo relacionado',
-    placeholder: 'Captura el equipo relacionado',
-    value: current?.secondary ?? '',
     validations: [{ type: 'required' }],
   },
   {
@@ -133,41 +123,10 @@ const buildRefactionFields = (
   },
   {
     type: 'input',
-    name: 'serialOrPart',
-    label: 'Numero de Serie / Parte',
-    placeholder: 'Captura el numero de serie o parte',
-    value: current?.serialOrPart ?? '',
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'select',
-    name: 'status',
-    label: 'Estatus',
-    placeholder: 'Selecciona un estatus',
-    value: current?.status ?? '',
-    options: [
-      { label: 'Disponible', value: 'Disponible' },
-      { label: 'En uso', value: 'En uso' },
-      { label: 'Agotado', value: 'Agotado' },
-    ],
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'textarea',
-    name: 'description',
-    label: 'Caracteristicas adicionales',
-    placeholder: 'Describe caracteristicas adicionales',
-    value: current?.description ?? '',
-    rows: 3,
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'input',
     name: 'provider',
     label: 'Proveedor',
     placeholder: 'Captura el proveedor',
     value: current?.provider ?? '',
-    validations: [{ type: 'required' }],
   },
   {
     type: 'input',
@@ -175,7 +134,6 @@ const buildRefactionFields = (
     label: 'Pagina web',
     placeholder: 'Captura la pagina web',
     value: current?.website ?? '',
-    validations: [{ type: 'required' }],
   },
   {
     type: 'input',
@@ -183,7 +141,6 @@ const buildRefactionFields = (
     label: 'Telefono',
     placeholder: 'Captura el telefono',
     value: current?.phone ?? '',
-    validations: [{ type: 'required' }],
   },
 ];
 
@@ -258,7 +215,7 @@ export const refactionsConfig: CrudConfig = {
   entityLabelPlural: 'refacciones',
   projectTitle: 'Refacciones del proyecto',
   inventoryTitle: 'Inventario de refacciones',
-  createLabel: 'Nueva refaccion',
+  createLabel: 'Nueva refacción',
   updateLabel: 'Actualizar refaccion',
   primaryColumnLabel: 'Refaccion',
   secondaryColumnLabel: 'Codigo',
@@ -277,6 +234,19 @@ export const locationsConfig: CrudConfig = {
   secondaryColumnLabel: 'Proyecto',
   tertiaryColumnLabel: 'Direccion',
   detailTitle: 'Detalle de la ubicacion',
+};
+
+export const providersConfig: CrudConfig = {
+  entityLabel: 'proveedor',
+  entityLabelPlural: 'proveedores',
+  projectTitle: 'Proveedores del proyecto',
+  inventoryTitle: 'Proveedores',
+  createLabel: 'Nuevo proveedor',
+  updateLabel: 'Actualizar proveedor',
+  primaryColumnLabel: 'Proveedor',
+  secondaryColumnLabel: 'Pagina web',
+  tertiaryColumnLabel: 'Telefono',
+  detailTitle: 'Detalle del proveedor',
 };
 
 export const devicesRows: CrudRecord[] = [
@@ -416,6 +386,20 @@ export const locationsRows: CrudRecord[] = [
   },
 ];
 
+export const providersRows: CrudRecord[] = [
+  { id: 'provider-1', primary: 'Industrias Suply', secondary: 'www.industriasuply.com', tertiary: '55 5555 5555', status: 'Activo', description: 'Proveedor activo para suministros industriales.' },
+  { id: 'provider-2', primary: 'Tecnologia Innovadora', secondary: 'www.tecnologiainnovadora.com', tertiary: '44 4444 4444', status: 'Activo', description: 'Proveedor activo de soluciones tecnologicas.' },
+  { id: 'provider-3', primary: 'Soluciones Ecologicas', secondary: 'www.solucionesecologicas.com', tertiary: '33 3333 3333', status: 'Activo', description: 'Proveedor activo para lineas ecologicas.' },
+  { id: 'provider-4', primary: 'Muebles Modernos', secondary: 'www.mueblesmodernos.com', tertiary: '22 2222 2222', status: 'Activo', description: 'Proveedor activo de mobiliario corporativo.' },
+  { id: 'provider-5', primary: 'Alimentos Naturales', secondary: 'www.alimentosnaturales.com', tertiary: '11 1111 1111', status: 'Activo', description: 'Proveedor activo para insumos alimenticios.' },
+  { id: 'provider-6', primary: 'Tecnologia Avanzada', secondary: 'www.tecnologiaavanzada.com', tertiary: '66 6666 6666', status: 'Activo', description: 'Proveedor activo para equipos especializados.' },
+  { id: 'provider-7', primary: 'Automatizacion Intell', secondary: 'www.automatizacionintell.com', tertiary: '77 7777 7777', status: 'Activo', description: 'Proveedor activo para automatizacion industrial.' },
+  { id: 'provider-8', primary: 'Ropa Sostenible', secondary: 'www.ropasostenible.com', tertiary: '88 8888 8888', status: 'Activo', description: 'Proveedor activo para uniformes y textiles.' },
+  { id: 'provider-9', primary: 'Energia Renovable', secondary: 'www.energiarenovable.com', tertiary: '99 9999 9999', status: 'Activo', description: 'Proveedor activo para soluciones energeticas.' },
+  { id: 'provider-10', primary: 'Transporte Eficiente', secondary: 'www.transporteeficiente.com', tertiary: '00 0000 0000', status: 'Activo', description: 'Proveedor activo para logistica y transporte.' },
+  { id: 'provider-11', primary: 'Salud y Bienestar', secondary: 'www.saludybienestar.com', tertiary: '30 3030 3030', status: 'Activo', description: 'Proveedor activo para bienestar organizacional.' },
+];
+
 export const devicesDefinition: CrudModuleDefinition = {
   config: devicesConfig,
   rows: devicesRows,
@@ -442,5 +426,15 @@ export const locationsDefinition: CrudModuleDefinition = {
     buildCommonFields(locationsConfig, scope, mode, current),
   details: buildCommonDetails,
   columns: (handlers) => buildCommonColumns(locationsConfig, handlers),
+  responsiveLayout: baseResponsiveLayout,
+};
+
+export const providersDefinition: CrudModuleDefinition = {
+  config: providersConfig,
+  rows: providersRows,
+  fields: (scope: CrudScope, mode: CrudMode, current: CrudRecord | null) =>
+    buildCommonFields(providersConfig, scope, mode, current),
+  details: buildCommonDetails,
+  columns: (handlers) => buildCommonColumns(providersConfig, handlers),
   responsiveLayout: baseResponsiveLayout,
 };

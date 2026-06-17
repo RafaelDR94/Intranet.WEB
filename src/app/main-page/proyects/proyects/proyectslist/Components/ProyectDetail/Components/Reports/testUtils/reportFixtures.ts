@@ -1,5 +1,5 @@
 ﻿
-import type { ReportView } from "@/app/mappings/reports/reports.types";
+import type { ProjectReportSummary, ReportView } from "@/app/mappings/reports/reports.types";
 
 const baseDepartment = {
   department_id: "DEP-1",
@@ -97,6 +97,7 @@ const baseReport: ReportView = {
   ],
   diagnostic: "Camaras con perdida de enfoque por suciedad.",
   solution: "Limpieza de lentes y recalibracion.",
+  idSpareParts: ["SP-1"],
   refactions: [
     {
       description: "Kit de limpieza de lentes",
@@ -145,6 +146,7 @@ export const createSampleReport = (overrides: Partial<ReportView> = {}): ReportV
   proyect: { ...baseReport.proyect, ...overrides.proyect },
   activities: overrides.activities ?? baseReport.activities,
   maps: overrides.maps ?? baseReport.maps,
+  idSpareParts: overrides.idSpareParts ?? baseReport.idSpareParts,
   refactions: overrides.refactions ?? baseReport.refactions,
   reportDeviceView: overrides.reportDeviceView ?? baseReport.reportDeviceView,
   clientsign: { ...baseReport.clientsign, ...(overrides.clientsign ?? {}) },
@@ -186,4 +188,27 @@ export const sampleReports: ReportView[] = [
       },
     ],
   }),
+];
+
+export const sampleProjectReports: ProjectReportSummary[] = [
+  {
+    reportId: baseReport.id,
+    date: baseReport.datecreate,
+    ticket: baseReport.ticket,
+    type: baseReport.reportcategories.typesofreports.name,
+    category: baseReport.reportcategories.name,
+    location: baseReport.location.name,
+    user: baseReport.employe.fullname,
+    status: "COMPLETO",
+  },
+  {
+    reportId: "REP-2",
+    date: "2024-05-03T12:00:00",
+    ticket: "TK-002",
+    type: "Inspeccion",
+    category: "Preventivo",
+    location: "Edificio Sur",
+    user: "Rosa Medina",
+    status: "EN PROCESO",
+  },
 ];

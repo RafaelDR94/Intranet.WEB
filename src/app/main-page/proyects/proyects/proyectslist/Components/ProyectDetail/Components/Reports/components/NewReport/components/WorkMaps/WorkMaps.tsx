@@ -134,7 +134,7 @@ const WorkMaps: React.FC = () => {
         </div>
         {showEditButton && (
           <Button className={isMobile ? "w-full" : "mt-5"} variant="outline" type="button" hideIcon onClick={handleEdit}>
-            Editar Informacion
+            Editar Información
           </Button>
         )}
       </div>}

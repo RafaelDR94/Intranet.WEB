@@ -25,3 +25,8 @@ export type ProyectPut = {
     managerId: string,
     collaborators: string[]
 }
+
+export type LinkProyectLocationsPayload = {
+    proyect_id: string,
+    location_ids: string[]
+}

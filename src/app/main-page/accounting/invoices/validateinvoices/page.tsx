@@ -84,8 +84,8 @@ const ValidateInvoices = () => {
           data-tour="accounting-validateinvoices-xml"
         />
       ),
-      cellClass: "w-12 text-center",
-      headerClass: "w-12 text-center",
+      cellClass: "w-12 shrink-0 text-center",
+      headerClass: "w-12 shrink-0 text-center",
     },
     {
       key: "pdf",
@@ -99,51 +99,51 @@ const ValidateInvoices = () => {
           data-tour="accounting-validateinvoices-pdf"
         />
       ),
-      cellClass: "w-1/12 text-center",
-      headerClass: "w-1/12 text-center",
+      cellClass: "w-12 shrink-0 text-center",
+      headerClass: "w-12 shrink-0 text-center",
     },
     {
       key: "empleado",
       label: "EMPLEADO",
-      cellClass: "w-2/12 truncate text-center",
-      headerClass: "w-2/12 truncate text-center",
+      cellClass: "min-w-0 flex-[1.2_1.2_0%] truncate text-center",
+      headerClass: "min-w-0 flex-[1.2_1.2_0%] truncate text-center",
       render: (row) => row.empleado || "-",
     },
     {
       key: "requisicion",
       label: "REQUISICION",
-      cellClass: "w-2/12 truncate text-center",
-      headerClass: "w-2/12 truncate text-center",
+      cellClass: "min-w-0 flex-[1_1_0%] truncate text-center",
+      headerClass: "min-w-0 flex-[1_1_0%] truncate text-center",
       render: (row) => row.requisicion || "-",
     },
     {
       key: "rfc_emisor",
       label: "RFC EMISOR",
-      cellClass: "w-2/12 truncate text-center",
-      headerClass: "w-2/12 truncate text-center",
+      cellClass: "min-w-0 flex-[1_1_0%] truncate text-center",
+      headerClass: "min-w-0 flex-[1_1_0%] truncate text-center",
     },
     {
       key: "uuid",
       label: "UUID",
-      cellClass: "w-3/12 truncate text-center",
-      headerClass: "w-3/12 truncate text-center",
+      cellClass: "min-w-0 flex-[1.5_1.5_0%] truncate text-center",
+      headerClass: "min-w-0 flex-[1.5_1.5_0%] truncate text-center",
     },
     {
       key: "fecha",
       label: "FECHA",
-      cellClass: "w-2/12 truncate text-right",
-      headerClass: "w-2/12 truncate text-right",
+      cellClass: "min-w-0 flex-[0.9_0.9_0%] truncate text-right",
+      headerClass: "min-w-0 flex-[0.9_0.9_0%] truncate text-right",
     },
     {
       key: "total",
       label: "IMPORTE",
-      cellClass: "w-1/12 truncate text-right",
-      headerClass: "w-1/12 truncate text-right",
+      cellClass: "min-w-0 flex-[0.8_0.8_0%] truncate text-right",
+      headerClass: "min-w-0 flex-[0.8_0.8_0%] truncate text-right",
     },
     {
       key: "acciones" as unknown as keyof BillingDocumentsTableRow,
-      cellClass: "w-1/12 truncate text-right",
-      headerClass: "w-1/12 truncate text-right",
+      cellClass: "w-36 shrink-0 text-center",
+      headerClass: "w-36 shrink-0 text-center",
       headerRender: () => <span className="text-lg">...</span>,
       render: (row) => (
         <>
@@ -153,6 +153,7 @@ const ValidateInvoices = () => {
               onClick={() => handleOpenDetails(row)}
               variant="ghost"
               hideIcon
+              className="whitespace-nowrap"
               data-tour="accounting-validateinvoices-details"
             >
               Ver Detalles
@@ -178,12 +179,13 @@ const ValidateInvoices = () => {
           onClick={() => handleOpenDetails(row)}
           variant="ghost"
           hideIcon
+          className="whitespace-nowrap"
         >
           Ver Detalles
         </Button>
       ),
-      cellClass: "w-28 text-right",
-      headerClass: "w-28 text-right",
+      cellClass: "w-32 shrink-0 text-right",
+      headerClass: "w-32 shrink-0 text-right",
     },
   ];
 

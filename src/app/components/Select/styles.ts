@@ -1,5 +1,5 @@
 export const baseStyles = {
-  selectedCheck: "text-white",
+  selectedCheck: "text-white-100",
   selecteCheck2: "text-green-100",
   optionlabel: "text-gray-40",
   hover: "hover:border-green-80",
@@ -25,13 +25,14 @@ export const baseStyles = {
   },
   focusLike: "border-green-100 bg-green-10 text-black-100",
   menu:
-    "absolute z-50 left-0 top-full mt-1 w-full rounded-md bg-white shadow-md max-h-[220px] flex flex-col border border-gray-30 overflow-hidden",
-  searchContainer: "sticky top-0 left-0 z-10 bg-white px-3 py-2 border-b border-gray-30",
+    "text-black-100 absolute z-[90] left-0 top-full mt-1 w-full rounded-md bg-white-100 shadow-md max-h-[220px] flex flex-col border border-gray-30 overflow-hidden",
+  searchContainer:
+    "sticky top-0 left-0 z-10 bg-white-100 px-3 py-2 border-b border-gray-30",
   searchInput:
     "w-full border border-gray-30 rounded-md px-2 py-1 text-sm outline-none focus:border-green-100 focus:ring-0 placeholder:text-gray-50 disabled:bg-gray-20 disabled:text-gray-50 disabled:cursor-not-allowed",
   optionsContainer: "flex-1 overflow-y-auto overscroll-contain",
   option:
-    "flex items-center justify-between px-3 h-10 text-sm  cursor-pointer hover:bg-green-10  hover:text-black-100",
+    "flex items-start justify-between gap-2 px-3 py-2 min-h-10 text-sm leading-6 cursor-pointer whitespace-normal break-words hover:bg-green-10 hover:text-black-100",
   optionDisabled: "text-gray-40 cursor-not-allowed",
   checkbox: "w-6 h-6 rounded-md border border-green-100",
   checkboxChecked: "bg-green-100 border-green-100",

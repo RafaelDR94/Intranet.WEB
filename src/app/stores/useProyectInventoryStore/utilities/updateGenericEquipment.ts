@@ -40,9 +40,27 @@ export const updateGenericEquipment = async (
 
     await fetchGenericEquipments(set, get, true);
 
-    if (get().currentGenericEquipment?.id === payload.id && updated) {
-      set({ currentGenericEquipment: updated, lastGenericEquipmentId: payload.id });
-    }
+    set((state) => {
+      const shouldClearGenericSparePartsCache =
+        state.lastSparePartsByGenericEquipmentId === payload.id;
+
+      return {
+        currentGenericEquipment:
+          state.currentGenericEquipment?.id === payload.id && updated
+            ? updated
+            : state.currentGenericEquipment,
+        lastGenericEquipmentId:
+          state.currentGenericEquipment?.id === payload.id && updated
+            ? payload.id
+            : state.lastGenericEquipmentId,
+        sparePartsByGenericEquipment: shouldClearGenericSparePartsCache
+          ? []
+          : state.sparePartsByGenericEquipment,
+        lastSparePartsByGenericEquipmentId: shouldClearGenericSparePartsCache
+          ? null
+          : state.lastSparePartsByGenericEquipmentId,
+      };
+    });
 
     set({ updating: false, successPut: true });
     return updated;

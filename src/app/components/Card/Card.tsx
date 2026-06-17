@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import ActionMenuCell from '../ActionMenuCell/ActionMenuCell';
 import { Button } from '../Button/Button';
@@ -34,6 +34,7 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
   showSecondaryButton = false,
   primaryLabel = 'Aceptar',
   secondaryLabel = 'Cancelar',
+  secondaryVariant = 'outline',
   actionMenuProps,
   enableImagePreview = true,
   enableRemoteImageRecovery = true,
@@ -83,6 +84,15 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
   };
 
   const enlargeImageLabel = title ? `Ampliar imagen de ${title}` : 'Ampliar imagen';
+  const handleImageRef = useCallback(
+    (node: HTMLImageElement | null) => {
+      if (!node) return;
+      if (node.complete && node.naturalWidth > 0) {
+        handleImageLoaded(node.currentSrc || node.src);
+      }
+    },
+    [handleImageLoaded]
+  );
 
   return (
     <div
@@ -135,12 +145,13 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
+              ref={handleImageRef}
               src={currentSrc}
               alt="card image"
               loading="lazy"
               decoding="async"
               className={cx(cardStyles.Image, 'h-full w-full object-cover', isLoading && 'opacity-0')}
-              onLoad={handleImageLoaded}
+              onLoad={(event) => handleImageLoaded(event.currentTarget.currentSrc || event.currentTarget.src)}
               onError={() => {
                 void handleImageError();
               }}
@@ -168,7 +179,7 @@ export function Card<TRow extends Record<string, unknown> = Record<string, unkno
           {showSecondaryButton && (
             <Button
               size='small'
-              variant='outline'
+              variant={secondaryVariant}
               onClick={onCancel}
               hideIcon
               className={cardStyles.CancelBtn}

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import type { DocumentsState, Set, Get } from '../types'
 
-import { fetchDocuments } from './fetchDocuments'
+import { fetchDocuments, fetchDocumentsByUser } from './fetchDocuments'
 
 const requireGatewayMock = vi.fn()
 const getRequestMock = vi.fn()
@@ -53,6 +53,7 @@ const createState = () => {
   const state: Partial<DocumentsState> = {
     documents: [],
     managementDocuments: [],
+    operationalDocuments: [],
     loading: false,
     successGet: false,
   }
@@ -85,6 +86,7 @@ describe('fetchDocuments', () => {
     expect(state.successGet).toBe(true)
     expect(state.documents).toHaveLength(1)
     expect(state.managementDocuments).toHaveLength(1)
+    expect(state.operationalDocuments).toHaveLength(0)
     expect(state.documents?.[0]?.name).toBe('Bruno')
   })
 
@@ -99,5 +101,47 @@ describe('fetchDocuments', () => {
     expect(state.loading).toBe(false)
     expect(state.successGet).toBe(false)
     expect(state.error).toBe('fail')
+  })
+})
+
+describe('fetchDocumentsByUser', () => {
+  beforeEach(() => {
+    requireGatewayMock.mockReset()
+    getRequestMock.mockReset()
+  })
+
+  it('maps and stores documents returned by user endpoint', async () => {
+    getRequestMock.mockResolvedValue({
+      data: {
+        data: [
+          sampleDocument,
+          {
+            ...sampleDocument,
+            document_id: 'operational-1',
+            management: false,
+          },
+        ],
+      },
+    })
+    const { state, set, get } = createState()
+
+    await fetchDocumentsByUser(set, get, 'user-123')
+
+    expect(getRequestMock).toHaveBeenCalledWith('/Documents/ByUser/user-123')
+    expect(state.loading).toBe(false)
+    expect(state.successGet).toBe(true)
+    expect(state.documents).toHaveLength(2)
+    expect(state.operationalDocuments).toHaveLength(1)
+    expect(state.managementDocuments).toHaveLength(0)
+  })
+
+  it('sets a validation error when idUser is empty', async () => {
+    const { state, set, get } = createState()
+
+    await fetchDocumentsByUser(set, get, '')
+
+    expect(getRequestMock).not.toHaveBeenCalled()
+    expect(state.successGet).toBe(false)
+    expect(state.error).toBe('idUser is required')
   })
 })

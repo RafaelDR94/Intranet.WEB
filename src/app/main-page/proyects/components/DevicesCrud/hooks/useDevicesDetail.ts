@@ -136,8 +136,9 @@ export const useDevicesDetail = (scope: CrudScope) => {
       ).map((part: SparePart) => ({
         id: part.id,
         name: part.name || 'Sin nombre',
-        code: part.sku || 'Sin codigo',
-        quantity: `${part.stock ?? 0} pieza${Number(part.stock ?? 0) === 1 ? '' : 's'}`,
+        brand: part.brand || 'Sin marca',
+        model: part.model || 'Sin modelo',
+        serialNumber: part.serialNumber || 'Sin serie',
       })),
     [data.effectiveType, sparePartsByDevice, sparePartsByGenericEquipment],
   );
@@ -161,6 +162,35 @@ export const useDevicesDetail = (scope: CrudScope) => {
     crud.goEdit(resolvedDevice.id);
   }, [crud, resolvedDevice]);
 
+  const onNewRefaction = useCallback(() => {
+    if (!resolvedDevice) return;
+
+    const genericEquipmentId =
+      data.effectiveType === 'generic'
+        ? resolvedDevice.id
+        : (resolvedDevice.idGenericEquipment ?? '').trim();
+
+    if (!genericEquipmentId) {
+      crud.showAlert({
+        type: 'warning',
+        variant: 'subtle',
+        title: 'Equipo genérico no disponible',
+        description:
+          'No se encontró el identificador del equipo genérico para administrar sus refacciones.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+      });
+      return;
+    }
+
+    crud.updateCrudQuery({
+      type: 'generic',
+      crudView: 'form',
+      crudMode: 'edit',
+      crudItemId: genericEquipmentId,
+    });
+  }, [crud, data.effectiveType, resolvedDevice]);
+
   return {
     title: devicesDefinition.config.detailTitle,
     device: resolvedDevice,
@@ -176,5 +206,6 @@ export const useDevicesDetail = (scope: CrudScope) => {
     statusLabelType: statusToLabelType(resolvedDevice?.status),
     onClose: crud.goList,
     onEdit,
+    onNewRefaction,
   };
 };

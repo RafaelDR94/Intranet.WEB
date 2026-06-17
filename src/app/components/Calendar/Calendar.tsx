@@ -9,6 +9,7 @@
 
 import React, { useEffect, useRef } from "react";
 import DatePicker from "react-datepicker";
+import { es } from "date-fns/locale/es";
 
 import { ContextMenu } from "../ContextMenu/ContextMenu";
 import { useIsMobile } from "../DataTable/components/DataTableLayout/hooks/useMediaQuery";
@@ -186,6 +187,7 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
                 endDate={endDate}
                 selectsRange
                 inline
+                locale={es}
                 calendarClassName="custom-calendar"
                 dateFormat="dd/MM/yyyy"
               />
@@ -242,6 +244,7 @@ export const Calendar: React.FC<CalendarProps> = ({ onCalendarClick }) => {
                 endDate={endDate}
                 selectsRange
                 inline
+                locale={es}
                 calendarClassName="custom-calendar"
                 dateFormat="dd/MM/yyyy"
               />

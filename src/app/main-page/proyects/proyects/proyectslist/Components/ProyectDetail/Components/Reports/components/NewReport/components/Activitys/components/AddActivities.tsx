@@ -39,7 +39,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
     : ''
 
   const viewerVisible = viewerItems.length > 0 && !hasSelection
-  const uploaderWrapperClasses = 'mx-auto min-h-[222px] lg:w-[300px] flex items-center justify-center'
+  const uploaderWrapperClasses = 'mx-auto min-h-[222px] lg:w-[300px] flex items-center justify-center rounded-xl border border-slate-200 bg-white-100 p-4'
 
   return (
     <section className='flex flex-col gap-6'>
@@ -99,9 +99,9 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
       ) : (
         <div className='flex flex-col gap-6'>
           {/* Fila superior: Imagen + Uploader */}
-          <div className='md:ml-70 flex flex-col lg:flex-row lg:items-start justify-between gap-10'>
+          <div className='flex flex-col justify-between gap-10 lg:flex-row lg:items-start'>
             {/* Imagen actual */}
-            <div className='w-[281px] h-[281px] rounded-lg overflow-hidden'>
+            <div className='w-[281px] h-[281px] rounded-lg overflow-hidden border border-slate-200 bg-white-100 p-2'>
 
               {imagePreview && (
                 <>
@@ -109,7 +109,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
                   <img
                     src={imagePreview}
                     alt='Actividad seleccionada'
-                    className='h-full w-full object-cover'
+                    className='h-full w-full rounded-md object-cover'
                   />
                 </>
 
@@ -136,7 +136,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
 
               </div>
             ) : (
-              <div className='min-h-[222px] lg:w-[300px]'>
+              <div className='min-h-[222px] lg:w-[300px] rounded-xl border border-slate-200 bg-white-100 p-4'>
                 <ImageUploaderExpanded
                   key={`change-activity-uploader-${uploaderVersion}`}
                   placeholder='arrastra/selecciona la imagen que deseas subir'
@@ -151,7 +151,7 @@ const AddActivities: React.FC<{ hideAdd: boolean }> = ({ hideAdd }) => {
           </div>
 
           {/* Fila inferior: Formulario */}
-          <div className='w-full max-w-4xl'>
+          <div className='w-full max-w-4xl rounded-xl border border-slate-200 bg-white-100 p-4'>
             {isMobile && !hideAdd ? (
               <>
                 <ImageUploaderExpanded

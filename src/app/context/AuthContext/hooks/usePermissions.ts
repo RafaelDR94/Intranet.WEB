@@ -6,7 +6,7 @@ import { User } from "../types";
 interface UsePermissionProp {
   user: User | null;
 }
-const normalizeRoute = (route: string) => {
+export const normalizeRoute = (route: string) => {
   if (!route) return route;
   // intenta parseo robusto (soporta relativas con base dummy)
   try {

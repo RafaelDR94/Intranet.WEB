@@ -313,7 +313,7 @@ const useVehicleDocuments = () => {
       const toolscheck = buildChecklist(tracking, TOOL_CHECKLIST);
 
       const infoSection = {
-        title: arrival ? "Informacion de llegada" : "Informacion de salida",
+        title: arrival ? "Información de llegada" : "Información de salida",
         data: documentdata,
       };
       const picturesSection = {
@@ -487,7 +487,7 @@ const useVehicleDocuments = () => {
     ];
 
     const InfoCar = {
-      title: 'Informacion vehicular',
+      title: 'Información vehicular',
       data: carData
     };
     const InfoCar2 = {

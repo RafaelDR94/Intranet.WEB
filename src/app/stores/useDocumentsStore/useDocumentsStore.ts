@@ -4,13 +4,14 @@ import { devtools } from 'zustand/middleware'
 import { createWithEqualityFn } from 'zustand/traditional'
 
 import type { DocumentsState } from './types'
-import { deleteDocument, fetchDocuments } from './utilities'
+import { deleteDocument, fetchDocuments, fetchDocumentsByUser } from './utilities'
 
 const initialState: Pick<
   DocumentsState,
   |
     'documents'
     | 'managementDocuments'
+    | 'operationalDocuments'
     | 'loading'
     | 'successGet'
     | 'deletingDocument'
@@ -19,6 +20,7 @@ const initialState: Pick<
 > = {
   documents: [],
   managementDocuments: [],
+  operationalDocuments: [],
   loading: false,
   successGet: false,
   deletingDocument: false,
@@ -31,6 +33,8 @@ export const useDocumentsStore = createWithEqualityFn<DocumentsState>()(
     ...initialState,
 
     fetchDocuments: (force = false) => fetchDocuments(set, get, force),
+    fetchDocumentsByUser: (idUser: string, force = false) =>
+      fetchDocumentsByUser(set, get, idUser, force),
     deleteDocument: (id: string) => deleteDocument(set, get, id),
 
     reset: () => set({ ...initialState }),

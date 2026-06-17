@@ -7,7 +7,8 @@ import { createProyect } from './createProyect'
 import type { ProyectPost } from '@/app/mappings/proyects/proyects.types'
 
 vi.mock('@/app/utilities/Http/requireGateway', () => ({ requireGateway: () => vi.fn() }))
-vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pPost: () => async () => ({ data: { data: { id: 'np' } } }) }))
+const postMock = vi.fn(async () => ({ data: { data: { id: 'np' } } }))
+vi.mock('@/app/utilities/Http/promisifyIntranet', () => ({ pPost: () => postMock }))
 vi.mock('./fetchProyects', () => ({ fetchProyects: vi.fn(async () => {}) }))
 
 describe('createProyect util', () => {
@@ -16,10 +17,19 @@ describe('createProyect util', () => {
     const set: Set = (partial) => Object.assign(state, typeof partial === 'function' ? partial(state as ProyectsState) : partial)
     const get: Get = () => state as ProyectsState
 
-    const payload: ProyectPost = { name: 'N', proyectKey: 'K', client: 'C', collaborators: [] }
+    const payload: ProyectPost = { name: 'N', proyectKey: 'K', client: 'C', managerId: 'emp-1', collaborators: ['emp-1', 'emp-2'] }
     const res = await createProyect(set, get, payload)
 
     expect(res?.id).toBe('np')
+    expect(postMock).toHaveBeenCalledWith('/Reports/Proyects', {
+      name: 'N',
+      proyectkey: 'K',
+      proyectKey: 'K',
+      client: 'C',
+      collaborators_ids: ['emp-1', 'emp-2'],
+      collabarators_ids: ['emp-1', 'emp-2'],
+      managerId: 'emp-1',
+    })
     expect(state.creating).toBe(false)
     expect(state.successPost).toBe(true)
   })

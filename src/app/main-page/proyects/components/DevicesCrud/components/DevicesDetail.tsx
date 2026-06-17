@@ -1,15 +1,15 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
+import { Copy, Link2, Pencil, Plus } from 'lucide-react';
 
 import ButtonsNavigation from '@/app/components/ButtonsNavigation/ButtonsNavigation';
-import { Button } from '@/app/components/Button/Button';
-import { DataTable } from '@/app/components/DataTable/DataTable';
 import DetailsPanelLayout from '@/app/components/DetailsPanelLayout/DetailsPanelLayout';
 import Label from '@/app/components/Label/Label';
 
 import { useDevicesDetail } from '../hooks/useDevicesDetail';
 import type { CrudScope } from '../../types';
+import { Button } from '@/app/components/Button/Button';
 
 type DevicesDetailProps = {
   scope: CrudScope;
@@ -19,9 +19,13 @@ type DevicesDetailProps = {
 type RefactionRow = {
   id: string;
   name: string;
-  code: string;
-  quantity: string;
+  brand: string;
+  model: string;
+  serialNumber: string;
 };
+
+const cardClass =
+  'rounded-[12px] bg-white-100 px-4 py-3 shadow-[0px_2px_6px_rgba(19,25,39,0.12)]';
 
 const DevicesDetail = ({ scope, open }: DevicesDetailProps) => {
   const state = useDevicesDetail(scope);
@@ -37,6 +41,7 @@ const DevicesDetail = ({ scope, open }: DevicesDetailProps) => {
     statusLabelType,
     onClose,
     onEdit,
+    onNewRefaction,
   } = state;
 
   useEffect(() => {
@@ -56,6 +61,11 @@ const DevicesDetail = ({ scope, open }: DevicesDetailProps) => {
     resetRefactionsFlags();
   }, [activeTab, refactionsError, resetRefactionsFlags]);
 
+  const handleCopy = async (value?: string) => {
+    if (!value) return;
+    await navigator.clipboard.writeText(value);
+  };
+
   return (
     <DetailsPanelLayout
       open={open}
@@ -65,35 +75,16 @@ const DevicesDetail = ({ scope, open }: DevicesDetailProps) => {
       withinContainer
       collapsedWidthClass="w-[478px] min-w-[478px]"
       contentClassName="px-4 pb-6 pt-0 sm:px-5 md:px-7"
-      label={() =>
-        device ? <Label type={statusLabelType} text={device.status} /> : null
-      }
+      label={() => (device ? <Label type={statusLabelType} text={device.status} /> : null)}
     >
       {loading && !device ? (
         <div className="text-center text-gray-70">Cargando detalle del dispositivo...</div>
       ) : !device ? (
-        <div className="text-center text-gray-70">
-          Selecciona un dispositivo para ver el detalle.
-        </div>
+        <div className="text-center text-gray-70">Selecciona un dispositivo para ver el detalle.</div>
       ) : (
         <div className="min-w-0 space-y-[18px]">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 space-y-1">
-              <h2 className="break-words text-s1 font-semibold text-green-100">
-                {device.primary}
-              </h2>
-              <p className="text-b4 text-gray-70">{device.secondary}</p>
-            </div>
-
-            <Button
-              hideIcon
-              size="xsmall"
-              variant="outline"
-              className="h-[24px] rounded-[8px] px-4 py-[6px]"
-              onClick={onEdit}
-            >
-              Editar
-            </Button>
+          <div className="min-w-0 space-y-1 pt-2">
+            <h2 className="break-words text-s1 font-semibold text-green-100">{device.primary}</h2>
           </div>
 
           <ButtonsNavigation
@@ -107,29 +98,94 @@ const DevicesDetail = ({ scope, open }: DevicesDetailProps) => {
           >
             <ButtonsNavigation.Item
               id="info"
-              label="Informacion"
+              label="Información"
               className="h-[24px] rounded-[8px] px-4 py-[6px]"
               renderContent={
-                <div className="grid gap-4 pt-2 sm:grid-cols-2">
-                  <div className="rounded-[10px] border border-gray-20 bg-white-100 p-4">
-                    <p className="text-c2 text-gray-60">Dispositivo</p>
-                    <p className="mt-1 text-b3 text-gray-100">{device.primary}</p>
+                <div className="space-y-4 pt-2">
+                  <div className="flex justify-end">
+                    <Button
+                      variant="ghost"
+                      icon={Pencil}
+                      onClick={onEdit}
+                    >
+                      Editar información
+                    </Button>
                   </div>
-                  <div className="rounded-[10px] border border-gray-20 bg-white-100 p-4">
-                    <p className="text-c2 text-gray-60">Marca</p>
-                    <p className="mt-1 text-b3 text-gray-100">{device.secondary}</p>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className={cardClass}>
+                      <p className="text-[14px] font-medium text-gray-90">
+                        ID/SKU: <span className="text-gray-70">{device.id}</span>
+                      </p>
+                    </div>
+                    <div className={cardClass}>
+                      <p className="text-[14px] font-medium text-gray-90">
+                        Proyecto: <span className="text-gray-70">{device.projectCode || 'Sin proyecto'}</span>
+                      </p>
+                    </div>
                   </div>
-                  <div className="rounded-[10px] border border-gray-20 bg-white-100 p-4">
-                    <p className="text-c2 text-gray-60">Ubicacion</p>
-                    <p className="mt-1 text-b3 text-gray-100">{device.tertiary}</p>
+
+                  <div className={cardClass}>
+                    <p className="text-[14px] font-medium text-gray-90">
+                      Equipo: <span className="text-gray-70">{device.primary}</span>
+                    </p>
                   </div>
-                  <div className="rounded-[10px] border border-gray-20 bg-white-100 p-4">
-                    <p className="text-c2 text-gray-60">Estatus</p>
-                    <p className="mt-1 text-b3 text-gray-100">{device.status}</p>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className={cardClass}>
+                      <p className="text-[14px] font-medium text-gray-90">
+                        Marca: <span className="text-gray-70">{device.secondary}</span>
+                      </p>
+                    </div>
+                    <div className={cardClass}>
+                      <p className="text-[14px] font-medium text-gray-90">
+                        Modelo: <span className="text-gray-70">{device.model || 'Sin información'}</span>
+                      </p>
+                    </div>
                   </div>
-                  <div className="rounded-[10px] border border-gray-20 bg-white-100 p-4 sm:col-span-2">
-                    <p className="text-c2 text-gray-60">Descripcion</p>
-                    <p className="mt-1 text-b3 text-gray-100">{device.description}</p>
+
+                  <div className={cardClass}>
+                    <p className="text-[14px] font-medium text-gray-90">
+                      Número de serie: <span className="text-gray-70">{device.serialOrPart || 'Sin información'}</span>
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                    <div className={cardClass}>
+                      <p className="text-[14px] font-medium text-gray-90">
+                        Ubicación: <span className="text-gray-70">{device.tertiary}</span>
+                      </p>
+                    </div>
+                    <div className={`${cardClass} flex items-center justify-center gap-3 px-5`}>
+                      <a
+                        href={device.mapLink || '#'}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex h-6 w-6 items-center justify-center text-blue-60"
+                        aria-label="Abrir enlace de ubicación"
+                      >
+                        <Link2 className="h-5 w-5" strokeWidth={1.75} />
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => void handleCopy(device.mapLink)}
+                        className="inline-flex h-6 w-6 items-center justify-center text-blue-60"
+                        aria-label="Copiar enlace de ubicación"
+                      >
+                        <Copy className="h-5 w-5" strokeWidth={1.75} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={cardClass}>
+                    <p className="text-[14px] font-medium text-gray-90">
+                      Ubicación: <span className="text-gray-70">{device.tertiary}</span>
+                    </p>
+                  </div>
+
+                  <div className={`${cardClass} min-h-[110px]`}>
+                    <p className="text-[14px] font-medium text-gray-90">Características adicionales:</p>
+                    <p className="mt-4 text-[14px] leading-[1.3] text-gray-70">{device.description}</p>
                   </div>
                 </div>
               }
@@ -139,45 +195,51 @@ const DevicesDetail = ({ scope, open }: DevicesDetailProps) => {
               label="Refacciones"
               className="h-[24px] rounded-[8px] px-4 py-[6px]"
               renderContent={
-                <div className="pt-2">
+                <div className="space-y-3 pt-2">
+                  <div className="flex justify-end">
+                    <Button
+                      variant="ghost"
+                      icon={Plus}
+                      onClick={onNewRefaction}
+                    >
+                      Nueva refacción
+                    </Button>
+                  </div>
                   {loadingRefactions ? (
                     <div className="py-6 text-center text-gray-70">Cargando refacciones...</div>
                   ) : (
-                    <DataTable<RefactionRow>
-                      showCalendar={false}
-                      showSearch={false}
-                      showFilter={false}
-                      showButton={false}
-                      enableInternalSearch={false}
-                      enablePagination={false}
-                      textSize={{ mobile: 'text-d3', desktop: 'text-b4' }}
-                      tables={[
-                        {
-                          title: 'Refacciones relacionadas',
-                          data: refactions,
-                          columns: [
-                            {
-                              key: 'name',
-                              label: 'REFACCION',
-                              cellClass: 'w-[46%] min-w-0 px-2',
-                              headerClass: 'w-[46%] min-w-0 px-2',
-                            },
-                            {
-                              key: 'code',
-                              label: 'CODIGO',
-                              cellClass: 'w-[24%] min-w-0 px-2',
-                              headerClass: 'w-[24%] min-w-0 px-2',
-                            },
-                            {
-                              key: 'quantity',
-                              label: 'CANTIDAD',
-                              cellClass: 'w-[30%] min-w-0 px-2',
-                              headerClass: 'w-[30%] min-w-0 px-2',
-                            },
-                          ],
-                        },
-                      ]}
-                    />
+                    <div className="overflow-hidden rounded-[14px] bg-white-100 shadow-[0px_2px_8px_rgba(19,25,39,0.12)]">
+                      <div>
+                        <table className="w-full border-collapse table-fixed">
+                          <thead>
+                            <tr className="border-b border-[#9EB8C4]">
+                              <th className="px-3 py-4 text-left text-[13px] font-semibold text-green-100">NOMBRE</th>
+                              <th className="px-3 py-4 text-left text-[13px] font-semibold text-green-100">MARCA</th>
+                              <th className="px-3 py-4 text-left text-[13px] font-semibold text-green-100">MODELO</th>
+                              <th className="px-3 py-4 text-left text-[13px] font-semibold text-green-100">No.SERIE</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {refactions.length === 0 ? (
+                              <tr>
+                                <td colSpan={5} className="px-3 py-6 text-center text-[13px] text-gray-70">
+                                  No hay refacciones relacionadas.
+                                </td>
+                              </tr>
+                            ) : (
+                              refactions.map((row: RefactionRow) => (
+                                <tr key={row.id} className="border-b border-gray-30 last:border-b-0">
+                                  <td className="px-3 py-3 text-[13px] text-gray-70">{row.name}</td>
+                                  <td className="px-3 py-3 text-[13px] text-gray-70">{row.brand}</td>
+                                  <td className="px-3 py-3 text-[13px] text-gray-70">{row.model}</td>
+                                  <td className="px-3 py-3 text-[13px] text-gray-70">{row.serialNumber}</td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   )}
                 </div>
               }
@@ -190,3 +252,4 @@ const DevicesDetail = ({ scope, open }: DevicesDetailProps) => {
 };
 
 export default DevicesDetail;
+

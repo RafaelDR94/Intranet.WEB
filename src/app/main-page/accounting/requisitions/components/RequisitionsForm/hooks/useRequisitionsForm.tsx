@@ -129,7 +129,6 @@ export const useRequisitionForm = (
           label: e.fullname,
           value: e.employee_id,
         })),
-        value: ""
       });
     }
   }, [employees, formId, updateField]);
@@ -141,7 +140,6 @@ export const useRequisitionForm = (
           label: p.proyectKey,
           value: p.id,
         })),
-        value: ""
       });
     }
   }, [proyects, formId, updateField]);

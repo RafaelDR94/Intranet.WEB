@@ -5,7 +5,7 @@ export const requestAccesTutorials: TutorialDefinition[] = [
     id: 'request-acces-generate:main',
     moduleId: 'request-acces-generate',
     title: 'Generar acceso',
-    description: 'Captura la informacion del acceso.',
+    description: 'Captura la Información del acceso.',
     version: 1,
     steps: [
       {
@@ -16,7 +16,7 @@ export const requestAccesTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="acces-generate-submit"]',
         title: 'Enviar solicitud',
-        description: 'Guarda la informacion del acceso.',
+        description: 'Guarda la Información del acceso.',
       },
       {
         target: '[data-tour="acces-external-form"]',
@@ -64,7 +64,7 @@ export const requestAccesTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="acces-register-form"]',
         title: 'Formulario',
-        description: 'Completa la informacion de la empresa.',
+        description: 'Completa la Información de la empresa.',
       },
       {
         target: '[data-tour="acces-register-submit"]',

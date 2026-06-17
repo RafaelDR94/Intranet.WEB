@@ -21,7 +21,7 @@ export const requestDocumentsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="request-documents-management-refresh"]',
         title: 'Actualizar',
-        description: 'Recarga la informacion mas reciente.',
+        description: 'Recarga la Información mas reciente.',
       },
       {
         target: '[data-tour="request-documents-management-open"]',
@@ -55,7 +55,7 @@ export const requestDocumentsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="request-documents-operational-refresh"]',
         title: 'Actualizar',
-        description: 'Recarga la informacion mas reciente.',
+        description: 'Recarga la Información mas reciente.',
       },
       {
         target: '[data-tour="request-documents-operational-open"]',

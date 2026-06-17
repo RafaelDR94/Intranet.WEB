@@ -7,6 +7,8 @@ import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pPut } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 
+const isMfaChannelMethod = (method: string) => method === 'SMS' || method === 'Email'
+
 export const changeMfaMethodStatus = async (
   set: Set,
   get: Get,
@@ -20,7 +22,8 @@ export const changeMfaMethodStatus = async (
     await put(UsersMfaMethod, mapped)
 
     const currentMfa = get().userMfaById
-    const normalizedMethod = mapped.method === 'SMS' ? 'SMS' : 'Email'
+    const normalizedMethod =
+      mapped.method === 'SMS' ? 'SMS' : mapped.method === 'Passkey' ? 'Passkey' : 'Email'
     const nextMethods = currentMfa
       ? currentMfa.methods.map((method) =>
           method.method === normalizedMethod
@@ -28,16 +31,23 @@ export const changeMfaMethodStatus = async (
             : method,
         )
       : null
+    const nextTwoFactorEnabled =
+      nextMethods?.some(
+        (method) => isMfaChannelMethod(method.method) && method.isEnabled,
+      ) ?? currentMfa?.twoFactorEnabled ?? false
 
     set({
       changingMFAMethod: false,
       successChangeMFAMethod: true,
       ...(mapped.method === 'SMS'
         ? { mfaSmsEnabled: mapped.isEnabled }
-        : { mfaEmailEnabled: mapped.isEnabled }),
+        : mapped.method === 'Email'
+          ? { mfaEmailEnabled: mapped.isEnabled }
+          : {}),
       userMfaById: currentMfa
         ? {
             ...currentMfa,
+            twoFactorEnabled: nextTwoFactorEnabled,
             methods: nextMethods ?? currentMfa.methods,
           }
         : null,

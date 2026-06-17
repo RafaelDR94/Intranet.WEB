@@ -140,8 +140,8 @@ describe('useVehicleRegistry', () => {
   it('switches to arrive copy when query indicates arrive', () => {
     queryAllState.place = 'arrive';
     const { result } = renderHook(() => useVehicleRegistry());
-    expect(result.current.title).toBe('Registro Vehicular de Entrada');
-    expect(result.current.submitLabel).toBe('Registrar Entrada');
+    expect(result.current.title).toBe('Registro Vehicular de Llegada');
+    expect(result.current.submitLabel).toBe('Registrar Llegada');
   });
 
   it('advances and returns to form view using handlers', () => {

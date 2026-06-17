@@ -2,10 +2,10 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { sampleReports } from "./testUtils/reportFixtures";
-import { ReportsTableMap } from "@/app/mappings/reports/report.mapper";
+import { sampleProjectReports, sampleReports } from "./testUtils/reportFixtures";
+import { ProjectReportsTableMap } from "@/app/mappings/reports/report.mapper";
 
-const mappedReports = ReportsTableMap(sampleReports);
+const mappedReports = ProjectReportsTableMap(sampleProjectReports);
 
 import ReportsTable from "./ReportsTable";
 
@@ -47,6 +47,7 @@ vi.mock("@/app/context/AuthContext/AuthContext", () => ({
       idEmployee: sampleReports[0].employe.employee_id,
       fullName: sampleReports[0].employe.fullname,
     },
+    currentPagePermissions: { reportdetails: true, canSeeAllReports: true },
   }),
 }));
 

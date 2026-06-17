@@ -1,48 +1,74 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Trash2, UserRoundPlus } from 'lucide-react';
-
+import TrashIcon from '@/assets/icons/acciones/trash.svg';
+import AddUserIcon from '@/assets/icons/Users/Users/add-user.svg';
+import WrenchIcon from '@/assets/icons/tools/tools/wrench.svg';
 import { Button } from '@/app/components/Button/Button';
 import { Input } from '@/app/components/Input/Input';
+import { Select } from '@/app/components/Select/Select';
 
 import CrudFormTemplate from '../../CrudFormTemplate';
+import type { CrudScope } from '../../types';
 import {
   useRefactionsForm,
+  type RefactionEquipmentFormValue,
   type RefactionProviderFormValue,
 } from '../hooks/useRefactionsForm';
-import type { CrudScope } from '../../types';
 
 type RefactionsFormProps = {
   scope: CrudScope;
 };
 
-const LABEL_CLASS = 'text-label font-medium leading-4 text-gray-70';
-const CONTROL_CLASS =
-  'h-[40px] rounded-[8px] border-[1.5px] border-[#afafaf] bg-white px-3 py-2 text-b3 leading-5 text-black-100 shadow-none placeholder:text-gray-50';
+const buildEquipmentOptionLabel = (typeOfEquipment: string, brand: string, model: string) =>
+  [typeOfEquipment.trim(), brand.trim(), model.trim()].filter(Boolean).join(' - ');
+
+const actionWrapperClasses = 'flex items-end md:min-h-[56px] md:justify-end';
+const actionButtonClasses = 'flex-row-reverse gap-2 px-0 text-label font-medium text-gray-70';
 
 const RefactionsForm = ({ scope }: RefactionsFormProps) => {
   const state = useRefactionsForm(scope);
   const [providers, setProviders] = useState<RefactionProviderFormValue[]>(state.initialProviders);
+  const [equipments, setEquipments] = useState<RefactionEquipmentFormValue[]>(state.initialEquipments);
 
-  const handleProviderChange = (
-    providerId: string,
-    key: keyof Omit<RefactionProviderFormValue, 'id'>,
-    value: string,
-  ) => {
-    setProviders((current) =>
-      current.map((provider) =>
-        provider.id === providerId ? { ...provider, [key]: value } : provider,
-      ),
-    );
-  };
+  useEffect(() => {
+    setProviders(state.initialProviders);
+  }, [state.initialProviders]);
+
+  useEffect(() => {
+    setEquipments(state.initialEquipments);
+  }, [state.initialEquipments]);
+
+  const hasSelectedEquipment = equipments.some((equipment) => equipment.equipmentId.trim().length > 0);
+  const equipmentHelperText =
+    state.genericEquipments.length === 0
+      ? 'No hay equipos genericos disponibles para seleccionar.'
+      : !hasSelectedEquipment
+        ? 'Selecciona al menos un equipo generico.'
+        : undefined;
+
+  const equipmentOptions = state.genericEquipments.map((genericEquipment) => ({
+    value: genericEquipment.id,
+    label:
+      buildEquipmentOptionLabel(
+        genericEquipment.typeOfEquipment,
+        genericEquipment.brand,
+        genericEquipment.model,
+      ) || genericEquipment.id,
+  }));
+
+  const supplierOptions = state.suppliers.map((supplier) => ({
+    value: supplier.id,
+    label: supplier.nombreProveedor,
+  }));
 
   const handleAddProvider = () => {
     setProviders((current) => [
       ...current,
       {
         id: `provider-${current.length + 1}-${Date.now()}`,
+        supplierId: '',
         provider: '',
         website: '',
         phone: '',
@@ -54,76 +80,174 @@ const RefactionsForm = ({ scope }: RefactionsFormProps) => {
     setProviders((current) => current.filter((provider) => provider.id !== providerId));
   };
 
+  const handleAddEquipment = () => {
+    setEquipments((current) => [
+      ...current,
+      {
+        id: `equipment-${current.length + 1}-${Date.now()}`,
+        equipmentId: '',
+        brand: '',
+        model: '',
+      },
+    ]);
+  };
+
+  const handleRemoveEquipment = (equipmentId: string) => {
+    setEquipments((current) => current.filter((equipment) => equipment.id !== equipmentId));
+  };
+
+  const handleEquipmentSelected = (rowId: string, selectedEquipmentId: string) => {
+    const selectedEquipment = state.genericEquipments.find((equipment) => equipment.id === selectedEquipmentId);
+
+    setEquipments((current) =>
+      current.map((equipment) =>
+        equipment.id === rowId
+          ? {
+              ...equipment,
+              equipmentId: selectedEquipmentId,
+              brand: selectedEquipment?.brand ?? '',
+              model: selectedEquipment?.model ?? '',
+            }
+          : equipment,
+      ),
+    );
+  };
+
+  const handleProviderSelected = (providerId: string, supplierId: string) => {
+    const selectedSupplier = state.suppliers.find((supplier) => supplier.id === supplierId);
+
+    setProviders((current) =>
+      current.map((provider) =>
+        provider.id === providerId
+          ? {
+              ...provider,
+              supplierId,
+              provider: selectedSupplier?.nombreProveedor ?? '',
+              website: selectedSupplier?.paginaWeb ?? '',
+              phone: selectedSupplier?.telefono ?? '',
+            }
+          : provider,
+      ),
+    );
+  };
+
+  const handleSubmit = (values: Record<string, unknown>) => {
+    void state.onSubmit(values, providers, equipments);
+  };
+
   return (
-    <CrudFormTemplate {...state}>
-      <div className="flex flex-col gap-5 pt-1">
-        {providers.map((provider, index) => (
-          <div key={provider.id} className="flex flex-col gap-3">
-            {providers.length > 1 ? (
-              <div className="flex items-center justify-between">
-                <p className="text-label font-medium text-gray-70">
-                  Proveedor {index + 1}
-                </p>
+    <CrudFormTemplate
+      {...state}
+      primaryDisabled={!hasSelectedEquipment}
+      onSubmit={handleSubmit}
+    >
+      <div className="flex flex-col gap-6 pt-1">
+        {equipments.map((equipment, index) => (
+          <div
+            key={equipment.id}
+            className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,2.8fr)_minmax(0,1.6fr)_minmax(0,1.6fr)_auto] md:items-end"
+          >
+            <Select
+              label="Equipo al que pertenece la refacciÃ³n*"
+              placeholder="Selecciona equipo"
+              selected={equipment.equipmentId ? [equipment.equipmentId] : []}
+              onChange={(selected) => handleEquipmentSelected(equipment.id, selected[0] ?? '')}
+              options={equipmentOptions}
+              helperText={index === 0 ? equipmentHelperText : undefined}
+            />
+            <Input
+              label="Marca"
+              placeholder="Marca del equipo"
+              value={equipment.brand}
+              disabled
+              variant="disabled"
+            />
+            <Input
+              label="Modelo"
+              placeholder="Modelo del equipo"
+              value={equipment.model}
+              disabled
+              variant="disabled"
+            />
+            <div className={actionWrapperClasses}>
+              {index === equipments.length - 1 ? (
                 <Button
                   type="button"
                   variant="ghost"
-                  size="small"
-                  hideIcon
-                  onClick={() => handleRemoveProvider(provider.id)}
-                  className="gap-2 px-0 text-alert-red-100 hover:bg-transparent"
+                  icon={WrenchIcon}
+                  onClick={handleAddEquipment}
+                  className={actionButtonClasses}
                 >
-                  <Trash2 className="h-4 w-4" />
-                  <span>Eliminar proveedor</span>
+                  Agregar equipo
                 </Button>
-              </div>
-            ) : null}
-
-            <div className="flex w-full gap-[30px] max-md:flex-col">
-              <div className="w-full">
-                <Input
-                  label="Proveedor"
-                  value={provider.provider}
-                  onChange={(event) =>
-                    handleProviderChange(provider.id, 'provider', event.target.value)
-                  }
-                  labelClassName={LABEL_CLASS}
-                  className={CONTROL_CLASS}
-                />
-              </div>
-              <div className="w-full">
-                <Input
-                  label="Pagina web"
-                  value={provider.website}
-                  onChange={(event) =>
-                    handleProviderChange(provider.id, 'website', event.target.value)
-                  }
-                  labelClassName={LABEL_CLASS}
-                  className={CONTROL_CLASS}
-                />
-              </div>
-              <div className="w-full">
-                <Input
-                  label="Telefono"
-                  value={provider.phone}
-                  onChange={(event) =>
-                    handleProviderChange(provider.id, 'phone', event.target.value)
-                  }
-                  labelClassName={LABEL_CLASS}
-                  className={CONTROL_CLASS}
-                />
-              </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  icon={TrashIcon}
+                  onClick={() => handleRemoveEquipment(equipment.id)}
+                  className={actionButtonClasses}
+                >
+                  Eliminar equipo
+                </Button>
+              )}
             </div>
           </div>
         ))}
 
-        <button
-          type="button"
-          onClick={handleAddProvider}
-          className="inline-flex w-fit items-center gap-3 text-label font-medium text-gray-70"
-        >
-          <UserRoundPlus className="h-6 w-6 text-blue-60" strokeWidth={1.75} />
-          <span>Agregar proveedor</span>
-        </button>
+        <div className="flex flex-col gap-4">
+          {providers.map((provider, index) => (
+            <div
+              key={provider.id}
+              className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,1.2fr)_auto] md:items-end"
+            >
+              <Select
+                label="Proveedor"
+                placeholder="Selecciona un proveedor"
+                selected={provider.supplierId ? [provider.supplierId] : []}
+                onChange={(selected) => handleProviderSelected(provider.id, selected[0] ?? '')}
+                options={supplierOptions}
+              />
+              <Input
+                label="Página web"
+                placeholder="Sin pagina web"
+                value={provider.website}
+                disabled
+                variant="disabled"
+              />
+              <Input
+                label="Telefono"
+                placeholder="Sin telefono"
+                value={provider.phone}
+                disabled
+                variant="disabled"
+              />
+              <div className={actionWrapperClasses}>
+                {index === providers.length - 1 ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    icon={AddUserIcon}
+                    onClick={handleAddProvider}
+                    className={actionButtonClasses}
+                  >
+                    Agregar proveedor
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    icon={TrashIcon}
+                    onClick={() => handleRemoveProvider(provider.id)}
+                    className={actionButtonClasses}
+                  >
+                    Eliminar proveedor
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </CrudFormTemplate>
   );

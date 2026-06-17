@@ -67,10 +67,11 @@ const VehicleRegistry = () => {
             if (currentView === "form") handleNext(); else handleBack();
           }}
           hideIcon
+          variant="outline"
           disabled={currentView === "form" && !formReady}
           data-tour="vehicleregistry-next"
         >
-          {currentView === "form" ? "Siguiente: Cargar Fotos" : "Volver al Formulario"}
+          {currentView === "form" ? "Siguiente: Cargar Fotos" : "Regresar"}
         </Button>
       </div>
 

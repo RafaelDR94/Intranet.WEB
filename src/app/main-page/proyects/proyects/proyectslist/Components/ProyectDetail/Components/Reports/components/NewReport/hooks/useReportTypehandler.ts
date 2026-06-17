@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useReportsStore } from "@/app/stores/useReportsStore/useReportsStore";
 import useReportBuilderStore from "@/app/stores/useReportBuilderStore/useReportBuilderStore";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
@@ -13,8 +13,9 @@ const useReportTypehandler = ({ canStart }: useReportTypeHandlerProps) => {
     const { showSpinner, hideSpinner } = usePrincipalLoading;
 
     const [selectedTypeId, setSelectedTypeId] = useState('');
+    const initializedReportRef = useRef<string>("");
 
-    const { report } = useReportBuilderStore();
+    const { report, updateModel } = useReportBuilderStore();
 
     const {
         typesofReports,
@@ -31,6 +32,7 @@ const useReportTypehandler = ({ canStart }: useReportTypeHandlerProps) => {
         () => typesofReports.map((type) => ({ label: type.name, value: type.id })),
         [typesofReports]
     );
+    const currentReportKey = report.front_identifier || report.id || "__draft__";
 
 
     useEffect(() => {
@@ -42,15 +44,40 @@ const useReportTypehandler = ({ canStart }: useReportTypeHandlerProps) => {
 
     const handleTypeChange = useCallback((values: string[]) => {
         const next = values[0] ?? '';
+        if (!next || next === selectedTypeId) return;
         setSelectedTypeId(next);
-    }, []);
+    }, [selectedTypeId]);
 
 
     useEffect(() => {
-        if (typesofReports.length === 0||!report.front_identifier) return;
-        const selectedType = report.type || typesofReports[0]?.id
+        if (typesofReports.length === 0) return;
+        const shouldInitialize =
+            initializedReportRef.current !== currentReportKey || !selectedTypeId;
+
+        if (!shouldInitialize) return;
+
+        const selectedType =
+            report.type?.trim() ||
+            report.reportcategories?.typesofreports?.id ||
+            typesofReports[0]?.id ||
+            "";
+
+        if (!selectedType) return;
+
+        initializedReportRef.current = currentReportKey;
         setSelectedTypeId(selectedType);
-    }, [typesofReports,report]);
+
+        if (report.type !== selectedType) {
+            updateModel({ type: selectedType });
+        }
+    }, [
+        currentReportKey,
+        report.reportcategories?.typesofreports?.id,
+        report.type,
+        selectedTypeId,
+        typesofReports,
+        updateModel,
+    ]);
 
     useEffect(() => {
         if (!selectedTypeId) return;

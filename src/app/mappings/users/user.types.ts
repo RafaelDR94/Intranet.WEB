@@ -124,15 +124,16 @@ export type RolePost = {
   description?: string | null;
 };
 
-export type MfaMethod = "SMS" | "Email";
+export type MfaMethod = "SMS" | "Email" | "Passkey";
 
-export type MfaMethodPayloadMethod = "SMS" | "EMAIL";
+export type MfaMethodPayloadMethod = "SMS" | "Email" | "Passkey";
 
 export type UserMfaMethodResponse = {
   method: MfaMethod;
   isEnabled: boolean;
   isVerified: boolean;
   destinationMasked: string | null;
+  destination?: string | null;
   challengeId: string | null;
 };
 
@@ -151,6 +152,8 @@ export type UserMfaMethodPayload = {
   idUser: string;
   method: MfaMethodPayloadMethod;
   isEnabled: boolean;
+  destination?: string;
+  idPasskey?: string;
 };
 
 export type UserPasskeyResponse = {

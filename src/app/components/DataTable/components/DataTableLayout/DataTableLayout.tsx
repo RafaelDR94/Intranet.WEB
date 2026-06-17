@@ -103,12 +103,14 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
             iconOnly
             variant={props.isCardsView ? "ghost" : "outline"}
             icon={ListIcon}
+            size={isMobile ? "small" : "medium"}
             onClick={() => props.onToggleView?.(false)}
           />
           <Button
             iconOnly
             variant={props.isCardsView ? "outline" : "ghost"}
             icon={GridIcon}
+            size={isMobile ? "small" : "medium"}
             onClick={() => props.onToggleView?.(true)}
           />
         </div>

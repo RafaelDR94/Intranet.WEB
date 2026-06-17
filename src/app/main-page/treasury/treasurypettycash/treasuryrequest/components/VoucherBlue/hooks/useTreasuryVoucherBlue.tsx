@@ -308,7 +308,7 @@ export const useTreasuryVoucherBlue = ({
   useEffect(() => {
     if (opRunning) {
       showSpinner({
-        message: "Espera un momento, tu informacion se esta guardando",
+        message: "Espera un momento, tu Información se esta guardando",
       });
       return;
     }

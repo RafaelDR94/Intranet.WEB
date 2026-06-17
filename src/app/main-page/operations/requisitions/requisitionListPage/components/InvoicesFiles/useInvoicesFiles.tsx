@@ -14,7 +14,7 @@ import { useBillingRequisitionWithEmployeesStore } from "@/app/stores/useBilling
 import { shallow } from "zustand/shallow";
 import PDFIcon from "@/assets/icons/Docs/page.svg";
 import XMLIcon from "@/assets/icons/Docs/privacy policy.svg";
-import ImageIcon from '@/assets/icons/Fotos y Videos/media-image.svg'
+import ImageIcon from "@/assets/icons/Fotos y Videos/media-image.svg";
 import ChatIcon from "@/assets/icons/Comunicacion/chat-lines.svg";
 import { useRequisitionDocuments } from "../hooks/useRequisitionDocuments";
 import { useTutorials } from "@/tutorials/engine/TutorialProvider";
@@ -43,6 +43,7 @@ type InvoiceRow = {
   subtotal?: number;
   iva?: number;
   total?: number;
+  source: BillingDocuments;
 };
 
 type InvoiceOverride = {
@@ -72,69 +73,70 @@ const mapInvoices = (
   requisitionId?: string,
   overrides?: Record<string, InvoiceOverride>,
 ): InvoiceRow[] =>
-  documents
-
-    .map((doc) => {
-      const requisitionFromDoc =
-        doc.requisition?.billingrequisition_id ??
-        (doc as any)?.billingrequisition_id ??
-        (doc as any)?.requisition_id ??
-        (doc as any)?.requisitionId;
-      const requisition =
-        requisitions.find(
-          (item) => item.billingrequisition_id === requisitionFromDoc,
-        ) ??
-        (requisitionId
-          ? requisitions.find(
-              (item) => item.billingrequisition_id === requisitionId,
-            )
-          : undefined);
-      const certificationDate = doc.fecha.includes("NaN") ? doc.date_created : doc.fecha;
-      const claveSat = Array.isArray(doc.conceptos)
-        ? doc.conceptos
-            .map((item) => item.clave_sat || item.clavesat_description || "")
-            .filter((item) => Boolean(item))
-            .join(", ")
-        : "";
-      const baseRow = {
-        id: doc.billingdocument_id,
-        uuid: doc.uuid ?? doc.billingdocument_id,
-        date: formatDate(certificationDate)||certificationDate,
-        certificationDate,
-        category: doc.category?.name ?? "",
-        description: doc.description?.name ?? "",
-        status: doc.status ?? "",
-        comments: doc.comments ?? "",
-        userComments: doc.user_comments ?? "",
-        xmlUrl: doc.xml || null,
-        pdfUrl: doc.pdf || null,
-        imageUrl: doc.image || null,
-        requisitionId: requisitionFromDoc ?? requisitionId,
-        requisitionKey:
-          doc.requisition?.requisitionkey ??
-          (doc as any)?.requisitionkey ??
-          requisition?.requisitionkey ??
-          "",
-        employeeName:
-          doc.requisition?.employeename ??
-          (doc as any)?.employeename ??
-          requisition?.employeename ??
-          "",
-        rfcEmisor: doc.rfc_emisor ?? null,
-        rfcReceptor: doc.rfc_receptor ?? null,
-        claveSat: claveSat || null,
-        subtotal: doc.subtotal,
-        iva: doc.iva,
-        total: doc.total,
-      };
-      const override = overrides?.[doc.billingdocument_id];
-      if (!override) return baseRow;
-      return {
-        ...baseRow,
-        status: override.status ?? baseRow.status,
-        comments: override.comments ?? baseRow.comments,
-      };
-    });
+  documents.map((doc) => {
+    const requisitionFromDoc =
+      doc.requisition?.billingrequisition_id ??
+      (doc as any)?.billingrequisition_id ??
+      (doc as any)?.requisition_id ??
+      (doc as any)?.requisitionId;
+    const requisition =
+      requisitions.find(
+        (item) => item.billingrequisition_id === requisitionFromDoc,
+      ) ??
+      (requisitionId
+        ? requisitions.find(
+            (item) => item.billingrequisition_id === requisitionId,
+          )
+        : undefined);
+    const certificationDate = doc.fecha.includes("NaN")
+      ? doc.date_created
+      : doc.fecha;
+    const claveSat = Array.isArray(doc.conceptos)
+      ? doc.conceptos
+          .map((item) => item.clave_sat || item.clavesat_description || "")
+          .filter((item) => Boolean(item))
+          .join(", ")
+      : "";
+    const baseRow = {
+      id: doc.billingdocument_id,
+      uuid: doc.uuid ?? doc.billingdocument_id,
+      date: formatDate(certificationDate) || certificationDate,
+      certificationDate,
+      category: doc.category?.name ?? "",
+      description: doc.description?.name ?? "",
+      status: doc.status ?? "",
+      comments: doc.comments ?? "",
+      userComments: doc.user_comments ?? "",
+      xmlUrl: doc.xml || null,
+      pdfUrl: doc.pdf || null,
+      imageUrl: doc.image || null,
+      requisitionId: requisitionFromDoc ?? requisitionId,
+      requisitionKey:
+        doc.requisition?.requisitionkey ??
+        (doc as any)?.requisitionkey ??
+        requisition?.requisitionkey ??
+        "",
+      employeeName:
+        doc.requisition?.employeename ??
+        (doc as any)?.employeename ??
+        requisition?.employeename ??
+        "",
+      rfcEmisor: doc.rfc_emisor ?? null,
+      rfcReceptor: doc.rfc_receptor ?? null,
+      claveSat: claveSat || null,
+      subtotal: doc.subtotal,
+      iva: doc.iva,
+      total: doc.total,
+      source: doc,
+    };
+    const override = overrides?.[doc.billingdocument_id];
+    if (!override) return baseRow;
+    return {
+      ...baseRow,
+      status: override.status ?? baseRow.status,
+      comments: override.comments ?? baseRow.comments,
+    };
+  });
 
 const statusToType = (status?: string): LabelType => {
   const normalized = (status ?? "").toLowerCase();
@@ -231,13 +233,9 @@ const useInvoicesFiles = () => {
         "";
       if (!value || map.has(value)) return;
       const requisitionKey =
-        doc.requisition?.requisitionkey ??
-        (doc as any)?.requisitionkey ??
-        "";
+        doc.requisition?.requisitionkey ?? (doc as any)?.requisitionkey ?? "";
       const projectName =
-        doc.requisition?.projectname ??
-        (doc as any)?.projectname ??
-        "";
+        doc.requisition?.projectname ?? (doc as any)?.projectname ?? "";
       const label = `${requisitionKey || value} - ${projectName}`.trim();
       map.set(value, { label, value });
     });
@@ -276,7 +274,6 @@ const useInvoicesFiles = () => {
         [invoiceId]: billingrequisition_id,
       }));
 
-
       showSpinner({ message: "Vinculando requisicion..." });
       try {
         const document = pendingBillingDocuments.find(
@@ -288,8 +285,7 @@ const useInvoicesFiles = () => {
             type: "error",
             variant: "filled",
             title: "No se encontro el documento",
-            description:
-              "No fue posible vincular la requisicion a la factura.",
+            description: "No fue posible vincular la requisicion a la factura.",
             showPrimaryButton: true,
             primaryLabel: "Entendido",
             onPrimaryClick: hideAlert,
@@ -379,7 +375,6 @@ const useInvoicesFiles = () => {
     ],
   );
 
-
   const mockRows = useMemo<InvoiceRow[]>(() => {
     return [
       {
@@ -402,6 +397,7 @@ const useInvoicesFiles = () => {
         subtotal: 1000,
         iva: 160,
         total: 1160,
+        source: {} as BillingDocuments,
       },
     ];
   }, []);
@@ -414,11 +410,16 @@ const useInvoicesFiles = () => {
       statusOverrides,
     );
 
-
-
     if (isTutorialActive && invoices.length === 0) return mockRows;
     return invoices;
-  }, [pendingBillingDocuments, requisitions, requisitionId, statusOverrides, isTutorialActive, mockRows]);
+  }, [
+    pendingBillingDocuments,
+    requisitions,
+    requisitionId,
+    statusOverrides,
+    isTutorialActive,
+    mockRows,
+  ]);
 
   const mockRequisitionOptions = useMemo(
     () => [{ label: "REQ-2026-001 - Proyecto Atlas", value: "mock-req-001" }],
@@ -448,7 +449,9 @@ const useInvoicesFiles = () => {
 
   const filteredRows = useMemo(() => {
     if (filterValue === "all") return rows;
-    return rows.filter((row) => resolveFilterStatus(row.status) === filterValue);
+    return rows.filter(
+      (row) => resolveFilterStatus(row.status) === filterValue,
+    );
   }, [filterValue, resolveFilterStatus, rows]);
 
   useEffect(() => {
@@ -472,7 +475,10 @@ const useInvoicesFiles = () => {
     if (!detailRow) return;
     setOpenValidInvoice(false);
     setLastAction({ id: detailRow.id, status: "Validado" });
-    validateBillingDocumentOperations([detailRow.id], requisitionId ?? undefined);
+    validateBillingDocumentOperations(
+      [detailRow.id],
+      requisitionId ?? undefined,
+    );
   }, [detailRow, requisitionId, validateBillingDocumentOperations]);
 
   const handleSubmitReject = useCallback(
@@ -504,11 +510,15 @@ const useInvoicesFiles = () => {
 
   useEffect(() => {
     if (validating) {
-      showSpinner({ message: "Espera un momento, se esta validando la factura." });
+      showSpinner({
+        message: "Espera un momento, se esta validando la factura.",
+      });
       return;
     }
     if (rejecting) {
-      showSpinner({ message: "Espera un momento, se esta rechazando la factura." });
+      showSpinner({
+        message: "Espera un momento, se esta rechazando la factura.",
+      });
       return;
     }
 
@@ -628,7 +638,7 @@ const useInvoicesFiles = () => {
                 data-tour="requisitions-invoice-pdf"
               />
             )}
-                        {row.imageUrl && (
+            {row.imageUrl && (
               <Button
                 size="xsmall"
                 variant="ghost"
@@ -638,8 +648,6 @@ const useInvoicesFiles = () => {
                 data-tour="requisitions-invoice-image"
               />
             )}
-
-
           </div>
         ),
         cellClass: "w-2/14",
@@ -661,7 +669,10 @@ const useInvoicesFiles = () => {
         key: "status",
         label: "Estatus",
         render: (row) => (
-          <Label type={statusToType(row.status)} text={row.status?.toUpperCase() ?? ""} />
+          <Label
+            type={statusToType(row.status)}
+            text={row.status?.toUpperCase() ?? ""}
+          />
         ),
         cellClass: "w-1/14",
         headerClass: "w-1/14",
@@ -710,19 +721,19 @@ const useInvoicesFiles = () => {
         render: (row) => (
           <div data-tour="requisitions-invoice-link">
             <Select
-            options={effectiveRequisitionOptions}
-            selected={[
-              selectedRequisitions[row.id] ?? row.requisitionId ?? "",
-            ].filter(Boolean)}
-            placeholder="Selecciona una requisición"
-            onChange={(values) => {
-              const selectedValue = values[0];
-              if (selectedValue) {
-                handleLinkRequisition(row.id, selectedValue);
-              }
-            }}
-            size="md"
-          />
+              options={effectiveRequisitionOptions}
+              selected={[
+                selectedRequisitions[row.id] ?? row.requisitionId ?? "",
+              ].filter(Boolean)}
+              placeholder="Selecciona una requisición"
+              onChange={(values) => {
+                const selectedValue = values[0];
+                if (selectedValue) {
+                  handleLinkRequisition(row.id, selectedValue);
+                }
+              }}
+              size="md"
+            />
           </div>
         ),
         cellClass: "w-2/14",
@@ -740,7 +751,6 @@ const useInvoicesFiles = () => {
 
   const mobileColumns: ColumnDefinition<InvoiceRow>[] = useMemo(
     () => [
-     
       {
         key: "status",
         label: "Estatus",
@@ -772,7 +782,7 @@ const useInvoicesFiles = () => {
                 }
               }}
               size="md"
-              className="min-w-[120px] max-w-[140px] text-[12px]"
+              className="max-w-[140px] min-w-[120px] text-[12px]"
             />
           </div>
         ),
@@ -826,7 +836,7 @@ const useInvoicesFiles = () => {
     isStatusLocked: Boolean(
       validating ||
         rejecting ||
-      detailRow?.status?.toLowerCase().includes("valid") ||
+        detailRow?.status?.toLowerCase().includes("valid") ||
         detailRow?.status?.toLowerCase().includes("rechaz"),
     ),
   };

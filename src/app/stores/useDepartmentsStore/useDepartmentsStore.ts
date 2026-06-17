@@ -4,7 +4,7 @@ import { devtools } from 'zustand/middleware'
 import { createWithEqualityFn } from 'zustand/traditional'
 
 import type { DepartmentsState } from './types'
-import { fetchDepartments, createDepartment, updateDepartment } from './utilities'
+import { fetchDepartments, createDepartment, updateDepartment, deleteDepartment } from './utilities'
 
 const initialState: Pick<
   DepartmentsState,
@@ -28,6 +28,7 @@ export const useDepartmentsStore = createWithEqualityFn<DepartmentsState>()(
     fetchDepartments: (force = false) => fetchDepartments(set, get, force),
     createDepartment: (payload) => createDepartment(set, get, payload),
     updateDepartment: (payload) => updateDepartment(set, get, payload),
+    deleteDepartment: (id) => deleteDepartment(set, get, id),
 
     reset: () => set({ ...initialState }),
 

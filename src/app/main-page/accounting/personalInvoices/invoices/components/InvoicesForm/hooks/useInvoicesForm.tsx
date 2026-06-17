@@ -1,5 +1,4 @@
-import { useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
 import { useInvoices } from "../../../context/InvoicesContext";
@@ -7,6 +6,7 @@ import useInitInvoicesForms from "../../../hooks/useInitInvoicesForms";
 import { createInvoiceFields } from "../../../utilities/InitialFields";
 
 import { UseInvoicesFormReturn, UseInvoicesFormProps } from "./types";
+import type { InvoiceSubmitResult } from "../../types";
 
 import { FieldModel } from "@/app/components/DynamicForm/types";
 import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
@@ -19,17 +19,31 @@ import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/
 import { useBillingHistoryStore } from "@/app/stores/useBillingHistoryStore/useBillingHistoryStore";
 import { useBillingAllDocumentsByEmployeeStore } from "@/app/stores/useBillingAllDocumentsByEmployeeStore/useBillingAllDocumentsByEmployeeStore";
 import { useBillingImagesStore } from "@/app/stores/useBillingImagesStore/useBillingImagesStore";
+import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormFieldsStore";
 
 const useInvoicesForm = ({
   dataEdit,
   withoutName,
+  formId,
   billingImages,
   onCloseImage,
   disabled,
   refreshRequisitionId,
+  onSubmitSuccess,
 }: UseInvoicesFormProps): UseInvoicesFormReturn => {
   const isEdit = Boolean(dataEdit);
   const { firebasestorage } = useFirebase();
+  const latestValuesRef = useRef<Record<string, any> | null>(null);
+
+  const buildDocumentStoragePath = (
+    requisition: string,
+    extension: "xml" | "pdf",
+  ) => {
+    const safeRequisition = requisition.trim() || "no-requisition";
+    return `Billings/BillingDocuments/${safeRequisition}-${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2, 8)}.${extension}`;
+  };
 
   const getDisplayNameFromUrl = (url: string | undefined, fallback: string) => {
     if (!url) return fallback;
@@ -45,28 +59,15 @@ const useInvoicesForm = ({
     }
   };
 
-  const {
-    creating,
-    updating,
-    error,
-    successPost,
-    successPut,
-    createBillingDocument,
-    updateBillingDocument,
-    resetFlags,
-  } = useBillingDocumentsStore(
-    (s) => ({
-      creating: s.creating,
-      updating: s.updating,
-      error: s.error,
-      successPost: s.successPost,
-      successPut: s.successPut,
-      createBillingDocument: s.createBillingDocument,
-      updateBillingDocument: s.updateBillingDocument,
-      resetFlags: s.resetFlags,
-    }),
-    shallow,
-  );
+  const { createBillingDocument, updateBillingDocument, resetFlags } =
+    useBillingDocumentsStore(
+      (s) => ({
+        createBillingDocument: s.createBillingDocument,
+        updateBillingDocument: s.updateBillingDocument,
+        resetFlags: s.resetFlags,
+      }),
+      shallow,
+    );
 
   const { forceFetchBillingHistory } = useBillingHistoryStore(
     (s) => ({
@@ -75,12 +76,14 @@ const useInvoicesForm = ({
     shallow,
   );
 
-  const { fetchBillingAllDocumentsByEmployee } = useBillingAllDocumentsByEmployeeStore(
-    (s) => ({
-      fetchBillingAllDocumentsByEmployee: s.fetchBillingAllDocumentsByEmployee,
-    }),
-    shallow,
-  );
+  const { fetchBillingAllDocumentsByEmployee } =
+    useBillingAllDocumentsByEmployeeStore(
+      (s) => ({
+        fetchBillingAllDocumentsByEmployee:
+          s.fetchBillingAllDocumentsByEmployee,
+      }),
+      shallow,
+    );
 
   const initialformFields: FieldModel[] = useMemo(() => {
     if (isEdit || withoutName) {
@@ -113,15 +116,14 @@ const useInvoicesForm = ({
           value: "",
           options: [],
           className: "max-w-[400px]",
-
           showIf: (_v, all) => {
-            const f = all.find((x) => x.name === "requisition");
-
-            return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+            const field = all.find((x) => x.name === "requisition");
+            return (
+              Array.isArray(field?.options) && (field.options?.length ?? 0) > 0
+            );
           },
           validations: [{ type: "required" }],
         },
-
         {
           type: "select",
           name: "category",
@@ -131,8 +133,10 @@ const useInvoicesForm = ({
           options: [],
           className: "max-w-[400px]",
           showIf: (_v, all) => {
-            const f = all.find((x) => x.name === "category");
-            return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+            const field = all.find((x) => x.name === "category");
+            return (
+              Array.isArray(field?.options) && (field.options?.length ?? 0) > 0
+            );
           },
           validations: [{ type: "required" }],
         },
@@ -145,12 +149,13 @@ const useInvoicesForm = ({
           options: [],
           className: "max-w-[400px]",
           showIf: (_v, all) => {
-            const f = all.find((x) => x.name === "description");
-            return Array.isArray(f?.options) && (f.options?.length ?? 0) > 0;
+            const field = all.find((x) => x.name === "description");
+            return (
+              Array.isArray(field?.options) && (field.options?.length ?? 0) > 0
+            );
           },
           validations: [{ type: "required" }],
         },
-
         {
           type: "numberControl",
           name: "numnights",
@@ -164,7 +169,6 @@ const useInvoicesForm = ({
           name: "numpersons",
           label: "No. de Personas",
           value: dataEdit?.numpersons ?? 0,
-
           className: "max-w-[220px]",
           validations: [{ type: "required" }],
         },
@@ -200,9 +204,15 @@ const useInvoicesForm = ({
     return createInvoiceFields();
   }, [dataEdit, isEdit, withoutName]);
 
-  const { field1, formId1, user } = useInvoices();
-  const searchParams = useSearchParams();
-  const employeeIdParam = searchParams.get("idEmployee") ?? undefined;
+  const { formId1, targetEmployeeId } = useInvoices();
+  const effectiveFormId = formId ?? formId1;
+  const EMPTY_ARRAY: FieldModel[] = [];
+  const fields = useFormFieldsStore(
+    (state) => state.fieldsByFormId[effectiveFormId] ?? EMPTY_ARRAY,
+  );
+  const formVersion = useFormFieldsStore(
+    (state) => state.formVersionsByFormId?.[effectiveFormId] ?? 0,
+  );
   const { fetchBillingImages } = useBillingImagesStore(
     (s) => ({
       fetchBillingImages: s.fetchBillingImages,
@@ -212,8 +222,8 @@ const useInvoicesForm = ({
   const { loadingFormInfo, submitRef, formReady, setFormReady, ResetForm } =
     useInitInvoicesForms({
       initialformFields,
-      field: field1,
-      formId: formId1,
+      field: fields,
+      formId: effectiveFormId,
       dataEdit,
       billingImages,
     });
@@ -226,15 +236,18 @@ const useInvoicesForm = ({
 
   const asBlobLike = (value: unknown): Blob | null => {
     if (!value || typeof value !== "object") return null;
-    const candidate = value as any;
+    const candidate = value as Blob & { size?: number; slice?: Blob["slice"] };
     if (typeof candidate.size !== "number") return null;
     if (typeof candidate.slice !== "function") return null;
-    return candidate as Blob;
+    return candidate;
   };
 
   const readHeadText = async (blob: Blob, bytes: number) => {
-    const slice = blob.slice(0, bytes) as any;
-    if (typeof slice.text === "function") return await slice.text();
+    const slice = blob.slice(0, bytes) as Blob & {
+      text?: () => Promise<string>;
+      arrayBuffer?: () => Promise<ArrayBuffer>;
+    };
+    if (typeof slice.text === "function") return slice.text();
     if (typeof slice.arrayBuffer !== "function") return "";
     const buffer = await slice.arrayBuffer();
     return new TextDecoder().decode(buffer);
@@ -247,24 +260,24 @@ const useInvoicesForm = ({
     const maybeFile = asBlobLike(file);
 
     if (maybeFile) {
-      if ("size" in maybeFile && maybeFile.size === 0) {
+      if (maybeFile.size === 0) {
         throw new Error(
-          "El archivo XML se detectó³ como vacó­o (0 bytes). Vuelve a seleccionarlo e intenta de nuevo.",
+          "El archivo XML se detectó como vacío (0 bytes). Vuelve a seleccionarlo e intenta de nuevo.",
         );
       }
 
-      // Validació³n ligera: evitar subir texto vacó­o o no-XML
       const head = String(await readHeadText(maybeFile, 256)).trim();
       if (head && !head.startsWith("<")) {
-        throw new Error("El archivo seleccionado no parece ser un XML vó¡lido.");
+        throw new Error("El archivo seleccionado no parece ser un XML válido.");
       }
       const url = await firebasestorage.uploadFile(
         maybeFile,
-        `Billings/BillingDocuments/${requisition}.xml`,
+        buildDocumentStoragePath(requisition, "xml"),
       );
       if (!url) throw new Error("Hubo un problema al subir el XML");
       return url;
     }
+
     const urlObj = (file as { url?: string } | null | undefined)?.url;
     if (urlObj) return urlObj;
     if (isEdit && dataEdit?.xml) return dataEdit.xml;
@@ -278,22 +291,113 @@ const useInvoicesForm = ({
     const maybeFile = asBlobLike(file);
 
     if (maybeFile) {
-      if ("size" in maybeFile && maybeFile.size === 0) {
+      if (maybeFile.size === 0) {
         throw new Error(
-          "El archivo PDF se detectó³ como vacó­o (0 bytes). Vuelve a seleccionarlo e intenta de nuevo.",
+          "El archivo PDF se detectó como vacío (0 bytes). Vuelve a seleccionarlo e intenta de nuevo.",
         );
       }
       const url = await firebasestorage.uploadFile(
         maybeFile,
-        `Billings/BillingDocuments/${requisition}.pdf`,
+        buildDocumentStoragePath(requisition, "pdf"),
       );
       if (!url) throw new Error("Hubo un problema al subir el PDF");
       return url;
     }
+
     const urlObj = (file as { url?: string } | null | undefined)?.url;
     if (urlObj) return urlObj;
     if (isEdit && dataEdit?.pdf) return dataEdit.pdf;
     throw new Error("No se encontró PDF válido para continuar");
+  };
+
+  const refreshRelatedData = async () => {
+    if (isEdit && targetEmployeeId) {
+      forceFetchBillingHistory(targetEmployeeId);
+    }
+    if (targetEmployeeId) {
+      fetchBillingImages(targetEmployeeId, true);
+      fetchBillingAllDocumentsByEmployee(targetEmployeeId, true);
+    }
+  };
+
+  const submitInvoiceValues = async (
+    formValues: Record<string, any> | null | undefined,
+  ): Promise<InvoiceSubmitResult> => {
+    if (!formValues) {
+      return {
+        ok: false,
+        error: "No se encontraron datos de la factura para enviar.",
+      };
+    }
+
+    try {
+      const xmlUrl = await uploadXmlIfNeeded(
+        formValues.xml,
+        formValues.requisition,
+      );
+      const pdfUrl = await uploadPdfIfNeeded(
+        formValues.pdf,
+        formValues.requisition,
+      );
+
+      if (isEdit && dataEdit) {
+        const payload: BillingDocumentsPut = {
+          billingdocument_id: dataEdit.billingdocument_id,
+          requisition_id: formValues.requisition,
+          billingimages_id: dataEdit.billing_image_id || null,
+          xml: xmlUrl,
+          pdf: pdfUrl,
+          comments: dataEdit.comments,
+          description_id: formValues.description,
+          category_id: formValues.category,
+          numnights: formValues.numnights,
+          numpersons: formValues.numpersons,
+          user_comments: "",
+        };
+        const updated = await updateBillingDocument(
+          payload,
+          refreshRequisitionId,
+        );
+        const updateError = useBillingDocumentsStore.getState().error;
+        resetFlags();
+        if (!updated) {
+          return {
+            ok: false,
+            error: updateError ?? "No se pudo actualizar la factura.",
+          };
+        }
+      } else {
+        const payload: BillingDocumentsPost = {
+          requisition_id: formValues.requisition,
+          billingimages_id: billingImages?.billing_image_id || null,
+          xml: xmlUrl,
+          pdf: pdfUrl,
+          description_id: formValues.description,
+          category_id: formValues.category,
+          numnights: formValues.numnights,
+          numpersons: formValues.numpersons,
+        };
+        const created = await createBillingDocument(payload);
+        resetFlags();
+        if (!created) {
+          return {
+            ok: false,
+            error: "No se pudo enviar la factura.",
+          };
+        }
+      }
+
+      onCloseImage?.();
+      await refreshRelatedData();
+      return { ok: true };
+    } catch (err) {
+      return {
+        ok: false,
+        error:
+          (err instanceof Error ? err.message : String(err)) ||
+          "Ocurrió un error al subir los archivos. Intenta de nuevo.",
+      };
+    }
   };
 
   const handleImageClick = (image: string) => {
@@ -301,55 +405,29 @@ const useInvoicesForm = ({
       src: image,
       alt: "Ticket",
       showAction: false,
-      disableOutsideClose: false, // si quieres obligar a usar los botones, ponlo en true
+      disableOutsideClose: false,
     });
+  };
+
+  const handleValuesChange = (values: Record<string, any>) => {
+    latestValuesRef.current = values;
   };
 
   const handleSubmit = async (values: Record<string, any>) => {
+    latestValuesRef.current = values;
     showSpinner({
       message: isEdit ? "Actualizando factura..." : "Subiendo factura...",
     });
-    try {
-      const xmlUrl = await uploadXmlIfNeeded(values.xml, values.requisition);
-      const pdfUrl = await uploadPdfIfNeeded(values.pdf, values.requisition);
 
-      if (isEdit && dataEdit) {
-        const payload: BillingDocumentsPut = {
-          billingdocument_id: dataEdit?.billingdocument_id,
-          requisition_id: values?.requisition,
-          billingimages_id: dataEdit?.billing_image_id || null,
-          xml: xmlUrl,
-          pdf: pdfUrl,
-          comments: dataEdit?.comments,
-          description_id: values?.description,
-          category_id: values?.category,
-          numnights: values?.numnights,
-          numpersons: values?.numpersons,
-          user_comments: "",
-        };
-        updateBillingDocument(payload, refreshRequisitionId);
-      } else {
-        const payload: BillingDocumentsPost = {
-          requisition_id: values.requisition,
-          billingimages_id: billingImages?.billing_image_id || null,
-          xml: xmlUrl,
-          pdf: pdfUrl,
-          description_id: values?.description,
-          category_id: values?.category,
-          numnights: values?.numnights,
-          numpersons: values?.numpersons,
-        };
-        createBillingDocument(payload);
-      }
-    } catch (err) {
-      hideSpinner();
+    const result = await submitInvoiceValues(values);
+    hideSpinner();
+
+    if (!result.ok) {
       showAlert({
         type: "error",
         variant: "filled",
         title: isEdit ? "No se pudo actualizar" : "No se pudo enviar",
-        description:
-          String(err) ||
-          "Ocurrió un error al subir los archivos. Intenta de nuevo.",
+        description: result.error,
         showPrimaryButton: true,
         primaryLabel: "Entendido",
         onPrimaryClick: hideAlert,
@@ -360,84 +438,33 @@ const useInvoicesForm = ({
           submitRef.current?.();
         },
       });
+      return;
     }
+
+    if (!isEdit) {
+      ResetForm();
+    }
+
+    showAlert({
+      type: "success",
+      variant: "filled",
+      title: isEdit ? "Archivos cargados con éxito" : "Archivos cargados",
+      description: "Tus archivos se han cargado exitosamente.",
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      autoCloseMs: 1500,
+    });
+    onSubmitSuccess?.();
   };
 
-  useEffect(() => {
-    if (creating || updating) return;
-    hideSpinner();
-    const hadError = Boolean(error);
-    const postOk = Boolean(successPost);
-    const putOk = Boolean(successPut);
-
-    resetFlags();
-
-    if (hadError) {
-      showAlert({
-        type: "error",
-        variant: "filled",
-        title: isEdit ? "No se pudo actualizar" : "No se pudo enviar",
-        description:
-          error ?? "Ocurrió un error al subir los archivos. Intenta de nuevo.",
-        showPrimaryButton: true,
-        primaryLabel: "Entendido",
-        onPrimaryClick: hideAlert,
-        showSecondaryButton: true,
-        secondaryLabel: "Reintentar",
-        onSecondaryClick: () => {
-          hideAlert();
-          submitRef.current?.();
-        },
-      });
-    } else if (postOk || putOk) {
-      onCloseImage?.();
-      if (postOk) ResetForm();
-      if (putOk && user) forceFetchBillingHistory(user?.idEmployee);
-      const employeeId = employeeIdParam ?? user?.idEmployee;
-      if (employeeId) {
-        fetchBillingImages(employeeId, true);
-        fetchBillingAllDocumentsByEmployee(employeeId, true);
-      }
-      showAlert({
-        type: "success",
-        variant: "filled",
-        title: isEdit
-          ? "Archivos cargados con éxito"
-          : "Archivos cargados",
-        description: isEdit
-          ? "Tus archivos se han cargado exitosamente."
-          : "Tus archivos se han cargado exitosamente.",
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 1500,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    creating,
-    updating,
-    error,
-    successPost,
-    successPut,
-    submitRef,
-    isEdit,
-    user,
-    employeeIdParam,
-    fetchBillingImages,
-    fetchBillingAllDocumentsByEmployee,
-  ]);
-
-  const resolvedFields = useMemo(
-    () =>
-      disabled
-        ? field1.map((field) => ({ ...field, disabled: true }))
-        : field1,
-    [disabled, field1],
-  );
- 
-
   return {
-    fields: resolvedFields,
+    fields: disabled
+      ? fields.map((field) => ({
+          ...field,
+          disabled: true,
+        }))
+      : fields,
+    formVersion,
     loadingFormInfo,
     submitRef,
     formReady,
@@ -445,6 +472,9 @@ const useInvoicesForm = ({
     handleSubmit,
     ResetForm,
     handleImageClick,
+    handleValuesChange,
+    submitCurrentValues: async () =>
+      submitInvoiceValues(latestValuesRef.current),
   };
 };
 

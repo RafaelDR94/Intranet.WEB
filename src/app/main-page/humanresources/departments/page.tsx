@@ -7,6 +7,7 @@ import { Input } from "@/app/components/Input/Input";
 import { Select } from "@/app/components/Select/Select";
 
 import PlusIcon from "@/assets/icons/acciones/plus.svg";
+import SearchIcon from "@/assets/icons/organization/search.svg";
 
 import { departmentsStyles } from "./styles";
 import useDepartmentsPage from "./hooks/useDepartmentsPage";
@@ -20,11 +21,14 @@ const DepartmentsPage = () => {
     isReady,
     creating,
     departments,
+    filteredDepartments,
     paginatedDepartments,
     currentPage,
     totalPages,
     showPagination,
+    searchValue,
     setCurrentPage,
+    setSearchValue,
     loading,
     error,
     resolveImageSrc,
@@ -126,6 +130,20 @@ const DepartmentsPage = () => {
     >
       <div className="flex min-h-[calc(100vh-180px)] w-full flex-col">
         <div className="flex w-full flex-1 flex-col gap-6">
+          <div className={departmentsStyles.searchRow}>
+            <div className={departmentsStyles.searchWrapper}>
+              <div className={departmentsStyles.searchInputWrapper}>
+                <Input
+                  placeholder="Buscar departamento"
+                  value={searchValue}
+                  onChange={(event) => setSearchValue(event.target.value)}
+                  icon={SearchIcon}
+                  className={departmentsStyles.searchInput}
+                />
+              </div>
+            </div>
+          </div>
+
           {loading ? (
             <div className={departmentsStyles.emptyState}>
               Cargando departamentos...
@@ -142,7 +160,16 @@ const DepartmentsPage = () => {
             </div>
           ) : null}
 
-          {!loading && !error && departments.length > 0 ? (
+          {!loading &&
+          !error &&
+          departments.length > 0 &&
+          filteredDepartments.length === 0 ? (
+            <div className={departmentsStyles.emptyState}>
+              No se encontraron departamentos con esa b&uacute;squeda.
+            </div>
+          ) : null}
+
+          {!loading && !error && filteredDepartments.length > 0 ? (
             <div className={departmentsStyles.listGrid}>
               {paginatedDepartments.map((department) => (
                 <Card

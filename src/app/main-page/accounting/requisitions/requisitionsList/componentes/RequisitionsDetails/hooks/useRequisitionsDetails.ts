@@ -73,8 +73,12 @@ const useRequisitionsDetails = () => {
   }, [succesReject, requisitionId, fetchCurrentRequisition]);
 
   useEffect(() => {
-    if (requisitionId) fetchCurrentRequisition(requisitionId);
-    else resetCurrentReq();
+    if (requisitionId) {
+      resetCurrentReq();
+      fetchCurrentRequisition(requisitionId, true);
+      return;
+    }
+    resetCurrentReq();
   }, [requisitionId, fetchCurrentRequisition, resetCurrentReq]);
 
   return { currentRequisition };

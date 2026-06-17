@@ -5,11 +5,17 @@ import { UseDetailsPanelArgs } from "./types";
 
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { BillingDocumentsPutMap } from "@/app/mappings/billingdocuments/billingdocuments.mapper";
-import type { BillingDocumentJsonSap } from "@/app/mappings/billingdocuments/billingdocuments.types";
+import type {
+  BillingDocumentJsonSap,
+  BillingDocumentJsonSapItem,
+} from "@/app/mappings/billingdocuments/billingdocuments.types";
 import { useBillingDocumentsStore } from "@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore";
 import { useBillingCompleteProcessToSAPStore } from "@/app/stores/useBillingCompleteProcessToSAPStore/useBillingCompleteProcessToSAPStore";
 
 type UpdateAction = "comment" | "json_sap" | null;
+type JsonSapItemPatch = Partial<
+  Pick<BillingDocumentJsonSapItem, "claveInterna" | "descripcion" | "importe">
+>;
 
 export const useDetailsPanel = ({
   selected,
@@ -18,6 +24,7 @@ export const useDetailsPanel = ({
   operations,
   reqisition,
   documentLabel = "factura",
+  onJsonSapUpdated,
 }: UseDetailsPanelArgs) => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
@@ -121,8 +128,7 @@ export const useDetailsPanel = ({
 
   const handleUpdateJsonSapItem = async (
     jsonSapItemIndex: number,
-    sapInternalKey: string,
-    description?: string,
+    patch: JsonSapItemPatch,
   ): Promise<boolean> => {
     let result = false;
 
@@ -134,6 +140,10 @@ export const useDetailsPanel = ({
         result = false;
         return;
       }
+      if (Object.keys(patch).length === 0) {
+        result = true;
+        return;
+      }
 
       const previousJsonSap = currentJsonSap;
       const updatedJsonSap = {
@@ -142,8 +152,7 @@ export const useDetailsPanel = ({
           idx === jsonSapItemIndex
             ? {
                 ...item,
-                claveInterna: sapInternalKey,
-                ...(typeof description === "string" ? { descripcion: description } : {}),
+                ...patch,
               }
             : item,
         ),
@@ -241,7 +250,7 @@ export const useDetailsPanel = ({
       showSpinner({
         message:
           currentUpdateAction === "json_sap"
-            ? "Actualizando informacion SAP..."
+            ? "Actualizando Información SAP..."
             : "Espera un momento, se esta enviando el comentario.",
       });
       return;
@@ -263,6 +272,7 @@ export const useDetailsPanel = ({
 
     if (successPut) {
       if (currentUpdateAction === "json_sap") {
+        void onJsonSapUpdated?.(selectedRef.current?.billingdocument_id);
         showAlert({
           type: "success",
           title: "Ajuste guardado",
@@ -319,7 +329,7 @@ export const useDetailsPanel = ({
         description:
           String(error) ||
           (currentUpdateAction === "json_sap"
-            ? "Hubo un problema al actualizar la informacion SAP."
+            ? "Hubo un problema al actualizar la Información SAP."
             : "Hubo un problema al enviar tus comentarios."),
         showPrimaryButton: false,
         showSecondaryButton: false,
@@ -345,6 +355,7 @@ export const useDetailsPanel = ({
     documentLabel,
     sending,
     currentUpdateAction,
+    onJsonSapUpdated,
   ]);
 
   return {

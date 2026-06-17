@@ -36,6 +36,9 @@ const ProyectList = () => {
         isMobile
     } = useProyectList();
 
+    const canCreateReport = Boolean(currentPagePermissions?.createreport);
+    const canViewProject = Boolean(currentPagePermissions?.currentproyect);
+
 
     /**
      * Column definitions reused by the table and the cards layout.
@@ -104,19 +107,19 @@ const ProyectList = () => {
             },
 
         ])
-    }, [currentPagePermissions, isMobile, handleAskDelete, handleEdit, handleView]);
+    }, [canCreateReport, canViewProject, currentPagePermissions, isMobile, handeReport, handleAskDelete, handleEdit, handleView]);
     return (
         <>
             <div className="overflow-auto">
                 <DataTable
                     actionLabel="Nuevo Proyecto"
                     onTableActionClick={handleNew}
-                    showButton={currentPagePermissions?.create}
+                    showButton={!isMobile && currentPagePermissions?.create}
                     showDownloadTable={false}
                     showViewSwitcher
                     showCalendar={false}
                     useCardsView={true}
-                    showFilter={false}
+                    showFilter={isMobile}
                     tables={[{
                         hidetitle: true,
                         data: proyects,
@@ -128,24 +131,43 @@ const ProyectList = () => {
                         defaultSortDirection: 'asc',
                         cardAdapt: {
                             titleKey: 'proyectKey' as any,
-                            labelKey: 'name' as any,
+                            labelKey: () => 'Proyecto',
                             // descriptionKey: 'client' as any,
                             imageKey: (p: any) => p.imageUrl,
-                            onPrimaryAction: (p: Proyect) => handleView(p),
-                            onSecondaryAction: (p: Proyect) => handeReport(p),
-                            primaryLabel: 'Ver Proyecto',
-                            secondaryLabel: 'Nuevo Reporte',
-                            showPrimaryButton: true,
-                            showSecondaryButton: currentPagePermissions?.createreport,
+                            onPrimaryAction: (p: Proyect) =>
+                                canCreateReport ? handeReport(p) : handleView(p),
+                            onSecondaryAction: canCreateReport && canViewProject
+                                ? (p: Proyect) => handleView(p)
+                                : undefined,
+                            primaryLabel: canCreateReport ? 'Crear reporte' : 'Ver Proyecto',
+                            secondaryLabel: 'Ver Proyecto',
+                            showPrimaryButton: canCreateReport || canViewProject,
+                            showSecondaryButton: canCreateReport && canViewProject,
+                            secondaryVariant: 'outline',
                             enableImagePreview: false,
+                            cardsPerPage: isMobile ? 4 : undefined,
                             actionMenuProps: (row) => ({
                                 row,
                                 onEdit: handleEdit,
                                 onDelete: handleAskDelete,
+                                triggerIcon: 'dots',
                             }),
                         }
                     }]}
                 />
+                {isMobile && currentPagePermissions?.create && (
+                    <div className="mt-5">
+                        <Button
+                            variant="solid"
+                            hideIcon
+                            size="medium"
+                            className="w-full"
+                            onClick={handleNew}
+                        >
+                            Nuevo Proyecto
+                        </Button>
+                    </div>
+                )}
             </div>
 
             <PopUp

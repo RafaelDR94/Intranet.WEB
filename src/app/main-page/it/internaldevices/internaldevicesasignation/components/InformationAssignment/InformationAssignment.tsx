@@ -31,7 +31,7 @@ const InformationAssignment = ({
           className="gap-2"
           onClick={handleEdit}
         >
-          Editar informacion
+          Editar Información
         </Button>
       </div>
 

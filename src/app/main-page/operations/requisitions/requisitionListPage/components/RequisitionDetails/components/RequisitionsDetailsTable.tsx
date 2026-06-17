@@ -131,8 +131,8 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
       {
         key: "xmlUrl" as unknown as keyof BillingDocumentDetailsTable,
         label: "ARCHIVOS",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        cellClass: "w-1/16 text-left",
+        headerClass: "w-1/16 text-left",
         render: (row) => {
           return (
             <div className="flex items-center gap-1">
@@ -173,56 +173,65 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
       {
         key: "fecha",
         label: "FECHA CONSUMO",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "w-2/16 text-left whitespace-nowrap",
+        headerClass: "w-2/16 text-left whitespace-nowrap",
       },
       {
         key: "uuid",
         label: "UUID",
-        cellClass: "w-5/15 text-left truncate",
-        headerClass: "w-5/15 text-left",
+        showSortIndicator: false,
+        cellClass: "w-3/16 min-w-0 text-left truncate",
+        headerClass: "w-3/16 text-left",
       },
       {
         key: "numpersons",
         label: "No. PERS.",
-        cellClass: "w-1/15 text-left",
-        headerClass: "w-1/15 text-left",
+        showSortIndicator: false,
+        cellClass: "w-1/16 text-center",
+        headerClass: "w-1/16 text-center",
       },
       {
         key: "numnights",
         label: "No. NOCHES",
-        cellClass: "w-1/15 text-left",
-        headerClass: "w-1/15 text-left",
+        showSortIndicator: false,
+        cellClass: "w-1/16 text-center",
+        headerClass: "w-1/16 text-center",
       },
       {
         key: "subtotal",
         label: "SUBTOTAL",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "w-1/16 text-right",
+        headerClass: "w-1/16 text-right",
       },
       {
         key: "iva",
         label: "IVA",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "w-1/16 text-right",
+        headerClass: "w-1/16 text-right",
       },
       {
         key: "otherinvoices",
         label: "OTROS IMP.",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "w-1/16 text-right",
+        headerClass: "w-1/16 text-right",
       },
       {
         key: "total",
         label: "TOTAL.",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "w-1/16 text-right",
+        headerClass: "w-1/16 text-right",
       },
       {
         key: "authorization" as unknown as keyof BillingDocumentDetailsTable,
         label: "Estatus validación",
-        cellClass: "w-2/15 text-left",
-        headerClass: "w-2/15 text-left",
+        showSortIndicator: false,
+        cellClass: "w-2/16 text-left",
+        headerClass: "w-2/16 text-left",
         render: (row) => renderValidationStatus(row),
       },
       {
@@ -239,8 +248,8 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
             Ver Detalles
           </Button>
         ),
-        cellClass: "w-1/15 text-center",
-        headerClass: "w-1/15 text-right",
+        cellClass: "w-2/16 whitespace-nowrap text-center",
+        headerClass: "w-2/16 text-center",
       },
     ],
     [handleOpenDetails],
@@ -310,14 +319,14 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
             </>
           )}
         showButton={false}
-        enablePagination={false}
+        rowsPerPage={8}
         tables={[
           {
             data: filteredRows,
             columns: isMobile ? filteredMobileColumns : filteredColumns,
             enableSelection: false,
             title: "Reporte de gastos",
-            enableCollaps: true,
+            enableCollaps: false,
             defaultSortKey: "fecha",
             defaultSortDirection: "desc",
           },

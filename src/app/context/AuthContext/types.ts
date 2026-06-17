@@ -32,6 +32,7 @@ export interface User {
   password: string;
   signature: string;
   email: string;
+  isGerence?: boolean;
 }
 
 /**

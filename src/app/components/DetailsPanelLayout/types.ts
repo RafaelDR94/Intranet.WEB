@@ -35,4 +35,5 @@ export interface DetailsPanelProps {
     label?: () => React.ReactNode;
     divider?: boolean;
     contentClassName?: string;
+    showExpandButton?: boolean;
 }

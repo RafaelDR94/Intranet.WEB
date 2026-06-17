@@ -13,13 +13,14 @@ const useReportDetails = () => {
     const { usePrincipalAlert } = usePrincipal();
     const { showAlert } = usePrincipalAlert;
     useEffect(() => {
-        if (!currentReport && reportId) {
+        if (reportId) {
             void fetchReportsById(String(reportId), true);
+            return;
         }
-        if (!currentReport && frontId) {
+        if (frontId) {
             void fetchLocalReportById(String(frontId), true);
         }
-    }, []);
+    }, [reportId, frontId, fetchReportsById, fetchLocalReportById]);
 
     useEffect(() => {
         if (loadingCurrent) return;
@@ -32,11 +33,11 @@ const useReportDetails = () => {
                 showSecondaryButton: false,
                 autoCloseMs: 1500,
             });
-            updateQuery({ reportId: null }); // elimina reportId de la URL
+            updateQuery({ reportId: null, frontId: null });
             resetFlags();
         }
 
-    }, [error, showAlert, updateQuery]);
+    }, [error, loadingCurrent, resetFlags, showAlert, updateQuery]);
     return { currentReport, loadingCurrent }
 }
 export default useReportDetails

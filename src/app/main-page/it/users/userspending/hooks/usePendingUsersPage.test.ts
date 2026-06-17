@@ -185,7 +185,7 @@ describe('usePendingUsersPage', () => {
         provisionalPassword: 'Temp1234!',
         changePasswordOnNextLogin: true,
         hasFingerprint: true,
-        signature: 'data:image/png;base64,signature',
+        signature: '',
       })
     })
 
@@ -196,7 +196,7 @@ describe('usePendingUsersPage', () => {
       isGerence: true,
       drFingerprint: true,
       password: 'Temp1234!',
-      signature: 'data:image/png;base64,signature',
+      signature: '',
       roleId: 'role-1',
       employeeId: 'emp-1',
       changePassword: true,
@@ -354,6 +354,66 @@ describe('usePendingUsersPage', () => {
     expect(updateQuery).toHaveBeenCalledWith({ id: null, label: null })
     expect(assignMock).toHaveBeenCalledWith(
       '/main-page/it/internaldevices/internaldevicesasignation?view=new&employeeId=emp-1',
+    )
+  })
+
+  it('envia imageUrl vacio cuando no existe avatar previo ni imagen nueva', async () => {
+    setUsersStoreState({
+      ...getUsersStoreState(),
+      employeesWithoutActiveUser: [
+        {
+          ...getUsersStoreState().employeesWithoutActiveUser[0],
+          image_url: '',
+        },
+      ],
+      createUser: vi.fn().mockImplementation(async (payload) => {
+        getUsersStoreState().users = [
+          {
+            user_id: 'user-1',
+            username: payload.username,
+            employee_id: payload.employeeId,
+            idemployee: payload.employeeId,
+          },
+        ]
+
+        return {
+          user_id: 'user-1',
+          username: payload.username,
+          employee_id: payload.employeeId,
+        }
+      }),
+    })
+
+    setEmployeesStoreState({
+      ...getEmployeesStoreState(),
+      employee: {
+        ...getEmployeesStoreState().employee,
+        image_url: '',
+      },
+    })
+
+    const { result } = renderHook(() => usePendingUsersPage())
+
+    await act(async () => {
+      await result.current.handleActivateUser({
+        userId: 'emp-1',
+        profileImage: null,
+        email: 'negreteaakathy@gmail.com',
+        businessPhone: '5639728912',
+        userRoleId: 'role-1',
+        managerialPermissions: true,
+        provisionalPassword: 'Temp1234!',
+        changePasswordOnNextLogin: true,
+        hasFingerprint: true,
+        signature: '',
+      })
+    })
+
+    expect(getUsersStoreState().createUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        imageUrl: '',
+        signature: '',
+      }),
     )
   })
 })

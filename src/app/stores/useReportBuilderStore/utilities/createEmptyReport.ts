@@ -37,6 +37,7 @@ export const createEmptyReport = (): ReportView => ({
   maps: [],
   diagnostic: '',
   solution: '',
+  idSpareParts: [],
   refactions: [],
   clientsign: {},
   front_identifier: '',

@@ -52,7 +52,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
     () => [
       { key: "projectname", label: "PROYECTO"},
       { key: "state", label: "ESTADO" },
-      { key: "requisitionkey", label: "CÓDIGO DE SOLICITUD" },
+      { key: "requisitionkey", label: "CÓDIGO DE SOLICITUD", showSortIndicator: false },
       { key: "period", label: "PERIODO" },
       { key: "current_days", label: "DÍA CORRIENTE" },
       {
@@ -83,7 +83,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
 
   const mobileColumns: ColumnDefinition<RequisitionRow>[] = React.useMemo(
     () => [
-      { key: "requisitionkey", label: "CÓDIGO SN" },
+      { key: "requisitionkey", label: "CÓDIGO SN", showSortIndicator: false },
       {
         key: "status",
         label: "",
@@ -94,7 +94,16 @@ const RequisitionsTable = ({ forceVisible = false }) => {
         label: "",
         render: (row) => (
           <div className="flex justify-end" data-tour="ownrequisitions-row-actions">
-            <ActionMenuCell row={row} onEdit={onEdit} onDelete={onDelete} />
+            <ActionMenuCell
+              row={row}
+              onEdit={onEdit}
+              editLabel="Ver detalle"
+              onDelete={onDelete}
+              permissions={{
+                details: canRead,
+                delete: currentPagePermissions?.delete,
+              }}
+            />
           </div>
         ),
         cellClass: "w-12 text-right",
@@ -102,7 +111,7 @@ const RequisitionsTable = ({ forceVisible = false }) => {
         invisible: false,
       },
     ],
-    [onEdit, onDelete],
+    [canRead, currentPagePermissions?.delete, onEdit, onDelete],
   );
 
   // Filtra columnas si currentPagePermissions.sapprofile es true
@@ -152,14 +161,14 @@ const RequisitionsTable = ({ forceVisible = false }) => {
               refreshDataTour="ownrequisitions-refresh"
               tables={[
                 {
-                  data: activeRows,
-                  columns: columns,
-                  enableSelection: false,
-                  title: "Activas",
-                  enableCollaps: true,
-                  defaultSortKey: "date_created",
-                  defaultSortDirection: "desc",
-                },
+                data: activeRows,
+                columns: columns,
+                enableSelection: false,
+                title: "Activas",
+                enableCollaps: true,
+                defaultSortKey: "date_created",
+                defaultSortDirection: "desc",
+              },
               ]}
               showButton={false}
               dateKey={"date_created"}
@@ -176,14 +185,14 @@ const RequisitionsTable = ({ forceVisible = false }) => {
               onFilterClick={refresh}
               tables={[
                 {
-                  data: rows,
-                  columns: columns,
-                  enableSelection: false,
-                  title: "Historial",
-                  enableCollaps: true,
-                  defaultSortKey: "date_created",
-                  defaultSortDirection: "desc",
-                },
+                data: rows,
+                columns: columns,
+                enableSelection: false,
+                title: "Historial",
+                enableCollaps: false,
+                defaultSortKey: "date_created",
+                defaultSortDirection: "desc",
+              },
               ]}
               showButton={false}
               dateKey={"date_created"}

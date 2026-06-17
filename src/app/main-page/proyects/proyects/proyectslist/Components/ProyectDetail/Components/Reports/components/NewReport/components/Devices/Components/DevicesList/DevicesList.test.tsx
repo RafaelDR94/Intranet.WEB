@@ -72,7 +72,7 @@ describe("DevicesList", () => {
 
     render(<DevicesList onCreate={vi.fn()} onEdit={vi.fn()} />);
 
-    expect(screen.getByText(/Selecciona una ubicaci/)).toBeInTheDocument();
+    expect(screen.getByText(/Para ver los dispositivos disponibles/)).toBeInTheDocument();
     expect(screen.queryByTestId("data-table")).toBeNull();
   });
 

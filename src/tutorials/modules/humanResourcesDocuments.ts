@@ -21,7 +21,7 @@ export const humanResourcesDocumentsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="humanresources-managementdocuments-refresh"]',
         title: 'Actualizar',
-        description: 'Recarga la informacion mas reciente.',
+        description: 'Recarga la Información mas reciente.',
       },
       {
         target: '[data-tour="humanresources-managementdocuments-create"]',
@@ -50,7 +50,7 @@ export const humanResourcesDocumentsTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="humanresources-operationaldocuments-refresh"]',
         title: 'Actualizar',
-        description: 'Recarga la informacion mas reciente.',
+        description: 'Recarga la Información mas reciente.',
       },
       {
         target: '[data-tour="humanresources-operationaldocuments-create"]',

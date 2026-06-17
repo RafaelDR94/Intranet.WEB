@@ -1,35 +1,54 @@
 'use client'
+
+import { saveAs } from 'file-saver'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useCallback, useState } from 'react'
-import useDocument from './useDocument/useDocument'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { shallow } from 'zustand/shallow'
+
+import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
 import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
-import { useReportsStore } from '@/app/stores/useReportsStore/useReportsStore'
-import { CreatePDF } from '@/app/utilities/PDF/PDF'
-import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
 import useQuery from '@/app/hooks/useQuery/useQuery'
+import { ProjectReportsTableMap, ReportsTableMap } from '@/app/mappings/reports/report.mapper'
 import { ReportView, ReportsTable } from '@/app/mappings/reports/reports.types'
 import useReportBuilderStore from '@/app/stores/useReportBuilderStore/useReportBuilderStore'
-import { ReportsTableMap } from '@/app/mappings/reports/report.mapper'
-import { shallow } from 'zustand/shallow'
-const useReportsTable = () => {
-  const [reportPendingDelete, setReportPendingDelete] = useState<ReportView | null>(null);
-  const [forceActionButton, setForceActionButton] = useState(false);
+import { useReportsStore } from '@/app/stores/useReportsStore/useReportsStore'
+import { CreatePDFBlob } from '@/app/utilities/PDF/PDF'
+
+import useDocument from './useDocument/useDocument'
+
+interface UseReportsTableProps {
+  canSeeAllReports?: boolean;
+}
+
+const sanitizeSegment = (value: unknown) => {
+  if (!value) return ''
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '')
+}
+
+const useReportsTable = ({ canSeeAllReports = undefined }: UseReportsTableProps = {}) => {
+  const [reportPendingDelete, setReportPendingDelete] = useState<ReportView | null>(null)
+  const [forceActionButton, setForceActionButton] = useState(false)
   const searchParams = useSearchParams()
-  const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
-  const { currentPagePermissions, user } = useAuth();
-  const { showSpinner, hideSpinner } = usePrincipalLoading;
+  const { usePrincipalLoading, usePrincipalAlert } = usePrincipal()
+  const { currentPagePermissions, user } = useAuth()
+  const { showSpinner, hideSpinner } = usePrincipalLoading
   const { showAlert } = usePrincipalAlert
-  const { makePictureDocument, exportExcel } = useDocument();
-  const idproyect = searchParams.get('id') ?? '';
+  const { makePictureDocument, exportExcel } = useDocument()
+  const idproyect = searchParams.get('id') ?? ''
   const reportId = searchParams.get('reportId') ?? ''
   const reportIdFront = searchParams.get('frontId') ?? ''
   const newReport = searchParams.get('newReport') ?? false
-  const isMobile = useIsMobile();
-  const { setReport } = useReportBuilderStore();
+  const isMobile = useIsMobile()
+  const { setReport } = useReportBuilderStore()
   const {
     currentReport,
-    reports,
+    projectReports,
     localReports,
     loadLocalReports,
     deleteLocal,
@@ -39,10 +58,10 @@ const useReportsTable = () => {
     setCurrentReport,
     reset,
     resetflags,
-    error
+    error,
   } = useReportsStore((s) => ({
     currentReport: s.currentReport,
-    reports: s.reports,
+    projectReports: s.projectReports,
     localReports: s.localReports,
     loadLocalReports: s.fetchLocalReports,
     deleteLocal: s.deleteLocal,
@@ -52,250 +71,243 @@ const useReportsTable = () => {
     setCurrentReport: s.setCurrentReport,
     reset: s.reset,
     resetflags: s.resetFlags,
-    error: s.error
+    error: s.error,
   }), shallow)
 
-
-  const { updateQuery } = useQuery();
-  const reportList = ReportsTableMap(reports);
-  const reportLocalList = ReportsTableMap(localReports);
-
-
+  const { updateQuery } = useQuery()
+  const reportList = ProjectReportsTableMap(projectReports)
+  const reportLocalList = ReportsTableMap(localReports)
 
   const handleCloseDetails = useCallback(() => {
-    updateQuery({ reportId: null, frontId: null }) // elimina reportId de la URL
-    updateQuery({ reportId: null, frontId: null }) // elimina reportId de la URL
-    setCurrentReport(null);
-    // limpia el reporte actual en el store
+    updateQuery({ reportId: null, frontId: null })
+    updateQuery({ reportId: null, frontId: null })
+    setCurrentReport(null)
   }, [updateQuery, setCurrentReport])
 
   const RefreshData = () => {
-    reset();
-    fetchAllReportsByProyect(String(idproyect), true);
-    loadLocalReports(true, String(idproyect));
+    reset()
+    if (canSeeAllReports) {
+      fetchAllReportsByProyect(String(idproyect))
+    } else {
+      fetchAllReportsByProyect(String(idproyect), true, user?.idEmployee)
+    }
+    loadLocalReports(true, String(idproyect))
   }
 
   useEffect(() => {
-    if (!newReport) {
-      RefreshData();
+    if (!newReport && canSeeAllReports!=undefined) {
+      RefreshData()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newReport]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newReport, canSeeAllReports, idproyect, user?.idEmployee])
 
   useEffect(() => {
     if (error) {
       showAlert({
-        type: "warning",
-        title: "No se encontraron reportes",
+        type: 'warning',
+        title: 'No se encontraron reportes',
         description: error,
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
-      });
-      resetflags();
+      })
+      resetflags()
     }
-  }, [error])
-
-
-
+  }, [error, resetflags, showAlert])
 
   const searchableKeys = useMemo(
     () => ['name', 'description', 'createdAt', 'id'] as const,
-    []
+    [],
   )
 
   useEffect(() => {
     if (loading) {
-      showSpinner({ message: 'Cargando Reportes...' }); return;
+      showSpinner({ message: 'Cargando Reportes...' })
+      return
     }
-    hideSpinner();
-  }, [loading, showSpinner, hideSpinner]);
+    hideSpinner()
+  }, [loading, showSpinner, hideSpinner])
 
   const handleDownloadPicReport = async () => {
-    showSpinner({ message: "Generando reporte fotográfico..." });
+    showSpinner({ message: 'Generando reporte fotografico...' })
     try {
-      
-      const pdfData = await makePictureDocument();
+      const pdfData = await makePictureDocument()
       if (pdfData) {
-        const url: any = await new Promise((resolve, reject) => {
-          const membret = idproyect == "b30f2236-bce8-4bf8-9edd-731e760f35cc" ?"DISITREK":"DR"
-          try {
-            CreatePDF(pdfData, resolve,membret);
-          } catch (err) {
-            reject(err);
-          }
-          // fallback por si nunca llama a resolve:
-          setTimeout(() => reject(new Error("CreatePDF timeout")), 10_000);
-        }).catch(err => {
-          console.error("Error en CreatePDF callback", err);
-          return ""; // URL inválida
-        });
-        if (url) {
-          window.open(url, "_blank")
-          showAlert({
-            type: "info",
-            title: "Reporte descargado",
-            description: "Se ha descargado el reporte",
-            showPrimaryButton: false,
-            showSecondaryButton: false,
-            autoCloseMs: 1500,
-          });
-          hideSpinner();
-        }
+        const membret = idproyect === 'b30f2236-bce8-4bf8-9edd-731e760f35cc' ? 'DISITREK' : 'DR'
+        const pdfBlob = await CreatePDFBlob(pdfData, membret)
+        const fileSegments = [
+          sanitizeSegment(currentReport?.ticket),
+          sanitizeSegment(currentReport?.proyect?.proyectKey),
+          sanitizeSegment(currentReport?.id ?? currentReport?.front_identifier),
+        ].filter(Boolean)
+        const fileName = `${['reporte_fotografico', ...fileSegments].join('_') || 'reporte_fotografico'}.pdf`
+
+        saveAs(pdfBlob, fileName)
+        showAlert({
+          type: 'info',
+          title: 'Reporte descargado',
+          description: 'Se ha descargado el reporte',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500,
+        })
+        hideSpinner()
       }
-
-
-    }
-    catch (e) {
+    } catch (e) {
       showAlert({
-        type: "error",
-        title: "Error en la descarga",
-        description: String(e) || "Hubo un problema al descargar el reporte",
+        type: 'error',
+        title: 'Error en la descarga',
+        description: String(e) || 'Hubo un problema al descargar el reporte',
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 1500,
-      });
-      hideSpinner();
+      })
+      hideSpinner()
     }
   }
+
   const handleDownloadDigitalReport = () => {
-    showSpinner({ message: "Exportando información en Excel..." });
-    exportExcel().then(() => {
-      hideSpinner();
-      showAlert({
-        type: "info",
-        title: "Exportación correcta",
-        description: "Excele exportado correctamente",
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 1500,
-      });
-
-    }).catch((e) => {
-      console.error(e);
-      showAlert({
-        type: "error",
-        title: "Error en la descarga",
-        description: String(e) || "Hubo uema al descargar el reporte",
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 1500,
-      });
-      hideSpinner();
-    });
-
+    showSpinner({ message: 'Exportando Información en Excel...' })
+    exportExcel()
+      .then(() => {
+        hideSpinner()
+        showAlert({
+          type: 'info',
+          title: 'Exportacion correcta',
+          description: 'Excele exportado correctamente',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500,
+        })
+      })
+      .catch((e) => {
+        console.error(e)
+        showAlert({
+          type: 'error',
+          title: 'Error en la descarga',
+          description: String(e) || 'Hubo uema al descargar el reporte',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500,
+        })
+        hideSpinner()
+      })
   }
 
   useEffect(() => {
     if (!reportId) {
-      setForceActionButton(false);
+      setForceActionButton(false)
     }
-  }, [reportId]);
+  }, [reportId])
 
-
-
-  const [activeFilter, setActiveFilter] = useState<string>('all:mine');
-  const controlFilterOptions = [
-    { label: "Todos", value: "all" },
-    { label: "Reportes completos", value: "all:complete" },
-    { label: "Reportes incompletos", value: "all:incomplete" },
-    { label: "Mis Reportes", value: "all:mine" },
-    { label: "Mis Completos", value: "all:minecomplete" },
-    { label: "Mis Incompletos", value: "all:mineincomplete" },
-  ];
+  const [activeFilter, setActiveFilter] = useState<string>('all:mine')
+  const controlFilterOptions = useMemo(() => {
+    if (canSeeAllReports) {
+      return [
+        { label: 'Todos', value: 'all' },
+        { label: 'Reportes completos', value: 'all:complete' },
+        { label: 'Reportes incompletos', value: 'all:incomplete' },
+        { label: 'Mis Reportes', value: 'all:mine' },
+        { label: 'Mis Completos', value: 'all:minecomplete' },
+        { label: 'Mis Incompletos', value: 'all:mineincomplete' },
+      ]
+    }
+    return [
+      { label: 'Mis Reportes', value: 'all:mine' },
+      { label: 'Mis Completos', value: 'all:minecomplete' },
+      { label: 'Mis Incompletos', value: 'all:mineincomplete' },
+    ]
+  }, [canSeeAllReports])
 
   const normalizeName = useCallback((value?: string) => {
-    if (!value) return '';
-    return value.replace(/\s+/g, '').toLowerCase();
-  }, []);
+    if (!value) return ''
+    return value.replace(/\s+/g, '').toLowerCase()
+  }, [])
 
   const computeFilteredReports = useCallback(
     (filter: string, list: ReportsTable[]): ReportsTable[] => {
-      const userName = normalizeName(user?.fullName);
+      const userName = normalizeName(user?.fullName)
 
       switch (filter) {
         case 'all':
-          return list;
+          return list
         case 'all:complete':
-          return list.filter((report) => report.status.text === "Completo");
+          return list.filter((report) => report.status.text === 'Completo')
         case 'all:incomplete':
-          return list.filter((report) => report.status.text !== "Completo");
+          return list.filter((report) => report.status.text !== 'Completo')
         case 'all:mine':
-          return list.filter(
-            (report) => normalizeName(report.employe) === userName
-          );
+          return list.filter((report) => normalizeName(report.employe) === userName)
         case 'all:minecomplete':
           return list.filter(
             (report) =>
               normalizeName(report.employe) === userName &&
-              report.status.text === "Completo"
-          );
+              report.status.text === 'Completo',
+          )
         case 'all:mineincomplete':
           return list.filter(
             (report) =>
               normalizeName(report.employe) === userName &&
-              report.status.text !== "Completo"
-          );
+              report.status.text !== 'Completo',
+          )
         default:
-          return list;
+          return list
       }
     },
-    [normalizeName, user?.fullName]
-  );
+    [normalizeName, user?.fullName],
+  )
 
   const handleFilterChange = useCallback((value: string) => {
-    setActiveFilter(value);
-  }, []);
+    setActiveFilter(value)
+  }, [])
+
+  useEffect(() => {
+    const allowedValues = new Set(controlFilterOptions.map((option) => option.value))
+    if (!allowedValues.has(activeFilter)) {
+      setActiveFilter('all:mine')
+    }
+  }, [activeFilter, controlFilterOptions])
 
   const reportListFiltered = useMemo(
     () => computeFilteredReports(activeFilter, reportList),
-    [activeFilter, reportList, computeFilteredReports]
-  );
-
+    [activeFilter, reportList, computeFilteredReports],
+  )
 
   const handleSelectReportOnline = useCallback(
     (row: ReportsTable, options?: { forceButton?: boolean }) => {
-      const latestreports = useReportsStore.getState().reports;
-      const report = latestreports.find((report) => (row.id == report.id))
-      if (report) {
-        setForceActionButton(Boolean(options?.forceButton));
-        setCurrentReport(report);
-        updateQuery({ reportId: report.id, frontId: report.front_identifier })
-      }
-
+      setForceActionButton(Boolean(options?.forceButton))
+      setCurrentReport(null)
+      updateQuery({ reportId: row.id, frontId: null })
     },
-    [setCurrentReport, updateQuery, setForceActionButton]
-  );
+    [setCurrentReport, updateQuery, setForceActionButton],
+  )
 
   const handleSelectReportOffline = useCallback(
     (row: ReportsTable, options?: { forceButton?: boolean }) => {
-      // leer siempre el array más reciente del store
-      const latestLocal = useReportsStore.getState().localReports;
-      const report = latestLocal.find((report) => row.id == report.front_identifier||row.id == report.id);
+      const latestLocal = useReportsStore.getState().localReports
+      const report = latestLocal.find((report) => row.id == report.front_identifier || row.id == report.id)
       if (report) {
-        setForceActionButton(Boolean(options?.forceButton));
-        setCurrentReport(report);
-        updateQuery({ reportId: null, frontId: report.front_identifier });
+        setForceActionButton(Boolean(options?.forceButton))
+        setCurrentReport(report)
+        updateQuery({ reportId: null, frontId: report.front_identifier })
       }
     },
-    [setCurrentReport, updateQuery, setForceActionButton]
-  );
-
-
+    [setCurrentReport, updateQuery, setForceActionButton],
+  )
 
   const handleEdit = (row: ReportView) => {
-    setCurrentReport(null);
+    setCurrentReport(null)
     updateQuery({ newReport: true })
-    setReport(row);
+    setReport(row)
   }
 
   const handleNewReport = () => {
     updateQuery({ newReport: true })
   }
+
   const handleClosePanel = useCallback(() => {
-    setForceActionButton(false);
-    handleCloseDetails();
-  }, [handleCloseDetails, setForceActionButton]);
+    setForceActionButton(false)
+    handleCloseDetails()
+  }, [handleCloseDetails, setForceActionButton])
 
   const handleDelete = useCallback(async (row: ReportView) => {
     if (!row) {
@@ -320,7 +332,6 @@ const useReportsTable = () => {
         }
 
         const matchesCurrent = [currentReport?.id, currentReport?.front_identifier].includes(reportId)
-
         if (matchesCurrent) {
           handleCloseDetails()
         }
@@ -333,60 +344,54 @@ const useReportsTable = () => {
           showSecondaryButton: false,
           autoCloseMs: 2000,
         })
-        RefreshData();
+        RefreshData()
 
         return true
       } finally {
         hideSpinner()
       }
     }
-    else {
 
-      const identifier = row.front_identifier || row.id
-
-      if (!identifier) {
-        return false
-      }
-
-      const isLocalReport = localReports.some((local) => {
-        return [local.front_identifier, local.id].includes(identifier)
-      })
-
-      if (!isLocalReport) {
-        return false
-      }
-
-      const deleted = await deleteLocal(identifier)
-
-      if (!deleted) {
-        showAlert({
-          type: 'error',
-          title: 'No se pudo eliminar',
-          description: 'Intenta nuevamente en unos segundos.',
-          showPrimaryButton: false,
-          showSecondaryButton: false,
-          autoCloseMs: 2500,
-        })
-        return false
-      }
-
-      const matchesCurrent = [currentReport?.front_identifier, currentReport?.id].includes(identifier)
-
-      if (matchesCurrent) {
-        handleCloseDetails()
-      }
-
-      showAlert({
-        type: 'info',
-        title: 'Reporte eliminado',
-        description: 'El reporte se elimino correctamente.',
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 2000,
-      })
-      return true
+    const identifier = row.front_identifier || row.id
+    if (!identifier) {
+      return false
     }
 
+    const isLocalReport = localReports.some((local) => {
+      return [local.front_identifier, local.id].includes(identifier)
+    })
+
+    if (!isLocalReport) {
+      return false
+    }
+
+    const deleted = await deleteLocal(identifier)
+    if (!deleted) {
+      showAlert({
+        type: 'error',
+        title: 'No se pudo eliminar',
+        description: 'Intenta nuevamente en unos segundos.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2500,
+      })
+      return false
+    }
+
+    const matchesCurrent = [currentReport?.front_identifier, currentReport?.id].includes(identifier)
+    if (matchesCurrent) {
+      handleCloseDetails()
+    }
+
+    showAlert({
+      type: 'info',
+      title: 'Reporte eliminado',
+      description: 'El reporte se elimino correctamente.',
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      autoCloseMs: 2000,
+    })
+    return true
   }, [
     reportId,
     showSpinner,
@@ -405,7 +410,7 @@ const useReportsTable = () => {
     setReportPendingDelete,
     forceActionButton,
     currentReport,
-    reports,
+    reports: projectReports,
     reportList: reportListFiltered,
     reportLocalList,
     localReports,
@@ -432,4 +437,5 @@ const useReportsTable = () => {
     handleClosePanel,
   }
 }
-export default useReportsTable;
+
+export default useReportsTable

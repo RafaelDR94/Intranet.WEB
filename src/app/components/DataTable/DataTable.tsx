@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useEffect } from 'react'
 
@@ -12,12 +12,12 @@ import useDataTable from './hooks/useDataTable'
 import { DataTableProps } from './types'
 
 /**
- * `DataTable` – Renderiza una o varias tablas con:
- * - Cabecera de acciones (buscar, calendario, filtros, botón principal)
- * - Búsqueda interna/externa
+ * `DataTable` â€“ Renderiza una o varias tablas con:
+ * - Cabecera de acciones (buscar, calendario, filtros, botÃ³n principal)
+ * - BÃºsqueda interna/externa
  * - Filtro por rango de fechas
- * - Paginación
- * - Selección de filas y descarga (opcional)
+ * - PaginaciÃ³n
+ * - SelecciÃ³n de filas y descarga (opcional)
  *
  * @template T Debe incluir `{ id: string | number }`.
  */
@@ -44,7 +44,9 @@ export const DataTable = <T extends { id: string | number }>({
   enableInternalSearch = true,
   searchableKeys,
   enablePagination = true,
+  paginationMode = "client",
   rowsPerPage = 10,
+  currentPage,
   onPageChange,
   dateKey,
   onSelectedChange,
@@ -95,7 +97,6 @@ export const DataTable = <T extends { id: string | number }>({
     <div className="space-y-8">
       {tables.length > 1 && (
         <DataTableLayout
-          
           onSearchChange={handleSearchChange}
           onCalendarClick={onCalendarClick}
           onFilterClick={onFilterClick}
@@ -194,6 +195,7 @@ export const DataTable = <T extends { id: string | number }>({
                   secondaryLabel: table.cardAdapt.secondaryLabel,
                   showPrimaryButton: table.cardAdapt.showPrimaryButton,
                   showSecondaryButton: table.cardAdapt.showSecondaryButton,
+                  secondaryVariant: table.cardAdapt.secondaryVariant,
                   enableImagePreview: table.cardAdapt.enableImagePreview,
                   actionMenuProps: table.cardAdapt.actionMenuProps,
                   cardsPerPage: table.cardAdapt.cardsPerPage,
@@ -210,7 +212,9 @@ export const DataTable = <T extends { id: string | number }>({
                 defaultSortDirection={table?.defaultSortDirection}
                 defaultSortKey={table.defaultSortKey}
                 enablePagination={enablePagination}
+                paginationMode={paginationMode}
                 rowsPerPage={rowsPerPage}
+                currentPage={currentPage}
                 totalRows={table.totalRows}
                 enableInternalSearch={enableInternalSearch}
                 onPageChange={onPageChange}
@@ -222,7 +226,7 @@ export const DataTable = <T extends { id: string | number }>({
                 actionLabel={actionLabel}
                 disableSelection={table.disableSelection}
                 selectionDataTour={table.selectionDataTour}
-                textSize={effectiveTextSize} // <-- aplica aquí
+                textSize={effectiveTextSize} // <-- aplica aquÃ­
               />
             )}
           </CollapsibleSection>
@@ -231,3 +235,4 @@ export const DataTable = <T extends { id: string | number }>({
     </div>
   )
 }
+

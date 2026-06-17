@@ -1,12 +1,25 @@
 import { StyleSheet } from '@react-pdf/renderer';
 
+import {
+  PDF_CONTENT_PADDING_BOTTOM,
+  PDF_CONTENT_PADDING_LEFT,
+  PDF_CONTENT_PADDING_RIGHT,
+  PDF_CONTENT_PADDING_TOP,
+  PDF_IMAGE_CARD_HEIGHT,
+  PDF_IMAGE_CARD_WIDTH,
+  PDF_IMAGE_ROW_GAP,
+} from './layout';
+
 export const styles = StyleSheet.create({
   page: {
     fontSize: 8,
     fontFamily: 'Mechanical',
   },
   content: {
-    padding: '20 30 30 30', // Ajuste para que respete el espacio del logo
+    paddingTop: PDF_CONTENT_PADDING_TOP,
+    paddingRight: PDF_CONTENT_PADDING_RIGHT,
+    paddingBottom: PDF_CONTENT_PADDING_BOTTOM,
+    paddingLeft: PDF_CONTENT_PADDING_LEFT,
   },
   section: {},
   tableHeader: {
@@ -20,31 +33,31 @@ export const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 7, // Espacio entre los elementos
+    gap: 7,
     marginBottom: 1,
   },
   cell: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center', // Alinear label y text verticalmente
+    alignItems: 'center',
     marginBottom: 2,
-    width: '48%', // Cada celda ocupa 48% para dejar un pequeño espacio entre ellas
+    width: '48%',
   },
   fullWidthCell: {
-    width: '100%', // Ocupa toda la fila
+    width: '100%',
     flexDirection: 'row',
-    alignItems: 'center', // Alinear verticalmente el contenido
-    marginBottom: 2, // Separación adicional debajo
+    alignItems: 'center',
+    marginBottom: 2,
   },
   labelText: {
     fontWeight: 'bold',
     marginRight: 5,
     backgroundColor: '#e0e0e0',
     padding: 2,
-    flexShrink: 0, // Evita que el label se reduzca
+    flexShrink: 0,
   },
   text: {
-    flex: 1, // Ocupa el espacio restante
+    flex: 1,
     margin: 5,
   },
   titleText: {
@@ -63,20 +76,23 @@ export const styles = StyleSheet.create({
   },
   imageContainer: {
     display: 'flex',
+    flexDirection: 'column',
+  },
+  imageRow: {
+    display: 'flex',
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center', // Centra las imágenes horizontalmente
-    gap: 20, // Espaciado uniforme entre las imágenes
+    justifyContent: 'center',
+    marginBottom: PDF_IMAGE_ROW_GAP,
   },
   imageCard: {
     display: 'flex',
-    alignItems: 'center', // Centra el contenido de la tarjeta
+    alignItems: 'center',
     border: '1px solid #e0e0e0',
-    padding: 0, // Añade algo de padding interno
+    padding: 0,
     marginLeft: 10,
     marginRight: 10,
     marginBottom: 0,
-    width: 240, // Mantiene el mismo ancho que la imagen
+    width: PDF_IMAGE_CARD_WIDTH,
   },
   imageTitle: {
     fontSize: 9,
@@ -85,18 +101,18 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   imageDescription: {
-    width: '100%', // Ancho fijo igual al de la tarjeta
-    minHeight: 30, // Altura mínima para garantizar 3 líneas
-    maxHeight: 50, // Limitar la altura
+    width: '100%',
+    minHeight: 30,
+    maxHeight: 50,
     fontSize: 8,
     backgroundColor: '#e0e0e0',
     textAlign: 'center',
-    overflow: 'hidden', // Oculta el exceso de texto
-    padding: 2, // Espaciado interno
+    overflow: 'hidden',
+    padding: 2,
   },
   imageStyle: {
-    width: 240, // Ancho fijo
-    height: 130, // Altura fija
+    width: PDF_IMAGE_CARD_WIDTH,
+    height: PDF_IMAGE_CARD_HEIGHT,
     objectFit: 'contain',
     marginBottom: 0,
   },
@@ -108,18 +124,18 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   signatureBox: {
-    width: '23%', // Ajusta para que quepan 4 firmas por fila
+    width: '23%',
     padding: 10,
     textAlign: 'center',
     marginBottom: 10,
     border: '1px solid #e0e0e0',
   },
   signatureImage: {
-    width: '100%',          // Ajusta el ancho al 100% del contenedor de la firma
-    height: 40,             // Altura constante para la firma
-    objectFit: 'contain',   // Contiene la imagen sin deformarla
+    width: '100%',
+    height: 40,
+    objectFit: 'contain',
     marginBottom: 5,
-    alignSelf: 'center',    // Centra la firma horizontalmente
+    alignSelf: 'center',
   },
   signatureLine: {
     width: '100%',
@@ -137,28 +153,28 @@ export const styles = StyleSheet.create({
     marginTop: 5,
   },
   progressBarContainer: {
-    width: '30%', // Ajusta el tamaño según tu diseño
+    width: '30%',
     backgroundColor: '#e0e0e0',
     height: 8,
     borderRadius: 4,
     overflow: 'hidden',
-    marginLeft: "40px"
+    marginLeft: '40px',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#001E2F', // Color de progreso
+    backgroundColor: '#001E2F',
   },
   folioText: {
     fontSize: 9,
     fontWeight: 'bold',
-    marginRight: "40px",
-    marginTop: "55px",
+    marginRight: '40px',
+    marginTop: '55px',
     textAlign: 'right',
   },
   progressText: {
     fontSize: 9,
-    marginLeft: "40px",
-    marginBottom: 5
+    marginLeft: '40px',
+    marginBottom: 5,
   },
   footer: {
     position: 'absolute',
@@ -167,8 +183,8 @@ export const styles = StyleSheet.create({
     right: 0,
     textAlign: 'right',
     fontSize: 8,
-    marginRight: "35px",
-    fontWeight: "light",
+    marginRight: '35px',
+    fontWeight: 'light',
     opacity: 0.5,
   },
   pageNumber: {
@@ -198,7 +214,7 @@ export const styles = StyleSheet.create({
     padding: 5,
     fontSize: 8,
     textAlign: 'center',
-    flex: 1, // Asegura que las celdas sean flexibles
+    flex: 1,
   },
   headerCell: {
     fontWeight: 'bold',
@@ -210,7 +226,7 @@ export const styles = StyleSheet.create({
     marginBottom: 2,
   },
   listBullet: {
-    width: 10, // Espacio para la viñeta
+    width: 10,
     fontSize: 10,
   },
   listItemText: {
@@ -218,12 +234,11 @@ export const styles = StyleSheet.create({
     fontSize: 8,
     marginLeft: 5,
   },
-
   headerBox: {
     position: 'absolute',
     top: 20,
     right: 35,
-    width: 240, // Ancho mayor para que quepa el título
+    width: 240,
     borderWidth: 1,
     borderColor: '#001E2F',
     borderStyle: 'solid',
@@ -246,7 +261,7 @@ export const styles = StyleSheet.create({
   },
   folioTextBelow: {
     position: 'absolute',
-    top: 90,  // Ajusta este valor según el alto del headerBox
+    top: 90,
     right: 35,
     fontSize: 9,
     fontWeight: 'bold',

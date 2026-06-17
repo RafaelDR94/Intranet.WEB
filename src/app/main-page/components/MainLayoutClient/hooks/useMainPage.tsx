@@ -1,122 +1,186 @@
-﻿import { usePathname, useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState, useMemo, useCallback } from 'react';
+﻿import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, useMemo, useCallback } from "react";
 
-import { useAuth } from '../../../../context/AuthContext/AuthContext';
-import { useFirebase } from '../../../../context/FirebaseContext/FirebaseContext';
-import { usePrincipal } from '../../../../context/PrincipalContext/PrincipalContext';
-import { getTabsFromPath } from '../utilities/getTabsFromPath';
-import { OfflineMessage, PendingNotification } from './types';
+import { useAuth } from "../../../../context/AuthContext/AuthContext";
+import { useFirebase } from "../../../../context/FirebaseContext/FirebaseContext";
+import { buildNotificationPendingPath } from "../../../../context/FirebaseContext/notificationPaths";
+import { usePrincipal } from "../../../../context/PrincipalContext/PrincipalContext";
+import { getTabsFromPath } from "../utilities/getTabsFromPath";
+import { OfflineMessage, PendingNotification } from "./types";
 
-import ServerIcon from '@/assets/icons/Connectivity/server.svg';
-import FileIcon from '@/assets/icons/Docs/archive.svg';
-import HomeIcon from '@/assets/icons/navegacion/home.svg';
+import ServerIcon from "@/assets/icons/Connectivity/server.svg";
+import FileIcon from "@/assets/icons/Docs/archive.svg";
+import HomeIcon from "@/assets/icons/navegacion/home.svg";
 /**
  * Rutas visibles en el sidebar principal de la pagina /main-page.
  */
 export const sidebarRoutes = [
   {
-    label: 'Inicio',
-    path: '/main-page/home',
+    label: "Inicio",
+    path: "/main-page/home",
     icon: HomeIcon,
   },
   {
-    label: 'Tesoreria',
-    path: '/main-page/treasury',
+    label: "Tesorería",
+    path: "/main-page/treasury",
     icon: ServerIcon,
     subroutes: [
-      { label: 'Caja Chica', path: '/main-page/treasury/treasurypettycash' },
+      { label: "Caja Chica", path: "/main-page/treasury/treasurypettycash" },
     ],
   },
   {
-    label: 'Operaciones',
-    path: '/main-page/operations',
+    label: "Operaciones",
+    path: "/main-page/operations",
     icon: ServerIcon,
     subroutes: [
-      { label: 'Requisiciones', path: '/main-page/operations/requisitions' },
+      { label: "Requisiciones", path: "/main-page/operations/requisitions" },
+      {
+        label: "Historico de facturas",
+        path: "/main-page/operations/documentshistory",
+      },
     ],
   },
   {
-    label: 'Portal de Servicios',
-    path: '/main-page/request',
+    label: "Portal de Servicios",
+    path: "/main-page/request",
     icon: FileIcon,
     subroutes: [
-      { label: 'Caja Chica', path: '/main-page/request/pettycash' },
-      { label: 'Documentos', path: '/main-page/request/documents' },
-      { label: 'Accesos', path: '/main-page/request/acces' },
-      { label: 'Requisiciones', path: '/main-page/request/ownrequisitions' },
-      { label: 'Prestamo Vehicular', path: '/main-page/request/vehicleassignament' }
+      { label: "Caja Chica", path: "/main-page/request/pettycash" },
+      { label: "Documentos", path: "/main-page/request/documents" },
+      { label: "Accesos", path: "/main-page/request/acces" },
+      { label: "Requisiciones", path: "/main-page/request/ownrequisitions" },
+      {
+        label: "Prestamo Vehicular",
+        path: "/main-page/request/vehicleassignament",
+      },
     ],
   },
   {
-    label: 'Contabilidad',
-    path: '/main-page/accounting',
+    label: "Contabilidad",
+    path: "/main-page/accounting",
     icon: ServerIcon,
     subroutes: [
-      { label: 'Facturacion', path: '/main-page/accounting/invoices' },
-      { label: 'Requisiciones', path: '/main-page/accounting/requisitions' },
-      { label: 'SAP', path: '/main-page/accounting/sap' },
+      { label: "Facturacion", path: "/main-page/accounting/invoices" },
+      { label: "Requisiciones", path: "/main-page/accounting/requisitions" },
+      { label: "SAP", path: "/main-page/accounting/sap" },
+      { label: "Claves", path: "/main-page/accounting/sapkey" },
+      {
+        label: "Historico de facturas",
+        path: "/main-page/accounting/documentshistory",
+      },
     ],
   },
   {
-    label: 'Reportes',
-    path: '/main-page/proyects',
+    label: "Proyectos",
+    path: "/main-page/proyects",
     icon: ServerIcon,
     subroutes: [
-      { label: 'Proyectos', path: '/main-page/proyects/proyects' },
-      { label: 'Inventario', path: '/main-page/proyects/inventory' },
+      { label: "Proyectos", path: "/main-page/proyects/proyects" },
+      { label: "Inventario", path: "/main-page/proyects/inventory" },
     ],
   },
   {
-    label: 'IT',
-    path: '/main-page/it',
+    label: "IT",
+    path: "/main-page/it",
     icon: ServerIcon,
     subroutes: [
-      { label: 'Dispositivos', path: '/main-page/it/internaldevices' },
-      { label: 'Usuarios', path: '/main-page/it/users' },
+      { label: "Dispositivos", path: "/main-page/it/internaldevices" },
+      { label: "Usuarios", path: "/main-page/it/users" },
     ],
   },
   {
-    label: 'Servicios Generales',
-    path: '/main-page/generalservices',
+    label: "Servicios Generales",
+    path: "/main-page/generalservices",
     icon: ServerIcon,
     subroutes: [
-      { label: 'Registro Vehicular', path: '/main-page/generalservices/vehicleregist' },
+      {
+        label: "Registro Vehicular",
+        path: "/main-page/generalservices/vehicleregist",
+      },
     ],
   },
   {
-    label: 'RRHH',
-    path: '/main-page/humanresources',
+    label: "RRHH",
+    path: "/main-page/humanresources",
     icon: ServerIcon,
     subroutes: [
-      { label: 'Comunicados', path: '/main-page/humanresources/release' },
-      { label: 'Documentos', path: '/main-page/humanresources/documents' },
-      { label: 'Organigrama', path: '/main-page/humanresources/organizationchart' },
-      { label: 'Empresas', path: '/main-page/humanresources/companies' },
-      { label: 'Departamentos', path: '/main-page/humanresources/departments' },
+      { label: "Comunicados", path: "/main-page/humanresources/release" },
+      {
+        label: "Organigrama",
+        path: "/main-page/humanresources/organizationchart",
+      },
+      { label: "Empresas", path: "/main-page/humanresources/companies" },
+      { label: "Departamentos", path: "/main-page/humanresources/departments" },
     ],
   },
   {
-    label: 'Administracion',
-    path: '/main-page/usersmanagment',
+    label: "Organigrama",
+    path: "/main-page/organigrama",
     icon: ServerIcon,
     subroutes: [
-      { label: 'Administracion de usuarios', path: '/main-page/administration/usersmanagment' },
+      { label: "Departamentos", path: "/main-page/organigrama/departments" },
+      {
+        label: "Directorio General",
+        path: "/main-page/organigrama/generaldirectory",
+      },
     ],
   },
-    {
-    label: 'Autorizaciones',
-    path: '/main-page/authorizations',
+  {
+    label: "Administracion",
+    path: "/main-page/usersmanagment",
     icon: ServerIcon,
     subroutes: [
-      { label: 'Lista de autorizaciones', path: '/main-page/authorizations/authorizationslist' },
+      {
+        label: "Administracion de usuarios",
+        path: "/main-page/administration/usersmanagment",
+      },
+    ],
+  },
+  {
+    label: "Autorizaciones",
+    path: "/main-page/authorizations",
+    icon: ServerIcon,
+    subroutes: [
+      {
+        label: "Lista de autorizaciones",
+        path: "/main-page/authorizations/authorizationslist",
+      },
     ],
   },
 ];
 
+const MANAGEMENT_DOCUMENTS_PATH =
+  "/main-page/request/documents/managementdocuments";
+
+const filterManagementDocumentsTabs = <T extends { path: string }>(
+  routes: T[],
+  canViewManagementDocuments: boolean,
+): T[] => {
+  if (canViewManagementDocuments) return routes;
+
+  return routes.filter((route) => route.path !== MANAGEMENT_DOCUMENTS_PATH);
+};
+
+const filterManagementDocumentsRoutes = (
+  routes: typeof sidebarRoutes,
+  canViewManagementDocuments: boolean,
+): typeof sidebarRoutes => {
+  if (canViewManagementDocuments) return routes;
+
+  return routes.map((route) => ({
+    ...route,
+    subroutes: route.subroutes
+      ? filterManagementDocumentsTabs(
+          route.subroutes,
+          canViewManagementDocuments,
+        )
+      : route.subroutes,
+  }));
+};
+
 /**
  * Estado del mensaje modal de confirmacion para activar/desactivar el modo offline.
  */
-
 
 /**
  * Hook principal para manejar logica y estado de la pagina `MainPage`.
@@ -126,7 +190,8 @@ export const sidebarRoutes = [
  */
 export const useMainPage = () => {
   // Hooks de contexto global
-  const { usePrincipalTheme, usePrincipalAlert, usePrincipalImage } = usePrincipal();
+  const { usePrincipalTheme, usePrincipalAlert, usePrincipalImage } =
+    usePrincipal();
   const { alert, hideAlert, showAlert } = usePrincipalAlert;
   const { theme, toggleTheme } = usePrincipalTheme;
   const pathname = usePathname();
@@ -141,7 +206,7 @@ export const useMainPage = () => {
   const navigateToEventUrl = useCallback(
     (eventUrl?: string) => {
       if (!eventUrl) return;
-      if (eventUrl.startsWith('http')) {
+      if (eventUrl.startsWith("http")) {
         try {
           const url = new URL(eventUrl);
           if (url.origin === window.location.origin) {
@@ -155,35 +220,56 @@ export const useMainPage = () => {
       }
       router.push(eventUrl);
     },
-    [router]
+    [router],
   );
+
+  const {
+    user,
+    offlineMode,
+    handleOfflineMode,
+    logout,
+    validPermissionsbyroute,
+  } = useAuth();
+  const { firebaseMessaging, firebaserealtime } = useFirebase();
+  const canViewManagementDocuments =
+    user?.isGerence === true || user?.rolName?.trim().toLowerCase() === 'admin';
 
   const tabs = useMemo(
-    () => getTabsFromPath(pathname, searchParams),
-    [pathname, searchParams]
+    () =>
+      filterManagementDocumentsTabs(
+        getTabsFromPath(pathname, searchParams),
+        canViewManagementDocuments,
+      ),
+    [pathname, searchParams, canViewManagementDocuments],
   );
 
-  const { user, offlineMode, handleOfflineMode, logout, validPermissionsbyroute } = useAuth();
-  const { firebaseMessaging, firebaserealtime } = useFirebase();
+  const visibleSidebarRoutes = useMemo(
+    () =>
+      filterManagementDocumentsRoutes(
+        sidebarRoutes,
+        canViewManagementDocuments,
+      ),
+    [canViewManagementDocuments],
+  );
 
   const [offlineLoggin, setOfflineLoggin] = useState(offlineMode);
-  const [pendingNotifications, setPendingNotifications] = useState<PendingNotification[]>([]);
+  const [pendingNotifications, setPendingNotifications] = useState<
+    PendingNotification[]
+  >([]);
 
   const [offlineMeMessage, setOfflineMeMessage] = useState<OfflineMessage>({
     open: false,
     offlineMode,
-    messsage: '',
+    messsage: "",
   });
-  ;
-
   /**
    * Muestra un mensaje de advertencia al usuario antes de cambiar el modo offline/online.
    */
   const handleOfflineChange = (checked: boolean) => {
     const message1 =
-      'Al activar el modo offline la funcionalidad puede estar limitada y los datos que se mostraran pueden no ser los mas actuales.';
+      "Al activar el modo offline la funcionalidad puede estar limitada y los datos que se mostraran pueden no ser los mas actuales.";
     const message2 =
-      'Al activar el modo online se trabajara con la informacion mas actual de la nube.';
+      "Al activar el modo online se trabajara con la Información mas actual de la nube.";
 
     setOfflineMeMessage({
       open: true,
@@ -202,7 +288,7 @@ export const useMainPage = () => {
    */
   const handleOkMessageOffline = () => {
     handleOfflineMode(offlineMeMessage.offlineMode);
-    setOfflineMeMessage({ open: false, offlineMode: false, messsage: '' });
+    setOfflineMeMessage({ open: false, offlineMode: false, messsage: "" });
   };
 
   /**
@@ -210,7 +296,7 @@ export const useMainPage = () => {
    */
   const handleCancelMessageOffline = () => {
     handleOfflineMode(!offlineMeMessage.offlineMode);
-    setOfflineMeMessage({ open: false, offlineMode: false, messsage: '' });
+    setOfflineMeMessage({ open: false, offlineMode: false, messsage: "" });
   };
 
   const handleRemovePending = useCallback(
@@ -218,13 +304,13 @@ export const useMainPage = () => {
       if (!user?.idUser || !firebaserealtime) return;
       try {
         await firebaserealtime.deleteData(
-          `Notifications/${user.idUser}/Pending/${notificationId}`
+          `${buildNotificationPendingPath(user.idUser)}/${notificationId}`,
         );
       } catch (err) {
-        console.error('Error removing pending notification', err);
+        console.error("Error removing pending notification", err);
       }
     },
-    [firebaserealtime, user?.idUser]
+    [firebaserealtime, user?.idUser],
   );
 
   const handleOpenPending = useCallback(
@@ -233,7 +319,7 @@ export const useMainPage = () => {
       await handleRemovePending(notification.id);
       navigateToEventUrl(eventUrl);
     },
-    [handleRemovePending, navigateToEventUrl]
+    [handleRemovePending, navigateToEventUrl],
   );
 
   // Muestra una alerta si hay una notificacion de Firebase
@@ -255,18 +341,20 @@ export const useMainPage = () => {
           (notification) =>
             notification.data?.event_url === eventUrl &&
             notification.title ===
-              (firebaseMessaging.notification.notification?.title ?? 'Notificacion') &&
+              (firebaseMessaging.notification.notification?.title ??
+                "Notificacion") &&
             notification.body ===
-              (firebaseMessaging.notification.notification?.body ?? '')
+              (firebaseMessaging.notification.notification?.body ?? ""),
         )?.id;
 
       showAlert({
-        title: firebaseMessaging.notification.notification?.title ?? 'Notificacion',
-        description: firebaseMessaging.notification.notification?.body ?? '',
-        type: 'notification',
+        title:
+          firebaseMessaging.notification.notification?.title ?? "Notificacion",
+        description: firebaseMessaging.notification.notification?.body ?? "",
+        type: "notification",
         showPrimaryButton: false,
         showSecondaryButton: false,
-        primaryLabel: 'Ir a evento',
+        primaryLabel: "Ir a evento",
         createdAt: new Date().toISOString(),
         avatarSrc: imageUrl,
         onPrimaryClick: async () => {
@@ -290,7 +378,7 @@ export const useMainPage = () => {
 
   useEffect(() => {
     if (!user?.idUser || !firebaserealtime) return;
-    const path = `Notifications/${user.idUser}/Pending`;
+    const path = buildNotificationPendingPath(user.idUser);
     let unsubscribe: (() => void) | undefined;
     try {
       unsubscribe = firebaserealtime.subscribe(path, (data) => {
@@ -298,14 +386,16 @@ export const useMainPage = () => {
           setPendingNotifications([]);
           return;
         }
-        const next = Object.entries(data as Record<string, any>).map(([id, value]) => ({
-          id,
-          title: value?.title ?? 'Notificacion',
-          body: value?.body ?? '',
-          data: value?.data ?? {},
-          createdAt: value?.createdAt,
-          avatarSrc: value?.data?.image_url,
-        }));
+        const next = Object.entries(data as Record<string, any>).map(
+          ([id, value]) => ({
+            id,
+            title: value?.title ?? "Notificacion",
+            body: value?.body ?? "",
+            data: value?.data ?? {},
+            createdAt: value?.createdAt,
+            avatarSrc: value?.data?.image_url,
+          }),
+        );
         next.sort((a, b) => {
           const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -314,7 +404,10 @@ export const useMainPage = () => {
         setPendingNotifications(next);
       });
     } catch (err) {
-      console.warn('Firebase realtime not ready for pending notifications', err);
+      console.warn(
+        "Firebase realtime not ready for pending notifications",
+        err,
+      );
       return;
     }
     return () => unsubscribe?.();
@@ -336,11 +429,11 @@ export const useMainPage = () => {
     handleOkMessageOffline,
     handleCancelMessageOffline,
     handleAlertClose,
-    sidebarRoutes,
+    sidebarRoutes: visibleSidebarRoutes,
     usePrincipalImage,
     pendingNotifications,
     handleOpenPending,
-    handleRemovePending
+    handleRemovePending,
   };
 };
 

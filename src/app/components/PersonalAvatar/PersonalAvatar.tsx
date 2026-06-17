@@ -35,7 +35,7 @@ const PersonalAvatar: React.FC<PersonalAvatarProps> = ({ size,dataTestId }) => {
   return (
     <div className={containerClass} data-testid={dataTestId}>
       {avatarInit.initials ? (
-        <Avatar initials={avatarInit.initials} size={size} src={avatarInit.src} online />
+        <Avatar initials={avatarInit.initials} size={size} src={avatarInit.src} online={false} />
       ) : (
         <Spinner size="medium" />
       )}

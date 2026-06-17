@@ -38,12 +38,15 @@ const DEFAULT_VALIDATION_VALUES: ValidationFormValues = {
   total: 0,
 };
 
+const hasPositiveTotal = (total: number): boolean =>
+  Number.isFinite(total) && total > 0;
+
 const normalizeImages = (
   images: BillingImages["images"] | { image?: string }[],
 ): string[] => {
   if (Array.isArray(images)) {
     return images
-      .map((item) => (typeof item === "string" ? item : item?.image ?? ""))
+      .map((item) => (typeof item === "string" ? item : (item?.image ?? "")))
       .filter((item) => !!item);
   }
   return [];
@@ -87,7 +90,8 @@ const statusToType = (status?: string): LabelType => {
 };
 
 const isPendingStatus = (status?: string): boolean =>
-  (status ?? "").trim().toLowerCase().includes("pend")|| (status ?? "").trim().toLowerCase().includes("actualizado");
+  (status ?? "").trim().toLowerCase().includes("pend") ||
+  (status ?? "").trim().toLowerCase().includes("actualizado");
 
 const useTicketsFiles = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
@@ -115,9 +119,8 @@ const useTicketsFiles = () => {
   const [openValidateTicket, setOpenValidateTicket] = useState(false);
   const [markAsNotDeductible, setMarkAsNotDeductible] = useState(false);
   const [showValidationForm, setShowValidationForm] = useState(false);
-  const [validationValues, setValidationValues] = useState<ValidationFormValues>(
-    DEFAULT_VALIDATION_VALUES,
-  );
+  const [validationValues, setValidationValues] =
+    useState<ValidationFormValues>(DEFAULT_VALIDATION_VALUES);
   const [validationFormVersion, setValidationFormVersion] = useState(0);
   const [lastValidatedTicketId, setLastValidatedTicketId] = useState<
     string | null
@@ -128,17 +131,16 @@ const useTicketsFiles = () => {
     pendingBillingImages,
     fetchBillingImagesPendingByEmployee,
     fetchBillingDocumentsPendingByEmployee,
-  } =
-    useBillingRequisitionWithEmployeesStore(
-      (state) => ({
-        pendingBillingImages: state.pendingBillingImages,
-        fetchBillingImagesPendingByEmployee:
-          state.fetchBillingImagesPendingByEmployee,
-        fetchBillingDocumentsPendingByEmployee:
-          state.fetchBillingDocumentsPendingByEmployee,
-      }),
-      shallow,
-    );
+  } = useBillingRequisitionWithEmployeesStore(
+    (state) => ({
+      pendingBillingImages: state.pendingBillingImages,
+      fetchBillingImagesPendingByEmployee:
+        state.fetchBillingImagesPendingByEmployee,
+      fetchBillingDocumentsPendingByEmployee:
+        state.fetchBillingDocumentsPendingByEmployee,
+    }),
+    shallow,
+  );
 
   const {
     rejectBillingImage,
@@ -205,7 +207,9 @@ const useTicketsFiles = () => {
 
   useEffect(() => {
     if (rejecting) {
-      showSpinner({ message: "Espera un momento, se esta rechazando la imagen." });
+      showSpinner({
+        message: "Espera un momento, se esta rechazando la imagen.",
+      });
       return;
     }
 
@@ -359,7 +363,9 @@ const useTicketsFiles = () => {
   }, []);
 
   const rows = useMemo(() => {
-    const sourceImages = isBillableFilesView ? billingImages : pendingBillingImages;
+    const sourceImages = isBillableFilesView
+      ? billingImages
+      : pendingBillingImages;
     const newRows = mapTickets(sourceImages, statusOverrides);
     if (isTutorialActive) return mockRows;
     return newRows;
@@ -404,7 +410,8 @@ const useTicketsFiles = () => {
     const currentRequisition = detailRow?.source?.requisition;
     if (currentRequisition?.billingrequisition_id) {
       map.set(currentRequisition.billingrequisition_id, {
-        label: `${currentRequisition.requisitionkey} - ${currentRequisition.projectname}`.trim(),
+        label:
+          `${currentRequisition.requisitionkey} - ${currentRequisition.projectname}`.trim(),
         value: currentRequisition.billingrequisition_id,
       });
     }
@@ -433,10 +440,13 @@ const useTicketsFiles = () => {
         className: "max-w-[220px]",
       },
       {
-        type: "input",
+        type: "number",
         name: "total",
         label: "Total",
-        value: String(DEFAULT_VALIDATION_VALUES.total),
+        value: DEFAULT_VALIDATION_VALUES.total,
+        min: 0.01,
+        step: 0.01,
+        validations: [{ type: "required" }, { type: "min", value: 0.01 }],
         className: "max-w-[220px]",
       },
     ],
@@ -452,11 +462,14 @@ const useTicketsFiles = () => {
 
   const filteredRows = useMemo(() => {
     if (filterValue === "all") return rows;
-    return rows.filter((row) => resolveFilterStatus(row.status) === filterValue);
+    return rows.filter(
+      (row) => resolveFilterStatus(row.status) === filterValue,
+    );
   }, [filterValue, resolveFilterStatus, rows]);
 
   const refresh = useCallback(() => {
     if (!employeeId) return;
+    setStatusOverrides({});
     if (isBillableFilesView) {
       fetchBillingImages(employeeId, true);
     } else {
@@ -562,19 +575,37 @@ const useTicketsFiles = () => {
   );
 
   const handleValidateClick = useCallback(() => {
-    if (!detailRow || !markAsNotDeductible || !isPendingStatus(detailRow.status)) {
+    if (
+      !detailRow ||
+      !markAsNotDeductible ||
+      !isPendingStatus(detailRow.status)
+    ) {
       return;
     }
     if (!validationValues.requisition_id) return;
+    if (!hasPositiveTotal(validationValues.total)) return;
     setOpenValidateTicket(true);
   }, [
     detailRow,
     markAsNotDeductible,
+    validationValues.total,
     validationValues.requisition_id,
   ]);
 
   const handleConfirmValidate = useCallback(() => {
     if (!detailRow || !validationValues.requisition_id) return;
+    if (!hasPositiveTotal(validationValues.total)) {
+      showAlert({
+        type: "warning",
+        title: "Total requerido",
+        description:
+          "Para marcar un ticket como no deducible, el total debe ser mayor a cero.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2000,
+      });
+      return;
+    }
 
     setOpenValidateTicket(false);
     setLastValidatedTicketId(detailRow.id);
@@ -584,19 +615,21 @@ const useTicketsFiles = () => {
       numpersons: Number(validationValues.numpersons ?? 0),
       total: Number(validationValues.total ?? 0),
     });
-  }, [billingDocumentNotDeductible, detailRow, validationValues]);
+  }, [billingDocumentNotDeductible, detailRow, showAlert, validationValues]);
 
   const isValidateLocked = useMemo(() => {
     if (!detailRow) return true;
     if (!isPendingStatus(detailRow.status)) return true;
     if (!markAsNotDeductible) return true;
     if (notDeducting) return true;
-    return !validationValues.requisition_id;
+    if (!validationValues.requisition_id) return true;
+    return !hasPositiveTotal(validationValues.total);
   }, [
     detailRow,
     markAsNotDeductible,
     notDeducting,
     validationValues.requisition_id,
+    validationValues.total,
   ]);
 
   const isToggleLocked = useMemo(
@@ -654,7 +687,10 @@ const useTicketsFiles = () => {
         cellClass: "w-3/15 text-right",
         headerClass: "w-3/15 text-right",
         render: (row) => (
-          <Label type={statusToType(row.status)} text={row.status?.toUpperCase() ?? ""} />
+          <Label
+            type={statusToType(row.status)}
+            text={row.status?.toUpperCase() ?? ""}
+          />
         ),
       },
       {
@@ -771,7 +807,7 @@ const useTicketsFiles = () => {
     setFilterValue,
     refresh,
     isTutorialActive,
-    tutorialMockRow: isTutorialActive ? mockRows[0] ?? null : null,
+    tutorialMockRow: isTutorialActive ? (mockRows[0] ?? null) : null,
     previewSrc: previewImages[previewIndex] ?? null,
     previewIndex,
     previewTotal: previewImages.length,

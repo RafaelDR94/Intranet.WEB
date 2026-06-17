@@ -1,7 +1,7 @@
 // src/app/stores/proyects/utilities/fetchProyects.ts
 import type { Set, Get } from '../types'
 
-import { ReportsProyects } from '@/app/configurations/Axios/urls'
+import { ReportsProyects, ReportsProyectsByIdEmployee } from '@/app/configurations/Axios/urls'
 import { ProyectsMap } from '@/app/mappings/proyects/proyects.mapper'
 import type { Proyect } from '@/app/mappings/proyects/proyects.types'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
@@ -15,13 +15,22 @@ import { requireGateway } from '@/app/utilities/Http/requireGateway'
  * @param get Función `get` de Zustand
  * @param force Si es `true`, fuerza la recarga aunque existan datos
  */
-export const fetchProyects = async (set: Set, get: Get, force = false) => {
+export const fetchProyects = async (
+  set: Set,
+  get: Get,
+  force = false,
+  idEmployee?: string,
+) => {
   if (get().proyects.length > 0 && !force) return
 
   set({ loading: true, error: undefined })
   try {
     const getFn = requireGateway('get') // obtiene la función GET
-    const res = await pGet(getFn)(`${ReportsProyects}?IsActive=true`)
+    const query = new URLSearchParams({ IsActive: 'true' })
+    const endpoint = idEmployee
+      ? `${ReportsProyectsByIdEmployee}/${encodeURIComponent(idEmployee)}`
+      : ReportsProyects
+    const res = await pGet(getFn)(`${endpoint}?${query.toString()}`)
     const mapped: Proyect[] = ProyectsMap(res.data?.data ?? [])
     set({ proyects: mapped, loading: false })
   } catch (err) {

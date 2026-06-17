@@ -1,3 +1,10 @@
+### 1.50.31 Corregir tests de LoginPage 15-05-2026
+
+Fix:
+
+- Actualiza los tests de LoginPage para coincidir con el texto del botón de passkey ("Iniciar sesión con Dispositivo").
+- Mueve los estilos del botón de passkey a `styles.ts` siguiendo la arquitectura del proyecto. (Agente IA) [#]()
+
 ### 1.50.30 Tutoriales en pettycash request e history 03-04-2026
 
 Feature:

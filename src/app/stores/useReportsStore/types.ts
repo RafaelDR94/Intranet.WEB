@@ -1,8 +1,9 @@
-import type { ReportView, TypesOfReportType, CategoriesType } from '@/app/mappings/reports/reports.types'
+import type { ReportView, TypesOfReportType, CategoriesType, ProjectReportSummary } from '@/app/mappings/reports/reports.types'
 
 export type ReportsState = {
   // Datos
   reports: ReportView[]
+  projectReports: ProjectReportSummary[]
   localReports: ReportView[]
   typesofReports: TypesOfReportType[]
   reportCategories: CategoriesType[]
@@ -32,7 +33,7 @@ export type ReportsState = {
 
   // Actions
   fetchAllReports: (force?: boolean) => Promise<void>
-  fetchAllReportsByProyect: (idproyect: string, force?: boolean) => Promise<void>
+  fetchAllReportsByProyect: (idproyect: string, force?: boolean, idEmployee?: string) => Promise<void>
   createReport: (payload: ReportView) => Promise<ReportView | null>
   updateReport: (payload: ReportView) => Promise<ReportView | null>
   fetchReportsById: (idreport: string, force?: boolean) => Promise<void>

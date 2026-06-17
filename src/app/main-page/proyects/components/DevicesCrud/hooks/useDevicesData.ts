@@ -10,6 +10,7 @@ import type { GenericEquipment } from '@/app/mappings/inventory/inventory.types'
 import type { ReportDeviceView } from '@/app/mappings/reports/reports.types';
 import { useProyectInventoryStore } from '@/app/stores/useProyectInventoryStore/useProyectInventoryStore';
 import useProyectLocationStore from '@/app/stores/useProyectLocationStore/useProyectLocationStore';
+import useReportDevicesStore from '@/app/stores/useReportDevicesStore/useReportDevicesStore';
 import type { CrudRecord, CrudScope } from '../../types';
 
 export type DeviceListType = 'complete' | 'generic';
@@ -32,9 +33,12 @@ export const buildCompleteDeviceRow = (record: ReportDeviceView): CrudRecord => 
 
   return {
     id: String(record?.id ?? device?.id ?? ''),
-    primary: title || serial || 'Sin informacion',
-    secondary: String(device?.brand ?? '').trim() || 'Sin informacion',
-    tertiary: location || 'Sin informacion',
+    idGenericEquipment: String(device?.idGenericEquipment ?? '').trim() || undefined,
+    projectId: String(device?.idproyect ?? '').trim() || undefined,
+    idLocation: String(device?.idlocation ?? '').trim() || undefined,
+    primary: title || serial || 'Sin Información',
+    secondary: String(device?.brand ?? '').trim() || 'Sin Información',
+    tertiary: location || 'Sin Información',
     status: resolveStatus(device?.is_active),
     description: serial ? `Serie: ${serial}` : 'Sin numero de serie',
     projectCode: String(device?.keyproyect ?? '').trim(),
@@ -45,11 +49,11 @@ export const buildCompleteDeviceRow = (record: ReportDeviceView): CrudRecord => 
 
 export const buildGenericDeviceRow = (equipment: GenericEquipment): CrudRecord => ({
   id: String(equipment?.id ?? ''),
-  primary: String(equipment?.typeOfEquipment ?? '').trim() || 'Sin informacion',
-  secondary: String(equipment?.brand ?? '').trim() || 'Sin informacion',
+  primary: String(equipment?.typeOfEquipment ?? '').trim() || 'Sin Información',
+  secondary: String(equipment?.brand ?? '').trim() || 'Sin Información',
   tertiary: 'Inventario general',
   status: resolveStatus(equipment?.isActive),
-  description: String(equipment?.model ?? '').trim() || 'Sin informacion',
+  description: String(equipment?.model ?? '').trim() || 'Sin Información',
   model: String(equipment?.model ?? '').trim(),
 });
 
@@ -92,6 +96,7 @@ export const useDevicesData = (scope: CrudScope) => {
     inventoryLoading,
     inventoryError,
     fetchGenericEquipments,
+    deleteGenericEquipment,
     resetInventoryFlags,
   } = useProyectInventoryStore(
     (state) => ({
@@ -99,10 +104,20 @@ export const useDevicesData = (scope: CrudScope) => {
       inventoryLoading: state.loading,
       inventoryError: state.error,
       fetchGenericEquipments: state.fetchGenericEquipments,
+      deleteGenericEquipment: state.deleteGenericEquipment,
       resetInventoryFlags: state.resetFlags,
     }),
     shallow,
   );
+
+  const { deleteDevice: deleteCompleteDevice, resetFlags: resetReportDevicesFlags } =
+    useReportDevicesStore(
+      (state) => ({
+        deleteDevice: state.deleteDevice,
+        resetFlags: state.resetFlags,
+      }),
+      shallow,
+    );
 
   useEffect(() => {
     if (scope === 'project') {
@@ -191,6 +206,21 @@ export const useDevicesData = (scope: CrudScope) => {
     return allDevices.map(buildCompleteDeviceRow);
   }, [allDevices, devicesByProyect, effectiveType, genericEquipments, scope]);
 
+  const refreshRows = async () => {
+    if (scope === 'project') {
+      if (!projectId?.trim()) return;
+      await fetchDevicesByProyectId(projectId, true);
+      return;
+    }
+
+    if (effectiveType === 'generic') {
+      await fetchGenericEquipments(true);
+      return;
+    }
+
+    await fetchAllDevices(true);
+  };
+
   return {
     rawType,
     effectiveType,
@@ -198,5 +228,10 @@ export const useDevicesData = (scope: CrudScope) => {
     rows: sourceRows,
     projectId,
     isLoading,
+    deleteGenericEquipment,
+    deleteCompleteDevice,
+    resetInventoryFlags,
+    resetReportDevicesFlags,
+    refreshRows,
   };
 };

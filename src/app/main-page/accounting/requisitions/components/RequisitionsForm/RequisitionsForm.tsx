@@ -7,6 +7,7 @@ import { useRequisitionForm } from "./hooks/useRequisitionsForm";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import { ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
+import { Button } from "@/app/components/Button/Button";
 import { Requisition } from "@/app/mappings/requisitions/requisitions.types";
 /**
  * Props for the {@link RequisitionsForm} component.
@@ -60,37 +61,60 @@ const RequisitionsForm: React.FC<Props> = ({
     setDisableForm,
     valuesVersion,
   } = useRequisitionForm(mode, initialValues, startDisabled);
+  const shouldShowEditControls = Boolean(showEditForm);
   if (currentPagePermissions?.requisitionForm)
     return (
       <>
         {currentPagePermissions?.sapprofile ? (
-          <div className="bg-white-100 flex gap-6 rounded-lg p-6 shadow-md h-[100%]">
-            <DynamicForm
-              key={`requisitions-dynamicform-${mode}-${valuesVersion}`}
-              loadingFormInfo={loadingFormInfo}
-              fields={fields}
-              responsiveLayoutMatrix={
-                responsiveLayoutMatrix ?? {
-                  sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                  md: [
-                    [5, 5],
-                    [5, 5],
-                    [2.5, 2.5, 5],
-                    [5, 5],
-                  ],
-                  lg: [
-                    [3.3, 3.3, 3.3],
-                    [3.3, 3.3, 3.3],
-                    [3.3, 3.3],
-                  ],
+          <div className="flex flex-col gap-4">
+            {shouldShowEditControls ? (
+              <div className="flex flex-wrap items-center justify-end gap-3">
+                <Button
+                  variant="outline"
+                  hideIcon
+                  onClick={() => setDisableForm((prev) => !prev)}
+                  data-tour="requisitions-form-secondary"
+                >
+                  {disableForm ? "Editar información" : "Cancelar"}
+                </Button>
+                <Button
+                  hideIcon
+                  onClick={onSubmit}
+                  disabled={buttonDisabled || disableForm}
+                  data-tour="requisitions-form-submit"
+                >
+                  Guardar
+                </Button>
+              </div>
+            ) : null}
+            <div className="bg-white-100 flex gap-6 rounded-lg p-6 shadow-md h-[100%]">
+              <DynamicForm
+                key={`requisitions-dynamicform-${mode}-${valuesVersion}`}
+                loadingFormInfo={loadingFormInfo}
+                fields={fields}
+                responsiveLayoutMatrix={
+                  responsiveLayoutMatrix ?? {
+                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
+                    md: [
+                      [5, 5],
+                      [5, 5],
+                      [2.5, 2.5, 5],
+                      [5, 5],
+                    ],
+                    lg: [
+                      [3.3, 3.3, 3.3],
+                      [3.3, 3.3, 3.3],
+                      [3.3, 3.3],
+                    ],
+                  }
                 }
-              }
-              onSubmit={handleSubmit}
-              onValidChange={setFormReady}
-              externalSubmitRef={submitRef}
-              showSubmitIf={() => false}
-              disabled={disableForm}
-            />
+                onSubmit={handleSubmit}
+                onValidChange={setFormReady}
+                externalSubmitRef={submitRef}
+                showSubmitIf={() => false}
+                disabled={disableForm}
+              />
+            </div>
           </div>
         ) : (
           <FormsLayout

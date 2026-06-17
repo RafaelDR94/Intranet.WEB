@@ -1,64 +1,78 @@
-"use client"
+"use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/app/components/Button/Button";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
+import { PopUp } from "@/app/components/PopUp/PopUp";
+import DocumentActionsMenuCell from "@/app/main-page/request/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell";
 import type { ManagementDocumentTableRow } from "@/app/mappings/documents/documents.types";
 import DocIcon from "@/assets/icons/Docs/page.svg";
-import DowloadIcon from "@/assets/icons/acciones/download.svg";
-import { useManagementDocuments } from "@/app/main-page/humanresources/documents/managementdocuments/hooks/useManagementDocuments";
-import DocumentViewer from "@/app/components/DocumentViewer/DocumentViewer";
+import DownloadIcon from "@/assets/icons/acciones/download.svg";
+import { useManagementDocuments } from "./hooks/useManagementDocuments";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
+import { useAuth } from "../../../../context/AuthContext/AuthContext";
 
 const ManagementDocuments = () => {
-  const { rows } = useManagementDocuments();
-  const [open, setOpen] = React.useState(false);
-  const [selectedFileUrl, setSelectedFileUrl] = React.useState<string | null>(null);
+  const router = useRouter();
   const isMobile = useIsMobile();
+  const { currentPagePermissions } = useAuth();
+  const canDowload = currentPagePermissions?.canDownload;
+  const canEdit = currentPagePermissions?.canEdit ?? true;
+  const createDocument = currentPagePermissions?.createDocument;
+  const { rows, refresh, deleteDocument, deletingDocument } =
+    useManagementDocuments();
   useTutorialAutoRun({
-    moduleId: "request-documents-management",
-    tutorialId: "request-documents-management:table",
+    moduleId: "humanresources-managementdocuments",
+    tutorialId: "humanresources-managementdocuments:table",
   });
-  const handleOpen = (fileUrl: string) => {
-    setSelectedFileUrl(fileUrl);
-    setOpen(true);
-  };
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [selectedDocument, setSelectedDocument] =
+    React.useState<ManagementDocumentTableRow | null>(null);
 
-  const handleClose = () => {
-    setOpen(false);
-    setSelectedFileUrl(null);
-  };
+  const handleViewDocument = React.useCallback(
+    (row: ManagementDocumentTableRow) => {
+      if (!row.id) return;
 
-  // 🔹 Función mejorada: descarga directa del archivo sin abrir nueva pestaña
-  const handleDownload = async (fileUrl: string, fileName?: string) => {
-    try {
-      if (!fileUrl) return;
+      const targetUrl = `/main-page/humanresources/documents/documentregistry?documentId=${encodeURIComponent(
+        row.id,
+      )}`;
 
-      const response = await fetch(fileUrl, { mode: "cors" });
-      if (!response.ok) throw new Error("Error al obtener el archivo");
+      router.push(targetUrl);
+    },
+    [router],
+  );
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+  const handleRefresh = React.useCallback(() => {
+    refresh();
+  }, [refresh]);
 
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName || "documento.pdf"; // Nombre del archivo
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+  const handleRequestDelete = React.useCallback(
+    (row: ManagementDocumentTableRow) => {
+      setSelectedDocument(row);
+      setDeleteDialogOpen(true);
+    },
+    [],
+  );
 
-      // Limpieza de memoria
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error al descargar el archivo:", error);
-      alert("No se pudo descargar el documento. Verifica la ruta o conexión.");
+  const handleCloseDelete = React.useCallback(() => {
+    setDeleteDialogOpen(false);
+    setSelectedDocument(null);
+  }, []);
+
+  const handleConfirmDelete = React.useCallback(async () => {
+    if (!selectedDocument?.id || deletingDocument) return;
+
+    const success = await deleteDocument(selectedDocument.id);
+    if (success) {
+      handleCloseDelete();
     }
-  };
+  }, [deleteDocument, deletingDocument, handleCloseDelete, selectedDocument]);
 
-  const desktopColumns: ColumnDefinition<ManagementDocumentTableRow>[] = [
+  const columns: ColumnDefinition<ManagementDocumentTableRow>[] = [
     {
       key: "files" as unknown as keyof ManagementDocumentTableRow,
       label: "FORMATO",
@@ -69,8 +83,8 @@ const ManagementDocuments = () => {
               size="xsmall"
               variant="ghost"
               icon={DocIcon}
-              onClick={() => handleOpen(row.route!)} // Abre el visor dinámico
-              data-tour="request-documents-management-open"
+              onClick={() => window.open(row.route, "_blank")}
+              data-tour="humanresources-managementdocuments-open"
             />
           )}
         </div>
@@ -85,91 +99,156 @@ const ManagementDocuments = () => {
     {
       key: "description",
       label: "DESCRIPCIÓN",
+      headerClass: "flex-[1.2]",
+      cellClass: "flex-[1.2] pr-4",
     },
+    {
+      key: "documentType",
+      label: "TIPO",
+      headerClass: "flex-[1.8] pl-6",
+      cellClass: "flex-[1.8] pl-6",
+    },
+    {
+      key: "actions" as unknown as keyof ManagementDocumentTableRow,
+      label: "",
+      render: (row) =>
+        canEdit === true ? (
+          <div
+            className="flex justify-end pr-2"
+            data-tour="humanresources-managementdocuments-actions"
+          >
+            <DocumentActionsMenuCell
+              row={row}
+              onView={handleViewDocument}
+              onDelete={handleRequestDelete}
+            />
+          </div>
+        ) : (
+          <div
+            className="flex justify-end pr-2"
+            data-tour="humanresources-managementdocuments-actions"
+          >
+            <Button variant="ghost" icon={DownloadIcon} />
+          </div>
+        ),
+
+      invisible: false,
+    },
+  ];
+
+  const columnsMobile: ColumnDefinition<ManagementDocumentTableRow>[] = [
+    {
+      key: "files" as unknown as keyof ManagementDocumentTableRow,
+      label: "FORMATO",
+      render: (row) => (
+        <div>
+          {row.route && (
+            <Button
+              size="xsmall"
+              variant="ghost"
+              icon={DocIcon}
+              onClick={() => window.open(row.route, "_blank")}
+              data-tour="humanresources-managementdocuments-open"
+            />
+          )}
+        </div>
+      ),
+    },
+    { key: "code", label: "CLAVE" },
     { key: "documentType", label: "TIPO" },
     {
       key: "actions" as unknown as keyof ManagementDocumentTableRow,
       label: "",
       render: (row) => (
-        <div className="flex justify-end pr-2">
-          {/* 🔹 Botón para descargar el documento correspondiente */}
-          <Button
-            size="xsmall"
-            variant="ghost"
-            icon={DowloadIcon}
-            onClick={() => handleDownload(row.route!, row.description)}
-            data-tour="request-documents-management-download"
+        <div
+          className="flex justify-end pr-2"
+          data-tour="humanresources-managementdocuments-actions"
+        >
+          <DocumentActionsMenuCell
+            row={row}
+            onView={handleViewDocument}
+            onDelete={handleRequestDelete}
           />
         </div>
       ),
+
       invisible: false,
     },
   ];
-
-  const mobileColumns: ColumnDefinition<ManagementDocumentTableRow>[] = [
-    {
-      key: "description",
-      label: "DESCRIPCIÓN",
-      headerClass: "w-[150px] flex-none",
-      cellClass: "truncate w-[180px]",
-    },
-    { key: "documentType", label: "TIPO", headerClass: "w-[100px] flex-none", cellClass: "w-[140px] flex-none" },
-    {
-      key: "actions" as unknown as keyof ManagementDocumentTableRow,
-      label: "",
-      render: (row) => (
-        <div className="flex justify-end pr-2">
-          {/* 🔹 Botón para descargar el documento correspondiente */}
-          <Button
-            size="xsmall"
-            variant="ghost"
-            icon={DowloadIcon}
-            onClick={() => handleDownload(row.route!, row.description)}
-            data-tour="request-documents-management-download"
-          />
-        </div>
-      ),
-      invisible: false,
-    },
-  ];
-
-  const columns = isMobile ? mobileColumns : desktopColumns;
 
   return (
     <section className="space-y-8">
-      <div data-tour="request-documents-management-table">
+      <div data-tour="humanresources-managementdocuments-table">
         <DataTable<ManagementDocumentTableRow>
           tables={[
             {
               title: "",
               enableCollaps: false,
+              enableSelection: canDowload,
               data: rows,
-              columns,
+              columns: isMobile ? columnsMobile : columns,
               defaultSortKey: "name",
             },
           ]}
-          textSize={{ mobile: "c2", desktop: "text-c2" }}
-          enableInternalSearch
-          searchableKeys={["name", "code", "description", "documentType", "department"]}
-          showCalendar={false}
           showRefresh={true}
+          onRefreshPage={handleRefresh}
+          textSize={{ mobile: "text-d3", desktop: "text-c2" }}
+          enableInternalSearch
+          searchableKeys={[
+            "name",
+            "code",
+            "description",
+            "documentType",
+            "department",
+          ]}
+          showCalendar={false}
           showFilter={false}
           showButton={false}
+          showDownloadTable={canDowload}
           dateKey={(row) => row.rawDate ?? row.date}
-          searchDataTour="request-documents-management-search"
-          refreshDataTour="request-documents-management-refresh"
-          actionsRender={() => ""}
+          searchDataTour="humanresources-managementdocuments-search"
+          refreshDataTour="humanresources-managementdocuments-refresh"
+          actionsRender={() =>
+            createDocument === true ? (
+              <div className="flex w-full items-center justify-end gap-3">
+                <Button
+                  size="medium"
+                  variant="solid"
+                  hideIcon
+                  className={isMobile ? "w-full" : ""}
+                  onClick={() =>
+                    router.push(
+                      "/main-page/humanresources/documents/documentregistry",
+                    )
+                  }
+                  data-tour="humanresources-operationaldocuments-create"
+                >
+                  Nuevo Documento
+                </Button>
+              </div>
+            ) : null
+          }
         />
       </div>
 
-      {/* 🔹 DocumentViewer dinámico */}
-      {open && selectedFileUrl && (
-        <DocumentViewer
-          fileUrl={selectedFileUrl}
-          title="Formato Universal de Incidencias"
-          onClose={handleClose}
-        />
-      )}
+      <PopUp
+        open={deleteDialogOpen}
+        onClose={handleCloseDelete}
+        title="Eliminar Documento"
+        content={
+          deletingDocument
+            ? "Eliminando documento…"
+            : selectedDocument?.name
+              ? `Esta acción confirmará la eliminación del documento seleccionado`
+              : "¿Deseas eliminar el documento?"
+        }
+        showPrimaryButton
+        primaryButtonText="Eliminar"
+        onPrimaryButtonClick={handleConfirmDelete}
+        showSecondaryButton
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={handleCloseDelete}
+      />
     </section>
   );
 };

@@ -69,7 +69,7 @@ export const pettyCashTutorials: TutorialDefinition[] = [
       {
         target: '[data-tour="pettycash-history-refresh"]',
         title: 'Actualizar',
-        description: 'Recarga la informacion mas reciente.',
+        description: 'Recarga la Información mas reciente.',
       },
       {
         target: '[data-tour="pettycash-history-row-actions"]',

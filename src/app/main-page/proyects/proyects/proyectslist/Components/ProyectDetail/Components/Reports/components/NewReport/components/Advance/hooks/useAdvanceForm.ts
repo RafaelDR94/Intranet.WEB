@@ -12,6 +12,32 @@ import useQuery from "@/app/hooks/useQuery/useQuery";
 import { toDateInputValue } from "@/app/utilities/DatesHelper/Dateshelper";
 import { shallow } from "zustand/shallow";
 const FORM_ID = "new-report-avance-form";
+
+const getReportFieldValue = (fieldName: string, report: ReturnType<typeof useReportBuilderStore.getState>["report"]) => {
+    switch (fieldName) {
+        case "ticket":
+            return report.ticket ?? "";
+        case "category":
+            return report.reportcategories?.id || "";
+        case "location":
+            return report.location?.id || "";
+        case "startDate":
+            return toDateInputValue(report.startdate);
+        case "endDate":
+            return toDateInputValue(report.enddate);
+        case "progress":
+            return report.progress ?? "";
+        case "remarks":
+            return report.remarks ?? "";
+        case "diagnostic":
+            return report.diagnostic ?? "";
+        case "solution":
+            return report.solution ?? "";
+        default:
+            return undefined;
+    }
+};
+
 const useAdvanceForm = (currentModelName: string) => {
     const [isStepValid, setIsStepValid] = useState(false);
     const latestValuesRef = useRef<Record<string, any>>({});
@@ -23,7 +49,7 @@ const useAdvanceForm = (currentModelName: string) => {
     const { showAlert } = usePrincipalAlert;
     const { reportCategories, loadingCategories } = useReportsStore();
     const { error, locations, loadingLocations, fetchLocations, resetFlags } = useProyectLocationStore();
-    const { fieldsByFormId, setFields, updateField, resetFields } = useFormFieldsStore();
+    const { fieldsByFormId, formVersionsByFormId, setFields, updateField } = useFormFieldsStore();
     const {
         updateAdvance,
         report,
@@ -38,6 +64,7 @@ const useAdvanceForm = (currentModelName: string) => {
     );
     const currentModel = useMemo(() => resolveModel(currentModelName), [currentModelName]);
     const storedFields = fieldsByFormId[FORM_ID] ?? [];
+    const formVersion = formVersionsByFormId?.[FORM_ID] ?? 0;
     const filteredFields = useMemo<FieldModel[]>(() => {
         return BASE_FIELDS.filter((field) => {
             if (field.name === "diagnostic") return currentModel.diagnostic;
@@ -49,6 +76,44 @@ const useAdvanceForm = (currentModelName: string) => {
         }));
     }, [currentModel]);
 
+    const buildFields = useCallback((baseFields: FieldModel[], currentFields: FieldModel[]) => {
+        const fieldMap = new Map(currentFields.map((field) => [field.name, field]));
+
+        return baseFields.map((field) => {
+            const currentField = fieldMap.get(field.name);
+            const reportValue = getReportFieldValue(field.name, report);
+            const latestValue = Object.prototype.hasOwnProperty.call(latestValuesRef.current, field.name)
+                ? latestValuesRef.current[field.name]
+                : undefined;
+
+            let nextField: FieldModel = {
+                ...(currentField ?? {}),
+                ...field,
+                value: latestValue ?? reportValue ?? currentField?.value ?? field.value,
+            };
+
+            if (field.name === "category") {
+                nextField = {
+                    ...nextField,
+                    options: reportCategories.map((category) => ({ value: category.id, label: category.name })),
+                    disabled: !canStart || loadingCategories || reportCategories.length === 0,
+                    helperText: reportCategories.length === 0 ? "No se encontraron categorias para este tipo" : "",
+                };
+            }
+
+            if (field.name === "location") {
+                nextField = {
+                    ...nextField,
+                    options: locations.map((location) => ({ value: location.id, label: location.name })),
+                    disabled: !canStart || loadingLocations || locations.length === 0,
+                    helperText: locations.length === 0 ? "No se encontraron ubicaciones para este proyecto" : "",
+                };
+            }
+
+            return nextField;
+        });
+    }, [canStart, loadingCategories, loadingLocations, locations, report, reportCategories]);
+
     useEffect(() => {
 
         const structureChanged =
@@ -57,17 +122,10 @@ const useAdvanceForm = (currentModelName: string) => {
 
         if (!structureChanged) return;
 
-        setFields(
-            FORM_ID,
-            filteredFields.map((field) => ({
-                ...field,
-                options: field.options ? [...field.options] : field.options,
-            }))
-        );
-        updateForm();
+        setFields(FORM_ID, buildFields(filteredFields, storedFields));
 
 
-    }, [filteredFields, setFields, storedFields, canStart]);
+    }, [buildFields, filteredFields, setFields, storedFields, canStart]);
 
     useEffect(() => {
         if (!error) return;
@@ -86,6 +144,7 @@ const useAdvanceForm = (currentModelName: string) => {
 
     useEffect(() => {
         if (!canStart) return;
+        if (loadingLocations) return;
         if (locations.length === 0 && proyectFromQuery) {
             fetchLocations(String(proyectFromQuery));
             return;
@@ -96,7 +155,7 @@ const useAdvanceForm = (currentModelName: string) => {
             helperText: "",
             value: report?.location?.id || ""
         });
-    }, [fetchLocations, locations, proyectFromQuery, updateField, reportCategories, canStart]);
+    }, [fetchLocations, locations, proyectFromQuery, updateField, report?.location?.id, canStart, loadingLocations]);
 
     useEffect(() => {
         if (!canStart) return;
@@ -153,6 +212,10 @@ const useAdvanceForm = (currentModelName: string) => {
 
     const handleValuesChange = useCallback(
         (values: Record<string, any>) => {
+            storedFields.forEach((field) => {
+                if (!Object.prototype.hasOwnProperty.call(values, field.name)) return;
+                updateField(FORM_ID, field.name, { value: values[field.name] });
+            });
             latestValuesRef.current = { ...values };
             const {
                 ticket,
@@ -194,7 +257,7 @@ const useAdvanceForm = (currentModelName: string) => {
                 progress: normalizedProgress,
             });
         },
-        [locations, reportCategories, updateAdvance]
+        [locations, reportCategories, storedFields, updateAdvance, updateField]
     );
 
     const handleFormSubmit = useCallback(
@@ -204,7 +267,7 @@ const useAdvanceForm = (currentModelName: string) => {
         []
     );
 
-    const updateForm = () => {
+    const updateForm = useCallback(() => {
 
         const fieldMap = new Map(storedFields.map((field) => [field.name, field.value]));
         const updates: Array<[string, any]> = [
@@ -220,19 +283,15 @@ const useAdvanceForm = (currentModelName: string) => {
             if (fieldMap.get(name) === value) return;
             updateField(FORM_ID, name, { value });
         });
-    }
+    }, [report, storedFields, updateField]);
 
  useEffect(() => {
         if (report?.front_identifier && !reportInitialized.current && storedFields.length > 0) {
-            resetFields(FORM_ID);
-            setTimeout(() => {
-                updateForm();
-                setCanStart(true);
-            }, 200)
-
+            updateForm();
+            setCanStart(true);
             reportInitialized.current = true;
         }
-    }, [resetFields, report, storedFields, updateForm]);
+    }, [report, storedFields, updateForm]);
 
 
 
@@ -243,6 +302,7 @@ const useAdvanceForm = (currentModelName: string) => {
         onFormSubmit: handleFormSubmit,
         formId: FORM_ID,
         categoriesLoading: loadingCategories,
+        formVersion,
         onFormValidChange: handleValidChange,
         isStepValid,
         loadingLocations,

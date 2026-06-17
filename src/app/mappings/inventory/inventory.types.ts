@@ -8,17 +8,20 @@ export type GenericEquipment = {
 };
 
 export type GenericEquipmentPost = {
-  typeOfEquipment: string;
+  name?: string;
+  typeOfEquipment?: string;
   brand: string;
   model: string;
+  idSpareParts: string[];
 };
 
 export type GenericEquipmentPut = {
   id: string;
-  typeOfEquipment: string;
+  name: string;
   brand: string;
   model: string;
   createdBy: string;
+  idSpareParts: string[];
 };
 
 export type SparePart = {
@@ -33,6 +36,10 @@ export type SparePart = {
   provider: string;
   website: string;
   phoneNumber: string;
+  idSuppliers?: string[];
+  idGenericEquipments?: string[];
+  suppliers?: Supplier[];
+  genericEquipments?: GenericEquipment[];
   isActive?: boolean;
 };
 
@@ -44,9 +51,10 @@ export type SparePartPost = {
   model: string;
   serialNumber: string;
   characteristic: string;
-  provider: string;
   website: string;
   phoneNumber: string;
+  idSuppliers: string[];
+  idGenericEquipments: string[];
 };
 
 export type SparePartPut = {
@@ -58,9 +66,10 @@ export type SparePartPut = {
   model: string;
   serialNumber: string;
   characteristic: string;
-  provider: string;
   website: string;
   phoneNumber: string;
+  idSuppliers: string[];
+  idGenericEquipments: string[];
 };
 
 export type GenericEquipmentSparePart = {
@@ -70,13 +79,28 @@ export type GenericEquipmentSparePart = {
   isActive?: boolean;
 };
 
-export type GenericEquipmentSparePartPost = {
-  idGenericEquipment: string;
-  idSparePart: string;
+export type Supplier = {
+  id: string;
+  nombreProveedor: string;
+  paginaWeb: string;
+  telefono: string;
 };
 
-export type GenericEquipmentSparePartPut = {
+export type SupplierPost = {
+  supplierName: string;
+  website: string;
+  phonenumber: string;
+  nombreProveedor?: string;
+  paginaWeb?: string;
+  telefono?: string;
+};
+
+export type SupplierPut = {
   id: string;
-  idGenericEquipment: string;
-  idSparePart: string;
+  supplierName: string;
+  website: string;
+  phonenumber: string;
+  nombreProveedor?: string;
+  paginaWeb?: string;
+  telefono?: string;
 };

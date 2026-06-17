@@ -3,12 +3,14 @@ import type { ManagementDocument } from '@/app/mappings/documents/documents.type
 export type DocumentsState = {
   documents: ManagementDocument[]
   managementDocuments: ManagementDocument[]
+  operationalDocuments: ManagementDocument[]
   loading: boolean
   successGet: boolean
   deletingDocument: boolean
   successDeleteDocument: boolean
   error?: string
   fetchDocuments: (force?: boolean) => Promise<void>
+  fetchDocumentsByUser: (idUser: string, force?: boolean) => Promise<void>
   deleteDocument: (id: string) => Promise<boolean>
   reset: () => void
   resetFlags: () => void

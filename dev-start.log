@@ -1,0 +1,43 @@
+
+> intranet.web@1.50.30 dev
+> next dev
+
+   ▲ Next.js 15.4.3
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.100.27:3001
+   - Environments: .env
+   - Experiments (use with caution):
+     ⨯ useLightningcss
+
+ ✓ Starting...
+> [PWA] PWA support is disabled
+> [PWA] PWA support is disabled
+ ✓ Ready in 5.2s
+   ▲ Next.js 15.4.3
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.100.27:3001
+   - Environments: .env
+   - Experiments (use with caution):
+     ⨯ useLightningcss
+
+ ✓ Starting...
+
+   We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+   The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+   	- include was updated to add '.next-cache/types/**/*.ts'
+
+> [PWA] PWA support is disabled
+> [PWA] PWA support is disabled
+ ✓ Ready in 6.7s
+   ▲ Next.js 15.4.3
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.100.27:3001
+   - Environments: .env
+   - Experiments (use with caution):
+     ⨯ useLightningcss
+
+ ✓ Starting...
+> [PWA] PWA support is disabled
+> [PWA] PWA support is disabled
+ ✓ Ready in 21.2s

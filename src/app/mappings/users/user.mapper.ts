@@ -53,11 +53,19 @@ const toStringArray = (value: unknown): string[] => {
     .filter((item): item is string => item !== undefined);
 };
 
-const toMfaMethodResponse = (value: unknown): "SMS" | "Email" =>
-  toString(value).toUpperCase() === "SMS" ? "SMS" : "Email";
+const toMfaMethodResponse = (value: unknown): "SMS" | "Email" | "Passkey" => {
+  const normalized = toString(value).toUpperCase();
+  if (normalized === "SMS") return "SMS";
+  if (normalized === "PASSKEY") return "Passkey";
+  return "Email";
+};
 
-const toMfaMethodPayload = (value: unknown): MfaMethodPayloadMethod =>
-  toString(value).toUpperCase() === "SMS" ? "SMS" : "EMAIL";
+const toMfaMethodPayload = (value: unknown): MfaMethodPayloadMethod => {
+  const normalized = toString(value).toUpperCase();
+  if (normalized === "SMS") return "SMS";
+  if (normalized === "PASSKEY") return "Passkey";
+  return "Email";
+};
 
 export const mapUserEmployeeSummary = (employee: any): UserEmployeeSummary => ({
   employee_id: toString(employee?.employee_id ?? employee?.id),
@@ -325,6 +333,7 @@ export const mapUserMfaByIdMethodResponse = (
   isEnabled: toBoolean(method?.isEnabled),
   isVerified: toBoolean(method?.isVerified),
   destinationMasked: toNullableString(method?.destinationMasked),
+  destination: toNullableString(method?.destination),
   challengeId: toNullableString(method?.challengeId),
 });
 
@@ -352,6 +361,8 @@ export const mapUserMfaMethodPayload = (
   idUser: toString(payload?.idUser ?? payload?.id_user ?? payload?.userId),
   method: toMfaMethodPayload(payload?.method),
   isEnabled: toBoolean(payload?.isEnabled),
+  destination: toOptionalString(payload?.destination),
+  idPasskey: toOptionalString(payload?.idPasskey ?? payload?.id_passkey),
 });
 
 export const mapUserPasskeyResponse = (raw: any): UserPasskeyResponse => ({

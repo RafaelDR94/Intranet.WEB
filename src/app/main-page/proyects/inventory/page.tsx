@@ -7,6 +7,7 @@ export default function InventoryPage() {
         '/main-page/proyects/inventory/devices',
         '/main-page/proyects/inventory/refactions',
         '/main-page/proyects/inventory/locations',
+        '/main-page/proyects/inventory/providers',
       ]}
     />
   );

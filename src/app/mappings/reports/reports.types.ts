@@ -72,6 +72,7 @@ export interface ReportView {
   "maps": Activities[],
   "diagnostic": string,
   "solution": string,
+  "idSpareParts": string[],
   "refactions": Refaction[],
   "clientsign": ClientSignatureinterface,
   "front_identifier": string,
@@ -90,6 +91,17 @@ export interface ReportsTable {
     text: string;
     type: string;
   },
+}
+
+export interface ProjectReportSummary {
+  reportId: string,
+  date: string,
+  ticket: string,
+  type: string,
+  category: string,
+  location: string,
+  user: string,
+  status: string,
 }
 
 export type ReportPost = {
@@ -111,6 +123,7 @@ export type ReportPost = {
   "Maps": string,
   "Diagnostic": string,
   "Solution": string,
+  "idSpareParts": string[],
   "Refactions": string,
   "Clientsign": string,
   "front_identifier": string,
@@ -137,6 +150,8 @@ export type ReportPut = {
   "Maps": string,
   "Diagnostic": string,
   "Solution": string,
+  "idSpareParts": string[],
+  "IdSpareParts": string[],
   "Refactions": string,
   "Clientsign": string,
   "front_identifier": string,

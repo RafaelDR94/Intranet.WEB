@@ -6,25 +6,9 @@ import type { DetailsPanelProps } from "@/app/main-page/accounting/invoices/vali
 
 import { useSAPDetailsPanel } from "./useSAPDetailsPanel";
 
-const mockDetailsPanelState = {
-  labels: { left: "Usuario: Test" },
-  setOpenValidInvoice: vi.fn(),
-  handleSubmitComment: vi.fn(),
-  handleSubmitReject: vi.fn(),
-  handleSubmitValid: vi.fn(),
-};
-
 const completeProcessToSAPMock = vi.fn();
-const useDetailsPanelMock = vi.fn();
 const useAuthMock = vi.fn();
 const useIsMobileMock = vi.fn();
-
-vi.mock(
-  "@/app/main-page/accounting/invoices/validateinvoices/components/DetailsPanel/hooks/useDetailsPanel",
-  () => ({
-    useDetailsPanel: (...args: unknown[]) => useDetailsPanelMock(...args),
-  }),
-);
 
 vi.mock("@/app/context/AuthContext/AuthContext", () => ({
   useAuth: () => useAuthMock(),
@@ -64,17 +48,15 @@ describe("useSAPDetailsPanel", () => {
   };
 
   beforeEach(() => {
-    useDetailsPanelMock.mockReturnValue(mockDetailsPanelState);
-    useAuthMock.mockReturnValue({ currentPagePermissions: { canValidInvoice: false } });
+    useAuthMock.mockReturnValue({ currentPagePermissions: { canSendToSap: false } });
     useIsMobileMock.mockReturnValue(false);
     completeProcessToSAPMock.mockClear();
   });
 
-  it("returns labels, permissions and media state from dependencies", () => {
+  it("returns permissions and media state from dependencies", () => {
     const { result } = renderHook(() => useSAPDetailsPanel(baseProps));
 
-    expect(result.current.labels).toEqual(mockDetailsPanelState.labels);
-    expect(result.current.currentPagePermissions).toEqual({ canValidInvoice: false });
+    expect(result.current.currentPagePermissions).toEqual({ canSendToSap: false });
     expect(result.current.isMobile).toBe(false);
   });
 

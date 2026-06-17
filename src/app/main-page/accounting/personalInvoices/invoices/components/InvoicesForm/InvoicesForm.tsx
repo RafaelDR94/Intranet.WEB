@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React from "react";
 
@@ -9,126 +9,181 @@ import useInvoicesForm from "./hooks/useInvoicesForm";
 import { Button } from "@/app/components/Button/Button";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
-import CancelIncon from "@/assets/icons/acciones/cancel.svg"
+import CancelIncon from "@/assets/icons/acciones/cancel.svg";
 /* eslint-disable @next/next/no-img-element */
+
+const defaultTitle =
+  "Si ya cuentas con la factura, sube aqui tus archivos XML y PDF";
 
 const InvoicesForm: React.FC<InvoicesFormProps> = ({
   responsiveLayoutMatrix,
   externalSubmitRef,
+  submitRequestRef,
   dataEdit,
   withoutName,
+  formId,
   billingImages,
   onCloseImage,
   disabled,
   refreshRequisitionId,
+  layoutTitle,
+  layoutPrimaryLabel,
+  headerContent,
+  onValidChange,
+  onSubmitSuccess,
 }) => {
   const {
     fields,
+    formVersion,
     loadingFormInfo,
     submitRef,
     formReady,
     setFormReady,
     handleSubmit,
     ResetForm,
-    handleImageClick
+    handleImageClick,
+    handleValuesChange,
+    submitCurrentValues,
   } = useInvoicesForm({
     dataEdit,
     withoutName,
+    formId,
     billingImages,
     onCloseImage,
     disabled,
     refreshRequisitionId,
-  })
+    onSubmitSuccess,
+  });
+
+  const handleValidChange = React.useCallback(
+    (isValid: boolean) => {
+      setFormReady(isValid);
+      onValidChange?.(isValid);
+    },
+    [onValidChange, setFormReady],
+  );
+
+  React.useEffect(() => {
+    if (!submitRequestRef) return;
+    submitRequestRef.current = submitCurrentValues;
+    return () => {
+      submitRequestRef.current = null;
+    };
+  }, [submitCurrentValues, submitRequestRef]);
+
   if (externalSubmitRef) {
     return (
       <DynamicForm
+        key={`invoice-form-${formVersion}`}
         fields={fields}
         loadingFormInfo={loadingFormInfo}
         responsiveLayoutMatrix={responsiveLayoutMatrix}
         onSubmit={handleSubmit}
-        onValidChange={setFormReady}
+        onValidChange={handleValidChange}
+        onValuesChange={handleValuesChange}
+        valuesVersion={formVersion}
+        valuesVersionActive
         externalSubmitRef={externalSubmitRef}
         showSubmitIf={() => false}
-      >
-      </DynamicForm>
+      />
     );
   }
 
   return (
     <div data-tour="requisitions-invoice-form">
       <FormsLayout
-      title="Si ya cuentas con la factura, sube aquí tus archivos XML y PDF"
-      primaryLabel="Subir Archivos"
-      onPrimaryClick={() => submitRef.current?.()}
-      primaryDisabled={!formReady}
-      enableCollapse={true}
-      primaryButtonDataTour="requisitions-invoice-submit"
-    >
-      {/* En movil se apilan; desde md son columnas 3/4 y 1/4 */}
-      <div
-        className={
-          billingImages?.Image
-            ? "w-full flex flex-col gap-4 md:flex-row md:items-start"
-            : "w-full flex flex-col"
-        }
+        title={layoutTitle ?? defaultTitle}
+        primaryLabel={layoutPrimaryLabel ?? "Subir Archivos"}
+        onPrimaryClick={() => submitRef.current?.()}
+        primaryDisabled={!formReady}
+        enableCollapse={true}
+        primaryButtonDataTour="requisitions-invoice-submit"
       >
-        <div className={billingImages?.Image ? "w-full md:flex-1" : "w-full"}>
-          <DynamicForm
-            fields={fields}
-            loadingFormInfo={loadingFormInfo}
-            responsiveLayoutMatrix={
-              billingImages
-                ? {
-                    sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-                    md: [[5, 5], [3.3, 3.3, 3.3], [2.5, 2.5, 2.5, 2.5]],
-                    lg: [[5, 5], [3.3, 3.3, 3.3], [2.5, 2.5, 2.5, 2.5]],
-                  }
-                : responsiveLayoutMatrix
-            }
-            onSubmit={handleSubmit}
-            onValidChange={setFormReady}
-            externalSubmitRef={submitRef}
-            showSubmitIf={() => false}
-          />
-        </div>
-
-        {/* Vista previa (1/4) */}
-        {billingImages?.Image && (
-          <div
-            className="w-full md:w-[190px] md:pl-2 md:shrink-0 md:ml-auto md:self-start"
-            data-tour="requisitions-invoice-preview"
-          >
-            <figure
-              className="relative mx-auto flex items-center justify-center overflow-hidden rounded-md bg-white-40 shadow-400"
-              style={{ width: 172, height: 250 }}
-            >
-              {/* Boton centrado sobre la imagen */}
-              <Button
-                onClick={() => {
-                  ResetForm();
-                  onCloseImage?.();
-                }}
-                size="xsmall"
-                icon={CancelIncon}
-                className="absolute left-1/2 bottom-2 -translate-x-1/2 z-10 rounded-full"
-              />
-
-              <button
-                type="button"
-                aria-label="Ver comprobante en grande"
-                onClick={() => handleImageClick(billingImages?.Image)}
-                className="block h-full w-full focus:outline-none"
-              >
-                <img
-                  src={billingImages?.Image}
-                  alt="Comprobante de pago"
-                  className="max-h-full max-w-full object-contain cursor-zoom-in"
-                />
-              </button>
-            </figure>
+        <div
+          className={
+            billingImages?.Image
+              ? "flex w-full flex-col gap-4 md:flex-row md:items-start"
+              : "flex w-full flex-col"
+          }
+        >
+          <div className={billingImages?.Image ? "w-full md:flex-1" : "w-full"}>
+            {headerContent}
+            <DynamicForm
+              key={`invoice-form-${formVersion}`}
+              fields={fields}
+              loadingFormInfo={loadingFormInfo}
+              responsiveLayoutMatrix={
+                billingImages
+                  ? {
+                      sm: [
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                        [10],
+                      ],
+                      md: [
+                        [5, 5],
+                        [3.3, 3.3, 3.3],
+                        [2.5, 2.5, 2.5, 2.5],
+                      ],
+                      lg: [
+                        [5, 5],
+                        [3.3, 3.3, 3.3],
+                        [2.5, 2.5, 2.5, 2.5],
+                      ],
+                    }
+                  : responsiveLayoutMatrix
+              }
+              onSubmit={handleSubmit}
+              onValidChange={handleValidChange}
+              onValuesChange={handleValuesChange}
+              valuesVersion={formVersion}
+              valuesVersionActive
+              externalSubmitRef={submitRef}
+              showSubmitIf={() => false}
+            />
           </div>
-        )}
-      </div>
+
+          {billingImages?.Image && (
+            <div
+              className="w-full md:ml-auto md:w-[190px] md:shrink-0 md:self-start md:pl-2"
+              data-tour="requisitions-invoice-preview"
+            >
+              <figure
+                className="bg-white-40 shadow-400 relative mx-auto flex items-center justify-center overflow-hidden rounded-md"
+                style={{ width: 172, height: 250 }}
+              >
+                <Button
+                  onClick={() => {
+                    ResetForm();
+                    onCloseImage?.();
+                  }}
+                  size="xsmall"
+                  icon={CancelIncon}
+                  className="absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full"
+                />
+
+                <button
+                  type="button"
+                  aria-label="Ver comprobante en grande"
+                  onClick={() => handleImageClick(billingImages?.Image)}
+                  className="block h-full w-full focus:outline-none"
+                >
+                  <img
+                    src={billingImages?.Image}
+                    alt="Comprobante de pago"
+                    className="max-h-full max-w-full cursor-zoom-in object-contain"
+                  />
+                </button>
+              </figure>
+            </div>
+          )}
+        </div>
       </FormsLayout>
     </div>
   );

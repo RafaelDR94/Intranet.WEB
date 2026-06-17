@@ -6,11 +6,13 @@ import React from "react";
 import { useSearchParams } from "next/navigation";
 
 import useMainTab from "./hooks/useMainTab";
-import { container, tabsWrapper } from "./styles";
+import { container, mobileTabsScroller, tabsScroller, tabsWrapper } from "./styles";
 import { MainTabsProps } from "./types";
 
 import Notification from "../Notification/Notification";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import PersonalAvatar from "@/app/components/PersonalAvatar/PersonalAvatar";
+import { useDocumentsStore } from "@/app/stores/useDocumentsStore/useDocumentsStore";
 import HelpButton from "@/components/help/HelpButton";
 import TutorialCenterModal from "@/components/help/TutorialCenterModal";
 import MenuIcon from "@/assets/icons/acciones/menu.svg";
@@ -33,9 +35,16 @@ export const MainTabs: React.FC<MainTabsProps> = ({
 }) => {
   const { filtered, isMobile, isActive } = useMainTab({ tabs, pathname, validPermissionsbyroute });
   const searchParams = useSearchParams();
+  const { user } = useAuth();
+  const { fetchDocuments, fetchDocumentsByUser } = useDocumentsStore((state) => ({
+    fetchDocuments: state.fetchDocuments,
+    fetchDocumentsByUser: state.fetchDocumentsByUser,
+  }));
   const BellIcon = hasNotification ? BellNotification : Bell;
-  const iconToneClass = "text-black-100";
-  const notificationToneClass = hasNotification ? "text-alert-red-100" : iconToneClass;
+  const desktopIconToneClass = "text-black-100";
+  const mobileIconToneClass = "text-white-100";
+  const getNotificationToneClass = (iconToneClass: string) =>
+    hasNotification ? "text-alert-red-100" : iconToneClass;
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [helpOpen, setHelpOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -114,15 +123,6 @@ export const MainTabs: React.FC<MainTabsProps> = ({
     if (pathname.includes("/main-page/generalservices/vehicleregist/vehicleregistrylist")) {
       return "generalservices-vehicleregistrylist";
     }
-    if (pathname.includes("/main-page/humanresources/documents/documentregistry")) {
-      return "humanresources-documentregistry";
-    }
-    if (pathname.includes("/main-page/humanresources/documents/managementdocuments")) {
-      return "humanresources-managementdocuments";
-    }
-    if (pathname.includes("/main-page/humanresources/documents/operationaldocuments")) {
-      return "humanresources-operationaldocuments";
-    }
     if (pathname.includes("/main-page/administration/usersmanagment/createemployee")) {
       return "administration-createemployee";
     }
@@ -160,7 +160,26 @@ export const MainTabs: React.FC<MainTabsProps> = ({
     onDismissPending?.(notificationId);
   };
 
-  const NotificationBell = (
+  const handleTabClick = React.useCallback(
+    (tabPath: string) => {
+      if (tabPath.includes("/main-page/request/documents/managementdocuments")) {
+        void fetchDocuments(true);
+        return;
+      }
+
+      if (tabPath.includes("/main-page/request/documents/operationaldocuments")) {
+        if (user?.idUser) {
+          void fetchDocumentsByUser(user.idUser, true);
+          return;
+        }
+
+        void fetchDocuments(true);
+      }
+    },
+    [fetchDocuments, fetchDocumentsByUser, user?.idUser],
+  );
+
+  const renderNotificationBell = (toneClass: string) => (
     <div className="relative" ref={menuRef}>
       <button
         type="button"
@@ -168,7 +187,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
         data-tour="notifications-bell"
         aria-label="Notificaciones"
         onClick={() => setMenuOpen(prev => !prev)}
-        className={`h-9 w-9 flex items-center justify-center rounded-full hover:bg-gray-10 focus:outline-none focus:ring-2 focus:ring-blue-40 ${notificationToneClass}`}
+        className={`h-9 w-9 flex items-center justify-center rounded-full hover:bg-gray-10 focus:outline-none focus:ring-2 focus:ring-blue-40 ${getNotificationToneClass(toneClass)}`}
       >
         <BellIcon />
       </button>
@@ -197,14 +216,21 @@ export const MainTabs: React.FC<MainTabsProps> = ({
       )}
     </div>
   );
-  const HelpAction = (
-    <HelpButton onClick={() => setHelpOpen(true)} className={iconToneClass} />
+  const renderHelpAction = (toneClass: string) => (
+    <HelpButton onClick={() => setHelpOpen(true)} className={toneClass} />
   );
 
-  const HeaderActions = (
+  const DesktopHeaderActions = (
     <div className="flex items-center gap-2">
-      {HelpAction}
-      {NotificationBell}
+      {renderHelpAction(desktopIconToneClass)}
+      {renderNotificationBell(desktopIconToneClass)}
+    </div>
+  );
+
+  const MobileHeaderActions = (
+    <div className="flex items-center gap-2">
+      {renderHelpAction(mobileIconToneClass)}
+      {renderNotificationBell(mobileIconToneClass)}
     </div>
   );
 
@@ -215,13 +241,13 @@ export const MainTabs: React.FC<MainTabsProps> = ({
         <Image src={LogoDr} alt="DR Security TopBar" width={90} height={55} />
       </div>
       <div className="flex items-center">
-        <div className="mr-3">{isMobile ? HeaderActions : null}</div>
+        <div className="mr-3">{isMobile ? MobileHeaderActions : null}</div>
         <PersonalAvatar size="tiny" dataTestId="top-bar-Avatar" />
         <button
           data-testid="open-mobile-menu"
           data-tour="mobile-menu-button"
           onClick={onOpenMobileMenu}
-          className={`h-10 w-10 ml-2 flex items-center justify-center rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40 ${iconToneClass}`}
+          className={`h-10 w-10 ml-2 flex items-center justify-center rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40 ${mobileIconToneClass}`}
           aria-label="Abrir menu"
         >
           <MenuIcon aria-hidden />
@@ -239,27 +265,33 @@ export const MainTabs: React.FC<MainTabsProps> = ({
       {MobileTopbar}
 
       <nav data-testid="main-tabs" data-tour="main-tabs" className={container}>
-        <div className={tabsWrapper}>
-          {filtered.map((tab, index) => (
-            <React.Fragment key={tab.path}>
-              {index > 0 && (
-                <div className="h-4 border-l border-gray-20 mx-3" />
-              )}
-              <Link
-                data-testid={`tab:${tab.path}`}
-                href={tab.path}
-                className={`transition-colors ${isActive(tab.path)
-                  ? `${isMobile ? "text-b3" : "text-s1"} text-gray-100`
-                  : `${isMobile ? "text-b3" : "text-s1"} text-gray-70 hover:text-gray-80`
-                  }`}
-              >
-                {tab.label}
-              </Link>
-            </React.Fragment>
-          ))}
+        <div
+          data-testid="main-tabs-scroll"
+          className={`${tabsScroller} ${isMobile ? mobileTabsScroller : ""}`}
+        >
+          <div className={`${tabsWrapper} ${isMobile ? "min-w-max whitespace-nowrap pr-6" : ""}`}>
+            {filtered.map((tab, index) => (
+              <React.Fragment key={tab.path}>
+                {index > 0 && (
+                  <div className="mx-3 h-4 shrink-0 border-l border-gray-20" />
+                )}
+                <Link
+                  data-testid={`tab:${tab.path}`}
+                  href={tab.path}
+                  onClick={() => handleTabClick(tab.path)}
+                  className={`shrink-0 whitespace-nowrap transition-colors ${isActive(tab.path)
+                    ? `${isMobile ? "text-b3" : "text-s1"} text-gray-100`
+                    : `${isMobile ? "text-b3" : "text-s1"} text-gray-70 hover:text-gray-80`
+                    }`}
+                >
+                  {tab.label}
+                </Link>
+              </React.Fragment>
+            ))}
+          </div>
         </div>
         <div className="flex items-center">
-          {!isMobile ? HeaderActions : null}
+          {!isMobile ? DesktopHeaderActions : null}
         </div>
       </nav>
       <div className="h-px bg-gray-20 mt-3 mx-6" />
