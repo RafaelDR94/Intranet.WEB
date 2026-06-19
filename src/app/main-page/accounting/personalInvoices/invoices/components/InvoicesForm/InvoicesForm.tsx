@@ -26,6 +26,8 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
   onCloseImage,
   disabled,
   refreshRequisitionId,
+  formClassName,
+  rowClassName,
   layoutTitle,
   layoutPrimaryLabel,
   headerContent,
@@ -83,6 +85,8 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
         valuesVersionActive
         externalSubmitRef={externalSubmitRef}
         showSubmitIf={() => false}
+        formClassName={formClassName}
+        rowClassName={rowClassName}
       />
     );
   }
@@ -144,6 +148,8 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
               valuesVersionActive
               externalSubmitRef={submitRef}
               showSubmitIf={() => false}
+              formClassName={formClassName}
+              rowClassName={rowClassName}
             />
           </div>
 

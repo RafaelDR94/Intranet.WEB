@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -9,13 +9,48 @@ import BillableFilesFlow from "./BillableFilesFlow";
 const useSearchParamsMock = vi.hoisted(() => vi.fn());
 const routerPushMock = vi.hoisted(() => vi.fn());
 const fetchBillingImagesMock = vi.hoisted(() => vi.fn());
+const showAlert = vi.hoisted(() => vi.fn());
+const hideAlert = vi.hoisted(() => vi.fn());
+const showSpinner = vi.hoisted(() => vi.fn());
+const hideSpinner = vi.hoisted(() => vi.fn());
+const resetFields = vi.hoisted(() => vi.fn());
+const invoicePropsByFormId = vi.hoisted(
+  () => new Map<string, Record<string, unknown>>(),
+);
 const InvoicesFormMock = vi.hoisted(() =>
-  vi.fn((props: { headerContent?: React.ReactNode }) => (
-    <div>
-      {props.headerContent}
-      <div>InvoicesFormMock</div>
-    </div>
-  )),
+  vi.fn((props: Record<string, unknown>) => {
+    invoicePropsByFormId.set(String(props.formId), props);
+    return <div data-testid="invoice-form-mock">{String(props.formId)}</div>;
+  }),
+);
+const FormsLayoutMock = vi.hoisted(() =>
+  vi.fn(
+    ({
+      title,
+      primaryLabel,
+      primaryDisabled,
+      onPrimaryClick,
+      children,
+    }: {
+      title: string;
+      primaryLabel: string;
+      primaryDisabled?: boolean;
+      onPrimaryClick?: () => void;
+      children: React.ReactNode;
+    }) => (
+      <div>
+        <div>{title}</div>
+        <button
+          type="button"
+          onClick={onPrimaryClick}
+          disabled={primaryDisabled}
+        >
+          {primaryLabel}
+        </button>
+        {children}
+      </div>
+    ),
+  ),
 );
 const TicketFormMock = vi.hoisted(() =>
   vi.fn((props: { headerContent?: React.ReactNode }) => (
@@ -31,6 +66,18 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/main-page/operations/requisitions/requisitionListPage",
   useRouter: () => ({ push: routerPushMock }),
   useSearchParams: () => useSearchParamsMock(),
+}));
+
+vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
+  usePrincipal: () => ({
+    usePrincipalAlert: { showAlert, hideAlert },
+    usePrincipalLoading: { showSpinner, hideSpinner },
+  }),
+}));
+
+vi.mock("@/app/components/FormsLayout/FormsLayout", () => ({
+  __esModule: true,
+  default: FormsLayoutMock,
 }));
 
 vi.mock(
@@ -54,10 +101,26 @@ vi.mock("@/app/stores/useBillingImagesStore/useBillingImagesStore", () => ({
   ) => selector({ fetchBillingImages: fetchBillingImagesMock }),
 }));
 
+vi.mock("@/app/stores/useFormFieldsStore/useFormFieldsStore", () => ({
+  useFormFieldsStore: Object.assign(() => [], {
+    getState: () => ({
+      resetFields,
+    }),
+  }),
+}));
+
 vi.mock("../TicketsFiles/TicketsFiles", () => ({
   __esModule: true,
   default: TicketsFilesMock,
 }));
+
+const getInvoiceProps = (formId: string) => {
+  const props = invoicePropsByFormId.get(formId);
+  if (!props) {
+    throw new Error(`Missing props for form ${formId}`);
+  }
+  return props;
+};
 
 describe("BillableFilesFlow", () => {
   const selectedTicket = {
@@ -68,6 +131,13 @@ describe("BillableFilesFlow", () => {
   beforeEach(() => {
     routerPushMock.mockClear();
     fetchBillingImagesMock.mockClear();
+    showAlert.mockClear();
+    hideAlert.mockClear();
+    showSpinner.mockClear();
+    hideSpinner.mockClear();
+    resetFields.mockClear();
+    invoicePropsByFormId.clear();
+    FormsLayoutMock.mockClear();
     InvoicesFormMock.mockClear();
     TicketFormMock.mockClear();
     TicketsFilesMock.mockClear();
@@ -86,13 +156,25 @@ describe("BillableFilesFlow", () => {
       />,
     );
 
-    expect(screen.getByText("InvoicesFormMock")).toBeInTheDocument();
+    expect(screen.getByTestId("invoice-form-mock")).toBeInTheDocument();
+    expect(screen.getByText("Factura 1")).toBeInTheDocument();
+    expect(screen.getByText("Enviar archivos")).toBeDisabled();
     expect(screen.getByText("TicketsFilesMock")).toBeInTheDocument();
     expect(screen.queryByText("TicketFormMock")).not.toBeInTheDocument();
+    expect(FormsLayoutMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Si ya cuentas con la factura, sube aqui tus archivos XML y PDF",
+        primaryLabel: "Enviar archivos",
+        primaryDisabled: true,
+      }),
+      undefined,
+    );
     expect(InvoicesFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        layoutTitle: "Sube aqui tus archivos",
-        headerContent: expect.anything(),
+        formId: expect.stringContaining("operations-billable-invoice-form-"),
+        externalSubmitRef: expect.anything(),
+        submitRequestRef: expect.anything(),
+        onValidChange: expect.any(Function),
       }),
       undefined,
     );
@@ -120,7 +202,7 @@ describe("BillableFilesFlow", () => {
     );
 
     expect(screen.getByText("TicketFormMock")).toBeInTheDocument();
-    expect(screen.queryByText("InvoicesFormMock")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("invoice-form-mock")).not.toBeInTheDocument();
     expect(screen.getByText("TicketsFilesMock")).toBeInTheDocument();
     expect(TicketFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -151,6 +233,99 @@ describe("BillableFilesFlow", () => {
     );
   });
 
+  it("adds another invoice form below the current form", () => {
+    render(
+      <BillableFilesFlow
+        selectedTicket={selectedTicket}
+        onSelectedTicketChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByText("+ Agregar factura"));
+
+    const forms = screen.getAllByTestId("invoice-form-mock");
+    expect(forms).toHaveLength(2);
+    expect(screen.getByText("Factura 1")).toBeInTheDocument();
+    expect(screen.getByText("Factura 2")).toBeInTheDocument();
+    expect(screen.getAllByText("Descartar")).toHaveLength(2);
+    expect(InvoicesFormMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        formId: expect.stringContaining("operations-billable-invoice-form-"),
+        billingImages: null,
+        externalSubmitRef: expect.anything(),
+        submitRequestRef: expect.anything(),
+      }),
+      undefined,
+    );
+  });
+
+  it("submits all invoice forms from the single layout button", async () => {
+    render(
+      <BillableFilesFlow
+        selectedTicket={selectedTicket}
+        onSelectedTicketChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByText("+ Agregar factura"));
+
+    const [firstFormId, secondFormId] = Array.from(invoicePropsByFormId.keys());
+    const firstSubmit = vi.fn().mockResolvedValue({ ok: true });
+    const secondSubmit = vi.fn().mockResolvedValue({ ok: true });
+    const firstProps = getInvoiceProps(firstFormId);
+    const secondProps = getInvoiceProps(secondFormId);
+
+    (
+      firstProps.submitRequestRef as React.RefObject<
+        (() => Promise<{ ok: true }>) | null
+      >
+    ).current = firstSubmit;
+    (
+      secondProps.submitRequestRef as React.RefObject<
+        (() => Promise<{ ok: true }>) | null
+      >
+    ).current = secondSubmit;
+
+    await act(async () => {
+      (firstProps.onValidChange as (isValid: boolean) => void)(true);
+      (secondProps.onValidChange as (isValid: boolean) => void)(true);
+    });
+
+    expect(screen.getByText("Enviar archivos")).toBeEnabled();
+    fireEvent.click(screen.getByText("Enviar archivos"));
+
+    await waitFor(() => expect(firstSubmit).toHaveBeenCalledTimes(1));
+    expect(secondSubmit).toHaveBeenCalledTimes(1);
+    expect(showSpinner).toHaveBeenCalledWith({
+      message: "Subiendo facturas...",
+    });
+    expect(hideSpinner).toHaveBeenCalled();
+    expect(showAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "success",
+        title: "Facturas enviadas",
+      }),
+    );
+  });
+
+  it("discards an added invoice form and clears its stored fields", () => {
+    render(
+      <BillableFilesFlow
+        selectedTicket={selectedTicket}
+        onSelectedTicketChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByText("+ Agregar factura"));
+    const [, secondFormId] = Array.from(invoicePropsByFormId.keys());
+
+    fireEvent.click(screen.getAllByText("Descartar")[1]);
+
+    expect(screen.getAllByTestId("invoice-form-mock")).toHaveLength(1);
+    expect(screen.queryByText("Factura 2")).not.toBeInTheDocument();
+    expect(resetFields).toHaveBeenCalledWith(secondFormId);
+  });
+
   it("navigates back to the invoice section when clicking the first breadcrumb", () => {
     useSearchParamsMock.mockReturnValue(
       new URLSearchParams(
@@ -165,7 +340,7 @@ describe("BillableFilesFlow", () => {
       />,
     );
 
-    fireEvent.click(screen.getByText("Subir una Factura"));
+    fireEvent.click(screen.getByTestId("breadcrum-invoice"));
 
     expect(routerPushMock).toHaveBeenCalledWith(
       "/main-page/operations/requisitions/requisitionListPage?id=1&idEmployee=1&idRequisition=req-1&label=Archivos+Hector&view=billablefiles&uploadSection=invoice",
