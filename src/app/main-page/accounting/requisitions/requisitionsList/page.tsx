@@ -1,13 +1,25 @@
 "use client"
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import RequisitionDetails from "./componentes/RequisitionsDetails/RequisitionDetails";
-import RequisitionsTable from "./componentes/RequisitionsTable/RequisitionsTable";
 import type { RequisitionRow } from "./componentes/RequisitionsTable/types";
 import UserRequisitionsList from "@/app/main-page/operations/requisitions/requisitionListPage/components/UserRequisitionsList/UserRequisitionsList";
-
+import { ContextualInfoForm } from "@/app/sharedComponents/ContextualInfoForm/ContextualInfoForm";
+import type { ContextualInfoValues } from "@/app/sharedComponents/ContextualInfoForm/types";
+import { EditableViaticsTable } from "@/app/sharedComponents/EditableViaticsTable/EditableViaticsTable";
+import type { EditableViaticsRow } from "@/app/sharedComponents/EditableViaticsTable/types";
+import { mockViaticsRows } from "@/app/sharedComponents/EditableViaticsTable/utilities/mockRows";
 const VALIDATE_INVOICES_PATH = "/main-page/accounting/invoices/validateinvoices";
+
+const mockContextualInfoValues: ContextualInfoValues = {
+  company: "DISITREK",
+  projectCode: "PY-SEMAR-014",
+  debtorCode: "00124",
+  clientCode: "00345",
+  startDate: "2026-05-10",
+  endDate: "2026-05-15",
+  assignedPerson: "Angel Vazquez",
+};
 
 const RequisitionsList: React.FC = () => {
   const router = useRouter();
@@ -18,6 +30,7 @@ const RequisitionsList: React.FC = () => {
   const requisitionId = searchParams.get("idRequisition");
   const requisitionCode = searchParams.get("requisitionCode");
   const employeeName = searchParams.get("employeeName");
+  const [viaticsRows, setViaticsRows] = useState<EditableViaticsRow[]>(mockViaticsRows);
   const isFilesView = normalizedLabel?.startsWith("archivos");
   const isRequisitionsView = normalizedLabel?.startsWith("requisiciones");
 
@@ -75,10 +88,14 @@ const RequisitionsList: React.FC = () => {
   }
 
   return (
-    <>
-      <RequisitionDetails />
-      <RequisitionsTable />
-    </>
+    <div className="flex w-full flex-col gap-4">
+      <ContextualInfoForm values={mockContextualInfoValues} />
+      <EditableViaticsTable
+        value={viaticsRows}
+        onChange={setViaticsRows}
+        totalOverride="7,500"
+      />
+    </div>
   );
 }
 
