@@ -8,6 +8,8 @@ const useSearchParamsMock = vi.fn(() => new URLSearchParams())
 const replaceMock = vi.fn()
 const pushMock = vi.fn()
 const requisitionsListMock = vi.fn()
+const editableViaticsTableMock = vi.fn()
+const contextualInfoFormMock = vi.fn()
 
 vi.mock('next/navigation', () => ({
   useSearchParams: () => useSearchParamsMock(),
@@ -24,6 +26,25 @@ vi.mock('./componentes/RequisitionsTable/RequisitionsTable', () => ({
   default: () => <div>table</div>,
 }))
 
+vi.mock('@/app/sharedComponents/ContextualInfoForm/ContextualInfoForm', () => ({
+  __esModule: true,
+  ContextualInfoForm: (props: any) => {
+    contextualInfoFormMock(props)
+    return <div>contextual-info-form</div>
+  },
+}))
+
+vi.mock(
+  '@/app/sharedComponents/EditableViaticsTable/EditableViaticsTable',
+  () => ({
+    __esModule: true,
+    EditableViaticsTable: (props: any) => {
+      editableViaticsTableMock(props)
+      return <div>editable-viatics-table</div>
+    },
+  }),
+)
+
 vi.mock(
   '@/app/main-page/operations/requisitions/requisitionListPage/components/UserRequisitionsList/UserRequisitionsList',
   () => ({
@@ -36,11 +57,31 @@ vi.mock(
 )
 
 describe('RequisitionsList page', () => {
-  it('renders details and table components by default', () => {
+  it('renders contextual info form and editable viatics table by default', () => {
     render(<RequisitionsList />)
 
-    expect(screen.getByText('details')).toBeInTheDocument()
-    expect(screen.getByText('table')).toBeInTheDocument()
+    expect(screen.getByText('contextual-info-form')).toBeInTheDocument()
+    expect(screen.getByText('editable-viatics-table')).toBeInTheDocument()
+    expect(contextualInfoFormMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        values: expect.objectContaining({
+          company: 'DISITREK',
+          projectCode: 'PY-SEMAR-014',
+          debtorCode: '00124',
+          clientCode: '00345',
+          startDate: '2026-05-10',
+          endDate: '2026-05-15',
+          assignedPerson: 'Angel Vazquez',
+        }),
+      }),
+    )
+    expect(editableViaticsTableMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        value: expect.any(Array),
+        onChange: expect.any(Function),
+        totalOverride: '7,500',
+      }),
+    )
   })
 
   it('renders user requisitions view and injects files handler', () => {

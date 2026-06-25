@@ -34,6 +34,10 @@ export interface InvoicesFormProps {
   onValidChange?: (isValid: boolean) => void;
   /** Optional requisition id to refresh requisition documents after updates. */
   refreshRequisitionId?: string;
+  /** Optional className passed to the internal DynamicForm form element. */
+  formClassName?: string;
+  /** Optional className passed to each internal DynamicForm row. */
+  rowClassName?: string;
   /** Optional title override for ticket form layouts. */
   layoutTitle?: string;
   /** Optional primary action label override for ticket form layouts. */
