@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/assets/icons/Docs/page.svg', () => ({
   __esModule: true,
@@ -10,12 +10,25 @@ vi.mock('@/assets/icons/Docs/page.svg', () => ({
 const deleteMock = vi.fn()
 const refreshMock = vi.fn()
 
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({
+    currentPagePermissions: {
+      canDownload: false,
+      canEdit: true,
+      createDocument: true,
+    },
+  }),
+}))
+
 vi.mock(
   '@/app/main-page/request/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell',
   () => ({
     __esModule: true,
-    default: ({ row, onDelete }: any) => (
+    default: ({ row, onDelete, onView }: any) => (
       <div data-testid={`actions-menu-${row.id}`}>
+        <button type="button" onClick={() => onView?.(row)}>
+          Ver detalles
+        </button>
         <button type="button" onClick={() => onDelete?.(row)}>
           Eliminar
         </button>
@@ -129,25 +142,82 @@ describe('ManagementDocuments page', () => {
     expect(refreshMock).toHaveBeenCalledTimes(1)
   })
 
+  it('navigates to the request document registry when creating a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nuevo Documento' }))
+
+    expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
+  })
+
+  it('navigates to the request document registry when creating a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nuevo Documento' }))
+
+    expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
+  })
+
+  it('navigates to the request document registry when creating a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nuevo Documento' }))
+
+    expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
+  })
+
+  it('navigates to the request document registry when viewing a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(
+      within(screen.getByTestId('actions-menu-1')).getByRole('button', {
+        name: 'Ver detalles',
+      }),
+    )
+
+    expect(pushMock).toHaveBeenCalledWith(
+      '/main-page/request/documents/documentregistry?documentId=1',
+    )
+  })
+
+  it('navigates to the request document registry when creating a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nuevo Documento' }))
+
+    expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
+  })
+
+  it('navigates to the request document registry when viewing a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(
+      within(screen.getByTestId('actions-menu-1')).getByRole('button', {
+        name: 'Ver detalles',
+      }),
+    )
+
+    expect(pushMock).toHaveBeenCalledWith(
+      '/main-page/request/documents/documentregistry?documentId=1',
+    )
+  })
+
   it('opens delete confirmation and deletes the selected document', async () => {
     deleteMock.mockResolvedValue(true)
 
     render(<ManagementDocuments />)
 
-    // Clic en eliminar dentro del menú de acciones
     fireEvent.click(
       within(screen.getByTestId('actions-menu-1')).getByRole('button', {
         name: 'Eliminar',
       }),
     )
 
-    // Verifica que el popup se abra con el texto correcto
     expect(screen.getByTestId('popup')).toBeInTheDocument()
     expect(
       screen.getByText('Esta acción confirmará la eliminación del documento seleccionado'),
     ).toBeInTheDocument()
 
-    // Confirmar eliminación
     fireEvent.click(
       within(screen.getByTestId('popup')).getByRole('button', { name: 'Eliminar' }),
     )

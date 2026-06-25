@@ -37,7 +37,7 @@ const ManagementDocuments = () => {
     (row: ManagementDocumentTableRow) => {
       if (!row.id) return;
 
-      const targetUrl = `/main-page/humanresources/documents/documentregistry?documentId=${encodeURIComponent(
+      const targetUrl = `/main-page/request/documents/documentregistry?documentId=${encodeURIComponent(
         row.id,
       )}`;
 
@@ -218,7 +218,7 @@ const ManagementDocuments = () => {
                   className={isMobile ? "w-full" : ""}
                   onClick={() =>
                     router.push(
-                      "/main-page/humanresources/documents/documentregistry",
+                      "/main-page/request/documents/documentregistry",
                     )
                   }
                   data-tour="humanresources-operationaldocuments-create"
