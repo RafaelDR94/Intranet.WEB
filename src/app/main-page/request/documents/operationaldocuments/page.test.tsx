@@ -14,8 +14,11 @@ vi.mock(
   '@/app/main-page/request/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell',
   () => ({
     __esModule: true,
-    default: ({ row, onDelete }: any) => (
+    default: ({ row, onDelete, onView }: any) => (
       <div data-testid={`actions-menu-${row.id}`}>
+        <button type="button" onClick={() => onView?.(row)}>
+          Ver detalles
+        </button>
         <button type="button" onClick={() => onDelete?.(row)}>
           Eliminar
         </button>
@@ -70,6 +73,18 @@ vi.mock('./hooks/useOperationalDocuments', () => ({
         date: '2025-02-03',
         rawDate: '2025-02-03',
       },
+      {
+        id: '2',
+        name: 'Lineamiento de seguridad',
+        code: 'OP-002',
+        description: 'Seguridad operativa',
+        documentType: 'POLITICA',
+        department: 'Operaciones',
+        extension: 'pdf',
+        route: 'https://example.com/politica',
+        date: '2025-02-04',
+        rawDate: '2025-02-04',
+      },
     ],
     loading: false,
     error: undefined,
@@ -80,15 +95,22 @@ vi.mock('./hooks/useOperationalDocuments', () => ({
 }))
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
-  DataTable: ({ tables, onRefreshPage, actionsRender }: any) => (
+  DataTable: ({ tables, onRefreshPage, actionsRender, showFilter, filterOptions, onFilterChange }: any) => (
     <div>
       <div>DataTable</div>
       <button type="button" onClick={onRefreshPage}>
         Actualizar
       </button>
+      {showFilter &&
+        filterOptions?.map((option: any) => (
+          <button key={option.value} type="button" onClick={() => onFilterChange?.(option.value)}>
+            {option.label}
+          </button>
+        ))}
       {actionsRender && actionsRender()}
       {tables?.[0]?.data.map((row: any, index: number) => (
         <div key={row.id ?? index}>
+          <span>{row.name}</span>
           {tables?.[0]?.columns?.map((column: any, columnIndex: number) => (
             <div key={column.key ?? columnIndex}>
               {column.render ? column.render(row) : row[column.key]}
@@ -128,6 +150,32 @@ describe('OperationalDocuments page', () => {
 
     fireEvent.click(screen.getByText('Actualizar'))
     expect(refreshMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('filters documents by document type', () => {
+    render(<OperationalDocuments />)
+
+    expect(screen.getByText('Código de proyectos DR')).toBeInTheDocument()
+    expect(screen.getByText('Lineamiento de seguridad')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'POLITICA' }))
+
+    expect(screen.queryByText('Código de proyectos DR')).not.toBeInTheDocument()
+    expect(screen.getByText('Lineamiento de seguridad')).toBeInTheDocument()
+  })
+
+  it('navigates to the request document registry when viewing a document', () => {
+    render(<OperationalDocuments />)
+
+    fireEvent.click(
+      within(screen.getByTestId('actions-menu-1')).getByRole('button', {
+        name: 'Ver detalles',
+      }),
+    )
+
+    expect(pushMock).toHaveBeenCalledWith(
+      '/main-page/request/documents/documentregistry?documentId=1',
+    )
   })
 
   it('opens delete confirmation and deletes the selected document', async () => {

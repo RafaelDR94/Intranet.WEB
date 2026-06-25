@@ -14,8 +14,11 @@ vi.mock(
   '@/app/main-page/request/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell',
   () => ({
     __esModule: true,
-    default: ({ row, onDelete }: any) => (
+    default: ({ row, onDelete, onView }: any) => (
       <div data-testid={`actions-menu-${row.id}`}>
+        <button type="button" onClick={() => onView?.(row)}>
+          Ver detalles
+        </button>
         <button type="button" onClick={() => onDelete?.(row)}>
           Eliminar
         </button>
@@ -127,6 +130,20 @@ describe('ManagementDocuments page', () => {
 
     fireEvent.click(screen.getByText('Actualizar'))
     expect(refreshMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('navigates to the request document registry when viewing a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(
+      within(screen.getByTestId('actions-menu-1')).getByRole('button', {
+        name: 'Ver detalles',
+      }),
+    )
+
+    expect(pushMock).toHaveBeenCalledWith(
+      '/main-page/request/documents/documentregistry?documentId=1',
+    )
   })
 
   it('opens delete confirmation and deletes the selected document', async () => {
