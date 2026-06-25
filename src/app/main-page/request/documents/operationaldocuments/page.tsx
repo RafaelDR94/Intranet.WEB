@@ -29,16 +29,41 @@ const OperationalDocuments = () => {
   const canDowload = currentPagePermissions?.canDownload;
   const createDocument = currentPagePermissions?.createDocument ?? true;
   const canEdit = currentPagePermissions?.canEdit ?? true;
+  const [selectedDocumentType, setSelectedDocumentType] = React.useState("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [selectedDocument, setSelectedDocument] =
     React.useState<ManagementDocumentTableRow | null>(null);
+
+  const documentTypeFilterOptions = React.useMemo(() => {
+    const uniqueTypes = Array.from(
+      new Set(
+        rows
+          .map((row) => row.documentType?.trim())
+          .filter((type): type is string => Boolean(type)),
+      ),
+    ).sort((left, right) => left.localeCompare(right));
+
+    return [
+      { label: "Todos los tipos", value: "all" },
+      ...uniqueTypes.map((type) => ({
+        label: type,
+        value: type,
+      })),
+    ];
+  }, [rows]);
+
+  const filteredRows = React.useMemo(() => {
+    if (selectedDocumentType === "all") return rows;
+
+    return rows.filter((row) => row.documentType === selectedDocumentType);
+  }, [rows, selectedDocumentType]);
 
   const handleViewDocument = React.useCallback(
     (row: ManagementDocumentTableRow) => {
       if (!row.id) return;
 
       router.push(
-        `/main-page/humanresources/documents/documentregistry?documentId=${encodeURIComponent(
+        `/main-page/request/documents/documentregistry?documentId=${encodeURIComponent(
           row.id,
         )}`,
       );
@@ -183,7 +208,7 @@ const OperationalDocuments = () => {
               title: "",
               enableCollaps: false,
               enableSelection: canDowload,
-              data: rows,
+              data: filteredRows,
               columns: isMobile ? columnsMobile : columns,
               defaultSortKey: "name",
             },
@@ -200,11 +225,16 @@ const OperationalDocuments = () => {
             "department",
           ]}
           showCalendar={false}
-          showFilter={false}
+          showFilter
+          filterOptions={documentTypeFilterOptions}
+          filterValue={selectedDocumentType}
+          filterTitle="Filtrar por tipo"
+          onFilterChange={(value) => setSelectedDocumentType(value)}
           showButton={false}
           showDownloadTable={canDowload}
           dateKey={(row) => row.rawDate ?? row.date}
           searchDataTour="humanresources-operationaldocuments-search"
+          filterDataTour="humanresources-operationaldocuments-filter"
           refreshDataTour="humanresources-operationaldocuments-refresh"
           actionsRender={() =>
             createDocument === true ? (
@@ -216,7 +246,7 @@ const OperationalDocuments = () => {
                   className={isMobile ? "w-full" : ""}
                   onClick={() =>
                     router.push(
-                      "/main-page/humanresources/documents/documentregistry",
+                      "/main-page/request/documents/documentregistry",
                     )
                   }
                   data-tour="humanresources-operationaldocuments-create"
