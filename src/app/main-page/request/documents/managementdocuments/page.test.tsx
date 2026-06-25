@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/assets/icons/Docs/page.svg', () => ({
   __esModule: true,
@@ -24,7 +24,6 @@ vi.mock(
   '@/app/main-page/request/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell',
   () => ({
     __esModule: true,
-    default: ({ row, onDelete, onView }: any) => (
     default: ({ row, onDelete, onView }: any) => (
       <div data-testid={`actions-menu-${row.id}`}>
         <button type="button" onClick={() => onView?.(row)}>
@@ -151,6 +150,22 @@ describe('ManagementDocuments page', () => {
     expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
   })
 
+  it('navigates to the request document registry when creating a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nuevo Documento' }))
+
+    expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
+  })
+
+  it('navigates to the request document registry when creating a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nuevo Documento' }))
+
+    expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
+  })
+
   it('navigates to the request document registry when viewing a document', () => {
     render(<ManagementDocuments />)
 
@@ -165,8 +180,6 @@ describe('ManagementDocuments page', () => {
     )
   })
 
-<<<<<<< HEAD
-=======
   it('navigates to the request document registry when creating a document', () => {
     render(<ManagementDocuments />)
 
@@ -175,7 +188,6 @@ describe('ManagementDocuments page', () => {
     expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
   })
 
->>>>>>> 7b509b8e (Documents Details)
   it('navigates to the request document registry when viewing a document', () => {
     render(<ManagementDocuments />)
 
@@ -195,20 +207,17 @@ describe('ManagementDocuments page', () => {
 
     render(<ManagementDocuments />)
 
-    // Clic en eliminar dentro del menú de acciones
     fireEvent.click(
       within(screen.getByTestId('actions-menu-1')).getByRole('button', {
         name: 'Eliminar',
       }),
     )
 
-    // Verifica que el popup se abra con el texto correcto
     expect(screen.getByTestId('popup')).toBeInTheDocument()
     expect(
       screen.getByText('Esta acción confirmará la eliminación del documento seleccionado'),
     ).toBeInTheDocument()
 
-    // Confirmar eliminación
     fireEvent.click(
       within(screen.getByTestId('popup')).getByRole('button', { name: 'Eliminar' }),
     )
