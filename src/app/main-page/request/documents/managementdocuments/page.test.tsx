@@ -10,10 +10,21 @@ vi.mock('@/assets/icons/Docs/page.svg', () => ({
 const deleteMock = vi.fn()
 const refreshMock = vi.fn()
 
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({
+    currentPagePermissions: {
+      canDownload: false,
+      canEdit: true,
+      createDocument: true,
+    },
+  }),
+}))
+
 vi.mock(
   '@/app/main-page/request/documents/components/DocumentActionsMenuCell/DocumentActionsMenuCell',
   () => ({
     __esModule: true,
+    default: ({ row, onDelete, onView }: any) => (
     default: ({ row, onDelete, onView }: any) => (
       <div data-testid={`actions-menu-${row.id}`}>
         <button type="button" onClick={() => onView?.(row)}>
@@ -132,6 +143,39 @@ describe('ManagementDocuments page', () => {
     expect(refreshMock).toHaveBeenCalledTimes(1)
   })
 
+  it('navigates to the request document registry when creating a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nuevo Documento' }))
+
+    expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
+  })
+
+  it('navigates to the request document registry when viewing a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(
+      within(screen.getByTestId('actions-menu-1')).getByRole('button', {
+        name: 'Ver detalles',
+      }),
+    )
+
+    expect(pushMock).toHaveBeenCalledWith(
+      '/main-page/request/documents/documentregistry?documentId=1',
+    )
+  })
+
+<<<<<<< HEAD
+=======
+  it('navigates to the request document registry when creating a document', () => {
+    render(<ManagementDocuments />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nuevo Documento' }))
+
+    expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
+  })
+
+>>>>>>> 7b509b8e (Documents Details)
   it('navigates to the request document registry when viewing a document', () => {
     render(<ManagementDocuments />)
 
