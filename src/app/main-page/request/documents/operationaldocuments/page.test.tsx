@@ -15,6 +15,7 @@ vi.mock(
   () => ({
     __esModule: true,
     default: ({ row, onDelete, onView }: any) => (
+    default: ({ row, onDelete, onView }: any) => (
       <div data-testid={`actions-menu-${row.id}`}>
         <button type="button" onClick={() => onView?.(row)}>
           Ver detalles
@@ -85,6 +86,18 @@ vi.mock('./hooks/useOperationalDocuments', () => ({
         date: '2025-02-04',
         rawDate: '2025-02-04',
       },
+      {
+        id: '2',
+        name: 'Lineamiento de seguridad',
+        code: 'OP-002',
+        description: 'Seguridad operativa',
+        documentType: 'POLITICA',
+        department: 'Operaciones',
+        extension: 'pdf',
+        route: 'https://example.com/politica',
+        date: '2025-02-04',
+        rawDate: '2025-02-04',
+      },
     ],
     loading: false,
     error: undefined,
@@ -95,6 +108,7 @@ vi.mock('./hooks/useOperationalDocuments', () => ({
 }))
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
+  DataTable: ({ tables, onRefreshPage, actionsRender, showFilter, filterOptions, onFilterChange }: any) => (
   DataTable: ({ tables, onRefreshPage, actionsRender, showFilter, filterOptions, onFilterChange }: any) => (
     <div>
       <div>DataTable</div>
@@ -107,9 +121,16 @@ vi.mock('@/app/components/DataTable/DataTable', () => ({
             {option.label}
           </button>
         ))}
+      {showFilter &&
+        filterOptions?.map((option: any) => (
+          <button key={option.value} type="button" onClick={() => onFilterChange?.(option.value)}>
+            {option.label}
+          </button>
+        ))}
       {actionsRender && actionsRender()}
       {tables?.[0]?.data.map((row: any, index: number) => (
         <div key={row.id ?? index}>
+          <span>{row.name}</span>
           <span>{row.name}</span>
           {tables?.[0]?.columns?.map((column: any, columnIndex: number) => (
             <div key={column.key ?? columnIndex}>
@@ -162,6 +183,14 @@ describe('OperationalDocuments page', () => {
 
     expect(screen.queryByText('Código de proyectos DR')).not.toBeInTheDocument()
     expect(screen.getByText('Lineamiento de seguridad')).toBeInTheDocument()
+  })
+
+  it('navigates to the request document registry when creating a document', () => {
+    render(<OperationalDocuments />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nuevo Documento' }))
+
+    expect(pushMock).toHaveBeenCalledWith('/main-page/request/documents/documentregistry')
   })
 
   it('navigates to the request document registry when viewing a document', () => {
