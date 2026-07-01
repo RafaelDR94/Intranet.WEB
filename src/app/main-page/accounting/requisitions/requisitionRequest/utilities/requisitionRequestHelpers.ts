@@ -1,6 +1,10 @@
 import type { TravelExpenseCalculation } from "@/app/mappings/travelExpenseCalculations/travelExpenseCalculations.types";
-import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
+import type {
+  TravelExpense,
+  TravelExpenseCalculationConceptJsonApi,
+} from "@/app/mappings/travelExpenses/travelExpenses.types";
 import type { EditableViaticsRow } from "@/app/sharedComponents/EditableViaticsTable/types";
+import type { SaveTravelExpenseProgressPayload } from "@/app/stores/useTravelExpensesStore/types";
 import { parseAmount } from "@/app/sharedComponents/EditableViaticsTable/utilities/helperFunction";
 import { emptyViaticsRows } from "@/app/sharedComponents/EditableViaticsTable/utilities/mockRows";
 
@@ -92,6 +96,71 @@ export const mapCalculationsToViaticsRows = (
   });
 };
 
+const toEditableAmount = (value: unknown, fallback = "00") =>
+  value == null || value === "" ? fallback : String(value);
+
+const getCalculationConcept = (
+  calculation: TravelExpenseCalculationConceptJsonApi,
+) => toFormString(calculation.concept);
+
+const getProgressCalculations = (row: TravelExpense) =>
+  row.calculation_concepts_json?.flatMap(
+    (item) => item.calculation_concepts ?? item.calculationConcepts ?? [],
+  ) ?? [];
+
+/**
+ * Gets the first persisted progress block from calculation_concepts_json.
+ */
+export const getFirstProgressItemValues = (row: TravelExpense) => {
+  const progressItem = row.calculation_concepts_json?.[0];
+
+  return {
+    requisitionCode: toFormString(
+      progressItem?.requisition_code ?? progressItem?.requisitionCode,
+    ),
+    startDate: toFormString(
+      progressItem?.start_date ?? progressItem?.startDate,
+    ),
+    endDate: toFormString(progressItem?.end_date ?? progressItem?.endDate),
+    motive: toFormString(progressItem?.motive),
+  };
+};
+
+/**
+ * Maps calculation_concepts_json into the editable viatics table shape.
+ */
+export const mapCalculationConceptsJsonToViaticsRows = (row: TravelExpense) => {
+  const calculations = getProgressCalculations(row);
+
+  return cloneEmptyViaticsRows().map((emptyRow, index) => {
+    const calculation =
+      calculations.find(
+        (item) =>
+          normalizeComparableText(getCalculationConcept(item)) ===
+          normalizeComparableText(emptyRow.concept),
+      ) ?? calculations[index];
+
+    if (!calculation) return emptyRow;
+
+    return {
+      ...emptyRow,
+      nationalQuoted: toEditableAmount(
+        calculation.national_quoted ?? calculation.nationalQuoted,
+      ),
+      foreignQuoted: toEditableAmount(
+        calculation.foreign_quoted ?? calculation.foreignQuoted,
+      ),
+      people: toEditableAmount(
+        calculation.people_number ?? calculation.peopleNumber,
+      ),
+      days: toEditableAmount(calculation.days_number ?? calculation.daysNumber),
+      subtotal: toEditableAmount(calculation.subtotal),
+      observations:
+        toFormString(calculation.observations) || emptyRow.observations,
+    };
+  });
+};
+
 /**
  * Builds beneficiary items from the main employee and companions.
  */
@@ -139,6 +208,41 @@ export const buildCalculationPayloads = (
     subtotal: parseAmount(row.subtotal),
     observations: row.observations,
   }));
+
+/**
+ * Builds the consolidated SaveProgress payload expected by backend.
+ */
+export const buildSaveProgressPayload = (
+  row: TravelExpense,
+  rows: EditableViaticsRow[],
+): SaveTravelExpenseProgressPayload => ({
+  id_travel_expense: getTravelExpenseIdentifier(row),
+  progress_items: [
+    {
+      employee_id: row.employee_id,
+      employee_name: row.employeename,
+      requisition_code: row.requisition_requests[0]?.requisition_code ?? "",
+      motive: row.motive,
+      start_date: toIsoDate(toDateInputValue(row.assignmentdate)),
+      end_date: toIsoDate(toDateInputValue(row.enddate)),
+      companions: row.companions
+        .map((companion) => ({
+          employee_id: companion.id_employee,
+          full_name: companion.employee_name,
+        }))
+        .filter((companion) => companion.employee_id || companion.full_name),
+      calculation_concepts: rows.map((item) => ({
+        concept: item.concept,
+        national_quoted: parseAmount(item.nationalQuoted),
+        foreign_quoted: parseAmount(item.foreignQuoted),
+        people_number: parseAmount(item.people),
+        days_number: parseAmount(item.days),
+        subtotal: parseAmount(item.subtotal),
+        observations: item.observations,
+      })),
+    },
+  ],
+});
 
 const normalizeComparableText = (value: string) =>
   value

@@ -168,6 +168,9 @@ export const EmployeesActiveUsers =
 export const EmployeesDevicesAssigned =
   process.env.NEXT_PUBLIC_EMPLOYEES_DEVICES_ASSIGNED ??
   "/Employees/DevicesAssigned";
+export const EmployeesEmployeeNumberCard =
+  process.env.NEXT_PUBLIC_EMPLOYEES_EMPLOYEE_NUMBER_CARD ??
+  "/Employees/EmppLoyeeNumberCard";
 
 export const Statuses = process.env.NEXT_PUBLIC_STATUS ?? "/Status";
 export const StatusByType =
@@ -530,10 +533,30 @@ export const BillingTravelExpensesResend =
 export const BillingTravelExpensesCancelOrResend =
   process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CANCEL_OR_RESEND ??
   "/Billings/TravelExpenses/CancelOrResend";
+export const BillingTravelExpensesSendAuthorization =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_SEND_AUTHORIZATION ??
+  "/Billings/TravelExpenses/SendAuthorization";
+export const BillingTravelExpensesSaveProgress =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_SAVE_PROGRESS ??
+  "/Billings/TravelExpenses/SaveProgress";
+export const BillingTravelExpensesCalculationConcepts =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CALCULATION_CONCEPTS ??
+  "/Billings/TravelExpenses/CalculationConcepts";
+export const BillingTravelExpensesEmployeesWithCardNumber =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_EMPLOYEES_WITH_CARD_NUMBER ??
+  "/Billings/TravelExpenses/EmployeesWithCardNumber";
 export const BillingRequisitionRequestSendAuthorization =
-  process.env
-    .NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_SEND_AUTHORIZATION ??
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_SEND_AUTHORIZATION ??
   "/Billings/RequisitionRequest/SendAuthorization";
+export const BillingRequisitionRequest =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST ??
+  "/Billings/RequisitionRequest";
+export const BillingRequisitionRequestFilter =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_FILTER ??
+  "/Billings/RequisitionRequestfilter";
+export const BillingRequisitionRequestById =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_BY_ID ??
+  "/Billings/RequisitionRequestById";
 export const BillingTravelExpensesCalculations =
   process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CALCULATIONS ??
   "/Billings/TravelExpensesCalculations";

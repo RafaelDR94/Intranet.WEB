@@ -17,6 +17,7 @@ import { requisitionRequestStyles as styles } from "./styles";
 const RequisitionRequestPage = () => {
   const {
     approvingTravelExpense,
+    detailViaticsRows,
     fetchTravelExpenses,
     handleApproveTravelExpense,
     handleCreateClick,
@@ -90,9 +91,11 @@ const RequisitionRequestPage = () => {
                   dataTestId="travel-expense-review-form"
                 />
                 <EditableViaticsTable
-                  value={[]}
+                  value={detailViaticsRows}
                   onChange={() => undefined}
                   dataTestId="-viatics-table"
+                  readOnly
+                  allowAddConcept={false}
                 />
               </>
             ) : (

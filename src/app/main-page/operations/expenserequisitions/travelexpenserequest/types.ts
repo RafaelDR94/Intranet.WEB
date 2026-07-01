@@ -22,6 +22,29 @@ export type TravelExpenseBeneficiary = {
 };
 
 /**
+ * Local UI-only companion association map keyed by parent beneficiary id.
+ */
+export type BeneficiaryAssociationMap = Record<string, string[]>;
+
+/**
+ * Editable requisition information per beneficiary block.
+ */
+export type RequisitionProgressValues = {
+  requisitionCode: string;
+  motive: string;
+  startDate: string;
+  endDate: string;
+};
+
+/**
+ * UI state keyed by beneficiary id for independent requisition fields.
+ */
+export type RequisitionProgressValuesByBeneficiary = Record<
+  string,
+  RequisitionProgressValues
+>;
+
+/**
  * Available tabs in the requisition draft detail.
  */
 export type RequisitionSection = "information" | "viatics";

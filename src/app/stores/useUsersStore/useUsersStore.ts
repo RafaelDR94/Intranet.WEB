@@ -15,6 +15,7 @@ import {
   fetchUsers as fetchUsersRequest,
   toggleActive as toggleActiveRequest,
   updateSignature as updateSignatureRequest,
+  updateEmployeeNumberCard as updateEmployeeNumberCardRequest,
   updateUser as updateUserRequest,
   updateUserProfile as updateUserProfileRequest,
 } from "./utilities";
@@ -104,6 +105,8 @@ export const useUsersStore = createWithEqualityFn<UsersState>()(
     updateUser: (payload) => updateUserRequest(set, get, payload),
     updateUserProfile: (payload) =>
       updateUserProfileRequest(set, get, payload),
+    updateEmployeeNumberCard: (payload) =>
+      updateEmployeeNumberCardRequest(set, get, payload),
     deleteUser: (id: string) => deleteUserRequest(set, get, id),
     fetchRoles: (force = false) => fetchRolesRequest(set, get, force),
     createRole: (payload) => createRoleRequest(set, get, payload),

@@ -15,6 +15,7 @@ import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import { Label } from "@/app/components/Label/Label";
 import type { LabelType } from "@/app/components/Label/types";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { TravelExpenseCalculationsMap } from "@/app/mappings/travelExpenseCalculations/travelExpenseCalculations.mapper";
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
 import { ContextualInfoForm } from "@/app/sharedComponents/ContextualInfoForm/ContextualInfoForm";
 import { useTravelExpensesStore } from "@/app/stores/useTravelExpensesStore/useTravelExpensesStore";
@@ -219,11 +220,29 @@ const TravelExpenseHistoryPage = () => {
     if (!idTravelExpense) return;
 
     showSpinner({ message: "Actualizando solicitud de viáticos..." });
+    const calculationConcepts = TravelExpenseCalculationsMap(
+      Array.isArray(selectedTravelExpense.travel_expenses_calculations)
+        ? selectedTravelExpense.travel_expenses_calculations
+        : [],
+    ).map((item) => ({
+      concept: item.concept,
+      national_quoted: Number(item.national_quoted) || 0,
+      foreign_quoted: Number(item.foreign_quoted) || 0,
+      people_number: Number(item.people) || 0,
+      days_number: Number(item.days) || 0,
+      subtotal: Number(item.subtotal) || 0,
+      observations: item.observations,
+    }));
     const updated = await updateTravelExpense({
       id: idTravelExpense,
       employee_id:
         toFormString(editValues.assignedPerson) ||
         selectedTravelExpense.employee_id,
+      companions: selectedTravelExpense.companions.map((companion) => ({
+        employee_id: companion.id_employee,
+        full_name: companion.employee_name,
+      })),
+      calculation_concepts: calculationConcepts,
       project_id:
         toFormString(editValues.project) || selectedTravelExpense.project_id,
       department_id: selectedTravelExpense.department_id,
@@ -356,12 +375,12 @@ const TravelExpenseHistoryPage = () => {
         cellClass: "flex-[0.9] text-gray-80",
       },
       {
-        key: "status",
+        key: "status_employee_name",
         label: "ESTATUS",
         render: (row) => (
           <Label
-            type={normalizeStatusType(row.status)}
-            text={row.status || "Pendiente"}
+            type={normalizeStatusType(row.status_employee_name || row.status)}
+            text={row.status_employee_name || row.status || "Pendiente"}
             className="min-w-[82px]"
           />
         ),

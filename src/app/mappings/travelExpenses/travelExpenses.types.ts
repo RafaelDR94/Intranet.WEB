@@ -10,7 +10,11 @@ export type TravelExpenseApi = {
   BillingRequisition_Id?: string | null;
   employee_id?: string | null;
   employeeId?: string | null;
+  employee_name?: string | null;
+  employeeName?: string | null;
   employeename?: string | null;
+  full_name?: string | null;
+  fullName?: string | null;
   applicant_id?: string | null;
   applicantId?: string | null;
   applicant_name?: string | null;
@@ -40,6 +44,8 @@ export type TravelExpenseApi = {
   status_id?: string | null;
   status?: string | null;
   status_name?: string | null;
+  status_employee_name?: string | null;
+  statusEmployeeName?: string | null;
   statusname?: string | null;
   requisitionkey?: string | null;
   requisitionKey?: string | null;
@@ -70,11 +76,17 @@ export type TravelExpenseApi = {
   companions?: TravelExpenseCompanionApi[] | null;
   requisition_requests?: TravelExpenseRequisitionRequestApi[] | null;
   travel_expenses_calculations?: unknown[] | null;
+  calculation_concepts_json?: TravelExpenseProgressItemApi[] | string | null;
+  calculationConceptsJson?: TravelExpenseProgressItemApi[] | string | null;
 };
 
 export type TravelExpenseCompanionApi = {
+  employee_id?: string | null;
+  employeeId?: string | null;
   id_employee?: string | null;
   idEmployee?: string | null;
+  full_name?: string | null;
+  fullName?: string | null;
   employee_name?: string | null;
   employeeName?: string | null;
   phone_number?: string | null;
@@ -116,6 +128,46 @@ export type TravelExpenseRequisitionRequest = {
   date_created: string;
 };
 
+export type TravelExpenseCalculationConceptJsonApi = {
+  concept?: string | null;
+  national_quoted?: number | string | null;
+  nationalQuoted?: number | string | null;
+  foreign_quoted?: number | string | null;
+  foreignQuoted?: number | string | null;
+  people_number?: number | string | null;
+  peopleNumber?: number | string | null;
+  days_number?: number | string | null;
+  daysNumber?: number | string | null;
+  subtotal?: number | string | null;
+  observations?: string | null;
+};
+
+export type TravelExpenseProgressCompanionApi = {
+  employee_id?: string | null;
+  employeeId?: string | null;
+  full_name?: string | null;
+  fullName?: string | null;
+  employee_name?: string | null;
+  employeeName?: string | null;
+};
+
+export type TravelExpenseProgressItemApi = {
+  employee_id?: string | null;
+  employeeId?: string | null;
+  employee_name?: string | null;
+  employeeName?: string | null;
+  requisition_code?: string | null;
+  requisitionCode?: string | null;
+  motive?: string | null;
+  start_date?: string | null;
+  startDate?: string | null;
+  end_date?: string | null;
+  endDate?: string | null;
+  companions?: TravelExpenseProgressCompanionApi[] | null;
+  calculation_concepts?: TravelExpenseCalculationConceptJsonApi[] | null;
+  calculationConcepts?: TravelExpenseCalculationConceptJsonApi[] | null;
+};
+
 /**
  * Travel expense row normalized for UI rendering.
  */
@@ -138,6 +190,7 @@ export type TravelExpense = {
   department_name: string;
   status_id: string;
   status_name: string;
+  status_employee_name: string;
   status: string;
   requisitionkey: string;
   assignmentdate: string;
@@ -155,4 +208,5 @@ export type TravelExpense = {
   companions: TravelExpenseCompanion[];
   requisition_requests: TravelExpenseRequisitionRequest[];
   travel_expenses_calculations: unknown[];
+  calculation_concepts_json?: TravelExpenseProgressItemApi[];
 };

@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 import { Button } from "@/app/components/Button/Button";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import type { FieldModel } from "@/app/components/DynamicForm/types";
@@ -8,6 +10,7 @@ import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import { Input } from "@/app/components/Input/Input";
 import { Label } from "@/app/components/Label/Label";
 import { PopUp } from "@/app/components/PopUp/PopUp";
+import { Select } from "@/app/components/Select/Select";
 import { EditableViaticsTable } from "@/app/sharedComponents/EditableViaticsTable/EditableViaticsTable";
 import type { EditableViaticsRow } from "@/app/sharedComponents/EditableViaticsTable/types";
 import ArrowDownIcon from "@/assets/icons/navegacion/nav-arrow-down.svg";
@@ -25,6 +28,10 @@ const TravelExpenseRequest = () => {
   const {
     activeBeneficiaryId,
     approvingTravelExpense,
+    authorizerError,
+    authorizerOptions,
+    authorizerPopUpOpen,
+    authorizerSelected,
     buildRequisitionFields,
     createFields,
     createFormLayout,
@@ -38,7 +45,10 @@ const TravelExpenseRequest = () => {
     getBeneficiaryViaticsRows,
     handleAddAssignedStaff,
     handleApproveTravelExpense,
+    handleAuthorizerCancel,
+    handleAuthorizerChange,
     handleBeneficiaryViaticsChange,
+    handleConfirmAuthorizer,
     handleCreateClick,
     handleCreateSubmit,
     handleCreateValuesChange,
@@ -53,13 +63,16 @@ const TravelExpenseRequest = () => {
     handleToggleBeneficiary,
     handleViewDetails,
     hasCompanions,
+    isReviewView,
     isRequisitionView,
+    loadingEmployeesWithCardNumber,
     loadingTravelExpenses,
     proyectsLoading,
     rejectComment,
     rejectCommentError,
     rejectCommentOpen,
     rejectingTravelExpense,
+    requisitionActionsDisabled,
     requisitionBeneficiaries,
     requisitionFields,
     requisitionFormLayout,
@@ -76,8 +89,9 @@ const TravelExpenseRequest = () => {
     setRequisitionSection,
     setViaticsRows,
     showRejectedDetail,
+    newTravelExpenses,
     submitRef,
-    travelExpenses,
+    statusTravelExpenses,
     updatingTravelExpense,
     valuesVersion,
     viaticsRows,
@@ -85,6 +99,7 @@ const TravelExpenseRequest = () => {
   } = useTravelExpenseRequest();
 
   const renderRequisitionTabs = (
+    beneficiaryId: string,
     fields: FieldModel[],
     viaticsValue: EditableViaticsRow[],
     onViaticsChange: (rows: EditableViaticsRow[]) => void,
@@ -112,7 +127,9 @@ const TravelExpenseRequest = () => {
         <DynamicForm
           fields={fields}
           onSubmit={() => undefined}
-          onValuesChange={handleRequisitionValuesChange}
+          onValuesChange={(values) =>
+            handleRequisitionValuesChange(beneficiaryId, values)
+          }
           responsiveLayoutMatrix={requisitionFormLayout}
           rowClassName={styles.formRow}
           showSubmitIf={() => false}
@@ -153,6 +170,7 @@ const TravelExpenseRequest = () => {
               responsiveLayoutMatrix={createFormLayout}
               loadingFormInfo={
                 departmentsLoading ||
+                loadingEmployeesWithCardNumber ||
                 employeesWithActiveUserLoading ||
                 proyectsLoading
               }
@@ -217,6 +235,7 @@ const TravelExpenseRequest = () => {
             }
             primaryDisabled={
               !selectedTravelExpense ||
+              requisitionActionsDisabled ||
               sendingAuthorization ||
               savingCalculations
             }
@@ -230,6 +249,7 @@ const TravelExpenseRequest = () => {
             onSecondaryClick={handleSaveRequisitionProgress}
             secondaryDisabled={
               !selectedTravelExpense ||
+              requisitionActionsDisabled ||
               updatingTravelExpense ||
               savingCalculations
             }
@@ -259,6 +279,7 @@ const TravelExpenseRequest = () => {
                 <div className={styles.beneficiaryStack}>
                   {requisitionBeneficiaries.map((beneficiary) => {
                     const isOpen = activeBeneficiaryId === beneficiary.id;
+                    const hasBroxelCard = Boolean(beneficiary.cardNumber?.trim());
 
                     return (
                       <div key={beneficiary.id} className={styles.beneficiaryStack}>
@@ -268,16 +289,40 @@ const TravelExpenseRequest = () => {
                           onClick={() => handleToggleBeneficiary(beneficiary.id)}
                           aria-expanded={isOpen}
                         >
-                          <span className="truncate">{beneficiary.name}</span>
-                          {isOpen ? (
-                            <ArrowUpIcon className={styles.beneficiaryIcon} />
-                          ) : (
-                            <ArrowDownIcon className={styles.beneficiaryIcon} />
-                          )}
+                          <div className={styles.beneficiaryHeaderContent}>
+                            <span className={styles.beneficiaryName}>
+                              {beneficiary.name}
+                            </span>
+                            <div className={styles.beneficiaryMeta}>
+                              {hasBroxelCard ? (
+                                <span className={styles.broxelBadge}>
+                                  <span
+                                    className={styles.broxelIcon}
+                                    aria-hidden="true"
+                                  />
+                                  BROXEL
+                                </span>
+                              ) : (
+                                <Label
+                                  type="pendiente"
+                                  text="Sin asociar"
+                                  className={styles.beneficiaryStatusLabel}
+                                />
+                              )}
+                              {isOpen ? (
+                                <ArrowUpIcon className={styles.beneficiaryIcon} />
+                              ) : (
+                                <ArrowDownIcon
+                                  className={styles.beneficiaryIcon}
+                                />
+                              )}
+                            </div>
+                          </div>
                         </button>
                         {isOpen && (
                           <section className={styles.panel}>
                             {renderRequisitionTabs(
+                              beneficiary.id,
                               buildRequisitionFields(beneficiary),
                               getBeneficiaryViaticsRows(beneficiary.id),
                               (rows) =>
@@ -296,6 +341,8 @@ const TravelExpenseRequest = () => {
               ) : (
                 <section className={styles.panel}>
                   {renderRequisitionTabs(
+                    requisitionBeneficiaries[0]?.id ||
+                      selectedTravelExpense.employee_id,
                     requisitionFields,
                     viaticsRows,
                     setViaticsRows,
@@ -306,11 +353,39 @@ const TravelExpenseRequest = () => {
             </>
           )}
         </div>
+        <PopUp
+          open={authorizerPopUpOpen}
+          onClose={handleAuthorizerCancel}
+          title="Solicitud de aprobacion"
+          content="Selecciona a quien enviaras tu solicitud de aprobacion"
+          showSecondaryButton
+          secondaryButtonText="Cancelar"
+          onSecondaryButtonClick={handleAuthorizerCancel}
+          showPrimaryButton
+          primaryButtonText={
+            sendingAuthorization || savingCalculations
+              ? "Enviando..."
+              : "Enviar solicitud"
+          }
+          onPrimaryButtonClick={handleConfirmAuthorizer}
+        >
+          <Select
+            placeholder="Selecciona una opcion"
+            options={authorizerOptions}
+            selected={authorizerSelected ? [authorizerSelected] : []}
+            onChange={handleAuthorizerChange}
+          />
+          {authorizerError ? (
+            <p className="mt-2 text-b4 text-alert-red-100">
+              {authorizerError}
+            </p>
+          ) : null}
+        </PopUp>
       </section>
     );
   }
 
-  if (view === "detail") {
+  if (isReviewView) {
     return (
       <section className={styles.page}>
         <div className={styles.pageStack}>
@@ -413,7 +488,7 @@ const TravelExpenseRequest = () => {
           showBackground={false}
         >
           <TravelExpenseTableSection
-            rows={travelExpenses}
+            rows={newTravelExpenses}
             onRefresh={() => fetchTravelExpenses(true)}
             onViewDetails={handleViewDetails}
             pagination={false}
@@ -427,7 +502,7 @@ const TravelExpenseRequest = () => {
           showBackground={false}
         >
           <TravelExpenseTableSection
-            rows={travelExpenses}
+            rows={statusTravelExpenses}
             showStatus
             onRefresh={() => fetchTravelExpenses(true)}
             onViewDetails={handleViewDetails}

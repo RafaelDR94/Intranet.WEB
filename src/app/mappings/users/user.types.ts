@@ -14,6 +14,7 @@ export type UserEmployeeSummary = {
   employee_number: string;
   phone_number?: string;
   employee_phone?: string;
+  card_number?: string;
   dr_fingerprint: boolean;
 };
 

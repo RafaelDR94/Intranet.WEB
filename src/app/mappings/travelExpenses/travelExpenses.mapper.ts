@@ -9,16 +9,36 @@ const toStringSafe = (value: unknown, fallback = ""): string =>
 const toBooleanSafe = (value: unknown): boolean =>
   typeof value === "boolean" ? value : Boolean(value);
 
+const parseCalculationConceptsJson = (
+  value: TravelExpenseApi["calculation_concepts_json"],
+): TravelExpense["calculation_concepts_json"] => {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== "string" || !value.trim()) return [];
+
+  try {
+    const parsedValue: unknown = JSON.parse(value);
+    return Array.isArray(parsedValue) ? parsedValue : [];
+  } catch {
+    return [];
+  }
+};
+
 const mapCompanions = (
   companions: TravelExpenseApi["companions"],
 ): TravelExpense["companions"] =>
   Array.isArray(companions)
     ? companions.map((companion) => ({
         id_employee: toStringSafe(
-          companion.id_employee ?? companion.idEmployee,
+          companion.id_employee ??
+            companion.idEmployee ??
+            companion.employee_id ??
+            companion.employeeId,
         ),
         employee_name: toStringSafe(
-          companion.employee_name ?? companion.employeeName,
+          companion.employee_name ??
+            companion.employeeName ??
+            companion.full_name ??
+            companion.fullName,
         ),
         phone_number: toStringSafe(
           companion.phone_number ?? companion.phoneNumber,
@@ -74,12 +94,21 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
     "Pendiente",
   );
   const statusName = toStringSafe(record.status_name ?? record.statusname);
+  const statusEmployeeName = toStringSafe(
+    record.status_employee_name ?? record.statusEmployeeName,
+  );
 
   return {
     id,
     billingrequisition_id,
     employee_id: toStringSafe(record.employee_id ?? record.employeeId),
-    employeename: toStringSafe(record.employeename),
+    employeename: toStringSafe(
+      record.employeename ??
+        record.employee_name ??
+        record.employeeName ??
+        record.full_name ??
+        record.fullName,
+    ),
     applicant_id: toStringSafe(record.applicant_id ?? record.applicantId),
     applicant_name: toStringSafe(record.applicant_name ?? record.applicantName),
     phone_number: toStringSafe(record.phone_number ?? record.phoneNumber),
@@ -109,7 +138,8 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
       record.department_name ?? record.departmentName,
     ),
     status_id: toStringSafe(record.status_id),
-    status_name: statusName || status,
+    status_name: statusName,
+    status_employee_name: statusEmployeeName,
     status,
     requisitionkey: toStringSafe(
       record.requisitionkey ?? record.requisitionKey,
@@ -147,6 +177,9 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
     )
       ? record.travel_expenses_calculations
       : [],
+    calculation_concepts_json: parseCalculationConceptsJson(
+      record.calculation_concepts_json ?? record.calculationConceptsJson,
+    ),
   };
 };
 

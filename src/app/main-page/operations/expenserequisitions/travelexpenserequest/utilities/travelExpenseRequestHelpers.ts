@@ -1,11 +1,21 @@
 import type { LabelType } from "@/app/components/Label/types";
 import type { TravelExpenseCalculation } from "@/app/mappings/travelExpenseCalculations/travelExpenseCalculations.types";
-import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
+import type {
+  TravelExpense,
+  TravelExpenseCalculationConceptJsonApi,
+  TravelExpenseProgressItemApi,
+} from "@/app/mappings/travelExpenses/travelExpenses.types";
 import type { EditableViaticsRow } from "@/app/sharedComponents/EditableViaticsTable/types";
+import type { SaveTravelExpenseProgressPayload } from "@/app/stores/useTravelExpensesStore/types";
 import { parseAmount } from "@/app/sharedComponents/EditableViaticsTable/utilities/helperFunction";
 import { emptyViaticsRows } from "@/app/sharedComponents/EditableViaticsTable/utilities/mockRows";
 
-import type { DetailStatusKind, TravelExpenseBeneficiary } from "../types";
+import type {
+  BeneficiaryAssociationMap,
+  DetailStatusKind,
+  RequisitionProgressValuesByBeneficiary,
+  TravelExpenseBeneficiary,
+} from "../types";
 
 /**
  * Formats API date strings for display in tables.
@@ -70,7 +80,7 @@ export const normalizeStatusType = (status = ""): LabelType => {
  * Detects statuses that should open the requisition draft workflow.
  */
 export const isDraftStatus = (status: string) =>
-  ["borrador", "rechazada"].some((value) =>
+  ["pendiente", "borrad", "rechaz", "cancel"].some((value) =>
     normalizeComparableText(status).includes(value),
   );
 
@@ -79,6 +89,35 @@ export const isDraftStatus = (status: string) =>
  */
 export const getTravelExpenseIdentifier = (row: TravelExpense) =>
   row.id || row.billingrequisition_id || row.requisitionkey;
+
+/**
+ * Checks whether a request is still in the initial backend status.
+ */
+export const isNoIniciadaTravelExpenseStatus = (row: TravelExpense) =>
+  normalizeComparableText(row.status_name) === "no iniciada";
+
+/**
+ * Detects statuses where draft action buttons must be disabled.
+ */
+export const isBlockedRequisitionActionStatus = (status = "") => {
+  const normalized = normalizeComparableText(status);
+
+  return ["pendiente", "rechaz", "acept", "aprobad"].some((value) =>
+    normalized.includes(value),
+  );
+};
+
+/**
+ * Returns requests that are still in "No iniciada" status.
+ */
+export const getNewTravelExpenseRequests = (rows: TravelExpense[]) =>
+  rows.filter(isNoIniciadaTravelExpenseStatus);
+
+/**
+ * Returns requests with any status other than "No iniciada".
+ */
+export const getStatusTravelExpenseRequests = (rows: TravelExpense[]) =>
+  rows.filter((row) => !isNoIniciadaTravelExpenseStatus(row));
 
 /**
  * Creates editable viatics rows from the shared empty template.
@@ -124,6 +163,86 @@ export const mapCalculationsToViaticsRows = (
   });
 };
 
+const toEditableAmount = (value: unknown, fallback = "00") =>
+  value == null || value === "" ? fallback : String(value);
+
+const getProgressItemEmployeeId = (item: TravelExpenseProgressItemApi) =>
+  toFormString(item.employee_id ?? item.employeeId);
+
+const getProgressItemEmployeeName = (item: TravelExpenseProgressItemApi) =>
+  toFormString(item.employee_name ?? item.employeeName);
+
+const getProgressItemCompanions = (item: TravelExpenseProgressItemApi) =>
+  Array.isArray(item.companions) ? item.companions : [];
+
+const getProgressItemCalculations = (item: TravelExpenseProgressItemApi) =>
+  item.calculation_concepts ?? item.calculationConcepts ?? [];
+
+const getCalculationConcept = (
+  calculation: TravelExpenseCalculationConceptJsonApi,
+) => toFormString(calculation.concept);
+
+/**
+ * Gets persisted progress items from calculation_concepts_json.
+ */
+export const getTravelExpenseProgressItems = (row: TravelExpense) =>
+  Array.isArray(row.calculation_concepts_json)
+    ? row.calculation_concepts_json
+    : [];
+
+/**
+ * Maps calculation_concepts_json rows back to editable viatics rows by beneficiary.
+ */
+export const getViaticsRowsByBeneficiaryFromProgress = (
+  row: TravelExpense,
+): Record<string, EditableViaticsRow[]> =>
+  Object.fromEntries(
+    getTravelExpenseProgressItems(row)
+      .map((item) => {
+        const employeeId = getProgressItemEmployeeId(item);
+        if (!employeeId) return undefined;
+
+        const calculations = getProgressItemCalculations(item);
+        const rows = cloneEmptyViaticsRows().map((emptyRow, index) => {
+          const calculation =
+            calculations.find(
+              (currentCalculation) =>
+                normalizeComparableText(
+                  getCalculationConcept(currentCalculation),
+                ) === normalizeComparableText(emptyRow.concept),
+            ) ?? calculations[index];
+
+          if (!calculation) return emptyRow;
+
+          return {
+            ...emptyRow,
+            employeeId,
+            nationalQuoted: toEditableAmount(
+              calculation.national_quoted ?? calculation.nationalQuoted,
+            ),
+            foreignQuoted: toEditableAmount(
+              calculation.foreign_quoted ?? calculation.foreignQuoted,
+            ),
+            people: toEditableAmount(
+              calculation.people_number ?? calculation.peopleNumber,
+            ),
+            days: toEditableAmount(
+              calculation.days_number ?? calculation.daysNumber,
+            ),
+            subtotal: toEditableAmount(calculation.subtotal),
+            observations:
+              toFormString(calculation.observations) || emptyRow.observations,
+          };
+        });
+
+        return [employeeId, rows] as const;
+      })
+      .filter(
+        (entry): entry is readonly [string, EditableViaticsRow[]] =>
+          entry !== undefined,
+      ),
+  );
+
 /**
  * Gets beneficiary names from the main employee and companions.
  */
@@ -138,7 +257,22 @@ export const getTravelExpenseBeneficiaries = (row: TravelExpense) =>
  */
 export const getTravelExpenseBeneficiaryItems = (
   row: TravelExpense,
-): TravelExpenseBeneficiary[] =>
+): TravelExpenseBeneficiary[] => {
+  const beneficiaryById = new Map<string, TravelExpenseBeneficiary>();
+  const addBeneficiary = (beneficiary: TravelExpenseBeneficiary) => {
+    if (!beneficiary.id && !beneficiary.name) return;
+    const key = beneficiary.id || beneficiary.name;
+    const currentBeneficiary = beneficiaryById.get(key);
+
+    beneficiaryById.set(key, {
+      id: beneficiary.id || currentBeneficiary?.id || key,
+      name: beneficiary.name || currentBeneficiary?.name || "",
+      phone: beneficiary.phone || currentBeneficiary?.phone || "",
+      cardNumber:
+        beneficiary.cardNumber || currentBeneficiary?.cardNumber || "",
+    });
+  };
+
   [
     {
       id: row.employee_id || "primary",
@@ -152,13 +286,265 @@ export const getTravelExpenseBeneficiaryItems = (
       phone: companion.phone_number,
       cardNumber: companion.card_number,
     })),
-  ].filter((beneficiary) => beneficiary.name || beneficiary.id);
+  ].forEach(addBeneficiary);
+
+  getTravelExpenseProgressItems(row).forEach((item) => {
+    addBeneficiary({
+      id: getProgressItemEmployeeId(item),
+      name: getProgressItemEmployeeName(item),
+      phone: "",
+      cardNumber: "",
+    });
+
+    getProgressItemCompanions(item).forEach((companion) => {
+      addBeneficiary({
+        id: toFormString(companion.employee_id ?? companion.employeeId),
+        name: toFormString(
+          companion.full_name ??
+            companion.fullName ??
+            companion.employee_name ??
+            companion.employeeName,
+        ),
+        phone: "",
+        cardNumber: "",
+      });
+    });
+  });
+
+  return Array.from(beneficiaryById.values());
+};
+
+/**
+ * Returns the responsible beneficiary id, which cannot be associated as child.
+ */
+export const getPrimaryBeneficiaryId = (
+  beneficiaries: TravelExpenseBeneficiary[],
+) => beneficiaries[0]?.id || "";
+
+/**
+ * Sanitizes the local association map to keep only valid non-cyclic mappings.
+ */
+export const sanitizeBeneficiaryAssociations = (
+  beneficiaries: TravelExpenseBeneficiary[],
+  associations: BeneficiaryAssociationMap,
+): BeneficiaryAssociationMap => {
+  const beneficiaryIds = new Set(
+    beneficiaries.map((beneficiary) => beneficiary.id),
+  );
+  const primaryBeneficiaryId = getPrimaryBeneficiaryId(beneficiaries);
+  const allowedChildIds = new Set(
+    beneficiaries
+      .map((beneficiary) => beneficiary.id)
+      .filter((beneficiaryId) => beneficiaryId !== primaryBeneficiaryId),
+  );
+
+  const normalize = (source: BeneficiaryAssociationMap) => {
+    const normalized: BeneficiaryAssociationMap = {};
+    const assignedChildren = new Set<string>();
+
+    Object.entries(source).forEach(([parentId, childIds]) => {
+      if (!beneficiaryIds.has(parentId) || !Array.isArray(childIds)) return;
+
+      const nextChildIds = childIds.filter((childId, index) => {
+        if (typeof childId !== "string") return false;
+        if (childId === parentId) return false;
+        if (!allowedChildIds.has(childId)) return false;
+        if (assignedChildren.has(childId)) return false;
+        if (childIds.indexOf(childId) !== index) return false;
+
+        assignedChildren.add(childId);
+        return true;
+      });
+
+      if (nextChildIds.length > 0) {
+        normalized[parentId] = nextChildIds;
+      }
+    });
+
+    return normalized;
+  };
+
+  let normalized = normalize(associations);
+
+  while (true) {
+    const associatedIds = new Set(Object.values(normalized).flat());
+    const prunedEntries = Object.entries(normalized).filter(
+      ([parentId]) => !associatedIds.has(parentId),
+    );
+
+    if (prunedEntries.length === Object.keys(normalized).length) {
+      return normalized;
+    }
+
+    normalized = normalize(Object.fromEntries(prunedEntries));
+  }
+};
+
+/**
+ * Applies a single parent selection change over the existing association map.
+ */
+export const applyBeneficiaryAssociationSelection = (
+  beneficiaries: TravelExpenseBeneficiary[],
+  associations: BeneficiaryAssociationMap,
+  parentId: string,
+  selectedChildIds: string[],
+): BeneficiaryAssociationMap =>
+  sanitizeBeneficiaryAssociations(beneficiaries, {
+    ...associations,
+    [parentId]: selectedChildIds,
+  });
+
+/**
+ * Builds the list of beneficiaries that should still render an accordion panel.
+ */
+export const getVisibleTravelExpenseBeneficiaries = (
+  beneficiaries: TravelExpenseBeneficiary[],
+  associations: BeneficiaryAssociationMap,
+) => {
+  const associatedIds = new Set(
+    Object.values(
+      sanitizeBeneficiaryAssociations(beneficiaries, associations),
+    ).flat(),
+  );
+
+  return beneficiaries.filter(
+    (beneficiary) => !associatedIds.has(beneficiary.id),
+  );
+};
+
+/**
+ * Returns assignable companion options for a given beneficiary.
+ */
+export const getAvailableCompanionOptions = (
+  beneficiaries: TravelExpenseBeneficiary[],
+  associations: BeneficiaryAssociationMap,
+  beneficiaryId: string,
+) => {
+  const normalizedAssociations = sanitizeBeneficiaryAssociations(
+    beneficiaries,
+    associations,
+  );
+  const primaryBeneficiaryId = getPrimaryBeneficiaryId(beneficiaries);
+  const childOwnerMap = Object.entries(normalizedAssociations).reduce<
+    Record<string, string>
+  >((accumulator, [parentId, childIds]) => {
+    childIds.forEach((childId) => {
+      accumulator[childId] = parentId;
+    });
+    return accumulator;
+  }, {});
+
+  return beneficiaries
+    .filter((beneficiary) => beneficiary.id !== primaryBeneficiaryId)
+    .filter((beneficiary) => beneficiary.id !== beneficiaryId)
+    .filter((beneficiary) => {
+      const ownerId = childOwnerMap[beneficiary.id];
+      return !ownerId || ownerId === beneficiaryId;
+    })
+    .map((beneficiary) => ({
+      label: beneficiary.name,
+      value: beneficiary.id,
+    }));
+};
 
 /**
  * Resolves the display area for a request.
  */
 export const getTravelExpenseArea = (row: TravelExpense) =>
   row.department_name || row.area;
+
+/**
+ * Builds default requisition progress values for a beneficiary block.
+ */
+export const getDefaultRequisitionProgressValues = (
+  row: TravelExpense,
+  beneficiaryId?: string,
+) => {
+  const progressItem = beneficiaryId
+    ? getTravelExpenseProgressItems(row).find(
+        (item) => getProgressItemEmployeeId(item) === beneficiaryId,
+      )
+    : getTravelExpenseProgressItems(row)[0];
+
+  return {
+    requisitionCode:
+      toFormString(
+        progressItem?.requisition_code ?? progressItem?.requisitionCode,
+      ) ||
+      row.requisition_requests[0]?.requisition_code ||
+      "",
+    motive: toFormString(progressItem?.motive) || row.motive || "",
+    startDate:
+      toDateInputValue(
+        toFormString(progressItem?.start_date ?? progressItem?.startDate),
+      ) || toDateInputValue(row.assignmentdate),
+    endDate:
+      toDateInputValue(
+        toFormString(progressItem?.end_date ?? progressItem?.endDate),
+      ) || toDateInputValue(row.enddate),
+  };
+};
+
+/**
+ * Gets persisted requisition field values keyed by beneficiary id.
+ */
+export const getRequisitionProgressValuesFromProgress = (
+  row: TravelExpense,
+): RequisitionProgressValuesByBeneficiary =>
+  Object.fromEntries(
+    getTravelExpenseProgressItems(row)
+      .map((item) => {
+        const employeeId = getProgressItemEmployeeId(item);
+        if (!employeeId) return undefined;
+
+        return [
+          employeeId,
+          getDefaultRequisitionProgressValues(row, employeeId),
+        ] as const;
+      })
+      .filter(
+        (
+          entry,
+        ): entry is readonly [
+          string,
+          RequisitionProgressValuesByBeneficiary[string],
+        ] => entry !== undefined,
+      ),
+  );
+
+/**
+ * Gets persisted companion associations keyed by parent beneficiary id.
+ */
+export const getBeneficiaryAssociationsFromProgress = (
+  row: TravelExpense,
+  beneficiaries: TravelExpenseBeneficiary[],
+): BeneficiaryAssociationMap => {
+  const beneficiaryIds = new Set(
+    beneficiaries.map((beneficiary) => beneficiary.id),
+  );
+  const associations = Object.fromEntries(
+    getTravelExpenseProgressItems(row)
+      .map((item) => {
+        const employeeId = getProgressItemEmployeeId(item);
+        if (!employeeId) return undefined;
+
+        const companionIds = getProgressItemCompanions(item)
+          .map((companion) =>
+            toFormString(companion.employee_id ?? companion.employeeId),
+          )
+          .filter((companionId) => beneficiaryIds.has(companionId));
+
+        return companionIds.length > 0
+          ? ([employeeId, companionIds] as const)
+          : undefined;
+      })
+      .filter(
+        (entry): entry is readonly [string, string[]] => entry !== undefined,
+      ),
+  );
+
+  return sanitizeBeneficiaryAssociations(beneficiaries, associations);
+};
 
 /**
  * Converts editable viatics rows into API calculation payloads.
@@ -180,6 +566,55 @@ export const buildCalculationPayloads = (
     subtotal: parseAmount(row.subtotal),
     observations: row.observations,
   }));
+
+/**
+ * Builds the consolidated SaveProgress payload expected by backend.
+ */
+export const buildSaveProgressPayload = (
+  row: TravelExpense,
+  beneficiaries: TravelExpenseBeneficiary[],
+  visibleBeneficiaries: TravelExpenseBeneficiary[],
+  associations: BeneficiaryAssociationMap,
+  requisitionValuesByBeneficiary: RequisitionProgressValuesByBeneficiary,
+  beneficiaryRows: Record<string, EditableViaticsRow[]>,
+): SaveTravelExpenseProgressPayload => ({
+  id_travel_expense: getTravelExpenseIdentifier(row),
+  progress_items: visibleBeneficiaries.map((beneficiary) => {
+    const beneficiaryValues =
+      requisitionValuesByBeneficiary[beneficiary.id] ??
+      getDefaultRequisitionProgressValues(row);
+    const beneficiaryCompanions = (associations[beneficiary.id] ?? [])
+      .map((companionId) =>
+        beneficiaries.find((item) => item.id === companionId),
+      )
+      .filter((companion): companion is TravelExpenseBeneficiary =>
+        Boolean(companion),
+      );
+    const rows = beneficiaryRows[beneficiary.id] ?? cloneEmptyViaticsRows();
+
+    return {
+      employee_id: beneficiary.id,
+      employee_name: beneficiary.name,
+      requisition_code: beneficiaryValues.requisitionCode,
+      motive: beneficiaryValues.motive,
+      start_date: toIsoDate(beneficiaryValues.startDate),
+      end_date: toIsoDate(beneficiaryValues.endDate),
+      companions: beneficiaryCompanions.map((companion) => ({
+        employee_id: companion.id,
+        full_name: companion.name,
+      })),
+      calculation_concepts: rows.map((item) => ({
+        concept: item.concept,
+        national_quoted: parseAmount(item.nationalQuoted),
+        foreign_quoted: parseAmount(item.foreignQuoted),
+        people_number: parseAmount(item.people),
+        days_number: parseAmount(item.days),
+        subtotal: parseAmount(item.subtotal),
+        observations: item.observations,
+      })),
+    };
+  }),
+});
 
 /**
  * Converts status text into the coarse detail status kind.

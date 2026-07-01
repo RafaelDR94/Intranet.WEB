@@ -1,12 +1,9 @@
 "use client"
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import type { RequisitionRow } from "./componentes/RequisitionsTable/types";
 import UserRequisitionsList from "@/app/main-page/operations/requisitions/requisitionListPage/components/UserRequisitionsList/UserRequisitionsList";
-import type { ContextualInfoValues } from "@/app/sharedComponents/ContextualInfoForm/types";
-import type { EditableViaticsRow } from "@/app/sharedComponents/EditableViaticsTable/types";
-import { mockViaticsRows } from "@/app/sharedComponents/EditableViaticsTable/utilities/mockRows";
 import RequisitionsTable from "./componentes/RequisitionsTable/RequisitionsTable";
 import RequisitionDetails from "./componentes/RequisitionsDetails/RequisitionDetails";
 const VALIDATE_INVOICES_PATH = "/main-page/accounting/invoices/validateinvoices";
@@ -20,7 +17,6 @@ const RequisitionsList: React.FC = () => {
   const requisitionId = searchParams.get("idRequisition");
   const requisitionCode = searchParams.get("requisitionCode");
   const employeeName = searchParams.get("employeeName");
-  const [viaticsRows, setViaticsRows] = useState<EditableViaticsRow[]>(mockViaticsRows);
   const isFilesView = normalizedLabel?.startsWith("archivos");
   const isRequisitionsView = normalizedLabel?.startsWith("requisiciones");
 

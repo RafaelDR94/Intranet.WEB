@@ -8,11 +8,17 @@ import {
   approveTravelExpense as approveTravelExpenseRequest,
   cancelOrResendTravelExpense as cancelOrResendTravelExpenseRequest,
   createTravelExpense as createTravelExpenseRequest,
+  fetchEmployeesWithCardNumber as fetchEmployeesWithCardNumberRequest,
+  fetchRequisitionRequestById as fetchRequisitionRequestByIdRequest,
+  fetchRequisitionRequests as fetchRequisitionRequestsRequest,
+  fetchTravelExpenseCalculationConcepts as fetchTravelExpenseCalculationConceptsRequest,
   fetchTravelExpenseCalculations as fetchTravelExpenseCalculationsRequest,
   fetchTravelExpenses as fetchTravelExpensesRequest,
   rejectTravelExpense as rejectTravelExpenseRequest,
+  saveTravelExpenseProgress as saveTravelExpenseProgressRequest,
   saveTravelExpenseCalculations as saveTravelExpenseCalculationsRequest,
   sendRequisitionRequestAuthorization as sendRequisitionRequestAuthorizationRequest,
+  sendTravelExpenseAuthorization as sendTravelExpenseAuthorizationRequest,
   updateTravelExpense as updateTravelExpenseRequest,
 } from "./utilities";
 
@@ -23,9 +29,16 @@ export const useTravelExpensesStore =
   createWithEqualityFn<TravelExpensesState>()(
     devtools((set, get) => ({
       travelExpenses: [],
+      currentRequisitionRequest: undefined,
+      employeesWithCardNumber: [],
+      travelExpenseCalculationConcepts: [],
       loading: false,
+      loadingRequisitionRequestDetail: false,
+      loadingEmployeesWithCardNumber: false,
+      loadingCalculationConcepts: false,
       creating: false,
       updating: false,
+      savingProgress: false,
       approving: false,
       rejecting: false,
       cancelingOrResending: false,
@@ -34,8 +47,11 @@ export const useTravelExpensesStore =
       loadingCalculations: false,
       savingCalculations: false,
       successGet: false,
+      successGetEmployeesWithCardNumber: false,
+      successGetCalculationConcepts: false,
       successPost: false,
       successPut: false,
+      successSaveProgress: false,
       successApprove: false,
       successReject: false,
       successCancelOrResend: false,
@@ -46,11 +62,26 @@ export const useTravelExpensesStore =
       fetchTravelExpenses: (force = false) =>
         fetchTravelExpensesRequest(set, get, force),
 
+      fetchRequisitionRequests: (force = false) =>
+        fetchRequisitionRequestsRequest(set, get, force),
+
+      fetchRequisitionRequestById: (id) =>
+        fetchRequisitionRequestByIdRequest(set, id),
+
+      fetchEmployeesWithCardNumber: (force = false) =>
+        fetchEmployeesWithCardNumberRequest(set, get, force),
+
+      fetchTravelExpenseCalculationConcepts: (force = false) =>
+        fetchTravelExpenseCalculationConceptsRequest(set, get, force),
+
       createTravelExpense: (payload) =>
         createTravelExpenseRequest(set, get, payload),
 
       updateTravelExpense: (payload) =>
         updateTravelExpenseRequest(set, get, payload),
+
+      saveTravelExpenseProgress: (payload) =>
+        saveTravelExpenseProgressRequest(set, get, payload),
 
       approveTravelExpense: (idTravelExpense) =>
         approveTravelExpenseRequest(set, get, idTravelExpense),
@@ -68,6 +99,14 @@ export const useTravelExpensesStore =
           idRequisitionRequest,
         ),
 
+      sendTravelExpenseAuthorization: (idTravelExpense, idAuthorizer) =>
+        sendTravelExpenseAuthorizationRequest(
+          set,
+          get,
+          idTravelExpense,
+          idAuthorizer,
+        ),
+
       fetchTravelExpenseCalculations: (idRequisitionRequest) =>
         fetchTravelExpenseCalculationsRequest(set, get, idRequisitionRequest),
 
@@ -77,9 +116,16 @@ export const useTravelExpensesStore =
       reset: () =>
         set({
           travelExpenses: [],
+          currentRequisitionRequest: undefined,
+          employeesWithCardNumber: [],
+          travelExpenseCalculationConcepts: [],
           loading: false,
+          loadingRequisitionRequestDetail: false,
+          loadingEmployeesWithCardNumber: false,
+          loadingCalculationConcepts: false,
           creating: false,
           updating: false,
+          savingProgress: false,
           approving: false,
           rejecting: false,
           cancelingOrResending: false,
@@ -88,8 +134,11 @@ export const useTravelExpensesStore =
           loadingCalculations: false,
           savingCalculations: false,
           successGet: false,
+          successGetEmployeesWithCardNumber: false,
+          successGetCalculationConcepts: false,
           successPost: false,
           successPut: false,
+          successSaveProgress: false,
           successApprove: false,
           successReject: false,
           successCancelOrResend: false,
@@ -101,8 +150,12 @@ export const useTravelExpensesStore =
       resetFlags: () =>
         set({
           loading: false,
+          loadingRequisitionRequestDetail: false,
+          loadingEmployeesWithCardNumber: false,
+          loadingCalculationConcepts: false,
           creating: false,
           updating: false,
+          savingProgress: false,
           approving: false,
           rejecting: false,
           cancelingOrResending: false,
@@ -110,8 +163,11 @@ export const useTravelExpensesStore =
           loadingCalculations: false,
           savingCalculations: false,
           successGet: false,
+          successGetEmployeesWithCardNumber: false,
+          successGetCalculationConcepts: false,
           successPost: false,
           successPut: false,
+          successSaveProgress: false,
           successApprove: false,
           successReject: false,
           successCancelOrResend: false,

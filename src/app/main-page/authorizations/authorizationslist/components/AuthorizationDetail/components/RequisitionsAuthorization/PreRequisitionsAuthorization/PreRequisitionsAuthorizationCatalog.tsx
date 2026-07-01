@@ -16,11 +16,11 @@ import SignaturePopUp from "@/app/components/SignaturePopUp/SignaturePopUp";
 import type { Authorized } from "@/app/components/SignaturePopUp/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
-import type { TravelExpenseCalculation } from "@/app/mappings/travelExpenseCalculations/travelExpenseCalculations.types";
-import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
+import {
+  getFirstProgressItemValues,
+  mapCalculationConceptsJsonToViaticsRows,
+} from "@/app/main-page/accounting/requisitions/requisitionRequest/utilities/requisitionRequestHelpers";
 import { EditableViaticsTable } from "@/app/sharedComponents/EditableViaticsTable/EditableViaticsTable";
-import type { EditableViaticsRow } from "@/app/sharedComponents/EditableViaticsTable/types";
-import { emptyViaticsRows } from "@/app/sharedComponents/EditableViaticsTable/utilities/mockRows";
 import { useAuthorizationsStore } from "@/app/stores/useAuthorizationsStore/useAuthorizationsStore";
 import { useTravelExpensesStore } from "@/app/stores/useTravelExpensesStore/useTravelExpensesStore";
 
@@ -31,9 +31,6 @@ const toDateInputValue = (value: string) => {
 
   return date.toISOString().slice(0, 10);
 };
-
-const getTravelExpenseIdentifier = (row: TravelExpense) =>
-  row.id || row.billingrequisition_id || row.requisitionkey;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -80,14 +77,17 @@ const getNestedRecord = (
 };
 
 const getPersonName = (record: Record<string, unknown>) =>
-  pickString([record], [
-    "fullname",
-    "fullName",
-    "employee_name",
-    "employeeName",
-    "employeename",
-    "name",
-  ]) ||
+  pickString(
+    [record],
+    [
+      "fullname",
+      "fullName",
+      "employee_name",
+      "employeeName",
+      "employeename",
+      "name",
+    ],
+  ) ||
   [record.firstname, record.secondname, record.lastname, record.motherlast_name]
     .map(toDisplayString)
     .filter(Boolean)
@@ -96,53 +96,11 @@ const getPersonName = (record: Record<string, unknown>) =>
 const getPeopleNames = (value: unknown) =>
   Array.isArray(value)
     ? value
-        .map((item) => (isRecord(item) ? getPersonName(item) : toDisplayString(item)))
+        .map((item) =>
+          isRecord(item) ? getPersonName(item) : toDisplayString(item),
+        )
         .filter(Boolean)
     : [];
-
-const cloneEmptyViaticsRows = () => emptyViaticsRows.map((row) => ({ ...row }));
-
-const normalizeViaticsConcept = (value: string) =>
-  value
-    .trim()
-    .toLocaleLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-
-const mapCalculationsToViaticsRows = (
-  calculations: TravelExpenseCalculation[],
-  employeeId?: string,
-): EditableViaticsRow[] => {
-  const filteredCalculations = employeeId
-    ? calculations.filter(
-        (calculation) =>
-          !calculation.employee_id || calculation.employee_id === employeeId,
-      )
-    : calculations;
-
-  return cloneEmptyViaticsRows().map((emptyRow, index) => {
-    const calculation =
-      filteredCalculations.find(
-        (item) =>
-          normalizeViaticsConcept(item.concept) ===
-          normalizeViaticsConcept(emptyRow.concept),
-      ) ?? filteredCalculations[index];
-
-    if (!calculation) return emptyRow;
-
-    return {
-      ...emptyRow,
-      calculationId: calculation.id,
-      employeeId: calculation.employee_id || employeeId,
-      nationalQuoted: calculation.national_quoted || "00",
-      foreignQuoted: calculation.foreign_quoted || "00",
-      people: calculation.people || "00",
-      days: calculation.days || "00",
-      subtotal: calculation.subtotal || "00",
-      observations: calculation.observations || "Escribe aqui",
-    };
-  });
-};
 
 const reviewFormLayout: ResponsiveLayoutMatrix = {
   sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
@@ -163,7 +121,6 @@ const PreRequisitionsAuthorizationCatalog = () => {
   const searchParams = useSearchParams();
   const authorizationId =
     searchParams.get("authorization_id") || searchParams.get("id") || "";
-  const selectedId = searchParams.get("id");
   const { user } = useAuth();
   const [rejectCommentOpen, setRejectCommentOpen] = useState(false);
   const [rejectComment, setRejectComment] = useState("");
@@ -195,23 +152,18 @@ const PreRequisitionsAuthorizationCatalog = () => {
   );
 
   const {
-    travelExpenses,
-    fetchTravelExpenses,
-    fetchTravelExpenseCalculations,
-    travelExpenseCalculationsByRequest,
+    currentRequisitionRequest,
+    fetchRequisitionRequestById,
     approvingTravelExpense,
     rejectingTravelExpense,
-    loadingTravelExpenses,
+    loadingRequisitionRequestDetail,
   } = useTravelExpensesStore(
     (state) => ({
-      travelExpenses: state.travelExpenses,
-      fetchTravelExpenses: state.fetchTravelExpenses,
-      fetchTravelExpenseCalculations: state.fetchTravelExpenseCalculations,
-      travelExpenseCalculationsByRequest:
-        state.travelExpenseCalculationsByRequest,
+      currentRequisitionRequest: state.currentRequisitionRequest,
+      fetchRequisitionRequestById: state.fetchRequisitionRequestById,
       approvingTravelExpense: state.approving,
       rejectingTravelExpense: state.rejecting,
-      loadingTravelExpenses: state.loading,
+      loadingRequisitionRequestDetail: state.loadingRequisitionRequestDetail,
     }),
     shallow,
   );
@@ -230,28 +182,9 @@ const PreRequisitionsAuthorizationCatalog = () => {
     [authorizationId, authorizations],
   );
 
-  const selectedTravelExpense = useMemo(() => {
-    const candidateIds = [
-      authorization?.event_id,
-      selectedId,
-      authorizationId,
-    ].filter(Boolean);
-
-    return travelExpenses.find((item) =>
-      candidateIds.some(
-        (candidateId) =>
-          getTravelExpenseIdentifier(item) === candidateId ||
-          item.billingrequisition_id === candidateId ||
-          item.id === candidateId ||
-          item.requisitionkey === candidateId ||
-          item.requisition_requests.some(
-            (request) =>
-              request.id === candidateId ||
-              request.requisition_code === candidateId,
-          ),
-      ),
-    );
-  }, [authorization?.event_id, authorizationId, selectedId, travelExpenses]);
+  const idRequisitionRequest =
+    searchParams.get("event_id") || authorization?.event_id || "";
+  const selectedTravelExpense = currentRequisitionRequest;
 
   const authorizerId =
     authorization?.authorizer?.employee_id ||
@@ -296,6 +229,14 @@ const PreRequisitionsAuthorizationCatalog = () => {
   const selectedTravelExpenseRecord = selectedTravelExpense
     ? (selectedTravelExpense as unknown as Record<string, unknown>)
     : undefined;
+  const progressValues = selectedTravelExpense
+    ? getFirstProgressItemValues(selectedTravelExpense)
+    : {
+        requisitionCode: "",
+        startDate: "",
+        endDate: "",
+        motive: "",
+      };
   const detailRecords = [
     selectedTravelExpenseRecord,
     requisitionRaw,
@@ -303,11 +244,27 @@ const PreRequisitionsAuthorizationCatalog = () => {
   ];
   const authorizationDetail = {
     company: pickString(
-      [selectedTravelExpenseRecord, requisitionRaw, enterpriseRaw, authorizationRaw],
-      ["company", "enterprise_name", "enterpriseName", "enterprisename", "name"],
+      [
+        selectedTravelExpenseRecord,
+        requisitionRaw,
+        enterpriseRaw,
+        authorizationRaw,
+      ],
+      [
+        "company",
+        "enterprise_name",
+        "enterpriseName",
+        "enterprisename",
+        "name",
+      ],
     ),
     projectCode: pickString(
-      [selectedTravelExpenseRecord, requisitionRaw, projectRaw, authorizationRaw],
+      [
+        selectedTravelExpenseRecord,
+        requisitionRaw,
+        projectRaw,
+        authorizationRaw,
+      ],
       [
         "projectname",
         "project_name",
@@ -317,20 +274,34 @@ const PreRequisitionsAuthorizationCatalog = () => {
         "name",
       ],
     ),
+    requisition_code:
+      progressValues.requisitionCode ||
+      pickString(detailRecords, [
+        "requisition_code",
+        "requisitionCode",
+        "requisitionkey",
+        "requisitionKey",
+      ]),
     state: pickString(detailRecords, ["state", "status_name", "status.name"]),
-    motive: pickString(detailRecords, ["motive", "reason", "comments", "comment"]),
-    startDate: pickString(detailRecords, [
-      "assignmentdate",
-      "assignmentDate",
-      "startDate",
-      "start_date",
-    ]),
-    endDate: pickString(detailRecords, [
-      "enddate",
-      "endDate",
-      "end_date",
-      "finishDate",
-    ]),
+    motive:
+      progressValues.motive ||
+      pickString(detailRecords, ["motive", "reason", "comments", "comment"]),
+    startDate:
+      progressValues.startDate ||
+      pickString(detailRecords, [
+        "assignmentdate",
+        "assignmentDate",
+        "startDate",
+        "start_date",
+      ]),
+    endDate:
+      progressValues.endDate ||
+      pickString(detailRecords, [
+        "enddate",
+        "endDate",
+        "end_date",
+        "finishDate",
+      ]),
     assignedPerson:
       (assignedEmployeeRaw ? getPersonName(assignedEmployeeRaw) : "") ||
       pickString(detailRecords, [
@@ -351,19 +322,6 @@ const PreRequisitionsAuthorizationCatalog = () => {
     ...getPeopleNames(getPathValue(authorizationRaw, "collaborators")),
   ].filter((name, index, names) => names.indexOf(name) === index);
 
-  const idRequisitionRequest =
-    searchParams.get("event_id") ||
-    authorization?.event_id ||
-    selectedTravelExpense?.requisition_requests[0]?.id ||
-    pickString([requisitionRaw, authorizationRaw], [
-      "id_requisition_request",
-      "idRequisitionRequest",
-      "requisition_request_id",
-      "requisitionRequestId",
-      "requisition_requests.0.id",
-      "id",
-    ]);
-
   useEffect(() => {
     if (!authorizationId) return;
     if (authorization) return;
@@ -381,13 +339,9 @@ const PreRequisitionsAuthorizationCatalog = () => {
   ]);
 
   useEffect(() => {
-    fetchTravelExpenses();
-  }, [fetchTravelExpenses]);
-
-  useEffect(() => {
     if (!idRequisitionRequest) return;
-    fetchTravelExpenseCalculations(idRequisitionRequest);
-  }, [fetchTravelExpenseCalculations, idRequisitionRequest]);
+    fetchRequisitionRequestById(idRequisitionRequest);
+  }, [fetchRequisitionRequestById, idRequisitionRequest]);
 
   const reviewFields = useMemo<FieldModel[]>(
     () =>
@@ -463,12 +417,10 @@ const PreRequisitionsAuthorizationCatalog = () => {
 
   const viaticsRows = useMemo(
     () =>
-      mapCalculationsToViaticsRows(
-        idRequisitionRequest
-          ? travelExpenseCalculationsByRequest[idRequisitionRequest] ?? []
-          : [],
-      ),
-    [idRequisitionRequest, travelExpenseCalculationsByRequest],
+      selectedTravelExpense
+        ? mapCalculationConceptsJsonToViaticsRows(selectedTravelExpense)
+        : [],
+    [selectedTravelExpense],
   );
 
   const showMissingAuthorizationAlert = useCallback(() => {
@@ -507,7 +459,9 @@ const PreRequisitionsAuthorizationCatalog = () => {
 
     if (success) {
       await getAuthorizations(true);
-      await fetchTravelExpenses(true);
+      if (idRequisitionRequest) {
+        await fetchRequisitionRequestById(idRequisitionRequest);
+      }
     }
 
     showAlert({
@@ -524,13 +478,14 @@ const PreRequisitionsAuthorizationCatalog = () => {
   }, [
     approveAuthorization,
     authorizationId,
-    fetchTravelExpenses,
+    fetchRequisitionRequestById,
     getAuthorizations,
     hideAlert,
     hideSpinner,
     showAlert,
     showMissingAuthorizationAlert,
     showSpinner,
+    idRequisitionRequest,
   ]);
 
   const handleStartApproval = useCallback(() => {
@@ -624,7 +579,9 @@ const PreRequisitionsAuthorizationCatalog = () => {
 
     if (success) {
       await getAuthorizations(true);
-      await fetchTravelExpenses(true);
+      if (idRequisitionRequest) {
+        await fetchRequisitionRequestById(idRequisitionRequest);
+      }
     }
 
     showAlert({
@@ -645,7 +602,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
     setPendingAction(null);
   }, [
     authorizationId,
-    fetchTravelExpenses,
+    fetchRequisitionRequestById,
     getAuthorizations,
     hideAlert,
     hideSpinner,
@@ -653,6 +610,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
     rejectComment,
     showAlert,
     showSpinner,
+    idRequisitionRequest,
   ]);
 
   const actionsDisabled =
@@ -667,8 +625,8 @@ const PreRequisitionsAuthorizationCatalog = () => {
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <h1 className="text-b3 text-blue-60 shrink-0 font-medium">
             Presupuesto de requisicion
-            {authorizationDetail.projectCode
-              ? ` ${authorizationDetail.projectCode}`
+            {authorizationDetail.requisition_code
+              ? ` ${authorizationDetail.requisition_code}`
               : ""}
           </h1>
           <div className="bg-blue-30 h-px flex-1" />
@@ -725,7 +683,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
           </>
         ) : (
           <p className="text-b3 text-gray-80">
-            {loadingTravelExpenses
+            {loadingRequisitionRequestDetail
               ? "Cargando solicitud de viaticos..."
               : "No se encontro la solicitud seleccionada."}
           </p>

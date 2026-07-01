@@ -20,7 +20,12 @@ export type CreateTravelExpensePayload = {
   /** Main employee assigned to the travel expense. */
   employee_id: string;
   /** Additional employees assigned as companions. */
-  companion_ids: string[];
+  companions: {
+    /** Companion employee identifier. */
+    employee_id: string;
+    /** Companion full name. */
+    full_name: string;
+  }[];
   /** Project identifier. */
   project_id: string;
   /** Department identifier. */
@@ -46,7 +51,9 @@ export type UpdateTravelExpensePayload = {
   /** Assigned employee identifier. */
   employee_id: string;
   /** Additional employees assigned as companions. */
-  companion_ids?: string[];
+  companions?: SaveTravelExpenseProgressCompanionPayload[];
+  /** Current calculation concepts. */
+  calculation_concepts?: SaveTravelExpenseProgressCalculationConceptPayload[];
   /** Project identifier. */
   project_id: string;
   /** Department identifier. */
@@ -94,17 +101,107 @@ export type TravelExpenseCalculationPayload = {
 };
 
 /**
+ * Companion payload used to save travel expense progress.
+ */
+export type SaveTravelExpenseProgressCompanionPayload = {
+  /** Companion employee identifier. */
+  employee_id: string;
+  /** Companion full name. */
+  full_name: string;
+};
+
+/**
+ * Calculation concept payload used to save travel expense progress.
+ */
+export type SaveTravelExpenseProgressCalculationConceptPayload = {
+  /** Calculation concept. */
+  concept: string;
+  /** National quoted amount. */
+  national_quoted: number;
+  /** Foreign quoted amount. */
+  foreign_quoted: number;
+  /** Number of people. */
+  people_number: number;
+  /** Number of days. */
+  days_number: number;
+  /** Row subtotal. */
+  subtotal: number;
+  /** Free text observations. */
+  observations: string;
+};
+
+/**
+ * Progress item payload used to save one beneficiary draft block.
+ */
+export type SaveTravelExpenseProgressItemPayload = {
+  /** Beneficiary employee identifier. */
+  employee_id: string;
+  /** Beneficiary employee name. */
+  employee_name: string;
+  /** Requisition code captured for this beneficiary block. */
+  requisition_code: string;
+  /** Motive captured for this beneficiary block. */
+  motive: string;
+  /** Start date captured for this beneficiary block. */
+  start_date: string;
+  /** End date captured for this beneficiary block. */
+  end_date: string;
+  /** Child companions associated under this beneficiary block. */
+  companions: SaveTravelExpenseProgressCompanionPayload[];
+  /** Current viatics rows for this beneficiary block. */
+  calculation_concepts: SaveTravelExpenseProgressCalculationConceptPayload[];
+};
+
+/**
+ * Payload used to save travel expense progress.
+ */
+export type SaveTravelExpenseProgressPayload = {
+  /** Travel expense identifier. */
+  id_travel_expense: string;
+  /** Progress items grouped by visible beneficiary block. */
+  progress_items: SaveTravelExpenseProgressItemPayload[];
+};
+
+/**
+ * Employee catalog row with phone and card number.
+ */
+export type TravelExpenseEmployeeWithCardNumber = {
+  /** Employee identifier. */
+  employee_id: string;
+  /** Employee full name. */
+  full_name: string;
+  /** Employee phone number. */
+  phone_number: string;
+  /** Employee card number. */
+  card_number: string;
+};
+
+/**
  * Zustand state for travel expense requisitions.
  */
 export type TravelExpensesState = {
   /** Active travel expense requisitions. */
   travelExpenses: TravelExpense[];
+  /** Current requisition request detail from Billings/RequisitionRequestById. */
+  currentRequisitionRequest?: TravelExpense;
+  /** Employee catalog with card number for travel expenses. */
+  employeesWithCardNumber: TravelExpenseEmployeeWithCardNumber[];
+  /** Travel expense calculation concepts catalog. */
+  travelExpenseCalculationConcepts: string[];
   /** GET request flag. */
   loading: boolean;
+  /** GET request-by-id flag. */
+  loadingRequisitionRequestDetail: boolean;
+  /** GET employees with card number flag. */
+  loadingEmployeesWithCardNumber: boolean;
+  /** GET calculation concepts flag. */
+  loadingCalculationConcepts: boolean;
   /** Create request flag. */
   creating: boolean;
   /** Update request flag. */
   updating: boolean;
+  /** Save progress request flag. */
+  savingProgress: boolean;
   /** Approve request flag. */
   approving: boolean;
   /** Reject request flag. */
@@ -114,17 +211,26 @@ export type TravelExpensesState = {
   /** Send requisition request to authorization flag. */
   sendingAuthorization: boolean;
   /** Travel expense calculations by requisition request id. */
-  travelExpenseCalculationsByRequest: Record<string, TravelExpenseCalculation[]>;
+  travelExpenseCalculationsByRequest: Record<
+    string,
+    TravelExpenseCalculation[]
+  >;
   /** GET calculations flag. */
   loadingCalculations: boolean;
   /** Save calculations flag. */
   savingCalculations: boolean;
   /** Successful GET flag. */
   successGet: boolean;
+  /** Successful GET employees with card number flag. */
+  successGetEmployeesWithCardNumber: boolean;
+  /** Successful GET calculation concepts flag. */
+  successGetCalculationConcepts: boolean;
   /** Successful create flag. */
   successPost: boolean;
   /** Successful update flag. */
   successPut: boolean;
+  /** Successful save progress flag. */
+  successSaveProgress: boolean;
   /** Successful approve flag. */
   successApprove: boolean;
   /** Successful reject flag. */
@@ -139,6 +245,16 @@ export type TravelExpensesState = {
   error?: string;
   /** Fetches travel expenses from Billings/TravelExpenses. */
   fetchTravelExpenses: (force?: boolean) => Promise<void> | void;
+  /** Fetches requisition requests from Billings/RequisitionRequest. */
+  fetchRequisitionRequests: (force?: boolean) => Promise<void> | void;
+  /** Fetches one requisition request detail by id. */
+  fetchRequisitionRequestById: (id: string) => Promise<TravelExpense | null>;
+  /** Fetches employees with phone and card number for travel expenses. */
+  fetchEmployeesWithCardNumber: (
+    force?: boolean,
+  ) => Promise<TravelExpenseEmployeeWithCardNumber[]>;
+  /** Fetches travel expense calculation concepts catalog. */
+  fetchTravelExpenseCalculationConcepts: (force?: boolean) => Promise<string[]>;
   /** Creates a travel expense requisition. */
   createTravelExpense: (
     payload: CreateTravelExpensePayload,
@@ -146,6 +262,10 @@ export type TravelExpensesState = {
   /** Updates a travel expense requisition. */
   updateTravelExpense: (
     payload: UpdateTravelExpensePayload,
+  ) => Promise<TravelExpense | null>;
+  /** Saves travel expense draft progress. */
+  saveTravelExpenseProgress: (
+    payload: SaveTravelExpenseProgressPayload,
   ) => Promise<TravelExpense | null>;
   /** Approves a travel expense requisition. */
   approveTravelExpense: (idTravelExpense: string) => Promise<boolean>;
@@ -161,6 +281,11 @@ export type TravelExpensesState = {
   /** Sends a requisition request to authorization. */
   sendRequisitionRequestAuthorization: (
     idRequisitionRequest: string,
+  ) => Promise<boolean>;
+  /** Sends a travel expense request to authorization. */
+  sendTravelExpenseAuthorization: (
+    idTravelExpense: string,
+    idAuthorizer: string,
   ) => Promise<boolean>;
   /** Fetches travel expense calculation rows by requisition request id. */
   fetchTravelExpenseCalculations: (

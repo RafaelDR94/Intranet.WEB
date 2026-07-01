@@ -79,14 +79,21 @@ export const mapUserEmployeeSummary = (employee: any): UserEmployeeSummary => ({
     employee?.employee_number ?? employee?.employeeNumber ?? employee?.employee,
   ),
   phone_number: toString(
-    employee?.phone_number ?? employee?.phoneNumber ?? employee?.phone,
+    employee?.phone_number ??
+      employee?.phoneNumber ??
+      employee?.phonenumber ??
+      employee?.phone,
   ),
   employee_phone: toString(
     employee?.employee_phone ??
       employee?.employeePhone ??
       employee?.phone_number ??
       employee?.phoneNumber ??
+      employee?.phonenumber ??
       employee?.phone,
+  ),
+  card_number: toString(
+    employee?.card_number ?? employee?.cardNumber ?? employee?.cardnumber,
   ),
   dr_fingerprint: toBoolean(
     employee?.dr_fingerprint ?? employee?.accessWithFingerprint,

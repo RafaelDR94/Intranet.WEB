@@ -26,6 +26,13 @@ export const travelExpenseRequestStyles = {
   beneficiaryStack: "flex flex-col gap-3",
   beneficiaryButton:
     "bg-white-100 text-b3 text-blue-60 flex w-full items-center justify-between rounded-lg px-6 py-4 text-left font-medium shadow-md",
+  beneficiaryHeaderContent: "flex min-w-0 flex-1 items-center justify-between gap-4",
+  beneficiaryName: "truncate",
+  beneficiaryMeta: "flex items-center gap-3 shrink-0",
+  broxelBadge: "text-blue-60 flex items-center gap-2 text-b4 font-medium uppercase",
+  broxelIcon:
+    "border-blue-60 h-5 w-7 rounded-[4px] border-2 relative before:absolute before:left-[3px] before:right-[3px] before:top-[5px] before:h-[2px] before:bg-blue-60 before:content-['']",
+  beneficiaryStatusLabel: "!m-0",
   beneficiaryIcon: "text-blue-60 h-4 w-5 shrink-0",
   tabList: "mb-6 flex items-center gap-4",
   tabSpacer: "mr-[-30px] ml-[-30px] p-0",

@@ -5,31 +5,48 @@ import type {
   FieldModel,
   ResponsiveLayoutMatrix,
 } from "@/app/components/DynamicForm/types";
+import type { SelectOption } from "@/app/components/Select/types";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { statesList } from "@/app/main-page/accounting/requisitions/components/RequisitionsForm/utilities/statesList";
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
+import type { UserEmployeeSummary } from "@/app/mappings/users/user.types";
 import type { EditableViaticsRow } from "@/app/sharedComponents/EditableViaticsTable/types";
 import { useDepartmentsStore } from "@/app/stores/useDepartmentsStore/useDepartmentsStore";
+import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import { useEnterprisesStore } from "@/app/stores/useEnterprisesStore/useEnterprisesStore";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
+import type { TravelExpenseEmployeeWithCardNumber } from "@/app/stores/useTravelExpensesStore/types";
 import { useTravelExpensesStore } from "@/app/stores/useTravelExpensesStore/useTravelExpensesStore";
 import { useUsersStore } from "@/app/stores/useUsersStore/useUsersStore";
 
 import type {
+  BeneficiaryAssociationMap,
+  RequisitionProgressValuesByBeneficiary,
   RequisitionSection,
   TravelExpenseBeneficiary,
 } from "../types";
 import {
-  buildCalculationPayloads,
+  applyBeneficiaryAssociationSelection,
+  buildSaveProgressPayload,
   cloneEmptyViaticsRows,
+  getDefaultRequisitionProgressValues,
+  getBeneficiaryAssociationsFromProgress,
+  getAvailableCompanionOptions,
   getDetailStatusKind,
+  getRequisitionProgressValuesFromProgress,
+  getNewTravelExpenseRequests,
+  getStatusTravelExpenseRequests,
   getTravelExpenseArea,
   getTravelExpenseBeneficiaryItems,
   getTravelExpenseIdentifier,
+  getVisibleTravelExpenseBeneficiaries,
+  getViaticsRowsByBeneficiaryFromProgress,
+  isBlockedRequisitionActionStatus,
+  isNoIniciadaTravelExpenseStatus,
   isDraftStatus,
-  mapCalculationsToViaticsRows,
   normalizeStatusType,
+  sanitizeBeneficiaryAssociations,
   toDateInputValue,
   toFormString,
   toIsoDate,
@@ -68,18 +85,18 @@ const createFormBaseLayout: ResponsiveLayoutMatrix = {
 };
 
 const requisitionFormLayout: ResponsiveLayoutMatrix = {
-  sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10], [10]],
+  sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10]],
   md: [
     [3.05, 3.05, 3.05],
     [3.05, 3.05, 3.05],
     [3.05, 3.05, 3.05],
-    [6.25],
+    [6.25, 3.05],
   ],
   lg: [
     [3.05, 3.05, 3.05],
     [3.05, 3.05, 3.05],
     [3.05, 3.05, 3.05],
-    [6.25],
+    [6.25, 3.05],
   ],
 };
 
@@ -103,15 +120,16 @@ export const useTravelExpenseRequest = () => {
   const [assignedStaffRows, setAssignedStaffRows] = useState(1);
   const [valuesVersion, setValuesVersion] = useState(0);
   const [formValues, setFormValues] = useState<Record<string, unknown>>({});
-  const [requisitionValues, setRequisitionValues] = useState<
-    Record<string, unknown>
-  >({});
+  const [requisitionValuesByBeneficiary, setRequisitionValuesByBeneficiary] =
+    useState<RequisitionProgressValuesByBeneficiary>({});
   const [viaticsRows, setViaticsRows] = useState<EditableViaticsRow[]>(
     cloneEmptyViaticsRows,
   );
   const [beneficiaryViaticsRows, setBeneficiaryViaticsRows] = useState<
     Record<string, EditableViaticsRow[]>
   >({});
+  const [beneficiaryAssociations, setBeneficiaryAssociations] =
+    useState<BeneficiaryAssociationMap>({});
   const [activeBeneficiaryId, setActiveBeneficiaryId] = useState("");
   const [requisitionSection, setRequisitionSection] =
     useState<RequisitionSection>("information");
@@ -121,6 +139,9 @@ export const useTravelExpenseRequest = () => {
   const [rejectCommentError, setRejectCommentError] = useState<string | null>(
     null,
   );
+  const [authorizerPopUpOpen, setAuthorizerPopUpOpen] = useState(false);
+  const [authorizerSelected, setAuthorizerSelected] = useState("");
+  const [authorizerError, setAuthorizerError] = useState<string | null>(null);
   const { user } = useAuth();
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
@@ -131,6 +152,15 @@ export const useTravelExpenseRequest = () => {
   const fetchTravelExpenses = useTravelExpensesStore(
     (state) => state.fetchTravelExpenses,
   );
+  const employeesWithCardNumber = useTravelExpensesStore(
+    (state) => state.employeesWithCardNumber,
+  );
+  const loadingEmployeesWithCardNumber = useTravelExpensesStore(
+    (state) => state.loadingEmployeesWithCardNumber,
+  );
+  const fetchEmployeesWithCardNumber = useTravelExpensesStore(
+    (state) => state.fetchEmployeesWithCardNumber,
+  );
   const approveTravelExpense = useTravelExpensesStore(
     (state) => state.approveTravelExpense,
   );
@@ -140,15 +170,15 @@ export const useTravelExpenseRequest = () => {
   const createTravelExpense = useTravelExpensesStore(
     (state) => state.createTravelExpense,
   );
-  const updateTravelExpense = useTravelExpensesStore(
-    (state) => state.updateTravelExpense,
+  const saveTravelExpenseProgress = useTravelExpensesStore(
+    (state) => state.saveTravelExpenseProgress,
   );
-  const sendRequisitionRequestAuthorization = useTravelExpensesStore(
-    (state) => state.sendRequisitionRequestAuthorization,
+  const sendTravelExpenseAuthorization = useTravelExpensesStore(
+    (state) => state.sendTravelExpenseAuthorization,
   );
-  const saveTravelExpenseCalculations = useTravelExpensesStore(
-    (state) => state.saveTravelExpenseCalculations,
-  );
+  const employees = useEmployeesStore((state) => state.employees);
+  const employeesError = useEmployeesStore((state) => state.error);
+  const fetchEmployees = useEmployeesStore((state) => state.fetchEmployees);
   const approvingTravelExpense = useTravelExpensesStore(
     (state) => state.approving,
   );
@@ -160,6 +190,9 @@ export const useTravelExpenseRequest = () => {
   );
   const updatingTravelExpense = useTravelExpensesStore(
     (state) => state.updating,
+  );
+  const savingProgress = useTravelExpensesStore(
+    (state) => state.savingProgress,
   );
   const sendingAuthorization = useTravelExpensesStore(
     (state) => state.sendingAuthorization,
@@ -188,23 +221,43 @@ export const useTravelExpenseRequest = () => {
   const fetchEmployeesWithActiveUser = useUsersStore(
     (state) => state.fetchEmployeesWithActiveUser,
   );
+  const updateEmployeeNumberCard = useUsersStore(
+    (state) => state.updateEmployeeNumberCard,
+  );
   const proyects = useProyectsStore((state) => state.proyects);
   const proyectsLoading = useProyectsStore((state) => state.loading);
   const fetchProyects = useProyectsStore((state) => state.fetchProyects);
 
   useEffect(() => {
     fetchTravelExpenses();
+    fetchEmployeesWithCardNumber();
     fetchEnterprises();
     fetchDepartments();
     fetchEmployeesWithActiveUser(true);
     fetchProyects();
+    fetchEmployees();
   }, [
     fetchDepartments,
+    fetchEmployeesWithCardNumber,
     fetchEmployeesWithActiveUser,
+    fetchEmployees,
     fetchEnterprises,
     fetchProyects,
     fetchTravelExpenses,
   ]);
+
+  useEffect(() => {
+    if (!employeesError) return;
+
+    showAlert({
+      type: "error",
+      title: "No se pudo cargar la lista de autorizadores",
+      description: String(employeesError) || "Intenta refrescar.",
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      autoCloseMs: 2500,
+    });
+  }, [employeesError, showAlert]);
 
   const selectedTravelExpense = useMemo(
     () =>
@@ -219,6 +272,34 @@ export const useTravelExpenseRequest = () => {
         : undefined,
     [selectedId, travelExpenses],
   );
+  const newTravelExpenses = useMemo(
+    () => getNewTravelExpenseRequests(travelExpenses),
+    [travelExpenses],
+  );
+  const statusTravelExpenses = useMemo(
+    () => getStatusTravelExpenseRequests(travelExpenses),
+    [travelExpenses],
+  );
+  const authorizerOptions = useMemo<SelectOption[]>(
+    () =>
+      (employees ?? []).map((employee) => ({
+        label: employee.fullname,
+        value: employee.employee_id,
+      })),
+    [employees],
+  );
+
+  useEffect(() => {
+    if (authorizerSelected) return;
+    if (!authorizerOptions.length) return;
+    setAuthorizerSelected(authorizerOptions[0].value);
+  }, [authorizerOptions, authorizerSelected]);
+
+  useEffect(() => {
+    if (authorizerSelected && authorizerError) {
+      setAuthorizerError(null);
+    }
+  }, [authorizerError, authorizerSelected]);
 
   const requisitionBeneficiaries = useMemo(
     () =>
@@ -228,10 +309,28 @@ export const useTravelExpenseRequest = () => {
     [selectedTravelExpense],
   );
   const hasCompanions = requisitionBeneficiaries.length > 1;
+  const normalizedBeneficiaryAssociations = useMemo(
+    () =>
+      sanitizeBeneficiaryAssociations(
+        requisitionBeneficiaries,
+        beneficiaryAssociations,
+      ),
+    [beneficiaryAssociations, requisitionBeneficiaries],
+  );
+  const visibleRequisitionBeneficiaries = useMemo(
+    () =>
+      getVisibleTravelExpenseBeneficiaries(
+        requisitionBeneficiaries,
+        normalizedBeneficiaryAssociations,
+      ),
+    [normalizedBeneficiaryAssociations, requisitionBeneficiaries],
+  );
 
   useEffect(() => {
     if (!selectedTravelExpense) {
+      setBeneficiaryAssociations({});
       setActiveBeneficiaryId("");
+      setRequisitionValuesByBeneficiary({});
       setViaticsRows(cloneEmptyViaticsRows());
       setBeneficiaryViaticsRows({});
       return;
@@ -240,15 +339,51 @@ export const useTravelExpenseRequest = () => {
     const beneficiaries = getTravelExpenseBeneficiaryItems(
       selectedTravelExpense,
     );
+    const progressAssociations = getBeneficiaryAssociationsFromProgress(
+      selectedTravelExpense,
+      beneficiaries,
+    );
+    const progressValues = getRequisitionProgressValuesFromProgress(
+      selectedTravelExpense,
+    );
+    const progressRows = getViaticsRowsByBeneficiaryFromProgress(
+      selectedTravelExpense,
+    );
+    const primaryBeneficiaryId =
+      beneficiaries[0]?.id || selectedTravelExpense.employee_id;
+
     setActiveBeneficiaryId((currentId) =>
       beneficiaries.some((beneficiary) => beneficiary.id === currentId)
         ? currentId
         : beneficiaries[0]?.id || "",
     );
+    setBeneficiaryAssociations(progressAssociations);
+    setRequisitionValuesByBeneficiary(progressValues);
     setRequisitionSection("information");
-    setViaticsRows(cloneEmptyViaticsRows());
-    setBeneficiaryViaticsRows({});
+    setViaticsRows(
+      progressRows[primaryBeneficiaryId] ?? cloneEmptyViaticsRows(),
+    );
+    setBeneficiaryViaticsRows(progressRows);
   }, [selectedTravelExpense]);
+
+  useEffect(() => {
+    setBeneficiaryAssociations((currentAssociations) =>
+      sanitizeBeneficiaryAssociations(
+        requisitionBeneficiaries,
+        currentAssociations,
+      ),
+    );
+  }, [requisitionBeneficiaries]);
+
+  useEffect(() => {
+    setActiveBeneficiaryId((currentId) =>
+      visibleRequisitionBeneficiaries.some(
+        (beneficiary) => beneficiary.id === currentId,
+      )
+        ? currentId
+        : visibleRequisitionBeneficiaries[0]?.id || "",
+    );
+  }, [visibleRequisitionBeneficiaries]);
 
   const handleViewDetails = (row: TravelExpense) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -410,6 +545,21 @@ export const useTravelExpenseRequest = () => {
       cardNumber: selectedTravelExpense.card_number,
     };
 
+    const associationFieldName = `associatedCompanions-${currentBeneficiary.id}`;
+    const associationOptions = getAvailableCompanionOptions(
+      requisitionBeneficiaries,
+      normalizedBeneficiaryAssociations,
+      currentBeneficiary.id,
+    );
+    const associatedCompanionIds =
+      normalizedBeneficiaryAssociations[currentBeneficiary.id] ?? [];
+    const beneficiaryValues =
+      requisitionValuesByBeneficiary[currentBeneficiary.id] ??
+      getDefaultRequisitionProgressValues(
+        selectedTravelExpense,
+        currentBeneficiary.id,
+      );
+
     return [
       {
         type: "date",
@@ -463,38 +613,51 @@ export const useTravelExpenseRequest = () => {
       },
       {
         type: "input",
-        name: "requisitionCode",
+        name: `requisitionCode-${currentBeneficiary.id}`,
         label: "Codigo de requisicion",
         placeholder: "Escribe el codigo de la requisicion",
-        value:
-          (requisitionValues.requisitionCode as FieldModel["value"]) ??
-          selectedTravelExpense.requisition_requests[0]?.requisition_code ??
-          "",
+        value: beneficiaryValues.requisitionCode,
       },
       {
         type: "date",
-        name: "startDate",
+        name: `startDate-${currentBeneficiary.id}`,
         label: "Fecha Inicio",
-        value:
-          (requisitionValues.startDate as FieldModel["value"]) ??
-          toDateInputValue(selectedTravelExpense.assignmentdate),
+        value: beneficiaryValues.startDate,
       },
       {
         type: "date",
-        name: "endDate",
+        name: `endDate-${currentBeneficiary.id}`,
         label: "Fecha Termino",
-        value:
-          (requisitionValues.endDate as FieldModel["value"]) ??
-          toDateInputValue(selectedTravelExpense.enddate),
+        value: beneficiaryValues.endDate,
       },
       {
         type: "input",
-        name: "motive",
+        name: `motive-${currentBeneficiary.id}`,
         label: "Motivo",
-        value:
-          (requisitionValues.motive as FieldModel["value"]) ??
-          selectedTravelExpense.motive,
+        value: beneficiaryValues.motive,
       },
+      ...(hasCompanions &&
+      (associationOptions.length > 0 || associatedCompanionIds.length > 0)
+        ? [
+            {
+              type: "multiSelect" as const,
+              name: associationFieldName,
+              label: "Asociar colaborador",
+              placeholder: "Selecciona colaboradores",
+              value: associatedCompanionIds,
+              options: associationOptions,
+              onChange: (value: unknown) =>
+                handleAssociatedCompanionsChange(
+                  currentBeneficiary.id,
+                  Array.isArray(value)
+                    ? value.filter(
+                        (item): item is string => typeof item === "string",
+                      )
+                    : [],
+                ),
+            },
+          ]
+        : []),
     ];
   };
 
@@ -523,6 +686,14 @@ export const useTravelExpenseRequest = () => {
       })),
     [employeesWithActiveUser],
   );
+  const employeeWithCardNumberOptions = useMemo(
+    () =>
+      employeesWithCardNumber.map((employee) => ({
+        label: employee.full_name,
+        value: employee.employee_id,
+      })),
+    [employeesWithCardNumber],
+  );
   const projectOptions = useMemo(
     () =>
       proyects.map((project) => ({
@@ -539,6 +710,8 @@ export const useTravelExpenseRequest = () => {
         const phoneName = `phone${suffix}`;
         const cardNumberName = `cardNumber${suffix}`;
         const isStaffSelected = Boolean(formValues[assignedStaffName]);
+        const options =
+          index === 0 ? employeeWithCardNumberOptions : employeeOptions;
 
         return [
           {
@@ -547,7 +720,7 @@ export const useTravelExpenseRequest = () => {
             label: "Personal asignado",
             placeholder: "Selecciona un empleado",
             value: (formValues[assignedStaffName] ?? "") as FieldModel["value"],
-            options: employeeOptions,
+            options,
             validations: [{ type: "required" }],
           },
           {
@@ -568,7 +741,12 @@ export const useTravelExpenseRequest = () => {
           },
         ] satisfies FieldModel[];
       }).flat(),
-    [assignedStaffRows, employeeOptions, formValues],
+    [
+      assignedStaffRows,
+      employeeOptions,
+      employeeWithCardNumberOptions,
+      formValues,
+    ],
   );
   const createFields = useMemo<FieldModel[]>(
     () => [
@@ -670,17 +848,13 @@ export const useTravelExpenseRequest = () => {
         [3.05, 3.05, 3.05],
         [3.05, 3.05, 3.05],
         [3.05, 3.05],
-        ...Array.from({ length: assignedStaffRows }, () => [
-          3.05, 3.05, 3.05,
-        ]),
+        ...Array.from({ length: assignedStaffRows }, () => [3.05, 3.05, 3.05]),
       ],
       lg: [
         [3.05, 3.05, 3.05],
         [3.05, 3.05, 3.05],
         [3.05, 3.05],
-        ...Array.from({ length: assignedStaffRows }, () => [
-          3.05, 3.05, 3.05,
-        ]),
+        ...Array.from({ length: assignedStaffRows }, () => [3.05, 3.05, 3.05]),
       ],
     }),
     [assignedStaffRows],
@@ -691,6 +865,8 @@ export const useTravelExpenseRequest = () => {
     setValuesVersion((currentVersion) => currentVersion + 1);
   };
   const handleCreateValuesChange = (values: Record<string, unknown>) => {
+    let shouldRefreshFormValues = false;
+
     setFormValues((currentValues) => {
       const nextValues = { ...currentValues, ...values };
 
@@ -698,21 +874,57 @@ export const useTravelExpenseRequest = () => {
         const suffix = index === 0 ? "" : String(index + 1);
         const assignedStaffName = `assignedStaff${suffix}`;
         const phoneName = `phone${suffix}`;
+        const cardNumberName = `cardNumber${suffix}`;
         const selectedEmployeeId = toFormString(nextValues[assignedStaffName]);
-        const selectedEmployee = employeesWithActiveUser.find(
-          (employee) => employee.employee_id === selectedEmployeeId,
+        const previousEmployeeId = toFormString(
+          currentValues[assignedStaffName],
         );
-        const selectedPhone = toFormString(
-          selectedEmployee?.phone_number || selectedEmployee?.employee_phone,
-        );
+        const selectedEmployee =
+          index === 0
+            ? employeesWithCardNumber.find(
+                (employee) => employee.employee_id === selectedEmployeeId,
+              )
+            : employeesWithActiveUser.find(
+                (employee) => employee.employee_id === selectedEmployeeId,
+              );
+        const selectedPhone = getEmployeePhone(selectedEmployee);
+        const selectedCardNumber = getEmployeeCardNumber(selectedEmployee);
 
-        if (!selectedEmployeeId) return;
-        if (selectedPhone) nextValues[phoneName] = selectedPhone;
-        else nextValues[phoneName] = nextValues[phoneName] ?? "";
+        if (!selectedEmployeeId) {
+          if (nextValues[phoneName] || nextValues[cardNumberName]) {
+            shouldRefreshFormValues = true;
+          }
+          nextValues[phoneName] = "";
+          nextValues[cardNumberName] = "";
+          return;
+        }
+
+        if (selectedEmployeeId === previousEmployeeId) return;
+
+        if (selectedPhone && nextValues[phoneName] !== selectedPhone) {
+          nextValues[phoneName] = selectedPhone;
+          shouldRefreshFormValues = true;
+        } else {
+          nextValues[phoneName] = nextValues[phoneName] ?? "";
+        }
+
+        if (
+          selectedCardNumber &&
+          nextValues[cardNumberName] !== selectedCardNumber
+        ) {
+          nextValues[cardNumberName] = selectedCardNumber;
+          shouldRefreshFormValues = true;
+        } else {
+          nextValues[cardNumberName] = nextValues[cardNumberName] ?? "";
+        }
       });
 
       return nextValues;
     });
+
+    if (shouldRefreshFormValues) {
+      setValuesVersion((currentVersion) => currentVersion + 1);
+    }
   };
   const getSelectedTravelExpenseId = () =>
     selectedTravelExpense
@@ -731,84 +943,64 @@ export const useTravelExpenseRequest = () => {
       autoCloseMs: 2500,
     });
   };
+  const getAssociatedPeopleCount = (beneficiaryId: string) =>
+    (normalizedBeneficiaryAssociations[beneficiaryId]?.length ?? 0) + 1;
+  const applyAssociatedPeopleCount = (
+    beneficiaryId: string,
+    rows: EditableViaticsRow[],
+  ) => {
+    const associatedPeopleCount = getAssociatedPeopleCount(beneficiaryId);
+
+    const people = String(associatedPeopleCount);
+
+    return rows.map((row) => ({
+      ...row,
+      people,
+    }));
+  };
   const getBeneficiaryViaticsRows = (beneficiaryId: string) =>
-    beneficiaryViaticsRows[beneficiaryId] ?? cloneEmptyViaticsRows();
-  const syncViaticsCalculations = async () => {
-    const idRequisitionRequest =
-      selectedTravelExpense?.requisition_requests[0]?.id;
+    applyAssociatedPeopleCount(
+      beneficiaryId,
+      beneficiaryViaticsRows[beneficiaryId] ?? cloneEmptyViaticsRows(),
+    );
+  const getBeneficiaryRowsForSave = () => {
+    if (!selectedTravelExpense) return {};
 
-    if (!idRequisitionRequest) {
-      showAlert({
-        type: "error",
-        title: "No se pudo guardar",
-        description:
-          "No se encontro el identificador de la requisicion solicitada.",
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 2500,
-      });
-      return false;
+    if (!hasCompanions) {
+      const beneficiaryId =
+        requisitionBeneficiaries[0]?.id || selectedTravelExpense.employee_id;
+
+      return {
+        [beneficiaryId]: applyAssociatedPeopleCount(beneficiaryId, viaticsRows),
+      };
     }
 
-    const payload = hasCompanions
-      ? requisitionBeneficiaries.flatMap((beneficiary) =>
-          buildCalculationPayloads(
-            idRequisitionRequest,
-            getBeneficiaryViaticsRows(beneficiary.id),
-            beneficiary.id,
-          ),
-        )
-      : buildCalculationPayloads(idRequisitionRequest, viaticsRows);
-    const calculations = await saveTravelExpenseCalculations(payload);
-
-    if (!calculations.length) {
-      showAlert({
-        type: "error",
-        title: "No se pudo guardar",
-        description:
-          useTravelExpensesStore.getState().error ||
-          "Hubo un problema al guardar el calculo de viaticos.",
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 2500,
-      });
-      return false;
-    }
-
-    if (hasCompanions) {
-      setBeneficiaryViaticsRows(
-        requisitionBeneficiaries.reduce<Record<string, EditableViaticsRow[]>>(
-          (acc, beneficiary) => ({
-            ...acc,
-            [beneficiary.id]: mapCalculationsToViaticsRows(
-              calculations,
-              beneficiary.id,
-            ),
-          }),
-          {},
+    return Object.fromEntries(
+      visibleRequisitionBeneficiaries.map((beneficiary) => [
+        beneficiary.id,
+        applyAssociatedPeopleCount(
+          beneficiary.id,
+          beneficiaryViaticsRows[beneficiary.id] ?? cloneEmptyViaticsRows(),
         ),
-      );
-    } else {
-      setViaticsRows(mapCalculationsToViaticsRows(calculations));
-    }
-
-    return true;
+      ]),
+    );
   };
   const handleApproveTravelExpense = async () => {
     const idTravelExpense = getSelectedTravelExpenseId();
-    if (!idTravelExpense) return;
+    if (!idTravelExpense || !selectedTravelExpense) return;
 
     showSpinner({
       message: "Espera un momento, tu accion esta siendo procesada",
     });
     const success = await approveTravelExpense(idTravelExpense);
-    hideSpinner();
 
     if (!success) {
+      hideSpinner();
       showTravelExpenseActionError("No se pudo aceptar");
       return;
     }
 
+    hideSpinner();
     const params = new URLSearchParams(searchParams.toString());
     params.set("view", "requisition");
     params.set("id", idTravelExpense);
@@ -822,34 +1014,17 @@ export const useTravelExpenseRequest = () => {
     if (!idTravelExpense) return;
 
     showSpinner({ message: "Guardando avance de la requisicion..." });
-    const calculationsSaved = await syncViaticsCalculations();
-
-    if (!calculationsSaved) {
-      hideSpinner();
-      return;
-    }
-
-    const updated = await updateTravelExpense({
-      id: idTravelExpense,
-      employee_id: selectedTravelExpense.employee_id,
-      companion_ids: selectedTravelExpense.companions
-        .map((companion) => companion.id_employee)
-        .filter(Boolean),
-      project_id: selectedTravelExpense.project_id,
-      enterprise_id: selectedTravelExpense.enterprise_id,
-      department_id: selectedTravelExpense.department_id,
-      assignmentdate: toIsoDate(
-        requisitionValues.startDate || selectedTravelExpense.assignmentdate,
+    const beneficiaryRows = getBeneficiaryRowsForSave();
+    const updated = await saveTravelExpenseProgress(
+      buildSaveProgressPayload(
+        selectedTravelExpense,
+        requisitionBeneficiaries,
+        visibleRequisitionBeneficiaries,
+        normalizedBeneficiaryAssociations,
+        requisitionValuesByBeneficiary,
+        beneficiaryRows,
       ),
-      enddate: toIsoDate(
-        requisitionValues.endDate || selectedTravelExpense.enddate,
-      ),
-      state: selectedTravelExpense.state,
-      motive:
-        toFormString(requisitionValues.motive) || selectedTravelExpense.motive,
-      phone_number: selectedTravelExpense.phone_number,
-      card_number: selectedTravelExpense.card_number,
-    });
+    );
     hideSpinner();
 
     if (!updated) {
@@ -875,16 +1050,31 @@ export const useTravelExpenseRequest = () => {
       autoCloseMs: 1800,
     });
   };
-  const handleSendRequisitionAuthorization = async () => {
-    const idRequisitionRequest =
-      selectedTravelExpense?.requisition_requests[0]?.id;
+  const handleSendRequisitionAuthorization = () => {
+    if (!selectedTravelExpense) return;
 
-    if (!idRequisitionRequest) {
+    setAuthorizerError(null);
+    setAuthorizerPopUpOpen(true);
+  };
+  const handleAuthorizerCancel = () => {
+    setAuthorizerPopUpOpen(false);
+    setAuthorizerError(null);
+  };
+  const handleAuthorizerChange = (values: string[]) => {
+    setAuthorizerSelected(values[0] ?? "");
+  };
+  const handleConfirmAuthorizer = async () => {
+    if (!selectedTravelExpense) return;
+
+    const travelExpenseToSend = selectedTravelExpense;
+    const idTravelExpense = getSelectedTravelExpenseId();
+
+    if (!idTravelExpense) {
       showAlert({
         type: "error",
         title: "No se pudo enviar",
         description:
-          "No se encontro el identificador de la requisicion solicitada.",
+          "No se encontro el identificador de la solicitud de viaticos.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 2500,
@@ -892,16 +1082,43 @@ export const useTravelExpenseRequest = () => {
       return;
     }
 
-    showSpinner({ message: "Enviando requisicion a autorizacion..." });
-    const calculationsSaved = await syncViaticsCalculations();
-
-    if (!calculationsSaved) {
-      hideSpinner();
+    if (!authorizerSelected) {
+      setAuthorizerError("Selecciona un autorizador.");
       return;
     }
 
-    const success =
-      await sendRequisitionRequestAuthorization(idRequisitionRequest);
+    showSpinner({ message: "Enviando requisicion a autorizacion..." });
+    const beneficiaryRows = getBeneficiaryRowsForSave();
+    const progressSaved = await saveTravelExpenseProgress(
+      buildSaveProgressPayload(
+        travelExpenseToSend,
+        requisitionBeneficiaries,
+        visibleRequisitionBeneficiaries,
+        normalizedBeneficiaryAssociations,
+        requisitionValuesByBeneficiary,
+        beneficiaryRows,
+      ),
+    );
+
+    if (!progressSaved) {
+      hideSpinner();
+      showAlert({
+        type: "error",
+        title: "No se pudo guardar el avance",
+        description:
+          useTravelExpensesStore.getState().error ||
+          "Revisa que todos los beneficiarios tengan codigo de requisicion antes de enviar.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 3000,
+      });
+      return;
+    }
+
+    const success = await sendTravelExpenseAuthorization(
+      idTravelExpense,
+      authorizerSelected,
+    );
     hideSpinner();
 
     if (!success) {
@@ -926,6 +1143,7 @@ export const useTravelExpenseRequest = () => {
       showSecondaryButton: false,
       autoCloseMs: 1800,
     });
+    setAuthorizerPopUpOpen(false);
   };
   const handleRejectCommentOpen = () => {
     setRejectCommentOpen(true);
@@ -974,16 +1192,27 @@ export const useTravelExpenseRequest = () => {
   };
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
     const applicantId = toFormString(user?.idEmployee);
-    const employeeIds = Array.from(
+    const selectedAssignees = Array.from(
       { length: assignedStaffRows },
       (_, index) => {
         const suffix = index === 0 ? "" : String(index + 1);
-        return toFormString(values[`assignedStaff${suffix}`]);
+        const employeeId = toFormString(values[`assignedStaff${suffix}`]);
+
+        return {
+          index,
+          suffix,
+          employeeId,
+          phoneNumber: toFormString(values[`phone${suffix}`]),
+          cardNumber: toFormString(values[`cardNumber${suffix}`]),
+        };
       },
-    ).filter(
-      (employeeId, index, employeeList) =>
-        Boolean(employeeId) && employeeList.indexOf(employeeId) === index,
-    );
+    ).filter((assignee) => Boolean(assignee.employeeId));
+    const employeeIds = selectedAssignees
+      .map((assignee) => assignee.employeeId)
+      .filter(
+        (employeeId, index, employeeList) =>
+          employeeList.indexOf(employeeId) === index,
+      );
 
     if (!applicantId) {
       showAlert({
@@ -1009,13 +1238,28 @@ export const useTravelExpenseRequest = () => {
       return;
     }
 
+    const employeeContactUpdated =
+      await updateMissingEmployeeContactData(selectedAssignees);
+
+    if (!employeeContactUpdated) return;
+
     const [employeeId, ...companionIds] = employeeIds;
+    const companions = companionIds.map((id) => {
+      const employee = employeesWithActiveUser.find(
+        (item) => item.employee_id === id,
+      );
+
+      return {
+        employee_id: id,
+        full_name: employee?.fullname || "",
+      };
+    });
 
     showSpinner({ message: "Creando solicitud de viaticos..." });
     const created = await createTravelExpense({
       applicant_id: applicantId,
       employee_id: employeeId,
-      companion_ids: companionIds,
+      companions,
       project_id: toFormString(values.project),
       department_id: toFormString(values.area),
       enterprise_id: toFormString(values.enterprise),
@@ -1054,12 +1298,171 @@ export const useTravelExpenseRequest = () => {
     });
     router.push(pathname);
   };
+  const updateMissingEmployeeContactData = async (
+    assignees: Array<{
+      index: number;
+      employeeId: string;
+      phoneNumber: string;
+      cardNumber: string;
+    }>,
+  ) => {
+    const updates = assignees
+      .map((assignee) => {
+        const employee = getSelectedCreateEmployee(
+          assignee.index,
+          assignee.employeeId,
+        );
+        const existingPhone = getEmployeePhone(employee);
+        const existingCardNumber = normalizeOptionalCardNumber(
+          getEmployeeCardNumber(employee),
+        );
+        const phoneNumber = assignee.phoneNumber || existingPhone;
+        const enteredCardNumber = normalizeOptionalCardNumber(
+          assignee.cardNumber,
+        );
+        const cardNumber = enteredCardNumber || existingCardNumber;
+        const needsUpdate =
+          !existingPhone ||
+          phoneNumber !== existingPhone ||
+          (Boolean(enteredCardNumber) && cardNumber !== existingCardNumber);
+
+        return {
+          ...assignee,
+          phoneNumber,
+          cardNumber,
+          needsUpdate,
+        };
+      })
+      .filter((assignee) => assignee.needsUpdate);
+
+    const incompleteAssignee = updates.find(
+      (assignee) => !assignee.phoneNumber,
+    );
+
+    if (incompleteAssignee) {
+      showAlert({
+        type: "error",
+        title: "Faltan datos del colaborador",
+        description:
+          "Captura telefono para el personal asignado que no tiene ese dato.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 3000,
+      });
+      return false;
+    }
+
+    if (updates.length === 0) return true;
+
+    showSpinner({ message: "Actualizando datos del colaborador..." });
+    const results = await Promise.all(
+      updates.map((assignee) =>
+        updateEmployeeNumberCard({
+          idEmployee: assignee.employeeId,
+          cardNumber: assignee.cardNumber,
+          phoneNumber: assignee.phoneNumber,
+        }),
+      ),
+    );
+    hideSpinner();
+
+    if (results.some((success) => !success)) {
+      showAlert({
+        type: "error",
+        title: "No se pudieron actualizar los datos",
+        description:
+          useUsersStore.getState().error ||
+          "Hubo un problema al guardar el telefono o numero de tarjeta.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 3000,
+      });
+      return false;
+    }
+
+    await Promise.all([
+      fetchEmployeesWithActiveUser(true),
+      fetchEmployeesWithCardNumber(true),
+    ]);
+
+    return true;
+  };
+  const getSelectedCreateEmployee = (index: number, employeeId: string) =>
+    index === 0
+      ? employeesWithCardNumber.find(
+          (employee) => employee.employee_id === employeeId,
+        )
+      : employeesWithActiveUser.find(
+          (employee) => employee.employee_id === employeeId,
+        );
   const handleExcelSubmit = () => undefined;
-  const handleRequisitionValuesChange = (values: Record<string, unknown>) => {
-    setRequisitionValues((currentValues) => ({
-      ...currentValues,
-      ...values,
-    }));
+  const handleRequisitionValuesChange = (
+    beneficiaryId: string,
+    values: Record<string, unknown>,
+  ) => {
+    setRequisitionValuesByBeneficiary((currentValues) => {
+      const currentBeneficiaryValues =
+        currentValues[beneficiaryId] ??
+        (selectedTravelExpense
+          ? getDefaultRequisitionProgressValues(
+              selectedTravelExpense,
+              beneficiaryId,
+            )
+          : {
+              requisitionCode: "",
+              motive: "",
+              startDate: "",
+              endDate: "",
+            });
+
+      return {
+        ...currentValues,
+        [beneficiaryId]: {
+          requisitionCode:
+            values[`requisitionCode-${beneficiaryId}`] !== undefined
+              ? toFormString(values[`requisitionCode-${beneficiaryId}`])
+              : currentBeneficiaryValues.requisitionCode,
+          motive:
+            values[`motive-${beneficiaryId}`] !== undefined
+              ? toFormString(values[`motive-${beneficiaryId}`])
+              : currentBeneficiaryValues.motive,
+          startDate:
+            values[`startDate-${beneficiaryId}`] !== undefined
+              ? toFormString(values[`startDate-${beneficiaryId}`])
+              : currentBeneficiaryValues.startDate,
+          endDate:
+            values[`endDate-${beneficiaryId}`] !== undefined
+              ? toFormString(values[`endDate-${beneficiaryId}`])
+              : currentBeneficiaryValues.endDate,
+        },
+      };
+    });
+  };
+  const handleAssociatedCompanionsChange = (
+    beneficiaryId: string,
+    selectedCompanionIds: string[],
+  ) => {
+    const currentCompanionIds =
+      normalizedBeneficiaryAssociations[beneficiaryId] ??
+      beneficiaryAssociations[beneficiaryId] ??
+      [];
+    const isSingleNewSelection =
+      selectedCompanionIds.length === 1 &&
+      currentCompanionIds.length > 0 &&
+      !currentCompanionIds.includes(selectedCompanionIds[0]);
+    const nextCompanionIds = isSingleNewSelection
+      ? [...currentCompanionIds, selectedCompanionIds[0]]
+      : selectedCompanionIds;
+    const nextAssociations = applyBeneficiaryAssociationSelection(
+      requisitionBeneficiaries,
+      beneficiaryAssociations,
+      beneficiaryId,
+      nextCompanionIds,
+    );
+
+    setBeneficiaryAssociations(nextAssociations);
+
+    return nextAssociations[beneficiaryId] ?? [];
   };
   const handleBeneficiaryViaticsChange = (
     beneficiaryId: string,
@@ -1080,6 +1483,13 @@ export const useTravelExpenseRequest = () => {
   const detailStatusKind = getDetailStatusKind(selectedTravelExpense?.status);
   const detailStatusType = normalizeStatusType(selectedTravelExpense?.status);
   const showRejectedDetail = detailStatusKind === "rejected";
+  const requisitionActionsDisabled = isBlockedRequisitionActionStatus(
+    selectedTravelExpense?.status,
+  );
+  const isReviewView =
+    view === "detail" &&
+    (!selectedTravelExpense ||
+      isNoIniciadaTravelExpenseStatus(selectedTravelExpense));
   const isRequisitionView =
     view === "requisition" ||
     (view === "detail" &&
@@ -1089,6 +1499,10 @@ export const useTravelExpenseRequest = () => {
   return {
     activeBeneficiaryId,
     approvingTravelExpense,
+    authorizerError,
+    authorizerOptions,
+    authorizerPopUpOpen,
+    authorizerSelected,
     buildRequisitionFields,
     createFields,
     createFormLayout,
@@ -1102,7 +1516,10 @@ export const useTravelExpenseRequest = () => {
     getBeneficiaryViaticsRows,
     handleAddAssignedStaff,
     handleApproveTravelExpense,
+    handleAuthorizerCancel,
+    handleAuthorizerChange,
     handleBeneficiaryViaticsChange,
+    handleConfirmAuthorizer,
     handleCreateClick,
     handleCreateSubmit,
     handleCreateValuesChange,
@@ -1117,14 +1534,17 @@ export const useTravelExpenseRequest = () => {
     handleToggleBeneficiary,
     handleViewDetails,
     hasCompanions,
+    isReviewView,
     isRequisitionView,
     loadingTravelExpenses,
+    loadingEmployeesWithCardNumber,
     proyectsLoading,
     rejectComment,
     rejectCommentError,
     rejectCommentOpen,
     rejectingTravelExpense,
-    requisitionBeneficiaries,
+    requisitionActionsDisabled,
+    requisitionBeneficiaries: visibleRequisitionBeneficiaries,
     requisitionFields,
     requisitionFormLayout,
     requisitionSection,
@@ -1132,7 +1552,7 @@ export const useTravelExpenseRequest = () => {
     requisitionSummaryLayout,
     reviewFields,
     reviewFormLayout,
-    savingCalculations,
+    savingCalculations: savingCalculations || savingProgress,
     selectedTravelExpense,
     sendingAuthorization,
     setExcelFile,
@@ -1141,10 +1561,36 @@ export const useTravelExpenseRequest = () => {
     setViaticsRows,
     showRejectedDetail,
     submitRef,
+    newTravelExpenses,
+    statusTravelExpenses,
     travelExpenses,
-    updatingTravelExpense,
+    updatingTravelExpense: updatingTravelExpense || savingProgress,
     valuesVersion,
     viaticsRows,
     view,
   };
 };
+
+const getEmployeePhone = (
+  employee?: TravelExpenseEmployeeWithCardNumber | UserEmployeeSummary,
+) =>
+  toFormString(
+    employee && "phone_number" in employee
+      ? employee.phone_number ||
+          ("employee_phone" in employee ? employee.employee_phone : "")
+      : "",
+  );
+
+const getEmployeeCardNumber = (
+  employee?: TravelExpenseEmployeeWithCardNumber | UserEmployeeSummary,
+) =>
+  toFormString(
+    employee && "card_number" in employee ? employee.card_number : "",
+  );
+
+const normalizeOptionalCardNumber = (value: string) => {
+  const normalizedValue = value.trim();
+
+  return normalizedValue === "000 -" ? "" : normalizedValue;
+};
+

@@ -13,7 +13,9 @@ import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { statesList } from "@/app/main-page/accounting/requisitions/components/RequisitionsForm/utilities/statesList";
+import type { UserEmployeeSummary } from "@/app/mappings/users/user.types";
 import { useProyectsStore } from "@/app/stores/useProyectsStore/useProyectsStore";
+import type { TravelExpenseEmployeeWithCardNumber } from "@/app/stores/useTravelExpensesStore/types";
 import { useTravelExpensesStore } from "@/app/stores/useTravelExpensesStore/useTravelExpensesStore";
 import { useUsersStore } from "@/app/stores/useUsersStore/useUsersStore";
 
@@ -52,6 +54,20 @@ const getEmployeePhone = (
     | undefined,
 ) => toFormString(employee?.phone_number || employee?.employee_phone);
 
+const getEmployeeCardNumber = (
+  employee:
+    | {
+        card_number?: string | null;
+      }
+    | undefined,
+) => toFormString(employee?.card_number);
+
+const normalizeOptionalCardNumber = (value: string) => {
+  const normalizedValue = value.trim();
+
+  return normalizedValue === "000 -" ? "" : normalizedValue;
+};
+
 const TravelExpenseRequestPage = () => {
   const submitRef = useRef<(() => void | Promise<unknown>) | null>(null);
   const [formReady, setFormReady] = useState(false);
@@ -71,20 +87,37 @@ const TravelExpenseRequestPage = () => {
   const fetchEmployeesWithActiveUser = useUsersStore(
     (state) => state.fetchEmployeesWithActiveUser,
   );
+  const updateEmployeeNumberCard = useUsersStore(
+    (state) => state.updateEmployeeNumberCard,
+  );
   const proyects = useProyectsStore((state) => state.proyects);
   const proyectsLoading = useProyectsStore((state) => state.loading);
   const fetchProyects = useProyectsStore((state) => state.fetchProyects);
   const createTravelExpense = useTravelExpensesStore(
     (state) => state.createTravelExpense,
   );
+  const employeesWithCardNumber = useTravelExpensesStore(
+    (state) => state.employeesWithCardNumber,
+  );
+  const loadingEmployeesWithCardNumber = useTravelExpensesStore(
+    (state) => state.loadingEmployeesWithCardNumber,
+  );
+  const fetchEmployeesWithCardNumber = useTravelExpensesStore(
+    (state) => state.fetchEmployeesWithCardNumber,
+  );
   const creatingTravelExpense = useTravelExpensesStore(
     (state) => state.creating,
   );
 
   useEffect(() => {
+    fetchEmployeesWithCardNumber();
     fetchEmployeesWithActiveUser(true);
     fetchProyects();
-  }, [fetchEmployeesWithActiveUser, fetchProyects]);
+  }, [
+    fetchEmployeesWithActiveUser,
+    fetchEmployeesWithCardNumber,
+    fetchProyects,
+  ]);
 
   const employeeOptions = useMemo(
     () =>
@@ -93,6 +126,15 @@ const TravelExpenseRequestPage = () => {
         value: employee.employee_id,
       })),
     [employeesWithActiveUser],
+  );
+
+  const employeeWithCardNumberOptions = useMemo(
+    () =>
+      employeesWithCardNumber.map((employee) => ({
+        label: employee.full_name,
+        value: employee.employee_id,
+      })),
+    [employeesWithCardNumber],
   );
 
   const projectOptions = useMemo(
@@ -110,7 +152,10 @@ const TravelExpenseRequestPage = () => {
         const suffix = index === 0 ? "" : String(index + 1);
         const assignedStaffName = `assignedStaff${suffix}`;
         const phoneName = `phone${suffix}`;
+        const cardNumberName = `cardNumber${suffix}`;
         const isStaffSelected = Boolean(formValues[assignedStaffName]);
+        const options =
+          index === 0 ? employeeWithCardNumberOptions : employeeOptions;
 
         return [
           {
@@ -119,7 +164,7 @@ const TravelExpenseRequestPage = () => {
             label: "Personal asignado",
             placeholder: "Selecciona un empleado",
             value: (formValues[assignedStaffName] ?? "") as FieldModel["value"],
-            options: employeeOptions,
+            options,
             validations: [{ type: "required" }],
           },
           {
@@ -130,9 +175,22 @@ const TravelExpenseRequestPage = () => {
             value: (formValues[phoneName] ?? "") as FieldModel["value"],
             disabled: !isStaffSelected,
           },
+          {
+            type: "input",
+            name: cardNumberName,
+            label: "Numero de tarjeta",
+            placeholder: "000 -",
+            value: (formValues[cardNumberName] ?? "") as FieldModel["value"],
+            disabled: !isStaffSelected,
+          },
         ] satisfies FieldModel[];
       }).flat(),
-    [assignedStaffRows, employeeOptions, formValues],
+    [
+      assignedStaffRows,
+      employeeOptions,
+      employeeWithCardNumberOptions,
+      formValues,
+    ],
   );
 
   const fields = useMemo<FieldModel[]>(
@@ -226,20 +284,49 @@ const TravelExpenseRequestPage = () => {
       const suffix = index === 0 ? "" : String(index + 1);
       const assignedStaffName = `assignedStaff${suffix}`;
       const phoneName = `phone${suffix}`;
+      const cardNumberName = `cardNumber${suffix}`;
       const selectedEmployeeId = toFormString(nextValues[assignedStaffName]);
-      const selectedEmployee = employeesWithActiveUser.find(
-        (employee) => employee.employee_id === selectedEmployeeId,
+      const previousEmployeeId = toFormString(formValues[assignedStaffName]);
+      const selectedEmployee = getSelectedCreateEmployee(
+        index,
+        selectedEmployeeId,
       );
       const selectedPhone = selectedEmployeeId
         ? getEmployeePhone(selectedEmployee)
         : "";
+      const selectedCardNumber = selectedEmployeeId
+        ? getEmployeeCardNumber(selectedEmployee)
+        : "";
 
-      if (nextValues[phoneName] !== selectedPhone) {
-        nextValues[phoneName] = selectedPhone;
+      if (!selectedEmployeeId) {
+        if (nextValues[phoneName] || nextValues[cardNumberName]) {
+          nextValues[phoneName] = "";
+          nextValues[cardNumberName] = "";
+          shouldSyncFormikValues = true;
+        }
+
+        return;
       }
 
-      if (values[phoneName] !== selectedPhone) {
-        shouldSyncFormikValues = true;
+      if (selectedEmployeeId === previousEmployeeId) return;
+
+      if (selectedPhone && nextValues[phoneName] !== selectedPhone) {
+        nextValues[phoneName] = selectedPhone;
+
+        if (values[phoneName] !== selectedPhone) {
+          shouldSyncFormikValues = true;
+        }
+      }
+
+      if (
+        selectedCardNumber &&
+        nextValues[cardNumberName] !== selectedCardNumber
+      ) {
+        nextValues[cardNumberName] = selectedCardNumber;
+
+        if (values[cardNumberName] !== selectedCardNumber) {
+          shouldSyncFormikValues = true;
+        }
       }
     });
 
@@ -252,16 +339,26 @@ const TravelExpenseRequestPage = () => {
 
   const handleSubmit = async (values: Record<string, unknown>) => {
     const applicantId = toFormString(user?.idEmployee);
-    const assignedEmployeeIds = Array.from(
+    const selectedAssignees = Array.from(
       { length: assignedStaffRows },
       (_, index) => {
         const suffix = index === 0 ? "" : String(index + 1);
-        return toFormString(values[`assignedStaff${suffix}`]);
+        const employeeId = toFormString(values[`assignedStaff${suffix}`]);
+
+        return {
+          index,
+          employeeId,
+          phoneNumber: toFormString(values[`phone${suffix}`]),
+          cardNumber: toFormString(values[`cardNumber${suffix}`]),
+        };
       },
-    ).filter(
-      (employeeId, index, employeeIds) =>
-        Boolean(employeeId) && employeeIds.indexOf(employeeId) === index,
-    );
+    ).filter((assignee) => Boolean(assignee.employeeId));
+    const assignedEmployeeIds = selectedAssignees
+      .map((assignee) => assignee.employeeId)
+      .filter(
+        (employeeId, index, employeeIds) =>
+          employeeIds.indexOf(employeeId) === index,
+      );
 
     if (!applicantId) {
       showAlert({
@@ -287,13 +384,28 @@ const TravelExpenseRequestPage = () => {
       return;
     }
 
+    const employeeContactUpdated =
+      await updateMissingEmployeeContactData(selectedAssignees);
+
+    if (!employeeContactUpdated) return;
+
     const [employeeId, ...companionIds] = assignedEmployeeIds;
+    const companions = companionIds.map((id) => {
+      const employee = employeesWithActiveUser.find(
+        (item) => item.employee_id === id,
+      );
+
+      return {
+        employee_id: id,
+        full_name: employee?.fullname || "",
+      };
+    });
 
     showSpinner({ message: "Enviando solicitud de vi\u00e1ticos..." });
     const created = await createTravelExpense({
       applicant_id: applicantId,
       employee_id: employeeId,
-      companion_ids: companionIds,
+      companions,
       project_id: toFormString(values.project),
       department_id: toFormString(user?.idDepartment),
       enterprise_id: toFormString(user?.idEnterprise),
@@ -332,6 +444,108 @@ const TravelExpenseRequestPage = () => {
     });
   };
 
+  const updateMissingEmployeeContactData = async (
+    assignees: Array<{
+      index: number;
+      employeeId: string;
+      phoneNumber: string;
+      cardNumber: string;
+    }>,
+  ) => {
+    const updates = assignees
+      .map((assignee) => {
+        const employee = getSelectedCreateEmployee(
+          assignee.index,
+          assignee.employeeId,
+        );
+        const existingPhone = getEmployeePhone(employee);
+        const existingCardNumber = normalizeOptionalCardNumber(
+          getEmployeeCardNumber(employee),
+        );
+        const phoneNumber = assignee.phoneNumber || existingPhone;
+        const enteredCardNumber = normalizeOptionalCardNumber(
+          assignee.cardNumber,
+        );
+        const cardNumber = enteredCardNumber || existingCardNumber;
+        const needsUpdate =
+          !existingPhone ||
+          phoneNumber !== existingPhone ||
+          (Boolean(enteredCardNumber) && cardNumber !== existingCardNumber);
+
+        return {
+          ...assignee,
+          phoneNumber,
+          cardNumber,
+          needsUpdate,
+        };
+      })
+      .filter((assignee) => assignee.needsUpdate);
+
+    const incompleteAssignee = updates.find(
+      (assignee) => !assignee.phoneNumber,
+    );
+
+    if (incompleteAssignee) {
+      showAlert({
+        type: "error",
+        title: "Faltan datos del colaborador",
+        description:
+          "Captura telefono para el personal asignado que no tiene ese dato.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 3000,
+      });
+      return false;
+    }
+
+    if (updates.length === 0) return true;
+
+    showSpinner({ message: "Actualizando datos del colaborador..." });
+    const results = await Promise.all(
+      updates.map((assignee) =>
+        updateEmployeeNumberCard({
+          idEmployee: assignee.employeeId,
+          cardNumber: assignee.cardNumber,
+          phoneNumber: assignee.phoneNumber,
+        }),
+      ),
+    );
+    hideSpinner();
+
+    if (results.some((success) => !success)) {
+      showAlert({
+        type: "error",
+        title: "No se pudieron actualizar los datos",
+        description:
+          useUsersStore.getState().error ||
+          "Hubo un problema al guardar el telefono o numero de tarjeta.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 3000,
+      });
+      return false;
+    }
+
+    await Promise.all([
+      fetchEmployeesWithActiveUser(true),
+      fetchEmployeesWithCardNumber(true),
+    ]);
+
+    return true;
+  };
+
+  const getSelectedCreateEmployee = (
+    index: number,
+    employeeId: string,
+  ): TravelExpenseEmployeeWithCardNumber | UserEmployeeSummary | undefined =>
+    index === 0
+      ? employeesWithCardNumber.find(
+          (employee) => employee.employee_id === employeeId,
+        )
+      : employeesWithActiveUser.find(
+          (employee) => employee.employee_id === employeeId,
+        );
+
   return (
     <section className="bg-gray-10 w-full py-4">
       <div className="flex w-full flex-col gap-3">
@@ -354,7 +568,11 @@ const TravelExpenseRequestPage = () => {
             valuesVersion={valuesVersion}
             valuesVersionActive
             responsiveLayoutMatrix={responsiveLayoutMatrix}
-            loadingFormInfo={employeesWithActiveUserLoading || proyectsLoading}
+            loadingFormInfo={
+              loadingEmployeesWithCardNumber ||
+              employeesWithActiveUserLoading ||
+              proyectsLoading
+            }
             dataTestId="travel-expense-request-form"
           >
             <Button
