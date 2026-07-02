@@ -111,6 +111,7 @@ const buildEmployee = (
   extension: '',
   image_url: '',
   manager_id: '',
+  manager_name: '',
   department: {
     department_id: department.department_id,
     name: department.name,

@@ -187,7 +187,6 @@ const ManagementDocuments = () => {
               enableSelection: canDowload,
               data: rows,
               columns: isMobile ? columnsMobile : columns,
-              defaultSortKey: "name",
             },
           ]}
           showRefresh={true}

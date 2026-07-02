@@ -15,7 +15,6 @@ import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import type { OrganizationChartRouteConfig } from "../types";
 import {
-  getDirectoryEmployeeShortName,
   organizationChartEmptyValue,
   organizationChartNameCollator,
 } from "../employee.utils";
@@ -28,7 +27,7 @@ type DirectoryRow = {
   position: string;
   phone_number: string;
   email: string;
-  employee_number: string;
+  department: string;
   image_url: string;
   employee: EmployeeType;
 };
@@ -152,11 +151,11 @@ const OrganizationChartGeneralDirectoryView = ({
   const rows = useMemo<DirectoryRow[]>(() => {
     const mappedRows = activeEmployees.map((employee) => ({
       id: employee.id ?? employee.employee_id,
-      fullname: getDirectoryEmployeeShortName(employee),
+      fullname: employee.fullname || organizationChartEmptyValue,
       position: employee.workposition?.name ?? organizationChartEmptyValue,
       phone_number: employee.phone_number || organizationChartEmptyValue,
       email: employee.email || organizationChartEmptyValue,
-      employee_number: employee.employee_number || organizationChartEmptyValue,
+      department: employee.department?.name ?? organizationChartEmptyValue,
       image_url: employee.image_url,
       employee,
     }));
@@ -201,8 +200,8 @@ const OrganizationChartGeneralDirectoryView = ({
         headerClass: "w-3/12 min-w-0 pr-6",
       },
       {
-        key: "employee_number",
-        label: "No. Empleado",
+        key: "department",
+        label: "Departamento",
         cellClass: "w-2/12 min-w-0 truncate whitespace-nowrap pr-4",
         headerClass: "w-2/12 min-w-0 pr-4",
       },
@@ -283,7 +282,7 @@ const OrganizationChartGeneralDirectoryView = ({
           "position",
           "phone_number",
           "email",
-          "employee_number",
+          "department",
         ]}
         textSize={{ mobile: "text-d3", desktop: "text-b4" }}
       />
@@ -298,7 +297,7 @@ const OrganizationChartGeneralDirectoryView = ({
         <PopUp
           open={isDeletePopUpOpen}
           onClose={handleCloseDeletePopUp}
-          title={`Deseas eliminar el usuario de ${employeeToDelete.fullname || getDirectoryEmployeeShortName(employeeToDelete)}?`}
+          title={`Deseas eliminar el usuario de ${employeeToDelete.fullname || organizationChartEmptyValue}?`}
           content="Esta acción confirmara la eliminación del usuario"
           showPrimaryButton
           showSecondaryButton
