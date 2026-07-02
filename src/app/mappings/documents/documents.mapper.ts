@@ -22,6 +22,25 @@ const normalizeBoolean = (value: unknown): boolean => {
   return Boolean(value)
 }
 
+const toTimestamp = (value: unknown): number => {
+  if (value == null) return Number.NEGATIVE_INFINITY
+  const normalized = String(value).trim()
+  if (!normalized) return Number.NEGATIVE_INFINITY
+
+  const parsed = Date.parse(normalized)
+  return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed
+}
+
+const sortTableRowsByMostRecent = (
+  left: ManagementDocumentTableRow,
+  right: ManagementDocumentTableRow,
+) => {
+  const leftTimestamp = toTimestamp(left.rawDate ?? left.datecreated ?? left.date)
+  const rightTimestamp = toTimestamp(right.rawDate ?? right.datecreated ?? right.date)
+
+  return rightTimestamp - leftTimestamp
+}
+
 export const mapDocumentTypeSummary = (raw: any): DocumentTypeSummary => ({
   document_type_id: normalizeString(raw?.document_type_id ?? raw?.id),
   name: normalizeString(raw?.name),
@@ -128,6 +147,7 @@ export const mapManagementDocumentsToTableRows = (
   docs
     .filter((doc) => doc.management)
     .map(mapManagementDocumentToTableRow)
+    .sort(sortTableRowsByMostRecent)
 
 export const mapOperationalDocumentsToTableRows = (
   docs: ManagementDocument[],
@@ -135,3 +155,4 @@ export const mapOperationalDocumentsToTableRows = (
   docs
     .filter((doc) => !doc.management)
     .map(mapManagementDocumentToTableRow)
+    .sort(sortTableRowsByMostRecent)

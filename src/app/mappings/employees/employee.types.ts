@@ -17,6 +17,7 @@ export type EmployeeType = {
   extension: string;
   image_url: string;
   manager_id: string;
+  manager_name: string;
   department: DepartmentType;
   workposition: WorkPositionType;
   user: UserType | null;

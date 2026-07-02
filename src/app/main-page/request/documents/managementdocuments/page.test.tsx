@@ -72,6 +72,18 @@ vi.mock('./hooks/useManagementDocuments', () => ({
   useManagementDocuments: () => ({
     rows: [
       {
+        id: '2',
+        name: 'Politica de calidad',
+        code: 'MG-002',
+        description: 'Documento mas reciente',
+        documentType: 'POLITICA',
+        department: 'VISITAX',
+        extension: 'pdf',
+        route: 'https://example.com/new',
+        date: '2025-10-25',
+        rawDate: '2025-10-25T08:00:00',
+      },
+      {
         id: '1',
         name: 'Manual de procesos',
         code: 'MG-001',
@@ -93,14 +105,22 @@ vi.mock('./hooks/useManagementDocuments', () => ({
 }))
 
 vi.mock('@/app/components/DataTable/DataTable', () => ({
-  DataTable: ({ tables, onRefreshPage, actionsRender }: any) => (
-    <div>
-      <div>DataTable</div>
-      <button type="button" onClick={onRefreshPage}>
-        Actualizar
-      </button>
-      {actionsRender && actionsRender()}
-      {tables?.[0]?.data.map((row: any, index: number) => (
+  DataTable: ({ tables, onRefreshPage, actionsRender, dateKey }: any) => {
+    const sortedRows = [...(tables?.[0]?.data ?? [])].sort((left: any, right: any) => {
+      const leftDate = dateKey?.(left) ?? left.rawDate ?? left.date ?? ''
+      const rightDate = dateKey?.(right) ?? right.rawDate ?? right.date ?? ''
+
+      return String(rightDate).localeCompare(String(leftDate))
+    })
+
+    return (
+      <div>
+        <div>DataTable</div>
+        <button type="button" onClick={onRefreshPage}>
+          Actualizar
+        </button>
+        {actionsRender && actionsRender()}
+        {sortedRows.map((row: any, index: number) => (
         <div key={row.id ?? index}>
           {tables?.[0]?.columns?.map((column: any, columnIndex: number) => (
             <div key={column.key ?? columnIndex}>
@@ -108,9 +128,10 @@ vi.mock('@/app/components/DataTable/DataTable', () => ({
             </div>
           ))}
         </div>
-      ))}
-    </div>
-  ),
+        ))}
+      </div>
+    )
+  },
 }))
 
 const pushMock = vi.fn()
@@ -133,6 +154,14 @@ describe('ManagementDocuments page', () => {
     render(<ManagementDocuments />)
 
     expect(screen.getByText('DataTable')).toBeInTheDocument()
+  })
+
+  it('renders the most recent document first', () => {
+    render(<ManagementDocuments />)
+
+    const codes = screen.getAllByText(/MG-002|MG-001/)
+    expect(codes[0]).toHaveTextContent('MG-002')
+    expect(codes[1]).toHaveTextContent('MG-001')
   })
 
   it('calls refresh when clicking "Actualizar"', () => {

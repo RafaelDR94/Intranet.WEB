@@ -1,16 +1,20 @@
 "use client";
-import React from "react";
-import Image from "next/image";
 
-import ButtonsNavigation from "@/app/components/ButtonsNavigation/ButtonsNavigation";
+import React from "react";
+
+import Avatar from "@/app/components/Avatar/Avatar";
+import { Button } from "@/app/components/Button/Button";
 import DetailsPanelLayout from "@/app/components/DetailsPanelLayout/DetailsPanelLayout";
+import Label from "@/app/components/Label/Label";
 import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import MailIcon from "@/assets/icons/Comunicacion/mail.svg";
 import PhoneIcon from "@/assets/icons/Comunicacion/phone.svg";
-import UserIcon from "@/assets/icons/Users/Users/user.svg";
+import NetworkRightIcon from "@/assets/icons/Connectivity/network-right.svg";
+import FingerprintCheckIcon from "@/assets/icons/Identy/fingerprint-check-circle.svg";
+import FingerprintErrorIcon from "@/assets/icons/Identy/fingerprint-error-circle.svg";
 import GroupIcon from "@/assets/icons/Users/Users/group.svg";
-import PositionIcon from "@/assets/icons/Maps/position.svg";
+import UserIcon from "@/assets/icons/Users/Users/user.svg";
 import UserStarIcon from "@/assets/icons/Users/Users/user-star.svg";
 import {
   type OrganizationChartEmployee,
@@ -25,28 +29,23 @@ type EmployeeDetailsPanelProps = {
   canSeeInformation: boolean;
 };
 
-const renderEmployeePhoto = (
-  employee: OrganizationChartEmployee,
-  fullname: string,
-) => {
-  if (employee.image_url) {
-    return (
-      <Image
-        src={employee.image_url}
-        alt={fullname || "Colaborador"}
-        width={94}
-        height={132}
-        className="h-full w-full object-cover"
-      />
-    );
-  }
-
-  return (
-    <div className="flex h-full w-full items-center justify-center bg-gray-20 text-b2 font-semibold text-gray-70">
-      {(fullname || "N").trim().charAt(0).toUpperCase()}
-    </div>
-  );
+type DetailFieldProps = {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
 };
+
+const DetailField = ({ icon: Icon, label, value }: DetailFieldProps) => (
+  <div className="flex items-start gap-3 text-b3 text-gray-90">
+    <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center overflow-visible">
+      <Icon className="h-6 w-6 overflow-visible text-blue-80" />
+    </div>
+    <div className="min-w-0">
+      <p className="font-medium uppercase">{label}</p>
+      <p className="break-words">{value}</p>
+    </div>
+  </div>
+);
 
 const OrganizationChartEmployeeDetailsPanel = ({
   open,
@@ -62,127 +61,137 @@ const OrganizationChartEmployeeDetailsPanel = ({
   const detailDisplay = detailEmployee
     ? getOrganizationChartEmployeeDetails(detailEmployee)
     : null;
-  const managerName = detailEmployee?.manager_id || organizationChartEmptyValue;
+  const managerName = detailEmployee?.manager_name || "N/A";
+  const hasFingerprint = Boolean(detailEmployee?.dr_fingerprint);
 
   const laboralContent = detailEmployee ? (
-    <div className="space-y-5">
-      <div className="flex items-start gap-4">
-        <div className="h-[96px] w-[74px] shrink-0 overflow-hidden rounded-[8px] bg-gray-20">
-          {renderEmployeePhoto(
-            detailEmployee,
-            detailDisplay?.fullname || "Colaborador",
-          )}
+    <div className="min-w-0 space-y-6 pt-2">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <div className="shrink-0">
+          <Avatar
+            src={detailEmployee.image_url}
+            alt={detailDisplay?.fullname || "Colaborador"}
+            initials={detailDisplay?.fullname}
+            size="xl"
+            online={false}
+            className="h-[210px] w-[210px] rounded-full"
+          />
         </div>
-        <div className="min-w-0 space-y-2">
-          <p className="text-c2 font-semibold text-gray-80">
-            EMPRESA: {detailDepartment?.enterprice_name || organizationChartEmptyValue}
+
+        <div className="min-w-0 flex-1 space-y-4">
+          <p className="text-b2 text-gray-90">
+            <span className="font-medium uppercase">Empresa:</span>{" "}
+            <span>
+              {detailDepartment?.enterprice_name || organizationChartEmptyValue}
+            </span>
           </p>
-          <span className="inline-flex rounded-full bg-green-20 px-3 py-1 text-b4 text-green-100">
-            Activo
-          </span>
+
+          <Label
+            type={detailEmployee.is_active ? "valido" : "invalido"}
+            text={detailEmployee.is_active ? "Activo" : "Inactivo"}
+            className="m-0"
+          />
+
+          {canSeeInformation ? (
+            <div className="flex items-center gap-3">
+              {hasFingerprint ? (
+                <FingerprintCheckIcon className="text-green-70" />
+              ) : (
+                <FingerprintErrorIcon className="text-alert-red-100" />
+              )}
+              <Button
+                variant="ghost"
+                size="xsmall"
+                hideIcon
+                className={
+                  hasFingerprint
+                    ? "px-0 text-green-80"
+                    : "px-0 text-alert-red-100"
+                }
+              >
+                Actualizar huella
+              </Button>
+            </div>
+          ) : null}
         </div>
       </div>
 
-      <dl className="grid grid-cols-1 gap-y-3 text-b3 text-gray-90 md:grid-cols-2 md:gap-x-4">
+      <div className="grid grid-cols-1 gap-x-10 gap-y-5 md:grid-cols-2">
         {showEmployeeNumber ? (
-          <div className="flex items-start gap-2">
-            <UserIcon className="mt-0.5 h-4 w-4 text-blue-80" />
-            <div>
-              <dt className="font-semibold text-gray-90">NO. EMPLEADO:</dt>
-              <dd>{detailDisplay?.employeeNumber || organizationChartEmptyValue}</dd>
-            </div>
-          </div>
+          <DetailField
+            icon={UserIcon}
+            label="No. Empleado"
+            value={detailDisplay?.employeeNumber || organizationChartEmptyValue}
+          />
         ) : null}
-        <div className="flex items-start gap-2">
-          <PhoneIcon className="mt-0.5 h-4 w-4 text-blue-80" />
-          <div>
-            <dt className="font-semibold text-gray-90">TELÉFONO:</dt>
-            <dd>{detailDisplay?.phone || organizationChartEmptyValue}</dd>
-          </div>
-        </div>
-        <div className="flex items-start gap-2">
-          <GroupIcon className="mt-0.5 h-4 w-4 text-blue-80" />
-          <div>
-            <dt className="font-semibold text-gray-90">DEPARTAMENTO:</dt>
-            <dd>{detailDepartment?.name || organizationChartEmptyValue}</dd>
-          </div>
-        </div>
-        <div className="flex items-start gap-2">
-          <MailIcon className="mt-0.5 h-4 w-4 text-blue-80" />
-          <div>
-            <dt className="font-semibold text-gray-90">CORREO:</dt>
-            <dd className="break-all">{detailDisplay?.email || organizationChartEmptyValue}</dd>
-          </div>
-        </div>
-        <div className="flex items-start gap-2 md:col-span-2">
-          <PositionIcon className="mt-0.5 h-4 w-4 text-blue-80" />
-          <div>
-            <dt className="font-semibold text-gray-90">PUESTO:</dt>
-            <dd>{detailDisplay?.position || organizationChartEmptyValue}</dd>
-          </div>
-        </div>
-        <div className="flex items-start gap-2 md:col-span-2">
-          <UserStarIcon className="mt-0.5 h-4 w-4 text-blue-80" />
-          <div>
-            <dt className="font-semibold text-gray-90">RESPONSABLE:</dt>
-            <dd>{managerName}</dd>
-          </div>
-        </div>
-      </dl>
+        <DetailField icon={UserStarIcon} label="Responsable" value={managerName} />
+        <DetailField
+          icon={PhoneIcon}
+          label="Teléfono"
+          value={detailDisplay?.phone || organizationChartEmptyValue}
+        />
+        <DetailField
+          icon={MailIcon}
+          label="Correo"
+          value={detailDisplay?.email || organizationChartEmptyValue}
+        />
+        <DetailField
+          icon={GroupIcon}
+          label="Departamento"
+          value={detailDepartment?.name || organizationChartEmptyValue}
+        />
+        <DetailField
+          icon={NetworkRightIcon}
+          label="Puesto"
+          value={detailDisplay?.position || organizationChartEmptyValue}
+        />
+      </div>
+
+      <div className="h-px w-full bg-gray-20" />
 
       {showAssignedDevices ? (
-        <div className="border-t border-gray-20 pt-4">
-          <h3 className="text-s2 font-semibold text-gray-100">
+        <div className="space-y-4">
+          <h3 className="text-s1 font-semibold text-green-100">
             Dispositivos Asignados
           </h3>
-          <dl className="mt-3 space-y-2 text-b3 text-gray-90">
-            <div className="flex gap-1">
-              <dt className="font-semibold text-gray-90">TELÉFONO:</dt>
-              <dd>{organizationChartEmptyValue}</dd>
-            </div>
-            <div className="flex gap-1">
-              <dt className="font-semibold text-gray-90">COMPUTADORA:</dt>
-              <dd>{organizationChartEmptyValue}</dd>
-            </div>
-          </dl>
+
+          <div className="space-y-4 text-b3 text-gray-90">
+            <p>
+              <span className="font-medium">Teléfono:</span>{" "}
+              {organizationChartEmptyValue}
+            </p>
+            <p>
+              <span className="font-medium">Computadora:</span>{" "}
+              {organizationChartEmptyValue}
+            </p>
+          </div>
         </div>
       ) : null}
     </div>
   ) : null;
 
   return (
-    <DetailsPanelLayout open={open} onClose={onClose} divider={false}>
+    <DetailsPanelLayout
+      open={open}
+      onClose={onClose}
+      divider={false}
+      collapsedWidthClass="w-[478px] min-w-[478px]"
+      contentClassName="px-4 pb-6 pt-0 sm:px-5 md:px-7"
+    >
       {!detailEmployee ? (
         <div className="text-b3 text-gray-100">Selecciona un colaborador.</div>
       ) : (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <h2 className="text-s1 font-semibold text-green-100">
-              {detailDisplay?.fullname}
-            </h2>
-          </div>
+        <div className="min-w-0 space-y-[18px]">
+          <h2 className="break-words text-s1 font-semibold leading-tight text-green-100">
+            {detailDisplay?.fullname}
+          </h2>
 
-          {canSeeInformation ? (
-            <ButtonsNavigation
-              ariaLabel="Secciones de Información"
-              buttonSize="small"
-              activeVariant="solid"
-              inactiveVariant="outline"
-            >
-              <ButtonsNavigation.Item
-                id="laboral"
-                label="Información Laboral"
-                renderContent={laboralContent}
-              />
-            </ButtonsNavigation>
-          ) : (
-            <div className="space-y-4">
-              <div className="mb-6 mt-3 w-[157px] rounded-[8px] bg-green-80 px-[8px] py-[6px] text-b4 text-white">
-                Información Laboral
-              </div>
-              {laboralContent}
+          <div className="space-y-4">
+            <div className="w-fit rounded-[8px] bg-green-80 px-4 py-[6px] text-btn-xs font-semibold text-white">
+              Información Laboral
             </div>
-          )}
+            {laboralContent}
+          </div>
         </div>
       )}
     </DetailsPanelLayout>

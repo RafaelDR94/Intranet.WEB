@@ -210,7 +210,6 @@ const OperationalDocuments = () => {
               enableSelection: canDowload,
               data: filteredRows,
               columns: isMobile ? columnsMobile : columns,
-              defaultSortKey: "name",
             },
           ]}
           showRefresh={true}

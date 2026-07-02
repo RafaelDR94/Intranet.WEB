@@ -6,6 +6,7 @@ export type OrganizationChartEmployeeExtras = {
   second_name?: string;
   father_lastname?: string;
   mother_lastname?: string;
+  manager_name?: string;
   employee_email?: string;
   employee_phone?: string;
   workposition_name?: string;

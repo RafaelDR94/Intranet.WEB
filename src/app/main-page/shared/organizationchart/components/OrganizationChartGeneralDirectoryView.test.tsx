@@ -13,7 +13,7 @@ type DirectoryRow = {
   position: string;
   phone_number: string;
   email: string;
-  employee_number: string;
+  department: string;
   image_url: string;
   employee: EmployeeType;
 };
@@ -91,6 +91,7 @@ describe("OrganizationChartGeneralDirectoryView", () => {
       extension: "",
       image_url: "https://cdn.example.com/avatar.png",
       manager_id: "",
+      manager_name: "",
       department: {
         department_id: "dep-1",
         name: "Desarrollo",
