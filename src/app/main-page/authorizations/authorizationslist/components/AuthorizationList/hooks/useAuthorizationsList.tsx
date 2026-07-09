@@ -229,25 +229,29 @@ const useAuthorizationsList = () => {
     () => [
       {
         key: 'applicant', label: 'SOLICITANTE',
-        cellClass: 'w-4/16 text-center',
-        headerClass: 'w-[30%]',
+        cellClass: 'flex-[1.25] min-w-0 text-left',
+        headerClass: 'flex-[1.25] min-w-0 text-left',
       },
       {
         key: 'project', label: 'PROYECTO',
-        cellClass: 'w-2/16 text-left',
-        headerClass: 'w-[25%]', 
+        cellClass: 'flex-[0.9] min-w-0 text-left',
+        headerClass: 'flex-[0.9] min-w-0 text-left', 
       },
       {
         key: 'date', label: 'FECHA',
-        cellClass: 'w-1/16 text-left',
-        headerClass: 'w-[25%]',
+        cellClass: 'flex-[0.7] min-w-0 text-left',
+        headerClass: 'flex-[0.7] min-w-0 text-left',
       },
       {
         key: 'status',
         label: 'ESTATUS',
-        render: (row) => <Label type={statusToLabelType(row.status)} text={row.status} />,
-        cellClass: 'w-1/16 text-left',
-        headerClass: 'w-[25%]',
+        render: (row) => (
+          <div className="flex min-w-0 justify-start">
+            <Label type={statusToLabelType(row.status)} text={row.status} />
+          </div>
+        ),
+        cellClass: 'flex-[1.55] min-w-0 text-left',
+        headerClass: 'flex-[1.55] min-w-0 text-left',
       },
     ],
     [handleViewRequest],

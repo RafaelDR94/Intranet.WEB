@@ -20,6 +20,8 @@ import {
 } from "../employee.utils";
 import { buildOrganizationChartDepartmentsPath } from "../routes";
 import OrganizationChartEmployeeDetailsPanel from "./OrganizationChartEmployeeDetailsPanel";
+import {useIsMobile} from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import MoreIcon from "@/assets/icons/navegacion/more-vert.svg";
 
 type DirectoryRow = {
   id: string;
@@ -48,6 +50,7 @@ const OrganizationChartGeneralDirectoryView = ({
   );
   const canEditEmployee = routeConfig.capabilities.canUpdate;
   const canDeleteEmployee = routeConfig.capabilities.canDelete;
+  const isMobile = useIsMobile();
 
   const { activeEmployees, loadingActive, error, fetchActiveEmployees } =
     useEmployeesStore(
@@ -254,6 +257,82 @@ const OrganizationChartGeneralDirectoryView = ({
     ],
   );
 
+  const MobileColumns = useMemo<ColumnDefinition<DirectoryRow>[]>(
+    () => [
+      {
+        key: "fullname",
+        label: "NOMBRE",
+        render: (row) => (
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="block min-w-0 flex-1 truncate" title={row.fullname}>
+              {row.fullname}
+            </span>
+          </div>
+        ),
+        cellClass: "flex-[1.35] min-w-0",
+        headerClass: "flex-[1.35] min-w-0",
+      },
+      {
+        key: "position",
+        label: "PUESTO",
+        cellClass: "flex-[1.15] min-w-0 truncate whitespace-nowrap",
+        headerClass: "flex-[1.15] min-w-0",
+      },  
+      {
+        key: "department",
+        label: "Departamento",
+        cellClass: "flex-[1.45] min-w-0 truncate whitespace-nowrap",
+        headerClass: "flex-[1.45] min-w-0",
+      },
+      {
+        key: "id",
+        label: "",
+        cellClass: "flex-[0.35] text-right",
+        headerClass: "flex-[0.35] text-right",
+        render: (row) => (
+          <Button
+            variant="ghost"
+            size="xsmall"
+            onClick={() => handleOpenEmployeeDetails(row.employee)}
+            icon={MoreIcon}
+            iconOnly
+            className="!px-1 !py-1"
+          />
+        ),
+      },
+      ...(canEditEmployee || canDeleteEmployee
+        ? [
+            {
+              key: "actions" as keyof DirectoryRow,
+              label: "",
+              cellClass: "flex-[0.35] text-right",
+              headerClass: "flex-[0.35] text-right",
+              render: (row: DirectoryRow) => (
+                <ActionMenuCell
+                  row={row.employee}
+                  onEdit={handleEditEmployee}
+                  onDelete={handleOpenDeletePopUp}
+                  permissions={{
+                    details: canSeeDetails,
+                    update: canEditEmployee,
+                    delete: canDeleteEmployee,
+                  }}
+                />
+              ),
+            },
+          ]
+        : []),
+    ],
+    [
+      canDeleteEmployee,
+      canEditEmployee,
+      canSeeDetails,
+      handleEditEmployee,
+      handleOpenDeletePopUp,
+      handleOpenEmployeeDetails,
+    ],
+  );  
+
   return (
     <div className="relative flex min-h-[calc(100vh-180px)] flex-col gap-4">
       {loadingActive && rows.length === 0 ? (
@@ -273,7 +352,7 @@ const OrganizationChartGeneralDirectoryView = ({
             title: "Directorio General",
             hidetitle: true,
             data: rows,
-            columns,
+            columns: isMobile ? MobileColumns : columns,
           },
         ]}
         enableInternalSearch
