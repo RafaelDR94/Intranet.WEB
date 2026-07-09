@@ -34,7 +34,7 @@ export const ProyectPostMap = (src: Partial<ProyectPost> | any) => ({
   client: String(src?.client ?? ""),
   collaborators_ids: Array.isArray(src?.collaborators) ? src.collaborators : [],
   collabarators_ids: Array.isArray(src?.collaborators) ? src.collaborators : [],
-  managerId: String(src?.managerId ?? ""),
+  managerId: src?.managerId ?? null,
 });
 
 /**
@@ -49,5 +49,5 @@ export const ProyectPutMap = (src: Partial<ProyectPut> | any) => ({
   client: String(src?.client ?? ""),
   collaborators_ids: Array.isArray(src?.collaborators) ? src.collaborators : [],
   collabarators_ids: Array.isArray(src?.collaborators) ? src.collaborators : [],
-  managerId: String(src?.managerId ?? ""),
+  managerId: src?.managerId ?? null,
 });
