@@ -13,7 +13,7 @@ export type ProyectPost = {
     name: string,
     proyectKey: string,
     client: string
-    managerId: string,
+    managerId: string | null,
     collaborators: string[]
 }
 
@@ -22,7 +22,7 @@ export type ProyectPut = {
     name: string,
     proyectKey: string,
     client: string,
-    managerId: string,
+    managerId: string | null,
     collaborators: string[]
 }
 
