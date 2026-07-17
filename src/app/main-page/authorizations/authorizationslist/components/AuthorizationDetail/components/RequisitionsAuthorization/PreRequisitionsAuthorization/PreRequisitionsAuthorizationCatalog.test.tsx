@@ -261,12 +261,12 @@ describe("PreRequisitionsAuthorizationCatalog", () => {
     );
   });
 
-  it("oculta acciones cuando la solicitud ya fue aprobada o rechazada", () => {
+  it("deshabilita acciones cuando la solicitud ya fue aprobada o rechazada", () => {
     mockTravelExpenseState.statusName = "Aprobada";
 
     render(<PreRequisitionsAuthorizationCatalog />);
 
-    expect(screen.queryByText("Aprobar")).not.toBeInTheDocument();
-    expect(screen.queryByText("Rechazar")).not.toBeInTheDocument();
+    expect(screen.getByText("Aprobar").closest("button")).toBeDisabled();
+    expect(screen.getByText("Rechazar").closest("button")).toBeDisabled();
   });
 });

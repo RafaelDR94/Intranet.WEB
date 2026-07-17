@@ -138,6 +138,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
   const [pendingAction, setPendingAction] = useState<
     "approve" | "reject" | null
   >(null);
+  const [statusOverride, setStatusOverride] = useState("");
 
   const {
     authorizations,
@@ -192,6 +193,10 @@ const PreRequisitionsAuthorizationCatalog = () => {
   const idRequisitionRequest =
     searchParams.get("event_id") || authorization?.event_id || "";
   const selectedTravelExpense = currentRequisitionRequest;
+
+  useEffect(() => {
+    setStatusOverride("");
+  }, [authorizationId, idRequisitionRequest]);
 
   const authorizerId =
     authorization?.authorizer?.employee_id ||
@@ -289,7 +294,9 @@ const PreRequisitionsAuthorizationCatalog = () => {
         "requisitionkey",
         "requisitionKey",
       ]),
-    state: pickString(detailRecords, ["state", "status_name", "status.name"]),
+    state:
+      statusOverride ||
+      pickString(detailRecords, ["state", "status_name", "status.name"]),
     motive:
       progressValues.motive ||
       pickString(detailRecords, ["motive", "reason", "comments", "comment"]),
@@ -468,6 +475,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
     hideSpinner();
 
     if (success) {
+      setStatusOverride("Aprobada");
       await getAuthorizations(true);
       if (idRequisitionRequest) {
         await fetchRequisitionRequestById(idRequisitionRequest);
@@ -588,6 +596,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
     hideSpinner();
 
     if (success) {
+      setStatusOverride("Rechazada");
       await getAuthorizations(true);
       if (idRequisitionRequest) {
         await fetchRequisitionRequestById(idRequisitionRequest);
@@ -642,29 +651,27 @@ const PreRequisitionsAuthorizationCatalog = () => {
           </h1>
           <div className="bg-blue-30 h-px flex-1" />
         </div>
-        {isPendingRequestStatus ? (
-          <div className="flex shrink-0 gap-3">
-            <Button
-              hideIcon
-              type="button"
-              variant="outline"
-              className="border-alert-red-100 text-alert-red-100 hover:bg-alert-red-10 min-w-[112px]"
-              disabled={actionsDisabled}
-              onClick={handleRejectStart}
-            >
-              Rechazar
-            </Button>
-            <Button
-              hideIcon
-              type="button"
-              className="min-w-[112px]"
-              disabled={actionsDisabled}
-              onClick={handleStartApproval}
-            >
-              Aprobar
-            </Button>
-          </div>
-        ) : null}
+        <div className="flex shrink-0 gap-3">
+          <Button
+            hideIcon
+            type="button"
+            variant="outline"
+            className="border-alert-red-100 text-alert-red-100 hover:bg-alert-red-10 min-w-[112px]"
+            disabled={actionsDisabled}
+            onClick={handleRejectStart}
+          >
+            Rechazar
+          </Button>
+          <Button
+            hideIcon
+            type="button"
+            className="min-w-[112px]"
+            disabled={actionsDisabled}
+            onClick={handleStartApproval}
+          >
+            Aprobar
+          </Button>
+        </div>
       </div>
 
       <div className="mt-3 flex flex-col gap-4">
