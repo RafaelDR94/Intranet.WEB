@@ -228,7 +228,7 @@ export const useTravelExpenseRequest = () => {
   const fetchProyects = useProyectsStore((state) => state.fetchProyects);
 
   useEffect(() => {
-    fetchTravelExpenses();
+    fetchTravelExpenses(true);
     fetchEmployeesWithCardNumber();
     fetchEnterprises();
     fetchDepartments();

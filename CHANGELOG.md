@@ -1,3 +1,9 @@
+### 1.50.35 Refresco al cambiar tablas de viáticos 2026-07-17
+
+Fix:
+
+- Fuerza nuevas peticiones al backend y limpia filas previas al entrar a tablas de viáticos/solicitudes para evitar mostrar información de endpoints anteriores. (Agente IA) [#]()
+
 ### 1.50.34 Refresco de requisiciones en contabilidad 2026-07-17
 
 Fix:

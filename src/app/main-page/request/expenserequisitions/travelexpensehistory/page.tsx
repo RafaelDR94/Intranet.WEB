@@ -171,7 +171,7 @@ const TravelExpenseHistoryPage = () => {
   );
 
   useEffect(() => {
-    fetchTravelExpenses();
+    fetchTravelExpenses(true);
   }, [fetchTravelExpenses]);
 
   const selectedTravelExpense = useMemo(
