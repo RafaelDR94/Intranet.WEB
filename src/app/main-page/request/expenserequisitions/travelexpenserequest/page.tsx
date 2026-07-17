@@ -276,6 +276,42 @@ const TravelExpenseRequestPage = () => {
     setValuesVersion((currentVersion) => currentVersion + 1);
   };
 
+  const handleRemoveAssignedStaff = (rowIndex: number) => {
+    if (rowIndex === 0) return;
+
+    setFormValues((currentValues) => {
+      const nextValues = { ...currentValues };
+
+      Array.from({ length: assignedStaffRows }, (_, index) => {
+        const suffix = index === 0 ? "" : String(index + 1);
+        delete nextValues[`assignedStaff${suffix}`];
+        delete nextValues[`phone${suffix}`];
+        delete nextValues[`cardNumber${suffix}`];
+      });
+
+      let nextIndex = 0;
+
+      Array.from({ length: assignedStaffRows }, (_, index) => {
+        if (index === rowIndex) return;
+
+        const currentSuffix = index === 0 ? "" : String(index + 1);
+        const nextSuffix = nextIndex === 0 ? "" : String(nextIndex + 1);
+
+        nextValues[`assignedStaff${nextSuffix}`] =
+          currentValues[`assignedStaff${currentSuffix}`] ?? "";
+        nextValues[`phone${nextSuffix}`] =
+          currentValues[`phone${currentSuffix}`] ?? "";
+        nextValues[`cardNumber${nextSuffix}`] =
+          currentValues[`cardNumber${currentSuffix}`] ?? "";
+        nextIndex += 1;
+      });
+
+      return nextValues;
+    });
+    setAssignedStaffRows((currentRows) => Math.max(1, currentRows - 1));
+    setValuesVersion((currentVersion) => currentVersion + 1);
+  };
+
   const handleValuesChange = (values: Record<string, unknown>) => {
     const nextValues = { ...formValues, ...values };
     let shouldSyncFormikValues = false;
@@ -575,7 +611,30 @@ const TravelExpenseRequestPage = () => {
             }
             dataTestId="travel-expense-request-form"
           >
+            {assignedStaffRows > 1 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {Array.from({ length: assignedStaffRows - 1 }, (_, index) => {
+                  const rowIndex = index + 1;
+
+                  return (
+                    <Button
+                      key={rowIndex}
+                      type="button"
+                      onClick={() => handleRemoveAssignedStaff(rowIndex)}
+                      arrowDirection="cancel"
+                      variant="ghost"
+                      size="small"
+                      className="text-alert-red-100"
+                      dataTestId={`remove-companion-${rowIndex}`}
+                    >
+                      Cancelar acompañante {rowIndex}
+                    </Button>
+                  );
+                })}
+              </div>
+            )}
             <Button
+              type="button"
               onClick={handleAddAssignedStaff}
               icon={UserPlus}
               variant="ghost"

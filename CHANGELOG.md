@@ -1,3 +1,9 @@
+### 1.50.33 Cancelar acompañantes en viáticos 2026-07-17
+
+Fix:
+
+- Agrega botones de cancelar para quitar acompañantes adicionales antes de enviar solicitudes de viáticos. (Agente IA) [#]()
+
 ### 1.50.32 Formulario contextual reutilizable 04-06-2026
 
 Feature:
@@ -41,6 +47,7 @@ Feature:
 Feature:
 
 - Agrega store, mapeo y tipos para Billings/BillingAllDocumentByIdRequisition. (Agente IA) [#]()
+
 ### 1.47.87 Evidencia de aprobación en requisiciones 02-03-2026
 
 Feature:
@@ -981,18 +988,16 @@ Fix:
 - Because this module could be improved.
   (Bruno Mendoza) [335#](https://github.com/DR-Mexico/dr.intranet.web/pull/335)
 
- ### 1.49.24 Notifications 2026-12-02
+### 1.49.24 Notifications 2026-12-02
 
 Feature:
 
 - Because we need to improve notifications.
   (Bruno Mendoza) [337#](https://github.com/DR-Mexico/dr.intranet.web/pull/337#)
 
-  ### 1.50.24  2026-19-02
+  ### 1.50.24 2026-19-02
 
 Feature:
 
 - Adjustments to the Invoices Form.
   (Katherine Negrete) [347#](https://github.com/DR-Mexico/dr.intranet.web/pull/347#)
-
-

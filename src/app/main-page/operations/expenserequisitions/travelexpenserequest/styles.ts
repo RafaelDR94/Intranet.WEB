@@ -18,18 +18,23 @@ export const travelExpenseRequestStyles = {
   emptyText: "text-b3 text-gray-80",
   formRow: "mb-4 gap-x-5 gap-y-4",
   formsCard: "!block",
+  removeCompanionList: "mt-2 flex flex-wrap gap-2",
+  removeCompanionButton: "text-alert-red-100",
   tableFormsCard: "!block !p-0",
-  statusBar: "bg-white-100 flex min-h-9 items-center rounded-lg px-4 py-2 shadow-sm",
+  statusBar:
+    "bg-white-100 flex min-h-9 items-center rounded-lg px-4 py-2 shadow-sm",
   statusRejected: "justify-between gap-4",
   statusDefault: "justify-end",
   rejectedComment: "text-c2 text-gray-80",
   beneficiaryStack: "flex flex-col gap-3",
   beneficiaryButton:
     "bg-white-100 text-b3 text-blue-60 flex w-full items-center justify-between rounded-lg px-6 py-4 text-left font-medium shadow-md",
-  beneficiaryHeaderContent: "flex min-w-0 flex-1 items-center justify-between gap-4",
+  beneficiaryHeaderContent:
+    "flex min-w-0 flex-1 items-center justify-between gap-4",
   beneficiaryName: "truncate",
   beneficiaryMeta: "flex items-center gap-3 shrink-0",
-  broxelBadge: "text-blue-60 flex items-center gap-2 text-b4 font-medium uppercase",
+  broxelBadge:
+    "text-blue-60 flex items-center gap-2 text-b4 font-medium uppercase",
   broxelIcon:
     "border-blue-60 h-5 w-7 rounded-[4px] border-2 relative before:absolute before:left-[3px] before:right-[3px] before:top-[5px] before:h-[2px] before:bg-blue-60 before:content-['']",
   beneficiaryStatusLabel: "!m-0",

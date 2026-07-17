@@ -27,6 +27,7 @@ import { travelExpenseRequestStyles as styles } from "./styles";
 const TravelExpenseRequest = () => {
   const {
     activeBeneficiaryId,
+    assignedStaffRows,
     approvingTravelExpense,
     authorizerError,
     authorizerOptions,
@@ -57,6 +58,7 @@ const TravelExpenseRequest = () => {
     handleRejectCommentChange,
     handleRejectCommentOpen,
     handleRejectTravelExpense,
+    handleRemoveAssignedStaff,
     handleRequisitionValuesChange,
     handleSaveRequisitionProgress,
     handleSendRequisitionAuthorization,
@@ -176,7 +178,30 @@ const TravelExpenseRequest = () => {
               }
               dataTestId="travel-expense-create-form"
             >
+              {assignedStaffRows > 1 && (
+                <div className={styles.removeCompanionList}>
+                  {Array.from({ length: assignedStaffRows - 1 }, (_, index) => {
+                    const rowIndex = index + 1;
+
+                    return (
+                      <Button
+                        key={rowIndex}
+                        type="button"
+                        onClick={() => handleRemoveAssignedStaff(rowIndex)}
+                        arrowDirection="cancel"
+                        variant="ghost"
+                        size="small"
+                        className={styles.removeCompanionButton}
+                        dataTestId={`remove-companion-${rowIndex}`}
+                      >
+                        Cancelar acompañante {rowIndex}
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
               <Button
+                type="button"
                 onClick={handleAddAssignedStaff}
                 icon={UserPlus}
                 variant="ghost"
@@ -279,14 +304,21 @@ const TravelExpenseRequest = () => {
                 <div className={styles.beneficiaryStack}>
                   {requisitionBeneficiaries.map((beneficiary) => {
                     const isOpen = activeBeneficiaryId === beneficiary.id;
-                    const hasBroxelCard = Boolean(beneficiary.cardNumber?.trim());
+                    const hasBroxelCard = Boolean(
+                      beneficiary.cardNumber?.trim(),
+                    );
 
                     return (
-                      <div key={beneficiary.id} className={styles.beneficiaryStack}>
+                      <div
+                        key={beneficiary.id}
+                        className={styles.beneficiaryStack}
+                      >
                         <button
                           type="button"
                           className={styles.beneficiaryButton}
-                          onClick={() => handleToggleBeneficiary(beneficiary.id)}
+                          onClick={() =>
+                            handleToggleBeneficiary(beneficiary.id)
+                          }
                           aria-expanded={isOpen}
                         >
                           <div className={styles.beneficiaryHeaderContent}>
@@ -310,7 +342,9 @@ const TravelExpenseRequest = () => {
                                 />
                               )}
                               {isOpen ? (
-                                <ArrowUpIcon className={styles.beneficiaryIcon} />
+                                <ArrowUpIcon
+                                  className={styles.beneficiaryIcon}
+                                />
                               ) : (
                                 <ArrowDownIcon
                                   className={styles.beneficiaryIcon}
@@ -376,9 +410,7 @@ const TravelExpenseRequest = () => {
             onChange={handleAuthorizerChange}
           />
           {authorizerError ? (
-            <p className="mt-2 text-b4 text-alert-red-100">
-              {authorizerError}
-            </p>
+            <p className="text-b4 text-alert-red-100 mt-2">{authorizerError}</p>
           ) : null}
         </PopUp>
       </section>
