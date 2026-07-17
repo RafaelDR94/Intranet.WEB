@@ -59,6 +59,13 @@ const createFormBaseLayout: ResponsiveLayoutMatrix = {
   ],
 };
 
+const normalizeStatusText = (value: string) =>
+  value
+    .trim()
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
 /**
  * Encapsulates RequisitionRequestPage state, store wiring and form handlers.
  */
@@ -90,6 +97,7 @@ export const useRequisitionRequestPage = () => {
   const [rejectCommentError, setRejectCommentError] = useState<string | null>(
     null,
   );
+  const [statusOverride, setStatusOverride] = useState("");
   const { user } = useAuth();
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
@@ -107,8 +115,8 @@ export const useRequisitionRequestPage = () => {
   const fetchRequisitionRequestById = useTravelExpensesStore(
     (state) => state.fetchRequisitionRequestById,
   );
-  const approveTravelExpense = useTravelExpensesStore(
-    (state) => state.approveTravelExpense,
+  const approveRequisitionRequestThroughAccounting = useTravelExpensesStore(
+    (state) => state.approveRequisitionRequestThroughAccounting,
   );
   const rejectTravelExpense = useTravelExpensesStore(
     (state) => state.rejectTravelExpense,
@@ -190,7 +198,18 @@ export const useRequisitionRequestPage = () => {
     fetchRequisitionRequestById(selectedId);
   }, [fetchRequisitionRequestById, selectedId, view]);
 
+  useEffect(() => {
+    setStatusOverride("");
+  }, [selectedId]);
+
   const selectedTravelExpense = currentRequisitionRequest;
+  const detailStatusName =
+    statusOverride ||
+    selectedTravelExpense?.status_name ||
+    selectedTravelExpense?.status ||
+    "";
+  const isPendingRequestStatus =
+    normalizeStatusText(detailStatusName).includes("pend");
 
   const requisitionBeneficiaries = useMemo(
     () =>
@@ -670,6 +689,11 @@ export const useRequisitionRequestPage = () => {
         getTravelExpenseIdentifier(selectedTravelExpense)
       : "";
 
+  const getSelectedRequisitionRequestId = () =>
+    selectedTravelExpense?.id ||
+    selectedTravelExpense?.requisition_requests[0]?.id ||
+    "";
+
   const showTravelExpenseActionError = (title: string) => {
     showAlert({
       type: "error",
@@ -687,13 +711,14 @@ export const useRequisitionRequestPage = () => {
     beneficiaryViaticsRows[beneficiaryId] ?? cloneEmptyViaticsRows();
 
   const handleApproveTravelExpense = async () => {
-    const idTravelExpense = getSelectedTravelExpenseId();
-    if (!idTravelExpense) return;
+    const idRequisitionRequest = getSelectedRequisitionRequestId();
+    if (!idRequisitionRequest) return;
 
     showSpinner({
       message: "Espera un momento, tu accion esta siendo procesada",
     });
-    const success = await approveTravelExpense(idTravelExpense);
+    const success =
+      await approveRequisitionRequestThroughAccounting(idRequisitionRequest);
     hideSpinner();
 
     if (!success) {
@@ -701,11 +726,16 @@ export const useRequisitionRequestPage = () => {
       return;
     }
 
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", "requisition");
-    params.set("id", idTravelExpense);
-    params.set("label", "Creacion de requisicion");
-    router.push(`${pathname}?${params.toString()}`);
+    setStatusOverride("Aprobada");
+    await fetchRequisitionRequestById(idRequisitionRequest);
+    showAlert({
+      type: "success",
+      title: "Solicitud aprobada",
+      description: "La solicitud de viaticos fue aprobada correctamente.",
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      autoCloseMs: 1800,
+    });
   };
 
   const handleSaveRequisitionProgress = async () => {
@@ -846,6 +876,8 @@ export const useRequisitionRequestPage = () => {
       return;
     }
 
+    setStatusOverride("Rechazada");
+    await fetchRequisitionRequestById(idTravelExpense);
     handleRejectCommentCancel();
     showAlert({
       type: "success",
@@ -855,7 +887,6 @@ export const useRequisitionRequestPage = () => {
       showSecondaryButton: false,
       autoCloseMs: 1800,
     });
-    router.push(pathname);
   };
 
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
@@ -955,6 +986,11 @@ export const useRequisitionRequestPage = () => {
     view === "detail" &&
     selectedTravelExpense &&
     isDraftStatus(selectedTravelExpense.status);
+  const requestActionsDisabled =
+    !selectedTravelExpense ||
+    !isPendingRequestStatus ||
+    approvingTravelExpense ||
+    rejectingTravelExpense;
 
   return {
     activeBeneficiaryId,
@@ -989,6 +1025,7 @@ export const useRequisitionRequestPage = () => {
     rejectCommentError,
     rejectCommentOpen,
     rejectingTravelExpense,
+    requestActionsDisabled,
     requisitionBeneficiaries,
     requisitionFields,
     requisitionSection,

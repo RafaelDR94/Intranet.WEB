@@ -6,6 +6,7 @@ import { createWithEqualityFn } from "zustand/traditional";
 import type { TravelExpensesState } from "./types";
 import {
   approveTravelExpense as approveTravelExpenseRequest,
+  approveRequisitionRequestThroughAccounting as approveRequisitionRequestThroughAccountingRequest,
   cancelOrResendTravelExpense as cancelOrResendTravelExpenseRequest,
   createTravelExpense as createTravelExpenseRequest,
   fetchEmployeesWithCardNumber as fetchEmployeesWithCardNumberRequest,
@@ -85,6 +86,13 @@ export const useTravelExpensesStore =
 
       approveTravelExpense: (idTravelExpense) =>
         approveTravelExpenseRequest(set, get, idTravelExpense),
+
+      approveRequisitionRequestThroughAccounting: (idRequisitionRequest) =>
+        approveRequisitionRequestThroughAccountingRequest(
+          set,
+          get,
+          idRequisitionRequest,
+        ),
 
       rejectTravelExpense: (payload) =>
         rejectTravelExpenseRequest(set, get, payload),

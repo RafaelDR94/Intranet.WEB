@@ -269,6 +269,10 @@ export type TravelExpensesState = {
   ) => Promise<TravelExpense | null>;
   /** Approves a travel expense requisition. */
   approveTravelExpense: (idTravelExpense: string) => Promise<boolean>;
+  /** Approves a requisition request from accounting. */
+  approveRequisitionRequestThroughAccounting: (
+    idRequisitionRequest: string,
+  ) => Promise<boolean>;
   /** Rejects a travel expense requisition. */
   rejectTravelExpense: (
     payload: RejectTravelExpensePayload,
