@@ -59,13 +59,6 @@ const createFormBaseLayout: ResponsiveLayoutMatrix = {
   ],
 };
 
-const normalizeStatusText = (value: string) =>
-  value
-    .trim()
-    .toLocaleLowerCase("es-MX")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-
 /**
  * Encapsulates RequisitionRequestPage state, store wiring and form handlers.
  */
@@ -97,7 +90,6 @@ export const useRequisitionRequestPage = () => {
   const [rejectCommentError, setRejectCommentError] = useState<string | null>(
     null,
   );
-  const [statusOverride, setStatusOverride] = useState("");
   const { user } = useAuth();
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
@@ -198,18 +190,7 @@ export const useRequisitionRequestPage = () => {
     fetchRequisitionRequestById(selectedId);
   }, [fetchRequisitionRequestById, selectedId, view]);
 
-  useEffect(() => {
-    setStatusOverride("");
-  }, [selectedId]);
-
   const selectedTravelExpense = currentRequisitionRequest;
-  const detailStatusName =
-    statusOverride ||
-    selectedTravelExpense?.status_name ||
-    selectedTravelExpense?.status ||
-    "";
-  const isPendingRequestStatus =
-    normalizeStatusText(detailStatusName).includes("pend");
 
   const requisitionBeneficiaries = useMemo(
     () =>
@@ -726,7 +707,6 @@ export const useRequisitionRequestPage = () => {
       return;
     }
 
-    setStatusOverride("Aprobada");
     await fetchRequisitionRequestById(idRequisitionRequest);
     showAlert({
       type: "success",
@@ -876,7 +856,6 @@ export const useRequisitionRequestPage = () => {
       return;
     }
 
-    setStatusOverride("Rechazada");
     await fetchRequisitionRequestById(idTravelExpense);
     handleRejectCommentCancel();
     showAlert({
@@ -988,7 +967,6 @@ export const useRequisitionRequestPage = () => {
     isDraftStatus(selectedTravelExpense.status);
   const requestActionsDisabled =
     !selectedTravelExpense ||
-    !isPendingRequestStatus ||
     approvingTravelExpense ||
     rejectingTravelExpense;
 
