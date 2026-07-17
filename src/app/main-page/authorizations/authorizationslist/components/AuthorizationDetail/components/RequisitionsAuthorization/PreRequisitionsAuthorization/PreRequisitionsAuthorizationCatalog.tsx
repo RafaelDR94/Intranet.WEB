@@ -102,6 +102,13 @@ const getPeopleNames = (value: unknown) =>
         .filter(Boolean)
     : [];
 
+const normalizeStatusText = (value: string) =>
+  value
+    .trim()
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
 const reviewFormLayout: ResponsiveLayoutMatrix = {
   sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
   md: [
@@ -321,6 +328,9 @@ const PreRequisitionsAuthorizationCatalog = () => {
     ...getPeopleNames(getPathValue(authorizationRaw, "companions")),
     ...getPeopleNames(getPathValue(authorizationRaw, "collaborators")),
   ].filter((name, index, names) => names.indexOf(name) === index);
+  const isPendingRequestStatus = normalizeStatusText(
+    authorizationDetail.state,
+  ).includes("pend");
 
   useEffect(() => {
     if (!authorizationId) return;
@@ -615,6 +625,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
 
   const actionsDisabled =
     reviewFields.length === 0 ||
+    !isPendingRequestStatus ||
     approvingTravelExpense ||
     rejectingTravelExpense ||
     updatingStatus;
@@ -631,27 +642,29 @@ const PreRequisitionsAuthorizationCatalog = () => {
           </h1>
           <div className="bg-blue-30 h-px flex-1" />
         </div>
-        <div className="flex shrink-0 gap-3">
-          <Button
-            hideIcon
-            type="button"
-            variant="outline"
-            className="border-alert-red-100 text-alert-red-100 hover:bg-alert-red-10 min-w-[112px]"
-            disabled={actionsDisabled}
-            onClick={handleRejectStart}
-          >
-            Rechazar
-          </Button>
-          <Button
-            hideIcon
-            type="button"
-            className="min-w-[112px]"
-            disabled={actionsDisabled}
-            onClick={handleStartApproval}
-          >
-            Aprobar
-          </Button>
-        </div>
+        {isPendingRequestStatus ? (
+          <div className="flex shrink-0 gap-3">
+            <Button
+              hideIcon
+              type="button"
+              variant="outline"
+              className="border-alert-red-100 text-alert-red-100 hover:bg-alert-red-10 min-w-[112px]"
+              disabled={actionsDisabled}
+              onClick={handleRejectStart}
+            >
+              Rechazar
+            </Button>
+            <Button
+              hideIcon
+              type="button"
+              className="min-w-[112px]"
+              disabled={actionsDisabled}
+              onClick={handleStartApproval}
+            >
+              Aprobar
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-3 flex flex-col gap-4">

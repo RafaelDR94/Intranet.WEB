@@ -13,6 +13,7 @@ const showSpinner = vi.fn();
 const hideSpinner = vi.fn();
 const showAlert = vi.fn();
 const hideAlert = vi.fn();
+const mockTravelExpenseState = vi.hoisted(() => ({ statusName: "Pendiente" }));
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () =>
@@ -69,6 +70,8 @@ vi.mock("@/app/stores/useTravelExpensesStore/useTravelExpensesStore", () => ({
         enddate: string;
         employee_id: string;
         employeename: string;
+        status_name: string;
+        status: string;
         requisition_requests: Array<{ id: string; requisition_code: string }>;
         calculation_concepts_json: Array<{
           requisition_code: string;
@@ -93,6 +96,8 @@ vi.mock("@/app/stores/useTravelExpensesStore/useTravelExpensesStore", () => ({
         enddate: "2026-06-26T00:00:00.000Z",
         employee_id: "employee-1",
         employeename: "Frankie Rivers Negrete Aguilar",
+        status_name: mockTravelExpenseState.statusName,
+        status: mockTravelExpenseState.statusName,
         requisition_requests: [{ id: "request-1", requisition_code: "REQ-1" }],
         calculation_concepts_json: [
           {
@@ -198,6 +203,7 @@ describe("PreRequisitionsAuthorizationCatalog", () => {
     hideSpinner.mockReset();
     showAlert.mockReset();
     hideAlert.mockReset();
+    mockTravelExpenseState.statusName = "Pendiente";
     approveAuthorization.mockResolvedValue(true);
     rejectAuthorization.mockResolvedValue(true);
     getAuthorizations.mockResolvedValue(undefined);
@@ -253,5 +259,14 @@ describe("PreRequisitionsAuthorizationCatalog", () => {
         title: "Autorizacion rechazada",
       }),
     );
+  });
+
+  it("oculta acciones cuando la solicitud ya fue aprobada o rechazada", () => {
+    mockTravelExpenseState.statusName = "Aprobada";
+
+    render(<PreRequisitionsAuthorizationCatalog />);
+
+    expect(screen.queryByText("Aprobar")).not.toBeInTheDocument();
+    expect(screen.queryByText("Rechazar")).not.toBeInTheDocument();
   });
 });
