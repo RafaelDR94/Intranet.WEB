@@ -177,6 +177,7 @@ const TravelExpenseRequest = () => {
               dataTestId="travel-expense-create-form"
             >
               <Button
+                type="button"
                 onClick={handleAddAssignedStaff}
                 icon={UserPlus}
                 variant="ghost"
@@ -279,14 +280,21 @@ const TravelExpenseRequest = () => {
                 <div className={styles.beneficiaryStack}>
                   {requisitionBeneficiaries.map((beneficiary) => {
                     const isOpen = activeBeneficiaryId === beneficiary.id;
-                    const hasBroxelCard = Boolean(beneficiary.cardNumber?.trim());
+                    const hasBroxelCard = Boolean(
+                      beneficiary.cardNumber?.trim(),
+                    );
 
                     return (
-                      <div key={beneficiary.id} className={styles.beneficiaryStack}>
+                      <div
+                        key={beneficiary.id}
+                        className={styles.beneficiaryStack}
+                      >
                         <button
                           type="button"
                           className={styles.beneficiaryButton}
-                          onClick={() => handleToggleBeneficiary(beneficiary.id)}
+                          onClick={() =>
+                            handleToggleBeneficiary(beneficiary.id)
+                          }
                           aria-expanded={isOpen}
                         >
                           <div className={styles.beneficiaryHeaderContent}>
@@ -310,7 +318,9 @@ const TravelExpenseRequest = () => {
                                 />
                               )}
                               {isOpen ? (
-                                <ArrowUpIcon className={styles.beneficiaryIcon} />
+                                <ArrowUpIcon
+                                  className={styles.beneficiaryIcon}
+                                />
                               ) : (
                                 <ArrowDownIcon
                                   className={styles.beneficiaryIcon}
@@ -376,9 +386,7 @@ const TravelExpenseRequest = () => {
             onChange={handleAuthorizerChange}
           />
           {authorizerError ? (
-            <p className="mt-2 text-b4 text-alert-red-100">
-              {authorizerError}
-            </p>
+            <p className="text-b4 text-alert-red-100 mt-2">{authorizerError}</p>
           ) : null}
         </PopUp>
       </section>

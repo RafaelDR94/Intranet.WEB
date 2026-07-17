@@ -102,6 +102,13 @@ const getPeopleNames = (value: unknown) =>
         .filter(Boolean)
     : [];
 
+const normalizeStatusText = (value: string) =>
+  value
+    .trim()
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
 const reviewFormLayout: ResponsiveLayoutMatrix = {
   sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
   md: [
@@ -131,6 +138,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
   const [pendingAction, setPendingAction] = useState<
     "approve" | "reject" | null
   >(null);
+  const [statusOverride, setStatusOverride] = useState("");
 
   const {
     authorizations,
@@ -185,6 +193,10 @@ const PreRequisitionsAuthorizationCatalog = () => {
   const idRequisitionRequest =
     searchParams.get("event_id") || authorization?.event_id || "";
   const selectedTravelExpense = currentRequisitionRequest;
+
+  useEffect(() => {
+    setStatusOverride("");
+  }, [authorizationId, idRequisitionRequest]);
 
   const authorizerId =
     authorization?.authorizer?.employee_id ||
@@ -282,7 +294,9 @@ const PreRequisitionsAuthorizationCatalog = () => {
         "requisitionkey",
         "requisitionKey",
       ]),
-    state: pickString(detailRecords, ["state", "status_name", "status.name"]),
+    state:
+      statusOverride ||
+      pickString(detailRecords, ["state", "status_name", "status.name"]),
     motive:
       progressValues.motive ||
       pickString(detailRecords, ["motive", "reason", "comments", "comment"]),
@@ -321,6 +335,9 @@ const PreRequisitionsAuthorizationCatalog = () => {
     ...getPeopleNames(getPathValue(authorizationRaw, "companions")),
     ...getPeopleNames(getPathValue(authorizationRaw, "collaborators")),
   ].filter((name, index, names) => names.indexOf(name) === index);
+  const isPendingRequestStatus = normalizeStatusText(
+    authorizationDetail.state,
+  ).includes("pend");
 
   useEffect(() => {
     if (!authorizationId) return;
@@ -458,6 +475,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
     hideSpinner();
 
     if (success) {
+      setStatusOverride("Aprobada");
       await getAuthorizations(true);
       if (idRequisitionRequest) {
         await fetchRequisitionRequestById(idRequisitionRequest);
@@ -578,6 +596,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
     hideSpinner();
 
     if (success) {
+      setStatusOverride("Rechazada");
       await getAuthorizations(true);
       if (idRequisitionRequest) {
         await fetchRequisitionRequestById(idRequisitionRequest);
@@ -615,6 +634,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
 
   const actionsDisabled =
     reviewFields.length === 0 ||
+    !isPendingRequestStatus ||
     approvingTravelExpense ||
     rejectingTravelExpense ||
     updatingStatus;

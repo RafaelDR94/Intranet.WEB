@@ -57,7 +57,12 @@ export const fetchRequisitionRequests = async (
 ) => {
   if (get().travelExpenses.length > 0 && !force) return;
 
-  set({ loading: true, error: undefined, successGet: false });
+  set({
+    loading: true,
+    error: undefined,
+    successGet: false,
+    travelExpenses: [],
+  });
 
   try {
     const getReq = pGet(requireGateway("get"));

@@ -40,7 +40,14 @@ export const fetchRequisitionRequestById = async (
       record && typeof record === "object"
         ? (record as Record<string, unknown>).travel_expense
         : undefined;
-    const mapped = TravelExpenseMap(rawTravelExpense ?? record);
+    const mapped = TravelExpenseMap(
+      rawTravelExpense && typeof rawTravelExpense === "object"
+        ? {
+            ...(record as Record<string, unknown>),
+            ...(rawTravelExpense as Record<string, unknown>),
+          }
+        : record,
+    );
 
     set({
       currentRequisitionRequest: mapped,

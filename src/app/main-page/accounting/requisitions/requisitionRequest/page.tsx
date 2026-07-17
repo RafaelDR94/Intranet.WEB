@@ -16,9 +16,8 @@ import { requisitionRequestStyles as styles } from "./styles";
  */
 const RequisitionRequestPage = () => {
   const {
-    approvingTravelExpense,
     detailViaticsRows,
-    fetchTravelExpenses,
+    fetchRequisitionRequests,
     handleApproveTravelExpense,
     handleCreateClick,
     handleRejectCommentCancel,
@@ -31,6 +30,7 @@ const RequisitionRequestPage = () => {
     rejectCommentError,
     rejectCommentOpen,
     rejectingTravelExpense,
+    requestActionsDisabled,
     reviewFields,
     reviewFormLayout,
     selectedTravelExpense,
@@ -53,11 +53,7 @@ const RequisitionRequestPage = () => {
                 type="button"
                 variant="outline"
                 className={styles.rejectButton}
-                disabled={
-                  !selectedTravelExpense ||
-                  approvingTravelExpense ||
-                  rejectingTravelExpense
-                }
+                disabled={requestActionsDisabled}
                 onClick={handleRejectCommentOpen}
               >
                 Rechazar
@@ -66,11 +62,7 @@ const RequisitionRequestPage = () => {
                 hideIcon
                 type="button"
                 className={styles.actionButton}
-                disabled={
-                  !selectedTravelExpense ||
-                  approvingTravelExpense ||
-                  rejectingTravelExpense
-                }
+                disabled={requestActionsDisabled}
                 onClick={handleApproveTravelExpense}
               >
                 Aprobar
@@ -150,7 +142,7 @@ const RequisitionRequestPage = () => {
     >
       <TravelExpenseTableSection
         rows={travelExpenses}
-        onRefresh={() => fetchTravelExpenses(true)}
+        onRefresh={() => fetchRequisitionRequests(true)}
         onViewDetails={handleViewDetails}
         pagination={false}
       />

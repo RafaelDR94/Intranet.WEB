@@ -1,6 +1,6 @@
 {
   "name": "intranet.web",
-  "version": "1.50.32",
+  "version": "1.50.35",
   "private": true,
   "scripts": {
     "dev": "node scripts/dev.js",

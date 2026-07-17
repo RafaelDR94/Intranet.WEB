@@ -70,7 +70,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
     let rendervalue = value || field.value;
     if (field.type === "select") {
       rendervalue = field.options?.find(
-        (opt) => opt.value === field?.value
+        (opt) => opt.value === field?.value,
       )?.label;
     }
     return (
@@ -123,7 +123,9 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           label={field.label}
           disabled={field.disabled}
           className={field.className}
-          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
+          dataTestId={
+            formDataTestId ? `${formDataTestId}-${field.name}` : undefined
+          }
         />
       );
 
@@ -135,7 +137,9 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           label={field.label}
           className={field.className}
           disabled={field.disabled}
-          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
+          dataTestId={
+            formDataTestId ? `${formDataTestId}-${field.name}` : undefined
+          }
         />
       );
 
@@ -152,7 +156,9 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             className={field.className}
             icon={field.icon}
             initialFile={field.initialFile}
-            dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
+            dataTestId={
+              formDataTestId ? `${formDataTestId}-${field.name}` : undefined
+            }
           />
           {helperText && (
             <span className={helperClasses(variant as InputVariant)}>
@@ -177,7 +183,9 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             cameraButtonAriaLabel={field.cameraButtonAriaLabel}
             initialFile={field.initialFile}
             initialFiles={field.initialFiles}
-            dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
+            dataTestId={
+              formDataTestId ? `${formDataTestId}-${field.name}` : undefined
+            }
             preview={field.preview}
             previewCoverMode={field.previewCoverMode}
             multiple={field.multiple}
@@ -203,7 +211,9 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           disabled={field.disabled}
           helperText={helperText}
           className={field.className}
-          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
+          dataTestId={
+            formDataTestId ? `${formDataTestId}-${field.name}` : undefined
+          }
         />
       );
     case "controlLevel": {
@@ -217,7 +227,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
       const numericValue =
         typeof value === "number"
           ? value
-          : initialValue ?? restControlProps.min ?? 0;
+          : (initialValue ?? restControlProps.min ?? 0);
 
       return (
         <div className="flex flex-col gap-1">
@@ -227,7 +237,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             className={clsx(
               controlLevelClassName,
               field.className,
-              field.disabled && "pointer-events-none opacity-60"
+              field.disabled && "pointer-events-none opacity-60",
             )}
             level={numericValue}
             setLevel={field.disabled ? () => undefined : handleChange}
@@ -246,8 +256,8 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
       const arrayValue = Array.isArray(value)
         ? value
         : Array.isArray(field.value)
-        ? (field.value as string[])
-        : [];
+          ? (field.value as string[])
+          : [];
 
       return (
         <div className="flex flex-col gap-1">
@@ -285,12 +295,12 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           onChange={(e) =>
             handleChange((e.target as HTMLTextAreaElement).value)
           }
-          onFocus={(e) =>
-            handleFocus((e.target as HTMLTextAreaElement).value)
-          }
+          onFocus={(e) => handleFocus((e.target as HTMLTextAreaElement).value)}
           onBlur={onBlur}
           variant={field.disabled ? "disabled" : variant}
-          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
+          dataTestId={
+            formDataTestId ? `${formDataTestId}-${field.name}` : undefined
+          }
         />
       );
 
@@ -299,11 +309,12 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
         field.type === "input"
           ? "text"
           : field.type === "email"
-          ? "email"
-          : field.type;
+            ? "email"
+            : field.type;
       const inputValue = value ?? field.value ?? "";
 
-      return (
+      const Icon = field.icon;
+      const input = (
         <Input
           {...baseProps}
           className={`${baseProps.className ?? ""} ${fieldRendererStyles.noSpinner}`}
@@ -314,8 +325,31 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           type={inputType}
           variant={field.disabled ? "disabled" : variant}
           inputMode={field.type === "number" ? "decimal" : undefined} // opcional
-          dataTestId={formDataTestId ? `${formDataTestId}-${field.name}` : undefined}
+          dataTestId={
+            formDataTestId ? `${formDataTestId}-${field.name}` : undefined
+          }
         />
+      );
+
+      if (!Icon || !field.onIconClick) return input;
+
+      return (
+        <div className="flex items-end gap-2">
+          <div className="min-w-0 flex-1">{input}</div>
+          <button
+            type="button"
+            onClick={field.onIconClick}
+            aria-label={`Cancelar ${field.label.toLowerCase()}`}
+            className="text-gray-60 hover:text-alert-red-100 flex h-10 w-8 shrink-0 items-center justify-center rounded-md transition-colors"
+            data-testid={
+              formDataTestId
+                ? `${formDataTestId}-${field.name}-icon`
+                : undefined
+            }
+          >
+            <Icon className="h-4 w-4" />
+          </button>
+        </div>
       );
     }
   }

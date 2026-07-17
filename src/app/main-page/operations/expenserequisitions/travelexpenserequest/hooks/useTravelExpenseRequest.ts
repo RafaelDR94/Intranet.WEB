@@ -1,3 +1,4 @@
+import CancelIcon from "@/assets/icons/acciones/cancel.svg";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -6,7 +7,6 @@ import type {
   ResponsiveLayoutMatrix,
 } from "@/app/components/DynamicForm/types";
 import type { SelectOption } from "@/app/components/Select/types";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { statesList } from "@/app/main-page/accounting/requisitions/components/RequisitionsForm/utilities/statesList";
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
@@ -142,7 +142,6 @@ export const useTravelExpenseRequest = () => {
   const [authorizerPopUpOpen, setAuthorizerPopUpOpen] = useState(false);
   const [authorizerSelected, setAuthorizerSelected] = useState("");
   const [authorizerError, setAuthorizerError] = useState<string | null>(null);
-  const { user } = useAuth();
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { hideSpinner, showSpinner } = usePrincipalLoading;
@@ -229,7 +228,7 @@ export const useTravelExpenseRequest = () => {
   const fetchProyects = useProyectsStore((state) => state.fetchProyects);
 
   useEffect(() => {
-    fetchTravelExpenses();
+    fetchTravelExpenses(true);
     fetchEmployeesWithCardNumber();
     fetchEnterprises();
     fetchDepartments();
@@ -702,6 +701,42 @@ export const useTravelExpenseRequest = () => {
       })),
     [proyects],
   );
+  const handleRemoveAssignedStaff = (rowIndex: number) => {
+    if (rowIndex === 0) return;
+
+    setFormValues((currentValues) => {
+      const nextValues = { ...currentValues };
+
+      Array.from({ length: assignedStaffRows }, (_, index) => {
+        const suffix = index === 0 ? "" : String(index + 1);
+        delete nextValues[`assignedStaff${suffix}`];
+        delete nextValues[`phone${suffix}`];
+        delete nextValues[`cardNumber${suffix}`];
+      });
+
+      let nextIndex = 0;
+
+      Array.from({ length: assignedStaffRows }, (_, index) => {
+        if (index === rowIndex) return;
+
+        const currentSuffix = index === 0 ? "" : String(index + 1);
+        const nextSuffix = nextIndex === 0 ? "" : String(nextIndex + 1);
+
+        nextValues[`assignedStaff${nextSuffix}`] =
+          currentValues[`assignedStaff${currentSuffix}`] ?? "";
+        nextValues[`phone${nextSuffix}`] =
+          currentValues[`phone${currentSuffix}`] ?? "";
+        nextValues[`cardNumber${nextSuffix}`] =
+          currentValues[`cardNumber${currentSuffix}`] ?? "";
+        nextIndex += 1;
+      });
+
+      return nextValues;
+    });
+    setAssignedStaffRows((currentRows) => Math.max(1, currentRows - 1));
+    setValuesVersion((currentVersion) => currentVersion + 1);
+  };
+
   const assignedStaffFields = useMemo<FieldModel[]>(
     () =>
       Array.from({ length: assignedStaffRows }, (_, index) => {
@@ -738,6 +773,9 @@ export const useTravelExpenseRequest = () => {
             placeholder: "000 -",
             value: (formValues[cardNumberName] ?? "") as FieldModel["value"],
             disabled: !isStaffSelected,
+            icon: index > 0 ? CancelIcon : undefined,
+            onIconClick:
+              index > 0 ? () => handleRemoveAssignedStaff(index) : undefined,
           },
         ] satisfies FieldModel[];
       }).flat(),
@@ -864,6 +902,7 @@ export const useTravelExpenseRequest = () => {
     setAssignedStaffRows((currentRows) => currentRows + 1);
     setValuesVersion((currentVersion) => currentVersion + 1);
   };
+
   const handleCreateValuesChange = (values: Record<string, unknown>) => {
     let shouldRefreshFormValues = false;
 
@@ -1191,7 +1230,7 @@ export const useTravelExpenseRequest = () => {
     router.push(pathname);
   };
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
-    const applicantId = toFormString(user?.idEmployee);
+    const applicantId = toFormString(values.responsible);
     const selectedAssignees = Array.from(
       { length: assignedStaffRows },
       (_, index) => {
@@ -1218,7 +1257,7 @@ export const useTravelExpenseRequest = () => {
       showAlert({
         type: "error",
         title: "No se pudo crear",
-        description: "No se encontro el empleado solicitante.",
+        description: "Selecciona el responsable de la solicitud.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 2500,
@@ -1498,6 +1537,7 @@ export const useTravelExpenseRequest = () => {
 
   return {
     activeBeneficiaryId,
+    assignedStaffRows,
     approvingTravelExpense,
     authorizerError,
     authorizerOptions,
@@ -1528,6 +1568,7 @@ export const useTravelExpenseRequest = () => {
     handleRejectCommentChange,
     handleRejectCommentOpen,
     handleRejectTravelExpense,
+    handleRemoveAssignedStaff,
     handleRequisitionValuesChange,
     handleSaveRequisitionProgress,
     handleSendRequisitionAuthorization,
@@ -1593,4 +1634,3 @@ const normalizeOptionalCardNumber = (value: string) => {
 
   return normalizedValue === "000 -" ? "" : normalizedValue;
 };
-

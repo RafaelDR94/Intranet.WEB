@@ -107,8 +107,8 @@ export const useRequisitionRequestPage = () => {
   const fetchRequisitionRequestById = useTravelExpensesStore(
     (state) => state.fetchRequisitionRequestById,
   );
-  const approveTravelExpense = useTravelExpensesStore(
-    (state) => state.approveTravelExpense,
+  const approveRequisitionRequestThroughAccounting = useTravelExpensesStore(
+    (state) => state.approveRequisitionRequestThroughAccounting,
   );
   const rejectTravelExpense = useTravelExpensesStore(
     (state) => state.rejectTravelExpense,
@@ -172,7 +172,7 @@ export const useRequisitionRequestPage = () => {
   const fetchProyects = useProyectsStore((state) => state.fetchProyects);
 
   useEffect(() => {
-    fetchRequisitionRequests();
+    fetchRequisitionRequests(true);
     fetchEnterprises();
     fetchDepartments();
     fetchEmployeesWithActiveUser(true);
@@ -670,6 +670,11 @@ export const useRequisitionRequestPage = () => {
         getTravelExpenseIdentifier(selectedTravelExpense)
       : "";
 
+  const getSelectedRequisitionRequestId = () =>
+    selectedTravelExpense?.id ||
+    selectedTravelExpense?.requisition_requests[0]?.id ||
+    "";
+
   const showTravelExpenseActionError = (title: string) => {
     showAlert({
       type: "error",
@@ -687,13 +692,14 @@ export const useRequisitionRequestPage = () => {
     beneficiaryViaticsRows[beneficiaryId] ?? cloneEmptyViaticsRows();
 
   const handleApproveTravelExpense = async () => {
-    const idTravelExpense = getSelectedTravelExpenseId();
-    if (!idTravelExpense) return;
+    const idRequisitionRequest = getSelectedRequisitionRequestId();
+    if (!idRequisitionRequest) return;
 
     showSpinner({
       message: "Espera un momento, tu accion esta siendo procesada",
     });
-    const success = await approveTravelExpense(idTravelExpense);
+    const success =
+      await approveRequisitionRequestThroughAccounting(idRequisitionRequest);
     hideSpinner();
 
     if (!success) {
@@ -701,11 +707,15 @@ export const useRequisitionRequestPage = () => {
       return;
     }
 
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", "requisition");
-    params.set("id", idTravelExpense);
-    params.set("label", "Creacion de requisicion");
-    router.push(`${pathname}?${params.toString()}`);
+    await fetchRequisitionRequestById(idRequisitionRequest);
+    showAlert({
+      type: "success",
+      title: "Solicitud aprobada",
+      description: "La solicitud de viaticos fue aprobada correctamente.",
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      autoCloseMs: 1800,
+    });
   };
 
   const handleSaveRequisitionProgress = async () => {
@@ -846,6 +856,7 @@ export const useRequisitionRequestPage = () => {
       return;
     }
 
+    await fetchRequisitionRequestById(idTravelExpense);
     handleRejectCommentCancel();
     showAlert({
       type: "success",
@@ -855,7 +866,6 @@ export const useRequisitionRequestPage = () => {
       showSecondaryButton: false,
       autoCloseMs: 1800,
     });
-    router.push(pathname);
   };
 
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
@@ -955,6 +965,10 @@ export const useRequisitionRequestPage = () => {
     view === "detail" &&
     selectedTravelExpense &&
     isDraftStatus(selectedTravelExpense.status);
+  const requestActionsDisabled =
+    !selectedTravelExpense ||
+    approvingTravelExpense ||
+    rejectingTravelExpense;
 
   return {
     activeBeneficiaryId,
@@ -966,7 +980,7 @@ export const useRequisitionRequestPage = () => {
     departmentsLoading,
     employeesWithActiveUserLoading,
     excelFile,
-    fetchTravelExpenses: fetchRequisitionRequests,
+    fetchRequisitionRequests,
     formReady,
     formValues,
     handleAddAssignedStaff,
@@ -989,6 +1003,7 @@ export const useRequisitionRequestPage = () => {
     rejectCommentError,
     rejectCommentOpen,
     rejectingTravelExpense,
+    requestActionsDisabled,
     requisitionBeneficiaries,
     requisitionFields,
     requisitionSection,
