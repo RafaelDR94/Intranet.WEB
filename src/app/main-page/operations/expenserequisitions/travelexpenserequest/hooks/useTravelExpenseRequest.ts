@@ -7,7 +7,6 @@ import type {
   ResponsiveLayoutMatrix,
 } from "@/app/components/DynamicForm/types";
 import type { SelectOption } from "@/app/components/Select/types";
-import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import { statesList } from "@/app/main-page/accounting/requisitions/components/RequisitionsForm/utilities/statesList";
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
@@ -143,7 +142,6 @@ export const useTravelExpenseRequest = () => {
   const [authorizerPopUpOpen, setAuthorizerPopUpOpen] = useState(false);
   const [authorizerSelected, setAuthorizerSelected] = useState("");
   const [authorizerError, setAuthorizerError] = useState<string | null>(null);
-  const { user } = useAuth();
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { hideSpinner, showSpinner } = usePrincipalLoading;
@@ -1232,7 +1230,7 @@ export const useTravelExpenseRequest = () => {
     router.push(pathname);
   };
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
-    const applicantId = toFormString(user?.idEmployee);
+    const applicantId = toFormString(values.responsible);
     const selectedAssignees = Array.from(
       { length: assignedStaffRows },
       (_, index) => {
@@ -1259,7 +1257,7 @@ export const useTravelExpenseRequest = () => {
       showAlert({
         type: "error",
         title: "No se pudo crear",
-        description: "No se encontro el empleado solicitante.",
+        description: "Selecciona el responsable de la solicitud.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 2500,
