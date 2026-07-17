@@ -222,7 +222,6 @@ const TravelExpenseRequestPage = () => {
             icon: index > 0 ? CancelIcon : undefined,
             onIconClick:
               index > 0 ? () => handleRemoveAssignedStaff(index) : undefined,
-            className: index > 0 ? "pr-10" : undefined,
           },
         ] satisfies FieldModel[];
       }).flat(),
