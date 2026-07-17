@@ -1,3 +1,9 @@
+### 1.50.34 Refresco de requisiciones en contabilidad 2026-07-17
+
+Fix:
+
+- Fuerza la carga desde Billings/RequisitionRequestfilter al entrar o refrescar la tabla de solicitudes de requisiciones en contabilidad para evitar mostrar datos almacenados de otros endpoints. (Agente IA) [#]()
+
 ### 1.50.33 Cancelar acompañantes en viáticos 2026-07-17
 
 Fix:

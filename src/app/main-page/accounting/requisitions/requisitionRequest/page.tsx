@@ -17,7 +17,7 @@ import { requisitionRequestStyles as styles } from "./styles";
 const RequisitionRequestPage = () => {
   const {
     detailViaticsRows,
-    fetchTravelExpenses,
+    fetchRequisitionRequests,
     handleApproveTravelExpense,
     handleCreateClick,
     handleRejectCommentCancel,
@@ -142,7 +142,7 @@ const RequisitionRequestPage = () => {
     >
       <TravelExpenseTableSection
         rows={travelExpenses}
-        onRefresh={() => fetchTravelExpenses(true)}
+        onRefresh={() => fetchRequisitionRequests(true)}
         onViewDetails={handleViewDetails}
         pagination={false}
       />

@@ -172,7 +172,7 @@ export const useRequisitionRequestPage = () => {
   const fetchProyects = useProyectsStore((state) => state.fetchProyects);
 
   useEffect(() => {
-    fetchRequisitionRequests();
+    fetchRequisitionRequests(true);
     fetchEnterprises();
     fetchDepartments();
     fetchEmployeesWithActiveUser(true);
@@ -980,7 +980,7 @@ export const useRequisitionRequestPage = () => {
     departmentsLoading,
     employeesWithActiveUserLoading,
     excelFile,
-    fetchTravelExpenses: fetchRequisitionRequests,
+    fetchRequisitionRequests,
     formReady,
     formValues,
     handleAddAssignedStaff,
