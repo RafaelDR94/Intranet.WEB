@@ -27,7 +27,6 @@ import { travelExpenseRequestStyles as styles } from "./styles";
 const TravelExpenseRequest = () => {
   const {
     activeBeneficiaryId,
-    assignedStaffRows,
     approvingTravelExpense,
     authorizerError,
     authorizerOptions,
@@ -58,7 +57,6 @@ const TravelExpenseRequest = () => {
     handleRejectCommentChange,
     handleRejectCommentOpen,
     handleRejectTravelExpense,
-    handleRemoveAssignedStaff,
     handleRequisitionValuesChange,
     handleSaveRequisitionProgress,
     handleSendRequisitionAuthorization,
@@ -178,28 +176,6 @@ const TravelExpenseRequest = () => {
               }
               dataTestId="travel-expense-create-form"
             >
-              {assignedStaffRows > 1 && (
-                <div className={styles.removeCompanionList}>
-                  {Array.from({ length: assignedStaffRows - 1 }, (_, index) => {
-                    const rowIndex = index + 1;
-
-                    return (
-                      <Button
-                        key={rowIndex}
-                        type="button"
-                        onClick={() => handleRemoveAssignedStaff(rowIndex)}
-                        arrowDirection="cancel"
-                        variant="ghost"
-                        size="small"
-                        className={styles.removeCompanionButton}
-                        dataTestId={`remove-companion-${rowIndex}`}
-                      >
-                        Cancelar acompañante {rowIndex}
-                      </Button>
-                    );
-                  })}
-                </div>
-              )}
               <Button
                 type="button"
                 onClick={handleAddAssignedStaff}

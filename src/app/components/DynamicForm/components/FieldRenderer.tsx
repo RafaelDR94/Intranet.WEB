@@ -52,6 +52,8 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
     containerClassName: field.containerClassName,
     labelClassName: field.labelClassName,
     helperClassName: field.helperClassName,
+    icon: field.icon,
+    onIconClick: field.onIconClick,
   };
 
   const handleChange = (newValue: any) => {

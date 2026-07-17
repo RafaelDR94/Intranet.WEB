@@ -1,3 +1,4 @@
+import CancelIcon from "@/assets/icons/acciones/cancel.svg";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -702,6 +703,42 @@ export const useTravelExpenseRequest = () => {
       })),
     [proyects],
   );
+  const handleRemoveAssignedStaff = (rowIndex: number) => {
+    if (rowIndex === 0) return;
+
+    setFormValues((currentValues) => {
+      const nextValues = { ...currentValues };
+
+      Array.from({ length: assignedStaffRows }, (_, index) => {
+        const suffix = index === 0 ? "" : String(index + 1);
+        delete nextValues[`assignedStaff${suffix}`];
+        delete nextValues[`phone${suffix}`];
+        delete nextValues[`cardNumber${suffix}`];
+      });
+
+      let nextIndex = 0;
+
+      Array.from({ length: assignedStaffRows }, (_, index) => {
+        if (index === rowIndex) return;
+
+        const currentSuffix = index === 0 ? "" : String(index + 1);
+        const nextSuffix = nextIndex === 0 ? "" : String(nextIndex + 1);
+
+        nextValues[`assignedStaff${nextSuffix}`] =
+          currentValues[`assignedStaff${currentSuffix}`] ?? "";
+        nextValues[`phone${nextSuffix}`] =
+          currentValues[`phone${currentSuffix}`] ?? "";
+        nextValues[`cardNumber${nextSuffix}`] =
+          currentValues[`cardNumber${currentSuffix}`] ?? "";
+        nextIndex += 1;
+      });
+
+      return nextValues;
+    });
+    setAssignedStaffRows((currentRows) => Math.max(1, currentRows - 1));
+    setValuesVersion((currentVersion) => currentVersion + 1);
+  };
+
   const assignedStaffFields = useMemo<FieldModel[]>(
     () =>
       Array.from({ length: assignedStaffRows }, (_, index) => {
@@ -738,6 +775,10 @@ export const useTravelExpenseRequest = () => {
             placeholder: "000 -",
             value: (formValues[cardNumberName] ?? "") as FieldModel["value"],
             disabled: !isStaffSelected,
+            icon: index > 0 ? CancelIcon : undefined,
+            onIconClick:
+              index > 0 ? () => handleRemoveAssignedStaff(index) : undefined,
+            className: index > 0 ? "pr-10" : undefined,
           },
         ] satisfies FieldModel[];
       }).flat(),
@@ -864,41 +905,7 @@ export const useTravelExpenseRequest = () => {
     setAssignedStaffRows((currentRows) => currentRows + 1);
     setValuesVersion((currentVersion) => currentVersion + 1);
   };
-  const handleRemoveAssignedStaff = (rowIndex: number) => {
-    if (rowIndex === 0) return;
 
-    setFormValues((currentValues) => {
-      const nextValues = { ...currentValues };
-
-      Array.from({ length: assignedStaffRows }, (_, index) => {
-        const suffix = index === 0 ? "" : String(index + 1);
-        delete nextValues[`assignedStaff${suffix}`];
-        delete nextValues[`phone${suffix}`];
-        delete nextValues[`cardNumber${suffix}`];
-      });
-
-      let nextIndex = 0;
-
-      Array.from({ length: assignedStaffRows }, (_, index) => {
-        if (index === rowIndex) return;
-
-        const currentSuffix = index === 0 ? "" : String(index + 1);
-        const nextSuffix = nextIndex === 0 ? "" : String(nextIndex + 1);
-
-        nextValues[`assignedStaff${nextSuffix}`] =
-          currentValues[`assignedStaff${currentSuffix}`] ?? "";
-        nextValues[`phone${nextSuffix}`] =
-          currentValues[`phone${currentSuffix}`] ?? "";
-        nextValues[`cardNumber${nextSuffix}`] =
-          currentValues[`cardNumber${currentSuffix}`] ?? "";
-        nextIndex += 1;
-      });
-
-      return nextValues;
-    });
-    setAssignedStaffRows((currentRows) => Math.max(1, currentRows - 1));
-    setValuesVersion((currentVersion) => currentVersion + 1);
-  };
   const handleCreateValuesChange = (values: Record<string, unknown>) => {
     let shouldRefreshFormValues = false;
 

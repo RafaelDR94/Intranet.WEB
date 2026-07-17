@@ -18,8 +18,6 @@ export const travelExpenseRequestStyles = {
   emptyText: "text-b3 text-gray-80",
   formRow: "mb-4 gap-x-5 gap-y-4",
   formsCard: "!block",
-  removeCompanionList: "mt-2 flex flex-wrap gap-2",
-  removeCompanionButton: "text-alert-red-100",
   tableFormsCard: "!block !p-0",
   statusBar:
     "bg-white-100 flex min-h-9 items-center rounded-lg px-4 py-2 shadow-sm",
