@@ -80,6 +80,50 @@ describe("TravelExpenseMap", () => {
     );
   });
 
+  it("wraps direct requisition request calculation_concepts into progress json", () => {
+    const result = TravelExpenseMap({
+      id: "requisition-request-1",
+      employee_id: "employee-1",
+      employee_name: "Angel Vazquez",
+      requisition_code: "REQ-001",
+      motive: "Revision",
+      start_date: "2026-07-17T06:00:00.000Z",
+      end_date: "2026-07-18T06:00:00.000Z",
+      calculation_concepts: [
+        {
+          concept: "Renta de automóvil",
+          national_quoted: 10000,
+          foreign_quoted: 0,
+          people_number: 1,
+          days_number: 7,
+          subtotal: 70000,
+          observations: "Escribe aquí",
+        },
+      ],
+    });
+
+    expect(result.requisitionkey).toBe("REQ-001");
+    expect(result.assignmentdate).toBe("2026-07-17T06:00:00.000Z");
+    expect(result.enddate).toBe("2026-07-18T06:00:00.000Z");
+    expect(result.calculation_concepts_json?.[0]).toMatchObject({
+      employee_id: "employee-1",
+      employee_name: "Angel Vazquez",
+      requisition_code: "REQ-001",
+      motive: "Revision",
+      start_date: "2026-07-17T06:00:00.000Z",
+      end_date: "2026-07-18T06:00:00.000Z",
+      calculation_concepts: [
+        {
+          concept: "Renta de automóvil",
+          national_quoted: 10000,
+          people_number: 1,
+          days_number: 7,
+          subtotal: 70000,
+        },
+      ],
+    });
+  });
+
   it("keeps status_name empty when the API has no assigned status", () => {
     const result = TravelExpenseMap({
       id: "travel-expense-1",

@@ -51,8 +51,11 @@ export type TravelExpenseApi = {
   requisitionKey?: string | null;
   assignmentdate?: string | null;
   assignmentDate?: string | null;
+  start_date?: string | null;
+  startDate?: string | null;
   enddate?: string | null;
   endDate?: string | null;
+  end_date?: string | null;
   state?: string | null;
   motive?: string | null;
   comments?: string | null;
@@ -76,8 +79,12 @@ export type TravelExpenseApi = {
   companions?: TravelExpenseCompanionApi[] | null;
   requisition_requests?: TravelExpenseRequisitionRequestApi[] | null;
   travel_expenses_calculations?: unknown[] | null;
+  calculation_concepts?: TravelExpenseCalculationConceptJsonApi[] | null;
+  calculationConcepts?: TravelExpenseCalculationConceptJsonApi[] | null;
   calculation_concepts_json?: TravelExpenseProgressItemApi[] | string | null;
   calculationConceptsJson?: TravelExpenseProgressItemApi[] | string | null;
+  requisition_code?: string | null;
+  requisitionCode?: string | null;
 };
 
 export type TravelExpenseCompanionApi = {

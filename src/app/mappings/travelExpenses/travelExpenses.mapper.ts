@@ -23,6 +23,52 @@ const parseCalculationConceptsJson = (
   }
 };
 
+const mapCalculationConceptsJson = (
+  record: TravelExpenseApi,
+): TravelExpense["calculation_concepts_json"] => {
+  const progressItems = parseCalculationConceptsJson(
+    record.calculation_concepts_json ?? record.calculationConceptsJson,
+  ) ?? [];
+
+  if (progressItems.length > 0) return progressItems;
+
+  const calculationConcepts =
+    record.calculation_concepts ?? record.calculationConcepts ?? [];
+
+  if (!Array.isArray(calculationConcepts) || calculationConcepts.length === 0) {
+    return [];
+  }
+
+  return [
+    {
+      employee_id: record.employee_id ?? record.employeeId,
+      employee_name:
+        record.employee_name ??
+        record.employeeName ??
+        record.employeename ??
+        record.full_name ??
+        record.fullName,
+      requisition_code: record.requisition_code ?? record.requisitionCode,
+      motive: record.motive,
+      start_date:
+        record.start_date ??
+        record.startDate ??
+        record.assignmentdate ??
+        record.assignmentDate,
+      end_date: record.end_date ?? record.endDate ?? record.enddate,
+      companions: record.companions?.map((companion) => ({
+        employee_id:
+          companion.employee_id ??
+          companion.employeeId ??
+          companion.id_employee,
+        full_name:
+          companion.full_name ?? companion.fullName ?? companion.employee_name,
+      })),
+      calculation_concepts: calculationConcepts,
+    },
+  ];
+};
+
 const mapCompanions = (
   companions: TravelExpenseApi["companions"],
 ): TravelExpense["companions"] =>
@@ -142,12 +188,18 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
     status_employee_name: statusEmployeeName,
     status,
     requisitionkey: toStringSafe(
-      record.requisitionkey ?? record.requisitionKey,
+      record.requisitionkey ??
+        record.requisitionKey ??
+        record.requisition_code ??
+        record.requisitionCode,
     ),
     assignmentdate: toStringSafe(
-      record.assignmentdate ?? record.assignmentDate,
+      record.assignmentdate ??
+        record.assignmentDate ??
+        record.start_date ??
+        record.startDate,
     ),
-    enddate: toStringSafe(record.enddate ?? record.endDate),
+    enddate: toStringSafe(record.enddate ?? record.endDate ?? record.end_date),
     state: toStringSafe(record.state),
     motive: toStringSafe(record.motive),
     comments: toStringSafe(
@@ -177,9 +229,7 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
     )
       ? record.travel_expenses_calculations
       : [],
-    calculation_concepts_json: parseCalculationConceptsJson(
-      record.calculation_concepts_json ?? record.calculationConceptsJson,
-    ),
+    calculation_concepts_json: mapCalculationConceptsJson(record),
   };
 };
 
