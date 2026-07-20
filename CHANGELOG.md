@@ -1,3 +1,9 @@
+### 1.50.38 Espaciado de tabla de solicitudes contables 2026-07-20
+
+Fix:
+
+- Ajusta la distribución de columnas de la tabla de solicitudes de requisiciones en contabilidad para reducir truncamientos y aprovechar mejor el ancho disponible. (Agente IA) [#]()
+
 ### 1.50.37 Rechazo contable por endpoint Auth 2026-07-20
 
 Fix:

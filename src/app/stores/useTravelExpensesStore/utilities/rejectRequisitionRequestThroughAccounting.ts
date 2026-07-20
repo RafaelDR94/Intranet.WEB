@@ -30,7 +30,7 @@ export const rejectRequisitionRequestThroughAccounting = async (
   set({ rejecting: true, error: undefined, successReject: false });
 
   try {
-    const put = pPut(requireGateway("put"), [200, 201, 204]);
+    const put = pPut(requireGateway("put"), [200, 201]);
     const params = new URLSearchParams({
       IdRequisitionRequest: payload.idRequisitionRequest,
       comment: payload.comment,
@@ -51,11 +51,11 @@ export const rejectRequisitionRequestThroughAccounting = async (
       rejecting: false,
       successReject: true,
       currentRequisitionRequest: markRejected(get().currentRequisitionRequest),
-      travelExpenses: get().travelExpenses.map((item) =>
+      travelExpenses: get().travelExpenses.map((item:any) =>
         item.id === payload.idRequisitionRequest ||
         item.billingrequisition_id === payload.idRequisitionRequest ||
         item.requisition_requests.some(
-          (request) => request.id === payload.idRequisitionRequest,
+          (request: any) => request.id === payload.idRequisitionRequest,
         )
           ? markRejected(item)
           : item,

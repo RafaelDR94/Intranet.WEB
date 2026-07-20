@@ -16,6 +16,6 @@ export const requisitionRequestStyles = {
   emptyText: "text-b3 text-gray-80",
   formRow: "mb-4 gap-x-5 gap-y-4",
   tableCellText: "text-gray-80",
-  tableActionCell: "justify-end",
+  tableActionCell: "justify-start",
   formsCard: "!block !p-0",
 };
