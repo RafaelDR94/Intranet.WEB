@@ -1,3 +1,9 @@
+### 1.50.39 Código de proyecto en revisión contable 2026-07-20
+
+Fix:
+
+- Cambia el campo de revisión contable para mostrar `proyectkey` como código de proyecto en solicitudes de requisiciones. (Agente IA) [#]()
+
 ### 1.50.38 Espaciado de tabla de solicitudes contables 2026-07-20
 
 Fix:

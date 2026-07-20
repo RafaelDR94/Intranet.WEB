@@ -161,6 +161,14 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
     card_number: toStringSafe(record.card_number ?? record.cardNumber),
     project_id: toStringSafe(record.project_id ?? record.projectId),
     projectname: toStringSafe(record.projectname ?? record.projectName),
+    proyectkey: toStringSafe(
+      record.proyectkey ??
+        record.proyectKey ??
+        record.projectkey ??
+        record.projectKey ??
+        record.projectname ??
+        record.projectName,
+    ),
     company: toStringSafe(
       record.company ??
         record.companyname ??

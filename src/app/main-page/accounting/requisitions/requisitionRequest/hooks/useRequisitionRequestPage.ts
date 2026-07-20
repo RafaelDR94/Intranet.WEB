@@ -253,9 +253,9 @@ export const useRequisitionRequestPage = () => {
       },
       {
         type: "input",
-        name: "projectname",
+        name: "proyectkey",
         label: "Codigo de Proyecto",
-        value: selectedTravelExpense.projectname,
+        value: selectedTravelExpense.proyectkey,
         disabled: true,
       },
       {
