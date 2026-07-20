@@ -1,3 +1,9 @@
+### 1.50.36 Bloqueo de acciones aprobadas en contabilidad 2026-07-20
+
+Fix:
+
+- Deshabilita los botones de aprobar y rechazar en el detalle de solicitudes de requisiciones cuando `is_approved_by_accounting` ya viene aprobado desde backend. (Agente IA) [#]()
+
 ### 1.50.35 Refresco al cambiar tablas de viáticos 2026-07-17
 
 Fix:

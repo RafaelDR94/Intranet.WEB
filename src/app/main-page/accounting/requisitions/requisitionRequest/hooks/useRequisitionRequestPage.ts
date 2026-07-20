@@ -967,6 +967,7 @@ export const useRequisitionRequestPage = () => {
     isDraftStatus(selectedTravelExpense.status);
   const requestActionsDisabled =
     !selectedTravelExpense ||
+    selectedTravelExpense.is_approved_by_accounting ||
     approvingTravelExpense ||
     rejectingTravelExpense;
 

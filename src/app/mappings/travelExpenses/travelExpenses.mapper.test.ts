@@ -141,4 +141,13 @@ describe("TravelExpenseMap", () => {
 
     expect(result.status_employee_name).toBe("Autorizada por empleado");
   });
+
+  it("maps accounting approval flag from the API", () => {
+    const result = TravelExpenseMap({
+      id: "travel-expense-1",
+      is_approved_by_accounting: true,
+    });
+
+    expect(result.is_approved_by_accounting).toBe(true);
+  });
 });

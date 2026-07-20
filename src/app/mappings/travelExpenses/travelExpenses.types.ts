@@ -85,6 +85,8 @@ export type TravelExpenseApi = {
   calculationConceptsJson?: TravelExpenseProgressItemApi[] | string | null;
   requisition_code?: string | null;
   requisitionCode?: string | null;
+  is_approved_by_accounting?: boolean | null;
+  isApprovedByAccounting?: boolean | null;
 };
 
 export type TravelExpenseCompanionApi = {
@@ -216,4 +218,5 @@ export type TravelExpense = {
   requisition_requests: TravelExpenseRequisitionRequest[];
   travel_expenses_calculations: unknown[];
   calculation_concepts_json?: TravelExpenseProgressItemApi[];
+  is_approved_by_accounting: boolean;
 };

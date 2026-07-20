@@ -213,6 +213,9 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
       record.is_travel_expense ?? record.isTravelExpense,
     ),
     is_active: toBooleanSafe(record.is_active ?? record.isActive),
+    is_approved_by_accounting: toBooleanSafe(
+      record.is_approved_by_accounting ?? record.isApprovedByAccounting,
+    ),
     date_created: toStringSafe(record.date_created ?? record.dateCreated),
     updated_date: toStringSafe(record.updated_date ?? record.updatedDate),
     created_by: toStringSafe(
