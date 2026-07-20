@@ -1,3 +1,9 @@
+### 1.50.40 Totales en avance contable de viáticos 2026-07-20
+
+Fix:
+
+- Agrega `subtotal` y `total` al payload de `TravelExpenses/SaveProgress` usando las cantidades capturadas en la tabla de conceptos y limita sus campos a 5 caracteres. (Agente IA) [#]()
+
 ### 1.50.39 Código de proyecto en revisión contable 2026-07-20
 
 Fix:

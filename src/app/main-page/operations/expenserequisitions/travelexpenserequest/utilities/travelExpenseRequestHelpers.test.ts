@@ -115,10 +115,7 @@ describe("travelExpenseRequestHelpers associations", () => {
 });
 
 describe("travelExpenseRequestHelpers status filters", () => {
-  const makeTravelExpense = (
-    id: string,
-    statusName: string,
-  ): TravelExpense =>
+  const makeTravelExpense = (id: string, statusName: string): TravelExpense =>
     ({
       id,
       status_name: statusName,
@@ -293,8 +290,10 @@ describe("travelExpenseRequestHelpers save progress payload", () => {
           employee_name: "Angel Vazquez",
           requisition_code: "REQ-RESP",
           motive: "Motivo resp",
-          start_date: "2026-05-10T06:00:00.000Z",
-          end_date: "2026-05-12T06:00:00.000Z",
+          start_date: "2026-05-10T00:00:00.000Z",
+          end_date: "2026-05-12T00:00:00.000Z",
+          subtotal: 200,
+          total: 200,
           companions: [
             {
               employee_id: "bruno",
@@ -318,8 +317,10 @@ describe("travelExpenseRequestHelpers save progress payload", () => {
           employee_name: "Carla Perez",
           requisition_code: "REQ-CARLA",
           motive: "Motivo carla",
-          start_date: "2026-05-11T06:00:00.000Z",
-          end_date: "2026-05-13T06:00:00.000Z",
+          start_date: "2026-05-11T00:00:00.000Z",
+          end_date: "2026-05-13T00:00:00.000Z",
+          subtotal: 150,
+          total: 150,
           companions: [],
           calculation_concepts: [
             {
@@ -354,9 +355,9 @@ describe("travelExpenseRequestHelpers save progress payload", () => {
       motive: "Instalacion",
     });
     expect(payload.progress_items[0].start_date).toBe(
-      "2026-05-10T06:00:00.000Z",
+      "2026-05-10T00:00:00.000Z",
     );
-    expect(payload.progress_items[0].end_date).toBe("2026-05-15T06:00:00.000Z");
+    expect(payload.progress_items[0].end_date).toBe("2026-05-15T00:00:00.000Z");
   });
 });
 
@@ -411,8 +412,8 @@ describe("travelExpenseRequestHelpers progress json hydration", () => {
           employee_name: "Angel Vazquez",
           requisition_code: "REQ-RESP",
           motive: "Revision",
-          start_date: "2026-07-02T06:00:00.000Z",
-          end_date: "2026-07-03T06:00:00.000Z",
+          start_date: "2026-07-02T00:00:00.000Z",
+          end_date: "2026-07-03T00:00:00.000Z",
           companions: [{ employee_id: "bruno", full_name: "Bruno Mendoza" }],
           calculation_concepts: [
             {

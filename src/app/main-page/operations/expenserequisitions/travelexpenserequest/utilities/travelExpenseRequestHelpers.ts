@@ -7,7 +7,10 @@ import type {
 } from "@/app/mappings/travelExpenses/travelExpenses.types";
 import type { EditableViaticsRow } from "@/app/sharedComponents/EditableViaticsTable/types";
 import type { SaveTravelExpenseProgressPayload } from "@/app/stores/useTravelExpensesStore/types";
-import { parseAmount } from "@/app/sharedComponents/EditableViaticsTable/utilities/helperFunction";
+import {
+  calculateSubtotal,
+  parseAmount,
+} from "@/app/sharedComponents/EditableViaticsTable/utilities/helperFunction";
 import { emptyViaticsRows } from "@/app/sharedComponents/EditableViaticsTable/utilities/mockRows";
 
 import type {
@@ -591,6 +594,7 @@ export const buildSaveProgressPayload = (
         Boolean(companion),
       );
     const rows = beneficiaryRows[beneficiary.id] ?? cloneEmptyViaticsRows();
+    const subtotal = calculateSubtotal(rows);
 
     return {
       employee_id: beneficiary.id,
@@ -599,6 +603,8 @@ export const buildSaveProgressPayload = (
       motive: beneficiaryValues.motive,
       start_date: toIsoDate(beneficiaryValues.startDate),
       end_date: toIsoDate(beneficiaryValues.endDate),
+      subtotal,
+      total: subtotal,
       companions: beneficiaryCompanions.map((companion) => ({
         employee_id: companion.id,
         full_name: companion.name,

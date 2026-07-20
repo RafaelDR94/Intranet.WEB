@@ -211,6 +211,7 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
                       onFocus={() => handleFocus(row.id, field, row[field])}
                       onBlur={(event) => handleBlur(row.id, field, row[field], event.currentTarget)}
                       onChange={(event) => handleChange(row.id, field, event.target.value)}
+                      maxLength={5}
                     />
                   </td>
                 ))}
@@ -228,6 +229,7 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
                         value={newConcept}
                         onChange={handleNewConceptChange}
                         onKeyDown={handleNewConceptKeyDown}
+                        maxLength={5}
                         autoFocus
                       />
                       <Button

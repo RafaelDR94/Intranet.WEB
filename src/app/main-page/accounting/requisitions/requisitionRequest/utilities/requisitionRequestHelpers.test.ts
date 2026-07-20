@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
 
 import {
+  buildSaveProgressPayload,
   getFirstProgressItemValues,
   mapCalculationConceptsJsonToViaticsRows,
 } from "./requisitionRequestHelpers";
@@ -74,6 +75,40 @@ describe("requisitionRequestHelpers", () => {
       motive: "Revision",
       startDate: "2026-07-02T06:00:00.000Z",
       endDate: "2026-07-09T06:00:00.000Z",
+    });
+  });
+
+  it("builds SaveProgress payload with subtotal and total from table amounts", () => {
+    const payload = buildSaveProgressPayload(travelExpense, [
+      {
+        id: "row-1",
+        concept: "Taxis",
+        nationalQuoted: "150",
+        foreignQuoted: "0",
+        people: "1",
+        days: "2",
+        subtotal: "300",
+        observations: "Ok",
+      },
+      {
+        id: "row-2",
+        concept: "Hotel",
+        nationalQuoted: "100",
+        foreignQuoted: "0",
+        people: "1",
+        days: "1",
+        subtotal: "100",
+        observations: "Ok",
+      },
+    ]);
+
+    expect(payload.progress_items[0]).toMatchObject({
+      subtotal: 400,
+      total: 400,
+      calculation_concepts: [
+        expect.objectContaining({ subtotal: 300 }),
+        expect.objectContaining({ subtotal: 100 }),
+      ],
     });
   });
 

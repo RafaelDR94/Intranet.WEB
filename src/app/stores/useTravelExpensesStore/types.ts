@@ -156,6 +156,10 @@ export type SaveTravelExpenseProgressItemPayload = {
   start_date: string;
   /** End date captured for this beneficiary block. */
   end_date: string;
+  /** Subtotal amount calculated from the viatics table. */
+  subtotal: number;
+  /** Total amount calculated from the viatics table. */
+  total: number;
   /** Child companions associated under this beneficiary block. */
   companions: SaveTravelExpenseProgressCompanionPayload[];
   /** Current viatics rows for this beneficiary block. */

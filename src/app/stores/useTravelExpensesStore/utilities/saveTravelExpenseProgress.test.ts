@@ -90,6 +90,8 @@ describe("saveTravelExpenseProgress util", () => {
           motive: "Instalacion",
           start_date: "2026-05-10T00:00:00.000Z",
           end_date: "2026-05-15T00:00:00.000Z",
+          subtotal: 0,
+          total: 0,
           companions: [],
           calculation_concepts: [],
         },
@@ -98,10 +100,7 @@ describe("saveTravelExpenseProgress util", () => {
 
     const result = await saveTravelExpenseProgress(set, get, payload);
 
-    expect(putMock).toHaveBeenCalledWith(
-      expect.any(String),
-      payload,
-    );
+    expect(putMock).toHaveBeenCalledWith(expect.any(String), payload);
     expect(state.savingProgress).toBe(false);
     expect(state.successSaveProgress).toBe(true);
     expect(state.travelExpenses).toHaveLength(1);

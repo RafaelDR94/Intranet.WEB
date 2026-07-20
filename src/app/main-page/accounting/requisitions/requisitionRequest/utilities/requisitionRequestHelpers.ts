@@ -5,7 +5,10 @@ import type {
 } from "@/app/mappings/travelExpenses/travelExpenses.types";
 import type { EditableViaticsRow } from "@/app/sharedComponents/EditableViaticsTable/types";
 import type { SaveTravelExpenseProgressPayload } from "@/app/stores/useTravelExpensesStore/types";
-import { parseAmount } from "@/app/sharedComponents/EditableViaticsTable/utilities/helperFunction";
+import {
+  calculateSubtotal,
+  parseAmount,
+} from "@/app/sharedComponents/EditableViaticsTable/utilities/helperFunction";
 import { emptyViaticsRows } from "@/app/sharedComponents/EditableViaticsTable/utilities/mockRows";
 
 import type { TravelExpenseBeneficiary } from "../types";
@@ -215,34 +218,40 @@ export const buildCalculationPayloads = (
 export const buildSaveProgressPayload = (
   row: TravelExpense,
   rows: EditableViaticsRow[],
-): SaveTravelExpenseProgressPayload => ({
-  id_travel_expense: getTravelExpenseIdentifier(row),
-  progress_items: [
-    {
-      employee_id: row.employee_id,
-      employee_name: row.employeename,
-      requisition_code: row.requisition_requests[0]?.requisition_code ?? "",
-      motive: row.motive,
-      start_date: toIsoDate(toDateInputValue(row.assignmentdate)),
-      end_date: toIsoDate(toDateInputValue(row.enddate)),
-      companions: row.companions
-        .map((companion) => ({
-          employee_id: companion.id_employee,
-          full_name: companion.employee_name,
-        }))
-        .filter((companion) => companion.employee_id || companion.full_name),
-      calculation_concepts: rows.map((item) => ({
-        concept: item.concept,
-        national_quoted: parseAmount(item.nationalQuoted),
-        foreign_quoted: parseAmount(item.foreignQuoted),
-        people_number: parseAmount(item.people),
-        days_number: parseAmount(item.days),
-        subtotal: parseAmount(item.subtotal),
-        observations: item.observations,
-      })),
-    },
-  ],
-});
+): SaveTravelExpenseProgressPayload => {
+  const subtotal = calculateSubtotal(rows);
+
+  return {
+    id_travel_expense: getTravelExpenseIdentifier(row),
+    progress_items: [
+      {
+        employee_id: row.employee_id,
+        employee_name: row.employeename,
+        requisition_code: row.requisition_requests[0]?.requisition_code ?? "",
+        motive: row.motive,
+        start_date: toIsoDate(toDateInputValue(row.assignmentdate)),
+        end_date: toIsoDate(toDateInputValue(row.enddate)),
+        subtotal,
+        total: subtotal,
+        companions: row.companions
+          .map((companion) => ({
+            employee_id: companion.id_employee,
+            full_name: companion.employee_name,
+          }))
+          .filter((companion) => companion.employee_id || companion.full_name),
+        calculation_concepts: rows.map((item) => ({
+          concept: item.concept,
+          national_quoted: parseAmount(item.nationalQuoted),
+          foreign_quoted: parseAmount(item.foreignQuoted),
+          people_number: parseAmount(item.people),
+          days_number: parseAmount(item.days),
+          subtotal: parseAmount(item.subtotal),
+          observations: item.observations,
+        })),
+      },
+    ],
+  };
+};
 
 const normalizeComparableText = (value: string) =>
   value
