@@ -16,6 +16,7 @@ import {
   fetchTravelExpenseCalculations as fetchTravelExpenseCalculationsRequest,
   fetchTravelExpenses as fetchTravelExpensesRequest,
   rejectTravelExpense as rejectTravelExpenseRequest,
+  rejectRequisitionRequestThroughAccounting as rejectRequisitionRequestThroughAccountingRequest,
   saveTravelExpenseProgress as saveTravelExpenseProgressRequest,
   saveTravelExpenseCalculations as saveTravelExpenseCalculationsRequest,
   sendRequisitionRequestAuthorization as sendRequisitionRequestAuthorizationRequest,
@@ -96,6 +97,9 @@ export const useTravelExpensesStore =
 
       rejectTravelExpense: (payload) =>
         rejectTravelExpenseRequest(set, get, payload),
+
+      rejectRequisitionRequestThroughAccounting: (payload) =>
+        rejectRequisitionRequestThroughAccountingRequest(set, get, payload),
 
       cancelOrResendTravelExpense: (idTravelExpense, action) =>
         cancelOrResendTravelExpenseRequest(set, get, idTravelExpense, action),

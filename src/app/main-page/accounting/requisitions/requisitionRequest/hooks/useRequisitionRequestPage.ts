@@ -110,8 +110,8 @@ export const useRequisitionRequestPage = () => {
   const approveRequisitionRequestThroughAccounting = useTravelExpensesStore(
     (state) => state.approveRequisitionRequestThroughAccounting,
   );
-  const rejectTravelExpense = useTravelExpensesStore(
-    (state) => state.rejectTravelExpense,
+  const rejectRequisitionRequestThroughAccounting = useTravelExpensesStore(
+    (state) => state.rejectRequisitionRequestThroughAccounting,
   );
   const createTravelExpense = useTravelExpensesStore(
     (state) => state.createTravelExpense,
@@ -835,7 +835,7 @@ export const useRequisitionRequestPage = () => {
   };
 
   const handleRejectTravelExpense = async () => {
-    const idTravelExpense = getSelectedTravelExpenseId();
+    const idRequisitionRequest = getSelectedRequisitionRequestId();
     const comment = rejectComment.trim();
 
     if (!comment) {
@@ -845,10 +845,13 @@ export const useRequisitionRequestPage = () => {
       return;
     }
 
-    if (!idTravelExpense) return;
+    if (!idRequisitionRequest) return;
 
     showSpinner({ message: "Rechazando solicitud de viaticos..." });
-    const success = await rejectTravelExpense({ idTravelExpense, comment });
+    const success = await rejectRequisitionRequestThroughAccounting({
+      idRequisitionRequest,
+      comment,
+    });
     hideSpinner();
 
     if (!success) {
@@ -856,7 +859,7 @@ export const useRequisitionRequestPage = () => {
       return;
     }
 
-    await fetchRequisitionRequestById(idTravelExpense);
+    await fetchRequisitionRequestById(idRequisitionRequest);
     handleRejectCommentCancel();
     showAlert({
       type: "success",

@@ -12,6 +12,16 @@ export type RejectTravelExpensePayload = {
 };
 
 /**
+ * Payload used to reject a requisition request from accounting.
+ */
+export type RejectRequisitionRequestThroughAccountingPayload = {
+  /** Requisition request identifier. */
+  idRequisitionRequest: string;
+  /** Rejection reason. */
+  comment: string;
+};
+
+/**
  * Payload used to create a travel expense requisition.
  */
 export type CreateTravelExpensePayload = {
@@ -276,6 +286,10 @@ export type TravelExpensesState = {
   /** Rejects a travel expense requisition. */
   rejectTravelExpense: (
     payload: RejectTravelExpensePayload,
+  ) => Promise<boolean>;
+  /** Rejects a requisition request from accounting. */
+  rejectRequisitionRequestThroughAccounting: (
+    payload: RejectRequisitionRequestThroughAccountingPayload,
   ) => Promise<boolean>;
   /** Cancels or resends a travel expense requisition. */
   cancelOrResendTravelExpense: (

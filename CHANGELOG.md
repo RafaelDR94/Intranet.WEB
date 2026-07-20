@@ -1,3 +1,9 @@
+### 1.50.37 Rechazo contable por endpoint Auth 2026-07-20
+
+Fix:
+
+- Cambia el rechazo desde la vista de contabilidad para consumir `Auth/RejectedByAccounting` con `IdRequisitionRequest` y comentario. (Agente IA) [#]()
+
 ### 1.50.36 Bloqueo de acciones aprobadas en contabilidad 2026-07-20
 
 Fix:

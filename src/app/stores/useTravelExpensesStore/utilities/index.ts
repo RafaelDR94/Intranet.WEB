@@ -9,6 +9,7 @@ export * from "./fetchTravelExpenseCalculationConcepts";
 export * from "./fetchTravelExpenseCalculations";
 export * from "./fetchTravelExpenses";
 export * from "./rejectTravelExpense";
+export * from "./rejectRequisitionRequestThroughAccounting";
 export * from "./saveTravelExpenseProgress";
 export * from "./saveTravelExpenseCalculations";
 export * from "./sendRequisitionRequestAuthorization";

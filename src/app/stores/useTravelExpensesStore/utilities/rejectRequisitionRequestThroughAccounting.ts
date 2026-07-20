@@ -1,0 +1,76 @@
+"use client";
+
+import type {
+  Get,
+  RejectRequisitionRequestThroughAccountingPayload,
+  Set,
+} from "../types";
+
+import { AuthorizationRejectedByAccounting } from "@/app/configurations/Axios/urls";
+import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
+import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
+import { pPut } from "@/app/utilities/Http/promisifyIntranet";
+import { requireGateway } from "@/app/utilities/Http/requireGateway";
+
+/**
+ * Rejects a requisition request from the accounting review flow.
+ *
+ * @param set Zustand setter.
+ * @param get Zustand getter.
+ * @param payload Requisition request rejection data.
+ * @returns Whether the rejection request succeeded.
+ */
+export const rejectRequisitionRequestThroughAccounting = async (
+  set: Set,
+  get: Get,
+  payload: RejectRequisitionRequestThroughAccountingPayload,
+): Promise<boolean> => {
+  if (!payload.idRequisitionRequest) return false;
+
+  set({ rejecting: true, error: undefined, successReject: false });
+
+  try {
+    const put = pPut(requireGateway("put"), [200, 201, 204]);
+    const params = new URLSearchParams({
+      IdRequisitionRequest: payload.idRequisitionRequest,
+      comment: payload.comment,
+    });
+
+    await put(`${AuthorizationRejectedByAccounting}?${params.toString()}`, {});
+
+    const markRejected = (item: TravelExpense | undefined) =>
+      item
+        ? {
+            ...item,
+            status: "Rechazada",
+            status_name: "Rechazada",
+          }
+        : item;
+
+    set({
+      rejecting: false,
+      successReject: true,
+      currentRequisitionRequest: markRejected(get().currentRequisitionRequest),
+      travelExpenses: get().travelExpenses.map((item) =>
+        item.id === payload.idRequisitionRequest ||
+        item.billingrequisition_id === payload.idRequisitionRequest ||
+        item.requisition_requests.some(
+          (request) => request.id === payload.idRequisitionRequest,
+        )
+          ? markRejected(item)
+          : item,
+      ),
+    });
+
+    return true;
+  } catch (error) {
+    const normalized = normalizeApiError(error);
+    set({
+      rejecting: false,
+      successReject: false,
+      error: normalized.message,
+    });
+
+    return false;
+  }
+};
