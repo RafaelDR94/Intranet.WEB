@@ -65,6 +65,7 @@ vi.mock("@/app/stores/useTravelExpensesStore/useTravelExpensesStore", () => ({
         requisitionkey: string;
         company: string;
         projectname: string;
+        proyectkey: string;
         phone_number: string;
         assignmentdate: string;
         enddate: string;
@@ -91,6 +92,7 @@ vi.mock("@/app/stores/useTravelExpensesStore/useTravelExpensesStore", () => ({
         requisitionkey: "REQ-1",
         company: "DR MEXICO",
         projectname: "Key-001",
+        proyectkey: "PY-ORT-001",
         phone_number: "5639728912",
         assignmentdate: "2026-06-26T00:00:00.000Z",
         enddate: "2026-06-26T00:00:00.000Z",
@@ -127,8 +129,22 @@ vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
 }));
 
 vi.mock("@/app/components/DynamicForm/DynamicForm", () => ({
-  default: ({ dataTestId }: { dataTestId?: string }) => (
-    <div data-testid={dataTestId}>DynamicFormMock</div>
+  default: ({
+    dataTestId,
+    fields,
+  }: {
+    dataTestId?: string;
+    fields?: Array<{ label: string; value: string }>;
+  }) => (
+    <div data-testid={dataTestId}>
+      DynamicFormMock
+      {fields?.map((field) => (
+        <div key={field.label}>
+          <span>{field.label}</span>
+          <span>{field.value}</span>
+        </div>
+      ))}
+    </div>
   ),
 }));
 
@@ -231,6 +247,15 @@ describe("PreRequisitionsAuthorizationCatalog", () => {
         title: "Autorizacion aprobada",
       }),
     );
+  });
+
+  it("muestra proyectkey como codigo de proyecto y agrega codigo de requisicion", () => {
+    render(<PreRequisitionsAuthorizationCatalog />);
+
+    expect(screen.getByText("Codigo de Proyecto")).toBeInTheDocument();
+    expect(screen.getByText("PY-ORT-001")).toBeInTheDocument();
+    expect(screen.getByText("Codigo de requisicion")).toBeInTheDocument();
+    expect(screen.getAllByText("REQ-1").length).toBeGreaterThan(0);
   });
 
   it("usa AuthorizationReject con comentario al rechazar", async () => {

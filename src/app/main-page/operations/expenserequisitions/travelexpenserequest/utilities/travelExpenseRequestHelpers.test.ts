@@ -8,6 +8,7 @@ import type {
 import {
   applyBeneficiaryAssociationSelection,
   buildSaveProgressPayload,
+  cloneEmptyViaticsRows,
   getBeneficiaryAssociationsFromProgress,
   getAvailableCompanionOptions,
   getNewTravelExpenseRequests,
@@ -16,9 +17,12 @@ import {
   getTravelExpenseBeneficiaryItems,
   getVisibleTravelExpenseBeneficiaries,
   getViaticsRowsByBeneficiaryFromProgress,
+  hasViaticsCalculationData,
   isBlockedRequisitionActionStatus,
   isNoIniciadaTravelExpenseStatus,
   isDraftStatus,
+  isRequisitionProgressComplete,
+  isTravelExpenseReadyForAuthorization,
   sanitizeBeneficiaryAssociations,
 } from "./travelExpenseRequestHelpers";
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
@@ -44,6 +48,49 @@ const beneficiaries: TravelExpenseBeneficiary[] = [
     cardNumber: "3333",
   },
 ];
+
+const buildTravelExpense = (
+  overrides: Partial<TravelExpense> = {},
+): TravelExpense => ({
+  id: "travel-1",
+  billingrequisition_id: "travel-1",
+  employee_id: "responsible",
+  employeename: "Angel Vazquez",
+  applicant_id: "",
+  applicant_name: "",
+  phone_number: "5555",
+  card_number: "1111",
+  project_id: "",
+  projectname: "",
+  company: "",
+  enterprise_id: "",
+  enterprise_name: "",
+  area: "",
+  department_id: "",
+  department_name: "",
+  status_id: "",
+  status_name: "",
+  status_employee_name: "",
+  status: "",
+  requisitionkey: "",
+  assignmentdate: "2026-07-02T00:00:00.000Z",
+  enddate: "2026-07-03T00:00:00.000Z",
+  state: "",
+  motive: "Revision",
+  comments: "",
+  gt_type: "",
+  is_travel_expense: true,
+  is_active: true,
+  date_created: "",
+  updated_date: "",
+  created_by: "",
+  updated_by: "",
+  companions: [],
+  requisition_requests: [],
+  travel_expenses_calculations: [],
+  is_approved_by_accounting: false,
+  ...overrides,
+});
 
 describe("travelExpenseRequestHelpers associations", () => {
   it("keeps companions unique and prevents assigning the responsible as child", () => {
@@ -111,6 +158,60 @@ describe("travelExpenseRequestHelpers associations", () => {
       { label: "Bruno Mendoza", value: "bruno" },
       { label: "Carla Perez", value: "carla" },
     ]);
+  });
+});
+
+describe("travelExpenseRequestHelpers authorization readiness", () => {
+  it("treats default viatics rows as empty calculation data", () => {
+    expect(hasViaticsCalculationData(cloneEmptyViaticsRows())).toBe(false);
+  });
+
+  it("detects calculation data when at least one viatics amount is captured", () => {
+    const rows = cloneEmptyViaticsRows();
+    rows[0] = {
+      ...rows[0],
+      nationalQuoted: "150",
+      subtotal: "150",
+    };
+
+    expect(hasViaticsCalculationData(rows)).toBe(true);
+  });
+
+  it("requires requisition information and viatics data before authorization", () => {
+    const travelExpense = buildTravelExpense();
+    const rows = cloneEmptyViaticsRows();
+    rows[0] = {
+      ...rows[0],
+      nationalQuoted: "150",
+      days: "1",
+      subtotal: "150",
+    };
+
+    expect(
+      isRequisitionProgressComplete(travelExpense, "responsible", {
+        responsible: {
+          requisitionCode: "",
+          motive: "Revision",
+          startDate: "2026-07-02",
+          endDate: "2026-07-03",
+        },
+      }),
+    ).toBe(false);
+    expect(
+      isTravelExpenseReadyForAuthorization(
+        travelExpense,
+        [beneficiaries[0]],
+        {
+          responsible: {
+            requisitionCode: "REQ-001",
+            motive: "Revision",
+            startDate: "2026-07-02",
+            endDate: "2026-07-03",
+          },
+        },
+        { responsible: rows },
+      ),
+    ).toBe(true);
   });
 });
 
@@ -290,8 +391,8 @@ describe("travelExpenseRequestHelpers save progress payload", () => {
           employee_name: "Angel Vazquez",
           requisition_code: "REQ-RESP",
           motive: "Motivo resp",
-          start_date: "2026-05-10T00:00:00.000Z",
-          end_date: "2026-05-12T00:00:00.000Z",
+          start_date: new Date("2026-05-10T00:00:00").toISOString(),
+          end_date: new Date("2026-05-12T00:00:00").toISOString(),
           subtotal: 200,
           total: 200,
           companions: [
@@ -317,8 +418,8 @@ describe("travelExpenseRequestHelpers save progress payload", () => {
           employee_name: "Carla Perez",
           requisition_code: "REQ-CARLA",
           motive: "Motivo carla",
-          start_date: "2026-05-11T00:00:00.000Z",
-          end_date: "2026-05-13T00:00:00.000Z",
+          start_date: new Date("2026-05-11T00:00:00").toISOString(),
+          end_date: new Date("2026-05-13T00:00:00").toISOString(),
           subtotal: 150,
           total: 150,
           companions: [],
@@ -355,9 +456,11 @@ describe("travelExpenseRequestHelpers save progress payload", () => {
       motive: "Instalacion",
     });
     expect(payload.progress_items[0].start_date).toBe(
-      "2026-05-10T00:00:00.000Z",
+      new Date("2026-05-10T00:00:00").toISOString(),
     );
-    expect(payload.progress_items[0].end_date).toBe("2026-05-15T00:00:00.000Z");
+    expect(payload.progress_items[0].end_date).toBe(
+      new Date("2026-05-15T00:00:00").toISOString(),
+    );
   });
 });
 

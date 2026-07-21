@@ -32,7 +32,25 @@ vi.mock("@/app/components/DynamicForm/DynamicForm", () => ({
 }));
 
 vi.mock("@/app/components/FormsLayout/FormsLayout", () => ({
-  default: ({ children }: any) => <div>{children}</div>,
+  default: ({
+    children,
+    primaryLabel,
+    primaryDisabled,
+    showPrimaryButton = true,
+    secondaryLabel,
+    secondaryDisabled,
+    showSecondaryButton,
+  }: any) => (
+    <div>
+      {showPrimaryButton ? (
+        <button disabled={primaryDisabled}>{primaryLabel}</button>
+      ) : null}
+      {showSecondaryButton ? (
+        <button disabled={secondaryDisabled}>{secondaryLabel}</button>
+      ) : null}
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock("@/app/components/FileUploaderexpanded/FileUploaderExpanded", () => ({
@@ -55,9 +73,12 @@ vi.mock("@/app/components/Select/Select", () => ({
   Select: ({ placeholder }: any) => <div>{placeholder}</div>,
 }));
 
-vi.mock("@/app/sharedComponents/EditableViaticsTable/EditableViaticsTable", () => ({
-  EditableViaticsTable: () => <div>EditableViaticsTable</div>,
-}));
+vi.mock(
+  "@/app/sharedComponents/EditableViaticsTable/EditableViaticsTable",
+  () => ({
+    EditableViaticsTable: () => <div>EditableViaticsTable</div>,
+  }),
+);
 
 vi.mock(
   "./components/TravelExpenseTableSection/TravelExpenseTableSection",
@@ -125,6 +146,7 @@ const baseHookReturn = {
   rejectCommentOpen: false,
   rejectingTravelExpense: false,
   requisitionActionsDisabled: false,
+  requisitionReadyForAuthorization: true,
   requisitionBeneficiaries: [
     {
       id: "responsible",
@@ -159,6 +181,60 @@ const baseHookReturn = {
 };
 
 describe("TravelExpenseRequest page", () => {
+  it("disables authorization submit while requisition data is incomplete", () => {
+    mockUseTravelExpenseRequest.mockReturnValue({
+      ...baseHookReturn,
+      requisitionReadyForAuthorization: false,
+    });
+
+    render(<TravelExpenseRequest />);
+
+    expect(
+      screen.getByRole("button", { name: "Enviar a autorizacion" }),
+    ).toBeDisabled();
+  });
+
+  it("renders companion assigned staff and phone inputs in review mode", () => {
+    mockUseTravelExpenseRequest.mockReturnValue({
+      ...baseHookReturn,
+      isReviewView: true,
+      isRequisitionView: false,
+      hasCompanions: false,
+      reviewFields: [
+        {
+          type: "input",
+          name: "assignedPerson",
+          label: "Personal asignado",
+          value: "Angel Vazquez",
+        },
+        {
+          type: "input",
+          name: "phone",
+          label: "Teléfono",
+          value: "55 5555 5555",
+        },
+        {
+          type: "input",
+          name: "companionAssignedPerson-bruno",
+          label: "Personal asignado",
+          value: "Bruno Mendoza",
+        },
+        {
+          type: "input",
+          name: "companionPhone-bruno",
+          label: "Teléfono",
+          value: "55 5555 5555",
+        },
+      ],
+    });
+
+    render(<TravelExpenseRequest />);
+
+    expect(screen.getAllByText("Personal asignado")).toHaveLength(2);
+    expect(screen.getAllByText("Teléfono")).toHaveLength(2);
+    expect(screen.getAllByText("input")).toHaveLength(4);
+  });
+
   it("renders the multiselect field in requisition mode when companions exist", () => {
     mockUseTravelExpenseRequest.mockReturnValue({
       ...baseHookReturn,

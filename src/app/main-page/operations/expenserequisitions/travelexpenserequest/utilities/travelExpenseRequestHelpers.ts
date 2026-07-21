@@ -570,6 +570,67 @@ export const buildCalculationPayloads = (
     observations: row.observations,
   }));
 
+const isPlaceholderObservation = (value: string) => {
+  const normalized = normalizeComparableText(value);
+
+  return !normalized || normalized === "escribe aqui";
+};
+
+/**
+ * Checks whether at least one viatics row has user-entered calculation data.
+ */
+export const hasViaticsCalculationData = (rows: EditableViaticsRow[]) =>
+  rows.some(
+    (row) =>
+      parseAmount(row.nationalQuoted) > 0 ||
+      parseAmount(row.foreignQuoted) > 0 ||
+      parseAmount(row.days) > 0 ||
+      parseAmount(row.subtotal) > 0 ||
+      !isPlaceholderObservation(row.observations),
+  );
+
+/**
+ * Checks whether the requisition form information is complete for a beneficiary.
+ */
+export const isRequisitionProgressComplete = (
+  row: TravelExpense,
+  beneficiaryId: string,
+  requisitionValuesByBeneficiary: RequisitionProgressValuesByBeneficiary,
+) => {
+  const values =
+    requisitionValuesByBeneficiary[beneficiaryId] ??
+    getDefaultRequisitionProgressValues(row, beneficiaryId);
+
+  return Boolean(
+    values.requisitionCode.trim() &&
+      values.motive.trim() &&
+      values.startDate.trim() &&
+      values.endDate.trim(),
+  );
+};
+
+/**
+ * Checks whether the requisition can be sent to authorization.
+ */
+export const isTravelExpenseReadyForAuthorization = (
+  row: TravelExpense,
+  visibleBeneficiaries: TravelExpenseBeneficiary[],
+  requisitionValuesByBeneficiary: RequisitionProgressValuesByBeneficiary,
+  beneficiaryRows: Record<string, EditableViaticsRow[]>,
+) =>
+  visibleBeneficiaries.length > 0 &&
+  visibleBeneficiaries.every((beneficiary) => {
+    const rows = beneficiaryRows[beneficiary.id] ?? cloneEmptyViaticsRows();
+
+    return (
+      isRequisitionProgressComplete(
+        row,
+        beneficiary.id,
+        requisitionValuesByBeneficiary,
+      ) && hasViaticsCalculationData(rows)
+    );
+  });
+
 /**
  * Builds the consolidated SaveProgress payload expected by backend.
  */

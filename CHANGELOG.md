@@ -1,3 +1,9 @@
+### 1.50.41 Build de solicitud de requisiciones 2026-07-21
+
+Fix:
+
+- Normaliza valores opcionales en los campos de revisión de `useRequisitionRequestPage` para evitar `undefined` en `FieldModel` durante el build. (Agente IA) [#]()
+
 ### 1.50.40 Totales en avance contable de viáticos 2026-07-20
 
 Fix:

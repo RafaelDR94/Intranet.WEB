@@ -45,6 +45,7 @@ import {
   isBlockedRequisitionActionStatus,
   isNoIniciadaTravelExpenseStatus,
   isDraftStatus,
+  isTravelExpenseReadyForAuthorization,
   normalizeStatusType,
   sanitizeBeneficiaryAssociations,
   toDateInputValue,
@@ -52,20 +53,24 @@ import {
   toIsoDate,
 } from "../utilities/travelExpenseRequestHelpers";
 
-const reviewFormLayout: ResponsiveLayoutMatrix = {
-  sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
-  md: [
+const buildReviewFormLayout = (fieldCount: number): ResponsiveLayoutMatrix => {
+  const baseRows = [
     [3.05, 3.05, 3.05],
     [3.05, 3.05, 3.05],
-    [3.05, 3.05],
-    [3.05, 3.05, 3.05],
-  ],
-  lg: [
-    [3.05, 3.05, 3.05],
-    [3.05, 3.05, 3.05],
-    [3.05, 3.05],
-    [3.05, 3.05, 3.05],
-  ],
+    [3.05, 6.25],
+  ];
+  const rows = [...baseRows];
+  const remainingFields = Math.max(fieldCount - 8, 0);
+
+  for (let index = 0; index < remainingFields; index += 2) {
+    rows.push(Array(Math.min(2, remainingFields - index)).fill(3.05));
+  }
+
+  return {
+    sm: Array.from({ length: fieldCount }, () => [10]),
+    md: rows,
+    lg: rows,
+  };
 };
 
 const createFormBaseLayout: ResponsiveLayoutMatrix = {
@@ -491,13 +496,35 @@ export const useTravelExpenseRequest = () => {
             {
               type: "input",
               name: "phone",
-              label: "Telefono",
+              label: "Teléfono",
               value: selectedTravelExpense.phone_number,
               disabled: true,
             },
+            ...requisitionBeneficiaries
+              .slice(1)
+              .flatMap((beneficiary, index) => [
+                {
+                  type: "input" as const,
+                  name: `companionAssignedPerson-${beneficiary.id || index + 1}`,
+                  label: "Personal asignado",
+                  value: beneficiary.name,
+                  disabled: true,
+                },
+                {
+                  type: "input" as const,
+                  name: `companionPhone-${beneficiary.id || index + 1}`,
+                  label: "Teléfono",
+                  value: beneficiary.phone,
+                  disabled: true,
+                },
+              ]),
           ]
         : [],
-    [selectedTravelExpense],
+    [requisitionBeneficiaries, selectedTravelExpense],
+  );
+  const reviewFormLayout = useMemo(
+    () => buildReviewFormLayout(reviewFields.length),
+    [reviewFields.length],
   );
 
   const requisitionSummaryFields = useMemo<FieldModel[]>(
@@ -1024,6 +1051,14 @@ export const useTravelExpenseRequest = () => {
       ]),
     );
   };
+  const requisitionReadyForAuthorization = selectedTravelExpense
+    ? isTravelExpenseReadyForAuthorization(
+        selectedTravelExpense,
+        visibleRequisitionBeneficiaries,
+        requisitionValuesByBeneficiary,
+        getBeneficiaryRowsForSave(),
+      )
+    : false;
   const handleApproveTravelExpense = async () => {
     const idTravelExpense = getSelectedTravelExpenseId();
     if (!idTravelExpense || !selectedTravelExpense) return;
@@ -1585,6 +1620,7 @@ export const useTravelExpenseRequest = () => {
     rejectCommentOpen,
     rejectingTravelExpense,
     requisitionActionsDisabled,
+    requisitionReadyForAuthorization,
     requisitionBeneficiaries: visibleRequisitionBeneficiaries,
     requisitionFields,
     requisitionFormLayout,

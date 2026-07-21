@@ -1,10 +1,10 @@
-﻿'use client';
+﻿"use client";
 
-import clsx from 'clsx';
-import React from 'react';
-import { Check, Plus } from 'lucide-react';
+import clsx from "clsx";
+import React from "react";
+import { Check, Plus } from "lucide-react";
 
-import { useEditableViaticsTable } from './hooks/useEditableViaticsTable';
+import { useEditableViaticsTable } from "./hooks/useEditableViaticsTable";
 import {
   baseContainerClasses,
   bodyTextClasses,
@@ -15,22 +15,26 @@ import {
   labelHeaderClassesLeft,
   mutedBodyTextClasses,
   tableClasses,
-} from './styles';
-import { EditableViaticsField, EditableViaticsRow, EditableViaticsTableProps } from './types';
-import { formatIntegerAmount, parseAmount } from './utilities/helperFunction';
-import { Button } from '@/app/components/Button/Button';
+} from "./styles";
+import {
+  EditableViaticsField,
+  EditableViaticsRow,
+  EditableViaticsTableProps,
+} from "./types";
+import { formatIntegerAmount, parseAmount } from "./utilities/helperFunction";
+import { Button } from "@/app/components/Button/Button";
 
 const editableFields: EditableViaticsField[] = [
-  'nationalQuoted',
-  'foreignQuoted',
-  'people',
-  'days',
-  'subtotal',
-  'observations',
+  "nationalQuoted",
+  "foreignQuoted",
+  "people",
+  "days",
+  "subtotal",
+  "observations",
 ];
 
-const EMPTY_AMOUNT_VALUE = '00';
-const EMPTY_OBSERVATION_VALUE = 'Escribe aquí';
+const EMPTY_AMOUNT_VALUE = "00";
+const EMPTY_OBSERVATION_VALUE = "Escribe aquí";
 
 const defaultRowSubtotalCalculator = (row: EditableViaticsRow): number => {
   const national = parseAmount(row.nationalQuoted);
@@ -44,14 +48,14 @@ const normalizeText = (value: string) =>
   value
     .trim()
     .toLocaleLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 
 const getEmptyCellValue = (field: EditableViaticsField) =>
-  field === 'observations' ? EMPTY_OBSERVATION_VALUE : EMPTY_AMOUNT_VALUE;
+  field === "observations" ? EMPTY_OBSERVATION_VALUE : EMPTY_AMOUNT_VALUE;
 
 const isEmptyDisplayValue = (field: EditableViaticsField, value: string) =>
-  field === 'observations'
+  field === "observations"
     ? normalizeText(value) === normalizeText(EMPTY_OBSERVATION_VALUE)
     : value.trim() === EMPTY_AMOUNT_VALUE;
 
@@ -71,7 +75,7 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
 }) => {
   const resolvedLabels = { ...defaultLabels, ...labels };
   const [isAddingConcept, setIsAddingConcept] = React.useState(false);
-  const [newConcept, setNewConcept] = React.useState('');
+  const [newConcept, setNewConcept] = React.useState("");
 
   const { rows, subtotal, updateRows } = useEditableViaticsTable({
     value,
@@ -88,7 +92,12 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
     const nextRows = rows.map((row) => {
       if (row.id !== rowId) return row;
       const nextRow = { ...row, [field]: nextValue };
-      if (shouldAutoCalculate && autoCalculate && field !== 'observations' && field !== 'subtotal') {
+      if (
+        shouldAutoCalculate &&
+        autoCalculate &&
+        field !== "observations" &&
+        field !== "subtotal"
+      ) {
         return {
           ...nextRow,
           subtotal: formatIntegerAmount(rowSubtotalCalculator(nextRow)),
@@ -99,13 +108,21 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
     updateRows(nextRows);
   };
 
-  const handleChange = (rowId: string, field: EditableViaticsField, nextValue: string) => {
+  const handleChange = (
+    rowId: string,
+    field: EditableViaticsField,
+    nextValue: string,
+  ) => {
     updateCellValue(rowId, field, nextValue);
   };
 
-  const handleFocus = (rowId: string, field: EditableViaticsField, value: string) => {
+  const handleFocus = (
+    rowId: string,
+    field: EditableViaticsField,
+    value: string,
+  ) => {
     if (readOnly || !isEmptyDisplayValue(field, value)) return;
-    updateCellValue(rowId, field, '', false);
+    updateCellValue(rowId, field, "", false);
   };
 
   const handleBlur = (
@@ -128,7 +145,9 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
     setIsAddingConcept(true);
   };
 
-  const handleNewConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewConceptChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setNewConcept(event.target.value);
   };
 
@@ -149,18 +168,20 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
         observations: EMPTY_OBSERVATION_VALUE,
       },
     ]);
-    setNewConcept('');
+    setNewConcept("");
     setIsAddingConcept(false);
   };
 
-  const handleNewConceptKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+  const handleNewConceptKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === "Enter") {
       event.preventDefault();
       handleAddConcept();
     }
 
-    if (event.key === 'Escape') {
-      setNewConcept('');
+    if (event.key === "Escape") {
+      setNewConcept("");
       setIsAddingConcept(false);
     }
   };
@@ -169,7 +190,10 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
   const showAddConcept = allowAddConcept && !readOnly;
 
   return (
-    <section className={clsx(baseContainerClasses, className)} data-testid={dataTestId}>
+    <section
+      className={clsx(baseContainerClasses, className)}
+      data-testid={dataTestId}
+    >
       <div className="w-full overflow-x-auto">
         <table className={tableClasses}>
           <colgroup>
@@ -183,35 +207,101 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
           </colgroup>
           <thead>
             <tr>
-              <th className={clsx(labelHeaderClassesLeft, 'pb-0.5')} rowSpan={2}>{resolvedLabels.concept}</th>
-              <th className={clsx(labelHeaderClasses, 'pb-0.5 text-center')} colSpan={2}>
+              <th
+                className={clsx(labelHeaderClassesLeft, "pb-0.5")}
+                rowSpan={2}
+              >
+                {resolvedLabels.concept}
+              </th>
+              <th
+                className={clsx(labelHeaderClasses, "pb-0.5 text-center")}
+                colSpan={2}
+              >
                 {resolvedLabels.perDiem}
               </th>
-              <th className={clsx(labelHeaderClasses, 'pb-0.5 text-center')} rowSpan={2}>{resolvedLabels.people}</th>
-              <th className={clsx(labelHeaderClasses, 'pb-0.5 text-center')} rowSpan={2}>{resolvedLabels.days}</th>
-              <th className={clsx(labelHeaderClasses, 'pb-0.5 text-center')} rowSpan={2}>{resolvedLabels.subtotal}</th>
-              <th className={clsx(labelHeaderClassesLeft, 'pb-0.5 text-center')} rowSpan={2}>{resolvedLabels.observations}</th>
+              <th
+                className={clsx(labelHeaderClasses, "pb-0.5 text-center")}
+                rowSpan={2}
+              >
+                {resolvedLabels.people}
+              </th>
+              <th
+                className={clsx(labelHeaderClasses, "pb-0.5 text-center")}
+                rowSpan={2}
+              >
+                {resolvedLabels.days}
+              </th>
+              <th
+                className={clsx(labelHeaderClasses, "pb-0.5 text-center")}
+                rowSpan={2}
+              >
+                {resolvedLabels.subtotal}
+              </th>
+              <th
+                className={clsx(labelHeaderClassesLeft, "pb-0.5 text-center")}
+                rowSpan={2}
+              >
+                {resolvedLabels.observations}
+              </th>
             </tr>
-            <tr className="border-b border-gray-30">
-              <th className={clsx(labelHeaderClasses, 'pb-1 normal-case text-center')}>{resolvedLabels.nationalQuoted}</th>
-              <th className={clsx(labelHeaderClasses, 'pb-1 normal-case text-center')}>{resolvedLabels.foreignQuoted}</th>
+            <tr className="border-gray-30 border-b">
+              <th
+                className={clsx(
+                  labelHeaderClasses,
+                  "pb-1 text-center normal-case",
+                )}
+              >
+                {resolvedLabels.nationalQuoted}
+              </th>
+              <th
+                className={clsx(
+                  labelHeaderClasses,
+                  "pb-1 text-center normal-case",
+                )}
+              >
+                {resolvedLabels.foreignQuoted}
+              </th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
               <tr key={row.id} className="align-middle">
-                <td className={clsx(bodyTextClasses, 'py-1 pr-2')}>{row.concept}</td>
+                <td className={clsx(bodyTextClasses, "py-1 pr-2")}>
+                  {row.concept}
+                </td>
                 {editableFields.map((field) => (
-                  <td key={`${row.id}-${field}`} className={clsx(field === 'observations' ? 'w-[24%]' : 'w-[10%]', field !== 'observations' && 'text-center', 'py-1 px-1')}>
+                  <td
+                    key={`${row.id}-${field}`}
+                    className={clsx(
+                      field === "observations" ? "w-[24%]" : "w-[10%]",
+                      field !== "observations" && "text-center",
+                      "px-1 py-1",
+                    )}
+                  >
                     <input
                       aria-label={`${row.concept}-${field}`}
-                      className={clsx(inputClasses, field === 'observations' ? bodyTextClasses : mutedBodyTextClasses, field !== 'observations' && 'text-center')}
+                      className={clsx(
+                        inputClasses,
+                        field === "observations"
+                          ? bodyTextClasses
+                          : mutedBodyTextClasses,
+                        field !== "observations" && "text-center",
+                      )}
                       readOnly={readOnly}
                       value={row[field]}
                       onFocus={() => handleFocus(row.id, field, row[field])}
-                      onBlur={(event) => handleBlur(row.id, field, row[field], event.currentTarget)}
-                      onChange={(event) => handleChange(row.id, field, event.target.value)}
-                      maxLength={5}
+                      onBlur={(event) =>
+                        handleBlur(
+                          row.id,
+                          field,
+                          row[field],
+                          event.currentTarget,
+                        )
+                      }
+                      onChange={(event) =>
+                        handleChange(row.id, field, event.target.value)
+                      }
+                      maxLength={field === "observations" ? 40 : 5}
                     />
                   </td>
                 ))}
@@ -224,7 +314,7 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
                     <div className="flex items-center gap-2">
                       <input
                         aria-label={resolvedLabels.newConceptPlaceholder}
-                        className="h-10 w-full max-w-[210px] rounded-md border border-gray-40 bg-white-100 px-3 text-[14px] leading-5 text-gray-80 outline-none transition-colors"
+                        className="border-gray-40 bg-white-100 text-gray-80 h-10 w-full max-w-[210px] rounded-md border px-3 text-[14px] leading-5 transition-colors outline-none"
                         placeholder={resolvedLabels.newConceptPlaceholder}
                         value={newConcept}
                         onChange={handleNewConceptChange}
@@ -238,8 +328,7 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
                         onClick={handleAddConcept}
                         disabled={!newConcept.trim()}
                         aria-label="Confirmar concepto"
-                      >
-                      </Button>
+                      ></Button>
                     </div>
                   ) : (
                     <Button
@@ -258,20 +347,32 @@ export const EditableViaticsTable: React.FC<EditableViaticsTableProps> = ({
           <tfoot>
             <tr>
               <td colSpan={4}></td>
-              <td className="py-0.5 text-[14px] leading-5 font-medium text-gray-70 text-center">{resolvedLabels.subtotalSummary}</td>
-              <td className="py-0.5 text-[14px] leading-5 font-medium text-gray-100 text-center">{formatIntegerAmount(subtotal)}</td>
+              <td className="text-gray-70 py-0.5 text-center text-[14px] leading-5 font-medium">
+                {resolvedLabels.subtotalSummary}
+              </td>
+              <td className="py-0.5 text-center text-[14px] leading-5 font-medium text-gray-100">
+                {formatIntegerAmount(subtotal)}
+              </td>
               <td></td>
             </tr>
             <tr>
               <td colSpan={4}></td>
-              <td className="py-0.5 text-[14px] leading-5 font-medium text-gray-70 text-center">{resolvedLabels.total}</td>
-              <td className="py-0.5 text-[14px] leading-5 font-medium text-gray-100 text-center">{totalText}</td>
-              <td className="py-0.5 text-[12px] leading-4 text-gray-60">{resolvedLabels.includesTax}</td>
+              <td className="text-gray-70 py-0.5 text-center text-[14px] leading-5 font-medium">
+                {resolvedLabels.total}
+              </td>
+              <td className="py-0.5 text-center text-[14px] leading-5 font-medium text-gray-100">
+                {totalText}
+              </td>
+              <td className="text-gray-60 py-0.5 text-[12px] leading-4">
+                {resolvedLabels.includesTax}
+              </td>
             </tr>
           </tfoot>
         </table>
       </div>
-      <p className="mt-3 text-center text-[10px] font-semibold leading-[14px] text-blue-60">{resolvedLabels.note}</p>
+      <p className="text-blue-60 mt-3 text-center text-[10px] leading-[14px] font-semibold">
+        {resolvedLabels.note}
+      </p>
     </section>
   );
 };

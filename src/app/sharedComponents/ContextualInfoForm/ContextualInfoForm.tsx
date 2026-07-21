@@ -13,14 +13,14 @@ import { contextualInfoFormStyles as styles } from "./styles";
 import type { ContextualInfoFormProps } from "./types";
 
 const defaultContextualInfoLayout: ResponsiveLayoutMatrix = {
-  sm: [[10], [10], [10], [10], [10], [10], [10]],
+  sm: [[10], [10], [10], [10], [10], [10], [10], [10]],
   md: [
     [2.5, 2.5, 2.5, 2.5],
-    [2.5, 2.5, 2.5],
+    [2.5, 2.5, 2.5, 2.5],
   ],
   lg: [
     [2.5, 2.5, 2.5, 2.5],
-    [2.5, 2.5, 2.5],
+    [2.5, 2.5, 2.5, 2.5],
   ],
 };
 
@@ -72,7 +72,9 @@ export function ContextualInfoForm({
         disabled
         fields={dynamicFields}
         onSubmit={handleSubmit}
-        responsiveLayoutMatrix={contextualInfoLayout ?? defaultContextualInfoLayout}
+        responsiveLayoutMatrix={
+          contextualInfoLayout ?? defaultContextualInfoLayout
+        }
         rowClassName={styles.row}
         showSubmitIf={() => false}
       />

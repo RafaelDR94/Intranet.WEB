@@ -70,6 +70,17 @@ describe("EditableViaticsTable", () => {
     expect(screen.getAllByText("2,400")).toHaveLength(2);
   });
 
+  it("limita observaciones a 40 caracteres y mantiene importes en 5", () => {
+    render(<EditableViaticsTable defaultValue={rows} />);
+
+    expect(
+      screen.getByLabelText(/Boleto de autob.s-observations/),
+    ).toHaveAttribute("maxlength", "40");
+    expect(
+      screen.getByLabelText(/Boleto de autob.s-nationalQuoted/),
+    ).toHaveAttribute("maxlength", "5");
+  });
+
   it("dispara onBlurCell con contexto de fila y campo", () => {
     const onBlurCell = vi.fn();
     render(

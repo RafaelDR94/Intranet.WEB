@@ -113,11 +113,11 @@ const reviewFormLayout: ResponsiveLayoutMatrix = {
   sm: [[10], [10], [10], [10], [10], [10], [10], [10], [10]],
   md: [
     [2.5, 2.5, 2.5, 2.5],
-    [2.38, 2.38, 2.38],
+    [2.38, 2.38, 2.38, 2.38],
   ],
   lg: [
     [2.5, 2.5, 2.5, 2.5],
-    [2.38, 2.38, 2.38],
+    [2.38, 2.38, 2.38, 2.38],
   ],
 };
 
@@ -278,11 +278,13 @@ const PreRequisitionsAuthorizationCatalog = () => {
         authorizationRaw,
       ],
       [
+        "proyectkey",
+        "proyectKey",
+        "projectkey",
+        "projectKey",
         "projectname",
         "project_name",
         "projectName",
-        "proyectKey",
-        "projectKey",
         "name",
       ],
     ),
@@ -368,7 +370,8 @@ const PreRequisitionsAuthorizationCatalog = () => {
       authorizationDetail.motive ||
       authorizationDetail.startDate ||
       authorizationDetail.endDate ||
-      authorizationDetail.assignedPerson
+      authorizationDetail.assignedPerson ||
+      authorizationDetail.requisition_code
         ? [
             {
               type: "input",
@@ -382,6 +385,13 @@ const PreRequisitionsAuthorizationCatalog = () => {
               name: "projectname",
               label: "Codigo de Proyecto",
               value: authorizationDetail.projectCode,
+              disabled: true,
+            },
+            {
+              type: "input",
+              name: "requisitionCode",
+              label: "Codigo de requisicion",
+              value: authorizationDetail.requisition_code,
               disabled: true,
             },
             {
@@ -427,6 +437,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
       authorizationDetail.endDate,
       authorizationDetail.motive,
       authorizationDetail.projectCode,
+      authorizationDetail.requisition_code,
       authorizationDetail.startDate,
       authorizationDetail.state,
     ],

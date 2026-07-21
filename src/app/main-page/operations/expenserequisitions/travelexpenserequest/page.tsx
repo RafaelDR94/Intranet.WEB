@@ -5,7 +5,6 @@ import React from "react";
 import { Button } from "@/app/components/Button/Button";
 import DynamicForm from "@/app/components/DynamicForm/DynamicForm";
 import type { FieldModel } from "@/app/components/DynamicForm/types";
-import FileUploaderExpanded from "@/app/components/FileUploaderexpanded/FileUploaderExpanded";
 import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import { Input } from "@/app/components/Input/Input";
 import { Label } from "@/app/components/Label/Label";
@@ -39,7 +38,6 @@ const TravelExpenseRequest = () => {
     departmentsLoading,
     detailStatusType,
     employeesWithActiveUserLoading,
-    excelFile,
     fetchTravelExpenses,
     formReady,
     getBeneficiaryViaticsRows,
@@ -52,7 +50,6 @@ const TravelExpenseRequest = () => {
     handleCreateClick,
     handleCreateSubmit,
     handleCreateValuesChange,
-    handleExcelSubmit,
     handleRejectCommentCancel,
     handleRejectCommentChange,
     handleRejectCommentOpen,
@@ -73,6 +70,7 @@ const TravelExpenseRequest = () => {
     rejectCommentOpen,
     rejectingTravelExpense,
     requisitionActionsDisabled,
+    requisitionReadyForAuthorization,
     requisitionBeneficiaries,
     requisitionFields,
     requisitionFormLayout,
@@ -84,7 +82,6 @@ const TravelExpenseRequest = () => {
     savingCalculations,
     selectedTravelExpense,
     sendingAuthorization,
-    setExcelFile,
     setFormReady,
     setRequisitionSection,
     setViaticsRows,
@@ -186,21 +183,6 @@ const TravelExpenseRequest = () => {
               </Button>
             </DynamicForm>
           </FormsLayout>
-
-          <FormsLayout
-            title="Sube aqui tus requisiciones"
-            primaryLabel="Subir Archivos"
-            primaryDisabled={!excelFile}
-            onPrimaryClick={handleExcelSubmit}
-            cardClassName={styles.formsCard}
-          >
-            <FileUploaderExpanded
-              accept=".xlsx,.xls"
-              label="Selecciona el archivo excel a subir"
-              placeholder="Arrastra o selecciona el archivo que deseas subir"
-              onFile={setExcelFile}
-            />
-          </FormsLayout>
         </div>
       </section>
     );
@@ -237,6 +219,7 @@ const TravelExpenseRequest = () => {
             primaryDisabled={
               !selectedTravelExpense ||
               requisitionActionsDisabled ||
+              !requisitionReadyForAuthorization ||
               sendingAuthorization ||
               savingCalculations
             }

@@ -248,30 +248,31 @@ export const useRequisitionRequestPage = () => {
         type: "input",
         name: "company",
         label: "Empresa",
-        value: selectedTravelExpense.company,
+        value: toFormString(selectedTravelExpense.company),
         disabled: true,
       },
       {
         type: "input",
         name: "proyectkey",
         label: "Codigo de Proyecto",
-        value: selectedTravelExpense.proyectkey,
+        value: toFormString(selectedTravelExpense.proyectkey),
         disabled: true,
       },
       {
         type: "input",
         name: "debtorcode",
-        label: "Codigo de deudor",
-        value:
+        label: "Codigo de requisición",
+        value: toFormString(
           progressValues.requisitionCode ||
-          selectedTravelExpense.requisitionkey,
+            selectedTravelExpense.requisitionkey,
+        ),
         disabled: true,
       },
       {
         type: "input",
         name: "phone_number",
         label: "Telefono",
-        value: selectedTravelExpense.phone_number,
+        value: toFormString(selectedTravelExpense.phone_number),
         disabled: true,
       },
       {
@@ -296,11 +297,11 @@ export const useRequisitionRequestPage = () => {
         type: "select",
         name: "assignedPerson",
         label: "Personal asignado",
-        value: selectedTravelExpense.employee_id,
+        value: toFormString(selectedTravelExpense.employee_id),
         options: [
           {
             label: selectedTravelExpense.employeename,
-            value: selectedTravelExpense.employee_id,
+            value: toFormString(selectedTravelExpense.employee_id),
           },
         ],
         disabled: true,

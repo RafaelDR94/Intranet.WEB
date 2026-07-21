@@ -33,8 +33,8 @@ export const sidebarRoutes = [
     path: "/main-page/operations",
     icon: ServerIcon,
     subroutes: [
-      { label: 'Requisiciones', path: '/main-page/operations/requisitions' },
-      { label: 'Requisiciones II', path: '/main-page/operations/expenserequisitions' },
+      // { label: 'Requisiciones', path: '/main-page/operations/requisitions' },
+      { label: 'Requisiciones', path: '/main-page/operations/expenserequisitions' },
     ],
   },
   {
