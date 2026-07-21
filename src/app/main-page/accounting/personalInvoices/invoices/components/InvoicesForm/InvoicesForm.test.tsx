@@ -10,6 +10,9 @@ const DynamicFormMock = vi.hoisted(() => vi.fn(() => <div>DynamicFormMock</div>)
 const FormsLayoutMock = vi.hoisted(() =>
   vi.fn(({ children }: { children: React.ReactNode }) => <div>{children}</div>),
 );
+const submitCurrentValuesMock = vi.hoisted(() =>
+  vi.fn().mockResolvedValue({ ok: true }),
+);
 
 vi.mock('./hooks/useInvoicesForm', () => ({
   __esModule: true,
@@ -23,6 +26,8 @@ vi.mock('./hooks/useInvoicesForm', () => ({
     handleSubmit: vi.fn(),
     ResetForm: vi.fn(),
     handleImageClick: vi.fn(),
+    handleValuesChange: vi.fn(),
+    submitCurrentValues: submitCurrentValuesMock,
   }),
 }));
 vi.mock('@/app/components/DynamicForm/DynamicForm', () => ({
@@ -71,5 +76,29 @@ describe('InvoicesForm', () => {
     );
     expect(screen.getByText('HeaderContentMock')).toBeInTheDocument();
     expect(DynamicFormMock).toHaveBeenCalled();
+  });
+
+  it('registers the imperative submit handler during render', async () => {
+    const submitRequestRef = React.createRef<
+      (() => Promise<{ ok: boolean; error?: string }>) | null
+    >();
+
+    render(
+      <InvoicesForm
+        responsiveLayoutMatrix={matrix}
+        externalSubmitRef={React.createRef()}
+        submitRequestRef={submitRequestRef}
+      />,
+    );
+
+    expect(submitRequestRef.current).toEqual(expect.any(Function));
+    await expect(submitRequestRef.current?.()).resolves.toEqual({ ok: true });
+    expect(submitCurrentValuesMock).toHaveBeenCalled();
+    expect(DynamicFormMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        externalStateRef: expect.anything(),
+      }),
+      undefined,
+    );
   });
 });

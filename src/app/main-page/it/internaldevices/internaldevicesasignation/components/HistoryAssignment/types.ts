@@ -4,6 +4,7 @@
 export type HistoryAssignmentProps = {
   deviceId?: string | null
   onCreateAssignment?: () => void
+  showActions?: boolean
 }
 
 /**

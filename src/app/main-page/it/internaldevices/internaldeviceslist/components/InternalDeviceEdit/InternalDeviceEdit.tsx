@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { shallow } from 'zustand/shallow'
 
 import Breadcrumbs from '@/app/components/Breadcrumbs/Breadcrumbs'
@@ -149,6 +149,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
   const [currentStep, setCurrentStep] = useState<StepId>('device')
   const [formVersion, setFormVersion] = useState(0)
   const [formValues, setFormValues] = useState<Record<string, any>>({})
+  const formValuesRef = useRef<Record<string, any>>({})
   const [stepValidity, setStepValidity] = useState<Record<StepId, boolean>>({
     device: false,
     hardware: false,
@@ -163,7 +164,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
 
   useEffect(() => {
     if (isCreate) {
-      setFormValues({
+      const initialValues = {
         device_type_id: '',
         device_brand_id: '',
         device_status_id: '',
@@ -177,7 +178,9 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
         charge_sn: '',
         description: '',
         additional_features: '',
-      })
+      }
+      formValuesRef.current = initialValues
+      setFormValues(initialValues)
       setCurrentStep('device')
       setStepValidity({ device: false, hardware: false, features: false })
       setFormVersion((prev) => prev + 1)
@@ -185,7 +188,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
     }
 
     if (!device) return
-    setFormValues({
+    const initialValues = {
       device_type_id: device.device_type?.device_type_id ?? '',
       device_brand_id: device.device_brand?.device_brand_id ?? '',
       device_status_id: device.device_status?.device_status_id ?? '',
@@ -199,7 +202,9 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
       charge_sn: device.charge_sn ?? '',
       description: device.description ?? '',
       additional_features: '',
-    })
+    }
+    formValuesRef.current = initialValues
+    setFormValues(initialValues)
     setCurrentStep('device')
     setStepValidity({ device: false, hardware: false, features: false })
     setFormVersion((prev) => prev + 1)
@@ -297,7 +302,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
       {
         type: 'input',
         name: 'ip_address',
-        label: 'Direccion IP*',
+        label: 'Direccion IP',
         value: formValues.ip_address ?? '',
         onChange: (value, values) =>
           formatMaskedValue(
@@ -308,12 +313,11 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
             IP_PLACEHOLDER,
           ),
         onFocus: (value) => maskOnFocus(String(value ?? ''), IP_PLACEHOLDER, IP_MASK),
-        validations: [{ type: 'required' }],
       },
       {
         type: 'input',
         name: 'mac_address',
-        label: 'Direccion MAC*',
+        label: 'Direccion MAC',
         value: formValues.mac_address ?? '',
         onChange: (value, values) =>
           formatMaskedValue(
@@ -324,7 +328,6 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
             MAC_PLACEHOLDER,
           ),
         onFocus: (value) => maskOnFocus(String(value ?? ''), MAC_PLACEHOLDER, MAC_MASK),
-        validations: [{ type: 'required' }],
       },
       {
         type: 'input',
@@ -379,7 +382,8 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
   )
 
   const handleValuesChange = useCallback((values: Record<string, any>) => {
-    setFormValues((prev) => ({ ...prev, ...values }))
+    formValuesRef.current = { ...formValuesRef.current, ...values }
+    setFormValues(formValuesRef.current)
   }, [])
 
   const handleValidChange = useCallback((step: StepId, isValid: boolean) => {
@@ -409,6 +413,8 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
   }, [])
 
   const handleSave = useCallback(async () => {
+    const values = formValuesRef.current
+
     if (isCreate) {
       if (!user?.idEnterprise) {
         showAlert({
@@ -422,7 +428,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
         return
       }
 
-      if (!formValues.device_type_id || !formValues.device_brand_id) {
+      if (!values.device_type_id || !values.device_brand_id) {
         showAlert({
           type: 'warning',
           title: 'Datos incompletos',
@@ -434,18 +440,15 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
         return
       }
 
-      const ipValue = normalizeIpValue(String(formValues.ip_address ?? ''))
-      const macValue = normalizeMacValue(String(formValues.mac_address ?? ''))
+      const ipValue = normalizeIpValue(String(values.ip_address ?? ''))
+      const macValue = normalizeMacValue(String(values.mac_address ?? ''))
 
       if (
-        !formValues.name ||
-        !formValues.model ||
-        !formValues.serial_number ||
-        !ipValue ||
-        !macValue ||
-        !formValues.operating_system ||
-        !formValues.charge_sn ||
-        !formValues.description
+        !values.name ||
+        !values.model ||
+        !values.serial_number ||
+        !values.operating_system ||
+        !values.charge_sn
       ) {
         showAlert({
           type: 'warning',
@@ -459,20 +462,20 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
       }
 
       const created = await createDevice({
-        name: formValues.name ?? '',
-        model: formValues.model ?? '',
-        serial_number: formValues.serial_number ?? '',
+        name: values.name ?? '',
+        model: values.model ?? '',
+        serial_number: values.serial_number ?? '',
         ip_address: ipValue,
         mac_address: macValue,
-        mac_wifi_address: normalizeMacValue(String(formValues.mac_wifi_address ?? '')),
-        operating_system: formValues.operating_system ?? '',
-        charge_sn: formValues.charge_sn ?? '',
-        description: formValues.description ?? '',
+        mac_wifi_address: normalizeMacValue(String(values.mac_wifi_address ?? '')),
+        operating_system: values.operating_system ?? '',
+        charge_sn: values.charge_sn ?? '',
+        description: values.description ?? '',
         low_motive: '',
         assigned: false,
         reviewed: false,
-        device_type_id: formValues.device_type_id ?? '',
-        device_brand_id: formValues.device_brand_id ?? '',
+        device_type_id: values.device_type_id ?? '',
+        device_brand_id: values.device_brand_id ?? '',
         assurance: new Date().toISOString(),
         id_enterprise: user.idEnterprise ?? '',
         proyect_id: '',
@@ -497,35 +500,35 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
     }
 
     const ipValue = normalizeIpValue(
-      String(formValues.ip_address ?? device.ip_address ?? ''),
+      String(values.ip_address ?? device.ip_address ?? ''),
     )
     const macValue = normalizeMacValue(
-      String(formValues.mac_address ?? device.mac_address ?? ''),
+      String(values.mac_address ?? device.mac_address ?? ''),
     )
     const macWifiValue = normalizeMacValue(
-      String(formValues.mac_wifi_address ?? device.mac_wifi_address ?? ''),
+      String(values.mac_wifi_address ?? device.mac_wifi_address ?? ''),
     )
 
     const payload: InternalDevicePut = {
       device_id: device.device_id,
-      name: formValues.name ?? device.name ?? '',
-      model: formValues.model ?? device.model ?? '',
-      serial_number: formValues.serial_number ?? device.serial_number ?? '',
-      ip_address: (ipValue || device.ip_address) ?? '',
-      mac_address: (macValue || device.mac_address) ?? '',
-      mac_wifi_address: (macWifiValue || device.mac_wifi_address) ?? '',
-      operating_system: formValues.operating_system ?? device.operating_system ?? '',
-      charge_sn: formValues.charge_sn ?? device.charge_sn ?? '',
-      description: formValues.description ?? device.description ?? '',
+      name: values.name ?? device.name ?? '',
+      model: values.model ?? device.model ?? '',
+      serial_number: values.serial_number ?? device.serial_number ?? '',
+      ip_address: ipValue,
+      mac_address: macValue,
+      mac_wifi_address: macWifiValue,
+      operating_system: values.operating_system ?? device.operating_system ?? '',
+      charge_sn: values.charge_sn ?? device.charge_sn ?? '',
+      description: values.description ?? device.description ?? '',
       low_motive: device.low_motive ?? '',
       assigned: device.assigned ?? false,
       reviewed: device.reviewed ?? false,
       device_type_id:
-        formValues.device_type_id ?? device.device_type?.device_type_id ?? '',
+        values.device_type_id ?? device.device_type?.device_type_id ?? '',
       device_brand_id:
-        formValues.device_brand_id ?? device.device_brand?.device_brand_id ?? '',
+        values.device_brand_id ?? device.device_brand?.device_brand_id ?? '',
       device_status_id:
-        formValues.device_status_id ?? device.device_status?.device_status_id ?? '',
+        values.device_status_id ?? device.device_status?.device_status_id ?? '',
       is_active: device.is_active ?? true,
       assurance: device.assurance ?? new Date().toISOString(),
       id_enterprise: device.enterprise?.enterprise_id ?? '',
@@ -552,11 +555,8 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
       !payload.name ||
       !payload.model ||
       !payload.serial_number ||
-      !payload.ip_address ||
-      !payload.mac_address ||
       !payload.operating_system ||
-      !payload.charge_sn ||
-      !payload.description
+      !payload.charge_sn
     ) {
       showAlert({
         type: 'warning',
@@ -570,7 +570,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
     }
 
     void updateDevice(payload)
-  }, [createDevice, device, formValues, isCreate, onBack, showAlert, updateDevice, user?.idEnterprise])
+  }, [createDevice, device, isCreate, onBack, showAlert, updateDevice, user?.idEnterprise])
 
   if (!device && !isCreate) {
     return (

@@ -9,7 +9,11 @@ import ResponsiveDoc from '@/assets/icons/Docs/page.svg'
 import useHistoryAssignment from './hooks/useHistoryAssignment'
 import type { HistoryAssignmentProps } from './types'
 
-const HistoryAssignment = ({ deviceId, onCreateAssignment }: HistoryAssignmentProps) => {
+const HistoryAssignment = ({
+  deviceId,
+  onCreateAssignment,
+  showActions = true,
+}: HistoryAssignmentProps) => {
   const {
     confirmOpen,
     deletingDeviceAssignment,
@@ -47,22 +51,24 @@ const HistoryAssignment = ({ deviceId, onCreateAssignment }: HistoryAssignmentPr
         onPrimaryButtonClick={handleConfirmUnlink}
       />
 
-      <div className="flex items-center justify-end">
-        <Button
-          size="small"
-          variant="ghost"
-          icon={UserIcon}
-          onClick={() => {
-            if (hasActiveAssignment) {
-              setConfirmOpen(true)
-              return
-            }
-            handleCreateAssignment()
-          }}
-        >
-          {hasActiveAssignment ? 'Desvincular usuario' : 'Nueva Asignación'}
-        </Button>
-      </div>
+      {showActions && (
+        <div className="flex items-center justify-end">
+          <Button
+            size="small"
+            variant="ghost"
+            icon={UserIcon}
+            onClick={() => {
+              if (hasActiveAssignment) {
+                setConfirmOpen(true)
+                return
+              }
+              handleCreateAssignment()
+            }}
+          >
+            {hasActiveAssignment ? 'Desvincular usuario' : 'Nueva Asignación'}
+          </Button>
+        </div>
+      )}
 
       <div className="overflow-hidden rounded-2xl border border-gray-20 bg-white-70 shadow-sm">
         <table className="w-full text-left">

@@ -10,6 +10,7 @@ import type {
   InternalDevice,
   InternalDeviceReview,
 } from '@/app/mappings/internaldevices/internaldevices.types'
+import HistoryAssignment from '@/app/main-page/it/internaldevices/internaldevicesasignation/components/HistoryAssignment/HistoryAssignment'
 
 import Information from './components/Information/Information'
 import Revisiones from './components/Revisiones/Revisiones'
@@ -78,6 +79,13 @@ const InternalDeviceDetail: React.FC<InternalDeviceDetailProps> = ({
               label="Revisiones"
               className="rounded-full"
               renderContent={<Revisiones reviews={reviews} onCreateReview={onCreateReview} />}
+            />
+            <ButtonsNavigation.Item
+              id="history"
+              label="Historial"
+              renderContent={
+                <HistoryAssignment deviceId={device.device_id} showActions={false} />
+              }
             />
           </ButtonsNavigation>
         </div>
