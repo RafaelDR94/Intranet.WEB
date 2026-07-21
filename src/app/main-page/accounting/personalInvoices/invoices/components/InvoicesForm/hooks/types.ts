@@ -27,8 +27,10 @@ export type UseInvoicesFormReturn = {
   handleImageClick: (image: string) => void;
   /** Stores the latest form values for imperative submission. */
   handleValuesChange: (values: Record<string, any>) => void;
-  /** Submits the latest captured values and returns a typed result. */
-  submitCurrentValues: () => Promise<InvoiceSubmitResult>;
+  /** Submits the provided values, or the latest captured values when omitted. */
+  submitCurrentValues: (
+    values?: Record<string, any> | null,
+  ) => Promise<InvoiceSubmitResult>;
 };
 
 /** Options for {@link useInvoicesForm}. */

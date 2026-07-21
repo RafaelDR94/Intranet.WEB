@@ -17,6 +17,7 @@ export type LabelType =
   | "factura-rechazada"
   | "sin-asignar"
   | "asignado"
+  | "borrador";
 
 /** Props for Label component */
 export interface LabelProps {

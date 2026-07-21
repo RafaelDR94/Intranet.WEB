@@ -1,4 +1,17 @@
-﻿import { EditableViaticsRow } from '../types';
+import { EditableViaticsRow } from '../types';
+
+export const emptyViaticsRows: EditableViaticsRow[] = [
+  { id: '1', concept: 'Renta de automóvil', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
+  { id: '2', concept: 'Boleto de autobús', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
+  { id: '3', concept: 'Taxis', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
+  { id: '4', concept: 'Alimentos', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
+  { id: '5', concept: 'Hotel (habitación doble)', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
+  { id: '6', concept: 'Renta casa o apartamento', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
+  { id: '7', concept: 'Uber', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
+  { id: '8', concept: 'Materiales', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
+  { id: '9', concept: 'Herramientas', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
+  { id: '10', concept: 'Estacionamiento', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
+];
 
 export const mockViaticsRows: EditableViaticsRow[] = [
   { id: '1', concept: 'Renta de automóvil', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
@@ -12,3 +25,4 @@ export const mockViaticsRows: EditableViaticsRow[] = [
   { id: '9', concept: 'Herramientas', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
   { id: '10', concept: 'Estacionamiento', nationalQuoted: '00', foreignQuoted: '00', people: '00', days: '00', subtotal: '00', observations: 'Escribe aquí' },
 ];
+

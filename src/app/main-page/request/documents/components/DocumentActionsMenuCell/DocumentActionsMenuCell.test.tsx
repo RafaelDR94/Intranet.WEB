@@ -12,7 +12,7 @@ const mockUseIsMobile = vi.fn();
 const contextMenuMock = vi.fn(({ trigger }: any) => (
   <div data-testid="context-menu">{trigger}</div>
 ));
-const buttonMock = vi.fn(({ icon, ...props }: any) => (
+const buttonMock = vi.fn(({ icon, iconOnly, ...props }: any) => (
   // the mock keeps parity with the native button semantics used by the real component
   <button data-testid="menu-trigger" {...props} />
 ));

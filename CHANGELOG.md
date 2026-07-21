@@ -1,3 +1,57 @@
+### 1.50.41 Build de solicitud de requisiciones 2026-07-21
+
+Fix:
+
+- Normaliza valores opcionales en los campos de revisión de `useRequisitionRequestPage` para evitar `undefined` en `FieldModel` durante el build. (Agente IA) [#]()
+
+### 1.50.40 Totales en avance contable de viáticos 2026-07-20
+
+Fix:
+
+- Agrega `subtotal` y `total` al payload de `TravelExpenses/SaveProgress` usando las cantidades capturadas en la tabla de conceptos y limita sus campos a 5 caracteres. (Agente IA) [#]()
+
+### 1.50.39 Código de proyecto en revisión contable 2026-07-20
+
+Fix:
+
+- Cambia el campo de revisión contable para mostrar `proyectkey` como código de proyecto en solicitudes de requisiciones. (Agente IA) [#]()
+
+### 1.50.38 Espaciado de tabla de solicitudes contables 2026-07-20
+
+Fix:
+
+- Ajusta la distribución de columnas de la tabla de solicitudes de requisiciones en contabilidad para reducir truncamientos y aprovechar mejor el ancho disponible. (Agente IA) [#]()
+
+### 1.50.37 Rechazo contable por endpoint Auth 2026-07-20
+
+Fix:
+
+- Cambia el rechazo desde la vista de contabilidad para consumir `Auth/RejectedByAccounting` con `IdRequisitionRequest` y comentario. (Agente IA) [#]()
+
+### 1.50.36 Bloqueo de acciones aprobadas en contabilidad 2026-07-20
+
+Fix:
+
+- Deshabilita los botones de aprobar y rechazar en el detalle de solicitudes de requisiciones cuando `is_approved_by_accounting` ya viene aprobado desde backend. (Agente IA) [#]()
+
+### 1.50.35 Refresco al cambiar tablas de viáticos 2026-07-17
+
+Fix:
+
+- Fuerza nuevas peticiones al backend y limpia filas previas al entrar a tablas de viáticos/solicitudes para evitar mostrar información de endpoints anteriores. (Agente IA) [#]()
+
+### 1.50.34 Refresco de requisiciones en contabilidad 2026-07-17
+
+Fix:
+
+- Fuerza la carga desde Billings/RequisitionRequestfilter al entrar o refrescar la tabla de solicitudes de requisiciones en contabilidad para evitar mostrar datos almacenados de otros endpoints. (Agente IA) [#]()
+
+### 1.50.33 Cancelar acompañantes en viáticos 2026-07-17
+
+Fix:
+
+- Agrega botones de cancelar para quitar acompañantes adicionales antes de enviar solicitudes de viáticos. (Agente IA) [#]()
+
 ### 1.50.32 Formulario contextual reutilizable 04-06-2026
 
 Feature:
@@ -41,6 +95,7 @@ Feature:
 Feature:
 
 - Agrega store, mapeo y tipos para Billings/BillingAllDocumentByIdRequisition. (Agente IA) [#]()
+
 ### 1.47.87 Evidencia de aprobación en requisiciones 02-03-2026
 
 Feature:
@@ -981,18 +1036,16 @@ Fix:
 - Because this module could be improved.
   (Bruno Mendoza) [335#](https://github.com/DR-Mexico/dr.intranet.web/pull/335)
 
- ### 1.49.24 Notifications 2026-12-02
+### 1.49.24 Notifications 2026-12-02
 
 Feature:
 
 - Because we need to improve notifications.
   (Bruno Mendoza) [337#](https://github.com/DR-Mexico/dr.intranet.web/pull/337#)
 
-  ### 1.50.24  2026-19-02
+  ### 1.50.24 2026-19-02
 
 Feature:
 
 - Adjustments to the Invoices Form.
   (Katherine Negrete) [347#](https://github.com/DR-Mexico/dr.intranet.web/pull/347#)
-
-

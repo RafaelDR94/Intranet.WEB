@@ -15,6 +15,14 @@ vi.mock('./components/RequisitionsAuthorization/RequisitionsAuthorization', () =
   default: () => <div>RequisitionsAuthorizationMock</div>,
 }))
 
+vi.mock(
+  './components/RequisitionsAuthorization/PreRequisitionsAuthorization/PreRequisitionsAuthorizationCatalog',
+  () => ({
+    __esModule: true,
+    default: () => <div>PreRequisitionsAuthorizationCatalogMock</div>,
+  }),
+)
+
 vi.mock('./components/ValesAuthorization/ValesAuthorization', () => ({
   __esModule: true,
   default: () => <div>ValesAuthorizationMock</div>,
@@ -29,6 +37,7 @@ describe('AuthorizationDetail', () => {
 
   it('renderiza requisiciones cuando el hook indica requisicion', () => {
     mockHook.mockReturnValue({
+      isPreRequisition: false,
       isRequisition: true,
       isVale: false,
       kind: 'Requisicion',
@@ -40,6 +49,7 @@ describe('AuthorizationDetail', () => {
 
   it('renderiza vales cuando el hook indica vale', () => {
     mockHook.mockReturnValue({
+      isPreRequisition: false,
       isRequisition: false,
       isVale: true,
       kind: 'Vale',
@@ -47,5 +57,17 @@ describe('AuthorizationDetail', () => {
     })
     render(<AuthorizationDetail />)
     expect(screen.getByText('ValesAuthorizationMock')).toBeInTheDocument()
+  })
+
+  it('renderiza prerequisiciones cuando el kind es solicitud de requisicion', () => {
+    mockHook.mockReturnValue({
+      isPreRequisition: true,
+      isRequisition: true,
+      isVale: false,
+      kind: 'Solicitud de Requisición',
+      normalizedKind: 'solicitud de requisición',
+    })
+    render(<AuthorizationDetail />)
+    expect(screen.getByText('PreRequisitionsAuthorizationCatalogMock')).toBeInTheDocument()
   })
 })

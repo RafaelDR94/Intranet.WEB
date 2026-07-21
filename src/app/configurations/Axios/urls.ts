@@ -60,6 +60,12 @@ export const AuthorizationApprove =
   process.env.NEXT_PUBLIC_AUTHORIZATION_APPROVE ?? "/Auth/AuthorizationApprove";
 export const AuthorizationReject =
   process.env.NEXT_PUBLIC_AUTHORIZATION_REJECT ?? "/Auth/AuthorizationReject";
+export const AuthorizationApproveThroughAccounting =
+  process.env.NEXT_PUBLIC_AUTHORIZATION_APPROVE_THROUGH_ACCOUNTING ??
+  "/Auth/ApprovethroughAccounting";
+export const AuthorizationRejectedByAccounting =
+  process.env.NEXT_PUBLIC_AUTHORIZATION_REJECTED_BY_ACCOUNTING ??
+  "/Auth/RejectedByAccounting";
 export const AuthorizationChangeAuthorizer =
   process.env.NEXT_PUBLIC_AUTHORIZATION_CHANGE_AUTHORIZER ??
   "/Auth/changeAuthorizer";
@@ -168,6 +174,9 @@ export const EmployeesActiveUsers =
 export const EmployeesDevicesAssigned =
   process.env.NEXT_PUBLIC_EMPLOYEES_DEVICES_ASSIGNED ??
   "/Employees/DevicesAssigned";
+export const EmployeesEmployeeNumberCard =
+  process.env.NEXT_PUBLIC_EMPLOYEES_EMPLOYEE_NUMBER_CARD ??
+  "/Employees/EmppLoyeeNumberCard";
 
 export const Statuses = process.env.NEXT_PUBLIC_STATUS ?? "/Status";
 export const StatusByType =
@@ -512,6 +521,51 @@ export const BillingPettyCashVoucherByIdEmployee =
 export const BillingPettyCashVoucherHistoryAmount =
   process.env.NEXT_PUBLIC_BILLINGS_PETTYCASHVOUCHER_HISTORYAMOUNT ??
   "/Billings/PettyCashVoucher/HistoryAmount";
+export const BillingTravelExpenses =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES ??
+  "/Billings/TravelExpenses";
+export const BillingTravelExpensesReject =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_REJECT ??
+  "/Billings/TravelExpenses/Reject";
+export const BillingTravelExpensesApprove =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_APPROVE ??
+  "/Billings/TravelExpenses/Approve";
+export const BillingTravelExpensesCancel =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CANCEL ??
+  "/Billings/TravelExpenses/Cancel";
+export const BillingTravelExpensesResend =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_RESEND ??
+  "/Billings/TravelExpenses/Resend";
+export const BillingTravelExpensesCancelOrResend =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CANCEL_OR_RESEND ??
+  "/Billings/TravelExpenses/CancelOrResend";
+export const BillingTravelExpensesSendAuthorization =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_SEND_AUTHORIZATION ??
+  "/Billings/TravelExpenses/SendAuthorization";
+export const BillingTravelExpensesSaveProgress =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_SAVE_PROGRESS ??
+  "/Billings/TravelExpenses/SaveProgress";
+export const BillingTravelExpensesCalculationConcepts =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CALCULATION_CONCEPTS ??
+  "/Billings/TravelExpenses/CalculationConcepts";
+export const BillingTravelExpensesEmployeesWithCardNumber =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_EMPLOYEES_WITH_CARD_NUMBER ??
+  "/Billings/TravelExpenses/EmployeesWithCardNumber";
+export const BillingRequisitionRequestSendAuthorization =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_SEND_AUTHORIZATION ??
+  "/Billings/RequisitionRequest/SendAuthorization";
+export const BillingRequisitionRequest =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST ??
+  "/Billings/RequisitionRequest";
+export const BillingRequisitionRequestFilter =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_FILTER ??
+  "/Billings/RequisitionRequestfilter";
+export const BillingRequisitionRequestById =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_BY_ID ??
+  "/Billings/RequisitionRequestById";
+export const BillingTravelExpensesCalculations =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CALCULATIONS ??
+  "/Billings/TravelExpensesCalculations";
 export const BillingsSAPPendingDocuments =
   process.env.NEXT_PUBLIC_BILLINGS_SAP_PENDING_DOCUMENTS ??
   "/Billings/SAPPendingDocuments";
