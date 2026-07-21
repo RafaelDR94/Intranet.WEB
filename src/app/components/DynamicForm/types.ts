@@ -96,6 +96,7 @@ export interface FieldModel {
   helperClassName?: string;
   triggerClassName?: string;
   icon?: FC<SVGProps<SVGSVGElement>>;
+  onIconClick?: () => void;
   initialFile?: InitialFile;
   initialFiles?: SelectedImage[];
   onlyText?: boolean;

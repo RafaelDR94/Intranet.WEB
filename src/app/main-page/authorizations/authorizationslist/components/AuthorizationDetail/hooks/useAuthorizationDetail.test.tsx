@@ -14,6 +14,15 @@ describe('useAuthorizationDetail', () => {
     currentParams = new URLSearchParams('kind=Requisicion')
     const { result } = renderHook(() => useAuthorizationDetail())
     expect(result.current.isRequisition).toBe(true)
+    expect(result.current.isPreRequisition).toBe(false)
+    expect(result.current.isVale).toBe(false)
+  })
+
+  it('detecta prerequisiciones desde solicitud de requisicion con acento', () => {
+    currentParams = new URLSearchParams('kind=Solicitud de Requisición')
+    const { result } = renderHook(() => useAuthorizationDetail())
+    expect(result.current.isPreRequisition).toBe(true)
+    expect(result.current.isRequisition).toBe(true)
     expect(result.current.isVale).toBe(false)
   })
 

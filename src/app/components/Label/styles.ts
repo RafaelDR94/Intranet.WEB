@@ -19,6 +19,7 @@ const variantMap: Record<LabelType, string> = {
   "factura-rechazada": 'bg-gray-20 text-gray-100 border border-gray-100 text-c3',
   "sin-asignar": "bg-gray-20 text-gray-100 border border-gray-100 text-[11px]",
   "asignado": "bg-alert-blue-10 text-alert-blue-100 border border-alert-blue-100 text-[11px]",
+  "borrador": 'bg-alert-purple-10 text-alert-purple-100 border border-alert-purple-100 text-[11px]',
   /**
    * NUEVOS: Tipos de Vale
    * - Vale Azul: chip con borde azul y fondo blanco (según el diseño).

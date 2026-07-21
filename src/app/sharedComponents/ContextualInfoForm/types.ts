@@ -6,6 +6,7 @@ import { ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
 export type ContextualInfoFieldId =
   | "company"
   | "projectCode"
+  | "requisitionCode"
   | "debtorCode"
   | "clientCode"
   | "startDate"

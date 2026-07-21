@@ -13,6 +13,15 @@ import type {
   UserPut,
 } from "@/app/mappings/users/user.types";
 
+export type UpdateEmployeeNumberCardPayload = {
+  /** Employee identifier. */
+  idEmployee: string;
+  /** Employee card number. */
+  cardNumber: string;
+  /** Employee phone number. */
+  phoneNumber: string;
+};
+
 export type UsersState = {
   /** Users list as returned by the API */
   users: UserType[];
@@ -90,6 +99,10 @@ export type UsersState = {
   updateUserProfile: (
     payload: UpdateUserProfilePayload | UserProfilePut
   ) => Promise<UserType | null>;
+  /** Update employee phone and card number */
+  updateEmployeeNumberCard: (
+    payload: UpdateEmployeeNumberCardPayload
+  ) => Promise<boolean>;
   /** Delete an existing user */
   deleteUser: (id: string) => Promise<boolean>;
   /** Retrieve available roles */

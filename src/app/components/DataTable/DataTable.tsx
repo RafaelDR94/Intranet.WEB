@@ -1,15 +1,15 @@
-﻿'use client'
+"use client";
 
-import React, { useEffect } from 'react'
+import React, { useEffect } from "react";
 
-import CollapsibleSection from '../CollapsibleSection/CollapsibleSection'
+import CollapsibleSection from "../CollapsibleSection/CollapsibleSection";
 
-import CardsGrid from '../CardsGrid/CardsGrid'
-import type { TextSize } from './components/DataTableContent/components/DataTableBody/DataTableBody'
-import DataTableContent from './components/DataTableContent/DataTableContent'
-import DataTableLayout from './components/DataTableLayout/DataTableLayout'
-import useDataTable from './hooks/useDataTable'
-import { DataTableProps } from './types'
+import CardsGrid from "../CardsGrid/CardsGrid";
+import type { TextSize } from "./components/DataTableContent/components/DataTableBody/DataTableBody";
+import DataTableContent from "./components/DataTableContent/DataTableContent";
+import DataTableLayout from "./components/DataTableLayout/DataTableLayout";
+import useDataTable from "./hooks/useDataTable";
+import { DataTableProps } from "./types";
 
 /**
  * `DataTable` â€“ Renderiza una o varias tablas con:
@@ -31,7 +31,7 @@ export const DataTable = <T extends { id: string | number }>({
   filterTitle,
   onFilterChange,
   onTableActionClick,
-  actionLabel = 'Agregar',
+  actionLabel = "Agregar",
   showCalendar = true,
   showSearch = true,
   showFilter = false,
@@ -54,7 +54,7 @@ export const DataTable = <T extends { id: string | number }>({
   startCollpas = false,
   useCardsView = false,
   showViewSwitcher = false,
-  textSize, 
+  textSize,
   rightContent,
   searchDataTour,
   calendarDataTour,
@@ -62,27 +62,26 @@ export const DataTable = <T extends { id: string | number }>({
   refreshDataTour,
   actionButtonDataTour,
 }: DataTableProps<T>) => {
-
   const {
     handleSearchChange,
     handleDateChange,
     getFilteredData,
     handleSelectedChange,
     handleDownload,
-    selectedRows
+    selectedRows,
   } = useDataTable<T>({
     onSelectedChange,
     onSearchChange,
     enableInternalSearch,
     searchableKeys,
     dateKey,
-  })
+  });
 
-  const [isCardsView, setIsCardsView] = React.useState(false)
+  const [isCardsView, setIsCardsView] = React.useState(false);
 
   useEffect(() => {
-    setIsCardsView(!!useCardsView)
-  }, [useCardsView])
+    setIsCardsView(!!useCardsView);
+  }, [useCardsView]);
 
   const handleFilterSelect = React.useCallback(
     (value: string) => {
@@ -90,8 +89,8 @@ export const DataTable = <T extends { id: string | number }>({
       const option = filterOptions?.find((item) => item.value === value);
       onFilterChange(value, option);
     },
-    [filterOptions, onFilterChange]
-  )
+    [filterOptions, onFilterChange],
+  );
 
   return (
     <div className="space-y-8">
@@ -102,7 +101,7 @@ export const DataTable = <T extends { id: string | number }>({
           onFilterClick={onFilterClick}
           onFilterChange={handleFilterSelect}
           onDateRangeChange={(s?: Date | null, e?: Date | null) => {
-            handleDateChange(s ?? null, e ?? null)
+            handleDateChange(s ?? null, e ?? null);
           }}
           onSearch={onSearch}
           actionLabel={actionLabel}
@@ -132,16 +131,23 @@ export const DataTable = <T extends { id: string | number }>({
       )}
 
       {tables.map((table, index) => {
-        const filteredData = getFilteredData(table)
-        const effectiveTextSize: TextSize | undefined = table.textSize ?? textSize
+        const filteredData = getFilteredData(table);
+        const effectiveTextSize: TextSize | undefined =
+          table.textSize ?? textSize;
 
         return (
           <CollapsibleSection
-            key={index + 'table'}
-            title={table.hidetitle?"":table?.title}
+            key={index + "table"}
+            title={table.hidetitle ? "" : table?.title}
             enableCollapse={table.enableCollaps}
             defaultOpen={!startCollpas}
             rightContent={rightContent}
+            showDivider={!table.hideHeader}
+            className={
+              table.hideHeader
+                ? "[&>div:first-child]:hidden [&>div:nth-child(2)]:!mt-0"
+                : undefined
+            }
           >
             {tables.length === 1 && (
               <DataTableLayout
@@ -150,7 +156,7 @@ export const DataTable = <T extends { id: string | number }>({
                 onFilterClick={onFilterClick}
                 onFilterChange={handleFilterSelect}
                 onDateRangeChange={(s?: Date | null, e?: Date | null) => {
-                  handleDateChange(s ?? null, e ?? null)
+                  handleDateChange(s ?? null, e ?? null);
                 }}
                 onSearch={onSearch}
                 actionLabel={actionLabel}
@@ -171,7 +177,7 @@ export const DataTable = <T extends { id: string | number }>({
                 showDownloadTable={showDownloadTable}
                 actionsRender={actionsRender}
                 onTableActionClick={onTableActionClick}
-                downloadDisabled={!(selectedRows[index]?.length)}
+                downloadDisabled={!selectedRows[index]?.length}
                 onDownload={(kind) =>
                   handleDownload(kind, tables, dataTableTitle, index)
                 }
@@ -230,7 +236,7 @@ export const DataTable = <T extends { id: string | number }>({
               />
             )}
           </CollapsibleSection>
-        )
+        );
       })}
     </div>
   )

@@ -22,6 +22,16 @@ export const defaultContextualInfoFields: ContextualInfoFieldConfig[] = [
     ],
   },
   {
+    id: "requisitionCode",
+    label: "Codigo de requisicion",
+    queryKeys: [
+      "codigoRequisicion",
+      "requisitionCode",
+      "requisitionkey",
+      "requestCode",
+    ],
+  },
+  {
     id: "debtorCode",
     label: "Codigo de deudor",
     queryKeys: [
