@@ -27,6 +27,10 @@ export type TravelExpenseApi = {
   projectId?: string | null;
   projectname?: string | null;
   projectName?: string | null;
+  proyectkey?: string | null;
+  proyectKey?: string | null;
+  projectkey?: string | null;
+  projectKey?: string | null;
   company?: string | null;
   companyname?: string | null;
   enterprise?: string | null;
@@ -191,6 +195,7 @@ export type TravelExpense = {
   card_number: string;
   project_id: string;
   projectname: string;
+  proyectkey?: string;
   company: string;
   enterprise_id: string;
   enterprise_name: string;
