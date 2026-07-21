@@ -473,8 +473,8 @@ const useInvoicesForm = ({
     ResetForm,
     handleImageClick,
     handleValuesChange,
-    submitCurrentValues: async () =>
-      submitInvoiceValues(latestValuesRef.current),
+    submitCurrentValues: async (values) =>
+      submitInvoiceValues(values ?? latestValuesRef.current),
   };
 };
 

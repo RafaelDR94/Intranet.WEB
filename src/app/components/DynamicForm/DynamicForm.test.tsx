@@ -175,6 +175,45 @@ describe('DynamicForm', () => {
     )
   })
 
+  it('expone una instantanea del estado actual para integraciones imperativas', async () => {
+    const fields: FieldModel[] = [
+      {
+        type: 'input',
+        name: 'foo',
+        label: 'Foo',
+        value: '',
+        validations: [{ type: 'required' }],
+      },
+    ]
+    const stateRef = React.createRef<
+      (() => { values: Record<string, any>; isValid: boolean }) | null
+    >()
+
+    render(
+      <DynamicForm
+        fields={fields}
+        onSubmit={() => {}}
+        showSubmitIf={() => false}
+        externalStateRef={stateRef}
+      />
+    )
+
+    expect(stateRef.current?.()).toEqual({
+      values: { foo: '' },
+      isValid: expect.any(Boolean),
+    })
+
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'bar')
+
+    await waitFor(() =>
+      expect(stateRef.current?.()).toEqual({
+        values: { foo: 'bar' },
+        isValid: true,
+      })
+    )
+  })
+
   it('notifica cambios en la validez del formulario', async () => {
     const fields: FieldModel[] = [
       { type: 'input', name: 'name', label: 'Nombre', value: '', validations: [{ type: 'required' }] },
