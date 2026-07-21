@@ -209,13 +209,13 @@ describe("useNewProyect hook", () => {
       client: "C",
       name: "N",
       proyectKey: "K",
-      managerId: "",
+      managerId: null,
       collaborators: [],
     });
     expect(updateProyect).not.toHaveBeenCalled();
   });
 
-  it("envia collaborators con employee_id y conserva managerId con user_id", async () => {
+  it("envia collaborators con employee_id y managerId null", async () => {
     const { result } = renderHook(() => useNewProyect());
 
     act(() => {
@@ -237,7 +237,7 @@ describe("useNewProyect hook", () => {
       client: "Cliente",
       name: "Proyecto",
       proyectKey: "PRY",
-      managerId: "user-1",
+      managerId: null,
       collaborators: ["emp-1"],
     });
   });

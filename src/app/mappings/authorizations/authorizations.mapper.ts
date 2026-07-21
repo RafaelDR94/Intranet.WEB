@@ -141,6 +141,7 @@ export const mapAuthorization = (raw: unknown): Authorization => {
     proyect: ProyectMap(src.proyect ?? src.project ?? src.proyect_id ?? src.project_id),
     event_id: toString(src.event_id ?? src.eventId),
     comment: toOptionalString(src.comment ?? src.comments ?? src.authorization_comment),
+    raw: src,
   }
 }
 

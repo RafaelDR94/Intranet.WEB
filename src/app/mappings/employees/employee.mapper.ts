@@ -36,6 +36,7 @@ export const mapEmployee = (emp: any): EmployeeType => ({
   extension: toString(emp?.extension),
   image_url: toString(emp?.image_url ?? emp?.image_profile),
   manager_id: toString(emp?.manager_id),
+  manager_name: toString(emp?.manager_name),
   department: mapDepartment(
     emp?.department ?? {
       department_id: emp?.department_id,

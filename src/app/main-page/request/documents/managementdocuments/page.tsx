@@ -140,13 +140,17 @@ const ManagementDocuments = () => {
     {
       key: "files" as unknown as keyof ManagementDocumentTableRow,
       label: "FORMATO",
+      headerClass: "flex-[0.9] justify-center",
+      cellClass: "flex-[0.9] flex justify-center",
       render: (row) => (
-        <div>
+        <div className="flex w-full justify-center">
           {row.route && (
             <Button
               size="xsmall"
               variant="ghost"
               icon={DocIcon}
+              iconOnly
+              className="!px-1 !py-1"
               onClick={() => window.open(row.route, "_blank")}
               data-tour="humanresources-managementdocuments-open"
             />
@@ -154,14 +158,26 @@ const ManagementDocuments = () => {
         </div>
       ),
     },
-    { key: "code", label: "CLAVE" },
-    { key: "documentType", label: "TIPO" },
+    {
+      key: "code",
+      label: "CLAVE",
+      headerClass: "flex-[1.25]",
+      cellClass: "flex-[1.25]",
+    },
+    {
+      key: "documentType",
+      label: "TIPO",
+      headerClass: "flex-[1.25]",
+      cellClass: "flex-[1.25]",
+    },
     {
       key: "actions" as unknown as keyof ManagementDocumentTableRow,
       label: "",
+      headerClass: "flex-[0.35]",
+      cellClass: "flex-[0.35]",
       render: (row) => (
         <div
-          className="flex justify-end pr-2"
+          className="flex w-full justify-end"
           data-tour="humanresources-managementdocuments-actions"
         >
           <DocumentActionsMenuCell
@@ -184,10 +200,9 @@ const ManagementDocuments = () => {
             {
               title: "",
               enableCollaps: false,
-              enableSelection: canDowload,
+              enableSelection: isMobile ? false : canDowload,
               data: rows,
               columns: isMobile ? columnsMobile : columns,
-              defaultSortKey: "name",
             },
           ]}
           showRefresh={true}

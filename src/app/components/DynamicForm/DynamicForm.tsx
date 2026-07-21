@@ -120,6 +120,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   responsiveLayoutMatrix, // por breakpoint
   breakpoints, // opcional
   externalSubmitRef,
+  externalStateRef,
   onValidChange,
   loadingFormInfo,
   disabled,
@@ -186,6 +187,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         }) => {
           if (externalSubmitRef) {
             externalSubmitRef.current = submitForm;
+          }
+          if (externalStateRef) {
+            externalStateRef.current = () => ({
+              values: cleanValues(values),
+              isValid,
+            });
           }
           // Notificar cambios de validez usando un subcomponente para respetar las reglas de hooks
           const visibleFields = fields.filter(

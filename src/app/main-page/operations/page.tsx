@@ -5,7 +5,7 @@ export default function OperationsPage() {
     <PermissionRedirect
       routes={[
         '/main-page/operations/requisitions',
-        '/main-page/operations/documentshistory',
+        '/main-page/operations/travelexpenses',
       ]}
     />
   );

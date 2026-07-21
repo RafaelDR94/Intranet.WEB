@@ -6,6 +6,7 @@ export default function RequisitionsPage() {
       routes={[
         // '/main-page/accounting/requisitions/requisitions',
         '/main-page/accounting/requisitions/requisitionsList',
+        '/main-page/accounting/requisitions/requisitionRequest',
       ]}
     />
   );

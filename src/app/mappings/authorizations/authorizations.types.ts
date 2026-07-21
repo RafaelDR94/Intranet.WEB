@@ -24,6 +24,7 @@ export type Authorization = {
   proyect?: Proyect;
   event_id: string;
   comment?: string;
+  raw?: Record<string, unknown>;
 };
 
 export type PostAuthorization = {

@@ -1,8 +1,8 @@
-﻿import type { ActionMenuCellProps } from "../ActionMenuCell/types"
-import type { Variant } from "../Button/types"
-import type { TextSize } from "./components/DataTableContent/components/DataTableBody/DataTableBody"
+import type { ActionMenuCellProps } from "../ActionMenuCell/types";
+import type { Variant } from "../Button/types";
+import type { TextSize } from "./components/DataTableContent/components/DataTableBody/DataTableBody";
 
-export type SelectionMode = "single" | "multiple"
+export type SelectionMode = "single" | "multiple";
 
 /**
  * Define la estructura de cada columna de la tabla.
@@ -59,54 +59,56 @@ export interface ColumnDefinition<T> {
  */
 export interface DataTableGroup<T> {
   /** Definiciones de columnas para la tabla */
-  columns: ColumnDefinition<T>[]
-  /** Conjunto de filas que se mostrarÃ¡n */
-  data: T[]
+  columns: ColumnDefinition<T>[];
+  /** Conjunto de filas que se mostrarán */
+  data: T[];
   /** Identificadores de filas que deben iniciar seleccionadas */
-  initialSelectedRowIds?: Array<any>
-  /** TÃ­tulo visible de la tabla */
-  title: string
+  initialSelectedRowIds?: Array<any>;
+  /** Título visible de la tabla */
+  title: string;
   /** Esconde el titulo */
-  hidetitle?: boolean
-  /** Habilita selecciÃ³n de filas */
-  enableSelection?: boolean
+  hidetitle?: boolean;
+  /** Oculta por completo el encabezado colapsable de esta tabla. */
+  hideHeader?: boolean;
+  /** Habilita selección de filas */
+  enableSelection?: boolean;
   /** Controla si la selecci?n es simple o m?ltiple */
-  selectionMode?: SelectionMode
+  selectionMode?: SelectionMode;
   /** Data-tour para checkbox de seleccion por fila */
-  selectionDataTour?: (row: T, index: number) => string | undefined
-  /** Permite colapsar la secciÃ³n que contiene la tabla */
-  enableCollaps?: boolean
+  selectionDataTour?: (row: T, index: number) => string | undefined;
+  /** Permite colapsar la sección que contiene la tabla */
+  enableCollaps?: boolean;
 
   /**Deja visible la seleccion pero no permite el click */
-  disableSelection?: boolean
+  disableSelection?: boolean;
   /** Clave inicial para ordenar */
-  defaultSortKey?: keyof T
-  /** DirecciÃ³n inicial de ordenamiento */
-  defaultSortDirection?: 'asc' | 'desc'
-  /** Total de filas disponibles (para paginaciÃ³n externa) */
-  totalRows?: number
+  defaultSortKey?: keyof T;
+  /** Dirección inicial de ordenamiento */
+  defaultSortDirection?: "asc" | "desc";
+  /** Total de filas disponibles (para paginación externa) */
+  totalRows?: number;
   /**
    * Altura mÃ¡xima del cuerpo de la tabla. Si se define,
    * el contenido excedente podrÃ¡ desplazarse con scroll interno.
    * Acepta valores en px o cualquier unidad CSS vÃ¡lida.
    */
-  scrollMaxHeight?: number | string
+  scrollMaxHeight?: number | string;
   /** Adaptador para vista como tarjetas (opcional por tabla) */
-  cardAdapt?: CardAdapt<T>
-  /** Nuevo: tamaÃ±o de texto especÃ­fico para esta tabla (fallback global en DataTable) */
-  textSize?: TextSize
+  cardAdapt?: CardAdapt<T>;
+  /** Nuevo: tamaño de texto específico para esta tabla (fallback global en DataTable) */
+  textSize?: TextSize;
 }
 
 /** OpciÃ³n disponible dentro del menÃº de filtros del DataTable. */
 export interface DataTableFilterOption<T, Value extends string = string> {
-  /** Texto mostrado en la opciÃ³n. */
-  label: string
-  /** Valor que identifica la opciÃ³n. */
-  value: Value
-  /** Permite deshabilitar la opciÃ³n. */
-  disabled?: boolean
+  /** Texto mostrado en la opción. */
+  label: string;
+  /** Valor que identifica la opción. */
+  value: Value;
+  /** Permite deshabilitar la opción. */
+  disabled?: boolean;
   /** Predicado opcional utilizado por consumidores para filtrar datos. */
-  predicate?: (row: T) => boolean
+  predicate?: (row: T) => boolean;
 }
 
 /**
@@ -139,11 +141,11 @@ export interface DataTableProps<T = any> {
   onSearchChange?: (
     value: string,
     startDate?: Date | null,
-    endDate?: Date | null
+    endDate?: Date | null,
   ) => void;
-  /** Se ejecuta al hacer clic en el botÃ³n de calendario (abrir date picker externo, etc.). */
-  onCalendarClick?: (start?: Date, end?: Date) => void
-  /** Se ejecuta al hacer clic en el botÃ³n de filtros (abrir un drawer o modal de filtros). */
+  /** Se ejecuta al hacer clic en el botón de calendario (abrir date picker externo, etc.). */
+  onCalendarClick?: (start?: Date, end?: Date) => void;
+  /** Se ejecuta al hacer clic en el botón de filtros (abrir un drawer o modal de filtros). */
   onFilterClick?: () => void;
   /** Se ejecuta al hacer clic en el botÃ³n de acciÃ³n principal (p.ej. â€œAgregarâ€). */
   onTableActionClick?: () => void;
@@ -173,12 +175,9 @@ export interface DataTableProps<T = any> {
   filterValue?: string | null;
   /** TÃ­tulo visible dentro del menÃº contextual de filtros. */
   filterTitle?: string;
-  /** Callback ejecutado cuando se selecciona una opciÃ³n del filtro. */
-  onFilterChange?: (
-    value: string,
-    option?: DataTableFilterOption<T>,
-  ) => void;
-  /** Ejecuta la recarga del contenido visible cuando se presiona el botÃ³n de actualizar. */
+  /** Callback ejecutado cuando se selecciona una opción del filtro. */
+  onFilterChange?: (value: string, option?: DataTableFilterOption<T>) => void;
+  /** Ejecuta la recarga del contenido visible cuando se presiona el botón de actualizar. */
   onRefreshPage?: () => void;
   /** Muestra el botÃ³n de acciÃ³n principal (por defecto: `true`). */
   showButton?: boolean;
@@ -232,43 +231,38 @@ export interface DataTableProps<T = any> {
   useCardsView?: boolean;
   /** Muestra el conmutador de vista en el layout */
   showViewSwitcher?: boolean;
-   /** Nuevo: tamaÃ±o de texto global (fallback si la tabla no define textSize) */
-  textSize?: TextSize
-  rightContent?: React.ReactNode
+  /** Nuevo: tamaño de texto global (fallback si la tabla no define textSize) */
+  textSize?: TextSize;
+  rightContent?: React.ReactNode;
 }
 
 /** Mapeo de campos para adaptar filas (T) a tarjetas renderizables */
 export interface CardAdapt<T> {
-  /** key o funciÃ³n para el tÃ­tulo */
-  titleKey: keyof T | ((row: T) => string)
-  /** key o funciÃ³n para el label pequeÃ±o */
-  labelKey?: keyof T | ((row: T) => string)
-  /** key o funciÃ³n para la descripciÃ³n */
-  descriptionKey?: keyof T | ((row: T) => string)
-  /** key o funciÃ³n para la URL de imagen */
-  imageKey?: keyof T | ((row: T) => string)
-  /** AcciÃ³n primaria (click en botÃ³n principal) */
-  onPrimaryAction: (row: T) => void
-  /** Etiqueta de botÃ³n primario */
-  primaryLabel?: string
-  /** AcciÃ³n secundaria opcional */
-  onSecondaryAction?: (row: T) => void
-  /** Etiqueta de botÃ³n secundario */
-  secondaryLabel?: string
+  /** key o función para el título */
+  titleKey: keyof T | ((row: T) => string);
+  /** key o función para el label pequeño */
+  labelKey?: keyof T | ((row: T) => string);
+  /** key o función para la descripción */
+  descriptionKey?: keyof T | ((row: T) => string);
+  /** key o función para la URL de imagen */
+  imageKey?: keyof T | ((row: T) => string);
+  /** Acción primaria (click en botón principal) */
+  onPrimaryAction: (row: T) => void;
+  /** Etiqueta de botón primario */
+  primaryLabel?: string;
+  /** Acción secundaria opcional */
+  onSecondaryAction?: (row: T) => void;
+  /** Etiqueta de botón secundario */
+  secondaryLabel?: string;
   /** Mostrar/ocultar botones */
-  showPrimaryButton?: boolean
-  showSecondaryButton?: boolean
+  showPrimaryButton?: boolean;
+  showSecondaryButton?: boolean;
   /** Variant visual del boton secundario */
-  secondaryVariant?: Variant
+  secondaryVariant?: Variant;
   /** Enable opening image preview in fullscreen */
-  enableImagePreview?: boolean
+  enableImagePreview?: boolean;
   /** Props para renderizar el menu contextual en cada tarjeta */
-  actionMenuProps?: (row: T) => ActionMenuCellProps<T>
-  /** NÃºmero de tarjetas por pÃ¡gina (opcional, por defecto `rowsPerPage`) */
-  cardsPerPage?: number
+  actionMenuProps?: (row: T) => ActionMenuCellProps<T>;
+  /** Número de tarjetas por página (opcional, por defecto `rowsPerPage`) */
+  cardsPerPage?: number;
 }
-
-
-
-
-

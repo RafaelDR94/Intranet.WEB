@@ -15,12 +15,13 @@ import type { EmployeeType } from "@/app/mappings/employees/employee.types";
 import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
 import type { OrganizationChartRouteConfig } from "../types";
 import {
-  getDirectoryEmployeeShortName,
   organizationChartEmptyValue,
   organizationChartNameCollator,
 } from "../employee.utils";
 import { buildOrganizationChartDepartmentsPath } from "../routes";
 import OrganizationChartEmployeeDetailsPanel from "./OrganizationChartEmployeeDetailsPanel";
+import {useIsMobile} from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import MoreIcon from "@/assets/icons/navegacion/more-vert.svg";
 
 type DirectoryRow = {
   id: string;
@@ -28,7 +29,7 @@ type DirectoryRow = {
   position: string;
   phone_number: string;
   email: string;
-  employee_number: string;
+  department: string;
   image_url: string;
   employee: EmployeeType;
 };
@@ -49,6 +50,7 @@ const OrganizationChartGeneralDirectoryView = ({
   );
   const canEditEmployee = routeConfig.capabilities.canUpdate;
   const canDeleteEmployee = routeConfig.capabilities.canDelete;
+  const isMobile = useIsMobile();
 
   const { activeEmployees, loadingActive, error, fetchActiveEmployees } =
     useEmployeesStore(
@@ -152,11 +154,11 @@ const OrganizationChartGeneralDirectoryView = ({
   const rows = useMemo<DirectoryRow[]>(() => {
     const mappedRows = activeEmployees.map((employee) => ({
       id: employee.id ?? employee.employee_id,
-      fullname: getDirectoryEmployeeShortName(employee),
+      fullname: employee.fullname || organizationChartEmptyValue,
       position: employee.workposition?.name ?? organizationChartEmptyValue,
       phone_number: employee.phone_number || organizationChartEmptyValue,
       email: employee.email || organizationChartEmptyValue,
-      employee_number: employee.employee_number || organizationChartEmptyValue,
+      department: employee.department?.name ?? organizationChartEmptyValue,
       image_url: employee.image_url,
       employee,
     }));
@@ -201,8 +203,8 @@ const OrganizationChartGeneralDirectoryView = ({
         headerClass: "w-3/12 min-w-0 pr-6",
       },
       {
-        key: "employee_number",
-        label: "No. Empleado",
+        key: "department",
+        label: "Departamento",
         cellClass: "w-2/12 min-w-0 truncate whitespace-nowrap pr-4",
         headerClass: "w-2/12 min-w-0 pr-4",
       },
@@ -255,6 +257,82 @@ const OrganizationChartGeneralDirectoryView = ({
     ],
   );
 
+  const MobileColumns = useMemo<ColumnDefinition<DirectoryRow>[]>(
+    () => [
+      {
+        key: "fullname",
+        label: "NOMBRE",
+        render: (row) => (
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="block min-w-0 flex-1 truncate" title={row.fullname}>
+              {row.fullname}
+            </span>
+          </div>
+        ),
+        cellClass: "flex-[1.35] min-w-0",
+        headerClass: "flex-[1.35] min-w-0",
+      },
+      {
+        key: "position",
+        label: "PUESTO",
+        cellClass: "flex-[1.15] min-w-0 truncate whitespace-nowrap",
+        headerClass: "flex-[1.15] min-w-0",
+      },  
+      {
+        key: "department",
+        label: "Departamento",
+        cellClass: "flex-[1.45] min-w-0 truncate whitespace-nowrap",
+        headerClass: "flex-[1.45] min-w-0",
+      },
+      {
+        key: "id",
+        label: "",
+        cellClass: "flex-[0.35] text-right",
+        headerClass: "flex-[0.35] text-right",
+        render: (row) => (
+          <Button
+            variant="ghost"
+            size="xsmall"
+            onClick={() => handleOpenEmployeeDetails(row.employee)}
+            icon={MoreIcon}
+            iconOnly
+            className="!px-1 !py-1"
+          />
+        ),
+      },
+      ...(canEditEmployee || canDeleteEmployee
+        ? [
+            {
+              key: "actions" as keyof DirectoryRow,
+              label: "",
+              cellClass: "flex-[0.35] text-right",
+              headerClass: "flex-[0.35] text-right",
+              render: (row: DirectoryRow) => (
+                <ActionMenuCell
+                  row={row.employee}
+                  onEdit={handleEditEmployee}
+                  onDelete={handleOpenDeletePopUp}
+                  permissions={{
+                    details: canSeeDetails,
+                    update: canEditEmployee,
+                    delete: canDeleteEmployee,
+                  }}
+                />
+              ),
+            },
+          ]
+        : []),
+    ],
+    [
+      canDeleteEmployee,
+      canEditEmployee,
+      canSeeDetails,
+      handleEditEmployee,
+      handleOpenDeletePopUp,
+      handleOpenEmployeeDetails,
+    ],
+  );  
+
   return (
     <div className="relative flex min-h-[calc(100vh-180px)] flex-col gap-4">
       {loadingActive && rows.length === 0 ? (
@@ -274,7 +352,7 @@ const OrganizationChartGeneralDirectoryView = ({
             title: "Directorio General",
             hidetitle: true,
             data: rows,
-            columns,
+            columns: isMobile ? MobileColumns : columns,
           },
         ]}
         enableInternalSearch
@@ -283,7 +361,7 @@ const OrganizationChartGeneralDirectoryView = ({
           "position",
           "phone_number",
           "email",
-          "employee_number",
+          "department",
         ]}
         textSize={{ mobile: "text-d3", desktop: "text-b4" }}
       />
@@ -298,7 +376,7 @@ const OrganizationChartGeneralDirectoryView = ({
         <PopUp
           open={isDeletePopUpOpen}
           onClose={handleCloseDeletePopUp}
-          title={`Deseas eliminar el usuario de ${employeeToDelete.fullname || getDirectoryEmployeeShortName(employeeToDelete)}?`}
+          title={`Deseas eliminar el usuario de ${employeeToDelete.fullname || organizationChartEmptyValue}?`}
           content="Esta acción confirmara la eliminación del usuario"
           showPrimaryButton
           showSecondaryButton

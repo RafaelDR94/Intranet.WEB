@@ -27,16 +27,6 @@ const useNewProyect = () => {
     (employee: EmployeeType): string => String(employee.employee_id ?? employee.id ?? ""),
     []
   );
-  const getEmployeeUserId = useCallback(
-    (employee: EmployeeType): string =>
-      String(
-        employee.user?.user_id ??
-          (employee.user as unknown as { id?: string } | null)?.id ??
-          ""
-      ),
-    []
-  );
-
   const { usePrincipalLoading, usePrincipalAlert } = usePrincipal();
   const { showSpinner, hideSpinner } = usePrincipalLoading;
   const { showAlert, hideAlert } = usePrincipalAlert;
@@ -262,14 +252,12 @@ const useNewProyect = () => {
 
   const submit = useCallback(async () => {
     if (!formReady) return;
-    const managerId =
-      collaborators.length > 0 ? getEmployeeUserId(collaborators[0]) : "";
 
     const payload: ProyectPost = {
       client: client.trim(),
       name: name.trim(),
       proyectKey: proyectKey.trim(),
-      managerId,
+      managerId: null,
       collaborators: collaboratorIds,
     };
 
@@ -282,11 +270,9 @@ const useNewProyect = () => {
   }, [
     client,
     collaboratorIds,
-    collaborators,
     createProyect,
     editId,
     formReady,
-    getEmployeeUserId,
     name,
     proyectKey,
     updateProyect,

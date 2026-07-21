@@ -29,6 +29,8 @@ const DocumentActionsMenuCell: React.FC<DocumentActionsMenuCellProps> = ({
           size="xsmall"
           variant="ghost"
           icon={isMobile ? DotsIcon : DotsIcon}
+          iconOnly
+          className={isMobile ? "!px-1 !py-1" : undefined}
         />
       }
       items={menuItems}

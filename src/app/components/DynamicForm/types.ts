@@ -96,6 +96,7 @@ export interface FieldModel {
   helperClassName?: string;
   triggerClassName?: string;
   icon?: FC<SVGProps<SVGSVGElement>>;
+  onIconClick?: () => void;
   initialFile?: InitialFile;
   initialFiles?: SelectedImage[];
   onlyText?: boolean;
@@ -201,6 +202,9 @@ export interface DynamicFormProps {
    * Al invocarse ejecutará la misma lógica que el botón interno.
    */
   externalSubmitRef?: React.RefObject<(() => void | Promise<any>) | null>;
+  externalStateRef?: React.RefObject<
+    (() => { values: Record<string, any>; isValid: boolean }) | null
+  >;
 
   /** Muestra un spinner de carga en lugar del formulario. */
   loadingFormInfo?: boolean;

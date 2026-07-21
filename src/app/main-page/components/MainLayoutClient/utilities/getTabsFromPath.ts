@@ -76,6 +76,16 @@ export const getTabsFromPath = (
         path: "/main-page/request/vehicleassignament",
       },
     ],
+    "request/expenserequisitions": [
+      {
+        label: "Solicitud de viáticos",
+        path: "/main-page/request/expenserequisitions/travelexpenserequest",
+      },
+      {
+        label: "Historial de viáticos",
+        path: "/main-page/request/expenserequisitions/travelexpensehistory",
+      }
+    ],
     "request/documents": [
       {
         label: "Registro de Documentos",
@@ -169,11 +179,24 @@ export const getTabsFromPath = (
         path: "/main-page/operations/documentshistory",
       },
     ],
-
+    "operations/expenserequisitions": [
+      {
+        label: "Solicitud viáticos",
+        path: "/main-page/operations/expenserequisitions/travelexpenserequest",
+      },
+      {
+        label: "Historial beneficiarios",
+        path: "/main-page/operations/expenserequisitions/beneficiaryhistory",
+      }
+    ],
     "accounting/requisitions": [
       {
         label: "Listado de Beneficiarios",
         path: "/main-page/accounting/requisitions/requisitionsList",
+      },
+      {
+        label: "Solicitud de Requisiciones",
+        path: "/main-page/accounting/requisitions/requisitionRequest",
       },
     ],
     "accounting/documentshistory": [

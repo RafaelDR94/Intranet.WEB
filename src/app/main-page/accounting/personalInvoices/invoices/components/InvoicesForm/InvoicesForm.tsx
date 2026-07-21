@@ -34,6 +34,9 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
   onValidChange,
   onSubmitSuccess,
 }) => {
+  const externalStateRef = React.useRef<
+    (() => { values: Record<string, any>; isValid: boolean }) | null
+  >(null);
   const {
     fields,
     formVersion,
@@ -65,13 +68,34 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
     [onValidChange, setFormReady],
   );
 
+  const handleSubmitRequest = React.useCallback(async () => {
+    const formState = externalStateRef.current?.();
+    if (!formState) {
+      return submitCurrentValues();
+    }
+
+    if (!formState.isValid) {
+      return {
+        ok: false,
+        error: "Revisa los formularios e intentalo de nuevo.",
+      } as const;
+    }
+
+    return submitCurrentValues(formState.values);
+  }, [submitCurrentValues]);
+
+  if (submitRequestRef) {
+    submitRequestRef.current = handleSubmitRequest;
+  }
+
   React.useEffect(() => {
-    if (!submitRequestRef) return;
-    submitRequestRef.current = submitCurrentValues;
     return () => {
-      submitRequestRef.current = null;
+      if (submitRequestRef) {
+        submitRequestRef.current = null;
+      }
+      externalStateRef.current = null;
     };
-  }, [submitCurrentValues, submitRequestRef]);
+  }, [submitRequestRef]);
 
   if (externalSubmitRef) {
     return (
@@ -86,6 +110,7 @@ const InvoicesForm: React.FC<InvoicesFormProps> = ({
         valuesVersion={formVersion}
         valuesVersionActive
         externalSubmitRef={externalSubmitRef}
+        externalStateRef={externalStateRef}
         showSubmitIf={() => false}
         formClassName={formClassName}
         rowClassName={rowClassName}
