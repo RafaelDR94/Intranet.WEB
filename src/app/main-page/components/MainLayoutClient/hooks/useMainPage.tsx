@@ -35,6 +35,10 @@ export const sidebarRoutes = [
     subroutes: [
       // { label: 'Requisiciones', path: '/main-page/operations/requisitions' },
       { label: 'Requisiciones', path: '/main-page/operations/expenserequisitions' },
+      {
+        label: "Historico de facturas",
+        path: "/main-page/operations/documentshistory",
+      },
     ],
   },
   {

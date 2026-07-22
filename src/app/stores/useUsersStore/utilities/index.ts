@@ -6,6 +6,7 @@ export * from "./createUser";
 export * from "./updateUser";
 export * from "./updateUserProfile";
 export * from "./updateEmployeeNumberCard";
+export * from "./updateEmployeeDataSAP";
 export * from "./deleteUser";
 export * from "./fetchRoles";
 export * from "./createRole";
