@@ -253,8 +253,8 @@ export const useRequisitionRequestPage = () => {
     if (!selectedTravelExpense) return [];
 
     const progressValues = getFirstProgressItemValues(selectedTravelExpense);
-    const debtorCodeMissing = !selectedTravelExpense.creditor_number;
-    const clientCodeMissing = !selectedTravelExpense.client_code;
+    const debtorCodeMissing = !selectedTravelExpense.creditor_number.trim();
+    const clientCodeMissing = !selectedTravelExpense.client_code.trim();
 
     return [
       {
@@ -728,14 +728,14 @@ export const useRequisitionRequestPage = () => {
     if (!idRequisitionRequest || !selectedTravelExpense) return;
 
     const creditorNumber = (
-      selectedTravelExpense.creditor_number || sapValues.creditor_number
+      selectedTravelExpense.creditor_number.trim() || sapValues.creditor_number
     ).trim();
     const clientCode = (
-      selectedTravelExpense.client_code || sapValues.client_code
+      selectedTravelExpense.client_code.trim() || sapValues.client_code
     ).trim();
     const shouldUpdateSAPData =
-      !selectedTravelExpense.creditor_number ||
-      !selectedTravelExpense.client_code;
+      !selectedTravelExpense.creditor_number.trim() ||
+      !selectedTravelExpense.client_code.trim();
 
     if (shouldUpdateSAPData && (!creditorNumber || !clientCode)) {
       showAlert({
@@ -750,12 +750,12 @@ export const useRequisitionRequestPage = () => {
       return;
     }
 
-    if (shouldUpdateSAPData && !selectedTravelExpense.id_user) {
+    if (shouldUpdateSAPData && !selectedTravelExpense.employee_id) {
       showAlert({
         type: "error",
         title: "No se pudo actualizar SAP",
         description:
-          "No se encontro el usuario asociado para guardar los codigos SAP.",
+          "No se encontro el empleado asociado para guardar los codigos SAP.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 2500,
@@ -769,9 +769,9 @@ export const useRequisitionRequestPage = () => {
 
     if (shouldUpdateSAPData) {
       const sapUpdated = await updateEmployeeDataSAP({
-        idUser: selectedTravelExpense.id_user,
+        idEmployee: selectedTravelExpense.employee_id,
         creditor_number: creditorNumber,
-        client_code: clientCode,
+        code: clientCode,
       });
 
       if (!sapUpdated) {
@@ -1060,15 +1060,24 @@ export const useRequisitionRequestPage = () => {
     view === "detail" &&
     selectedTravelExpense &&
     isDraftStatus(selectedTravelExpense.status);
+  const sapCodesComplete = Boolean(
+    selectedTravelExpense &&
+      (selectedTravelExpense.creditor_number.trim() ||
+        sapValues.creditor_number.trim()) &&
+      (selectedTravelExpense.client_code.trim() ||
+        sapValues.client_code.trim()),
+  );
   const requestActionsDisabled =
     !selectedTravelExpense ||
     selectedTravelExpense.is_approved_by_accounting ||
     approvingTravelExpense ||
     rejectingTravelExpense;
+  const approveActionDisabled = requestActionsDisabled || !sapCodesComplete;
 
   return {
     activeBeneficiaryId,
     approvingTravelExpense,
+    approveActionDisabled,
     assignedStaffRows,
     createFields,
     createFormLayout,
