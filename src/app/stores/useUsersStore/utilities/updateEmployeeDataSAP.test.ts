@@ -35,16 +35,16 @@ describe("updateEmployeeDataSAP", () => {
     const get: Get = () => state as UsersState;
 
     const updated = await updateEmployeeDataSAP(set, get, {
-      idUser: "f0ccf87b-c135-476e-afe1-8b86a67269d5",
+      idEmployee: "f0ccf87b-c135-476e-afe1-8b86a67269d5",
       creditor_number: "AC00021",
-      client_code: "N879",
+      code: "N879",
     });
 
     expect(updated).toBe(true);
     expect(putMock).toHaveBeenCalledWith("/Users/EmployeeDataSAP", {
-      idUser: "f0ccf87b-c135-476e-afe1-8b86a67269d5",
+      id_employee: "f0ccf87b-c135-476e-afe1-8b86a67269d5",
       creditor_number: "AC00021",
-      client_code: "N879",
+      code: "N879",
     });
     expect(state.updating).toBe(false);
     expect(state.successPut).toBe(true);

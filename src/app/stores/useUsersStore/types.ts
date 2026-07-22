@@ -23,12 +23,12 @@ export type UpdateEmployeeNumberCardPayload = {
 };
 
 export type UpdateEmployeeDataSAPPayload = {
-  /** User identifier. */
-  idUser: string;
+  /** Employee identifier. */
+  idEmployee: string;
   /** SAP creditor/debtor code. */
   creditor_number: string;
   /** SAP client code. */
-  client_code: string;
+  code: string;
 };
 
 export type UsersState = {
