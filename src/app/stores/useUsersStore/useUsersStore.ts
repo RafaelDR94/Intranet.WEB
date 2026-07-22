@@ -15,6 +15,7 @@ import {
   fetchUsers as fetchUsersRequest,
   toggleActive as toggleActiveRequest,
   updateSignature as updateSignatureRequest,
+  updateEmployeeDataSAP as updateEmployeeDataSAPRequest,
   updateEmployeeNumberCard as updateEmployeeNumberCardRequest,
   updateUser as updateUserRequest,
   updateUserProfile as updateUserProfileRequest,
@@ -103,10 +104,11 @@ export const useUsersStore = createWithEqualityFn<UsersState>()(
       fetchUserByIdRequest(id, set, get, force),
     createUser: (payload) => createUserRequest(set, get, payload),
     updateUser: (payload) => updateUserRequest(set, get, payload),
-    updateUserProfile: (payload) =>
-      updateUserProfileRequest(set, get, payload),
+    updateUserProfile: (payload) => updateUserProfileRequest(set, get, payload),
     updateEmployeeNumberCard: (payload) =>
       updateEmployeeNumberCardRequest(set, get, payload),
+    updateEmployeeDataSAP: (payload) =>
+      updateEmployeeDataSAPRequest(set, get, payload),
     deleteUser: (id: string) => deleteUserRequest(set, get, id),
     fetchRoles: (force = false) => fetchRolesRequest(set, get, force),
     createRole: (payload) => createRoleRequest(set, get, payload),
@@ -124,5 +126,5 @@ export const useUsersStore = createWithEqualityFn<UsersState>()(
       }),
     resetUser: () => set({ user: undefined }),
     setCurrentUser: (user) => set({ user }),
-  }))
+  })),
 );

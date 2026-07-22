@@ -24,6 +24,7 @@ const RequisitionRequestPage = () => {
     handleRejectCommentChange,
     handleRejectCommentOpen,
     handleRejectTravelExpense,
+    handleReviewValuesChange,
     handleViewDetails,
     loadingTravelExpenses,
     rejectComment,
@@ -39,12 +40,19 @@ const RequisitionRequestPage = () => {
   } = useRequisitionRequestPage();
 
   if (view === "detail") {
+    const detailTitleCode =
+      selectedTravelExpense?.requisition_requests[0]?.requisition_code ||
+      selectedTravelExpense?.requisitionkey;
+
     return (
       <section className={styles.detailPage}>
         <div className={styles.pageStack}>
           <div className={styles.header}>
             <div className={styles.titleGroup}>
-              <h1 className={styles.title}>Presupuesto de requisicion</h1>
+              <h1 className={styles.title}>
+                Presupuesto de requisicion
+                {detailTitleCode ? ` ${detailTitleCode}` : ""}
+              </h1>
               <div className={styles.divider} />
             </div>
             <div className={styles.actions}>
@@ -74,9 +82,9 @@ const RequisitionRequestPage = () => {
             {selectedTravelExpense ? (
               <>
                 <DynamicForm
-                  disabled
                   fields={reviewFields}
                   onSubmit={() => undefined}
+                  onValuesChange={handleReviewValuesChange}
                   responsiveLayoutMatrix={reviewFormLayout}
                   rowClassName={styles.formRow}
                   showSubmitIf={() => false}

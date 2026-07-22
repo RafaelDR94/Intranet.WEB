@@ -17,8 +17,14 @@ export type TravelExpenseApi = {
   fullName?: string | null;
   applicant_id?: string | null;
   applicantId?: string | null;
+  id_user?: string | null;
+  idUser?: string | null;
+  user_id?: string | null;
+  userId?: string | null;
   applicant_name?: string | null;
   applicantName?: string | null;
+  creditor_number?: string | null;
+  client_code?: string | null;
   phone_number?: string | null;
   phoneNumber?: string | null;
   card_number?: string | null;
@@ -190,7 +196,10 @@ export type TravelExpense = {
   employee_id: string;
   employeename: string;
   applicant_id: string;
+  id_user: string;
   applicant_name: string;
+  creditor_number: string;
+  client_code: string;
   phone_number: string;
   card_number: string;
   project_id: string;
