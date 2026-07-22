@@ -17,6 +17,7 @@ import { requisitionRequestStyles as styles } from "./styles";
 const RequisitionRequestPage = () => {
   const {
     detailViaticsRows,
+    approveActionDisabled,
     fetchRequisitionRequests,
     handleApproveTravelExpense,
     handleCreateClick,
@@ -70,7 +71,7 @@ const RequisitionRequestPage = () => {
                 hideIcon
                 type="button"
                 className={styles.actionButton}
-                disabled={requestActionsDisabled}
+                disabled={approveActionDisabled}
                 onClick={handleApproveTravelExpense}
               >
                 Aprobar

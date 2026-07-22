@@ -6,7 +6,7 @@ import { pPut } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
 
 /**
- * Updates SAP debtor and client codes for a user.
+ * Updates SAP debtor and client codes for an employee.
  */
 export const updateEmployeeDataSAP = async (
   set: Set,
@@ -19,9 +19,9 @@ export const updateEmployeeDataSAP = async (
     const put = pPut(requireGateway("put"), [200, 204]);
 
     await put(UsersEmployeeDataSAP, {
-      idUser: payload.idUser,
+      id_employee: payload.idEmployee,
       creditor_number: payload.creditor_number,
-      client_code: payload.client_code,
+      code: payload.code,
     });
 
     set({
