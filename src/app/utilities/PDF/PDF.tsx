@@ -8,6 +8,7 @@ import type { Table, FullDocument } from './types';
 
 import HojaMembretada from '@/assets/images/Walpapers/HojaMembretada.jpg';
 import HojaMembretadaDistrik from '@/assets/images/Walpapers/HOJA MEMBRETADA DISITREK.jpg'
+import HojaMembretadaVip from '@/assets/images/Walpapers/Hoja Membretada_page-0001 (1).jpg'
 Font.register({ family: 'Izayoi', src: '/fonts/IzayoiMonospaced-nwoY.ttf' });
 Font.register({ family: 'Mechanical', src: '/fonts/Mechanical-g5Y5.otf' });
 
@@ -74,7 +75,9 @@ const RenderTable: React.FC<Table> = ({ title, headers, datatable, relation }) =
  * Documento interno usado para generar el PDF.
  * @param data Estructura completa del documento o `null`.
  */
-const MyDocument: React.FC<{ data: FullDocument | null, membret?: 'DR' | 'DISITREK' }> = ({ data, membret = "DR" }) => (
+export type MembretType = 'DR' | 'DISITREK' | 'VIP';
+
+const MyDocument: React.FC<{ data: FullDocument | null, membret?: MembretType }> = ({ data, membret = "DR" }) => (
   <Document>
     {data?.pages.map((pageData, pageIndex) => {
       let hojaSrc = null;
@@ -84,6 +87,9 @@ const MyDocument: React.FC<{ data: FullDocument | null, membret?: 'DR' | 'DISITR
           break;
         case 'DISITREK':
           hojaSrc = (HojaMembretadaDistrik as StaticImageData).src;
+          break;
+        case 'VIP':
+          hojaSrc = (HojaMembretadaVip as StaticImageData).src;
           break;
         default:
           hojaSrc = (HojaMembretada as StaticImageData).src;
@@ -277,7 +283,7 @@ const MyDocument: React.FC<{ data: FullDocument | null, membret?: 'DR' | 'DISITR
  * @param data Estructura completa del documento.
  * @param setPDF Callback que recibe la URL del blob generado.
  */
-export const CreatePDF = async (data: FullDocument | null, setPDF: (url: string) => void, membret?: 'DR' | 'DISITREK') => {
+export const CreatePDF = async (data: FullDocument | null, setPDF: (url: string) => void, membret?: MembretType) => {
   const blob = await pdf(<MyDocument data={data} membret={membret} />).toBlob();
   setPDF(URL.createObjectURL(blob));
 };
@@ -289,7 +295,7 @@ export const CreatePDF = async (data: FullDocument | null, setPDF: (url: string)
  */
 export const CreatePDFBlob = async (
   data: FullDocument | null,
-  membret?: 'DR' | 'DISITREK',
+  membret?: MembretType,
 ): Promise<Blob> => {
   return await pdf(<MyDocument data={data} membret={membret} />).toBlob();
 };
