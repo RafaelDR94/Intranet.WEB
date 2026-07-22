@@ -47,7 +47,7 @@ const stepLayouts: Record<StepId, ResponsiveLayoutMatrix> = {
 const useInternalDevicesAsignationPage = () => {
   const { deviceAssignments, handleRefresh } = useInternalDevicesAsignation()
   const { all, updateQuery } = useQuery()
-  const { user } = useAuth()
+  const { user, currentPagePermissions } = useAuth()
   const isMobile = useIsMobile()
 
   const normalizedView = useMemo(() => {
@@ -180,6 +180,8 @@ const useInternalDevicesAsignationPage = () => {
   const [responsiveOpen, setResponsiveOpen] = useState(false)
   const [responsiveUrl, setResponsiveUrl] = useState<string | null>(null)
   const [responsiveTitle, setResponsiveTitle] = useState<string>('')
+  const [processingResponsiveAssignmentId, setProcessingResponsiveAssignmentId] =
+    useState<string | null>(null)
   const prevCreateView = useRef(false)
   const prevDeviceId = useRef<string | null>(null)
   const suppressCreateSuccessRef = useRef(false)
@@ -565,7 +567,11 @@ const useInternalDevicesAsignationPage = () => {
         signatureUrl: userSignature,
       })
 
-      const pdfBlob = await CreatePDFBlob(document)
+      const departmentName = employee.department?.name ?? ''
+      const membret = departmentName.toLocaleUpperCase().includes('VIP')
+        ? 'VIP'
+        : 'DR'
+      const pdfBlob = await CreatePDFBlob(document, membret)
       const storagePath = `Assets/DeviceAssignment/${created.device_assigment_id}/responsiva.pdf`
       const pdfUrl = await firebasestorage.uploadFile(pdfBlob, storagePath, true)
 
@@ -717,11 +723,206 @@ const useInternalDevicesAsignationPage = () => {
     [fetchDeviceAssignmentById, updateQuery],
   )
 
+  const generateAndUploadResponsive = useCallback(
+    async (row: InternalDeviceAssignmentRow) => {
+      const assignment = deviceAssignments.find(
+        (item) => item.device_assigment_id === row.assignment_id,
+      )
+      if (!assignment) {
+        throw new Error('No se encontro la asignacion.')
+      }
+      if (!firebasestorage?.uploadFile) {
+        throw new Error('Firebase no esta disponible para subir la responsiva.')
+      }
+
+      const employee =
+        employeeById.get(assignment.employee_id) ??
+        (await fetchEmployeeById(assignment.employee_id, true))
+      if (!employee) {
+        throw new Error('No se pudo obtener el colaborador.')
+      }
+
+      const device =
+        deviceById.get(assignment.device_id) ??
+        (await fetchDeviceById(assignment.device_id, true))
+      if (!device) {
+        throw new Error('No se pudo obtener el dispositivo.')
+      }
+
+      const document = buildDeviceAssignmentResponsiveDocument({
+        assignment,
+        device,
+        employee,
+        signatureUrl: employee.user?.signature,
+      })
+      const departmentName = employee.department?.name ?? ''
+      const membret = departmentName.toLocaleUpperCase().includes('VIP')
+        ? 'VIP'
+        : 'DR'
+      const pdfBlob = await CreatePDFBlob(document, membret)
+      const storagePath = `Assets/DeviceAssignment/${assignment.device_assigment_id}/responsiva.pdf`
+      const pdfUrl = await firebasestorage.uploadFile(pdfBlob, storagePath, true)
+
+      if (!pdfUrl) {
+        throw new Error('No se pudo subir la responsiva.')
+      }
+
+      await updateDeviceAssignmentResponsiveUrl({
+        idDeviceAssignment: assignment.device_assigment_id,
+        responsiveUrl: pdfUrl,
+      })
+      await fetchDeviceAssignments(true)
+      return pdfUrl
+    },
+    [
+      deviceAssignments,
+      deviceById,
+      employeeById,
+      fetchDeviceAssignments,
+      fetchDeviceById,
+      fetchEmployeeById,
+      firebasestorage,
+      updateDeviceAssignmentResponsiveUrl,
+    ],
+  )
+
+  const handleRegenerateResponsive = useCallback(
+    (row: InternalDeviceAssignmentRow) => {
+      if (!currentPagePermissions?.regenerateResponsive) {
+        showAlert({
+          type: 'warning',
+          title: 'Sin permiso para regenerar',
+          description: 'No cuentas con el permiso para regenerar responsivas.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500,
+        })
+        return
+      }
+      showAlert({
+        type: 'warning',
+        title: 'Regenerar responsiva',
+        description:
+          'Se reemplazara el archivo actual con una nueva version usando el membrete correspondiente al departamento.',
+        showPrimaryButton: true,
+        primaryLabel: 'Regenerar',
+        showSecondaryButton: true,
+        secondaryLabel: 'Cancelar',
+        onPrimaryClick: () => {
+          void (async () => {
+            try {
+              showSpinner({ message: 'Regenerando responsiva...' })
+              setProcessingResponsiveAssignmentId(row.assignment_id)
+              await generateAndUploadResponsive(row)
+              showAlert({
+                type: 'info',
+                title: 'Responsiva regenerada',
+                description: 'La nueva responsiva se guardo correctamente.',
+                showPrimaryButton: false,
+                showSecondaryButton: false,
+                autoCloseMs: 1500,
+              })
+            } catch (err) {
+              showAlert({
+                type: 'error',
+                title: 'No se pudo regenerar la responsiva',
+                description:
+                  err instanceof Error
+                    ? err.message
+                    : 'Ocurrio un error al regenerar la responsiva.',
+                showPrimaryButton: false,
+                showSecondaryButton: false,
+                autoCloseMs: 2000,
+              })
+            } finally {
+              hideSpinner()
+              setProcessingResponsiveAssignmentId(null)
+            }
+          })()
+        },
+      })
+    },
+    [
+      currentPagePermissions?.regenerateResponsive,
+      hideSpinner,
+      generateAndUploadResponsive,
+      showAlert,
+      showSpinner,
+    ],
+  )
+
   const handleOpenResponsiveFromRow = useCallback(
     (row: InternalDeviceAssignmentRow) => {
-      handleOpenResponsive(row.responsive_url, `Responsiva ${row.display_id}`)
+      if (row.responsive_url) {
+        handleOpenResponsive(row.responsive_url, `Responsiva ${row.display_id}`)
+        return
+      }
+
+      if (!currentPagePermissions?.generateMissingResponsive) {
+        showAlert({
+          type: 'warning',
+          title: 'Sin permiso para generar',
+          description:
+            'No hay responsiva para esta asignacion y no cuentas con el permiso para generarla.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1800,
+        })
+        return
+      }
+
+      showAlert({
+        type: 'warning',
+        title: 'Generar responsiva faltante',
+        description:
+          'Se generara, almacenara y asociara la responsiva a esta asignacion.',
+        showPrimaryButton: true,
+        primaryLabel: 'Generar responsiva',
+        showSecondaryButton: true,
+        secondaryLabel: 'Cancelar',
+        onPrimaryClick: () => {
+          void (async () => {
+            try {
+              showSpinner({ message: 'Generando responsiva...' })
+              setProcessingResponsiveAssignmentId(row.assignment_id)
+              const pdfUrl = await generateAndUploadResponsive(row)
+              handleOpenResponsive(pdfUrl, `Responsiva ${row.display_id}`)
+              showAlert({
+                type: 'info',
+                title: 'Responsiva generada',
+                description: 'La responsiva se guardo correctamente.',
+                showPrimaryButton: false,
+                showSecondaryButton: false,
+                autoCloseMs: 1500,
+              })
+            } catch (err) {
+              showAlert({
+                type: 'error',
+                title: 'No se pudo generar la responsiva',
+                description:
+                  err instanceof Error
+                    ? err.message
+                    : 'Ocurrio un error al generar la responsiva.',
+                showPrimaryButton: false,
+                showSecondaryButton: false,
+                autoCloseMs: 2000,
+              })
+            } finally {
+              hideSpinner()
+              setProcessingResponsiveAssignmentId(null)
+            }
+          })()
+        },
+      })
     },
-    [handleOpenResponsive],
+    [
+      currentPagePermissions?.generateMissingResponsive,
+      generateAndUploadResponsive,
+      handleOpenResponsive,
+      hideSpinner,
+      showAlert,
+      showSpinner,
+    ],
   )
 
   const {
@@ -736,8 +937,13 @@ const useInternalDevicesAsignationPage = () => {
     deviceById,
     employeeById,
     isMobile,
+    processingResponsiveAssignmentId,
+    canRegenerateResponsive: Boolean(
+      currentPagePermissions?.regenerateResponsive,
+    ),
     onOpenDetails: handleOpenAssignmentDetails,
     onOpenResponsive: handleOpenResponsiveFromRow,
+    onRegenerateResponsive: handleRegenerateResponsive,
   })
 
   useEffect(() => {
