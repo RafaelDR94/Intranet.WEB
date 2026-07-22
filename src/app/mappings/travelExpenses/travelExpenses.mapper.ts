@@ -26,9 +26,10 @@ const parseCalculationConceptsJson = (
 const mapCalculationConceptsJson = (
   record: TravelExpenseApi,
 ): TravelExpense["calculation_concepts_json"] => {
-  const progressItems = parseCalculationConceptsJson(
-    record.calculation_concepts_json ?? record.calculationConceptsJson,
-  ) ?? [];
+  const progressItems =
+    parseCalculationConceptsJson(
+      record.calculation_concepts_json ?? record.calculationConceptsJson,
+    ) ?? [];
 
   if (progressItems.length > 0) return progressItems;
 
@@ -156,7 +157,12 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
         record.fullName,
     ),
     applicant_id: toStringSafe(record.applicant_id ?? record.applicantId),
+    id_user: toStringSafe(
+      record.id_user ?? record.idUser ?? record.user_id ?? record.userId,
+    ),
     applicant_name: toStringSafe(record.applicant_name ?? record.applicantName),
+    creditor_number: toStringSafe(record.creditor_number),
+    client_code: toStringSafe(record.client_code),
     phone_number: toStringSafe(record.phone_number ?? record.phoneNumber),
     card_number: toStringSafe(record.card_number ?? record.cardNumber),
     project_id: toStringSafe(record.project_id ?? record.projectId),

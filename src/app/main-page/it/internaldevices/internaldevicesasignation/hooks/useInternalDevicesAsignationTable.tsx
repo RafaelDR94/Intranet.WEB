@@ -10,6 +10,7 @@ import type {
   InternalDeviceAssignment,
 } from "@/app/mappings/internaldevices/internaldevices.types";
 import ResponsiveDoc from "@/assets/icons/Docs/page.svg";
+import RefreshIcon from "@/assets/icons/acciones/refresh.svg";
 
 import type {
   InternalDeviceAssignmentRow,
@@ -30,8 +31,11 @@ type UseInternalDevicesAsignationTableParams = {
   deviceById: Map<string, InternalDevice>;
   employeeById: Map<string, EmployeeType>;
   isMobile: boolean;
+  canRegenerateResponsive: boolean;
+  processingResponsiveAssignmentId: string | null;
   onOpenDetails: (row: InternalDeviceAssignmentRow) => void;
   onOpenResponsive: (row: InternalDeviceAssignmentRow) => void;
+  onRegenerateResponsive: (row: InternalDeviceAssignmentRow) => void;
 };
 
 type UseInternalDevicesAsignationTableResult = {
@@ -51,8 +55,11 @@ const useInternalDevicesAsignationTable = ({
   deviceById,
   employeeById,
   isMobile,
+  canRegenerateResponsive,
+  processingResponsiveAssignmentId,
   onOpenDetails,
   onOpenResponsive,
+  onRegenerateResponsive,
 }: UseInternalDevicesAsignationTableParams): UseInternalDevicesAsignationTableResult => {
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(
     DEFAULT_STATUS_FILTER,
@@ -152,12 +159,26 @@ const useInternalDevicesAsignationTable = ({
       cellClass: "w-[8%]",
       headerClass: "w-[8%]",
       render: (row) => (
-        <Button
-          size="small"
-          variant="ghost"
-          icon={ResponsiveDoc}
-          onClick={() => onOpenResponsive(row)}
-        />
+        <div className="flex items-center">
+          <Button
+            size="small"
+            variant="ghost"
+            icon={ResponsiveDoc}
+            aria-label="Abrir responsiva"
+            disabled={processingResponsiveAssignmentId === row.assignment_id}
+            onClick={() => onOpenResponsive(row)}
+          />
+          {canRegenerateResponsive && row.responsive_url && (
+            <Button
+              size="small"
+              variant="ghost"
+              icon={RefreshIcon}
+              aria-label="Regenerar responsiva"
+              disabled={processingResponsiveAssignmentId === row.assignment_id}
+              onClick={() => onRegenerateResponsive(row)}
+            />
+          )}
+        </div>
       ),
     },
     {
@@ -189,7 +210,13 @@ const useInternalDevicesAsignationTable = ({
       ),
     },
   ],
-  [onOpenDetails, onOpenResponsive],
+  [
+    canRegenerateResponsive,
+    onOpenDetails,
+    onOpenResponsive,
+    onRegenerateResponsive,
+    processingResponsiveAssignmentId,
+  ],
 );
 
   const columnsMobile = useMemo<

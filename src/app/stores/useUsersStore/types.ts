@@ -22,6 +22,15 @@ export type UpdateEmployeeNumberCardPayload = {
   phoneNumber: string;
 };
 
+export type UpdateEmployeeDataSAPPayload = {
+  /** Employee identifier. */
+  idEmployee: string;
+  /** SAP creditor/debtor code. */
+  creditor_number: string;
+  /** SAP client code. */
+  code: string;
+};
+
 export type UsersState = {
   /** Users list as returned by the API */
   users: UserType[];
@@ -79,29 +88,33 @@ export type UsersState = {
   fetchUsers: (force?: boolean) => Promise<void>;
   /** Fetch employees without an active user account */
   fetchEmployeesWithoutActiveUser: (
-    force?: boolean
+    force?: boolean,
   ) => Promise<UserEmployeeSummary[]>;
   /** Fetch employees with an active user account */
   fetchEmployeesWithActiveUser: (
-    force?: boolean
+    force?: boolean,
   ) => Promise<UserEmployeeSummary[]>;
   /** Fetch user by identifier */
   fetchUserById: (id: string, force?: boolean) => Promise<UserType | null>;
   /** Create a new user */
   createUser: (
-    payload: CreateUserPayload | UserPost
+    payload: CreateUserPayload | UserPost,
   ) => Promise<UserType | null>;
   /** Update an existing user */
   updateUser: (
-    payload: UpdateUserPayload | UserPut
+    payload: UpdateUserPayload | UserPut,
   ) => Promise<UserType | null>;
   /** Update user profile information */
   updateUserProfile: (
-    payload: UpdateUserProfilePayload | UserProfilePut
+    payload: UpdateUserProfilePayload | UserProfilePut,
   ) => Promise<UserType | null>;
   /** Update employee phone and card number */
   updateEmployeeNumberCard: (
-    payload: UpdateEmployeeNumberCardPayload
+    payload: UpdateEmployeeNumberCardPayload,
+  ) => Promise<boolean>;
+  /** Update employee SAP debtor and client data */
+  updateEmployeeDataSAP: (
+    payload: UpdateEmployeeDataSAPPayload,
   ) => Promise<boolean>;
   /** Delete an existing user */
   deleteUser: (id: string) => Promise<boolean>;
@@ -110,13 +123,9 @@ export type UsersState = {
   /** Create a new role */
   createRole: (payload: RolePost) => Promise<UserRole | null>;
   /** Update user signature */
-  updateSignature: (
-    payload: UserSignaturePayload
-  ) => Promise<string | null>;
+  updateSignature: (payload: UserSignaturePayload) => Promise<string | null>;
   /** Enable or disable a user account */
-  toggleActive: (
-    payload: ToggleUserActivePayload
-  ) => Promise<boolean>;
+  toggleActive: (payload: ToggleUserActivePayload) => Promise<boolean>;
   /** Force revalidation ignoring cache */
   forceFetchUsers: () => Promise<void>;
   /** Reset store to initial state */
@@ -130,7 +139,7 @@ export type UsersState = {
 };
 
 export type Set = (
-  partial: Partial<UsersState> | ((state: UsersState) => Partial<UsersState>)
+  partial: Partial<UsersState> | ((state: UsersState) => Partial<UsersState>),
 ) => void;
 
 export type Get = () => UsersState;

@@ -374,6 +374,8 @@ export const UsersMfaMethod =
   process.env.NEXT_PUBLIC_USERS_MFA_METHOD ?? "/Users/Mfa/Method";
 export const UsersSignature =
   process.env.NEXT_PUBLIC_USERSSIGNATURE ?? "/Users/Signature";
+export const UsersEmployeeDataSAP =
+  process.env.NEXT_PUBLIC_USERS_EMPLOYEE_DATA_SAP ?? "/Users/EmployeeDataSAP";
 export const Visitor =
   process.env.NEXT_PUBLIC_VISITOR ?? "/GeneralServices/Visitor";
 export const UsersRoles = process.env.NEXT_PUBLIC_USERS_ROLES ?? "/Users/Roles";

@@ -75,6 +75,10 @@ export const useRequisitionRequestPage = () => {
   const [requisitionValues, setRequisitionValues] = useState<
     Record<string, unknown>
   >({});
+  const [sapValues, setSapValues] = useState({
+    creditor_number: "",
+    client_code: "",
+  });
   const [viaticsRows, setViaticsRows] = useState<EditableViaticsRow[]>(
     cloneEmptyViaticsRows,
   );
@@ -167,6 +171,9 @@ export const useRequisitionRequestPage = () => {
   const fetchEmployeesWithActiveUser = useUsersStore(
     (state) => state.fetchEmployeesWithActiveUser,
   );
+  const updateEmployeeDataSAP = useUsersStore(
+    (state) => state.updateEmployeeDataSAP,
+  );
   const proyects = useProyectsStore((state) => state.proyects);
   const proyectsLoading = useProyectsStore((state) => state.loading);
   const fetchProyects = useProyectsStore((state) => state.fetchProyects);
@@ -220,6 +227,10 @@ export const useRequisitionRequestPage = () => {
     setRequisitionSection("information");
     setViaticsRows(cloneEmptyViaticsRows());
     setBeneficiaryViaticsRows({});
+    setSapValues({
+      creditor_number: selectedTravelExpense.creditor_number,
+      client_code: selectedTravelExpense.client_code,
+    });
   }, [selectedTravelExpense]);
 
   const handleViewDetails = (row: TravelExpense) => {
@@ -242,6 +253,8 @@ export const useRequisitionRequestPage = () => {
     if (!selectedTravelExpense) return [];
 
     const progressValues = getFirstProgressItemValues(selectedTravelExpense);
+    const debtorCodeMissing = !selectedTravelExpense.creditor_number.trim();
+    const clientCodeMissing = !selectedTravelExpense.client_code.trim();
 
     return [
       {
@@ -260,20 +273,21 @@ export const useRequisitionRequestPage = () => {
       },
       {
         type: "input",
-        name: "debtorcode",
-        label: "Codigo de requisición",
-        value: toFormString(
-          progressValues.requisitionCode ||
-            selectedTravelExpense.requisitionkey,
-        ),
-        disabled: true,
+        name: "creditor_number",
+        label: "Codigo de deudor",
+        placeholder: "Escribir codigo",
+        value: sapValues.creditor_number,
+        disabled: !debtorCodeMissing,
+        validations: debtorCodeMissing ? [{ type: "required" }] : undefined,
       },
       {
         type: "input",
-        name: "phone_number",
-        label: "Telefono",
-        value: toFormString(selectedTravelExpense.phone_number),
-        disabled: true,
+        name: "client_code",
+        label: "Codigo de cliente",
+        placeholder: "Escribir codigo",
+        value: sapValues.client_code,
+        disabled: !clientCodeMissing,
+        validations: clientCodeMissing ? [{ type: "required" }] : undefined,
       },
       {
         type: "date",
@@ -307,8 +321,25 @@ export const useRequisitionRequestPage = () => {
         disabled: true,
       },
     ];
-  }, [selectedTravelExpense]);
+  }, [sapValues, selectedTravelExpense]);
 
+  const handleReviewValuesChange = (values: Record<string, unknown>) => {
+    setSapValues((currentValues) => {
+      const nextValues = {
+        creditor_number: toFormString(values.creditor_number),
+        client_code: toFormString(values.client_code),
+      };
+
+      if (
+        currentValues.creditor_number === nextValues.creditor_number &&
+        currentValues.client_code === nextValues.client_code
+      ) {
+        return currentValues;
+      }
+
+      return nextValues;
+    });
+  };
   const requisitionSummaryFields = useMemo<FieldModel[]>(
     () =>
       selectedTravelExpense
@@ -694,11 +725,71 @@ export const useRequisitionRequestPage = () => {
 
   const handleApproveTravelExpense = async () => {
     const idRequisitionRequest = getSelectedRequisitionRequestId();
-    if (!idRequisitionRequest) return;
+    if (!idRequisitionRequest || !selectedTravelExpense) return;
+
+    const creditorNumber = (
+      selectedTravelExpense.creditor_number.trim() || sapValues.creditor_number
+    ).trim();
+    const clientCode = (
+      selectedTravelExpense.client_code.trim() || sapValues.client_code
+    ).trim();
+    const shouldUpdateSAPData =
+      !selectedTravelExpense.creditor_number.trim() ||
+      !selectedTravelExpense.client_code.trim();
+
+    if (shouldUpdateSAPData && (!creditorNumber || !clientCode)) {
+      showAlert({
+        type: "error",
+        title: "Completa los codigos SAP",
+        description:
+          "Captura el codigo de deudor y el codigo de cliente antes de aprobar.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2500,
+      });
+      return;
+    }
+
+    if (shouldUpdateSAPData && !selectedTravelExpense.employee_id) {
+      showAlert({
+        type: "error",
+        title: "No se pudo actualizar SAP",
+        description:
+          "No se encontro el empleado asociado para guardar los codigos SAP.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2500,
+      });
+      return;
+    }
 
     showSpinner({
       message: "Espera un momento, tu accion esta siendo procesada",
     });
+
+    if (shouldUpdateSAPData) {
+      const sapUpdated = await updateEmployeeDataSAP({
+        idEmployee: selectedTravelExpense.employee_id,
+        creditor_number: creditorNumber,
+        code: clientCode,
+      });
+
+      if (!sapUpdated) {
+        hideSpinner();
+        showAlert({
+          type: "error",
+          title: "No se pudo actualizar SAP",
+          description:
+            useUsersStore.getState().error ||
+            "Hubo un problema al guardar los codigos SAP.",
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 2500,
+        });
+        return;
+      }
+    }
+
     const success =
       await approveRequisitionRequestThroughAccounting(idRequisitionRequest);
     hideSpinner();
@@ -969,15 +1060,24 @@ export const useRequisitionRequestPage = () => {
     view === "detail" &&
     selectedTravelExpense &&
     isDraftStatus(selectedTravelExpense.status);
+  const sapCodesComplete = Boolean(
+    selectedTravelExpense &&
+      (selectedTravelExpense.creditor_number.trim() ||
+        sapValues.creditor_number.trim()) &&
+      (selectedTravelExpense.client_code.trim() ||
+        sapValues.client_code.trim()),
+  );
   const requestActionsDisabled =
     !selectedTravelExpense ||
     selectedTravelExpense.is_approved_by_accounting ||
     approvingTravelExpense ||
     rejectingTravelExpense;
+  const approveActionDisabled = requestActionsDisabled || !sapCodesComplete;
 
   return {
     activeBeneficiaryId,
     approvingTravelExpense,
+    approveActionDisabled,
     assignedStaffRows,
     createFields,
     createFormLayout,
@@ -997,6 +1097,7 @@ export const useRequisitionRequestPage = () => {
     handleRejectCommentChange,
     handleRejectCommentOpen,
     handleRejectTravelExpense,
+    handleReviewValuesChange,
     handleSaveRequisitionProgress,
     handleSendRequisitionAuthorization,
     handleViewDetails,
