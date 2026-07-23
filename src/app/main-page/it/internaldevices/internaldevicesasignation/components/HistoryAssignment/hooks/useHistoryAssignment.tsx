@@ -12,7 +12,7 @@ import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/us
 import type { HistoryAssignmentProps, HistoryAssignmentRow } from '../types'
 
 const formatAssignmentDate = (
-  assignment: InternalDeviceAssignmentHistory,
+  assignment: InternalDeviceAssignmentHistory
 ): string => {
   const rawDate = assignment.date ?? assignment.created_at
   if (!rawDate) return '-'
@@ -29,7 +29,7 @@ const formatAssignmentDate = (
  */
 const useHistoryAssignment = ({
   deviceId,
-  onCreateAssignment,
+  onCreateAssignment
 }: HistoryAssignmentProps) => {
   const { updateQuery } = useQuery()
   const { user } = useAuth()
@@ -46,7 +46,7 @@ const useHistoryAssignment = ({
     fetchDeviceAssignments,
     deviceAssignments,
     deviceAssignment,
-    error,
+    error
   } = useInternalDevicesStore(
     (state) => ({
       deviceAssignmentHistory: state.deviceAssignmentHistory,
@@ -58,19 +58,20 @@ const useHistoryAssignment = ({
       fetchDeviceAssignments: state.fetchDeviceAssignments,
       deviceAssignments: state.deviceAssignments,
       deviceAssignment: state.deviceAssignment,
-      error: state.error,
+      error: state.error
     }),
-    shallow,
+    shallow
   )
 
-  const { activeEmployees, loadingActive, fetchActiveEmployees } = useEmployeesStore(
-    (state) => ({
-      activeEmployees: state.activeEmployees,
-      loadingActive: state.loadingActive,
-      fetchActiveEmployees: state.fetchActiveEmployees,
-    }),
-    shallow,
-  )
+  const { activeEmployees, loadingActive, fetchActiveEmployees } =
+    useEmployeesStore(
+      (state) => ({
+        activeEmployees: state.activeEmployees,
+        loadingActive: state.loadingActive,
+        fetchActiveEmployees: state.fetchActiveEmployees
+      }),
+      shallow
+    )
 
   useEffect(() => {
     if (!deviceId) return
@@ -87,7 +88,7 @@ const useHistoryAssignment = ({
     fetchActiveEmployees,
     fetchDeviceAssignmentHistoryByDeviceId,
     deviceAssignments.length,
-    fetchDeviceAssignments,
+    fetchDeviceAssignments
   ])
 
   const employeeById = useMemo(() => {
@@ -97,16 +98,19 @@ const useHistoryAssignment = ({
         return key ? ([key, employee] as const) : null
       })
       .filter(
-        (entry): entry is readonly [string, EmployeeType] => entry !== null,
+        (entry): entry is readonly [string, EmployeeType] => entry !== null
       )
     return new Map<string, EmployeeType>(entries)
   }, [activeEmployees])
 
   const responsiveByAssignmentId = useMemo(() => {
-    const entries = deviceAssignments.map((assignment) => [
-      assignment.device_assigment_id,
-      assignment.responsive_url ?? null,
-    ] as const)
+    const entries = deviceAssignments.map(
+      (assignment) =>
+        [
+          assignment.device_assigment_id,
+          assignment.responsive_url ?? null
+        ] as const
+    )
     return new Map<string, string | null>(entries)
   }, [deviceAssignments])
 
@@ -122,11 +126,15 @@ const useHistoryAssignment = ({
           assignmentId: assignment.device_assigment_id,
           dateLabel: formatAssignmentDate(assignment),
           assignedTo: employee,
+          deviceName:
+            assignment.devicename || assignment.model || assignment.device_id,
           deliveryCondition: assignment.delivery_condition || 'Sin condiciones',
-          responsiveUrl: responsiveByAssignmentId.get(assignment.device_assigment_id),
+          responsiveUrl: responsiveByAssignmentId.get(
+            assignment.device_assigment_id
+          )
         }
       }),
-    [deviceAssignmentHistory, employeeById, responsiveByAssignmentId],
+    [deviceAssignmentHistory, employeeById, responsiveByAssignmentId]
   )
 
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -137,7 +145,7 @@ const useHistoryAssignment = ({
   const hasActiveAssignment = Boolean(
     deviceAssignment?.device_assigment_id &&
       deviceAssignment.device_id &&
-      deviceAssignment.device_id === deviceId,
+      deviceAssignment.device_id === deviceId
   )
 
   const handleCreateAssignment = useCallback(() => {
@@ -160,7 +168,7 @@ const useHistoryAssignment = ({
     const ok = await deleteDeviceAssignment(
       deviceAssignment.device_assigment_id,
       undefined,
-      user?.idEmployee,
+      user?.idEmployee
     )
     hideSpinner()
 
@@ -171,7 +179,7 @@ const useHistoryAssignment = ({
         description: error ?? 'No se pudo desvincular al usuario.',
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500,
+        autoCloseMs: 1500
       })
       return
     }
@@ -183,7 +191,7 @@ const useHistoryAssignment = ({
       description: 'El dispositivo quedo disponible para una nueva asignación.',
       showPrimaryButton: false,
       showSecondaryButton: false,
-      autoCloseMs: 1200,
+      autoCloseMs: 1200
     })
 
     if (deviceId) {
@@ -200,7 +208,7 @@ const useHistoryAssignment = ({
     hideSpinner,
     showAlert,
     showSpinner,
-    user?.idEmployee,
+    user?.idEmployee
   ])
 
   const handleOpenResponsive = useCallback(
@@ -212,7 +220,7 @@ const useHistoryAssignment = ({
           description: 'No se encontro una responsiva para esta asignacion.',
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 1500,
+          autoCloseMs: 1500
         })
         return
       }
@@ -220,7 +228,7 @@ const useHistoryAssignment = ({
       setResponsiveTitle(title ?? 'Responsiva de asignacion')
       setResponsiveOpen(true)
     },
-    [showAlert],
+    [showAlert]
   )
 
   const handleCloseResponsive = useCallback(() => {
@@ -241,7 +249,7 @@ const useHistoryAssignment = ({
     responsiveTitle,
     responsiveUrl,
     rows,
-    setConfirmOpen,
+    setConfirmOpen
   }
 }
 

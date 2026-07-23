@@ -48,6 +48,8 @@ export type InternalDevice = {
   device_proyect: InternalDeviceProyect | null
   is_active: boolean
   reviewed: boolean
+  /** Fecha en que el dispositivo fue registrado. */
+  created_at?: string
   lowdate: string | null
   lowuser: string | null
   assurance: string

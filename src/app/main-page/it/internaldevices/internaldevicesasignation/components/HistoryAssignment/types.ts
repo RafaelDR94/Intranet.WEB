@@ -14,6 +14,7 @@ export type HistoryAssignmentRow = {
   assignmentId: string
   dateLabel: string
   assignedTo: string
+  deviceName: string
   deliveryCondition: string
   responsiveUrl?: string | null
 }

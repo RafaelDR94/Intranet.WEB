@@ -35,9 +35,7 @@ const InternalDevicesListPage = () => {
     columns,
     rows,
     searchableKeys,
-    statusFilter,
-    statusFilterOptions,
-    handleStatusFilterChange,
+    filterGroups,
   } = useInternalDevicesListTable({
     devices,
     onOpenDetails: handleOpenDetails,
@@ -78,14 +76,13 @@ const InternalDevicesListPage = () => {
             enableInternalSearch
             searchableKeys={searchableKeys}
             showCalendar
+            dateKey="created_at"
             showFilter
             showRefresh
             showDownloadTable
             onRefreshPage={handleRefresh}
-            filterTitle="Estatus"
-            filterOptions={statusFilterOptions}
-            filterValue={statusFilter}
-            onFilterChange={handleStatusFilterChange}
+            filterTitle="Filtros"
+            filterGroups={filterGroups}
             dataTableTitle="Inventario de Dispositivos"
             showButton={false}
             searchDataTour="internaldevices-list-search"

@@ -22,6 +22,7 @@ export const contextMenuStyles = {
   ItemPressed: 'bg-green-10 text-black-100',
   ItemDisabled: 'text-gray-40 cursor-not-allowed',
   ItemDanger: 'text-alert-red-100',
+  Section: 'px-4 pt-3 pb-1 text-label font-medium text-green-100 select-none',
   ItemHover: 'hover:bg-green-10',
   Icon: 'text-blue-60 ml-3',
 

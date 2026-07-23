@@ -14,7 +14,21 @@ type BuildDeviceAssignmentResponsiveParams = {
   device: InternalDevice;
   employee: EmployeeType;
   signatureUrl?: string | null;
+  membret?: 'DR' | 'VIP';
 };
+
+const hasContent = (value: string | null | undefined): value is string =>
+  Boolean(value?.trim());
+
+const createDataRow = (
+  label: string,
+  text: string | null | undefined,
+  fullWidth = false,
+): DataChartElement | null =>
+  hasContent(text) ? { label, text: text.trim(), fullWidth } : null;
+
+const hasDataRow = (item: DataChartElement | null): item is DataChartElement =>
+  item !== null;
 
 /**
  * Construye el documento PDF de responsiva para asignacion de dispositivos.
@@ -24,7 +38,9 @@ export const buildDeviceAssignmentResponsiveDocument = ({
   device,
   employee,
   signatureUrl,
+  membret = 'DR',
 }: BuildDeviceAssignmentResponsiveParams): FullDocument => {
+  const isVip = membret === 'VIP';
   const assignmentDate = formatDateHour(
     assignment.date ?? assignment.created_at ?? new Date().toISOString(),
   );
@@ -32,8 +48,9 @@ export const buildDeviceAssignmentResponsiveDocument = ({
   const locationDate = `Mexico, CDMX a ${currentDateEs(new Date())}`;
 
   const introText =
-    `Por medio de la presente, hago constar que recibo de parte de DR Mexico, ` +
-    `S.A. de C.V. para el desempeño de mi trabajo un equipo de computo ` +
+    `Por medio de la presente, hago constar que recibo de parte de ${
+      isVip ? 'VIP INGENIERIA' : 'DR Mexico, S.A. de C.V.'
+    } para el desempeño de mi trabajo un equipo de computo ` +
     `propiedad de la empresa con las siguientes caracteristicas:`;
 
   const responsibilitiesIntro =
@@ -47,35 +64,30 @@ export const buildDeviceAssignmentResponsiveDocument = ({
     "a pagar el costo de reparacion o reposicion del equipo.";
 
   const employeeData: DataChartElement[] = [
-    { label: "Usuario", text: employee.fullname },
-    { label: "Clave equipo", text: device.charge_sn || device.device_id || "--" },
-    { label: "Departamento", text: employee.department?.name ?? "--" },
-    { label: "Fecha", text: assignmentDate },
-  ];
+    createDataRow("Usuario", employee.fullname),
+    createDataRow("Clave equipo", device.name),
+    createDataRow("Departamento", employee.department?.name),
+    createDataRow("Fecha", assignmentDate),
+  ].filter(hasDataRow);
 
   const deviceData: DataChartElement[] = [
-    { label: "Marca", text: device.device_brand?.name ?? "--" },
-    { label: "Modelo", text: device.model ?? "--" },
-    { label: "S/N", text: device.serial_number ?? "--" },
-    { label: "S/N cargador", text: device.charge_sn ?? "--" },
-    { label: "Ethernet", text: device.ip_address ?? "--" },
-    { label: "Mac Address", text: device.mac_address ?? "--" },
-    { label: "OS", text: device.operating_system ?? "--" },
-    { label: "Tipo", text: device.device_type?.name ?? "--" },
-  ];
+    createDataRow("Marca", device.device_brand?.name),
+    createDataRow("Modelo", device.model),
+    createDataRow("S/N", device.serial_number),
+    createDataRow("S/N cargador", device.charge_sn),
+    createDataRow("Ethernet", device.ip_address),
+    createDataRow("Mac Address", device.mac_address),
+    createDataRow("OS", device.operating_system),
+    createDataRow("Tipo", device.device_type?.name),
+  ].filter(hasDataRow);
 
   const observationsText =
     assignment.observations ||
     assignment.delivery_condition ||
-    device.description ||
-    "Sin observaciones";
+    device.description;
   const assignmentData: DataChartElement[] = [
-    {
-      label: "Observaciones",
-      text: observationsText,
-      fullWidth: true,
-    },
-  ];
+    createDataRow("Observaciones", observationsText, true),
+  ].filter(hasDataRow);
 
   const intro: SingleElement = {
     singletitle: "",
@@ -112,10 +124,12 @@ export const buildDeviceAssignmentResponsiveDocument = ({
     folio: locationDate,
     title: "CARTA RESGUARDO",
     headerBox: {
-      docTitle: "Carta para Resguardo de Activos DR Mexico",
+      docTitle: isVip
+        ? "Carta para Resguardo de Activos VIP INGENIERIA"
+        : "Carta para Resguardo de Activos DR Mexico",
       version: "02",
       docType: "Formato",
-      docKey: "FDT-002",
+      docKey: isVip ? "CLAVE VIP-ING" : "FDT-002",
       creationDate: "31/01/2018",
       lastVersionDate: "23/09/2020",
     },
@@ -123,13 +137,17 @@ export const buildDeviceAssignmentResponsiveDocument = ({
       intro,
       { title: "Descripcion del equipo", data: deviceData },
       { title: "Datos del resguardo", data: employeeData },
-      { title: "Observaciones", data: assignmentData },
+      ...(assignmentData.length > 0
+        ? [{ title: "Observaciones", data: assignmentData }]
+        : []),
       paragraph1,
       {
         title: "",
         items: [
           "Respetar antivirus y sistema operativo base original.",
-          "No instalar software adicional, salvo previa autorizacion por el area de Soporte Interno de DR.",
+          `No instalar software adicional, salvo previa autorizacion por el area de Soporte Interno de ${
+            isVip ? 'VIP ingenieria' : 'DR'
+          }.`,
         ],
       },
       paragraph2,

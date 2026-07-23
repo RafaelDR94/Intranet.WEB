@@ -2,12 +2,14 @@
 
 import Breadcrumbs from '@/app/components/Breadcrumbs/Breadcrumbs'
 import { Button } from '@/app/components/Button/Button'
+import { Checkbox } from '@/app/components/CheckBox/CheckBox'
 import CollapsibleSection from '@/app/components/CollapsibleSection/CollapsibleSection'
 import { DataTable } from '@/app/components/DataTable/DataTable'
 import DynamicForm from '@/app/components/DynamicForm/DynamicForm'
 import DocumentViewer from '@/app/components/DocumentViewer/DocumentViewer'
 import SignatureBox from '@/app/components/SignatureBox/SignatureBox'
 import SignatureComponent from '@/app/components/SignatureComponent/SignatureComponent'
+import { PopUp } from '@/app/components/PopUp/PopUp'
 
 import AssignmentDetail from './components/AssignmentDetail/AssignmentDetail'
 import InternalDeviceEdit from '../internaldeviceslist/components/InternalDeviceEdit/InternalDeviceEdit'
@@ -30,8 +32,10 @@ const InternalDevicesAsignationPage = () => {
     handleBackToDetails,
     handleBackToList,
     handleCloseDetails,
+    handleCloseRegenerationPopup,
     handleCloseResponsive,
     handleCreateReview,
+    handleConfirmRegeneration,
     handleEditInformation,
     handleNext,
     handleOpenCreate,
@@ -64,7 +68,10 @@ const InternalDevicesAsignationPage = () => {
     userFullName,
     responsiveTitle,
     responsiveUrl,
+    regenerationAssignment,
+    regenerationMembretSelection,
     setSignatureOpen,
+    setRegenerationMembretSelection,
     loadingDeviceAssignment,
   } = useInternalDevicesAsignationPage()
 
@@ -282,6 +289,57 @@ const InternalDevicesAsignationPage = () => {
           onClose={handleCloseResponsive}
         />
       )}
+      <PopUp
+        open={Boolean(regenerationAssignment)}
+        onClose={handleCloseRegenerationPopup}
+        title="Regenerar responsiva"
+        content="Elige el membrete que se usará en la nueva versión."
+        showPrimaryButton
+        primaryButtonText="Regenerar"
+        onPrimaryButtonClick={handleConfirmRegeneration}
+        showSecondaryButton
+        secondaryButtonText="Cancelar"
+        onSecondaryButtonClick={handleCloseRegenerationPopup}
+      >
+        <div className="space-y-3 pt-2">
+          <Checkbox
+            checked={regenerationMembretSelection === 'default'}
+            onChange={(checked) => {
+              if (checked) setRegenerationMembretSelection('default')
+            }}
+            label="Usar el membrete predeterminado del departamento del usuario"
+            dataTestId="responsive-membret-default"
+          />
+          <Checkbox
+            checked={regenerationMembretSelection !== 'default'}
+            onChange={(checked) =>
+              setRegenerationMembretSelection(checked ? 'DR' : 'default')
+            }
+            label="Seleccionar el membrete manualmente"
+            dataTestId="responsive-membret-manual"
+          />
+          {regenerationMembretSelection !== 'default' && (
+            <div className="ml-6 space-y-2">
+              <Checkbox
+                checked={regenerationMembretSelection === 'DR'}
+                onChange={(checked) => {
+                  if (checked) setRegenerationMembretSelection('DR')
+                }}
+                label="DR"
+                dataTestId="responsive-membret-dr"
+              />
+              <Checkbox
+                checked={regenerationMembretSelection === 'VIP'}
+                onChange={(checked) => {
+                  if (checked) setRegenerationMembretSelection('VIP')
+                }}
+                label="VIP Ingeniería"
+                dataTestId="responsive-membret-vip"
+              />
+            </div>
+          )}
+        </div>
+      </PopUp>
     </>
   )
 }

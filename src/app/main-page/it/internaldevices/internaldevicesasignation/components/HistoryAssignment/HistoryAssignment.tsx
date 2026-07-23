@@ -12,7 +12,7 @@ import type { HistoryAssignmentProps } from './types'
 const HistoryAssignment = ({
   deviceId,
   onCreateAssignment,
-  showActions = true,
+  showActions = true
 }: HistoryAssignmentProps) => {
   const {
     confirmOpen,
@@ -27,11 +27,11 @@ const HistoryAssignment = ({
     responsiveTitle,
     responsiveUrl,
     rows,
-    setConfirmOpen,
+    setConfirmOpen
   } = useHistoryAssignment({ deviceId, onCreateAssignment })
 
   if (loading) {
-    return <div className="text-center text-gray-70">Cargando historial...</div>
+    return <div className="text-gray-70 text-center">Cargando historial...</div>
   }
 
   return (
@@ -70,13 +70,13 @@ const HistoryAssignment = ({
         </div>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-gray-20 bg-white-70 shadow-sm">
+      <div className="border-gray-20 bg-white-70 overflow-hidden rounded-2xl border shadow-sm">
         <table className="w-full text-left">
-          <thead className="border-b border-gray-20">
+          <thead className="border-gray-20 border-b">
             <tr className="text-gray-90">
-              <th className="px-6 py-4 text-c2 font-semibold">FECHA</th>
-              <th className="px-6 py-4 text-c2 font-semibold">ASIGNADO A</th>
-              <th className="px-6 py-4 text-c2 font-semibold">
+              <th className="text-c2 px-6 py-4 font-semibold">FECHA</th>
+              <th className="text-c2 px-6 py-4 font-semibold">ASIGNADO A</th>
+              <th className="text-c2 px-6 py-4 font-semibold">
                 CONDICIONES DE ENTREGA
               </th>
             </tr>
@@ -84,7 +84,7 @@ const HistoryAssignment = ({
           <tbody className="text-gray-70">
             {rows.length === 0 && (
               <tr>
-                <td className="px-6 py-5 text-center text-c2" colSpan={3}>
+                <td className="text-c2 px-6 py-5 text-center" colSpan={3}>
                   Sin asignaciones registradas.
                 </td>
               </tr>
@@ -92,16 +92,16 @@ const HistoryAssignment = ({
             {rows.map((assignment) => (
               <tr
                 key={assignment.assignmentId}
-                className="border-b border-gray-10 last:border-b-0"
+                className="border-gray-10 border-b last:border-b-0"
               >
-                <td className="px-6 py-4 text-c2">{assignment.dateLabel}</td>
-                <td className="px-6 py-4 text-c2">{assignment.assignedTo}</td>
-                <td className="px-6 py-4 text-c2">
+                <td className="text-c2 px-6 py-4">{assignment.dateLabel}</td>
+                <td className="text-c2 px-6 py-4">{assignment.assignedTo}</td>
+                <td className="text-c2 px-6 py-4">
                   <span className="block max-w-[280px] truncate">
                     {assignment.deliveryCondition}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-c2">
+                <td className="text-c2 px-6 py-4">
                   <Button
                     size="small"
                     variant="ghost"
@@ -109,7 +109,7 @@ const HistoryAssignment = ({
                     onClick={() => {
                       handleOpenResponsive(
                         assignment.responsiveUrl,
-                        `Responsiva ${assignment.dateLabel}`,
+                        `Responsiva - ${assignment.assignedTo} - ${assignment.deviceName}`
                       )
                     }}
                   />

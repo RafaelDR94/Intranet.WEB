@@ -30,6 +30,7 @@ export const DataTable = <T extends { id: string | number }>({
   filterValue,
   filterTitle,
   onFilterChange,
+  filterGroups,
   onTableActionClick,
   actionLabel = "Agregar",
   showCalendar = true,
@@ -111,6 +112,7 @@ export const DataTable = <T extends { id: string | number }>({
           filterOptions={filterOptions}
           filterValue={filterValue ?? undefined}
           filterTitle={filterTitle}
+          filterGroups={filterGroups}
           showButton={showButton}
           showRefresh={showRefresh}
           onRefreshPage={onRefreshPage}
@@ -166,6 +168,7 @@ export const DataTable = <T extends { id: string | number }>({
                 filterOptions={filterOptions}
                 filterValue={filterValue ?? undefined}
                 filterTitle={filterTitle}
+                filterGroups={filterGroups}
                 showButton={showButton}
                 showRefresh={showRefresh}
                 onRefreshPage={onRefreshPage}
