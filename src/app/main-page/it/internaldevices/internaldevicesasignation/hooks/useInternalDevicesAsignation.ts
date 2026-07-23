@@ -36,7 +36,9 @@ const useInternalDevicesAsignation = () => {
   )
 
   useEffect(() => {
-    fetchDeviceAssignments()
+    // La tabla debe reflejar cambios realizados desde otros flujos antes de
+    // volver a esta vista; no reutilizamos la colección en caché.
+    void fetchDeviceAssignments(true)
   }, [fetchDeviceAssignments])
 
   useEffect(() => {

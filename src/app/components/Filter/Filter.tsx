@@ -16,6 +16,7 @@ const Filter: React.FC<FilterProps> = ({
   selectedValue,
   defaultValue = null,
   onChange,
+  groups,
 }) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const isControlled = selectedValue !== undefined;
@@ -49,6 +50,32 @@ const Filter: React.FC<FilterProps> = ({
   );
 
   const items = React.useMemo<ContextMenuItem[]>(() => {
+    if (groups?.length) {
+      return groups.flatMap((group, groupIndex) => [
+        { label: group.title, section: true, disabled: true },
+        ...group.options.map<ContextMenuItem>((option, optionIndex) => ({
+          label: option.label,
+          disabled: option.disabled,
+          controlType: 'radio',
+          controlSide: 'left',
+          onClick: () => {
+            group.onChange?.(option.value)
+            setMenuOpen(false)
+          },
+          controlProps: {
+            id: `${menuName}-${groupIndex}-${optionIndex}`,
+            name: `${menuName}-${groupIndex}`,
+            value: option.value,
+            checked: group.selectedValue === option.value,
+            onChange: () => {
+              group.onChange?.(option.value)
+              setMenuOpen(false)
+            },
+          },
+        })),
+      ])
+    }
+
     if (!options.length) {
       return [
         {
@@ -72,7 +99,7 @@ const Filter: React.FC<FilterProps> = ({
         onChange: () => handleSelect(option.value),
       },
     }));
-  }, [options, handleSelect, menuName, currentValue]);
+  }, [options, handleSelect, menuName, currentValue, groups]);
 
   return (
     <div className="relative z-[70] inline-block">

@@ -17,6 +17,16 @@ export interface TableLayoutProps {
   onFilterClick?: () => void
   /** Callback ejecutado cuando el usuario selecciona un filtro del menú. */
   onFilterChange?: (value: any | null) => void
+  /** Independent sections shown within the same filter menu. */
+  filterGroups?: Array<{
+    title: string
+    options: Array<{ label: string; value: string; disabled?: boolean }>
+    value?: string | null
+    onChange: (
+      value: string,
+      option?: { label: string; value: string; disabled?: boolean },
+    ) => void
+  }>
   /** Maneja el clic en el botón de acción principal */
   onTableActionClick?: () => void
   /** Se ejecuta al confirmar la búsqueda */
