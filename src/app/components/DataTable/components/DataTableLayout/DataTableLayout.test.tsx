@@ -7,8 +7,17 @@ import DataTableLayout from './DataTableLayout';
 vi.mock('@/assets/icons/organization/filter-alt.svg', () => ({ default: () => <span /> }));
 vi.mock('@/app/components/Filter/Filter', () => ({
   __esModule: true,
-  default: ({ onChange }: { onChange?: (value: string) => void }) => (
-    <button type="button" onClick={() => onChange?.('selected')}>
+  default: ({
+    onChange,
+    groups,
+  }: {
+    onChange?: (value: string) => void
+    groups?: Array<{ onChange?: (value: string) => void }>
+  }) => (
+    <button
+      type="button"
+      onClick={() => groups?.[0]?.onChange?.('selected') ?? onChange?.('selected')}
+    >
       Filter
     </button>
   ),
@@ -42,6 +51,30 @@ describe('DataTableLayout', () => {
     expect(onFilterChange).toHaveBeenCalledWith('selected');
     expect(onFilterClick).toHaveBeenCalled();
   });
+
+  it('adapts independent filter groups without affecting the simple filter API', () => {
+    const onChange = vi.fn()
+    render(
+      <DataTableLayout
+        showFilter
+        showButton={false}
+        filterGroups={[
+          {
+            title: 'Asignación',
+            options: [{ label: 'Asignados', value: 'selected' }],
+            value: 'all',
+            onChange,
+          },
+        ]}
+      />,
+    )
+
+    fireEvent.click(screen.getByText('Filter'))
+    expect(onChange).toHaveBeenCalledWith('selected', {
+      label: 'Asignados',
+      value: 'selected',
+    })
+  })
 
   it('invokes refresh callback when the button is pressed', () => {
     const onRefreshPage = vi.fn();

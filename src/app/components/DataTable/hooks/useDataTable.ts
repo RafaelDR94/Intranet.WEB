@@ -98,8 +98,8 @@ const useDataTable = <T extends { id: string | number }>({
             const to = endDate ? endOfDay(endDate).getTime() : Infinity;
             matchesDate = ts >= from && ts <= to;
           } else {
-            // Si la fila no tiene fecha, decide si la incluyes o no:
-            matchesDate = true; // cÃ¡mbialo a false si quieres excluirlas
+            // A range only represents rows with a valid date in that range.
+            matchesDate = false;
           }
         }
 

@@ -7,8 +7,13 @@ import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/us
 
 import type { ReviewRow, ReviewsAssignmentProps } from '../types'
 
-const getReviewDate = (review: InternalDeviceReview): string =>
-  review.date ?? review.created_at ?? '-'
+const getReviewDate = (review: InternalDeviceReview): string => {
+  const value = review.date ?? review.created_at
+  if (!value) return '-'
+
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : value
+}
 
 const getReviewResponsible = (review: InternalDeviceReview): string =>
   review.responsible ?? review.user_name ?? review.user_id ?? '-'

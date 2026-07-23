@@ -31,7 +31,7 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
   };
   /** Puente único para despachar el rango hacia arriba */
   const handleDateRange = useCallback(
-    (start: Date, end: Date) => {
+    (start?: Date, end?: Date) => {
       onDateRangeChange?.(start, end); // callback “nuevo”
       onCalendarClick?.(start, end);   // compatibilidad
     },
@@ -85,7 +85,8 @@ export const useDataTableLayout = (props: TableLayoutProps) => {
     onFilterChange,
     filterOptions: props.filterOptions,
     filterValue: props.filterValue,
-    filterTitle: props.filterTitle
+    filterTitle: props.filterTitle,
+    filterGroups: props.filterGroups,
   };
 };
 

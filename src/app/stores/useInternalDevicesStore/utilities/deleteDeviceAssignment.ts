@@ -8,6 +8,7 @@ import { pDelete } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
 
 import { fetchDeviceAssignments } from './fetchDeviceAssignments'
+import { fetchInternalDevices } from './fetchInternalDevices'
 
 /**
  * Delete device assignment.
@@ -37,7 +38,12 @@ export const deleteDeviceAssignment = async (
     const del = pDelete(requireGateway('del'), [200, 204])
     await del(url)
 
-    await fetchDeviceAssignments(set, get, true)
+    // Both assignment and inventory views consume this store. Refresh them
+    // together so an unassigned device immediately changes status everywhere.
+    await Promise.all([
+      fetchDeviceAssignments(set, get, true),
+      fetchInternalDevices(set, get, true),
+    ])
 
     if (get().deviceAssignment?.device_assigment_id === id) {
       set({ deviceAssignment: undefined })

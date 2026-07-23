@@ -2,21 +2,33 @@ import { useCallback, useMemo, useState } from 'react'
 
 import ActionMenuCell from '@/app/components/ActionMenuCell/ActionMenuCell'
 import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
-import type { ColumnDefinition } from '@/app/components/DataTable/types'
+import type {
+  ColumnDefinition,
+  DataTableFilterGroup,
+} from '@/app/components/DataTable/types'
 import Label from '@/app/components/Label/Label'
 import type { InternalDevice } from '@/app/mappings/internaldevices/internaldevices.types'
 
 import type {
+  AssignmentFilterValue,
   InternalDeviceRow,
+  ReviewFilterValue,
   StatusFilterOption,
   StatusFilterValue,
 } from '../types'
 import {
+  ASSIGNMENT_FILTER_OPTIONS,
   DEFAULT_STATUS_FILTER,
   INTERNAL_DEVICE_SEARCHABLE_KEYS,
+  REVIEW_FILTER_OPTIONS,
   STATUS_FILTER_OPTIONS,
+  isAssignmentFilterValue,
+  isReviewFilterValue,
   isStatusFilterValue,
+  matchesAssignmentFilter,
+  matchesReviewFilter,
   matchesStatusFilter,
+  sortInternalDevicesByCreationDate,
   statusToLabelType,
 } from '../utilities/internalDevicesListTable'
 
@@ -33,6 +45,7 @@ type UseInternalDevicesListTableResult = {
   statusFilter: StatusFilterValue
   statusFilterOptions: StatusFilterOption[]
   handleStatusFilterChange: (value: string) => void
+  filterGroups: DataTableFilterGroup<InternalDeviceRow>[]
 }
 
 /**
@@ -47,10 +60,13 @@ const useInternalDevicesListTable = ({
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(
     DEFAULT_STATUS_FILTER,
   )
+  const [assignmentFilter, setAssignmentFilter] =
+    useState<AssignmentFilterValue>('all')
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilterValue>('all')
 
   const rows = useMemo<InternalDeviceRow[]>(
     () =>
-      devices.map((device, index) => ({
+      sortInternalDevicesByCreationDate(devices).map((device, index) => ({
         ...device,
         id: device.device_id || String(index + 1),
         display_id: String(index + 1).padStart(3, '0'),
@@ -133,8 +149,8 @@ const useInternalDevicesListTable = ({
         headerClass: 'w-[10%] min-w-0 px-2',
         render: (row) => (
           <Label
-            type={row.reviewed === false ? 'valido' : 'prohibido'}
-            text={row.reviewed === false ? 'REVISADO' : 'SIN REVISIÓN'}
+            type={row.reviewed ? 'valido' : 'prohibido'}
+            text={row.reviewed ? 'REVISADO' : 'SIN REVISIÓN'}
           />
         ),
       },
@@ -197,13 +213,58 @@ const useInternalDevicesListTable = ({
   const columns = isMobile ? columnsMobile : columnsDesktop
 
   const filteredRows = useMemo(
-    () => rows.filter((row) => matchesStatusFilter(row.device_status?.name, statusFilter)),
-    [rows, statusFilter],
+    () =>
+      rows.filter(
+        (row) =>
+          matchesStatusFilter(row.device_status?.name, statusFilter) &&
+          matchesAssignmentFilter(row.assigned, assignmentFilter) &&
+          matchesReviewFilter(row.reviewed, reviewFilter),
+      ),
+    [rows, statusFilter, assignmentFilter, reviewFilter],
   )
 
   const handleStatusFilterChange = useCallback((value: string) => {
     setStatusFilter(isStatusFilterValue(value) ? value : DEFAULT_STATUS_FILTER)
   }, [])
+
+  const handleAssignmentFilterChange = useCallback((value: string) => {
+    setAssignmentFilter(isAssignmentFilterValue(value) ? value : 'all')
+  }, [])
+
+  const handleReviewFilterChange = useCallback((value: string) => {
+    setReviewFilter(isReviewFilterValue(value) ? value : 'all')
+  }, [])
+
+  const filterGroups = useMemo<DataTableFilterGroup<InternalDeviceRow>[]>(
+    () => [
+      {
+        title: 'Estatus',
+        options: STATUS_FILTER_OPTIONS,
+        value: statusFilter,
+        onChange: handleStatusFilterChange,
+      },
+      {
+        title: 'Asignación',
+        options: ASSIGNMENT_FILTER_OPTIONS,
+        value: assignmentFilter,
+        onChange: handleAssignmentFilterChange,
+      },
+      {
+        title: 'Revisión',
+        options: REVIEW_FILTER_OPTIONS,
+        value: reviewFilter,
+        onChange: handleReviewFilterChange,
+      },
+    ],
+    [
+      assignmentFilter,
+      handleAssignmentFilterChange,
+      handleReviewFilterChange,
+      handleStatusFilterChange,
+      reviewFilter,
+      statusFilter,
+    ],
+  )
 
   return {
     columns,
@@ -212,6 +273,7 @@ const useInternalDevicesListTable = ({
     statusFilter,
     statusFilterOptions: STATUS_FILTER_OPTIONS,
     handleStatusFilterChange,
+    filterGroups,
   }
 }
 
