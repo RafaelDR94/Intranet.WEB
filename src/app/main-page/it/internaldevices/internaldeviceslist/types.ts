@@ -18,10 +18,19 @@ export type StatusFilterValue =
   | 'regular'
   | 'malo'
 
+export type AssignmentFilterValue = 'all' | 'assigned' | 'unassigned'
+
+export type ReviewFilterValue = 'all' | 'reviewed' | 'unreviewed'
+
 /**
  * Option model for the status filter UI.
  */
 export type StatusFilterOption = {
   label: string
   value: StatusFilterValue
+}
+
+export type DeviceFilterOption = {
+  label: string
+  value: string
 }

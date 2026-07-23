@@ -12,6 +12,8 @@ export type ControlSide = 'left' | 'right';
 
 export interface ContextMenuItem {
   label: string;
+  /** Non-interactive heading used to separate menu sections. */
+  section?: boolean;
   onClick?: () => void;
   disabled?: boolean;
   danger?: boolean;

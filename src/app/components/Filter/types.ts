@@ -7,6 +7,13 @@ export interface FilterOption {
   disabled?: boolean;
 }
 
+export interface FilterGroup {
+  title: string;
+  options: FilterOption[];
+  selectedValue?: string | null;
+  onChange?: (value: string) => void;
+}
+
 export type FilterProps = {
   /** Title displayed at the top of the contextual menu. */
   title?: string;
@@ -20,4 +27,6 @@ export type FilterProps = {
   defaultValue?: string | null;
   /** Invoked when the user selects an option. */
   onChange?: (value: string) => void;
+  /** Independent, mutually exclusive sections in the same menu. */
+  groups?: FilterGroup[];
 };

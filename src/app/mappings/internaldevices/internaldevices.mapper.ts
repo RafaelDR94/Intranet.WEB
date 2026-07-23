@@ -170,6 +170,15 @@ export const InternalDeviceMap = (raw: unknown): InternalDevice => {
       : null,
     is_active: toBoolean(record.is_active),
     reviewed: toBoolean(record.reviewed),
+    created_at:
+      toNullableString(
+        record.created_at ??
+          record.createdAt ??
+          record.datecreated ??
+          record.date_created ??
+          record.dateCreated ??
+          record.created_date,
+      ) ?? undefined,
     lowdate: toNullableString(record.lowdate),
     lowuser: toNullableString(record.lowuser),
     assurance: toString(record.assurance),
@@ -437,26 +446,61 @@ export const InternalDeviceStatusPutMap = (
 
 export const InternalDeviceReviewMap = (raw: unknown): InternalDeviceReview => {
   const record = toRecord(raw)
+  const employee = toRecord(record.employee)
+  const employeeFullname =
+    toNullableString(employee.fullname)?.trim() ||
+    [
+      employee.firstname,
+      employee.secondname,
+      employee.lastname,
+      employee.motherlast_name,
+    ]
+      .filter((value) => value != null && String(value).trim() !== '')
+      .map((value) => String(value).trim())
+      .join(' ')
+
   return {
     device_review_id: toString(record.device_review_id ?? record.id),
     description: toString(record.description),
-    device_id: toString(record.device_id ?? record.deviceId),
-    user_id: toString(record.user_id ?? record.userId),
+    device_id: toString(
+      record.device_id ??
+        record.deviceId ??
+        readNestedId(record.device, 'device_id') ??
+        readNestedId(record.device, 'id'),
+    ),
+    user_id: toString(
+      record.user_id ??
+        record.userId ??
+        record.employee_id ??
+        record.employeeId ??
+        readNestedId(employee, 'employee_id') ??
+        readNestedId(employee, 'id'),
+    ),
     status_id: toString(record.status_id ?? record.statusId),
     date: toNullableString(
       record.date ??
+        record.datecreated ??
+        record.date_created ??
+        record.dateCreated ??
         record.created_at ??
         record.createdAt ??
-        record.created_date ??
-        record.date_created,
+        record.created_date,
     ) ?? undefined,
-    created_at: toNullableString(record.created_at ?? record.createdAt) ?? undefined,
+    created_at: toNullableString(
+      record.created_at ??
+        record.createdAt ??
+        record.datecreated ??
+        record.date_created ??
+        record.dateCreated,
+    ) ?? undefined,
     responsible: toNullableString(
       record.responsible ??
         record.user_name ??
         record.userName ??
         record.username ??
-        record.employee_name,
+        record.employee_name ??
+        employee.fullname ??
+        employeeFullname,
     ) ?? undefined,
     user_name: toNullableString(
       record.user_name ?? record.userName ?? record.username,

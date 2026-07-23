@@ -39,6 +39,7 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
     filterOptions,
     filterValue,
     filterTitle,
+    filterGroups,
     showRefresh,
     onRefreshPage,
   } = useDataTableLayout(props);
@@ -74,6 +75,16 @@ const DataTableLayout: React.FC<TableLayoutProps> = (props) => {
             title={filterTitle}
             options={filterOptions ?? []}
             selectedValue={filterValue ?? undefined}
+            groups={filterGroups?.map((group) => ({
+              title: group.title,
+              options: group.options,
+              selectedValue: group.value,
+              onChange: (value) => {
+                const option = group.options.find((item) => item.value === value)
+                group.onChange(value, option)
+                onFilterClick?.()
+              },
+            }))}
             onChange={(value) => {
               onFilterChange?.(value);
               onFilterClick?.();

@@ -194,6 +194,14 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
             </div>
           )}
           {items.map((item, index) => {
+            if (item.section) {
+              return (
+                <div key={index} role="presentation" className={cm.Section}>
+                  {item.label}
+                </div>
+              );
+            }
+
             const isPressed = index === pressedIndex;
             const hasControl = Boolean(item.controlType);
             const controlLeft = item.controlSide === 'left';

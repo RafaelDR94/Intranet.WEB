@@ -2,7 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { shallow } from 'zustand/shallow'
 
 import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
-import type { ResponsiveLayoutMatrix, FieldModel } from '@/app/components/DynamicForm/types'
+import type {
+  ResponsiveLayoutMatrix,
+  FieldModel
+} from '@/app/components/DynamicForm/types'
 import type { Authorized } from '@/app/components/SignaturePopUp/types'
 import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
@@ -23,22 +26,47 @@ import type { InternalDeviceAssignmentRow } from '../types'
 
 const steps = [
   { id: 'device', label: 'Dispositivo' },
-  { id: 'signature', label: 'Firma de responsiva' },
+  { id: 'signature', label: 'Firma de responsiva' }
 ] as const
 
 type StepId = (typeof steps)[number]['id']
+type ResponsiveMembret = 'DR' | 'VIP'
+type ResponsiveMembretSelection = 'default' | ResponsiveMembret
+
+const getResponsiveTitle = (row: InternalDeviceAssignmentRow): string => {
+  const responsible = row.assigned_to?.trim() || row.display_id
+  const deviceName = row.name?.trim() || row.model?.trim() || row.display_id
+
+  return `Responsiva - ${responsible} - ${deviceName}`
+}
+
+const getResponsiveStoragePath = (
+  assignmentId: string,
+  responsible: string,
+  deviceName: string
+): string => {
+  const sanitizedName = `Responsiva - ${responsible} - ${deviceName}`
+    .replace(/[\\/:*?"<>|]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  return `Assets/DeviceAssignment/${assignmentId}/${sanitizedName || 'responsiva'}.pdf`
+}
 
 const stepLayouts: Record<StepId, ResponsiveLayoutMatrix> = {
   device: {
     sm: [[10], [10], [10], [10], [10]],
     md: [[5, 5], [5, 5], [10]],
-    lg: [[3.3, 3.3, 3.3], [5, 5]],
+    lg: [
+      [3.3, 3.3, 3.3],
+      [5, 5]
+    ]
   },
   signature: {
     sm: [[10]],
     md: [[10]],
-    lg: [[10]],
-  },
+    lg: [[10]]
+  }
 }
 
 /**
@@ -81,16 +109,16 @@ const useInternalDevicesAsignationPage = () => {
     return null
   }, [all.employeeId])
   const openDetails = Boolean(
-    normalizedId && !isCreateView && !isEditView && !isReviewView,
+    normalizedId && !isCreateView && !isEditView && !isReviewView
   )
 
   useTutorialAutoRun({
     moduleId: isDefaultView ? 'it-internaldevices-asignation-list' : '',
-    tutorialId: isDefaultView ? 'it-internaldevices-asignation:list' : '',
+    tutorialId: isDefaultView ? 'it-internaldevices-asignation:list' : ''
   })
   useTutorialAutoRun({
     moduleId: isCreateView ? 'it-internaldevices-asignation-create' : '',
-    tutorialId: isCreateView ? 'it-internaldevices-asignation:create' : '',
+    tutorialId: isCreateView ? 'it-internaldevices-asignation:create' : ''
   })
 
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal()
@@ -115,7 +143,7 @@ const useInternalDevicesAsignationPage = () => {
     deviceAssignment,
     device,
     error,
-    resetFlags,
+    resetFlags
   } = useInternalDevicesStore(
     (state) => ({
       devices: state.devices,
@@ -134,31 +162,33 @@ const useInternalDevicesAsignationPage = () => {
       deviceAssignment: state.deviceAssignment,
       device: state.device,
       error: state.error,
-      resetFlags: state.resetFlags,
+      resetFlags: state.resetFlags
     }),
-    shallow,
+    shallow
   )
 
-  const { updateDeviceAssignmentResponsiveUrl } = useDeviceAssignmentResponsiveUrlStore(
-    (state) => ({
-      updateDeviceAssignmentResponsiveUrl: state.updateDeviceAssignmentResponsiveUrl,
-    }),
-    shallow,
-  )
+  const { updateDeviceAssignmentResponsiveUrl } =
+    useDeviceAssignmentResponsiveUrlStore(
+      (state) => ({
+        updateDeviceAssignmentResponsiveUrl:
+          state.updateDeviceAssignmentResponsiveUrl
+      }),
+      shallow
+    )
 
   const {
     activeEmployees,
     fetchActiveEmployees,
     fetchEmployeeById,
-    loadingActive,
+    loadingActive
   } = useEmployeesStore(
     (state) => ({
       activeEmployees: state.activeEmployees,
       fetchActiveEmployees: state.fetchActiveEmployees,
       fetchEmployeeById: state.fetchEmployeeById,
-      loadingActive: state.loadingActive,
+      loadingActive: state.loadingActive
     }),
-    shallow,
+    shallow
   )
 
   const [currentStep, setCurrentStep] = useState<StepId>('device')
@@ -168,11 +198,11 @@ const useInternalDevicesAsignationPage = () => {
     device_brand_name: '',
     model: '',
     device_status_id: '',
-    employee_id: '',
+    employee_id: ''
   })
   const [stepValidity, setStepValidity] = useState<Record<StepId, boolean>>({
     device: false,
-    signature: true,
+    signature: true
   })
   const [signatureOpen, setSignatureOpen] = useState(false)
   const [userSignature, setUserSignature] = useState('')
@@ -180,8 +210,14 @@ const useInternalDevicesAsignationPage = () => {
   const [responsiveOpen, setResponsiveOpen] = useState(false)
   const [responsiveUrl, setResponsiveUrl] = useState<string | null>(null)
   const [responsiveTitle, setResponsiveTitle] = useState<string>('')
-  const [processingResponsiveAssignmentId, setProcessingResponsiveAssignmentId] =
-    useState<string | null>(null)
+  const [
+    processingResponsiveAssignmentId,
+    setProcessingResponsiveAssignmentId
+  ] = useState<string | null>(null)
+  const [regenerationAssignment, setRegenerationAssignment] =
+    useState<InternalDeviceAssignmentRow | null>(null)
+  const [regenerationMembretSelection, setRegenerationMembretSelection] =
+    useState<ResponsiveMembretSelection>('default')
   const prevCreateView = useRef(false)
   const prevDeviceId = useRef<string | null>(null)
   const suppressCreateSuccessRef = useRef(false)
@@ -206,7 +242,7 @@ const useInternalDevicesAsignationPage = () => {
         device_brand_name: '',
         model: '',
         device_status_id: '',
-        employee_id: normalizedEmployeeId ?? '',
+        employee_id: normalizedEmployeeId ?? ''
       })
       setStepValidity({ device: false, signature: true })
       setUserSignature('')
@@ -234,13 +270,13 @@ const useInternalDevicesAsignationPage = () => {
 
     const employeeExists = activeEmployees.some(
       (employee) =>
-        (employee.employee_id || employee.id) === normalizedEmployeeId,
+        (employee.employee_id || employee.id) === normalizedEmployeeId
     )
 
     if (employeeExists) {
       setFormValues((prev) => ({
         ...prev,
-        employee_id: normalizedEmployeeId,
+        employee_id: normalizedEmployeeId
       }))
       setFormVersion((prev) => prev + 1)
       return
@@ -248,7 +284,7 @@ const useInternalDevicesAsignationPage = () => {
 
     setFormValues((prev) => ({
       ...prev,
-      employee_id: '',
+      employee_id: ''
     }))
     setFormVersion((prev) => prev + 1)
     showAlert({
@@ -258,21 +294,26 @@ const useInternalDevicesAsignationPage = () => {
         'El colaborador indicado no esta disponible para asignacion de dispositivo.',
       showPrimaryButton: false,
       showSecondaryButton: false,
-      autoCloseMs: 1800,
+      autoCloseMs: 1800
     })
   }, [
     activeEmployees,
     isCreateView,
     loadingActive,
     normalizedEmployeeId,
-    showAlert,
+    showAlert
   ])
 
   useEffect(() => {
     if (!isCreateView) return
     if (suppressCreateSuccessRef.current) return
 
-    if (loadingDevices || loadingDeviceStatuses || loadingActive || creatingDeviceAssignment) {
+    if (
+      loadingDevices ||
+      loadingDeviceStatuses ||
+      loadingActive ||
+      creatingDeviceAssignment
+    ) {
       showSpinner({ message: 'Cargando Información...' })
       return
     }
@@ -284,7 +325,7 @@ const useInternalDevicesAsignationPage = () => {
         description: error,
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1200,
+        autoCloseMs: 1200
       })
     }
 
@@ -295,7 +336,7 @@ const useInternalDevicesAsignationPage = () => {
         description: 'El dispositivo fue asignado correctamente.',
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1200,
+        autoCloseMs: 1200
       })
       handleRefresh()
       updateQuery({ view: null })
@@ -319,32 +360,40 @@ const useInternalDevicesAsignationPage = () => {
     showAlert,
     showSpinner,
     successCreateDeviceAssignment,
-    updateQuery,
+    updateQuery
   ])
 
   const availableDevices = useMemo(() => {
     const unreviewedDevices = devices.filter((device) => !device.reviewed)
-    const filtered = unreviewedDevices.filter((device) => device.is_active && !device.assigned)
+    const filtered = unreviewedDevices.filter(
+      (device) => device.is_active && !device.assigned
+    )
     return filtered.length ? filtered : unreviewedDevices
   }, [devices])
 
   const deviceOptions = useMemo(
     () =>
       availableDevices.map((device) => ({
-        label: `${device.device_type?.name ?? 'Dispositivo'} - ${device.name ?? device.model ?? ''}`.trim(),
-        value: device.device_id,
+        label:
+          `${device.device_type?.name ?? 'Dispositivo'} - ${device.name ?? device.model ?? ''}`.trim(),
+        value: device.device_id
       })),
-    [availableDevices],
+    [availableDevices]
   )
 
   const statusOptions = useMemo(() => {
     const options = deviceStatuses.map((status) => ({
       label: status.name,
-      value: status.device_status_id,
+      value: status.device_status_id
     }))
 
-    const current = devices.find((item) => item.device_id === formValues.device_id)?.device_status
-    if (current && !options.some((opt) => opt.value === current.device_status_id)) {
+    const current = devices.find(
+      (item) => item.device_id === formValues.device_id
+    )?.device_status
+    if (
+      current &&
+      !options.some((opt) => opt.value === current.device_status_id)
+    ) {
       options.unshift({ label: current.name, value: current.device_status_id })
     }
 
@@ -354,23 +403,26 @@ const useInternalDevicesAsignationPage = () => {
   const employeeOptions = useMemo(
     () =>
       activeEmployees.map((employee) => ({
-        label: employee.fullname || employee.employee_number || employee.employee_id,
-        value: employee.employee_id || employee.id,
+        label:
+          employee.fullname || employee.employee_number || employee.employee_id,
+        value: employee.employee_id || employee.id
       })),
-    [activeEmployees],
+    [activeEmployees]
   )
 
   const selectedEmployee = useMemo(
     () =>
       activeEmployees.find(
-        (employee) => (employee.employee_id || employee.id) === formValues.employee_id,
+        (employee) =>
+          (employee.employee_id || employee.id) === formValues.employee_id
       ) ?? null,
-    [activeEmployees, formValues.employee_id],
+    [activeEmployees, formValues.employee_id]
   )
 
   const selectedDevice = useMemo(
-    () => devices.find((item) => item.device_id === formValues.device_id) ?? null,
-    [devices, formValues.device_id],
+    () =>
+      devices.find((item) => item.device_id === formValues.device_id) ?? null,
+    [devices, formValues.device_id]
   )
 
   useEffect(() => {
@@ -383,7 +435,9 @@ const useInternalDevicesAsignationPage = () => {
       device_brand_name: selectedDevice.device_brand?.name ?? '',
       model: selectedDevice.model ?? '',
       device_status_id:
-        selectedDevice.device_status?.device_status_id ?? prev.device_status_id ?? '',
+        selectedDevice.device_status?.device_status_id ??
+        prev.device_status_id ??
+        ''
     }))
     setFormVersion((prev) => prev + 1)
   }, [selectedDevice])
@@ -408,7 +462,7 @@ const useInternalDevicesAsignationPage = () => {
         placeholder: 'Escriba el tipo de dispositivo',
         value: formValues.device_id ?? '',
         options: deviceOptions,
-        validations: [{ type: 'required' }],
+        validations: [{ type: 'required' }]
       },
       {
         type: 'input',
@@ -417,7 +471,7 @@ const useInternalDevicesAsignationPage = () => {
         placeholder: 'Escriba la marca',
         value: formValues.device_brand_name ?? '',
         validations: [{ type: 'required' }],
-        disabled: true,
+        disabled: true
       },
       {
         type: 'input',
@@ -426,7 +480,7 @@ const useInternalDevicesAsignationPage = () => {
         placeholder: 'Escriba el modelo',
         value: formValues.model ?? '',
         validations: [{ type: 'required' }],
-        disabled: true,
+        disabled: true
       },
       {
         type: 'select',
@@ -436,8 +490,7 @@ const useInternalDevicesAsignationPage = () => {
         value: formValues.device_status_id ?? '',
         options: statusOptions,
         validations: [{ type: 'required' }],
-        disabled: true,
-
+        disabled: true
       },
       {
         type: 'select',
@@ -446,10 +499,10 @@ const useInternalDevicesAsignationPage = () => {
         placeholder: 'Seleccione una opcion',
         value: formValues.employee_id ?? '',
         options: employeeOptions,
-        validations: [{ type: 'required' }],
-      },
+        validations: [{ type: 'required' }]
+      }
     ],
-    [deviceOptions, employeeOptions, formValues, statusOptions],
+    [deviceOptions, employeeOptions, formValues, statusOptions]
   )
 
   const handleValuesChange = useCallback((values: Record<string, any>) => {
@@ -488,7 +541,7 @@ const useInternalDevicesAsignationPage = () => {
       if (!match) return
       handleStepChange(match.id)
     },
-    [handleStepChange],
+    [handleStepChange]
   )
 
   const handleAssign = useCallback(async () => {
@@ -499,7 +552,7 @@ const useInternalDevicesAsignationPage = () => {
         description: 'Selecciona un dispositivo y un colaborador para asignar.',
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500,
+        autoCloseMs: 1500
       })
       return
     }
@@ -511,7 +564,7 @@ const useInternalDevicesAsignationPage = () => {
         description: 'No se encontro el identificador del usuario activo.',
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500,
+        autoCloseMs: 1500
       })
       return
     }
@@ -523,7 +576,7 @@ const useInternalDevicesAsignationPage = () => {
         description: 'No se pudo subir la responsiva en este momento.',
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500,
+        autoCloseMs: 1500
       })
       return
     }
@@ -537,7 +590,7 @@ const useInternalDevicesAsignationPage = () => {
         employee_id: formValues.employee_id,
         observations: '',
         delivery_condition: '',
-        id_user: user.idEmployee,
+        id_user: user.idEmployee
       })
 
       if (!created?.device_assigment_id) {
@@ -546,7 +599,7 @@ const useInternalDevicesAsignationPage = () => {
 
       const employee =
         activeEmployees.find(
-          (item) => (item.employee_id || item.id) === formValues.employee_id,
+          (item) => (item.employee_id || item.id) === formValues.employee_id
         ) ?? (await fetchEmployeeById(formValues.employee_id, true))
       if (!employee) {
         throw new Error('No se pudo obtener el colaborador.')
@@ -560,20 +613,29 @@ const useInternalDevicesAsignationPage = () => {
         throw new Error('No se pudo obtener el dispositivo.')
       }
 
+      const departmentName = employee.department?.name ?? ''
+      const membret = departmentName.toLocaleUpperCase().includes('VIP')
+        ? 'VIP'
+        : 'DR'
       const document = buildDeviceAssignmentResponsiveDocument({
         assignment: created,
         device,
         employee: employee as EmployeeType,
         signatureUrl: userSignature,
+        membret
       })
 
-      const departmentName = employee.department?.name ?? ''
-      const membret = departmentName.toLocaleUpperCase().includes('VIP')
-        ? 'VIP'
-        : 'DR'
       const pdfBlob = await CreatePDFBlob(document, membret)
-      const storagePath = `Assets/DeviceAssignment/${created.device_assigment_id}/responsiva.pdf`
-      const pdfUrl = await firebasestorage.uploadFile(pdfBlob, storagePath, true)
+      const storagePath = getResponsiveStoragePath(
+        created.device_assigment_id,
+        employee.fullname || formValues.employee_id,
+        device.name || device.serial_number || formValues.device_id
+      )
+      const pdfUrl = await firebasestorage.uploadFile(
+        pdfBlob,
+        storagePath,
+        true
+      )
 
       if (!pdfUrl) {
         throw new Error('No se pudo subir la responsiva.')
@@ -581,7 +643,7 @@ const useInternalDevicesAsignationPage = () => {
 
       await updateDeviceAssignmentResponsiveUrl({
         idDeviceAssignment: created.device_assigment_id,
-        responsiveUrl: pdfUrl,
+        responsiveUrl: pdfUrl
       })
 
       await fetchDeviceAssignments(true)
@@ -592,7 +654,7 @@ const useInternalDevicesAsignationPage = () => {
         description: 'La responsiva se guardo correctamente.',
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500,
+        autoCloseMs: 1500
       })
       handleRefresh()
       updateQuery({ view: null })
@@ -607,7 +669,7 @@ const useInternalDevicesAsignationPage = () => {
         description: message,
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 2000,
+        autoCloseMs: 2000
       })
     } finally {
       hideSpinner()
@@ -631,7 +693,7 @@ const useInternalDevicesAsignationPage = () => {
     updateQuery,
     userSignature,
     user?.idEmployee,
-    selectedDevice,
+    selectedDevice
   ])
 
   const handleSignatureAuthorization = useCallback((authorized: Authorized) => {
@@ -649,7 +711,7 @@ const useInternalDevicesAsignationPage = () => {
         description: 'Selecciona un colaborador antes de firmar.',
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500,
+        autoCloseMs: 1500
       })
       return
     }
@@ -685,7 +747,7 @@ const useInternalDevicesAsignationPage = () => {
           description: 'No se encontro una responsiva para esta asignacion.',
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 1500,
+          autoCloseMs: 1500
         })
         return
       }
@@ -693,7 +755,7 @@ const useInternalDevicesAsignationPage = () => {
       setResponsiveTitle(title ?? 'Responsiva de asignacion')
       setResponsiveOpen(true)
     },
-    [showAlert],
+    [showAlert]
   )
 
   const deviceById = useMemo(() => {
@@ -702,10 +764,9 @@ const useInternalDevicesAsignationPage = () => {
   }, [devices])
 
   const employeeById = useMemo(() => {
-    const entries = activeEmployees.map((employee) => [
-      employee.employee_id || employee.id,
-      employee,
-    ] as const)
+    const entries = activeEmployees.map(
+      (employee) => [employee.employee_id || employee.id, employee] as const
+    )
     return new Map(entries)
   }, [activeEmployees])
 
@@ -715,18 +776,21 @@ const useInternalDevicesAsignationPage = () => {
         updateQuery({
           id: row.device_id,
           assignmentId: row.assignment_id,
-          view: null,
+          view: null
         })
       }
       void fetchDeviceAssignmentById(row.assignment_id, true)
     },
-    [fetchDeviceAssignmentById, updateQuery],
+    [fetchDeviceAssignmentById, updateQuery]
   )
 
   const generateAndUploadResponsive = useCallback(
-    async (row: InternalDeviceAssignmentRow) => {
+    async (
+      row: InternalDeviceAssignmentRow,
+      membretOverride?: ResponsiveMembret
+    ) => {
       const assignment = deviceAssignments.find(
-        (item) => item.device_assigment_id === row.assignment_id,
+        (item) => item.device_assigment_id === row.assignment_id
       )
       if (!assignment) {
         throw new Error('No se encontro la asignacion.')
@@ -749,19 +813,31 @@ const useInternalDevicesAsignationPage = () => {
         throw new Error('No se pudo obtener el dispositivo.')
       }
 
+      const departmentName = employee.department?.name ?? ''
+      const defaultMembret: ResponsiveMembret = departmentName
+        .toLocaleUpperCase()
+        .includes('VIP')
+        ? 'VIP'
+        : 'DR'
+      const membret = membretOverride ?? defaultMembret
       const document = buildDeviceAssignmentResponsiveDocument({
         assignment,
         device,
         employee,
         signatureUrl: employee.user?.signature,
+        membret
       })
-      const departmentName = employee.department?.name ?? ''
-      const membret = departmentName.toLocaleUpperCase().includes('VIP')
-        ? 'VIP'
-        : 'DR'
       const pdfBlob = await CreatePDFBlob(document, membret)
-      const storagePath = `Assets/DeviceAssignment/${assignment.device_assigment_id}/responsiva.pdf`
-      const pdfUrl = await firebasestorage.uploadFile(pdfBlob, storagePath, true)
+      const storagePath = getResponsiveStoragePath(
+        assignment.device_assigment_id,
+        employee.fullname || assignment.employee_id,
+        device.name || device.serial_number || assignment.device_id
+      )
+      const pdfUrl = await firebasestorage.uploadFile(
+        pdfBlob,
+        storagePath,
+        true
+      )
 
       if (!pdfUrl) {
         throw new Error('No se pudo subir la responsiva.')
@@ -769,7 +845,7 @@ const useInternalDevicesAsignationPage = () => {
 
       await updateDeviceAssignmentResponsiveUrl({
         idDeviceAssignment: assignment.device_assigment_id,
-        responsiveUrl: pdfUrl,
+        responsiveUrl: pdfUrl
       })
       await fetchDeviceAssignments(true)
       return pdfUrl
@@ -782,8 +858,8 @@ const useInternalDevicesAsignationPage = () => {
       fetchDeviceById,
       fetchEmployeeById,
       firebasestorage,
-      updateDeviceAssignmentResponsiveUrl,
-    ],
+      updateDeviceAssignmentResponsiveUrl
+    ]
   )
 
   const handleRegenerateResponsive = useCallback(
@@ -795,66 +871,75 @@ const useInternalDevicesAsignationPage = () => {
           description: 'No cuentas con el permiso para regenerar responsivas.',
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 1500,
+          autoCloseMs: 1500
         })
         return
       }
-      showAlert({
-        type: 'warning',
-        title: 'Regenerar responsiva',
-        description:
-          'Se reemplazara el archivo actual con una nueva version usando el membrete correspondiente al departamento.',
-        showPrimaryButton: true,
-        primaryLabel: 'Regenerar',
-        showSecondaryButton: true,
-        secondaryLabel: 'Cancelar',
-        onPrimaryClick: () => {
-          void (async () => {
-            try {
-              showSpinner({ message: 'Regenerando responsiva...' })
-              setProcessingResponsiveAssignmentId(row.assignment_id)
-              await generateAndUploadResponsive(row)
-              showAlert({
-                type: 'info',
-                title: 'Responsiva regenerada',
-                description: 'La nueva responsiva se guardo correctamente.',
-                showPrimaryButton: false,
-                showSecondaryButton: false,
-                autoCloseMs: 1500,
-              })
-            } catch (err) {
-              showAlert({
-                type: 'error',
-                title: 'No se pudo regenerar la responsiva',
-                description:
-                  err instanceof Error
-                    ? err.message
-                    : 'Ocurrio un error al regenerar la responsiva.',
-                showPrimaryButton: false,
-                showSecondaryButton: false,
-                autoCloseMs: 2000,
-              })
-            } finally {
-              hideSpinner()
-              setProcessingResponsiveAssignmentId(null)
-            }
-          })()
-        },
-      })
+      setRegenerationMembretSelection('default')
+      setRegenerationAssignment(row)
     },
-    [
-      currentPagePermissions?.regenerateResponsive,
-      hideSpinner,
-      generateAndUploadResponsive,
-      showAlert,
-      showSpinner,
-    ],
+    [currentPagePermissions?.regenerateResponsive, showAlert]
   )
+
+  const handleCloseRegenerationPopup = useCallback(() => {
+    setRegenerationAssignment(null)
+    setRegenerationMembretSelection('default')
+  }, [])
+
+  const handleConfirmRegeneration = useCallback(() => {
+    if (!regenerationAssignment) return
+
+    const membretOverride =
+      regenerationMembretSelection === 'default'
+        ? undefined
+        : regenerationMembretSelection
+    const assignment = regenerationAssignment
+    handleCloseRegenerationPopup()
+
+    void (async () => {
+      try {
+        showSpinner({ message: 'Regenerando responsiva...' })
+        setProcessingResponsiveAssignmentId(assignment.assignment_id)
+        await generateAndUploadResponsive(assignment, membretOverride)
+        showAlert({
+          type: 'info',
+          title: 'Responsiva regenerada',
+          description: 'La nueva responsiva se guardo correctamente.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1500
+        })
+      } catch (err) {
+        showAlert({
+          type: 'error',
+          title: 'No se pudo regenerar la responsiva',
+          description:
+            err instanceof Error
+              ? err.message
+              : 'Ocurrio un error al regenerar la responsiva.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 2000
+        })
+      } finally {
+        hideSpinner()
+        setProcessingResponsiveAssignmentId(null)
+      }
+    })()
+  }, [
+    generateAndUploadResponsive,
+    handleCloseRegenerationPopup,
+    hideSpinner,
+    regenerationAssignment,
+    regenerationMembretSelection,
+    showAlert,
+    showSpinner
+  ])
 
   const handleOpenResponsiveFromRow = useCallback(
     (row: InternalDeviceAssignmentRow) => {
       if (row.responsive_url) {
-        handleOpenResponsive(row.responsive_url, `Responsiva ${row.display_id}`)
+        handleOpenResponsive(row.responsive_url, getResponsiveTitle(row))
         return
       }
 
@@ -866,7 +951,7 @@ const useInternalDevicesAsignationPage = () => {
             'No hay responsiva para esta asignacion y no cuentas con el permiso para generarla.',
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 1800,
+          autoCloseMs: 1800
         })
         return
       }
@@ -886,14 +971,14 @@ const useInternalDevicesAsignationPage = () => {
               showSpinner({ message: 'Generando responsiva...' })
               setProcessingResponsiveAssignmentId(row.assignment_id)
               const pdfUrl = await generateAndUploadResponsive(row)
-              handleOpenResponsive(pdfUrl, `Responsiva ${row.display_id}`)
+              handleOpenResponsive(pdfUrl, getResponsiveTitle(row))
               showAlert({
                 type: 'info',
                 title: 'Responsiva generada',
                 description: 'La responsiva se guardo correctamente.',
                 showPrimaryButton: false,
                 showSecondaryButton: false,
-                autoCloseMs: 1500,
+                autoCloseMs: 1500
               })
             } catch (err) {
               showAlert({
@@ -905,14 +990,14 @@ const useInternalDevicesAsignationPage = () => {
                     : 'Ocurrio un error al generar la responsiva.',
                 showPrimaryButton: false,
                 showSecondaryButton: false,
-                autoCloseMs: 2000,
+                autoCloseMs: 2000
               })
             } finally {
               hideSpinner()
               setProcessingResponsiveAssignmentId(null)
             }
           })()
-        },
+        }
       })
     },
     [
@@ -921,8 +1006,8 @@ const useInternalDevicesAsignationPage = () => {
       handleOpenResponsive,
       hideSpinner,
       showAlert,
-      showSpinner,
-    ],
+      showSpinner
+    ]
   )
 
   const {
@@ -931,7 +1016,7 @@ const useInternalDevicesAsignationPage = () => {
     searchableKeys,
     statusFilter,
     statusFilterOptions,
-    handleStatusFilterChange,
+    handleStatusFilterChange
   } = useInternalDevicesAsignationTable({
     deviceAssignments,
     deviceById,
@@ -939,11 +1024,11 @@ const useInternalDevicesAsignationPage = () => {
     isMobile,
     processingResponsiveAssignmentId,
     canRegenerateResponsive: Boolean(
-      currentPagePermissions?.regenerateResponsive,
+      currentPagePermissions?.regenerateResponsive
     ),
     onOpenDetails: handleOpenAssignmentDetails,
     onOpenResponsive: handleOpenResponsiveFromRow,
-    onRegenerateResponsive: handleRegenerateResponsive,
+    onRegenerateResponsive: handleRegenerateResponsive
   })
 
   useEffect(() => {
@@ -963,14 +1048,18 @@ const useInternalDevicesAsignationPage = () => {
       setAssignmentEmployeeName(existing.fullname)
       return
     }
-    void fetchEmployeeById(deviceAssignment.employee_id, true).then((employee) => {
-      setAssignmentEmployeeName(employee?.fullname ?? deviceAssignment.employee_id)
-    })
+    void fetchEmployeeById(deviceAssignment.employee_id, true).then(
+      (employee) => {
+        setAssignmentEmployeeName(
+          employee?.fullname ?? deviceAssignment.employee_id
+        )
+      }
+    )
   }, [deviceAssignment, employeeById, fetchEmployeeById])
 
   const assignmentDevice = deviceAssignment
-    ? deviceById.get(deviceAssignment.device_id) ??
-      (device?.device_id === deviceAssignment.device_id ? device : null)
+    ? (deviceById.get(deviceAssignment.device_id) ??
+      (device?.device_id === deviceAssignment.device_id ? device : null))
     : null
 
   const handleEditInformation = useCallback(() => {
@@ -1006,9 +1095,11 @@ const useInternalDevicesAsignationPage = () => {
     handleAssign,
     handleBackToDetails,
     handleCloseDetails,
+    handleCloseRegenerationPopup,
     handleBackToList,
     handleCloseResponsive,
     handleCreateReview,
+    handleConfirmRegeneration,
     handleEditInformation,
     handleNext,
     handleOpenCreate,
@@ -1043,10 +1134,13 @@ const useInternalDevicesAsignationPage = () => {
     userSignature,
     responsiveTitle,
     responsiveUrl,
+    regenerationAssignment,
+    regenerationMembretSelection,
     setSignatureOpen,
     setResponsiveOpen,
+    setRegenerationMembretSelection,
     loadingDeviceAssignment,
-    formValues,
+    formValues
   }
 }
 

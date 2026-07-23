@@ -20,7 +20,7 @@ export type Preset = { label: string; action: () => void };
  */
 export interface UseCalendarOptions {
   /** Callback ejecutado cuando se confirma un rango personalizado o preset */
-  onCalendarClick?: (start: Date, end: Date) => void;
+  onCalendarClick?: (start?: Date, end?: Date) => void;
   /** Día de inicio de la semana (por defecto viene de WEEK_STARTS_ON) */
   weekStartsOn?: number;
   /** Si el calendario debe iniciarse abierto */
@@ -128,6 +128,14 @@ export const useCalendar = ({
     return didApply;
   }, [goWithRange, startDate, endDate]);
 
+  /** Removes an applied date range and notifies the consumer to show all rows. */
+  const clearRange = useCallback(() => {
+    setRange(null, null);
+    setShowCustomRange(false);
+    setIsOpen(false);
+    onCalendarClick?.();
+  }, [onCalendarClick, setRange]);
+
   /**
    * Presets predefinidos de rangos comunes (hoy, semana, mes, personalizado)
    */
@@ -155,6 +163,10 @@ export const useCalendar = ({
         },
       },
       {
+        label: "Quitar filtro de fecha",
+        action: clearRange,
+      },
+      {
         label: "Personalizar",
         action: () => {
           if (isMobile) setIsOpen(false); // en mobile cerramos el dropdown
@@ -162,7 +174,7 @@ export const useCalendar = ({
         },
       },
     ],
-    [applyRange, today, weekStartsOn, isMobile]
+    [applyRange, clearRange, today, weekStartsOn, isMobile]
   );
 
   return {
@@ -183,6 +195,7 @@ export const useCalendar = ({
     handleTriggerClick,
     handleDateChange,
     handleGo,
+    clearRange,
 
     // Datos
     presets,

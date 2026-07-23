@@ -111,6 +111,14 @@ export interface DataTableFilterOption<T, Value extends string = string> {
   predicate?: (row: T) => boolean;
 }
 
+/** Independent, mutually exclusive section displayed in the filter menu. */
+export interface DataTableFilterGroup<T, Value extends string = string> {
+  title: string;
+  options: DataTableFilterOption<T, Value>[];
+  value?: Value | null;
+  onChange: (value: Value, option?: DataTableFilterOption<T, Value>) => void;
+}
+
 /**
  * Props del componente `DataTable`.
  *
@@ -177,6 +185,8 @@ export interface DataTableProps<T = any> {
   filterTitle?: string;
   /** Callback ejecutado cuando se selecciona una opción del filtro. */
   onFilterChange?: (value: string, option?: DataTableFilterOption<T>) => void;
+  /** Independent sections displayed in a single filter menu. */
+  filterGroups?: DataTableFilterGroup<T>[];
   /** Ejecuta la recarga del contenido visible cuando se presiona el botón de actualizar. */
   onRefreshPage?: () => void;
   /** Muestra el botÃ³n de acciÃ³n principal (por defecto: `true`). */
