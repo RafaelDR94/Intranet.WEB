@@ -1,7 +1,18 @@
-import { IntranetGetType,IntranetPostType,IntranetPutType,IntranetDeleteType } from "./types";
+import {
+  IntranetGetType,
+  IntranetPostType,
+  IntranetPutType,
+  IntranetDeleteType,
+} from "./types";
 
 import { intranetClient } from "@/app/configurations/Axios/Clients";
-import { basicGet,basicPost,basicPut,basicDelete,CallbackFunction } from "@/app/configurations/Axios/GenericMethods";
+import {
+  basicGet,
+  basicPost,
+  basicPut,
+  basicDelete,
+  CallbackFunction,
+} from "@/app/configurations/Axios/GenericMethods";
 /**
  * Hook personalizado que expone un conjunto de métodos CRUD
  * preconfigurados para interactuar con el cliente HTTP `intranetClient`.
@@ -34,26 +45,46 @@ import { basicGet,basicPost,basicPut,basicDelete,CallbackFunction } from "@/app/
  *   console.log('Usuario creado:', response.data);
  * });
  */
-const useIntranetCRUD = ()=>{
-    const IntranetPost:IntranetPostType = (url: string, data: any, callback: CallbackFunction)=>{
-        basicPost(intranetClient,url,data,callback);
+const useIntranetCRUD = () => {
+  const IntranetPost: IntranetPostType = (
+    url: string,
+    data: any,
+    callback: CallbackFunction,
+  ) => {
+    basicPost(intranetClient, url, data, callback);
+  };
+  const IntranetGet: IntranetGetType = (
+    url: string,
+    callback: CallbackFunction,
+  ) => {
+    basicGet(intranetClient, url, callback);
+  };
+  const IntranetPut: IntranetPutType = (
+    url: string,
+    data: any,
+    callback: CallbackFunction,
+  ) => {
+    basicPut(intranetClient, url, data, callback);
+  };
+  const IntranetDelete: IntranetDeleteType = (
+    url: string,
+    dataOrCallback: unknown | CallbackFunction,
+    callback?: CallbackFunction,
+  ) => {
+    if (typeof dataOrCallback === "function") {
+      basicDelete(intranetClient, url, dataOrCallback as CallbackFunction);
+      return;
     }
-    const IntranetGet:IntranetGetType = ( url: string, callback: CallbackFunction)=>{
-       basicGet(intranetClient,url,callback);
+    if (callback) {
+      basicDelete(intranetClient, url, callback, "", {}, dataOrCallback);
     }
-    const IntranetPut:IntranetPutType = ( url: string, data: any, callback: CallbackFunction)=>{
-        basicPut(intranetClient,url,data,callback);
-    }
-    const IntranetDelete:IntranetDeleteType = (url: string, callback: CallbackFunction)=>{
-        basicDelete(intranetClient,url,callback);
-    }
+  };
 
-
-    return {
-        IntranetPost,
-        IntranetGet,
-        IntranetPut,
-        IntranetDelete,
-    }
-}
+  return {
+    IntranetPost,
+    IntranetGet,
+    IntranetPut,
+    IntranetDelete,
+  };
+};
 export default useIntranetCRUD;

@@ -22,6 +22,10 @@ export type ActionMenuCellBaseProps<T> = {
   onDetails?: (row: T) => void;
   /** Callback cuando se elige la opcion "Qué día renovar". */
   onRenewDay?: (row: T) => void;
+  /** Callback cuando se elige la opcion de reactivar. */
+  onReactivate?: (row: T) => void;
+  /** Etiqueta personalizada para la opcion de reactivar. */
+  reactivateLabel?: string;
 };
 
 /** Props internas con permisos resueltos e indicador de vista mobile. */
