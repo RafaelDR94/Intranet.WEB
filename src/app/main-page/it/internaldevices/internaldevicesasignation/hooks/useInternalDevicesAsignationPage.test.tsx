@@ -1,7 +1,7 @@
-import { renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import useInternalDevicesAsignationPage from './useInternalDevicesAsignationPage'
+import useInternalDevicesAsignationPage from "./useInternalDevicesAsignationPage";
 
 const {
   showAlert,
@@ -15,9 +15,9 @@ const {
   getInternalDevicesStoreState,
   setInternalDevicesStoreState,
 } = vi.hoisted(() => {
-  let queryState: any
-  let employeesStoreState: any
-  let internalDevicesStoreState: any
+  let queryState: any;
+  let employeesStoreState: any;
+  let internalDevicesStoreState: any;
 
   return {
     showAlert: vi.fn(),
@@ -26,124 +26,129 @@ const {
     updateQuery: vi.fn(),
     getQueryState: () => queryState,
     setQueryState: (value: any) => {
-      queryState = value
+      queryState = value;
     },
     getEmployeesStoreState: () => employeesStoreState,
     setEmployeesStoreState: (value: any) => {
-      employeesStoreState = value
+      employeesStoreState = value;
     },
     getInternalDevicesStoreState: () => internalDevicesStoreState,
     setInternalDevicesStoreState: (value: any) => {
-      internalDevicesStoreState = value
+      internalDevicesStoreState = value;
     },
-  }
-})
+  };
+});
 
-vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
+vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
   usePrincipal: () => ({
     usePrincipalAlert: { showAlert },
     usePrincipalLoading: { showSpinner, hideSpinner },
   }),
-}))
+}));
 
-vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+vi.mock("@/app/context/AuthContext/AuthContext", () => ({
   useAuth: () => ({
-    user: { idEmployee: 'session-employee', fullName: 'Usuario actual' },
+    user: { idEmployee: "session-employee", fullName: "Usuario actual" },
   }),
-}))
+}));
 
-vi.mock('@/app/context/FirebaseContext/FirebaseContext', () => ({
+vi.mock("@/app/context/FirebaseContext/FirebaseContext", () => ({
   useFirebase: () => ({
     firebasestorage: {
       uploadFile: vi.fn(),
     },
   }),
-}))
+}));
 
-vi.mock('@/app/hooks/useQuery/useQuery', () => ({
+vi.mock("@/app/hooks/useQuery/useQuery", () => ({
   __esModule: true,
   default: () => getQueryState(),
-}))
+}));
 
-vi.mock('@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery', () => ({
-  useIsMobile: () => false,
-}))
+vi.mock(
+  "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery",
+  () => ({
+    useIsMobile: () => false,
+  }),
+);
 
-vi.mock('@/tutorials/engine/useTutorialAutoRun', () => ({
+vi.mock("@/tutorials/engine/useTutorialAutoRun", () => ({
   __esModule: true,
   default: vi.fn(),
-}))
+}));
 
-vi.mock('./useInternalDevicesAsignation', () => ({
+vi.mock("./useInternalDevicesAsignation", () => ({
   __esModule: true,
   default: () => ({
     deviceAssignments: [],
     handleRefresh: vi.fn(),
   }),
-}))
+}));
 
-vi.mock('./useInternalDevicesAsignationTable', () => ({
+vi.mock("./useInternalDevicesAsignationTable", () => ({
   __esModule: true,
   default: () => ({
     columns: [],
     rows: [],
     searchableKeys: [],
-    statusFilter: 'all',
+    statusFilter: "all",
     statusFilterOptions: [],
     handleStatusFilterChange: vi.fn(),
   }),
-}))
+}));
 
-vi.mock('@/app/utilities/PDF/PDF', () => ({
+vi.mock("@/app/utilities/PDF/PDF", () => ({
   CreatePDFBlob: vi.fn(),
-}))
+}));
 
-vi.mock('@/app/stores/useEmployeesStore/useEmployeesStore', () => ({
+vi.mock("@/app/stores/useEmployeesStore/useEmployeesStore", () => ({
   useEmployeesStore: (selector: any) => selector(getEmployeesStoreState()),
-}))
+}));
 
-vi.mock('@/app/stores/useInternalDevicesStore/useInternalDevicesStore', () => ({
+vi.mock("@/app/stores/useInternalDevicesStore/useInternalDevicesStore", () => ({
   useInternalDevicesStore: (selector: any) =>
     selector(getInternalDevicesStoreState()),
-}))
+}));
 
 vi.mock(
-  '@/app/stores/useDeviceAssignmentResponsiveUrlStore/useDeviceAssignmentResponsiveUrlStore',
+  "@/app/stores/useDeviceAssignmentResponsiveUrlStore/useDeviceAssignmentResponsiveUrlStore",
   () => ({
     useDeviceAssignmentResponsiveUrlStore: (selector: any) =>
       selector({
         updateDeviceAssignmentResponsiveUrl: vi.fn(),
       }),
   }),
-)
+);
 
-describe('useInternalDevicesAsignationPage', () => {
+describe("useInternalDevicesAsignationPage", () => {
   beforeEach(() => {
     setQueryState({
       all: {
-        view: 'new',
-        employeeId: 'emp-1',
+        view: "new",
+        employeeId: "emp-1",
       },
       updateQuery,
-    })
+    });
 
     setEmployeesStoreState({
       activeEmployees: [
         {
-          id: 'emp-1',
-          employee_id: 'emp-1',
-          fullname: 'Katherine Negrete',
+          id: "emp-1",
+          employee_id: "emp-1",
+          fullname: "Katherine Negrete",
         },
       ],
       fetchActiveEmployees: vi.fn().mockResolvedValue([]),
       fetchEmployeeById: vi.fn().mockResolvedValue(null),
       loadingActive: false,
-    })
+    });
 
     setInternalDevicesStoreState({
       devices: [],
+      unassignedDevices: [],
       deviceStatuses: [],
       fetchDevices: vi.fn().mockResolvedValue([]),
+      fetchUnassignedDevices: vi.fn().mockResolvedValue([]),
       fetchDeviceStatuses: vi.fn().mockResolvedValue([]),
       fetchDeviceById: vi.fn().mockResolvedValue(null),
       fetchDeviceAssignmentById: vi.fn().mockResolvedValue(null),
@@ -152,61 +157,62 @@ describe('useInternalDevicesAsignationPage', () => {
       creatingDeviceAssignment: false,
       successCreateDeviceAssignment: false,
       loadingDevices: false,
+      loadingUnassignedDevices: false,
       loadingDeviceStatuses: false,
       loadingDeviceAssignment: false,
       deviceAssignment: null,
       device: null,
       error: undefined,
       resetFlags: vi.fn(),
-    })
+    });
 
-    showAlert.mockClear()
-    showSpinner.mockClear()
-    hideSpinner.mockClear()
-    updateQuery.mockClear()
-  })
+    showAlert.mockClear();
+    showSpinner.mockClear();
+    hideSpinner.mockClear();
+    updateQuery.mockClear();
+  });
 
-  it('precarga employee_id cuando employeeId existe en la query y en los empleados activos', () => {
-    const { result } = renderHook(() => useInternalDevicesAsignationPage())
+  it("precarga employee_id cuando employeeId existe en la query y en los empleados activos", () => {
+    const { result } = renderHook(() => useInternalDevicesAsignationPage());
 
-    expect(result.current.formValues.employee_id).toBe('emp-1')
-  })
+    expect(result.current.formValues.employee_id).toBe("emp-1");
+  });
 
-  it('limpia employee_id y avisa cuando employeeId no existe en empleados activos', () => {
+  it("limpia employee_id y avisa cuando employeeId no existe en empleados activos", () => {
     setQueryState({
       all: {
-        view: 'new',
-        employeeId: 'emp-x',
+        view: "new",
+        employeeId: "emp-x",
       },
       updateQuery,
-    })
+    });
 
-    const { result } = renderHook(() => useInternalDevicesAsignationPage())
+    const { result } = renderHook(() => useInternalDevicesAsignationPage());
 
-    expect(result.current.formValues.employee_id).toBe('')
+    expect(result.current.formValues.employee_id).toBe("");
     expect(showAlert).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: 'warning',
-        title: 'Colaborador no disponible',
+        type: "warning",
+        title: "Colaborador no disponible",
       }),
-    )
-  })
+    );
+  });
 
-  it('mantiene el flujo actual cuando no se recibe employeeId', () => {
+  it("mantiene el flujo actual cuando no se recibe employeeId", () => {
     setQueryState({
       all: {
-        view: 'new',
+        view: "new",
       },
       updateQuery,
-    })
+    });
 
-    const { result } = renderHook(() => useInternalDevicesAsignationPage())
+    const { result } = renderHook(() => useInternalDevicesAsignationPage());
 
-    expect(result.current.formValues.employee_id).toBe('')
+    expect(result.current.formValues.employee_id).toBe("");
     expect(showAlert).not.toHaveBeenCalledWith(
       expect.objectContaining({
-        title: 'Colaborador no disponible',
+        title: "Colaborador no disponible",
       }),
-    )
-  })
-})
+    );
+  });
+});

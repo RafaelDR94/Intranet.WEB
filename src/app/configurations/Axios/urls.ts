@@ -362,6 +362,8 @@ export const ActivateDevice =
 
 export const DevicesAssigned =
   process.env.NEXT_PUBLIC_DEVICES_ASSIGNED ?? "/Assets/DevicesAssigned";
+export const UnassignedDevices =
+  process.env.NEXT_PUBLIC_UNASSIGNED_DEVICES ?? "/Assets/UnassignedDevices";
 export const Devices = process.env.NEXT_PUBLIC_DEVICES ?? "/Assets/Devices";
 
 export const Users = process.env.NEXT_PUBLIC_USERS ?? "/Users";

@@ -1,57 +1,57 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { shallow } from 'zustand/shallow'
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { shallow } from "zustand/shallow";
 
-import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
+import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
 import type {
   ResponsiveLayoutMatrix,
-  FieldModel
-} from '@/app/components/DynamicForm/types'
-import type { Authorized } from '@/app/components/SignaturePopUp/types'
-import { useAuth } from '@/app/context/AuthContext/AuthContext'
-import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
-import useQuery from '@/app/hooks/useQuery/useQuery'
-import type { EmployeeType } from '@/app/mappings/employees/employee.types'
-import type { InternalDevice } from '@/app/mappings/internaldevices/internaldevices.types'
-import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore'
-import { useDeviceAssignmentResponsiveUrlStore } from '@/app/stores/useDeviceAssignmentResponsiveUrlStore/useDeviceAssignmentResponsiveUrlStore'
-import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
-import { CreatePDFBlob } from '@/app/utilities/PDF/PDF'
-import useTutorialAutoRun from '@/tutorials/engine/useTutorialAutoRun'
+  FieldModel,
+} from "@/app/components/DynamicForm/types";
+import type { Authorized } from "@/app/components/SignaturePopUp/types";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
+import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import useQuery from "@/app/hooks/useQuery/useQuery";
+import type { EmployeeType } from "@/app/mappings/employees/employee.types";
+import type { InternalDevice } from "@/app/mappings/internaldevices/internaldevices.types";
+import { useEmployeesStore } from "@/app/stores/useEmployeesStore/useEmployeesStore";
+import { useDeviceAssignmentResponsiveUrlStore } from "@/app/stores/useDeviceAssignmentResponsiveUrlStore/useDeviceAssignmentResponsiveUrlStore";
+import { useInternalDevicesStore } from "@/app/stores/useInternalDevicesStore/useInternalDevicesStore";
+import { CreatePDFBlob } from "@/app/utilities/PDF/PDF";
+import useTutorialAutoRun from "@/tutorials/engine/useTutorialAutoRun";
 
-import useInternalDevicesAsignation from './useInternalDevicesAsignation'
-import useInternalDevicesAsignationTable from './useInternalDevicesAsignationTable'
-import { buildDeviceAssignmentResponsiveDocument } from '../utilities/buildDeviceAssignmentResponsiveDocument'
-import type { InternalDeviceAssignmentRow } from '../types'
+import useInternalDevicesAsignation from "./useInternalDevicesAsignation";
+import useInternalDevicesAsignationTable from "./useInternalDevicesAsignationTable";
+import { buildDeviceAssignmentResponsiveDocument } from "../utilities/buildDeviceAssignmentResponsiveDocument";
+import type { InternalDeviceAssignmentRow } from "../types";
 
 const steps = [
-  { id: 'device', label: 'Dispositivo' },
-  { id: 'signature', label: 'Firma de responsiva' }
-] as const
+  { id: "device", label: "Dispositivo" },
+  { id: "signature", label: "Firma de responsiva" },
+] as const;
 
-type StepId = (typeof steps)[number]['id']
-type ResponsiveMembret = 'DR' | 'VIP'
-type ResponsiveMembretSelection = 'default' | ResponsiveMembret
+type StepId = (typeof steps)[number]["id"];
+type ResponsiveMembret = "DR" | "VIP";
+type ResponsiveMembretSelection = "default" | ResponsiveMembret;
 
 const getResponsiveTitle = (row: InternalDeviceAssignmentRow): string => {
-  const responsible = row.assigned_to?.trim() || row.display_id
-  const deviceName = row.name?.trim() || row.model?.trim() || row.display_id
+  const responsible = row.assigned_to?.trim() || row.display_id;
+  const deviceName = row.name?.trim() || row.model?.trim() || row.display_id;
 
-  return `Responsiva - ${responsible} - ${deviceName}`
-}
+  return `Responsiva - ${responsible} - ${deviceName}`;
+};
 
 const getResponsiveStoragePath = (
   assignmentId: string,
   responsible: string,
-  deviceName: string
+  deviceName: string,
 ): string => {
   const sanitizedName = `Responsiva - ${responsible} - ${deviceName}`
-    .replace(/[\\/:*?"<>|]/g, '-')
-    .replace(/\s+/g, ' ')
-    .trim()
+    .replace(/[\\/:*?"<>|]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  return `Assets/DeviceAssignment/${assignmentId}/${sanitizedName || 'responsiva'}.pdf`
-}
+  return `Assets/DeviceAssignment/${assignmentId}/${sanitizedName || "responsiva"}.pdf`;
+};
 
 const stepLayouts: Record<StepId, ResponsiveLayoutMatrix> = {
   device: {
@@ -59,77 +59,79 @@ const stepLayouts: Record<StepId, ResponsiveLayoutMatrix> = {
     md: [[5, 5], [5, 5], [10]],
     lg: [
       [3.3, 3.3, 3.3],
-      [5, 5]
-    ]
+      [5, 5],
+    ],
   },
   signature: {
     sm: [[10]],
     md: [[10]],
-    lg: [[10]]
-  }
-}
+    lg: [[10]],
+  },
+};
 
 /**
  * Orchestrates internal devices asignation page state and side effects.
  */
 const useInternalDevicesAsignationPage = () => {
-  const { deviceAssignments, handleRefresh } = useInternalDevicesAsignation()
-  const { all, updateQuery } = useQuery()
-  const { user, currentPagePermissions } = useAuth()
-  const isMobile = useIsMobile()
+  const { deviceAssignments, handleRefresh } = useInternalDevicesAsignation();
+  const { all, updateQuery } = useQuery();
+  const { user, currentPagePermissions } = useAuth();
+  const isMobile = useIsMobile();
 
   const normalizedView = useMemo(() => {
-    const raw = all.view
-    if (Array.isArray(raw)) return raw[0] ?? null
-    if (typeof raw === 'string' && raw.trim()) return raw
-    return null
-  }, [all.view])
+    const raw = all.view;
+    if (Array.isArray(raw)) return raw[0] ?? null;
+    if (typeof raw === "string" && raw.trim()) return raw;
+    return null;
+  }, [all.view]);
 
   const normalizedId = useMemo(() => {
-    const raw = all.id
-    if (Array.isArray(raw)) return raw[0] ?? null
-    if (typeof raw === 'string' && raw.trim()) return raw
-    return null
-  }, [all.id])
+    const raw = all.id;
+    if (Array.isArray(raw)) return raw[0] ?? null;
+    if (typeof raw === "string" && raw.trim()) return raw;
+    return null;
+  }, [all.id]);
 
-  const isCreateView = normalizedView === 'new'
-  const isEditView = normalizedView === 'edit'
-  const isReviewView = normalizedView === 'review'
-  const isDefaultView = !isCreateView && !isEditView && !isReviewView
+  const isCreateView = normalizedView === "new";
+  const isEditView = normalizedView === "edit";
+  const isReviewView = normalizedView === "review";
+  const isDefaultView = !isCreateView && !isEditView && !isReviewView;
   const normalizedAssignmentId = useMemo(() => {
-    const raw = all.assignmentId
-    if (Array.isArray(raw)) return raw[0] ?? null
-    if (typeof raw === 'string' && raw.trim()) return raw
-    return null
-  }, [all.assignmentId])
+    const raw = all.assignmentId;
+    if (Array.isArray(raw)) return raw[0] ?? null;
+    if (typeof raw === "string" && raw.trim()) return raw;
+    return null;
+  }, [all.assignmentId]);
   const normalizedEmployeeId = useMemo(() => {
-    const raw = all.employeeId
-    if (Array.isArray(raw)) return raw[0] ?? null
-    if (typeof raw === 'string' && raw.trim()) return raw
-    return null
-  }, [all.employeeId])
+    const raw = all.employeeId;
+    if (Array.isArray(raw)) return raw[0] ?? null;
+    if (typeof raw === "string" && raw.trim()) return raw;
+    return null;
+  }, [all.employeeId]);
   const openDetails = Boolean(
-    normalizedId && !isCreateView && !isEditView && !isReviewView
-  )
+    normalizedId && !isCreateView && !isEditView && !isReviewView,
+  );
 
   useTutorialAutoRun({
-    moduleId: isDefaultView ? 'it-internaldevices-asignation-list' : '',
-    tutorialId: isDefaultView ? 'it-internaldevices-asignation:list' : ''
-  })
+    moduleId: isDefaultView ? "it-internaldevices-asignation-list" : "",
+    tutorialId: isDefaultView ? "it-internaldevices-asignation:list" : "",
+  });
   useTutorialAutoRun({
-    moduleId: isCreateView ? 'it-internaldevices-asignation-create' : '',
-    tutorialId: isCreateView ? 'it-internaldevices-asignation:create' : ''
-  })
+    moduleId: isCreateView ? "it-internaldevices-asignation-create" : "",
+    tutorialId: isCreateView ? "it-internaldevices-asignation:create" : "",
+  });
 
-  const { usePrincipalAlert, usePrincipalLoading } = usePrincipal()
-  const { showAlert } = usePrincipalAlert
-  const { showSpinner, hideSpinner } = usePrincipalLoading
-  const { firebasestorage } = useFirebase()
+  const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
+  const { showAlert } = usePrincipalAlert;
+  const { showSpinner, hideSpinner } = usePrincipalLoading;
+  const { firebasestorage } = useFirebase();
 
   const {
     devices,
+    unassignedDevices,
     deviceStatuses,
     fetchDevices,
+    fetchUnassignedDevices,
     fetchDeviceStatuses,
     fetchDeviceById,
     fetchDeviceAssignmentById,
@@ -138,17 +140,20 @@ const useInternalDevicesAsignationPage = () => {
     creatingDeviceAssignment,
     successCreateDeviceAssignment,
     loadingDevices,
+    loadingUnassignedDevices,
     loadingDeviceStatuses,
     loadingDeviceAssignment,
     deviceAssignment,
     device,
     error,
-    resetFlags
+    resetFlags,
   } = useInternalDevicesStore(
     (state) => ({
       devices: state.devices,
+      unassignedDevices: state.unassignedDevices,
       deviceStatuses: state.deviceStatuses,
       fetchDevices: state.fetchDevices,
+      fetchUnassignedDevices: state.fetchUnassignedDevices,
       fetchDeviceStatuses: state.fetchDeviceStatuses,
       fetchDeviceById: state.fetchDeviceById,
       fetchDeviceAssignmentById: state.fetchDeviceAssignmentById,
@@ -157,195 +162,203 @@ const useInternalDevicesAsignationPage = () => {
       creatingDeviceAssignment: state.creatingDeviceAssignment,
       successCreateDeviceAssignment: state.successCreateDeviceAssignment,
       loadingDevices: state.loadingDevices,
+      loadingUnassignedDevices: state.loadingUnassignedDevices,
       loadingDeviceStatuses: state.loadingDeviceStatuses,
       loadingDeviceAssignment: state.loadingDeviceAssignment,
       deviceAssignment: state.deviceAssignment,
       device: state.device,
       error: state.error,
-      resetFlags: state.resetFlags
+      resetFlags: state.resetFlags,
     }),
-    shallow
-  )
+    shallow,
+  );
 
   const { updateDeviceAssignmentResponsiveUrl } =
     useDeviceAssignmentResponsiveUrlStore(
       (state) => ({
         updateDeviceAssignmentResponsiveUrl:
-          state.updateDeviceAssignmentResponsiveUrl
+          state.updateDeviceAssignmentResponsiveUrl,
       }),
-      shallow
-    )
+      shallow,
+    );
 
   const {
     activeEmployees,
     fetchActiveEmployees,
     fetchEmployeeById,
-    loadingActive
+    loadingActive,
   } = useEmployeesStore(
     (state) => ({
       activeEmployees: state.activeEmployees,
       fetchActiveEmployees: state.fetchActiveEmployees,
       fetchEmployeeById: state.fetchEmployeeById,
-      loadingActive: state.loadingActive
+      loadingActive: state.loadingActive,
     }),
-    shallow
-  )
+    shallow,
+  );
 
-  const [currentStep, setCurrentStep] = useState<StepId>('device')
-  const [formVersion, setFormVersion] = useState(0)
+  const [currentStep, setCurrentStep] = useState<StepId>("device");
+  const [formVersion, setFormVersion] = useState(0);
   const [formValues, setFormValues] = useState<Record<string, any>>({
-    device_id: '',
-    device_brand_name: '',
-    model: '',
-    device_status_id: '',
-    employee_id: ''
-  })
+    device_id: "",
+    device_brand_name: "",
+    model: "",
+    device_status_id: "",
+    employee_id: "",
+  });
   const [stepValidity, setStepValidity] = useState<Record<StepId, boolean>>({
     device: false,
-    signature: true
-  })
-  const [signatureOpen, setSignatureOpen] = useState(false)
-  const [userSignature, setUserSignature] = useState('')
-  const [assignmentEmployeeName, setAssignmentEmployeeName] = useState('')
-  const [responsiveOpen, setResponsiveOpen] = useState(false)
-  const [responsiveUrl, setResponsiveUrl] = useState<string | null>(null)
-  const [responsiveTitle, setResponsiveTitle] = useState<string>('')
+    signature: true,
+  });
+  const [signatureOpen, setSignatureOpen] = useState(false);
+  const [userSignature, setUserSignature] = useState("");
+  const [assignmentEmployeeName, setAssignmentEmployeeName] = useState("");
+  const [responsiveOpen, setResponsiveOpen] = useState(false);
+  const [responsiveUrl, setResponsiveUrl] = useState<string | null>(null);
+  const [responsiveTitle, setResponsiveTitle] = useState<string>("");
   const [
     processingResponsiveAssignmentId,
-    setProcessingResponsiveAssignmentId
-  ] = useState<string | null>(null)
+    setProcessingResponsiveAssignmentId,
+  ] = useState<string | null>(null);
   const [regenerationAssignment, setRegenerationAssignment] =
-    useState<InternalDeviceAssignmentRow | null>(null)
+    useState<InternalDeviceAssignmentRow | null>(null);
   const [regenerationMembretSelection, setRegenerationMembretSelection] =
-    useState<ResponsiveMembretSelection>('default')
-  const prevCreateView = useRef(false)
-  const prevDeviceId = useRef<string | null>(null)
-  const suppressCreateSuccessRef = useRef(false)
-  const hasHandledPrefillRef = useRef(false)
+    useState<ResponsiveMembretSelection>("default");
+  const prevCreateView = useRef(false);
+  const prevDeviceId = useRef<string | null>(null);
+  const suppressCreateSuccessRef = useRef(false);
+  const hasHandledPrefillRef = useRef(false);
 
   useEffect(() => {
     if (!isCreateView) {
-      void fetchDevices(true)
-      void fetchActiveEmployees(true)
-      return
+      void fetchDevices(true);
+      void fetchActiveEmployees(true);
+      return;
     }
-    void fetchDevices(true)
-    void fetchDeviceStatuses(true)
-    void fetchActiveEmployees(true)
-  }, [fetchActiveEmployees, fetchDeviceStatuses, fetchDevices, isCreateView])
+    void fetchUnassignedDevices(true);
+    void fetchDeviceStatuses(true);
+    void fetchActiveEmployees(true);
+  }, [
+    fetchActiveEmployees,
+    fetchDeviceStatuses,
+    fetchDevices,
+    fetchUnassignedDevices,
+    isCreateView,
+  ]);
 
   useEffect(() => {
     if (isCreateView && !prevCreateView.current) {
-      setCurrentStep('device')
+      setCurrentStep("device");
       setFormValues({
-        device_id: '',
-        device_brand_name: '',
-        model: '',
-        device_status_id: '',
-        employee_id: normalizedEmployeeId ?? ''
-      })
-      setStepValidity({ device: false, signature: true })
-      setUserSignature('')
-      setFormVersion((prev) => prev + 1)
-      hasHandledPrefillRef.current = false
+        device_id: "",
+        device_brand_name: "",
+        model: "",
+        device_status_id: "",
+        employee_id: normalizedEmployeeId ?? "",
+      });
+      setStepValidity({ device: false, signature: true });
+      setUserSignature("");
+      setFormVersion((prev) => prev + 1);
+      hasHandledPrefillRef.current = false;
     }
-    prevCreateView.current = isCreateView
-  }, [isCreateView, normalizedEmployeeId])
+    prevCreateView.current = isCreateView;
+  }, [isCreateView, normalizedEmployeeId]);
 
   useEffect(() => {
     if (!isCreateView) {
-      hasHandledPrefillRef.current = false
-      return
+      hasHandledPrefillRef.current = false;
+      return;
     }
 
     if (!normalizedEmployeeId || loadingActive) {
-      return
+      return;
     }
 
     if (hasHandledPrefillRef.current) {
-      return
+      return;
     }
 
-    hasHandledPrefillRef.current = true
+    hasHandledPrefillRef.current = true;
 
     const employeeExists = activeEmployees.some(
       (employee) =>
-        (employee.employee_id || employee.id) === normalizedEmployeeId
-    )
+        (employee.employee_id || employee.id) === normalizedEmployeeId,
+    );
 
     if (employeeExists) {
       setFormValues((prev) => ({
         ...prev,
-        employee_id: normalizedEmployeeId
-      }))
-      setFormVersion((prev) => prev + 1)
-      return
+        employee_id: normalizedEmployeeId,
+      }));
+      setFormVersion((prev) => prev + 1);
+      return;
     }
 
     setFormValues((prev) => ({
       ...prev,
-      employee_id: ''
-    }))
-    setFormVersion((prev) => prev + 1)
+      employee_id: "",
+    }));
+    setFormVersion((prev) => prev + 1);
     showAlert({
-      type: 'warning',
-      title: 'Colaborador no disponible',
+      type: "warning",
+      title: "Colaborador no disponible",
       description:
-        'El colaborador indicado no esta disponible para asignacion de dispositivo.',
+        "El colaborador indicado no esta disponible para asignacion de dispositivo.",
       showPrimaryButton: false,
       showSecondaryButton: false,
-      autoCloseMs: 1800
-    })
+      autoCloseMs: 1800,
+    });
   }, [
     activeEmployees,
     isCreateView,
     loadingActive,
     normalizedEmployeeId,
-    showAlert
-  ])
+    showAlert,
+  ]);
 
   useEffect(() => {
-    if (!isCreateView) return
-    if (suppressCreateSuccessRef.current) return
+    if (!isCreateView) return;
+    if (suppressCreateSuccessRef.current) return;
 
     if (
       loadingDevices ||
+      loadingUnassignedDevices ||
       loadingDeviceStatuses ||
       loadingActive ||
       creatingDeviceAssignment
     ) {
-      showSpinner({ message: 'Cargando Información...' })
-      return
+      showSpinner({ message: "Cargando Información..." });
+      return;
     }
 
     if (error) {
       showAlert({
-        type: 'error',
-        title: 'Ocurrio un error',
+        type: "error",
+        title: "Ocurrio un error",
         description: error,
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1200
-      })
+        autoCloseMs: 1200,
+      });
     }
 
     if (successCreateDeviceAssignment) {
       showAlert({
-        type: 'info',
-        title: 'Asignacion creada',
-        description: 'El dispositivo fue asignado correctamente.',
+        type: "info",
+        title: "Asignacion creada",
+        description: "El dispositivo fue asignado correctamente.",
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1200
-      })
-      handleRefresh()
-      updateQuery({ view: null })
+        autoCloseMs: 1200,
+      });
+      handleRefresh();
+      updateQuery({ view: null });
     }
 
-    hideSpinner()
+    hideSpinner();
 
     if (error || successCreateDeviceAssignment) {
-      resetFlags()
+      resetFlags();
     }
   }, [
     creatingDeviceAssignment,
@@ -356,325 +369,333 @@ const useInternalDevicesAsignationPage = () => {
     loadingActive,
     loadingDeviceStatuses,
     loadingDevices,
+    loadingUnassignedDevices,
     resetFlags,
     showAlert,
     showSpinner,
     successCreateDeviceAssignment,
-    updateQuery
-  ])
+    updateQuery,
+  ]);
 
   const availableDevices = useMemo(() => {
-    const unreviewedDevices = devices.filter((device) => !device.reviewed)
-    const filtered = unreviewedDevices.filter(
-      (device) => device.is_active && !device.assigned
-    )
-    return filtered.length ? filtered : unreviewedDevices
-  }, [devices])
+    if (unassignedDevices.length) return unassignedDevices;
+
+    const unreviewedDevices = devices.filter((device) => !device.reviewed);
+    return unreviewedDevices.filter(
+      (device) => device.is_active && !device.assigned,
+    );
+  }, [devices, unassignedDevices]);
 
   const deviceOptions = useMemo(
     () =>
       availableDevices.map((device) => ({
         label:
-          `${device.device_type?.name ?? 'Dispositivo'} - ${device.name ?? device.model ?? ''}`.trim(),
-        value: device.device_id
+          `${device.device_type?.name ?? "Dispositivo"} - ${device.name ?? device.model ?? ""}`.trim(),
+        value: device.device_id,
       })),
-    [availableDevices]
-  )
+    [availableDevices],
+  );
 
   const statusOptions = useMemo(() => {
     const options = deviceStatuses.map((status) => ({
       label: status.name,
-      value: status.device_status_id
-    }))
+      value: status.device_status_id,
+    }));
 
-    const current = devices.find(
-      (item) => item.device_id === formValues.device_id
-    )?.device_status
+    const current =
+      availableDevices.find((item) => item.device_id === formValues.device_id)
+        ?.device_status ??
+      devices.find((item) => item.device_id === formValues.device_id)
+        ?.device_status;
     if (
       current &&
       !options.some((opt) => opt.value === current.device_status_id)
     ) {
-      options.unshift({ label: current.name, value: current.device_status_id })
+      options.unshift({ label: current.name, value: current.device_status_id });
     }
 
-    return options
-  }, [deviceStatuses, devices, formValues.device_id])
+    return options;
+  }, [availableDevices, deviceStatuses, devices, formValues.device_id]);
 
   const employeeOptions = useMemo(
     () =>
       activeEmployees.map((employee) => ({
         label:
           employee.fullname || employee.employee_number || employee.employee_id,
-        value: employee.employee_id || employee.id
+        value: employee.employee_id || employee.id,
       })),
-    [activeEmployees]
-  )
+    [activeEmployees],
+  );
 
   const selectedEmployee = useMemo(
     () =>
       activeEmployees.find(
         (employee) =>
-          (employee.employee_id || employee.id) === formValues.employee_id
+          (employee.employee_id || employee.id) === formValues.employee_id,
       ) ?? null,
-    [activeEmployees, formValues.employee_id]
-  )
+    [activeEmployees, formValues.employee_id],
+  );
 
   const selectedDevice = useMemo(
     () =>
-      devices.find((item) => item.device_id === formValues.device_id) ?? null,
-    [devices, formValues.device_id]
-  )
+      availableDevices.find(
+        (item) => item.device_id === formValues.device_id,
+      ) ??
+      devices.find((item) => item.device_id === formValues.device_id) ??
+      null,
+    [availableDevices, devices, formValues.device_id],
+  );
 
   useEffect(() => {
-    if (!selectedDevice) return
-    if (prevDeviceId.current === selectedDevice.device_id) return
-    prevDeviceId.current = selectedDevice.device_id
+    if (!selectedDevice) return;
+    if (prevDeviceId.current === selectedDevice.device_id) return;
+    prevDeviceId.current = selectedDevice.device_id;
 
     setFormValues((prev) => ({
       ...prev,
-      device_brand_name: selectedDevice.device_brand?.name ?? '',
-      model: selectedDevice.model ?? '',
+      device_brand_name: selectedDevice.device_brand?.name ?? "",
+      model: selectedDevice.model ?? "",
       device_status_id:
         selectedDevice.device_status?.device_status_id ??
         prev.device_status_id ??
-        ''
-    }))
-    setFormVersion((prev) => prev + 1)
-  }, [selectedDevice])
+        "",
+    }));
+    setFormVersion((prev) => prev + 1);
+  }, [selectedDevice]);
 
   useEffect(() => {
-    if (!normalizedId) return
-    if (devices.some((item) => item.device_id === normalizedId)) return
-    void fetchDeviceById(normalizedId, true)
-  }, [devices, fetchDeviceById, normalizedId])
+    if (!normalizedId) return;
+    if (devices.some((item) => item.device_id === normalizedId)) return;
+    void fetchDeviceById(normalizedId, true);
+  }, [devices, fetchDeviceById, normalizedId]);
 
   useEffect(() => {
-    if (!normalizedAssignmentId) return
-    void fetchDeviceAssignmentById(normalizedAssignmentId, true)
-  }, [fetchDeviceAssignmentById, normalizedAssignmentId])
+    if (!normalizedAssignmentId) return;
+    void fetchDeviceAssignmentById(normalizedAssignmentId, true);
+  }, [fetchDeviceAssignmentById, normalizedAssignmentId]);
 
   const deviceFields = useMemo<FieldModel[]>(
     () => [
       {
-        type: 'select',
-        name: 'device_id',
-        label: 'Seleccionar dispositivo*',
-        placeholder: 'Escriba el tipo de dispositivo',
-        value: formValues.device_id ?? '',
+        type: "select",
+        name: "device_id",
+        label: "Seleccionar dispositivo*",
+        placeholder: "Escriba el tipo de dispositivo",
+        value: formValues.device_id ?? "",
         options: deviceOptions,
-        validations: [{ type: 'required' }]
+        validations: [{ type: "required" }],
       },
       {
-        type: 'input',
-        name: 'device_brand_name',
-        label: 'Marca*',
-        placeholder: 'Escriba la marca',
-        value: formValues.device_brand_name ?? '',
-        validations: [{ type: 'required' }],
-        disabled: true
+        type: "input",
+        name: "device_brand_name",
+        label: "Marca*",
+        placeholder: "Escriba la marca",
+        value: formValues.device_brand_name ?? "",
+        validations: [{ type: "required" }],
+        disabled: true,
       },
       {
-        type: 'input',
-        name: 'model',
-        label: 'Modelo*',
-        placeholder: 'Escriba el modelo',
-        value: formValues.model ?? '',
-        validations: [{ type: 'required' }],
-        disabled: true
+        type: "input",
+        name: "model",
+        label: "Modelo*",
+        placeholder: "Escriba el modelo",
+        value: formValues.model ?? "",
+        validations: [{ type: "required" }],
+        disabled: true,
       },
       {
-        type: 'select',
-        name: 'device_status_id',
-        label: 'Estatus del dispositivo*',
-        placeholder: 'Seleccione una opcion',
-        value: formValues.device_status_id ?? '',
+        type: "select",
+        name: "device_status_id",
+        label: "Estatus del dispositivo*",
+        placeholder: "Seleccione una opcion",
+        value: formValues.device_status_id ?? "",
         options: statusOptions,
-        validations: [{ type: 'required' }],
-        disabled: true
+        validations: [{ type: "required" }],
+        disabled: true,
       },
       {
-        type: 'select',
-        name: 'employee_id',
-        label: 'Asignar dispositivo',
-        placeholder: 'Seleccione una opcion',
-        value: formValues.employee_id ?? '',
+        type: "select",
+        name: "employee_id",
+        label: "Asignar dispositivo",
+        placeholder: "Seleccione una opcion",
+        value: formValues.employee_id ?? "",
         options: employeeOptions,
-        validations: [{ type: 'required' }]
-      }
+        validations: [{ type: "required" }],
+      },
     ],
-    [deviceOptions, employeeOptions, formValues, statusOptions]
-  )
+    [deviceOptions, employeeOptions, formValues, statusOptions],
+  );
 
   const handleValuesChange = useCallback((values: Record<string, any>) => {
-    setFormValues((prev) => ({ ...prev, ...values }))
-  }, [])
+    setFormValues((prev) => ({ ...prev, ...values }));
+  }, []);
 
   const handleValidChange = useCallback((step: StepId, isValid: boolean) => {
-    setStepValidity((prev) => ({ ...prev, [step]: isValid }))
-  }, [])
+    setStepValidity((prev) => ({ ...prev, [step]: isValid }));
+  }, []);
 
-  const currentIndex = steps.findIndex((step) => step.id === currentStep)
-  const isFirstStep = currentIndex === 0
-  const isLastStep = currentIndex === steps.length - 1
-  const canAdvance = stepValidity.device
+  const currentIndex = steps.findIndex((step) => step.id === currentStep);
+  const isFirstStep = currentIndex === 0;
+  const isLastStep = currentIndex === steps.length - 1;
+  const canAdvance = stepValidity.device;
 
   const handleNext = useCallback(() => {
-    if (isLastStep) return
-    setCurrentStep(steps[currentIndex + 1].id)
-    setFormVersion((prev) => prev + 1)
-  }, [currentIndex, isLastStep])
+    if (isLastStep) return;
+    setCurrentStep(steps[currentIndex + 1].id);
+    setFormVersion((prev) => prev + 1);
+  }, [currentIndex, isLastStep]);
 
   const handlePrevious = useCallback(() => {
-    if (isFirstStep) return
-    setCurrentStep(steps[currentIndex - 1].id)
-    setFormVersion((prev) => prev + 1)
-  }, [currentIndex, isFirstStep])
+    if (isFirstStep) return;
+    setCurrentStep(steps[currentIndex - 1].id);
+    setFormVersion((prev) => prev + 1);
+  }, [currentIndex, isFirstStep]);
 
   const handleStepChange = useCallback((stepId: StepId) => {
-    setCurrentStep(stepId)
-    setFormVersion((prev) => prev + 1)
-  }, [])
+    setCurrentStep(stepId);
+    setFormVersion((prev) => prev + 1);
+  }, []);
 
   const handleStepChangeFromBreadcrumbs = useCallback(
     (stepId: string) => {
-      const match = steps.find((step) => step.id === stepId)
-      if (!match) return
-      handleStepChange(match.id)
+      const match = steps.find((step) => step.id === stepId);
+      if (!match) return;
+      handleStepChange(match.id);
     },
-    [handleStepChange]
-  )
+    [handleStepChange],
+  );
 
   const handleAssign = useCallback(async () => {
     if (!formValues.device_id || !formValues.employee_id) {
       showAlert({
-        type: 'warning',
-        title: 'Datos incompletos',
-        description: 'Selecciona un dispositivo y un colaborador para asignar.',
+        type: "warning",
+        title: "Datos incompletos",
+        description: "Selecciona un dispositivo y un colaborador para asignar.",
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500
-      })
-      return
+        autoCloseMs: 1500,
+      });
+      return;
     }
 
     if (!user?.idEmployee) {
       showAlert({
-        type: 'warning',
-        title: 'Usuario no disponible',
-        description: 'No se encontro el identificador del usuario activo.',
+        type: "warning",
+        title: "Usuario no disponible",
+        description: "No se encontro el identificador del usuario activo.",
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500
-      })
-      return
+        autoCloseMs: 1500,
+      });
+      return;
     }
 
     if (!firebasestorage?.uploadFile) {
       showAlert({
-        type: 'error',
-        title: 'Firebase no disponible',
-        description: 'No se pudo subir la responsiva en este momento.',
+        type: "error",
+        title: "Firebase no disponible",
+        description: "No se pudo subir la responsiva en este momento.",
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500
-      })
-      return
+        autoCloseMs: 1500,
+      });
+      return;
     }
 
     try {
-      suppressCreateSuccessRef.current = true
-      showSpinner({ message: 'Asignando dispositivo...' })
+      suppressCreateSuccessRef.current = true;
+      showSpinner({ message: "Asignando dispositivo..." });
 
       const created = await createDeviceAssignment({
         device_id: formValues.device_id,
         employee_id: formValues.employee_id,
-        observations: '',
-        delivery_condition: '',
-        id_user: user.idEmployee
-      })
+        observations: "",
+        delivery_condition: "",
+        id_user: user.idEmployee,
+      });
 
       if (!created?.device_assigment_id) {
-        throw new Error('No se pudo crear la asignacion.')
+        throw new Error("No se pudo crear la asignacion.");
       }
 
       const employee =
         activeEmployees.find(
-          (item) => (item.employee_id || item.id) === formValues.employee_id
-        ) ?? (await fetchEmployeeById(formValues.employee_id, true))
+          (item) => (item.employee_id || item.id) === formValues.employee_id,
+        ) ?? (await fetchEmployeeById(formValues.employee_id, true));
       if (!employee) {
-        throw new Error('No se pudo obtener el colaborador.')
+        throw new Error("No se pudo obtener el colaborador.");
       }
 
       const device =
         selectedDevice ??
         (await fetchDeviceById(formValues.device_id, true)) ??
-        null
+        null;
       if (!device) {
-        throw new Error('No se pudo obtener el dispositivo.')
+        throw new Error("No se pudo obtener el dispositivo.");
       }
 
-      const departmentName = employee.department?.name ?? ''
-      const membret = departmentName.toLocaleUpperCase().includes('VIP')
-        ? 'VIP'
-        : 'DR'
+      const departmentName = employee.department?.name ?? "";
+      const membret = departmentName.toLocaleUpperCase().includes("VIP")
+        ? "VIP"
+        : "DR";
       const document = buildDeviceAssignmentResponsiveDocument({
         assignment: created,
         device,
         employee: employee as EmployeeType,
         signatureUrl: userSignature,
-        membret
-      })
+        membret,
+      });
 
-      const pdfBlob = await CreatePDFBlob(document, membret)
+      const pdfBlob = await CreatePDFBlob(document, membret);
       const storagePath = getResponsiveStoragePath(
         created.device_assigment_id,
         employee.fullname || formValues.employee_id,
-        device.name || device.serial_number || formValues.device_id
-      )
+        device.name || device.serial_number || formValues.device_id,
+      );
       const pdfUrl = await firebasestorage.uploadFile(
         pdfBlob,
         storagePath,
-        true
-      )
+        true,
+      );
 
       if (!pdfUrl) {
-        throw new Error('No se pudo subir la responsiva.')
+        throw new Error("No se pudo subir la responsiva.");
       }
 
       await updateDeviceAssignmentResponsiveUrl({
         idDeviceAssignment: created.device_assigment_id,
-        responsiveUrl: pdfUrl
-      })
+        responsiveUrl: pdfUrl,
+      });
 
-      await fetchDeviceAssignments(true)
+      await fetchDeviceAssignments(true);
 
       showAlert({
-        type: 'info',
-        title: 'Asignacion creada',
-        description: 'La responsiva se guardo correctamente.',
+        type: "info",
+        title: "Asignacion creada",
+        description: "La responsiva se guardo correctamente.",
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500
-      })
-      handleRefresh()
-      updateQuery({ view: null })
+        autoCloseMs: 1500,
+      });
+      handleRefresh();
+      updateQuery({ view: null });
     } catch (err) {
       const message =
         err instanceof Error
           ? err.message
-          : 'No se pudo completar la asignacion.'
+          : "No se pudo completar la asignacion.";
       showAlert({
-        type: 'error',
-        title: 'No se pudo completar la asignacion',
+        type: "error",
+        title: "No se pudo completar la asignacion",
         description: message,
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 2000
-      })
+        autoCloseMs: 2000,
+      });
     } finally {
-      hideSpinner()
-      resetFlags()
-      suppressCreateSuccessRef.current = false
+      hideSpinner();
+      resetFlags();
+      suppressCreateSuccessRef.current = false;
     }
   }, [
     createDeviceAssignment,
@@ -693,82 +714,84 @@ const useInternalDevicesAsignationPage = () => {
     updateQuery,
     userSignature,
     user?.idEmployee,
-    selectedDevice
-  ])
+    selectedDevice,
+  ]);
 
   const handleSignatureAuthorization = useCallback((authorized: Authorized) => {
     if (authorized?.signature) {
-      setUserSignature(authorized.signature)
-      setSignatureOpen(false)
+      setUserSignature(authorized.signature);
+      setSignatureOpen(false);
     }
-  }, [])
+  }, []);
 
   const handleSignatureClick = useCallback(() => {
     if (!formValues.employee_id) {
       showAlert({
-        type: 'warning',
-        title: 'Colaborador pendiente',
-        description: 'Selecciona un colaborador antes de firmar.',
+        type: "warning",
+        title: "Colaborador pendiente",
+        description: "Selecciona un colaborador antes de firmar.",
         showPrimaryButton: false,
         showSecondaryButton: false,
-        autoCloseMs: 1500
-      })
-      return
+        autoCloseMs: 1500,
+      });
+      return;
     }
-    setSignatureOpen(true)
-  }, [formValues.employee_id, showAlert])
+    setSignatureOpen(true);
+  }, [formValues.employee_id, showAlert]);
 
   const handleOpenCreate = useCallback(() => {
-    updateQuery({ view: 'new' })
-  }, [updateQuery])
+    updateQuery({ view: "new" });
+  }, [updateQuery]);
 
   const handleBackToList = useCallback(() => {
-    updateQuery({ view: null })
-  }, [updateQuery])
+    updateQuery({ view: null });
+  }, [updateQuery]);
 
   const handleBackToDetails = useCallback(() => {
     if (!normalizedId) {
-      updateQuery({ view: null })
-      return
+      updateQuery({ view: null });
+      return;
     }
-    updateQuery({ view: null })
-  }, [normalizedId, updateQuery])
+    updateQuery({ view: null });
+  }, [normalizedId, updateQuery]);
 
   const handleCloseDetails = useCallback(() => {
-    updateQuery({ id: null, assignmentId: null, view: null })
-  }, [updateQuery])
+    updateQuery({ id: null, assignmentId: null, view: null });
+  }, [updateQuery]);
 
   const handleOpenResponsive = useCallback(
     (url?: string | null, title?: string) => {
       if (!url) {
         showAlert({
-          type: 'warning',
-          title: 'Responsiva no disponible',
-          description: 'No se encontro una responsiva para esta asignacion.',
+          type: "warning",
+          title: "Responsiva no disponible",
+          description: "No se encontro una responsiva para esta asignacion.",
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 1500
-        })
-        return
+          autoCloseMs: 1500,
+        });
+        return;
       }
-      setResponsiveUrl(url)
-      setResponsiveTitle(title ?? 'Responsiva de asignacion')
-      setResponsiveOpen(true)
+      setResponsiveUrl(url);
+      setResponsiveTitle(title ?? "Responsiva de asignacion");
+      setResponsiveOpen(true);
     },
-    [showAlert]
-  )
+    [showAlert],
+  );
 
   const deviceById = useMemo(() => {
-    const entries = devices.map((device) => [device.device_id, device] as const)
-    return new Map(entries)
-  }, [devices])
+    const entries = devices.map(
+      (device) => [device.device_id, device] as const,
+    );
+    return new Map(entries);
+  }, [devices]);
 
   const employeeById = useMemo(() => {
     const entries = activeEmployees.map(
-      (employee) => [employee.employee_id || employee.id, employee] as const
-    )
-    return new Map(entries)
-  }, [activeEmployees])
+      (employee) => [employee.employee_id || employee.id, employee] as const,
+    );
+    return new Map(entries);
+  }, [activeEmployees]);
 
   const handleOpenAssignmentDetails = useCallback(
     (row: InternalDeviceAssignmentRow) => {
@@ -776,79 +799,81 @@ const useInternalDevicesAsignationPage = () => {
         updateQuery({
           id: row.device_id,
           assignmentId: row.assignment_id,
-          view: null
-        })
+          view: null,
+        });
       }
-      void fetchDeviceAssignmentById(row.assignment_id, true)
+      void fetchDeviceAssignmentById(row.assignment_id, true);
     },
-    [fetchDeviceAssignmentById, updateQuery]
-  )
+    [fetchDeviceAssignmentById, updateQuery],
+  );
 
   const generateAndUploadResponsive = useCallback(
     async (
       row: InternalDeviceAssignmentRow,
-      membretOverride?: ResponsiveMembret
+      membretOverride?: ResponsiveMembret,
     ) => {
       const assignment = deviceAssignments.find(
-        (item) => item.device_assigment_id === row.assignment_id
-      )
+        (item) => item.device_assigment_id === row.assignment_id,
+      );
       if (!assignment) {
-        throw new Error('No se encontro la asignacion.')
+        throw new Error("No se encontro la asignacion.");
       }
       if (!firebasestorage?.uploadFile) {
-        throw new Error('Firebase no esta disponible para subir la responsiva.')
+        throw new Error(
+          "Firebase no esta disponible para subir la responsiva.",
+        );
       }
 
       const employee =
         employeeById.get(assignment.employee_id) ??
-        (await fetchEmployeeById(assignment.employee_id, true))
+        (await fetchEmployeeById(assignment.employee_id, true));
       if (!employee) {
-        throw new Error('No se pudo obtener el colaborador.')
+        throw new Error("No se pudo obtener el colaborador.");
       }
 
       const device =
         deviceById.get(assignment.device_id) ??
-        (await fetchDeviceById(assignment.device_id, true))
+        (await fetchDeviceById(assignment.device_id, true));
       if (!device) {
-        throw new Error('No se pudo obtener el dispositivo.')
+        throw new Error("No se pudo obtener el dispositivo.");
       }
 
-      const departmentName = employee.department?.name ?? ''
+      const departmentName = employee.department?.name ?? "";
       const defaultMembret: ResponsiveMembret = departmentName
         .toLocaleUpperCase()
-        .includes('VIP')
-        ? 'VIP'
-        : 'DR'
-      const membret = membretOverride ?? defaultMembret
+        .includes("VIP")
+        ? "VIP"
+        : "DR";
+      const membret = membretOverride ?? defaultMembret;
       const document = buildDeviceAssignmentResponsiveDocument({
         assignment,
         device,
         employee,
         signatureUrl: employee.user?.signature,
-        membret
-      })
-      const pdfBlob = await CreatePDFBlob(document, membret)
+        membret,
+      });
+      const pdfBlob = await CreatePDFBlob(document, membret);
       const storagePath = getResponsiveStoragePath(
         assignment.device_assigment_id,
         employee.fullname || assignment.employee_id,
-        device.name || device.serial_number || assignment.device_id
-      )
+        device.name || device.serial_number || assignment.device_id,
+      );
       const pdfUrl = await firebasestorage.uploadFile(
         pdfBlob,
         storagePath,
-        true
-      )
+        true,
+      );
 
       if (!pdfUrl) {
-        throw new Error('No se pudo subir la responsiva.')
+        throw new Error("No se pudo subir la responsiva.");
       }
 
       await updateDeviceAssignmentResponsiveUrl({
         idDeviceAssignment: assignment.device_assigment_id,
-        responsiveUrl: pdfUrl
-      })
-      await fetchDeviceAssignments(true)
-      return pdfUrl
+        responsiveUrl: pdfUrl,
+      });
+      await fetchDeviceAssignments(true);
+      return pdfUrl;
     },
     [
       deviceAssignments,
@@ -858,74 +883,74 @@ const useInternalDevicesAsignationPage = () => {
       fetchDeviceById,
       fetchEmployeeById,
       firebasestorage,
-      updateDeviceAssignmentResponsiveUrl
-    ]
-  )
+      updateDeviceAssignmentResponsiveUrl,
+    ],
+  );
 
   const handleRegenerateResponsive = useCallback(
     (row: InternalDeviceAssignmentRow) => {
       if (!currentPagePermissions?.regenerateResponsive) {
         showAlert({
-          type: 'warning',
-          title: 'Sin permiso para regenerar',
-          description: 'No cuentas con el permiso para regenerar responsivas.',
+          type: "warning",
+          title: "Sin permiso para regenerar",
+          description: "No cuentas con el permiso para regenerar responsivas.",
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 1500
-        })
-        return
+          autoCloseMs: 1500,
+        });
+        return;
       }
-      setRegenerationMembretSelection('default')
-      setRegenerationAssignment(row)
+      setRegenerationMembretSelection("default");
+      setRegenerationAssignment(row);
     },
-    [currentPagePermissions?.regenerateResponsive, showAlert]
-  )
+    [currentPagePermissions?.regenerateResponsive, showAlert],
+  );
 
   const handleCloseRegenerationPopup = useCallback(() => {
-    setRegenerationAssignment(null)
-    setRegenerationMembretSelection('default')
-  }, [])
+    setRegenerationAssignment(null);
+    setRegenerationMembretSelection("default");
+  }, []);
 
   const handleConfirmRegeneration = useCallback(() => {
-    if (!regenerationAssignment) return
+    if (!regenerationAssignment) return;
 
     const membretOverride =
-      regenerationMembretSelection === 'default'
+      regenerationMembretSelection === "default"
         ? undefined
-        : regenerationMembretSelection
-    const assignment = regenerationAssignment
-    handleCloseRegenerationPopup()
+        : regenerationMembretSelection;
+    const assignment = regenerationAssignment;
+    handleCloseRegenerationPopup();
 
     void (async () => {
       try {
-        showSpinner({ message: 'Regenerando responsiva...' })
-        setProcessingResponsiveAssignmentId(assignment.assignment_id)
-        await generateAndUploadResponsive(assignment, membretOverride)
+        showSpinner({ message: "Regenerando responsiva..." });
+        setProcessingResponsiveAssignmentId(assignment.assignment_id);
+        await generateAndUploadResponsive(assignment, membretOverride);
         showAlert({
-          type: 'info',
-          title: 'Responsiva regenerada',
-          description: 'La nueva responsiva se guardo correctamente.',
+          type: "info",
+          title: "Responsiva regenerada",
+          description: "La nueva responsiva se guardo correctamente.",
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 1500
-        })
+          autoCloseMs: 1500,
+        });
       } catch (err) {
         showAlert({
-          type: 'error',
-          title: 'No se pudo regenerar la responsiva',
+          type: "error",
+          title: "No se pudo regenerar la responsiva",
           description:
             err instanceof Error
               ? err.message
-              : 'Ocurrio un error al regenerar la responsiva.',
+              : "Ocurrio un error al regenerar la responsiva.",
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 2000
-        })
+          autoCloseMs: 2000,
+        });
       } finally {
-        hideSpinner()
-        setProcessingResponsiveAssignmentId(null)
+        hideSpinner();
+        setProcessingResponsiveAssignmentId(null);
       }
-    })()
+    })();
   }, [
     generateAndUploadResponsive,
     handleCloseRegenerationPopup,
@@ -933,72 +958,72 @@ const useInternalDevicesAsignationPage = () => {
     regenerationAssignment,
     regenerationMembretSelection,
     showAlert,
-    showSpinner
-  ])
+    showSpinner,
+  ]);
 
   const handleOpenResponsiveFromRow = useCallback(
     (row: InternalDeviceAssignmentRow) => {
       if (row.responsive_url) {
-        handleOpenResponsive(row.responsive_url, getResponsiveTitle(row))
-        return
+        handleOpenResponsive(row.responsive_url, getResponsiveTitle(row));
+        return;
       }
 
       if (!currentPagePermissions?.generateMissingResponsive) {
         showAlert({
-          type: 'warning',
-          title: 'Sin permiso para generar',
+          type: "warning",
+          title: "Sin permiso para generar",
           description:
-            'No hay responsiva para esta asignacion y no cuentas con el permiso para generarla.',
+            "No hay responsiva para esta asignacion y no cuentas con el permiso para generarla.",
           showPrimaryButton: false,
           showSecondaryButton: false,
-          autoCloseMs: 1800
-        })
-        return
+          autoCloseMs: 1800,
+        });
+        return;
       }
 
       showAlert({
-        type: 'warning',
-        title: 'Generar responsiva faltante',
+        type: "warning",
+        title: "Generar responsiva faltante",
         description:
-          'Se generara, almacenara y asociara la responsiva a esta asignacion.',
+          "Se generara, almacenara y asociara la responsiva a esta asignacion.",
         showPrimaryButton: true,
-        primaryLabel: 'Generar responsiva',
+        primaryLabel: "Generar responsiva",
         showSecondaryButton: true,
-        secondaryLabel: 'Cancelar',
+        secondaryLabel: "Cancelar",
         onPrimaryClick: () => {
           void (async () => {
             try {
-              showSpinner({ message: 'Generando responsiva...' })
-              setProcessingResponsiveAssignmentId(row.assignment_id)
-              const pdfUrl = await generateAndUploadResponsive(row)
-              handleOpenResponsive(pdfUrl, getResponsiveTitle(row))
+              showSpinner({ message: "Generando responsiva..." });
+              setProcessingResponsiveAssignmentId(row.assignment_id);
+              const pdfUrl = await generateAndUploadResponsive(row);
+              handleOpenResponsive(pdfUrl, getResponsiveTitle(row));
               showAlert({
-                type: 'info',
-                title: 'Responsiva generada',
-                description: 'La responsiva se guardo correctamente.',
+                type: "info",
+                title: "Responsiva generada",
+                description: "La responsiva se guardo correctamente.",
                 showPrimaryButton: false,
                 showSecondaryButton: false,
-                autoCloseMs: 1500
-              })
+                autoCloseMs: 1500,
+              });
             } catch (err) {
               showAlert({
-                type: 'error',
-                title: 'No se pudo generar la responsiva',
+                type: "error",
+                title: "No se pudo generar la responsiva",
                 description:
                   err instanceof Error
                     ? err.message
-                    : 'Ocurrio un error al generar la responsiva.',
+                    : "Ocurrio un error al generar la responsiva.",
                 showPrimaryButton: false,
                 showSecondaryButton: false,
-                autoCloseMs: 2000
-              })
+                autoCloseMs: 2000,
+              });
             } finally {
-              hideSpinner()
-              setProcessingResponsiveAssignmentId(null)
+              hideSpinner();
+              setProcessingResponsiveAssignmentId(null);
             }
-          })()
-        }
-      })
+          })();
+        },
+      });
     },
     [
       currentPagePermissions?.generateMissingResponsive,
@@ -1006,9 +1031,9 @@ const useInternalDevicesAsignationPage = () => {
       handleOpenResponsive,
       hideSpinner,
       showAlert,
-      showSpinner
-    ]
-  )
+      showSpinner,
+    ],
+  );
 
   const {
     columns,
@@ -1016,7 +1041,7 @@ const useInternalDevicesAsignationPage = () => {
     searchableKeys,
     statusFilter,
     statusFilterOptions,
-    handleStatusFilterChange
+    handleStatusFilterChange,
   } = useInternalDevicesAsignationTable({
     deviceAssignments,
     deviceById,
@@ -1024,65 +1049,65 @@ const useInternalDevicesAsignationPage = () => {
     isMobile,
     processingResponsiveAssignmentId,
     canRegenerateResponsive: Boolean(
-      currentPagePermissions?.regenerateResponsive
+      currentPagePermissions?.regenerateResponsive,
     ),
     onOpenDetails: handleOpenAssignmentDetails,
     onOpenResponsive: handleOpenResponsiveFromRow,
-    onRegenerateResponsive: handleRegenerateResponsive
-  })
+    onRegenerateResponsive: handleRegenerateResponsive,
+  });
 
   useEffect(() => {
-    if (!deviceAssignment?.device_id) return
+    if (!deviceAssignment?.device_id) return;
     if (!deviceById.has(deviceAssignment.device_id)) {
-      void fetchDeviceById(deviceAssignment.device_id, true)
+      void fetchDeviceById(deviceAssignment.device_id, true);
     }
-  }, [deviceAssignment, deviceById, fetchDeviceById])
+  }, [deviceAssignment, deviceById, fetchDeviceById]);
 
   useEffect(() => {
     if (!deviceAssignment?.employee_id) {
-      setAssignmentEmployeeName('')
-      return
+      setAssignmentEmployeeName("");
+      return;
     }
-    const existing = employeeById.get(deviceAssignment.employee_id)
+    const existing = employeeById.get(deviceAssignment.employee_id);
     if (existing) {
-      setAssignmentEmployeeName(existing.fullname)
-      return
+      setAssignmentEmployeeName(existing.fullname);
+      return;
     }
     void fetchEmployeeById(deviceAssignment.employee_id, true).then(
       (employee) => {
         setAssignmentEmployeeName(
-          employee?.fullname ?? deviceAssignment.employee_id
-        )
-      }
-    )
-  }, [deviceAssignment, employeeById, fetchEmployeeById])
+          employee?.fullname ?? deviceAssignment.employee_id,
+        );
+      },
+    );
+  }, [deviceAssignment, employeeById, fetchEmployeeById]);
 
   const assignmentDevice = deviceAssignment
     ? (deviceById.get(deviceAssignment.device_id) ??
       (device?.device_id === deviceAssignment.device_id ? device : null))
-    : null
+    : null;
 
   const handleEditInformation = useCallback(() => {
-    const targetId = selectedDevice?.device_id ?? normalizedId
-    if (!targetId) return
-    updateQuery({ id: targetId, view: 'edit' })
-  }, [normalizedId, selectedDevice, updateQuery])
+    const targetId = selectedDevice?.device_id ?? normalizedId;
+    if (!targetId) return;
+    updateQuery({ id: targetId, view: "edit" });
+  }, [normalizedId, selectedDevice, updateQuery]);
 
   const handleCreateReview = useCallback(() => {
-    const targetId = selectedDevice?.device_id ?? normalizedId
-    if (!targetId) return
-    updateQuery({ id: targetId, view: 'review' })
-  }, [normalizedId, selectedDevice, updateQuery])
+    const targetId = selectedDevice?.device_id ?? normalizedId;
+    if (!targetId) return;
+    updateQuery({ id: targetId, view: "review" });
+  }, [normalizedId, selectedDevice, updateQuery]);
 
   const selectedDeviceByQuery = useMemo<InternalDevice | null>(() => {
-    if (!normalizedId) return null
-    return devices.find((item) => item.device_id === normalizedId) ?? null
-  }, [devices, normalizedId])
+    if (!normalizedId) return null;
+    return devices.find((item) => item.device_id === normalizedId) ?? null;
+  }, [devices, normalizedId]);
 
   const handleCloseResponsive = useCallback(() => {
-    setResponsiveOpen(false)
-    setResponsiveUrl(null)
-  }, [])
+    setResponsiveOpen(false);
+    setResponsiveUrl(null);
+  }, []);
 
   return {
     assignmentDevice,
@@ -1123,7 +1148,7 @@ const useInternalDevicesAsignationPage = () => {
     searchableKeys,
     selectedDeviceByQuery,
     selectedEmployee,
-    userFullName: user?.fullName ?? '',
+    userFullName: user?.fullName ?? "",
     showResponsive: responsiveOpen && Boolean(responsiveUrl),
     signatureOpen,
     stepLayouts,
@@ -1140,8 +1165,8 @@ const useInternalDevicesAsignationPage = () => {
     setResponsiveOpen,
     setRegenerationMembretSelection,
     loadingDeviceAssignment,
-    formValues
-  }
-}
+    formValues,
+  };
+};
 
-export default useInternalDevicesAsignationPage
+export default useInternalDevicesAsignationPage;

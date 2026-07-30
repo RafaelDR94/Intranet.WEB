@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
 import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
-import { Button } from "@/app/components/Button/Button";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
@@ -9,8 +8,6 @@ import type {
   InternalDevice,
   InternalDeviceAssignment,
 } from "@/app/mappings/internaldevices/internaldevices.types";
-import ResponsiveDoc from "@/assets/icons/Docs/page.svg";
-import RefreshIcon from "@/assets/icons/acciones/refresh.svg";
 
 import type {
   InternalDeviceAssignmentRow,
@@ -71,8 +68,7 @@ const useInternalDevicesAsignationTable = ({
         const device = deviceById.get(assignment.device_id);
         const employee = employeeById.get(assignment.employee_id);
         const assigned =
-          assignment.assigned ??
-          Boolean((assignment.employee_id ?? "").trim());
+          assignment.assigned ?? Boolean((assignment.employee_id ?? "").trim());
         return {
           id: assignment.device_assigment_id || String(index + 1),
           assignment_id: assignment.device_assigment_id || "",
@@ -87,137 +83,145 @@ const useInternalDevicesAsignationTable = ({
           assigned_to: employee?.fullname ?? assignment.employee_id ?? "-",
           responsive_url: assignment.responsive_url ?? null,
           assigned,
+          description: assignment.description ?? "",
         };
       }),
     [deviceAssignments, deviceById, employeeById],
   );
 
   const columnsDesktop = useMemo<
-  ColumnDefinition<InternalDeviceAssignmentRow>[]
->(
-  () => [
-    {
-      key: "display_id",
-      label: "ID",
-      cellClass: "w-[4%]",
-      headerClass: "w-[4%]",
-    },
-    {
-      key: "device_status",
-      label: "ESTATUS",
-      cellClass: "w-[10%]",
-      headerClass: "w-[10%]",
-      render: (row) => (
-        <Label
-          type={statusToLabelType(row.device_status?.name)}
-          text={row.device_status?.name ?? "SIN ESTATUS"}
-        />
-      ),
-    },
-    {
-      key: "device_type",
-      label: "DISPOSITIVO",
-      cellClass: "w-[9%]",
-      headerClass: "w-[9%]",
-      render: (row) => row.device_type?.name ?? "-",
-    },
-    {
-      key: "device_brand",
-      label: "MARCA",
-      cellClass: "w-[7%]",
-      headerClass: "w-[7%]",
-      render: (row) => row.device_brand?.name ?? "-",
-    },
-    {
-      key: "model",
-      label: "MODELO",
-      cellClass: "w-[10%]",
-      headerClass: "w-[10%]",
-    },
-    {
-      key: "serial_number",
-      label: "No. SERIE",
-      cellClass: "w-[11%]",
-      headerClass: "w-[11%]",
-    },
-    {
-      key: "name",
-      label: "NOMBRE",
-      cellClass: "w-[11%]",
-      headerClass: "w-[11%]",
-    },
-    {
-      key: "assigned_to",
-      label: "ASIGNADO A",
-      cellClass: "w-[14%]",
-      headerClass: "w-[14%]",
-      render: (row) => row.assigned_to ?? "-",
-    },
-    {
-      key: "responsive_url",
-      label: "RESPONSIVA",
-      cellClass: "w-[8%]",
-      headerClass: "w-[8%]",
-      render: (row) => (
-        <div className="flex items-center">
-          <Button
-            size="small"
-            variant="ghost"
-            icon={ResponsiveDoc}
-            aria-label="Abrir responsiva"
-            disabled={processingResponsiveAssignmentId === row.assignment_id}
-            onClick={() => onOpenResponsive(row)}
+    ColumnDefinition<InternalDeviceAssignmentRow>[]
+  >(
+    () => [
+      {
+        key: "display_id",
+        label: "ID",
+        cellClass: "w-[4%]",
+        headerClass: "w-[4%]",
+      },
+      {
+        key: "device_status",
+        label: "ESTATUS",
+        cellClass: "w-[10%]",
+        headerClass: "w-[10%]",
+        render: (row) => (
+          <Label
+            type={statusToLabelType(row.device_status?.name)}
+            text={row.device_status?.name ?? "SIN ESTATUS"}
           />
-          {canRegenerateResponsive && row.responsive_url && (
-            <Button
-              size="small"
-              variant="ghost"
-              icon={RefreshIcon}
-              aria-label="Regenerar responsiva"
-              disabled={processingResponsiveAssignmentId === row.assignment_id}
-              onClick={() => onRegenerateResponsive(row)}
+        ),
+      },
+      {
+        key: "device_type",
+        label: "DISPOSITIVO",
+        cellClass: "w-[9%]",
+        headerClass: "w-[9%]",
+        render: (row) => row.device_type?.name ?? "-",
+      },
+      {
+        key: "device_brand",
+        label: "MARCA",
+        cellClass: "w-[7%]",
+        headerClass: "w-[7%]",
+        render: (row) => row.device_brand?.name ?? "-",
+      },
+      {
+        key: "model",
+        label: "MODELO",
+        cellClass: "w-[10%]",
+        headerClass: "w-[10%]",
+      },
+      {
+        key: "serial_number",
+        label: "No. SERIE",
+        cellClass: "w-[11%]",
+        headerClass: "w-[11%]",
+      },
+      {
+        key: "name",
+        label: "NOMBRE",
+        cellClass: "w-[11%]",
+        headerClass: "w-[11%]",
+      },
+      {
+        key: "assigned_to",
+        label: "ASIGNADO A",
+        cellClass: "w-[14%]",
+        headerClass: "w-[14%]",
+        render: (row) => row.assigned_to ?? "-",
+      },
+      // {
+      //   key: "responsive_url",
+      //   label: "RESPONSIVA",
+      //   cellClass: "w-[8%]",
+      //   headerClass: "w-[8%]",
+      //   render: (row) => (
+      //     <div className="flex items-center">
+      //       <Button
+      //         size="small"
+      //         variant="ghost"
+      //         icon={ResponsiveDoc}
+      //         aria-label="Abrir responsiva"
+      //         disabled={processingResponsiveAssignmentId === row.assignment_id}
+      //         onClick={() => onOpenResponsive(row)}
+      //       />
+      //       {canRegenerateResponsive && row.responsive_url && (
+      //         <Button
+      //           size="small"
+      //           variant="ghost"
+      //           icon={RefreshIcon}
+      //           aria-label="Regenerar responsiva"
+      //           disabled={processingResponsiveAssignmentId === row.assignment_id}
+      //           onClick={() => onRegenerateResponsive(row)}
+      //         />
+      //       )}
+      //     </div>
+      //   ),
+      // },
+      {
+        key: "description",
+        label: "CONDICIONES",
+        cellClass: "w-[14%]",
+        headerClass: "w-[14%]",
+        render: (row) => row.description || "-",
+      },
+      {
+        key: "assigned",
+        label: "ESTADO ASIGNACIÓN",
+        cellClass: "w-[10%]",
+        headerClass: "w-[10%]",
+        render: (row) => (
+          <Label
+            type={row.assigned ? "valido" : "restringido"}
+            text={row.assigned ? "ACTIVO" : "INACTIVO"}
+          />
+        ),
+      },
+      {
+        key: "assignment_id",
+        label: "",
+        cellClass: "w-[6%]",
+        headerClass: "w-[6%]",
+        render: (row) => (
+          <div data-tour="internaldevices-asignation-row-actions">
+            <ActionMenuCell
+              row={row}
+              editLabel="Ver detalle"
+              onDetails={() => onOpenDetails(row)}
+              permissions={{ details: true, delete: false, update: false }}
             />
-          )}
-        </div>
-      ),
-    },
-    {
-      key: "assigned",
-      label: "ESTADO ASIGNACIÓN",
-      cellClass: "w-[10%]",
-      headerClass: "w-[10%]",
-      render: (row) => (
-        <Label
-          type={row.assigned ? "valido" : "restringido"}
-          text={row.assigned ? "ACTIVO" : "INACTIVO"}
-        />
-      ),
-    },
-    {
-      key: "assignment_id",
-      label: "",
-      cellClass: "w-[6%]",
-      headerClass: "w-[6%]",
-      render: (row) => (
-        <div data-tour="internaldevices-asignation-row-actions">
-          <ActionMenuCell
-            row={row}
-            editLabel="Ver detalle"
-            onDetails={() => onOpenDetails(row)}
-            permissions={{ details: true, delete: false, update: false }}
-          />
-        </div>
-      ),
-    },
-  ],
-  [
-    canRegenerateResponsive,
-    onOpenDetails,
-    onOpenResponsive,
-    onRegenerateResponsive,
-    processingResponsiveAssignmentId,
-  ],
-);
+          </div>
+        ),
+      },
+    ],
+    [
+      canRegenerateResponsive,
+      onOpenDetails,
+      onOpenResponsive,
+      onRegenerateResponsive,
+      processingResponsiveAssignmentId,
+    ],
+  );
 
   const columnsMobile = useMemo<
     ColumnDefinition<InternalDeviceAssignmentRow>[]
@@ -265,10 +269,7 @@ const useInternalDevicesAsignationTable = ({
   const columns = isMobile ? columnsMobile : columnsDesktop;
 
   const filteredRows = useMemo(
-    () =>
-      rows.filter((row) =>
-        matchesStatusFilter(row.assigned, statusFilter),
-      ),
+    () => rows.filter((row) => matchesStatusFilter(row.assigned, statusFilter)),
     [rows, statusFilter],
   );
 

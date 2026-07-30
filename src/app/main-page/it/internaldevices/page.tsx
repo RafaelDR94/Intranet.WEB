@@ -9,7 +9,7 @@ export default function InternalDevicesPage
         '/main-page/it/internaldevices/devicesBrands',
         '/main-page/it/internaldevices/devicesTypes',
         '/main-page/it/internaldevices/internaldevicesasignation',
-
+        '/main-page/it/internaldevices/devicesDeactivated',
       ]}
     />
   );
