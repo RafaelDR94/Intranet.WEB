@@ -65,12 +65,20 @@ const ActionMenuCell = <T extends Record<string, any>>({
 
   const normalizedPermissions = useMemo<ActionMenuPermissions>(
     () => ({
-      details: Boolean(permissionsOverride?.details ?? currentPagePermissions?.details),
-      update: Boolean(permissionsOverride?.update ?? currentPagePermissions?.update),
-      delete: Boolean(permissionsOverride?.delete ?? currentPagePermissions?.delete),
-      renew: Boolean(permissionsOverride?.renew ?? currentPagePermissions?.renew),
+      details: Boolean(
+        permissionsOverride?.details ?? currentPagePermissions?.details,
+      ),
+      update: Boolean(
+        permissionsOverride?.update ?? currentPagePermissions?.update,
+      ),
+      delete: Boolean(
+        permissionsOverride?.delete ?? currentPagePermissions?.delete,
+      ),
+      renew: Boolean(
+        permissionsOverride?.renew ?? currentPagePermissions?.renew,
+      ),
     }),
-    [permissionsOverride, currentPagePermissions]
+    [permissionsOverride, currentPagePermissions],
   );
 
   return (
@@ -95,8 +103,12 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
   onDelete,
   onDetails,
   onRenewDay,
+  onReactivate,
+  reactivateLabel,
   permissions,
-}: ActionMenuCellBaseProps<T> & { permissions: ActionMenuPermissions }): ContextMenuItem[] => {
+}: ActionMenuCellBaseProps<T> & {
+  permissions: ActionMenuPermissions;
+}): ContextMenuItem[] => {
   const items: ContextMenuItem[] = [];
   const canEdit = Boolean(permissions.details || permissions.update);
 
@@ -110,9 +122,9 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
 
   if (permissions.renew) {
     items.push({
-      label: "Renovar",
+      label: reactivateLabel ?? "Renovar",
       icon: CalendarPlusIcon,
-      onClick: () => onRenewDay?.(row),
+      onClick: () => onReactivate?.(row) ?? onRenewDay?.(row),
     });
   }
 
@@ -124,7 +136,6 @@ export const buildActionMenuItems = <T extends Record<string, unknown>>({
       onClick: () => onDelete?.(row),
     });
   }
-
 
   return items;
 };
@@ -145,6 +156,8 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
   onDelete,
   onDetails,
   onRenewDay,
+  onReactivate,
+  reactivateLabel,
   permissions,
   isMobile,
   triggerIcon = "auto",
@@ -173,9 +186,24 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
           setMenuOpen(false);
           onRenewDay?.(currentRow);
         },
+        onReactivate: (currentRow) => {
+          setMenuOpen(false);
+          onReactivate?.(currentRow);
+        },
+        reactivateLabel,
         permissions,
       }),
-    [row, onEdit, editLabel, onDelete, onDetails, onRenewDay, permissions]
+    [
+      row,
+      onEdit,
+      editLabel,
+      onDelete,
+      onDetails,
+      onRenewDay,
+      onReactivate,
+      reactivateLabel,
+      permissions,
+    ],
   );
 
   const TriggerIcon = resolveTriggerIcon(triggerIcon, isMobile);
@@ -201,11 +229,9 @@ export const ActionMenuCellView = <T extends Record<string, unknown>>({
 
 const resolveTriggerIcon = (
   triggerIcon: ActionMenuTriggerIcon,
-  isMobile: boolean
+  isMobile: boolean,
 ) => {
   if (triggerIcon === "dots") return DotsIcon;
   if (triggerIcon === "arrow") return RightArrowIcon;
   return isMobile ? RightArrowIcon : DotsIcon;
 };
-
-
