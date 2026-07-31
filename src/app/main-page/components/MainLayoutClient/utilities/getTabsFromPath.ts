@@ -145,6 +145,10 @@ export const getTabsFromPath = (
         label: "Asignación de Dispositivos",
         path: "/main-page/it/internaldevices/internaldevicesasignation",
       },
+      {
+        label: "Dispositivos desactivados",
+        path: "/main-page/it/internaldevices/devicesDeactivated",
+      },
     ],
     "it/users": [
       {

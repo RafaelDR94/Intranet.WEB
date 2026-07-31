@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import type { Get, Set } from '../types'
+import type { Get, Set } from "../types";
 
-import { Devices } from '@/app/configurations/Axios/urls'
-import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
-import { pDelete } from '@/app/utilities/Http/promisifyIntranet'
-import { requireGateway } from '@/app/utilities/Http/requireGateway'
+import { Devices } from "@/app/configurations/Axios/urls";
+import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
+import { pDelete } from "@/app/utilities/Http/promisifyIntranet";
+import { requireGateway } from "@/app/utilities/Http/requireGateway";
 
-import { fetchInternalDevices } from './fetchInternalDevices'
+import { fetchInternalDevices } from "./fetchInternalDevices";
 
 /**
  * Delete internal device.
@@ -17,30 +17,34 @@ export const deleteInternalDevice = async (
   get: Get,
   id: string,
   lowMotive?: string,
-  idUser?: string,
+  idEmployee?: string,
 ): Promise<boolean> => {
-  set({ deletingDevice: true, error: undefined, successDeleteDevice: false })
+  set({ deletingDevice: true, error: undefined, successDeleteDevice: false });
 
   try {
-    const params = new URLSearchParams({ id })
-    if (lowMotive != null) params.set('lowMotive', String(lowMotive))
-    if (idUser != null) params.set('idUser', String(idUser))
+    const params = new URLSearchParams({ id });
+    if (lowMotive != null) params.set("lowMotive", String(lowMotive));
+    if (idEmployee != null) params.set("idEmployee", String(idEmployee));
 
-    const url = `${Devices}?${params.toString()}`
-    const del = pDelete(requireGateway('del'), [200, 204])
-    await del(url)
+    const url = `${Devices}?${params.toString()}`;
+    const del = pDelete(requireGateway("del"), [200, 204]);
+    await del(url);
 
-    await fetchInternalDevices(set, get, true)
+    await fetchInternalDevices(set, get, true);
 
     if (get().device?.device_id === id) {
-      set({ device: undefined })
+      set({ device: undefined });
     }
 
-    set({ deletingDevice: false, successDeleteDevice: true })
-    return true
+    set({ deletingDevice: false, successDeleteDevice: true });
+    return true;
   } catch (error) {
-    const err = normalizeApiError(error)
-    set({ deletingDevice: false, successDeleteDevice: false, error: err.message })
-    return false
+    const err = normalizeApiError(error);
+    set({
+      deletingDevice: false,
+      successDeleteDevice: false,
+      error: err.message,
+    });
+    return false;
   }
-}
+};
