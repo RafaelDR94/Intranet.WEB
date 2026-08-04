@@ -1,5 +1,5 @@
-import { FacingMode } from '@/app/components/CameraViewer/types';
-import { InitialFile } from '@/app/components/FileUploader/types';
+import { FacingMode } from "@/app/components/CameraViewer/types";
+import { InitialFile } from "@/app/components/FileUploader/types";
 
 export type SelectedImage = {
   id: string;
@@ -22,6 +22,8 @@ export interface ImageUploaderExpandedProps {
   placeholder?: string;
   /** Callback fired whenever a file is selected or captured. */
   onImage: (file: File | SelectedImage[] | null) => void;
+  /** Emits the complete gallery, including unselected images. */
+  onImagesChange?: (images: SelectedImage[]) => void;
   /** Disable both the input and the camera trigger. */
   disabled?: boolean;
   /** Extra classes for the dropzone wrapper. */
@@ -48,6 +50,10 @@ export interface ImageUploaderExpandedProps {
   previewCoverMode?: boolean;
   /** Permite seleccionar varias imágenes. */
   multiple?: boolean;
+  /** Integrates the uploader as a cell in the image gallery. */
+  galleryLayout?: "default" | "integrated";
+  /** Hides camera capture for flows that only accept file selection. */
+  showCamera?: boolean;
   /** Clases adicionales para el wrapper del preview. */
   previewWrapperClassName?: string;
   /** Clases adicionales para la imagen del preview. */

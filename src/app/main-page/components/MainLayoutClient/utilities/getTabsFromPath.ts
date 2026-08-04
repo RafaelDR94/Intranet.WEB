@@ -189,6 +189,10 @@ export const getTabsFromPath = (
         path: "/main-page/operations/expenserequisitions/travelexpenserequest",
       },
       {
+        label: "Estatus Aprobación de requisiciones",
+        path: "/main-page/operations/expenserequisitions/solicitudviaticos",
+      },
+      {
         label: "Historial beneficiarios",
         path: "/main-page/operations/expenserequisitions/beneficiaryhistory",
       }

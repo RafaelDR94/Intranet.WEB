@@ -14,6 +14,7 @@ const hideSpinner = vi.fn();
 const showAlert = vi.fn();
 const hideAlert = vi.fn();
 const mockTravelExpenseState = vi.hoisted(() => ({ statusName: "Pendiente" }));
+const mockAuthorizationState = vi.hoisted(() => ({ statusName: "Pendiente" }));
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () =>
@@ -46,6 +47,7 @@ vi.mock("@/app/stores/useAuthorizationsStore/useAuthorizationsStore", () => ({
           authorization_id: "auth-1",
           authorizer: { employee_id: "authorizer-1" },
           event_id: "travel-1",
+          status: { name: mockAuthorizationState.statusName },
         },
       ],
       approveAuthorization,
@@ -220,6 +222,7 @@ describe("PreRequisitionsAuthorizationCatalog", () => {
     showAlert.mockReset();
     hideAlert.mockReset();
     mockTravelExpenseState.statusName = "Pendiente";
+    mockAuthorizationState.statusName = "Pendiente";
     approveAuthorization.mockResolvedValue(true);
     rejectAuthorization.mockResolvedValue(true);
     getAuthorizations.mockResolvedValue(undefined);
@@ -286,8 +289,17 @@ describe("PreRequisitionsAuthorizationCatalog", () => {
     );
   });
 
-  it("deshabilita acciones cuando la solicitud ya fue aprobada o rechazada", () => {
+  it("mantiene habilitadas las acciones cuando la autorización está pendiente aunque la solicitud tenga otro estado", () => {
     mockTravelExpenseState.statusName = "Aprobada";
+
+    render(<PreRequisitionsAuthorizationCatalog />);
+
+    expect(screen.getByText("Aprobar").closest("button")).toBeEnabled();
+    expect(screen.getByText("Rechazar").closest("button")).toBeEnabled();
+  });
+
+  it("deshabilita las acciones cuando la autorización ya no está pendiente", () => {
+    mockAuthorizationState.statusName = "Aprobada";
 
     render(<PreRequisitionsAuthorizationCatalog />);
 

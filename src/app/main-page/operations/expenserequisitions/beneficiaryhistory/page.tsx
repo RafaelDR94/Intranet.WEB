@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import RequisitionsTable from "@/app/main-page/accounting/requisitions/requisitionsList/componentes/RequisitionsTable/RequisitionsTable";
 import { InvoicesProvider } from "@/app/main-page/accounting/personalInvoices/invoices/context/InvoicesContext";
@@ -18,7 +18,6 @@ import RequisitionsAuthorization from "@/app/main-page/authorizations/authorizat
 
 const BeneficiaryHistory: React.FC = () => {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const label = searchParams.get("label");
   const userId = searchParams.get("id");
   const view = searchParams.get("view");
@@ -95,13 +94,7 @@ const BeneficiaryHistory: React.FC = () => {
   return (
     <>
       <RequisitionDetails />
-      <RequisitionsTable
-        showActionButton
-        actionLabel="Agregar Requisición"
-        onActionClick={() =>
-          router.push("/main-page/operations/requisitions/requisitionsPage/")
-        }
-      />
+      <RequisitionsTable />
     </>
   );
 };

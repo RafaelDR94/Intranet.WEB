@@ -32,6 +32,7 @@ const TravelExpenseRequest = () => {
     authorizerPopUpOpen,
     authorizerSelected,
     buildRequisitionFields,
+    canAddAssignedStaff,
     createFields,
     createFormLayout,
     creatingTravelExpense,
@@ -61,6 +62,7 @@ const TravelExpenseRequest = () => {
     handleViewDetails,
     hasCompanions,
     isReviewView,
+    isReadOnlyDetailView,
     isRequisitionView,
     loadingEmployeesWithCardNumber,
     loadingTravelExpenses,
@@ -178,6 +180,7 @@ const TravelExpenseRequest = () => {
                 onClick={handleAddAssignedStaff}
                 icon={UserPlus}
                 variant="ghost"
+                disabled={!canAddAssignedStaff}
               >
                 Agregar personal
               </Button>
@@ -376,7 +379,7 @@ const TravelExpenseRequest = () => {
     );
   }
 
-  if (isReviewView) {
+  if (isReviewView || isReadOnlyDetailView) {
     return (
       <section className={styles.page}>
         <div className={styles.pageStack}>
@@ -385,35 +388,37 @@ const TravelExpenseRequest = () => {
               <h1 className={styles.title}>Solicitud de viaticos</h1>
               <div className={styles.divider} />
             </div>
-            <div className={styles.actions}>
-              <Button
-                hideIcon
-                type="button"
-                variant="outline"
-                className={styles.rejectButton}
-                disabled={
-                  !selectedTravelExpense ||
-                  approvingTravelExpense ||
-                  rejectingTravelExpense
-                }
-                onClick={handleRejectCommentOpen}
-              >
-                Rechazar
-              </Button>
-              <Button
-                hideIcon
-                type="button"
-                className={styles.actionButton}
-                disabled={
-                  !selectedTravelExpense ||
-                  approvingTravelExpense ||
-                  rejectingTravelExpense
-                }
-                onClick={handleApproveTravelExpense}
-              >
-                Aceptar
-              </Button>
-            </div>
+            {!isReadOnlyDetailView && (
+              <div className={styles.actions}>
+                <Button
+                  hideIcon
+                  type="button"
+                  variant="outline"
+                  className={styles.rejectButton}
+                  disabled={
+                    !selectedTravelExpense ||
+                    approvingTravelExpense ||
+                    rejectingTravelExpense
+                  }
+                  onClick={handleRejectCommentOpen}
+                >
+                  Rechazar
+                </Button>
+                <Button
+                  hideIcon
+                  type="button"
+                  className={styles.actionButton}
+                  disabled={
+                    !selectedTravelExpense ||
+                    approvingTravelExpense ||
+                    rejectingTravelExpense
+                  }
+                  onClick={handleApproveTravelExpense}
+                >
+                  Aceptar
+                </Button>
+              </div>
+            )}
           </div>
 
           <section className={styles.card}>
@@ -436,33 +441,35 @@ const TravelExpenseRequest = () => {
             )}
           </section>
 
-          <PopUp
-            open={rejectCommentOpen}
-            onClose={handleRejectCommentCancel}
-            title="Rechazar solicitud de viaticos"
-            content="Deja aqui un comentario para que el solicitante sepa la razon del rechazo."
-            showSecondaryButton
-            secondaryButtonText="Cancelar"
-            onSecondaryButtonClick={handleRejectCommentCancel}
-            showPrimaryButton
-            primaryButtonText={
-              rejectingTravelExpense ? "Rechazando..." : "Enviar Comentario"
-            }
-            onPrimaryButtonClick={handleRejectTravelExpense}
-          >
-            <Input
-              as="textarea"
-              placeholder="Escribir comentario"
-              value={rejectComment}
-              onChange={(event) =>
-                handleRejectCommentChange(event.target.value)
+          {!isReadOnlyDetailView && (
+            <PopUp
+              open={rejectCommentOpen}
+              onClose={handleRejectCommentCancel}
+              title="Rechazar solicitud de viaticos"
+              content="Deja aqui un comentario para que el solicitante sepa la razon del rechazo."
+              showSecondaryButton
+              secondaryButtonText="Cancelar"
+              onSecondaryButtonClick={handleRejectCommentCancel}
+              showPrimaryButton
+              primaryButtonText={
+                rejectingTravelExpense ? "Rechazando..." : "Enviar Comentario"
               }
-              variant={rejectCommentError ? "error" : "default"}
-              helperText={rejectCommentError ?? undefined}
-              rows={4}
-              dataTestId="travel-expense-reject-comment"
-            />
-          </PopUp>
+              onPrimaryButtonClick={handleRejectTravelExpense}
+            >
+              <Input
+                as="textarea"
+                placeholder="Escribir comentario"
+                value={rejectComment}
+                onChange={(event) =>
+                  handleRejectCommentChange(event.target.value)
+                }
+                variant={rejectCommentError ? "error" : "default"}
+                helperText={rejectCommentError ?? undefined}
+                rows={4}
+                dataTestId="travel-expense-reject-comment"
+              />
+            </PopUp>
+          )}
         </div>
       </section>
     );

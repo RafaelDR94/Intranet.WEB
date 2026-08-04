@@ -31,6 +31,7 @@ describe("fetchRequisitionRequestById", () => {
           creditor_number: "ACN0788",
           client_code: "FUE0044",
           id_user: "user-1",
+          state: "Monterrey",
           travel_expense: {
             id: "travel-1",
             employee_id: "employee-1",
@@ -58,5 +59,7 @@ describe("fetchRequisitionRequestById", () => {
     expect(result?.id_user).toBe("user-1");
     expect(state.currentRequisitionRequest?.creditor_number).toBe("ACN0788");
     expect(state.currentRequisitionRequest?.client_code).toBe("FUE0044");
+    expect(result?.state).toBe("Monterrey");
+    expect(state.currentRequisitionRequest?.state).toBe("Monterrey");
   });
 });

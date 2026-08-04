@@ -128,4 +128,51 @@ describe('ImageUploaderExpanded', () => {
     const dropzone = container.querySelector('div[class*="border"]');
     expect(dropzone?.className).toContain('border-blue-50');
   });
+
+  it('integra el uploader con la galeria y habilita quitar solo con imagenes seleccionadas', () => {
+    const hookReturn = {
+      ...createHookReturn(),
+      images: Array.from({ length: 6 }, (_, index) => ({
+        id: `image-${index}`,
+        name: `Imagen ${index + 1}`,
+        url: `https://files.example/${index}.png`,
+        selected: index === 0,
+      })),
+      toggleImage: vi.fn(),
+      clearImages: vi.fn(),
+    };
+    hookSpy.mockReturnValueOnce(hookReturn);
+
+    const { container } = render(
+      <ImageUploaderExpanded
+        dataTestId="integrated-gallery"
+        galleryLayout="integrated"
+        multiple
+        onImage={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('integrated-gallery')).toHaveClass('lg:grid-cols-5');
+    expect(screen.getByLabelText('Seleccionar Imagen 1')).toHaveClass('top-2', 'right-2');
+    expect(screen.getByRole('button', { name: 'Quitar imágenes' })).toBeEnabled();
+    expect(container.querySelectorAll('img')).toHaveLength(6);
+
+    fireEvent.click(screen.getByLabelText('Seleccionar Imagen 1'));
+    expect(hookReturn.toggleImage).toHaveBeenCalledWith('image-0');
+  });
+
+  it('deshabilita quitar imagenes cuando no hay seleccion', () => {
+    hookSpy.mockReturnValueOnce({
+      ...createHookReturn(),
+      images: [{ id: 'image-1', name: 'Imagen 1', selected: false }],
+      toggleImage: vi.fn(),
+      clearImages: vi.fn(),
+    });
+
+    render(
+      <ImageUploaderExpanded galleryLayout="integrated" multiple onImage={vi.fn()} />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Quitar imágenes' })).toBeDisabled();
+  });
 });

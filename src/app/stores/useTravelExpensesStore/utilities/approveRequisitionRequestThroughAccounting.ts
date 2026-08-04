@@ -4,7 +4,7 @@ import type { AxiosResponse } from "axios";
 
 import type { Get, Set } from "../types";
 
-import { AuthorizationApproveThroughAccounting } from "@/app/configurations/Axios/urls";
+import { BillingRequisitionRequestAccountingApprove } from "@/app/configurations/Axios/urls";
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pPut } from "@/app/utilities/Http/promisifyIntranet";
@@ -29,40 +29,58 @@ export const approveRequisitionRequestThroughAccounting = async (
 
   try {
     const put = pPut(requireGateway("put"), [200, 201]);
-    const params = new URLSearchParams({
-      IdRequisitionRequest: idRequisitionRequest,
-    });
     const res: AxiosResponse = await put(
-      `${AuthorizationApproveThroughAccounting}?${params.toString()}`,
+      `${BillingRequisitionRequestAccountingApprove}/${encodeURIComponent(
+        idRequisitionRequest,
+      )}`,
       {},
     );
     const success = Boolean(res);
-    const markApproved = (item: TravelExpense | undefined) =>
-      item
-        ? {
-            ...item,
-            status: "Aprobada",
-            status_name: "Aprobada",
-          }
-        : item;
+    const markApproved = (item: TravelExpense): TravelExpense => ({
+      ...item,
+      status: "FINALIZADA",
+      status_name: "FINALIZADA",
+      treasury_status_name: "APROBADA",
+      accounting_status_name: "APROBADA",
+      requisition_requests: item.requisition_requests.map((request) =>
+        request.id === idRequisitionRequest
+          ? {
+              ...request,
+              status_name: "FINALIZADA",
+              treasury_status_name: "APROBADA",
+              accounting_status_name: "APROBADA",
+            }
+          : request,
+      ),
+    });
+
+    const currentRequisitionRequest = get().currentRequisitionRequest;
 
     set({
       approving: false,
       successApprove: success,
-      currentRequisitionRequest: markApproved(get().currentRequisitionRequest),
+      currentRequisitionRequest: currentRequisitionRequest
+        ? markApproved(currentRequisitionRequest)
+        : undefined,
       travelExpenses: get().travelExpenses.map((item) =>
         item.id === idRequisitionRequest ||
         item.billingrequisition_id === idRequisitionRequest ||
         item.requisition_requests.some(
           (request) => request.id === idRequisitionRequest,
         )
-          ? {
-              ...item,
-              status: "Aprobada",
-              status_name: "Aprobada",
-            }
+          ? markApproved(item)
           : item,
       ),
+      operationsRequisitionRequests:
+        get().operationsRequisitionRequests?.map((item) =>
+          item.id === idRequisitionRequest ||
+          item.billingrequisition_id === idRequisitionRequest ||
+          item.requisition_requests.some(
+            (request) => request.id === idRequisitionRequest,
+          )
+            ? markApproved(item)
+            : item,
+        ) ?? [],
     });
 
     return success;

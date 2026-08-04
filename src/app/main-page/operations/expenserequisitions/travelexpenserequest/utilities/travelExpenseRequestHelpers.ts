@@ -1,4 +1,5 @@
 import type { LabelType } from "@/app/components/Label/types";
+import type { SelectOption } from "@/app/components/Select/types";
 import type { TravelExpenseCalculation } from "@/app/mappings/travelExpenseCalculations/travelExpenseCalculations.types";
 import type {
   TravelExpense,
@@ -69,9 +70,16 @@ export const toIsoDate = (value: unknown) => {
 export const normalizeStatusType = (status = ""): LabelType => {
   const normalized = normalizeComparableText(status);
 
+  if (normalized.includes("teso")) return "purple";
+  if (normalized.includes("conta")) return "vale-rosa";
   if (normalized.includes("borrador")) return "purple";
   if (normalized.includes("rechaz")) return "rechazado";
-  if (normalized.includes("aprobad") || normalized.includes("valid")) {
+  if (normalized.includes("enviad")) return "validado";
+  if (
+    normalized.includes("aprobad") ||
+    normalized.includes("valid") ||
+    normalized.includes("final")
+  ) {
     return "validado";
   }
   if (normalized.includes("cancel")) return "restringido";
@@ -86,6 +94,12 @@ export const isDraftStatus = (status: string) =>
   ["pendiente", "borrad", "rechaz", "cancel"].some((value) =>
     normalizeComparableText(status).includes(value),
   );
+
+/**
+ * Detects requests that have been sent and can only be consulted from operations.
+ */
+export const isSentTravelExpenseStatus = (status = "") =>
+  normalizeComparableText(status).includes("enviad");
 
 /**
  * Returns the stable identifier for a travel expense row.
@@ -448,6 +462,34 @@ export const getAvailableCompanionOptions = (
       label: beneficiary.name,
       value: beneficiary.id,
     }));
+};
+
+/**
+ * Removes employees already chosen in another assigned-staff row while keeping
+ * the current row's selection available for edits.
+ */
+export const getAvailableAssignedStaffOptions = (
+  options: SelectOption[],
+  selectedEmployeeIds: string[],
+  currentEmployeeId: string,
+) => {
+  const selectedIds = new Set(selectedEmployeeIds);
+
+  return options.filter(
+    (option) =>
+      option.value === currentEmployeeId || !selectedIds.has(option.value),
+  );
+};
+
+/**
+ * Returns whether an assigned-staff selection contains the same employee more
+ * than once. Empty values are ignored because required-field validation owns
+ * that case.
+ */
+export const hasDuplicateAssignedStaff = (employeeIds: string[]) => {
+  const nonEmptyEmployeeIds = employeeIds.filter(Boolean);
+
+  return new Set(nonEmptyEmployeeIds).size !== nonEmptyEmployeeIds.length;
 };
 
 /**
