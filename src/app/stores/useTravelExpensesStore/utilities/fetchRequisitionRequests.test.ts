@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { Get, Set, TravelExpensesState } from "../types";
+import type { Set, TravelExpensesState } from "../types";
 
 import { fetchRequisitionRequests } from "./fetchRequisitionRequests";
 
@@ -14,7 +14,7 @@ vi.mock("@/app/utilities/Http/promisifyIntranet", () => ({
 }));
 
 describe("fetchRequisitionRequests util", () => {
-  it("clears stale rows and fetches requisition requests when forced", async () => {
+  it("clears stale rows and fetches requisition requests", async () => {
     getMock.mockResolvedValueOnce({
       data: {
         data: [
@@ -25,7 +25,10 @@ describe("fetchRequisitionRequests util", () => {
             applicant_name: "Admin",
             email: "admin@drsecurity.net",
             requisition_code: "REQ-001",
-            status_name: "Pendiente",
+            status_name: "CONTABILIDAD",
+            treasury_status_name: "APROBADA",
+            accounting_status_name: "PENDIENTE",
+            image_urls: ["https://files.example/request-1.png"],
           },
         ],
       },
@@ -83,9 +86,7 @@ describe("fetchRequisitionRequests util", () => {
       snapshots.push(nextPartial);
       Object.assign(state, nextPartial);
     };
-    const get: Get = () => state as TravelExpensesState;
-
-    await fetchRequisitionRequests(set, get, true);
+    await fetchRequisitionRequests(set);
 
     expect(snapshots[0]).toMatchObject({
       loading: true,
@@ -93,10 +94,16 @@ describe("fetchRequisitionRequests util", () => {
       travelExpenses: [],
     });
     expect(getMock).toHaveBeenCalledWith(
-      "/Billings/RequisitionRequestfilter?aprovee=true",
+      "/Billings/RequisitionRequest?department=CONTABILIDAD",
     );
     expect(state.travelExpenses?.[0]?.id).toBe("request-1");
     expect(state.travelExpenses?.[0]?.employeename).toBe("Bruno Mendoza");
+    expect(state.travelExpenses?.[0]).toMatchObject({
+      status_name: "CONTABILIDAD",
+      treasury_status_name: "APROBADA",
+      accounting_status_name: "PENDIENTE",
+      image_urls: ["https://files.example/request-1.png"],
+    });
     expect(state.loading).toBe(false);
     expect(state.successGet).toBe(true);
   });

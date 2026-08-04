@@ -1,20 +1,19 @@
-'use client';
+"use client";
 
-import type { ChangeEvent, DragEvent } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ChangeEvent, DragEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { useFileUploaderExpanded } from '@/app/components/FileUploaderexpanded/hooks/useFileUploaderExpanded';
+import { useFileUploaderExpanded } from "@/app/components/FileUploaderexpanded/hooks/useFileUploaderExpanded";
 
-import {
-  UseImageUploaderExpandedParams,
-} from './types';
-import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext';
-import { SelectedImage } from '../types';
-const DEFAULT_PLACEHOLDER = 'arrastra/selecciona la imagen que deseas subir';
+import { UseImageUploaderExpandedParams } from "./types";
+import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { SelectedImage } from "../types";
+const DEFAULT_PLACEHOLDER = "arrastra/selecciona la imagen que deseas subir";
 
 export const useImageUploaderExpanded = ({
   onImage,
-  accept = 'image/*',
+  onImagesChange,
+  accept = "image/*",
   disabled = false,
   placeholder = DEFAULT_PLACEHOLDER,
   initialFile,
@@ -28,12 +27,13 @@ export const useImageUploaderExpanded = ({
   const { usePrincipalImage } = usePrincipal();
   const { showImage } = usePrincipalImage;
   const [images, setImages] = useState<SelectedImage[]>(() => {
-    if (Array.isArray(initialFiles) && initialFiles.length > 0) return initialFiles;
+    if (Array.isArray(initialFiles) && initialFiles.length > 0)
+      return initialFiles;
     if (initialFile) {
       return [
         {
-          id: `initial-${initialFile.name ?? initialFile.url ?? 'image'}`,
-          name: initialFile.name ?? 'Imagen',
+          id: `initial-${initialFile.name ?? initialFile.url ?? "image"}`,
+          name: initialFile.name ?? "Imagen",
           url: initialFile.url ?? initialFile.base64 ?? undefined,
           selected: true,
         },
@@ -57,8 +57,11 @@ export const useImageUploaderExpanded = ({
 
   const displayText = useMemo(() => {
     if (multiple) {
-      const selectedCount = images.filter((img) => img.selected !== false).length;
-      if (selectedCount > 0) return `${selectedCount} imagen(es) seleccionada(s)`;
+      const selectedCount = images.filter(
+        (img) => img.selected !== false,
+      ).length;
+      if (selectedCount > 0)
+        return `${selectedCount} imagen(es) seleccionada(s)`;
     }
     return fileName ?? placeholder;
   }, [fileName, images, multiple, placeholder]);
@@ -76,9 +79,10 @@ export const useImageUploaderExpanded = ({
       if (multiple) {
         const selected = list.filter((item) => item.selected !== false);
         onImage?.(selected);
+        onImagesChange?.(list);
       }
     },
-    [multiple, onImage]
+    [multiple, onImage, onImagesChange],
   );
 
   const addFiles = useCallback(
@@ -92,14 +96,15 @@ export const useImageUploaderExpanded = ({
           id,
           file,
           name: file.name,
-          url: typeof URL !== 'undefined' ? URL.createObjectURL(file) : undefined,
+          url:
+            typeof URL !== "undefined" ? URL.createObjectURL(file) : undefined,
           selected: true,
         });
       });
 
       notifyImages(nextImages);
     },
-    [images, notifyImages]
+    [images, notifyImages],
   );
 
   const handleCaptureFromCamera = useCallback(
@@ -119,13 +124,13 @@ export const useImageUploaderExpanded = ({
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         input.files = dataTransfer.files;
-        const changeEvent = new Event('change', { bubbles: true });
+        const changeEvent = new Event("change", { bubbles: true });
         input.dispatchEvent(changeEvent);
       } catch {
         applyExternalFile(file);
       }
     },
-    [addFiles, applyExternalFile, inputRef, multiple]
+    [addFiles, applyExternalFile, inputRef, multiple],
   );
 
   const openCamera = useCallback(() => {
@@ -144,7 +149,8 @@ export const useImageUploaderExpanded = ({
   }, [disabled]);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) return;
+    if (typeof window === "undefined" || !("IntersectionObserver" in window))
+      return;
 
     const element = containerRef.current;
     if (!element) return;
@@ -153,7 +159,7 @@ export const useImageUploaderExpanded = ({
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.2 }
+      { threshold: 0.2 },
     );
 
     observer.observe(element);
@@ -177,7 +183,7 @@ export const useImageUploaderExpanded = ({
     if (!multiPreview) return;
     showImage({
       src: multiPreview,
-      alt: fileName ?? 'Vista previa',
+      alt: fileName ?? "Vista previa",
     });
   }, [fileName, multiPreview, showImage]);
 
@@ -189,7 +195,7 @@ export const useImageUploaderExpanded = ({
         handleChange(event);
       }
     },
-    [addFiles, handleChange, multiple]
+    [addFiles, handleChange, multiple],
   );
 
   const handleDropInput = useCallback(
@@ -203,17 +209,17 @@ export const useImageUploaderExpanded = ({
         handleDrop(event);
       }
     },
-    [addFiles, disabled, handleDragLeave, handleDrop, multiple]
+    [addFiles, disabled, handleDragLeave, handleDrop, multiple],
   );
 
   const toggleImage = useCallback(
     (id: string) => {
       const next = images.map((img) =>
-        img.id === id ? { ...img, selected: !(img.selected !== false) } : img
+        img.id === id ? { ...img, selected: !(img.selected !== false) } : img,
       );
       notifyImages(next);
     },
-    [images, notifyImages]
+    [images, notifyImages],
   );
 
   const clearImages = useCallback(() => {
@@ -235,21 +241,24 @@ export const useImageUploaderExpanded = ({
       next.splice(targetIndex, 0, moved);
       notifyImages(next);
     },
-    [draggingId, images, notifyImages]
+    [draggingId, images, notifyImages],
   );
 
-  const handleImageDragStart = useCallback((id: string) => {
-    if (disabled || !multiple) return;
-    setDraggingId(id);
-  }, [disabled, multiple]);
+  const handleImageDragStart = useCallback(
+    (id: string) => {
+      if (disabled || !multiple) return;
+      setDraggingId(id);
+    },
+    [disabled, multiple],
+  );
 
   const handleImageDragOverGallery = useCallback(
     (event: DragEvent<HTMLLabelElement>, id: string) => {
       event.preventDefault();
       if (disabled || !multiple || !draggingId || draggingId === id) return;
-      event.dataTransfer.dropEffect = 'move';
+      event.dataTransfer.dropEffect = "move";
     },
-    [disabled, draggingId, multiple]
+    [disabled, draggingId, multiple],
   );
 
   const handleImageDropGallery = useCallback(
@@ -259,7 +268,7 @@ export const useImageUploaderExpanded = ({
       reorderImages(id);
       setDraggingId(null);
     },
-    [disabled, multiple, reorderImages]
+    [disabled, multiple, reorderImages],
   );
 
   const handleImageDragEnd = useCallback(() => {

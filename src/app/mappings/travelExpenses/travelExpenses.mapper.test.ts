@@ -150,4 +150,38 @@ describe("TravelExpenseMap", () => {
 
     expect(result.is_approved_by_accounting).toBe(true);
   });
+
+  it("keeps the requisition request status additions and compatibility status", () => {
+    const result = TravelExpenseMap({
+      id: "request-1",
+      id_applicant: "applicant-1",
+      applicant_name: "HECTOR ANDRES PUENTE HINOJOSA",
+      id_department: "department-1",
+      department_name: "RADIOLOGIA",
+      id_employee: "employee-1",
+      employee_name: "Bruno Mendoza Ruiz",
+      requisition_code: "REQ-001",
+      status_name: "TESORERIA",
+      treasury_status_name: "PENDIENTE",
+      accounting_status_name: "PENDIENTE",
+      image_urls: ["https://files.example/request-1.png"],
+      date_created: "2026-07-30T12:00:00",
+    });
+
+    expect(result).toMatchObject({
+      requisitionkey: "REQ-001",
+      applicant_id: "applicant-1",
+      applicant_name: "HECTOR ANDRES PUENTE HINOJOSA",
+      department_id: "department-1",
+      department_name: "RADIOLOGIA",
+      employee_id: "employee-1",
+      employeename: "Bruno Mendoza Ruiz",
+      status_name: "TESORERIA",
+      status: "TESORERIA",
+      treasury_status_name: "PENDIENTE",
+      accounting_status_name: "PENDIENTE",
+      image_urls: ["https://files.example/request-1.png"],
+      date_created: "2026-07-30T12:00:00",
+    });
+  });
 });

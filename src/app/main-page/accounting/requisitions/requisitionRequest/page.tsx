@@ -8,6 +8,7 @@ import { PopUp } from "@/app/components/PopUp/PopUp";
 import { EditableViaticsTable } from "@/app/sharedComponents/EditableViaticsTable/EditableViaticsTable";
 
 import { TravelExpenseTableSection } from "./components/TravelExpenseTableSection/TravelExpenseTableSection";
+import { RequisitionEvidence } from "@/app/sharedComponents/RequisitionEvidence/RequisitionEvidence";
 import { useRequisitionRequestPage } from "./hooks/useRequisitionRequestPage";
 import { requisitionRequestStyles as styles } from "./styles";
 
@@ -44,6 +45,10 @@ const RequisitionRequestPage = () => {
     const detailTitleCode =
       selectedTravelExpense?.requisition_requests[0]?.requisition_code ||
       selectedTravelExpense?.requisitionkey;
+    const requisitionImageUrls = selectedTravelExpense?.requisition_requests[0]
+      ?.image_urls?.length
+      ? selectedTravelExpense.requisition_requests[0].image_urls
+      : selectedTravelExpense?.image_urls || [];
 
     return (
       <section className={styles.detailPage}>
@@ -78,6 +83,8 @@ const RequisitionRequestPage = () => {
               </Button>
             </div>
           </div>
+
+          <RequisitionEvidence imageUrls={requisitionImageUrls} />
 
           <section className={styles.detailCard}>
             {selectedTravelExpense ? (
@@ -151,7 +158,7 @@ const RequisitionRequestPage = () => {
     >
       <TravelExpenseTableSection
         rows={travelExpenses}
-        onRefresh={() => fetchRequisitionRequests(true)}
+        onRefresh={() => fetchRequisitionRequests()}
         onViewDetails={handleViewDetails}
         pagination={false}
       />

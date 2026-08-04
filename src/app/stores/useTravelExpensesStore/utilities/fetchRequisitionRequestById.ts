@@ -45,6 +45,9 @@ export const fetchRequisitionRequestById = async (
         ? {
             ...(record as Record<string, unknown>),
             ...(rawTravelExpense as Record<string, unknown>),
+            state:
+              (rawTravelExpense as Record<string, unknown>).state ??
+              (record as Record<string, unknown>).state,
             creditor_number:
               (record as Record<string, unknown>).creditor_number ??
               (rawTravelExpense as Record<string, unknown>).creditor_number,

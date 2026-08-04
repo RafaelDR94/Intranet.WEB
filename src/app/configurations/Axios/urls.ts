@@ -561,12 +561,28 @@ export const BillingRequisitionRequestSendAuthorization =
 export const BillingRequisitionRequest =
   process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST ??
   "/Billings/RequisitionRequest";
+export const BillingRequisitionRequestSaveProgress =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_SAVE_PROGRESS ??
+  "/Billings/RequisitionRequest/SaveProgress";
+export const BillingTravelExpensesRequisitionRequestResendAuthorization =
+  process.env
+    .NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_REQUISITION_REQUEST_RESEND_AUTHORIZATION ??
+  "/Billings/TravelExpenses/RequisitionRequest/ResendAuthorization";
+export const BillingRequisitionRequestAccountingApprove =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_ACCOUNTING_APPROVE ??
+  "/Billings/RequisitionRequests/Accounting/Approve";
+export const BillingRequisitionRequestAccountingReject =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_ACCOUNTING_REJECT ??
+  "/Billings/RequisitionRequests/Accounting/Reject";
 export const BillingRequisitionRequestFilter =
   process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_FILTER ??
   "/Billings/RequisitionRequestfilter";
 export const BillingRequisitionRequestById =
   process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_BY_ID ??
   "/Billings/RequisitionRequestById";
+export const BillingRequisitionRequestImages =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_IMAGES ??
+  "/Billings/RequisitionRequests/TreasuryImages";
 export const BillingTravelExpensesCalculations =
   process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CALCULATIONS ??
   "/Billings/TravelExpensesCalculations";

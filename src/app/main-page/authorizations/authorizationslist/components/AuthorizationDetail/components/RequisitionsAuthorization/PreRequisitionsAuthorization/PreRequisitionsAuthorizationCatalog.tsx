@@ -337,8 +337,8 @@ const PreRequisitionsAuthorizationCatalog = () => {
     ...getPeopleNames(getPathValue(authorizationRaw, "companions")),
     ...getPeopleNames(getPathValue(authorizationRaw, "collaborators")),
   ].filter((name, index, names) => names.indexOf(name) === index);
-  const isPendingRequestStatus = normalizeStatusText(
-    authorizationDetail.state,
+  const isPendingAuthorizationStatus = normalizeStatusText(
+    statusOverride || authorization?.status?.name || "",
   ).includes("pend");
 
   useEffect(() => {
@@ -645,7 +645,7 @@ const PreRequisitionsAuthorizationCatalog = () => {
 
   const actionsDisabled =
     reviewFields.length === 0 ||
-    !isPendingRequestStatus ||
+    !isPendingAuthorizationStatus ||
     approvingTravelExpense ||
     rejectingTravelExpense ||
     updatingStatus;

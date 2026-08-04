@@ -2,9 +2,9 @@
 
 import type { AxiosResponse } from "axios";
 
-import type { Get, Set } from "../types";
+import type { Set } from "../types";
 
-import { BillingRequisitionRequestFilter } from "@/app/configurations/Axios/urls";
+import { BillingRequisitionRequest } from "@/app/configurations/Axios/urls";
 import { TravelExpenseMap } from "@/app/mappings/travelExpenses/travelExpenses.mapper";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pGet } from "@/app/utilities/Http/promisifyIntranet";
@@ -29,6 +29,9 @@ const mapRequisitionRequestRow = (raw: unknown) => {
     status_id: record.id_status,
     status_name: record.status_name,
     status: record.status_name,
+    treasury_status_name: record.treasury_status_name,
+    accounting_status_name: record.accounting_status_name,
+    image_urls: record.image_urls,
     date_created: record.date_created,
     requisition_requests: [
       {
@@ -36,6 +39,9 @@ const mapRequisitionRequestRow = (raw: unknown) => {
         requisition_code: record.requisition_code,
         id_status: record.id_status,
         status_name: record.status_name,
+        treasury_status_name: record.treasury_status_name,
+        accounting_status_name: record.accounting_status_name,
+        image_urls: record.image_urls,
         date_created: record.date_created,
         is_active: true,
       },
@@ -44,19 +50,13 @@ const mapRequisitionRequestRow = (raw: unknown) => {
 };
 
 /**
- * Fetches pending requisition requests for the accounting requisition table.
+ * Fetches requisition requests assigned to the accounting review table.
  *
  * @param set Zustand setter.
- * @param get Zustand getter.
- * @param force Forces a new request even when data is already loaded.
  */
 export const fetchRequisitionRequests = async (
   set: Set,
-  get: Get,
-  force = false,
 ) => {
-  if (get().travelExpenses.length > 0 && !force) return;
-
   set({
     loading: true,
     error: undefined,
@@ -66,9 +66,9 @@ export const fetchRequisitionRequests = async (
 
   try {
     const getReq = pGet(requireGateway("get"));
-    const params = new URLSearchParams({ aprovee: "true" });
+    const params = new URLSearchParams({ department: "CONTABILIDAD" });
     const res: AxiosResponse = await getReq(
-      `${BillingRequisitionRequestFilter}?${params.toString()}`,
+      `${BillingRequisitionRequest}?${params.toString()}`,
     );
     const rows = Array.isArray(res.data?.data) ? res.data.data : [];
     const mapped = rows.map(mapRequisitionRequestRow);

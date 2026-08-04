@@ -32,6 +32,7 @@ import {
   cloneEmptyViaticsRows,
   getDefaultRequisitionProgressValues,
   getBeneficiaryAssociationsFromProgress,
+  getAvailableAssignedStaffOptions,
   getAvailableCompanionOptions,
   getDetailStatusKind,
   getRequisitionProgressValuesFromProgress,
@@ -43,8 +44,10 @@ import {
   getVisibleTravelExpenseBeneficiaries,
   getViaticsRowsByBeneficiaryFromProgress,
   isBlockedRequisitionActionStatus,
+  hasDuplicateAssignedStaff,
   isNoIniciadaTravelExpenseStatus,
   isDraftStatus,
+  isSentTravelExpenseStatus,
   isTravelExpenseReadyForAuthorization,
   normalizeStatusType,
   sanitizeBeneficiaryAssociations,
@@ -114,11 +117,19 @@ const requisitionSummaryLayout: ResponsiveLayoutMatrix = {
 /**
  * Encapsulates TravelExpenseRequest store wiring, state and event handlers.
  */
-export const useTravelExpenseRequest = () => {
+type TravelExpenseRequestOptions = {
+  requisitionRequestId?: string;
+  selectedTravelExpenseOverride?: TravelExpense;
+  viewOverride?: string;
+};
+
+export const useTravelExpenseRequest = (
+  options: TravelExpenseRequestOptions = {},
+) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const view = searchParams.get("view");
+  const view = options.viewOverride ?? searchParams.get("view");
   const selectedId = searchParams.get("id");
   const submitRef = useRef<(() => void | Promise<unknown>) | null>(null);
   const [formReady, setFormReady] = useState(false);
@@ -177,8 +188,14 @@ export const useTravelExpenseRequest = () => {
   const saveTravelExpenseProgress = useTravelExpensesStore(
     (state) => state.saveTravelExpenseProgress,
   );
+  const saveRequisitionRequestProgress = useTravelExpensesStore(
+    (state) => state.saveRequisitionRequestProgress,
+  );
   const sendTravelExpenseAuthorization = useTravelExpensesStore(
     (state) => state.sendTravelExpenseAuthorization,
+  );
+  const resendRequisitionRequestAuthorization = useTravelExpensesStore(
+    (state) => state.resendRequisitionRequestAuthorization,
   );
   const employees = useEmployeesStore((state) => state.employees);
   const employeesError = useEmployeesStore((state) => state.error);
@@ -265,7 +282,8 @@ export const useTravelExpenseRequest = () => {
 
   const selectedTravelExpense = useMemo(
     () =>
-      selectedId
+      options.selectedTravelExpenseOverride ??
+      (selectedId
         ? travelExpenses.find(
             (item) =>
               getTravelExpenseIdentifier(item) === selectedId ||
@@ -273,8 +291,8 @@ export const useTravelExpenseRequest = () => {
               item.id === selectedId ||
               item.requisitionkey === selectedId,
           )
-        : undefined,
-    [selectedId, travelExpenses],
+        : undefined),
+    [options.selectedTravelExpenseOverride, selectedId, travelExpenses],
   );
   const newTravelExpenses = useMemo(
     () => getNewTravelExpenseRequests(travelExpenses),
@@ -535,7 +553,9 @@ export const useTravelExpenseRequest = () => {
               type: "input",
               name: "projectCode",
               label: "Codigo de proyecto",
-              value: selectedTravelExpense.projectname,
+              value:
+                selectedTravelExpense.proyectkey ||
+                selectedTravelExpense.projectname,
               disabled: true,
             },
             {
@@ -728,6 +748,22 @@ export const useTravelExpenseRequest = () => {
       })),
     [proyects],
   );
+  const selectedAssignedStaffIds = useMemo(
+    () =>
+      Array.from({ length: assignedStaffRows }, (_, index) => {
+        const suffix = index === 0 ? "" : String(index + 1);
+
+        return toFormString(formValues[`assignedStaff${suffix}`]);
+      }).filter(Boolean),
+    [assignedStaffRows, formValues],
+  );
+  const canAddAssignedStaff = useMemo(
+    () =>
+      employeeOptions.some(
+        (option) => !selectedAssignedStaffIds.includes(option.value),
+      ),
+    [employeeOptions, selectedAssignedStaffIds],
+  );
   const handleRemoveAssignedStaff = (rowIndex: number) => {
     if (rowIndex === 0) return;
 
@@ -771,9 +807,15 @@ export const useTravelExpenseRequest = () => {
         const assignedStaffName = `assignedStaff${suffix}`;
         const phoneName = `phone${suffix}`;
         const cardNumberName = `cardNumber${suffix}`;
-        const isStaffSelected = Boolean(formValues[assignedStaffName]);
-        const options =
+        const currentEmployeeId = toFormString(formValues[assignedStaffName]);
+        const isStaffSelected = Boolean(currentEmployeeId);
+        const staffOptions =
           index === 0 ? employeeWithCardNumberOptions : employeeOptions;
+        const options = getAvailableAssignedStaffOptions(
+          staffOptions,
+          selectedAssignedStaffIds,
+          currentEmployeeId,
+        );
 
         return [
           {
@@ -811,6 +853,7 @@ export const useTravelExpenseRequest = () => {
       employeeOptions,
       employeeWithCardNumberOptions,
       formValues,
+      selectedAssignedStaffIds,
     ],
   );
   const createFields = useMemo<FieldModel[]>(
@@ -926,6 +969,8 @@ export const useTravelExpenseRequest = () => {
   );
 
   const handleAddAssignedStaff = () => {
+    if (!canAddAssignedStaff) return;
+
     setAssignedStaffRows((currentRows) => currentRows + 1);
     setValuesVersion((currentVersion) => currentVersion + 1);
   };
@@ -1059,6 +1104,27 @@ export const useTravelExpenseRequest = () => {
         getBeneficiaryRowsForSave(),
       )
     : false;
+  const saveCurrentRequisitionProgress = async () => {
+    if (!selectedTravelExpense) return false;
+
+    const payload = buildSaveProgressPayload(
+      selectedTravelExpense,
+      requisitionBeneficiaries,
+      visibleRequisitionBeneficiaries,
+      normalizedBeneficiaryAssociations,
+      requisitionValuesByBeneficiary,
+      getBeneficiaryRowsForSave(),
+    );
+
+    if (options.requisitionRequestId) {
+      return saveRequisitionRequestProgress({
+        id_billing_requisition_request: options.requisitionRequestId,
+        progress_items: payload.progress_items,
+      });
+    }
+
+    return Boolean(await saveTravelExpenseProgress(payload));
+  };
   const handleApproveTravelExpense = async () => {
     const idTravelExpense = getSelectedTravelExpenseId();
     if (!idTravelExpense || !selectedTravelExpense) return;
@@ -1088,17 +1154,7 @@ export const useTravelExpenseRequest = () => {
     if (!idTravelExpense) return;
 
     showSpinner({ message: "Guardando avance de la requisicion..." });
-    const beneficiaryRows = getBeneficiaryRowsForSave();
-    const updated = await saveTravelExpenseProgress(
-      buildSaveProgressPayload(
-        selectedTravelExpense,
-        requisitionBeneficiaries,
-        visibleRequisitionBeneficiaries,
-        normalizedBeneficiaryAssociations,
-        requisitionValuesByBeneficiary,
-        beneficiaryRows,
-      ),
-    );
+    const updated = await saveCurrentRequisitionProgress();
     hideSpinner();
 
     if (!updated) {
@@ -1140,10 +1196,9 @@ export const useTravelExpenseRequest = () => {
   const handleConfirmAuthorizer = async () => {
     if (!selectedTravelExpense) return;
 
-    const travelExpenseToSend = selectedTravelExpense;
     const idTravelExpense = getSelectedTravelExpenseId();
 
-    if (!idTravelExpense) {
+    if (!options.requisitionRequestId && !idTravelExpense) {
       showAlert({
         type: "error",
         title: "No se pudo enviar",
@@ -1162,17 +1217,7 @@ export const useTravelExpenseRequest = () => {
     }
 
     showSpinner({ message: "Enviando requisicion a autorizacion..." });
-    const beneficiaryRows = getBeneficiaryRowsForSave();
-    const progressSaved = await saveTravelExpenseProgress(
-      buildSaveProgressPayload(
-        travelExpenseToSend,
-        requisitionBeneficiaries,
-        visibleRequisitionBeneficiaries,
-        normalizedBeneficiaryAssociations,
-        requisitionValuesByBeneficiary,
-        beneficiaryRows,
-      ),
-    );
+    const progressSaved = await saveCurrentRequisitionProgress();
 
     if (!progressSaved) {
       hideSpinner();
@@ -1189,10 +1234,15 @@ export const useTravelExpenseRequest = () => {
       return;
     }
 
-    const success = await sendTravelExpenseAuthorization(
-      idTravelExpense,
-      authorizerSelected,
-    );
+    const success = options.requisitionRequestId
+      ? await resendRequisitionRequestAuthorization({
+          id_billing_requisition_request: options.requisitionRequestId,
+          id_authorizer: authorizerSelected,
+        })
+      : await sendTravelExpenseAuthorization(
+          idTravelExpense,
+          authorizerSelected,
+        );
     hideSpinner();
 
     if (!success) {
@@ -1281,12 +1331,9 @@ export const useTravelExpenseRequest = () => {
         };
       },
     ).filter((assignee) => Boolean(assignee.employeeId));
-    const employeeIds = selectedAssignees
-      .map((assignee) => assignee.employeeId)
-      .filter(
-        (employeeId, index, employeeList) =>
-          employeeList.indexOf(employeeId) === index,
-      );
+    const employeeIds = selectedAssignees.map(
+      (assignee) => assignee.employeeId,
+    );
 
     if (!applicantId) {
       showAlert({
@@ -1305,6 +1352,18 @@ export const useTravelExpenseRequest = () => {
         type: "error",
         title: "No se pudo crear",
         description: "Selecciona al menos un empleado asignado.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2500,
+      });
+      return;
+    }
+
+    if (hasDuplicateAssignedStaff(employeeIds)) {
+      showAlert({
+        type: "error",
+        title: "No se pudo crear",
+        description: "Un empleado solo puede asignarse una vez.",
         showPrimaryButton: false,
         showSecondaryButton: false,
         autoCloseMs: 2500,
@@ -1546,6 +1605,13 @@ export const useTravelExpenseRequest = () => {
       ...currentRows,
       [beneficiaryId]: rows,
     }));
+
+    // The standalone requisition editor always updates beneficiary rows. Keep
+    // the single-beneficiary source in sync because the legacy view saves it
+    // through `viaticsRows`.
+    if (!hasCompanions) {
+      setViaticsRows(rows);
+    }
   };
   const handleToggleBeneficiary = (beneficiaryId: string) => {
     setActiveBeneficiaryId((currentId) =>
@@ -1564,6 +1630,10 @@ export const useTravelExpenseRequest = () => {
     view === "detail" &&
     (!selectedTravelExpense ||
       isNoIniciadaTravelExpenseStatus(selectedTravelExpense));
+  const isReadOnlyDetailView =
+    view === "detail" &&
+    Boolean(selectedTravelExpense) &&
+    isSentTravelExpenseStatus(selectedTravelExpense?.status);
   const isRequisitionView =
     view === "requisition" ||
     (view === "detail" &&
@@ -1579,6 +1649,7 @@ export const useTravelExpenseRequest = () => {
     authorizerPopUpOpen,
     authorizerSelected,
     buildRequisitionFields,
+    canAddAssignedStaff,
     createFields,
     createFormLayout,
     creatingTravelExpense,
@@ -1611,6 +1682,7 @@ export const useTravelExpenseRequest = () => {
     handleViewDetails,
     hasCompanions,
     isReviewView,
+    isReadOnlyDetailView,
     isRequisitionView,
     loadingTravelExpenses,
     loadingEmployeesWithCardNumber,
