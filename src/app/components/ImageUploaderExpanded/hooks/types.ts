@@ -1,11 +1,12 @@
-import type { DragEvent, RefObject } from 'react';
+import type { DragEvent, RefObject } from "react";
 
-import { InitialFile } from '@/app/components/FileUploader/types';
-import { SelectedImage } from '../types';
-import { UseFileUploaderExpandedReturn } from '@/app/components/FileUploaderexpanded/hooks/types';
+import { InitialFile } from "@/app/components/FileUploader/types";
+import { SelectedImage } from "../types";
+import { UseFileUploaderExpandedReturn } from "@/app/components/FileUploaderexpanded/hooks/types";
 
 export interface UseImageUploaderExpandedParams {
   onImage: (file: File | SelectedImage[] | null) => void;
+  onImagesChange?: (images: SelectedImage[]) => void;
   accept?: string;
   disabled?: boolean;
   placeholder?: string;
@@ -15,8 +16,8 @@ export interface UseImageUploaderExpandedParams {
 }
 
 export interface UseImageUploaderExpandedReturn
-  extends Omit<UseFileUploaderExpandedReturn, 'mainText'> {
-  containerRef: RefObject<HTMLDivElement | null>
+  extends Omit<UseFileUploaderExpandedReturn, "mainText"> {
+  containerRef: RefObject<HTMLDivElement | null>;
   displayText: string;
   isCameraOpen: boolean;
   openCamera: () => void;
@@ -27,7 +28,13 @@ export interface UseImageUploaderExpandedReturn
   clearImages?: () => void;
   draggingId?: string | null;
   handleImageDragStart?: (id: string) => void;
-  handleImageDragOverGallery?: (event: DragEvent<HTMLLabelElement>, id: string) => void;
-  handleImageDropGallery?: (event: DragEvent<HTMLLabelElement>, id: string) => void;
+  handleImageDragOverGallery?: (
+    event: DragEvent<HTMLLabelElement>,
+    id: string,
+  ) => void;
+  handleImageDropGallery?: (
+    event: DragEvent<HTMLLabelElement>,
+    id: string,
+  ) => void;
   handleImageDragEnd?: () => void;
 }

@@ -5,6 +5,7 @@ export default function TreasuryPage() {
     <PermissionRedirect
       routes={[
         '/main-page/treasury/treasurypettycash',
+        '/main-page/treasury/requisitions',
       ]}
     />
   );

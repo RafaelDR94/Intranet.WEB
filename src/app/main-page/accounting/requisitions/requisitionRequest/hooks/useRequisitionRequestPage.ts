@@ -171,15 +171,12 @@ export const useRequisitionRequestPage = () => {
   const fetchEmployeesWithActiveUser = useUsersStore(
     (state) => state.fetchEmployeesWithActiveUser,
   );
-  const updateEmployeeDataSAP = useUsersStore(
-    (state) => state.updateEmployeeDataSAP,
-  );
   const proyects = useProyectsStore((state) => state.proyects);
   const proyectsLoading = useProyectsStore((state) => state.loading);
   const fetchProyects = useProyectsStore((state) => state.fetchProyects);
 
   useEffect(() => {
-    fetchRequisitionRequests(true);
+    fetchRequisitionRequests();
     fetchEnterprises();
     fetchDepartments();
     fetchEmployeesWithActiveUser(true);
@@ -727,68 +724,9 @@ export const useRequisitionRequestPage = () => {
     const idRequisitionRequest = getSelectedRequisitionRequestId();
     if (!idRequisitionRequest || !selectedTravelExpense) return;
 
-    const creditorNumber = (
-      selectedTravelExpense.creditor_number.trim() || sapValues.creditor_number
-    ).trim();
-    const clientCode = (
-      selectedTravelExpense.client_code.trim() || sapValues.client_code
-    ).trim();
-    const shouldUpdateSAPData =
-      !selectedTravelExpense.creditor_number.trim() ||
-      !selectedTravelExpense.client_code.trim();
-
-    if (shouldUpdateSAPData && (!creditorNumber || !clientCode)) {
-      showAlert({
-        type: "error",
-        title: "Completa los codigos SAP",
-        description:
-          "Captura el codigo de deudor y el codigo de cliente antes de aprobar.",
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 2500,
-      });
-      return;
-    }
-
-    if (shouldUpdateSAPData && !selectedTravelExpense.employee_id) {
-      showAlert({
-        type: "error",
-        title: "No se pudo actualizar SAP",
-        description:
-          "No se encontro el empleado asociado para guardar los codigos SAP.",
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        autoCloseMs: 2500,
-      });
-      return;
-    }
-
     showSpinner({
       message: "Espera un momento, tu accion esta siendo procesada",
     });
-
-    if (shouldUpdateSAPData) {
-      const sapUpdated = await updateEmployeeDataSAP({
-        idEmployee: selectedTravelExpense.employee_id,
-        creditor_number: creditorNumber,
-        code: clientCode,
-      });
-
-      if (!sapUpdated) {
-        hideSpinner();
-        showAlert({
-          type: "error",
-          title: "No se pudo actualizar SAP",
-          description:
-            useUsersStore.getState().error ||
-            "Hubo un problema al guardar los codigos SAP.",
-          showPrimaryButton: false,
-          showSecondaryButton: false,
-          autoCloseMs: 2500,
-        });
-        return;
-      }
-    }
 
     const success =
       await approveRequisitionRequestThroughAccounting(idRequisitionRequest);
@@ -800,6 +738,7 @@ export const useRequisitionRequestPage = () => {
     }
 
     await fetchRequisitionRequestById(idRequisitionRequest);
+    await fetchRequisitionRequests();
     showAlert({
       type: "success",
       title: "Solicitud aprobada",
@@ -952,6 +891,7 @@ export const useRequisitionRequestPage = () => {
     }
 
     await fetchRequisitionRequestById(idRequisitionRequest);
+    await fetchRequisitionRequests();
     handleRejectCommentCancel();
     showAlert({
       type: "success",
@@ -1060,19 +1000,17 @@ export const useRequisitionRequestPage = () => {
     view === "detail" &&
     selectedTravelExpense &&
     isDraftStatus(selectedTravelExpense.status);
-  const sapCodesComplete = Boolean(
+  const isAccountingActionReady = Boolean(
     selectedTravelExpense &&
-      (selectedTravelExpense.creditor_number.trim() ||
-        sapValues.creditor_number.trim()) &&
-      (selectedTravelExpense.client_code.trim() ||
-        sapValues.client_code.trim()),
+      selectedTravelExpense.status_name === "CONTABILIDAD" &&
+      selectedTravelExpense.treasury_status_name === "APROBADA",
   );
   const requestActionsDisabled =
     !selectedTravelExpense ||
-    selectedTravelExpense.is_approved_by_accounting ||
+    !isAccountingActionReady ||
     approvingTravelExpense ||
     rejectingTravelExpense;
-  const approveActionDisabled = requestActionsDisabled || !sapCodesComplete;
+  const approveActionDisabled = requestActionsDisabled;
 
   return {
     activeBeneficiaryId,

@@ -6,6 +6,7 @@ export default function ExpenseRequisitions() {
       routes={[
         '/main-page/operations/expenserequisitions/beneficiaryhistory',
         '/main-page/operations/expenserequisitions/travelexpenserequest',
+        '/main-page/operations/expenserequisitions/solicitudviaticos',
       ]}
     />
   );

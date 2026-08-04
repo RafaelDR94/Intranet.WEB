@@ -11,7 +11,7 @@ vi.mock("./hooks/useTravelExpenseRequest", () => ({
 }));
 
 vi.mock("@/app/components/Button/Button", () => ({
-  Button: ({ children, hideIcon, dataTestId, ...props }: any) => (
+  Button: ({ children, hideIcon, icon, dataTestId, ...props }: any) => (
     <button {...props} data-testid={dataTestId}>
       {children}
     </button>
@@ -19,7 +19,7 @@ vi.mock("@/app/components/Button/Button", () => ({
 }));
 
 vi.mock("@/app/components/DynamicForm/DynamicForm", () => ({
-  default: ({ fields, dataTestId }: any) => (
+  default: ({ children, fields, dataTestId }: any) => (
     <div data-testid={dataTestId}>
       {fields.map((field: any) => (
         <div key={field.name}>
@@ -27,6 +27,7 @@ vi.mock("@/app/components/DynamicForm/DynamicForm", () => ({
           <span>{field.type}</span>
         </div>
       ))}
+      {children}
     </div>
   ),
 }));
@@ -107,6 +108,7 @@ const baseHookReturn = {
   authorizerPopUpOpen: false,
   authorizerSelected: "",
   buildRequisitionFields: () => [],
+  canAddAssignedStaff: true,
   createFields: [],
   createFormLayout: {},
   creatingTravelExpense: false,
@@ -138,6 +140,7 @@ const baseHookReturn = {
   handleViewDetails: vi.fn(),
   hasCompanions: true,
   isReviewView: false,
+  isReadOnlyDetailView: false,
   isRequisitionView: true,
   loadingTravelExpenses: false,
   proyectsLoading: false,
@@ -194,6 +197,20 @@ describe("TravelExpenseRequest page", () => {
     ).toBeDisabled();
   });
 
+  it("disables adding staff when no eligible employee remains", () => {
+    mockUseTravelExpenseRequest.mockReturnValue({
+      ...baseHookReturn,
+      view: "create",
+      canAddAssignedStaff: false,
+    });
+
+    render(<TravelExpenseRequest />);
+
+    expect(
+      screen.getByRole("button", { name: "Agregar personal" }),
+    ).toBeDisabled();
+  });
+
   it("renders companion assigned staff and phone inputs in review mode", () => {
     mockUseTravelExpenseRequest.mockReturnValue({
       ...baseHookReturn,
@@ -233,6 +250,30 @@ describe("TravelExpenseRequest page", () => {
     expect(screen.getAllByText("Personal asignado")).toHaveLength(2);
     expect(screen.getAllByText("Teléfono")).toHaveLength(2);
     expect(screen.getAllByText("input")).toHaveLength(4);
+  });
+
+  it("shows sent requests in read-only detail mode without approval actions", () => {
+    mockUseTravelExpenseRequest.mockReturnValue({
+      ...baseHookReturn,
+      isReviewView: false,
+      isReadOnlyDetailView: true,
+      isRequisitionView: false,
+      reviewFields: [
+        {
+          type: "input",
+          name: "requester",
+          label: "Solicitante",
+          value: "Angel Vazquez",
+        },
+      ],
+      selectedTravelExpense: { status: "Enviada" },
+    });
+
+    render(<TravelExpenseRequest />);
+
+    expect(screen.getByText("Solicitante")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Aceptar" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Rechazar" })).toBeNull();
   });
 
   it("renders the multiselect field in requisition mode when companions exist", () => {

@@ -9,6 +9,7 @@ import {
   applyBeneficiaryAssociationSelection,
   buildSaveProgressPayload,
   cloneEmptyViaticsRows,
+  getAvailableAssignedStaffOptions,
   getBeneficiaryAssociationsFromProgress,
   getAvailableCompanionOptions,
   getNewTravelExpenseRequests,
@@ -18,11 +19,14 @@ import {
   getVisibleTravelExpenseBeneficiaries,
   getViaticsRowsByBeneficiaryFromProgress,
   hasViaticsCalculationData,
+  hasDuplicateAssignedStaff,
   isBlockedRequisitionActionStatus,
   isNoIniciadaTravelExpenseStatus,
   isDraftStatus,
+  isSentTravelExpenseStatus,
   isRequisitionProgressComplete,
   isTravelExpenseReadyForAuthorization,
+  normalizeStatusType,
   sanitizeBeneficiaryAssociations,
 } from "./travelExpenseRequestHelpers";
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
@@ -90,6 +94,60 @@ const buildTravelExpense = (
   travel_expenses_calculations: [],
   is_approved_by_accounting: false,
   ...overrides,
+});
+
+describe("travelExpenseRequestHelpers status badges", () => {
+  it("uses the purple badge for TESORERIA", () => {
+    expect(normalizeStatusType("TESORERIA")).toBe("purple");
+  });
+
+  it("uses the green badge for ENVIADA", () => {
+    expect(normalizeStatusType("ENVIADA")).toBe("validado");
+  });
+
+  it("recognizes ENVIADA as a read-only status", () => {
+    expect(isSentTravelExpenseStatus("Enviada")).toBe(true);
+    expect(isSentTravelExpenseStatus("Borrador")).toBe(false);
+  });
+});
+
+describe("travelExpenseRequestHelpers assigned staff", () => {
+  const staffOptions = [
+    { label: "Angel Vazquez", value: "angel" },
+    { label: "Bruno Mendoza", value: "bruno" },
+    { label: "Carla Perez", value: "carla" },
+  ];
+
+  it("hides employees selected in other rows while preserving the current row", () => {
+    expect(
+      getAvailableAssignedStaffOptions(
+        staffOptions,
+        ["angel", "bruno"],
+        "bruno",
+      ),
+    ).toEqual([
+      { label: "Bruno Mendoza", value: "bruno" },
+      { label: "Carla Perez", value: "carla" },
+    ]);
+  });
+
+  it("restores an employee option when its assigned row is removed", () => {
+    expect(
+      getAvailableAssignedStaffOptions(staffOptions, ["angel"], ""),
+    ).toEqual([
+      { label: "Bruno Mendoza", value: "bruno" },
+      { label: "Carla Perez", value: "carla" },
+    ]);
+
+    expect(getAvailableAssignedStaffOptions(staffOptions, [], "")).toEqual(
+      staffOptions,
+    );
+  });
+
+  it("detects duplicate non-empty employee selections", () => {
+    expect(hasDuplicateAssignedStaff(["angel", "bruno", "angel"])).toBe(true);
+    expect(hasDuplicateAssignedStaff(["angel", "bruno", ""])).toBe(false);
+  });
 });
 
 describe("travelExpenseRequestHelpers associations", () => {

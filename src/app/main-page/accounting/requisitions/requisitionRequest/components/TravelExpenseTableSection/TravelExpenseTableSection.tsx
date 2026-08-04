@@ -3,8 +3,10 @@ import { useMemo } from "react";
 import { Button } from "@/app/components/Button/Button";
 import { DataTable } from "@/app/components/DataTable/DataTable";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
+import { Label } from "@/app/components/Label/Label";
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
 
+import { normalizeStatusType } from "../../../../../operations/expenserequisitions/travelexpenserequest/utilities/travelExpenseRequestHelpers";
 import { requisitionRequestStyles as styles } from "../../styles";
 import type { TravelExpenseTableSectionProps } from "../../types";
 
@@ -48,6 +50,19 @@ export const TravelExpenseTableSection = ({
         cellClass: `flex-[0.9] ${styles.tableCellText}`,
       },
       {
+        key: "accounting_status_name",
+        label: "ESTATUS",
+        render: (row) => (
+          <Label
+            type={normalizeStatusType(row.accounting_status_name ?? "")}
+            text={row.accounting_status_name || "Pendiente"}
+            className="min-w-[78px]"
+          />
+        ),
+        headerClass: "flex-[1] justify-center",
+        cellClass: "flex-[1] justify-center",
+      },
+      {
         key: "id",
         label: "",
         sortable: false,
@@ -85,7 +100,7 @@ export const TravelExpenseTableSection = ({
         "area",
         "employeename",
         "projectname",
-        "status",
+        "accounting_status_name",
       ]}
       rowsPerPage={5}
       tables={[
