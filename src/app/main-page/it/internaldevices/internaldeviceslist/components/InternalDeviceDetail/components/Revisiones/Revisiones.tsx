@@ -3,6 +3,7 @@
 import React from 'react'
 
 import { Button } from '@/app/components/Button/Button'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import type { InternalDeviceReview } from '@/app/mappings/internaldevices/internaldevices.types'
 import HammerIcon from '@/assets/icons/tools/tools/hammer.svg'
 
@@ -26,11 +27,12 @@ const Revisiones: React.FC<InternalDeviceReviewsProps> = ({
   reviews,
   onCreateReview,
 }) => {
+  const { currentPagePermissions } = useAuth()
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h3 className="text-label text-blue-60 uppercase tracking-wide">Historial</h3>
-        <Button
+        {currentPagePermissions?.createDeviceReview && <Button
           size="small"
           variant="ghost"
           icon={HammerIcon}
@@ -38,7 +40,7 @@ const Revisiones: React.FC<InternalDeviceReviewsProps> = ({
           onClick={onCreateReview}
         >
           Nueva revision
-        </Button>
+        </Button>}
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-20 bg-white-100 shadow-sm">

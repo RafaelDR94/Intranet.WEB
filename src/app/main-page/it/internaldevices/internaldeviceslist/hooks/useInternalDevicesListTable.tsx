@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import ActionMenuCell from '@/app/components/ActionMenuCell/ActionMenuCell'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
 import type {
   ColumnDefinition,
@@ -56,6 +57,7 @@ const useInternalDevicesListTable = ({
   onOpenDetails,
   onDeleteDevice,
 }: UseInternalDevicesListTableParams): UseInternalDevicesListTableResult => {
+  const { currentPagePermissions } = useAuth()
   const isMobile = useIsMobile()
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(
     DEFAULT_STATUS_FILTER,
@@ -166,13 +168,13 @@ const useInternalDevicesListTable = ({
               editLabel="Ver detalle"
               onDetails={() => onOpenDetails(row)}
               onDelete={() => onDeleteDevice(row)}
-              permissions={{ details: true, delete: true }}
+              permissions={{ details: Boolean(currentPagePermissions?.viewDeviceDetails), delete: Boolean(currentPagePermissions?.deleteDevice) }}
             />
           </div>
         ),
       },
     ],
-    [onDeleteDevice, onOpenDetails],
+    [currentPagePermissions?.deleteDevice, currentPagePermissions?.viewDeviceDetails, onDeleteDevice, onOpenDetails],
   )
 
   const columnsMobile = useMemo<ColumnDefinition<InternalDeviceRow>[]>(
@@ -201,13 +203,13 @@ const useInternalDevicesListTable = ({
               editLabel="Ver detalle"
               onDetails={() => onOpenDetails(row)}
               onDelete={() => onDeleteDevice(row)}
-              permissions={{ details: true, delete: true }}
+              permissions={{ details: Boolean(currentPagePermissions?.viewDeviceDetails), delete: Boolean(currentPagePermissions?.deleteDevice) }}
             />
           </div>
         ),
       },
     ],
-    [onDeleteDevice, onOpenDetails],
+    [currentPagePermissions?.deleteDevice, currentPagePermissions?.viewDeviceDetails, onDeleteDevice, onOpenDetails],
   )
 
   const columns = isMobile ? columnsMobile : columnsDesktop

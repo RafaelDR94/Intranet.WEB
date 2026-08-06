@@ -9,6 +9,7 @@ import type { FieldModel } from '@/app/components/DynamicForm/types'
 import type { InitialFile } from '@/app/components/FileUploader/types'
 import ImageUploaderExpanded from '@/app/components/ImageUploaderExpanded/ImageUploaderExpanded'
 import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore'
 import { useUsersStore } from '@/app/stores/useUsersStore/useUsersStore'
@@ -20,6 +21,7 @@ type UpdateUserTabProps = {
 }
 
 const UpdateUserTab: React.FC<UpdateUserTabProps> = ({ user }) => {
+  const { currentPagePermissions } = useAuth()
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal()
   const { showAlert } = usePrincipalAlert
   const { showSpinner, hideSpinner } = usePrincipalLoading
@@ -154,6 +156,7 @@ const UpdateUserTab: React.FC<UpdateUserTabProps> = ({ user }) => {
   )
 
   const handleSubmit = async (values: Record<string, any>) => {
+    if (!currentPagePermissions?.updateUser) return
     if (!user.userId) {
       showAlert({
         type: 'warning',

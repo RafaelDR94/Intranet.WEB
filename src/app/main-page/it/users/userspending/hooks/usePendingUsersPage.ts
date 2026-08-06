@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { shallow } from 'zustand/shallow'
 
 import { useFirebase } from '@/app/context/FirebaseContext/FirebaseContext'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import useQuery from '@/app/hooks/useQuery/useQuery'
 import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore'
@@ -69,6 +70,7 @@ const getImageUrl = (value: unknown): string | null => {
 }
 
 const usePendingUsersPage = () => {
+  const { currentPagePermissions } = useAuth()
   const { all, updateQuery } = useQuery()
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal()
   const { firebasestorage } = useFirebase()
@@ -292,10 +294,12 @@ const usePendingUsersPage = () => {
 
   const handleOpenActivation = useCallback(
     async (row: PendingUserRow) => {
+      if (!currentPagePermissions?.activateUser && !currentPagePermissions?.reactivateUser) return
       const employee = await fetchEmployeeById(row.id, true)
       const existingUser = employee?.user
 
       if (existingUser?.user_id) {
+        if (!currentPagePermissions?.reactivateUser) return
         setReactivationPromptUser({
           employeeId: row.id,
           userId: existingUser.user_id,
@@ -308,7 +312,7 @@ const usePendingUsersPage = () => {
         label: 'Activar Empleado',
       })
     },
-    [fetchEmployeeById, updateQuery],
+    [currentPagePermissions?.activateUser, currentPagePermissions?.reactivateUser, fetchEmployeeById, updateQuery],
   )
 
   const handleCloseActivation = useCallback(() => {
@@ -361,6 +365,7 @@ const usePendingUsersPage = () => {
   ])
 
   const handleConfirmReactivation = useCallback(async () => {
+    if (!currentPagePermissions?.reactivateUser) return
     if (!reactivationPromptUser?.userId) {
       handleCloseReactivationPrompt()
       return
@@ -401,6 +406,7 @@ const usePendingUsersPage = () => {
       autoCloseMs: 1800,
     })
   }, [
+    currentPagePermissions?.reactivateUser,
     fetchEmployeesWithActiveUser,
     fetchEmployeesWithoutActiveUser,
     handleCloseReactivationPrompt,
@@ -411,6 +417,7 @@ const usePendingUsersPage = () => {
 
   const handleActivateUser = useCallback(
     async (payload: PendingUserActivationPayload) => {
+      if (!currentPagePermissions?.activateUser) return
       if (!selectedUser) {
         showAlert({
           type: 'warning',
@@ -530,6 +537,7 @@ const usePendingUsersPage = () => {
       }
     },
     [
+      currentPagePermissions?.activateUser,
       createUser,
       fetchEmployeesWithActiveUser,
       fetchEmployeesWithoutActiveUser,

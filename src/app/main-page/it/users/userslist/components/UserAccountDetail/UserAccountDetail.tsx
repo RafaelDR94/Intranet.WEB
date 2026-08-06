@@ -7,6 +7,7 @@ import ButtonsNavigation from '@/app/components/ButtonsNavigation/ButtonsNavigat
 import DetailsPanelLayout from '@/app/components/DetailsPanelLayout/DetailsPanelLayout'
 import { PopUp } from '@/app/components/PopUp/PopUp'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { useUsersStore } from '@/app/stores/useUsersStore/useUsersStore'
 
 import type { UserAccountDetailData } from '../../types'
@@ -27,6 +28,7 @@ const UserAccountDetail: React.FC<UserAccountDetailProps> = ({
   onClose,
   user,
 }) => {
+  const { currentPagePermissions } = useAuth()
   const { usePrincipalAlert } = usePrincipal()
   const { showAlert } = usePrincipalAlert
   const [activeSection, setActiveSection] =
@@ -62,6 +64,7 @@ const UserAccountDetail: React.FC<UserAccountDetailProps> = ({
   }
 
   const handleConfirmDeactivate = async () => {
+    if (!currentPagePermissions?.deactivateUser) return
     if (!user?.userId || togglingActive) return
 
     const ok = await toggleActive({
@@ -138,13 +141,13 @@ const UserAccountDetail: React.FC<UserAccountDetailProps> = ({
                   />
                 }
               />
-              <ButtonsNavigation.Item
+              {currentPagePermissions?.updateUser && <ButtonsNavigation.Item
                 id="update-user"
                 label="Actualizar Usuario"
                 className="h-[24px] rounded-[8px] px-4 py-[6px]"
                 renderContent={<UpdateUserTab user={user} />}
-              />
-              {activeSection !== 'update-user' && (
+              />}
+              {currentPagePermissions?.deactivateUser && activeSection !== 'update-user' && (
                 <ButtonsNavigation.Item
                   id="deactivate-user"
                   label="Desactivar Usuario"

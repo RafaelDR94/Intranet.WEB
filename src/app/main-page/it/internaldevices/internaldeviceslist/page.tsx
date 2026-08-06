@@ -2,6 +2,7 @@
 
 import { Button } from '@/app/components/Button/Button'
 import { DataTable } from '@/app/components/DataTable/DataTable'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import useTutorialAutoRun from '@/tutorials/engine/useTutorialAutoRun'
 
 import InternalDeviceDetail from './components/InternalDeviceDetail/InternalDeviceDetail'
@@ -12,6 +13,7 @@ import useInternalDevicesListTable from './hooks/useInternalDevicesListTable'
 import type { InternalDeviceRow } from './types'
 
 const InternalDevicesListPage = () => {
+  const { currentPagePermissions } = useAuth()
   const {
     devices,
     openDetails,
@@ -88,7 +90,7 @@ const InternalDevicesListPage = () => {
             searchDataTour="internaldevices-list-search"
             calendarDataTour="internaldevices-list-calendar"
             refreshDataTour="internaldevices-list-refresh"
-            rightContent={
+            rightContent={currentPagePermissions?.createDevice ? (
               <Button
                 hideIcon
                 onClick={handleCreateDevice}
@@ -96,7 +98,7 @@ const InternalDevicesListPage = () => {
               >
                 Nuevo Dispositivo
               </Button>
-            }
+            ) : null}
           />
         </div>
       )}

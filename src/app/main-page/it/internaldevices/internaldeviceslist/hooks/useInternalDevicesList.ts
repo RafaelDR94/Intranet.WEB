@@ -11,7 +11,7 @@ import { useInternalDevicesStore } from "@/app/stores/useInternalDevicesStore/us
 
 const useInternalDevicesList = () => {
   const { all, updateQuery } = useQuery();
-  const { user } = useAuth();
+  const { user, currentPagePermissions } = useAuth();
   const forced = Boolean(all.force);
   const normalizedId = useMemo(() => {
     const raw = all.id;
@@ -247,9 +247,10 @@ const useInternalDevicesList = () => {
 
   const handleOpenDetails = useCallback(
     (deviceRow: InternalDevice) => {
+      if (!currentPagePermissions?.viewDeviceDetails) return;
       updateQuery({ id: deviceRow.device_id, view: null });
     },
-    [updateQuery],
+    [currentPagePermissions?.viewDeviceDetails, updateQuery],
   );
 
   const handleCloseDetails = useCallback(() => {
@@ -258,6 +259,7 @@ const useInternalDevicesList = () => {
 
   const handleDeleteDevice = useCallback(
     async (deviceRow: InternalDevice) => {
+      if (!currentPagePermissions?.deleteDevice) return;
       if (!user?.idEmployee) {
         showAlert({
           type: "warning",
@@ -272,7 +274,7 @@ const useInternalDevicesList = () => {
 
       await deleteDevice(deviceRow.device_id, undefined, user.idEmployee);
     },
-    [deleteDevice, showAlert, user?.idEmployee],
+    [currentPagePermissions?.deleteDevice, deleteDevice, showAlert, user?.idEmployee],
   );
 
   const handleRefresh = useCallback(() => {
@@ -280,20 +282,23 @@ const useInternalDevicesList = () => {
   }, [fetchDevices]);
 
   const handleEditInformation = useCallback(() => {
+    if (!currentPagePermissions?.updateDevice) return;
     const targetId = selectedDevice?.device_id ?? normalizedId;
     if (!targetId) return;
     updateQuery({ id: targetId, view: "edit" });
-  }, [normalizedId, selectedDevice, updateQuery]);
+  }, [currentPagePermissions?.updateDevice, normalizedId, selectedDevice, updateQuery]);
 
   const handleCreateReview = useCallback(() => {
+    if (!currentPagePermissions?.createDeviceReview) return;
     const targetId = selectedDevice?.device_id ?? normalizedId;
     if (!targetId) return;
     updateQuery({ id: targetId, view: "review" });
-  }, [normalizedId, selectedDevice, updateQuery]);
+  }, [currentPagePermissions?.createDeviceReview, normalizedId, selectedDevice, updateQuery]);
 
   const handleCreateDevice = useCallback(() => {
+    if (!currentPagePermissions?.createDevice) return;
     updateQuery({ id: null, view: "new" });
-  }, [updateQuery]);
+  }, [currentPagePermissions?.createDevice, updateQuery]);
 
   const handleBackToDetails = useCallback(() => {
     if (isCreateView) {

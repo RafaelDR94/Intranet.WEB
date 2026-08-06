@@ -10,6 +10,7 @@ import DocumentViewer from '@/app/components/DocumentViewer/DocumentViewer'
 import SignatureBox from '@/app/components/SignatureBox/SignatureBox'
 import SignatureComponent from '@/app/components/SignatureComponent/SignatureComponent'
 import { PopUp } from '@/app/components/PopUp/PopUp'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 
 import AssignmentDetail from './components/AssignmentDetail/AssignmentDetail'
 import InternalDeviceEdit from '../internaldeviceslist/components/InternalDeviceEdit/InternalDeviceEdit'
@@ -18,6 +19,7 @@ import useInternalDevicesAsignationPage from './hooks/useInternalDevicesAsignati
 import type { InternalDeviceAssignmentRow } from './types'
 
 const InternalDevicesAsignationPage = () => {
+  const { currentPagePermissions } = useAuth()
   const {
     assignmentDevice,
     assignmentEmployeeName,
@@ -101,7 +103,7 @@ const InternalDevicesAsignationPage = () => {
           title="Nueva Asignación de Dispositivo"
           enableCollapse={false}
           rightContent={
-            <Button
+            currentPagePermissions?.createDeviceAssignment && <Button
               hideIcon
               onClick={handleAssign}
               data-tour="internaldevices-asignation-assign"
@@ -261,7 +263,7 @@ const InternalDevicesAsignationPage = () => {
           searchDataTour="internaldevices-asignation-search"
           calendarDataTour="internaldevices-asignation-calendar"
           refreshDataTour="internaldevices-asignation-refresh"
-          rightContent={
+          rightContent={currentPagePermissions?.createDeviceAssignment ? (
             <Button
               hideIcon
               onClick={handleOpenCreate}
@@ -269,7 +271,7 @@ const InternalDevicesAsignationPage = () => {
             >
               Nueva Asignación
             </Button>
-          }
+          ) : null}
         />
       </div>
       <AssignmentDetail
