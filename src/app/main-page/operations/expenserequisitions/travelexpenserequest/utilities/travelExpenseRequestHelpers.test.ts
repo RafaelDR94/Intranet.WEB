@@ -318,10 +318,10 @@ describe("travelExpenseRequestHelpers status filters", () => {
     expect(isDraftStatus("Cancelado")).toBe(true);
   });
 
-  it("blocks requisition actions for pending, rejected and accepted statuses", () => {
+  it("keeps rejected requisitions actionable so they can be corrected and resent", () => {
     expect(isBlockedRequisitionActionStatus("Pendiente")).toBe(true);
-    expect(isBlockedRequisitionActionStatus("Rechazado")).toBe(true);
-    expect(isBlockedRequisitionActionStatus("Rechazada")).toBe(true);
+    expect(isBlockedRequisitionActionStatus("RECHAZADO")).toBe(false);
+    expect(isBlockedRequisitionActionStatus("RECHAZADA")).toBe(false);
     expect(isBlockedRequisitionActionStatus("Aceptado")).toBe(true);
     expect(isBlockedRequisitionActionStatus("Aprobado")).toBe(true);
     expect(isBlockedRequisitionActionStatus("Borrador")).toBe(false);

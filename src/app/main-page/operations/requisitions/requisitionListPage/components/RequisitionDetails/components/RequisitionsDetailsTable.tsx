@@ -131,8 +131,9 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
       {
         key: "xmlUrl" as unknown as keyof BillingDocumentDetailsTable,
         label: "ARCHIVOS",
-        cellClass: "w-1/16 text-left",
-        headerClass: "w-1/16 text-left",
+        // Acoge XML, PDF e imagen sin invadir la columna de fecha.
+        cellClass: "w-2/16 text-left",
+        headerClass: "w-2/16 text-left",
         render: (row) => {
           return (
             <div className="flex items-center gap-1">
@@ -248,8 +249,8 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
             Ver Detalles
           </Button>
         ),
-        cellClass: "w-2/16 whitespace-nowrap text-center",
-        headerClass: "w-2/16 text-center",
+        cellClass: "w-1/16 whitespace-nowrap text-center",
+        headerClass: "w-1/16 text-center",
       },
     ],
     [handleOpenDetails],

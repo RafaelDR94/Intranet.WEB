@@ -20,6 +20,7 @@ const mocks = vi.hoisted(() => ({
   saveRequisitionRequestProgress: vi.fn(),
   saveTravelExpenseProgress: vi.fn(),
   resendRequisitionRequestAuthorization: vi.fn(),
+  routerPush: vi.fn(),
   sendTravelExpenseAuthorization: vi.fn(),
   updateEmployeeNumberCard: vi.fn(),
 }));
@@ -51,7 +52,7 @@ const employeesWithActiveUser = [
 vi.mock("next/navigation", () => ({
   usePathname: () =>
     "/main-page/operations/expenserequisitions/travelexpenserequest",
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: mocks.routerPush }),
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -282,6 +283,22 @@ describe("useTravelExpenseRequest requisition progress", () => {
     expect(mocks.saveTravelExpenseProgress).not.toHaveBeenCalled();
   });
 
+  it("keeps rejected requisitions actionable according to status_name", () => {
+    const { result } = renderHook(() =>
+      useTravelExpenseRequest({
+        requisitionRequestId: "request-1",
+        selectedTravelExpenseOverride: {
+          ...selectedTravelExpense,
+          status: "Enviada",
+          status_name: "RECHAZADO",
+        },
+        viewOverride: "requisition",
+      }),
+    );
+
+    expect(result.current.requisitionActionsDisabled).toBe(false);
+  });
+
   it("includes single-beneficiary table changes in the requisition request payload", async () => {
     const { result } = renderHook(() =>
       useTravelExpenseRequest({
@@ -420,6 +437,26 @@ describe("useTravelExpenseRequest requisition progress", () => {
       "authorizer-1",
     );
     expect(mocks.resendRequisitionRequestAuthorization).not.toHaveBeenCalled();
+  });
+
+  it("blocks requisition actions and redirects after sending authorization", async () => {
+    const { result } = renderHook(() =>
+      useTravelExpenseRequest({
+        selectedTravelExpenseOverride: selectedTravelExpense,
+        viewOverride: "requisition",
+      }),
+    );
+
+    act(() => result.current.handleAuthorizerChange(["authorizer-1"]));
+
+    await act(async () => {
+      await result.current.handleConfirmAuthorizer();
+    });
+
+    expect(result.current.requisitionActionsDisabled).toBe(true);
+    expect(mocks.routerPush).toHaveBeenCalledWith(
+      "/main-page/operations/expenserequisitions/solicitudviaticos/",
+    );
   });
 
   it("initializes the project code with proyectkey and falls back to projectname", () => {

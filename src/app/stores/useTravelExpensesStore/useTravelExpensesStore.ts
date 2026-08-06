@@ -17,6 +17,7 @@ import {
   fetchTravelExpenseCalculationConcepts as fetchTravelExpenseCalculationConceptsRequest,
   fetchTravelExpenseCalculations as fetchTravelExpenseCalculationsRequest,
   fetchTravelExpenses as fetchTravelExpensesRequest,
+  fetchTravelExpensesByEmployee as fetchTravelExpensesByEmployeeRequest,
   rejectTravelExpense as rejectTravelExpenseRequest,
   rejectRequisitionRequestThroughAccounting as rejectRequisitionRequestThroughAccountingRequest,
   resendRequisitionRequestAuthorization as resendRequisitionRequestAuthorizationRequest,
@@ -75,6 +76,9 @@ export const useTravelExpensesStore =
 
       fetchTravelExpenses: (force = false) =>
         fetchTravelExpensesRequest(set, get, force),
+
+      fetchTravelExpensesByEmployee: (idEmployee, force = false) =>
+        fetchTravelExpensesByEmployeeRequest(set, get, idEmployee, force),
 
       fetchRequisitionRequests: () => fetchRequisitionRequestsRequest(set),
 

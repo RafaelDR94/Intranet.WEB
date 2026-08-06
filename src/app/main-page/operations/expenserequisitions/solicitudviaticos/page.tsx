@@ -127,7 +127,11 @@ const OperationsRequisitionRequestsPage = () => {
       >
         {current ? (
           <div className="flex flex-col gap-4">
-            <RequisitionEvidence imageUrls={imageUrls} />
+            <RequisitionEvidence
+              imageUrls={imageUrls}
+              status={current.status_name || "Pendiente"}
+              comment={current.comments}
+            />
             <section className="bg-white-100 rounded-lg p-6 shadow-sm">
               <DynamicForm
                 fields={fields}

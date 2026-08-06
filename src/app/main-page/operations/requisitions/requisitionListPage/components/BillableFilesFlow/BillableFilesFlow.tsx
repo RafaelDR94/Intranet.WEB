@@ -99,11 +99,22 @@ const BillableFilesFlow: React.FC<BillableFilesFlowProps> = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const queryString = searchParams.toString();
+  const normalizedPath = pathname.endsWith("/")
+    ? pathname.slice(0, -1)
+    : pathname;
   const employeeId = searchParams.get("idEmployee") ?? searchParams.get("id");
   const currentLabel = searchParams.get("label");
   const currentEmployeeName = searchParams.get("employeeName");
   const fetchBillingImages = useBillingImagesStore((state) => state.fetchBillingImages);
   const uploadSection = normalizeUploadSection(searchParams.get("uploadSection"));
+  const hasSelectedTicket = Boolean(selectedTicket?.billing_image_id);
+  const activeUploadSection: UploadSection = hasSelectedTicket
+    ? "invoice"
+    : uploadSection;
+  const hideBeneficiaryAndProject =
+    normalizedPath ===
+      "/main-page/operations/expenserequisitions/beneficiaryhistory" &&
+    Boolean(searchParams.get("idRequisition"));
   const initialInvoiceItemRef = React.useRef<InvoiceFlowItem | null>(null);
   if (!initialInvoiceItemRef.current) {
     initialInvoiceItemRef.current = createInvoiceFlowItem();
@@ -143,10 +154,10 @@ const BillableFilesFlow: React.FC<BillableFilesFlowProps> = ({
 
   const handleSectionChange = React.useCallback(
     (nextSection: UploadSection) => {
-      if (nextSection === uploadSection) return;
+      if (nextSection === activeUploadSection) return;
       router.push(buildPath(nextSection));
     },
-    [buildPath, router, uploadSection],
+    [activeUploadSection, buildPath, router],
   );
 
   const handleTicketSubmitSuccess = React.useCallback(() => {
@@ -313,7 +324,7 @@ const BillableFilesFlow: React.FC<BillableFilesFlowProps> = ({
     () => (
       <div className="flex w-full flex-col gap-3">
         <Breadcrumbs
-          activeId={uploadSection}
+          activeId={activeUploadSection}
           ariaLabel="Secciones de carga"
           className="space-y-0"
           dataTestId="operations-billable-breadcrumbs"
@@ -323,20 +334,22 @@ const BillableFilesFlow: React.FC<BillableFilesFlowProps> = ({
             label="Carga  de Facturas"
             onClick={() => handleSectionChange("invoice")}
           />
-          <Breadcrumbs.Item
-            id="ticket"
-            label="Carga de tickets"
-            onClick={() => handleSectionChange("ticket")}
-          />
+          {!hasSelectedTicket && (
+            <Breadcrumbs.Item
+              id="ticket"
+              label="Carga de tickets"
+              onClick={() => handleSectionChange("ticket")}
+            />
+          )}
         </Breadcrumbs>
       </div>
     ),
-    [handleSectionChange, uploadSection],
+    [activeUploadSection, handleSectionChange, hasSelectedTicket],
   );
 
   return (
     <div className="flex flex-col gap-4">
-      {uploadSection === "ticket" ? (
+      {activeUploadSection === "ticket" ? (
         <>
           <TicketForm
             responsiveLayoutMatrix={ticketResponsiveLayout}
@@ -398,6 +411,7 @@ const BillableFilesFlow: React.FC<BillableFilesFlowProps> = ({
                   <InvoicesForm
                     responsiveLayoutMatrix={invoiceResponsiveLayout}
                     withoutName
+                    hideBeneficiaryAndProject={hideBeneficiaryAndProject}
                     formId={item.formId}
                     externalSubmitRef={item.externalSubmitRef}
                     submitRequestRef={item.submitRequestRef}
@@ -412,20 +426,22 @@ const BillableFilesFlow: React.FC<BillableFilesFlowProps> = ({
                 </div>
               ))}
 
-              <div className="border-blue-40 flex justify-start border-t pt-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="small"
-                  hideIcon
-                  disabled={isSubmitting}
-                  onClick={handleAddInvoice}
-                  dataTestId="operations-billable-add-invoice"
-                  className="text-blue-80"
-                >
-                  + Agregar factura
-                </Button>
-              </div>
+              {!hasSelectedTicket && (
+                <div className="border-blue-40 flex justify-start border-t pt-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="small"
+                    hideIcon
+                    disabled={isSubmitting}
+                    onClick={handleAddInvoice}
+                    dataTestId="operations-billable-add-invoice"
+                    className="text-blue-80"
+                  >
+                    + Agregar factura
+                  </Button>
+                </div>
+              )}
             </div>
           </FormsLayout>
           <TicketsFiles
