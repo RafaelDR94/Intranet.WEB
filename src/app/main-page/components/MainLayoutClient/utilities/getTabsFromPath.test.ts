@@ -24,6 +24,20 @@ describe("getTabsFromPath utility", () => {
     expect(result).toEqual([]);
   });
 
+  it("shows the Treasury requisitions list tab even when viewing a detail", () => {
+    const result = getTabsFromPath(
+      "/main-page/treasury/requisitions",
+      "?id=requisition-request-1",
+    );
+
+    expect(result).toEqual([
+      {
+        label: "Listado solicitud de requisici\u00f3n",
+        path: "/main-page/treasury/requisitions",
+      },
+    ]);
+  });
+
   it("returns the accounting documents history tab", () => {
     const result = getTabsFromPath("/main-page/accounting/documentshistory");
 
@@ -238,6 +252,18 @@ describe("getTabsFromPath utility", () => {
     expect(result[2]).toEqual({
       label: "Archivos Bruno",
       path: "/main-page/operations/requisitions/requisitionListPage?id=777&label=Archivos+Bruno&requisitionsLabel=Archivos+Bruno",
+    });
+  });
+
+  it("adds the beneficiary files tab with the selected employee context", () => {
+    const result = getTabsFromPath(
+      "/main-page/operations/expenserequisitions/beneficiaryhistory/",
+      "?id=d8909c3a-fb4f-40b5-9842-04c1462bef9e&idEmployee=e986a8db-cb6e-4ce1-9a9d-a25c1f05fc89&label=Archivos%20Bruno",
+    );
+
+    expect(result.at(-1)).toEqual({
+      label: "Archivos Bruno",
+      path: "/main-page/operations/expenserequisitions/beneficiaryhistory?id=d8909c3a-fb4f-40b5-9842-04c1462bef9e&idEmployee=e986a8db-cb6e-4ce1-9a9d-a25c1f05fc89&label=Archivos+Bruno",
     });
   });
 

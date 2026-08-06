@@ -8,9 +8,11 @@ import { Label } from "@/app/components/Label/Label";
 import { normalizeStatusType } from "@/app/main-page/operations/expenserequisitions/travelexpenserequest/utilities/travelExpenseRequestHelpers";
 
 type RequisitionEvidenceProps = {
+  comment?: string;
   imageUrls: string[];
   mode?: "view" | "edit";
   status?: string;
+  /** @deprecated Use comment instead. */
   rejectionComment?: string;
   onImagesChange?: (images: SelectedImage[]) => void;
 };
@@ -27,6 +29,7 @@ const toImages = (imageUrls: string[]): SelectedImage[] =>
 export const RequisitionEvidence = ({
   imageUrls,
   mode = "view",
+  comment,
   status,
   rejectionComment,
   onImagesChange,
@@ -42,49 +45,65 @@ export const RequisitionEvidence = ({
     onImagesChange?.(nextImages);
   };
 
+  const displayComment = comment?.trim() || rejectionComment?.trim();
+  const displayStatus = status?.trim();
+  const evidenceHeader =
+    displayComment || displayStatus ? (
+      <div className="mb-3 flex items-start justify-between gap-3">
+        {displayComment ? (
+          <p className="text-b4 text-gray-70">{displayComment}</p>
+        ) : (
+          <span />
+        )}
+        {displayStatus ? (
+          <Label
+            type={normalizeStatusType(displayStatus)}
+            text={displayStatus}
+            className="m-0 shrink-0"
+          />
+        ) : null}
+      </div>
+    ) : null;
+
   if (mode === "view") {
     const validImageUrls = imageUrls.filter((imageUrl) => imageUrl.trim());
-    if (!validImageUrls.length) return null;
+    if (!validImageUrls.length && !evidenceHeader) return null;
     return (
       <section
         aria-label="Evidencia de Broxel"
         className="bg-white-100 rounded-lg p-4 shadow-sm"
       >
-        <h2 className="text-c1 text-blue-60 mb-3">Evidencia de Broxel</h2>
-        <div className="flex gap-4 overflow-x-auto pb-1">
-          {validImageUrls.map((imageUrl, index) => (
-            <a
-              className="ring-gray-20 h-[116px] w-36 shrink-0 overflow-hidden rounded-lg ring-1"
-              href={imageUrl}
-              key={imageUrl}
-              rel="noreferrer"
-              target="_blank"
-            >
-              <img
-                alt={`Evidencia de Broxel ${index + 1}`}
-                className="size-full object-cover"
-                src={imageUrl}
-              />
-            </a>
-          ))}
-        </div>
+        {evidenceHeader ?? (
+          <h2 className="text-c1 text-blue-60 mb-3">Evidencia de Broxel</h2>
+        )}
+        {validImageUrls.length ? (
+          <div className="flex gap-[14px] overflow-x-auto pb-1">
+            {validImageUrls.map((imageUrl, index) => (
+              <a
+                className="ring-gray-20 h-36 w-[177px] shrink-0 overflow-hidden rounded-lg ring-1"
+                href={imageUrl}
+                key={imageUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <img
+                  alt={`Evidencia de Broxel ${index + 1}`}
+                  className="size-full object-cover"
+                  src={imageUrl}
+                />
+              </a>
+            ))}
+          </div>
+        ) : null}
       </section>
     );
   }
 
   return (
     <section className="bg-white-100 rounded-lg p-4 shadow-sm">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-c1 text-blue-60">Evidencia de Broxel</h2>
-          {rejectionComment ? (
-            <p className="text-c1 text-gray-70 mt-2">{rejectionComment}</p>
-          ) : null}
-        </div>
-        {status ? (
-          <Label type={normalizeStatusType(status)} text={status} />
-        ) : null}
-      </div>
+      {evidenceHeader ?? (
+        <h2 className="text-c1 text-blue-60 mb-3">Evidencia de Broxel</h2>
+      )}
       <ImageUploaderExpanded
         accept="image/*"
         buttonLabel="Seleccionar imagen"

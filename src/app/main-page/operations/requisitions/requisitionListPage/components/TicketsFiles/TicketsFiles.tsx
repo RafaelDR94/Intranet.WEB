@@ -70,6 +70,9 @@ const TicketsFiles = ({
     currentPagePermissions?.canResubmitForms &&
       detailRow?.status?.toLowerCase().includes("rechaz"),
   );
+  const canViewTicketImages = Boolean(
+    !detailRow?.status?.toLowerCase().includes("rechaz"),
+  );
   const projectFallback: Proyect = {
     id: detailRow?.source.requisition?.idProject ?? "",
     name: detailRow?.source.requisition?.projectname ?? "",
@@ -212,7 +215,7 @@ const TicketsFiles = ({
           const imageUrl = detailRow.imageUrls?.[0];
           return (
             <div className="flex items-center gap-2">
-              {imageUrl && (
+              {imageUrl && canViewTicketImages && (
                 <Button
                   iconOnly
                   size="small"
@@ -223,7 +226,7 @@ const TicketsFiles = ({
                   data-tour="requisitions-ticket-open-image"
                 />
               )}
-              {imageUrl && (
+              {imageUrl && canViewTicketImages && (
                 <Button
                   iconOnly
                   size="small"

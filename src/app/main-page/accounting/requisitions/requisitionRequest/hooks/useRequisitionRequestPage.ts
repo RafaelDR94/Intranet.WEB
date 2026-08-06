@@ -171,6 +171,10 @@ export const useRequisitionRequestPage = () => {
   const fetchEmployeesWithActiveUser = useUsersStore(
     (state) => state.fetchEmployeesWithActiveUser,
   );
+  const updateEmployeeDataSAP = useUsersStore(
+    (state) => state.updateEmployeeDataSAP,
+  );
+  const updatingEmployeeDataSAP = useUsersStore((state) => state.updating);
   const proyects = useProyectsStore((state) => state.proyects);
   const proyectsLoading = useProyectsStore((state) => state.loading);
   const fetchProyects = useProyectsStore((state) => state.fetchProyects);
@@ -250,9 +254,6 @@ export const useRequisitionRequestPage = () => {
     if (!selectedTravelExpense) return [];
 
     const progressValues = getFirstProgressItemValues(selectedTravelExpense);
-    const debtorCodeMissing = !selectedTravelExpense.creditor_number.trim();
-    const clientCodeMissing = !selectedTravelExpense.client_code.trim();
-
     return [
       {
         type: "input",
@@ -274,8 +275,7 @@ export const useRequisitionRequestPage = () => {
         label: "Codigo de deudor",
         placeholder: "Escribir codigo",
         value: sapValues.creditor_number,
-        disabled: !debtorCodeMissing,
-        validations: debtorCodeMissing ? [{ type: "required" }] : undefined,
+        validations: [{ type: "required" }],
       },
       {
         type: "input",
@@ -283,8 +283,7 @@ export const useRequisitionRequestPage = () => {
         label: "Codigo de cliente",
         placeholder: "Escribir codigo",
         value: sapValues.client_code,
-        disabled: !clientCodeMissing,
-        validations: clientCodeMissing ? [{ type: "required" }] : undefined,
+        validations: [{ type: "required" }],
       },
       {
         type: "date",
@@ -724,9 +723,65 @@ export const useRequisitionRequestPage = () => {
     const idRequisitionRequest = getSelectedRequisitionRequestId();
     if (!idRequisitionRequest || !selectedTravelExpense) return;
 
+    const creditorNumber = sapValues.creditor_number.trim();
+    const clientCode = sapValues.client_code.trim();
+
+    if (!creditorNumber || !clientCode) {
+      showAlert({
+        type: "error",
+        title: "Completa los codigos SAP",
+        description:
+          "Ingresa el codigo de deudor y el codigo de cliente antes de aprobar la solicitud.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2500,
+      });
+      return;
+    }
+
+    const sapDataChanged =
+      creditorNumber !== selectedTravelExpense.creditor_number.trim() ||
+      clientCode !== selectedTravelExpense.client_code.trim();
+
+    if (sapDataChanged && !selectedTravelExpense.employee_id) {
+      showAlert({
+        type: "error",
+        title: "No se pudo actualizar los codigos SAP",
+        description:
+          "No se encontro el identificador del empleado de la solicitud.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2500,
+      });
+      return;
+    }
+
     showSpinner({
       message: "Espera un momento, tu accion esta siendo procesada",
     });
+
+    if (sapDataChanged) {
+      const updated = await updateEmployeeDataSAP({
+        idEmployee: selectedTravelExpense.employee_id,
+        creditor_number: creditorNumber,
+        code: clientCode,
+      });
+
+      if (!updated) {
+        hideSpinner();
+        showAlert({
+          type: "error",
+          title: "No se pudo actualizar los codigos SAP",
+          description:
+            useUsersStore.getState().error ||
+            "Hubo un problema al actualizar los datos SAP del empleado.",
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 2500,
+        });
+        return;
+      }
+    }
 
     const success =
       await approveRequisitionRequestThroughAccounting(idRequisitionRequest);
@@ -1009,8 +1064,12 @@ export const useRequisitionRequestPage = () => {
     !selectedTravelExpense ||
     !isAccountingActionReady ||
     approvingTravelExpense ||
-    rejectingTravelExpense;
-  const approveActionDisabled = requestActionsDisabled;
+    rejectingTravelExpense ||
+    updatingEmployeeDataSAP;
+  const hasRequiredSapCodes = Boolean(
+    sapValues.creditor_number.trim() && sapValues.client_code.trim(),
+  );
+  const approveActionDisabled = requestActionsDisabled || !hasRequiredSapCodes;
 
   return {
     activeBeneficiaryId,

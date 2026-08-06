@@ -9,11 +9,20 @@ const getAuthorizationBillingDocuments = vi.fn()
 const getAuthorizations = vi.fn()
 const approveAuthorization = vi.fn()
 const mappedRowsMock = vi.fn(() => [{ billingdocument_id: 'doc-1', fecha: '2026-02-02', authorization: null }])
+let pathname = '/main-page/authorizations/authorizationslist'
+let searchParams = 'authorization_id=auth-1&event_id=req-1'
+let authorizationBillingDocuments: any[] = []
+let billingSummary = {
+  montoComprobado: 0,
+  montoAFavorEmpresa: 0,
+  montoAFavorColaborador: 0,
+  hasPerDiemTotals: false,
+}
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
-  usePathname: () => '/main-page/authorizations/authorizationslist',
-  useSearchParams: () => new URLSearchParams('authorization_id=auth-1&event_id=req-1'),
+  usePathname: () => pathname,
+  useSearchParams: () => new URLSearchParams(searchParams),
 }))
 
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
@@ -38,7 +47,7 @@ vi.mock('@/app/stores/useAuthorizationsStore/useAuthorizationsStore', () => ({
         authorizer: { employee_id: 'emp-1' },
       },
     ],
-    authorizationBillingDocuments: [],
+    authorizationBillingDocuments,
     loadingBillingDocuments: false,
     getAuthorizationBillingDocuments,
     getAuthorizations,
@@ -72,6 +81,7 @@ vi.mock('@/app/stores/useRequisitionStore/useRequisitionStore', () => ({
 vi.mock('@/app/stores/useBillingDocumentsStore/useBillingDocumentsStore', () => ({
   useBillingDocumentsStore: () => ({
     billingDocuments: [{ billingdocument_id: 'doc-1' }],
+    ...billingSummary,
     loading: false,
     error: null,
     fetchBillingDocumentByIdRequisition,
@@ -93,6 +103,15 @@ vi.mock('@/app/mappings/billingdocuments/billingdocuments.mapper', () => ({
 
 describe('useRequisitionsAuthorization', () => {
   beforeEach(() => {
+    pathname = '/main-page/authorizations/authorizationslist'
+    searchParams = 'authorization_id=auth-1&event_id=req-1'
+    authorizationBillingDocuments = []
+    billingSummary = {
+      montoComprobado: 0,
+      montoAFavorEmpresa: 0,
+      montoAFavorColaborador: 0,
+      hasPerDiemTotals: false,
+    }
     mappedRowsMock.mockReset()
     fetchCurrentRequisition.mockReset()
     fetchBillingDocumentByIdRequisition.mockReset()
@@ -138,6 +157,47 @@ describe('useRequisitionsAuthorization', () => {
     })
 
     expect(result.current.rows[0]?.status).toBe('Aprobada')
+  })
+
+  it('muestra los documentos y cancela acciones al abrirse desde Operaciones', async () => {
+    pathname = '/main-page/operations/expenserequisitions/beneficiaryhistory'
+    searchParams =
+      'authorization_id=auth-1&event_id=req-1&documents=authorization'
+    authorizationBillingDocuments = [{ billingdocument_id: 'doc-1' }]
+    mappedRowsMock.mockReturnValue([
+      { billingdocument_id: 'doc-1', fecha: '2026-02-02', authorization: null },
+    ])
+
+    const { result } = renderHook(() => useRequisitionsAuthorization())
+
+    await waitFor(() => {
+      expect(getAuthorizationBillingDocuments).toHaveBeenCalledWith('auth-1', true)
+      expect(fetchBillingDocumentByIdRequisition).toHaveBeenCalledWith('req-1', true)
+    })
+
+    expect(result.current.isOperationsRequisitionListContext).toBe(true)
+    expect(result.current.rows).toHaveLength(1)
+  })
+
+  it('usa los montos calculados de los documentos para el resumen de autorización', async () => {
+    searchParams =
+      'authorization_id=auth-1&event_id=req-1&documents=authorization'
+    billingSummary = {
+      montoComprobado: 199.97,
+      montoAFavorEmpresa: 2.03,
+      montoAFavorColaborador: 0,
+      hasPerDiemTotals: true,
+    }
+
+    const { result } = renderHook(() => useRequisitionsAuthorization())
+
+    await waitFor(() => {
+      expect(fetchBillingDocumentByIdRequisition).toHaveBeenCalledWith('req-1', true)
+    })
+
+    expect(result.current.verifiedAmountLabel).toBe('$199.97')
+    expect(result.current.favorEmpresaLabel).toBe('$2.03')
+    expect(result.current.favorColaboradorLabel).toBe('$0.00')
   })
 
   it('filtra por documentos de esta autorización usando authorization_id sin importar status', async () => {

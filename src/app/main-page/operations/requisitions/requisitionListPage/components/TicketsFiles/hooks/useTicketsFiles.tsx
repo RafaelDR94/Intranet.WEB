@@ -93,6 +93,9 @@ const isPendingStatus = (status?: string): boolean =>
   (status ?? "").trim().toLowerCase().includes("pend") ||
   (status ?? "").trim().toLowerCase().includes("actualizado");
 
+const isRejectedStatus = (status?: string): boolean =>
+  (status ?? "").trim().toLowerCase().includes("rechaz");
+
 const useTicketsFiles = () => {
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
@@ -646,7 +649,7 @@ const useTicketsFiles = () => {
         headerClass: "w-2/15 text-left",
         render: (row) => (
           <div className="flex items-center gap-1">
-            {row.imageUrls.length > 0 && (
+            {row.imageUrls.length > 0 && !isRejectedStatus(row.status) && (
               <Button
                 size="xsmall"
                 variant="ghost"
@@ -656,7 +659,7 @@ const useTicketsFiles = () => {
                 data-tour="requisitions-ticket-download"
               />
             )}
-            {row.imageUrls.length > 0 && (
+            {row.imageUrls.length > 0 && !isRejectedStatus(row.status) && (
               <Button
                 size="xsmall"
                 variant="ghost"
@@ -744,7 +747,7 @@ const useTicketsFiles = () => {
         headerClass: "w-3/12 text-left",
         render: (row) => (
           <div className="flex items-center gap-1">
-            {row.imageUrls.length > 0 && (
+            {row.imageUrls.length > 0 && !isRejectedStatus(row.status) && (
               <Button
                 size="xsmall"
                 variant="ghost"

@@ -114,12 +114,13 @@ export const isNoIniciadaTravelExpenseStatus = (row: TravelExpense) =>
   normalizeComparableText(row.status_name) === "no iniciada";
 
 /**
- * Detects statuses where draft action buttons must be disabled.
+ * Detects statuses where draft action buttons must be disabled. Rejected
+ * requisitions remain editable so they can be corrected and resent.
  */
 export const isBlockedRequisitionActionStatus = (status = "") => {
   const normalized = normalizeComparableText(status);
 
-  return ["pendiente", "rechaz", "acept", "aprobad"].some((value) =>
+  return ["pendiente", "acept", "aprobad"].some((value) =>
     normalized.includes(value),
   );
 };

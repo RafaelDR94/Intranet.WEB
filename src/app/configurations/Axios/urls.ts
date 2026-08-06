@@ -60,12 +60,6 @@ export const AuthorizationApprove =
   process.env.NEXT_PUBLIC_AUTHORIZATION_APPROVE ?? "/Auth/AuthorizationApprove";
 export const AuthorizationReject =
   process.env.NEXT_PUBLIC_AUTHORIZATION_REJECT ?? "/Auth/AuthorizationReject";
-export const AuthorizationApproveThroughAccounting =
-  process.env.NEXT_PUBLIC_AUTHORIZATION_APPROVE_THROUGH_ACCOUNTING ??
-  "/Auth/ApprovethroughAccounting";
-export const AuthorizationRejectedByAccounting =
-  process.env.NEXT_PUBLIC_AUTHORIZATION_REJECTED_BY_ACCOUNTING ??
-  "/Auth/RejectedByAccounting";
 export const AuthorizationChangeAuthorizer =
   process.env.NEXT_PUBLIC_AUTHORIZATION_CHANGE_AUTHORIZER ??
   "/Auth/changeAuthorizer";
@@ -528,6 +522,9 @@ export const BillingPettyCashVoucherHistoryAmount =
 export const BillingTravelExpenses =
   process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES ??
   "/Billings/TravelExpenses";
+export const BillingTravelExpensesByEmployee =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_BY_EMPLOYEE ??
+  "/Billings/TravelExpenses/Employee";
 export const BillingTravelExpensesReject =
   process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_REJECT ??
   "/Billings/TravelExpenses/Reject";

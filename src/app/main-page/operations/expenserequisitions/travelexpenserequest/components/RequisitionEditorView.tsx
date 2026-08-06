@@ -51,6 +51,7 @@ export const RequisitionEditorView = ({
           }
           primaryDisabled={
             !editor.requisitionReadyForAuthorization ||
+            editor.requisitionActionsDisabled ||
             editor.sendingAuthorization ||
             editor.savingCalculations
           }
@@ -63,7 +64,9 @@ export const RequisitionEditorView = ({
           }
           onSecondaryClick={editor.handleSaveRequisitionProgress}
           secondaryDisabled={
-            editor.updatingTravelExpense || editor.savingCalculations
+            editor.requisitionActionsDisabled ||
+            editor.updatingTravelExpense ||
+            editor.savingCalculations
           }
           cardClassName={styles.formsCard}
         >

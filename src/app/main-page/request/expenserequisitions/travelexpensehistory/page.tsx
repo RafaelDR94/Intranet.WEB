@@ -15,6 +15,7 @@ import FormsLayout from "@/app/components/FormsLayout/FormsLayout";
 import { Label } from "@/app/components/Label/Label";
 import type { LabelType } from "@/app/components/Label/types";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import { TravelExpenseCalculationsMap } from "@/app/mappings/travelExpenseCalculations/travelExpenseCalculations.mapper";
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
 import { ContextualInfoForm } from "@/app/sharedComponents/ContextualInfoForm/ContextualInfoForm";
@@ -64,7 +65,12 @@ const normalizeStatus = (status: string) =>
 const normalizeStatusType = (status: string): LabelType => {
   const normalized = normalizeStatus(status);
 
-  if (normalized.includes("aprobad") || normalized.includes("valid")) {
+  if (
+    normalized.includes("aprobad") ||
+    normalized.includes("valid") ||
+    normalized.includes("procesad") ||
+    normalized.includes("enviad")
+  ) {
     return "validado";
   }
 
@@ -87,7 +93,12 @@ const getDetailStatusKind = (status: string): DetailStatusKind => {
   const normalized = normalizeStatus(status);
 
   if (normalized.includes("rechaz")) return "rejected";
-  if (normalized.includes("aprobad") || normalized.includes("valid")) {
+  if (
+    normalized.includes("aprobad") ||
+    normalized.includes("valid") ||
+    normalized.includes("procesad") ||
+    normalized.includes("enviad")
+  ) {
     return "validated";
   }
 
@@ -96,7 +107,13 @@ const getDetailStatusKind = (status: string): DetailStatusKind => {
 
 const getDetailStatusText = (status: string) => {
   const kind = getDetailStatusKind(status);
-  if (kind === "validated") return "Aprobada";
+  const normalized = normalizeStatus(status);
+  if (
+    kind === "validated" &&
+    (normalized.includes("aprobad") || normalized.includes("valid"))
+  ) {
+    return "Aprobada";
+  }
   if (kind === "rejected") return "Rechazado";
   return status || "Pendiente";
 };
@@ -149,13 +166,14 @@ const TravelExpenseHistoryPage = () => {
   const isEditMode = view === "edit";
   const [editValues, setEditValues] = useState<Record<string, unknown>>({});
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
+  const { user } = useAuth();
   const { showAlert } = usePrincipalAlert;
   const { hideSpinner, showSpinner } = usePrincipalLoading;
   const travelExpenses = useTravelExpensesStore(
     (state) => state.travelExpenses,
   );
-  const fetchTravelExpenses = useTravelExpensesStore(
-    (state) => state.fetchTravelExpenses,
+  const fetchTravelExpensesByEmployee = useTravelExpensesStore(
+    (state) => state.fetchTravelExpensesByEmployee,
   );
   const cancelOrResendTravelExpense = useTravelExpensesStore(
     (state) => state.cancelOrResendTravelExpense,
@@ -171,8 +189,10 @@ const TravelExpenseHistoryPage = () => {
   );
 
   useEffect(() => {
-    fetchTravelExpenses(true);
-  }, [fetchTravelExpenses]);
+    if (!user?.idEmployee) return;
+
+    fetchTravelExpensesByEmployee(user.idEmployee, true);
+  }, [fetchTravelExpensesByEmployee, user?.idEmployee]);
 
   const selectedTravelExpense = useMemo(
     () =>
@@ -710,7 +730,11 @@ const TravelExpenseHistoryPage = () => {
             showButton={false}
             showCalendar
             showRefresh
-            onRefreshPage={() => fetchTravelExpenses(true)}
+            onRefreshPage={() => {
+              if (user?.idEmployee) {
+                fetchTravelExpensesByEmployee(user.idEmployee, true);
+              }
+            }}
             enableInternalSearch
             searchableKeys={[
               "employeename",

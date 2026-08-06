@@ -54,12 +54,18 @@ const useInitInvoicesForms = ({
     searchParams.get("idRequisition") ?? searchParams.get("id");
   const urlView = searchParams.get("view");
   const urlEmployeeId = searchParams.get("idEmployee");
+  const isBeneficiaryHistoryBillableFiles =
+    urlView === "billablefiles" &&
+    normalizedPath ===
+      "/main-page/operations/expenserequisitions/beneficiaryhistory";
   const lockRequisitionFields =
     urlView === "billablefiles" &&
-    normalizedPath === "/main-page/accounting/personalInvoices/requisitions";
+    (normalizedPath === "/main-page/accounting/personalInvoices/requisitions" ||
+      isBeneficiaryHistoryBillableFiles);
   const lockEmployeeFields =
     lockRequisitionFields ||
-    normalizedPath === "/main-page/request/ownrequisitions/uploadbillablefiles"||normalizedPath === "/main-page/operations/requisitions/requisitionListPage";
+    normalizedPath === "/main-page/request/ownrequisitions/uploadbillablefiles" ||
+    normalizedPath === "/main-page/operations/requisitions/requisitionListPage";
   const submitRef = useRef<() => void | Promise<void>>(null);
   const prefilledRequisitionIdRef = useRef<string | null>(null);
   const lastPrefillKeyRef = useRef<string | null>(null);

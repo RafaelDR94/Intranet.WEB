@@ -11,6 +11,7 @@ export * from "./updateRequisitionRequestImages";
 export * from "./fetchTravelExpenseCalculationConcepts";
 export * from "./fetchTravelExpenseCalculations";
 export * from "./fetchTravelExpenses";
+export * from "./fetchTravelExpensesByEmployee";
 export * from "./rejectTravelExpense";
 export * from "./rejectRequisitionRequestThroughAccounting";
 export * from "./saveTravelExpenseProgress";
