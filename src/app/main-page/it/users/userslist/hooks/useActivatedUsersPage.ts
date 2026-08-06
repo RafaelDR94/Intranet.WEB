@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { shallow } from 'zustand/shallow'
 
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import useQuery from '@/app/hooks/useQuery/useQuery'
 import { useEmployeesStore } from '@/app/stores/useEmployeesStore/useEmployeesStore'
 import { useUsersStore } from '@/app/stores/useUsersStore/useUsersStore'
@@ -40,6 +41,7 @@ const matchesFilter = (row: ActivatedUserRow, filter: UserFilterValue) => {
 }
 
 const useActivatedUsersPage = () => {
+  const { currentPagePermissions } = useAuth()
   const { all, updateQuery } = useQuery()
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal()
   const { showAlert } = usePrincipalAlert
@@ -280,8 +282,9 @@ const useActivatedUsersPage = () => {
   }, [])
 
   const handleOpenDetails = useCallback((row: ActivatedUserRow) => {
+    if (!currentPagePermissions?.viewUserDetails) return
     updateQuery({ id: row.id })
-  }, [updateQuery])
+  }, [currentPagePermissions?.viewUserDetails, updateQuery])
 
   const handleCloseDetails = useCallback(() => {
     updateQuery({ id: null })

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/app/components/Button/Button";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import InfoCards from "@/app/components/InfoCards/InfoCards";
 import EditIcon from "@/assets/icons/Editor/edit-pencil.svg";
 
@@ -12,6 +13,7 @@ const InformationAssignment = ({
   deviceId,
   onEdit,
 }: InternalDeviceInformationProps) => {
+  const { currentPagePermissions } = useAuth();
   const { assignedLabel, cards, handleEdit } = useInformationAssignment({
     device,
     deviceId,
@@ -24,7 +26,7 @@ const InformationAssignment = ({
         <span className="text-label text-blue-60">
           Asignado a: {assignedLabel}
         </span>
-        <Button
+        {currentPagePermissions?.updateAssignedDevice && <Button
           size="small"
           variant="ghost"
           icon={EditIcon}
@@ -32,7 +34,7 @@ const InformationAssignment = ({
           onClick={handleEdit}
         >
           Editar Información
-        </Button>
+        </Button>}
       </div>
 
       <InfoCards

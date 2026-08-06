@@ -1,0 +1,16 @@
+{
+  "Acces": true,
+  "internaldevices": {
+    "Acces": false,
+    "devicesBrands": { "Acces": false, "Permissions": { "createDeviceBrand": true, "updateDeviceBrand": true, "deleteDeviceBrand": true } },
+    "devicesDeactivated": { "Acces": false, "Permissions": { "viewDeactivatedDeviceDetails": true, "reactivateDevice": true } },
+    "devicesTypes": { "Acces": false, "Permissions": { "createDeviceType": true, "updateDeviceType": true, "deleteDeviceType": true } },
+    "internaldevicesasignation": { "Acces": false, "Permissions": { "createDeviceAssignment": true, "viewDeviceAssignmentDetails": true, "updateAssignedDevice": true, "createDeviceReview": true, "unlinkDeviceAssignment": true, "viewResponsive": true, "regenerateResponsive": true, "generateMissingResponsive": true } },
+    "internaldeviceslist": { "Acces": false, "Permissions": { "createDevice": true, "viewDeviceDetails": true, "updateDevice": true, "createDeviceReview": true, "deleteDevice": true } }
+  },
+  "users": {
+    "Acces": false,
+    "userslist": { "Acces": true, "Permissions": { "viewUserDetails": true, "updateUser": true, "deactivateUser": true } },
+    "userspending": { "Acces": true, "Permissions": { "activateUser": true, "reactivateUser": true } }
+  }
+}

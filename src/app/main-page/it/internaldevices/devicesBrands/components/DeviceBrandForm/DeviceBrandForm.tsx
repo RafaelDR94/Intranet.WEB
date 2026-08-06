@@ -8,6 +8,7 @@ import CollapsibleSection from '@/app/components/CollapsibleSection/CollapsibleS
 import DynamicForm from '@/app/components/DynamicForm/DynamicForm'
 import type { FieldModel, ResponsiveLayoutMatrix } from '@/app/components/DynamicForm/types'
 import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
 import type { InternalDeviceBrand } from '@/app/mappings/internaldevices/internaldevices.types'
 import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
@@ -30,6 +31,7 @@ const DeviceBrandForm: React.FC<DeviceBrandFormProps> = ({
   onBack,
   mode = 'edit',
 }) => {
+  const { currentPagePermissions } = useAuth()
   const isMobile = useIsMobile()
   const { usePrincipalAlert } = usePrincipal()
   const { showAlert } = usePrincipalAlert
@@ -128,6 +130,7 @@ const DeviceBrandForm: React.FC<DeviceBrandFormProps> = ({
   }, [])
 
   const handleSave = useCallback(async () => {
+    if (isCreate ? !currentPagePermissions?.createDeviceBrand : !currentPagePermissions?.updateDeviceBrand) return
     const name = String(formValues.name ?? '').trim()
     const extract = String(formValues.extract ?? '').trim()
     const description = String(formValues.description ?? '').trim()

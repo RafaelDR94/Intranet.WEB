@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/app/components/Button/Button";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import DocumentViewer from "@/app/components/DocumentViewer/DocumentViewer";
 import { PopUp } from "@/app/components/PopUp/PopUp";
 import { Select } from "@/app/components/Select/Select";
@@ -15,6 +16,7 @@ const HistoryAssignment = ({
   onCreateAssignment,
   showActions = true,
 }: HistoryAssignmentProps) => {
+  const { currentPagePermissions } = useAuth();
   const {
     closeUnlinkModal,
     deletingDeviceAssignment,
@@ -93,7 +95,7 @@ const HistoryAssignment = ({
         onPrimaryButtonClick={handleConfirmUnlink}
       />
 
-      {showActions && (
+      {showActions && (currentPagePermissions?.createDeviceAssignment || currentPagePermissions?.unlinkDeviceAssignment) && (
         <div className="flex items-center justify-end">
           <Button
             size="small"
@@ -144,7 +146,7 @@ const HistoryAssignment = ({
                   </span>
                 </td>
                 <td className="text-c2 px-6 py-4">
-                  <Button
+                  {currentPagePermissions?.viewResponsive && <Button
                     size="small"
                     variant="ghost"
                     icon={ResponsiveDoc}
@@ -154,7 +156,7 @@ const HistoryAssignment = ({
                         `Responsiva - ${assignment.assignedTo} - ${assignment.deviceName}`,
                       );
                     }}
-                  />
+                  />}
                 </td>
               </tr>
             ))}

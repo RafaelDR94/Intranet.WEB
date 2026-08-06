@@ -1,14 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import { Button } from '@/app/components/Button/Button'
-import { ContextMenu } from '@/app/components/ContextMenu/ContextMenu'
+import ActionMenuCell from '@/app/components/ActionMenuCell/ActionMenuCell'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import type { ColumnDefinition } from '@/app/components/DataTable/types'
 import Label from '@/app/components/Label/Label'
 import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
 import type { InternalDeviceType } from '@/app/mappings/internaldevices/internaldevices.types'
-import DeleteIcon from '@/assets/icons/acciones/trash.svg'
-import EditIcon from '@/assets/icons/Editor/edit-pencil.svg'
-import DotsIcon from '@/assets/icons/navegacion/more-horiz.svg'
 
 import type { DeviceTypeRow, StatusFilterOption, StatusFilterValue } from '../types'
 import {
@@ -41,6 +38,7 @@ type UseDeviceTypesTableResult = {
 const useDeviceTypesTable = (
   { deviceTypes, onEditType, onDeleteType }: UseDeviceTypesTableParams,
 ): UseDeviceTypesTableResult => {
+  const { currentPagePermissions } = useAuth()
   const isMobile = useIsMobile()
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(
     DEFAULT_STATUS_FILTER,
@@ -104,47 +102,16 @@ const useDeviceTypesTable = (
         cellClass: 'w-[4%]',
         headerClass: 'w-[4%]',
         render: (row) => (
-          <ContextMenu
-            alignRight
-            autoFlip
-            items={[
-              {
-                label: 'Editar',
-                icon: EditIcon,
-                onClick: () =>
-                  onEditType({
-                    device_type_id: row.device_type_id,
-                    name: row.name,
-                    description: row.description,
-                    is_active: row.is_active,
-                  }),
-              },
-              {
-                label: 'Desactivar',
-                icon: DeleteIcon,
-                danger: true,
-                onClick: () =>
-                  onDeleteType({
-                    device_type_id: row.device_type_id,
-                    name: row.name,
-                    description: row.description,
-                    is_active: row.is_active,
-                  }),
-              },
-            ]}
-            trigger={
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={DotsIcon}
-                aria-label="Abrir menu de acciones"
-              />
-            }
+          <ActionMenuCell
+            row={row}
+            onEdit={() => onEditType({ device_type_id: row.device_type_id, name: row.name, description: row.description, is_active: row.is_active })}
+            onDelete={() => onDeleteType({ device_type_id: row.device_type_id, name: row.name, description: row.description, is_active: row.is_active })}
+            permissions={{ update: Boolean(currentPagePermissions?.updateDeviceType), delete: Boolean(currentPagePermissions?.deleteDeviceType) }}
           />
         ),
       },
     ],
-    [onDeleteType, onEditType],
+    [currentPagePermissions?.deleteDeviceType, currentPagePermissions?.updateDeviceType, onDeleteType, onEditType],
   )
 
   const columnsMobile = useMemo<ColumnDefinition<DeviceTypeRow>[]>(
@@ -179,47 +146,16 @@ const useDeviceTypesTable = (
         cellClass: 'w-1/12',
         headerClass: 'w-1/12',
         render: (row) => (
-          <ContextMenu
-            alignRight
-            autoFlip
-            items={[
-              {
-                label: 'Editar',
-                icon: EditIcon,
-                onClick: () =>
-                  onEditType({
-                    device_type_id: row.device_type_id,
-                    name: row.name,
-                    description: row.description,
-                    is_active: row.is_active,
-                  }),
-              },
-              {
-                label: 'Desactivar',
-                icon: DeleteIcon,
-                danger: true,
-                onClick: () =>
-                  onDeleteType({
-                    device_type_id: row.device_type_id,
-                    name: row.name,
-                    description: row.description,
-                    is_active: row.is_active,
-                  }),
-              },
-            ]}
-            trigger={
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={DotsIcon}
-                aria-label="Abrir menu de acciones"
-              />
-            }
+          <ActionMenuCell
+            row={row}
+            onEdit={() => onEditType({ device_type_id: row.device_type_id, name: row.name, description: row.description, is_active: row.is_active })}
+            onDelete={() => onDeleteType({ device_type_id: row.device_type_id, name: row.name, description: row.description, is_active: row.is_active })}
+            permissions={{ update: Boolean(currentPagePermissions?.updateDeviceType), delete: Boolean(currentPagePermissions?.deleteDeviceType) }}
           />
         ),
       },
     ],
-    [onDeleteType, onEditType],
+    [currentPagePermissions?.deleteDeviceType, currentPagePermissions?.updateDeviceType, onDeleteType, onEditType],
   )
 
   const columns = isMobile ? columnsMobile : columnsDesktop
