@@ -21,6 +21,13 @@ export default defineConfig(async () => {
       environment: 'jsdom',
       css: false,
       pool: 'forks',
+      poolOptions: {
+        forks: {
+          minForks: 1,
+          maxForks: 4,
+          execArgv: ['--max-old-space-size=8192'],
+        },
+      },
       testTimeout: 30000,
       hookTimeout: 30000,
       teardownTimeout: 30000,

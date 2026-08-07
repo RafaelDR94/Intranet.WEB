@@ -12,7 +12,7 @@
     "lint:errors": "next lint --quiet",
     "lint:warnings": "next lint | Select-String -Pattern \"warning\"",
     "export": "next export",
-    "test": "vitest",
+    "test": "vitest run --shard=1/16 && vitest run --shard=2/16 && vitest run --shard=3/16 && vitest run --shard=4/16 && vitest run --shard=5/16 && vitest run --shard=6/16 && vitest run --shard=7/16 && vitest run --shard=8/16 && vitest run --shard=9/16 && vitest run --shard=10/16 && vitest run --shard=11/16 && vitest run --shard=12/16 && vitest run --shard=13/16 && vitest run --shard=14/16 && vitest run --shard=15/16 && vitest run --shard=16/16",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
