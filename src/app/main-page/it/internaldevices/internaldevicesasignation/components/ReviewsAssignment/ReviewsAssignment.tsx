@@ -1,12 +1,14 @@
 'use client'
 
 import { Button } from '@/app/components/Button/Button'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import HammerIcon from '@/assets/icons/tools/tools/hammer.svg'
 
 import useReviewsAssignment from './hooks/useReviewsAssignment'
 import type { ReviewsAssignmentProps } from './types'
 
 const ReviewsAssignment = (props: ReviewsAssignmentProps) => {
+  const { currentPagePermissions } = useAuth()
   const { handleCreateReview, loading, rows } = useReviewsAssignment(props)
 
   if (loading) {
@@ -16,14 +18,14 @@ const ReviewsAssignment = (props: ReviewsAssignmentProps) => {
   return (
     <div className="space-y-4">
       <div className="flex items-end justify-end">
-        <Button
+        {currentPagePermissions?.createDeviceReview && <Button
           size="small"
           variant="ghost"
           icon={HammerIcon}
           onClick={handleCreateReview}
         >
           Nueva Revision
-        </Button>
+        </Button>}
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-20 bg-white-70 shadow-sm">

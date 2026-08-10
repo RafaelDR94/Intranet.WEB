@@ -48,6 +48,9 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
     currentPagePermissions?.canResubmitForms &&
       detailRow?.status?.toLowerCase().includes("rechaz"),
   );
+  const canViewInvoiceImage = Boolean(
+    !detailRow?.status?.toLowerCase().includes("rechaz"),
+  );
   const projectFallback: Proyect = {
     id: detailRow?.source.requisition?.idProject ?? "",
     name: detailRow?.source.requisition?.projectname ?? "",
@@ -232,7 +235,7 @@ const InvoicesFiles = ({ forceVisible: _forceVisible = false }) => {
                 aria-label="Abrir PDF"
               />
             )}
-            {detailRow?.imageUrl && (
+            {detailRow?.imageUrl && canViewInvoiceImage && (
               <Button
                 iconOnly
                 size="small"

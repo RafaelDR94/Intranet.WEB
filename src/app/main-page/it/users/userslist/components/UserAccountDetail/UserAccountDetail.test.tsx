@@ -9,6 +9,14 @@ const fetchEmployeesWithActiveUserMock = vi.fn()
 const resetFlagsMock = vi.fn()
 const showAlertMock = vi.fn()
 
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({
+    currentPagePermissions: {
+      deactivateUser: true,
+    },
+  }),
+}))
+
 vi.mock('@/app/context/PrincipalContext/PrincipalContext', () => ({
   usePrincipal: () => ({
     usePrincipalAlert: {

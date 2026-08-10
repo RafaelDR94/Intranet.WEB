@@ -33,8 +33,48 @@ describe("RequisitionEvidence", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("shows the requisition comment and status above read-only evidence", () => {
+    render(
+      <RequisitionEvidence
+        comment="Comentario de prueba"
+        imageUrls={["https://files.example/evidence-1.png"]}
+        status="Aprobada"
+      />,
+    );
+
+    expect(
+      screen.getByText("Comentario de prueba"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("APROBADA")).toBeInTheDocument();
+    expect(screen.getByRole("img")).toBeInTheDocument();
+  });
+
+  it("renders comment and status without evidence images", () => {
+    render(
+      <RequisitionEvidence
+        comment="Sin comprobacion"
+        imageUrls={[]}
+        status="Pendiente"
+      />,
+    );
+
+    expect(screen.getByText("Sin comprobacion")).toBeInTheDocument();
+    expect(screen.getByText("PENDIENTE")).toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+  });
+
   it("centers the edit upload prompt and image-selection button", () => {
-    render(<RequisitionEvidence imageUrls={[]} mode="edit" />);
+    render(
+      <RequisitionEvidence
+        comment="Solicita evidencia adicional"
+        imageUrls={[]}
+        mode="edit"
+        status="Rechazada"
+      />,
+    );
+
+    expect(screen.getByText("Solicita evidencia adicional")).toBeInTheDocument();
+    expect(screen.getByText("RECHAZADA")).toBeInTheDocument();
 
     const prompt = screen.getByText(
       /Arrastra o selecciona las im.genes que deseas subir/,

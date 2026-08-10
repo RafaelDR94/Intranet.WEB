@@ -24,6 +24,7 @@ import { useFormFieldsStore } from "@/app/stores/useFormFieldsStore/useFormField
 const useInvoicesForm = ({
   dataEdit,
   withoutName,
+  hideBeneficiaryAndProject,
   formId,
   billingImages,
   onCloseImage,
@@ -96,7 +97,7 @@ const useInvoicesForm = ({
           value: "",
           className: "max-w-[400px]",
           onlyText: true,
-          showIf: () => Boolean(!dataEdit),
+          showIf: () => Boolean(!dataEdit && !hideBeneficiaryAndProject),
         },
         {
           type: "input",
@@ -106,7 +107,7 @@ const useInvoicesForm = ({
           value: "",
           className: "max-w-[400px]",
           onlyText: true,
-          showIf: () => Boolean(!dataEdit),
+          showIf: () => Boolean(!dataEdit && !hideBeneficiaryAndProject),
         },
         {
           type: "select",
@@ -202,7 +203,7 @@ const useInvoicesForm = ({
     }
 
     return createInvoiceFields();
-  }, [dataEdit, isEdit, withoutName]);
+  }, [dataEdit, hideBeneficiaryAndProject, isEdit, withoutName]);
 
   const { formId1, targetEmployeeId } = useInvoices();
   const effectiveFormId = formId ?? formId1;

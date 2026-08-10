@@ -20,6 +20,7 @@ import { useTravelExpensesStore } from "@/app/stores/useTravelExpensesStore/useT
 
 import { TreasuryRequisitionRequestsTable } from "./components/TreasuryRequisitionRequestsTable";
 import { useTreasuryRequisitionRequests } from "./hooks/useTreasuryRequisitionRequests";
+import { isEvidenceEditable } from "./utilities";
 
 const normalizeStatus = (value = "") =>
   value
@@ -71,10 +72,7 @@ const TreasuryRequisitionsPage = () => {
   }, [detailId, fetchById]);
   useEffect(() => {
     if (!current) return;
-    const rejected = normalizeStatus(current.treasury_status_name).includes(
-      "rechaz",
-    );
-    setEditing(!rejected);
+    setEditing(isEvidenceEditable(current.treasury_status_name));
   }, [current]);
   useEffect(() => {
     const currentUrls =
@@ -146,7 +144,7 @@ const TreasuryRequisitionsPage = () => {
   );
 
   const saveEvidence = async (selected: SelectedImage[]) => {
-    if (normalizeStatus(current?.treasury_status_name) === "aprobada") return;
+    if (!isEvidenceEditable(current?.treasury_status_name)) return;
     const requestId = current?.requisition_requests[0]?.id || detailId;
     if (!requestId) return;
     if (selected.length > 50) {
@@ -184,7 +182,6 @@ const TreasuryRequisitionsPage = () => {
         imageUrls: urls,
       });
       if (success) {
-        setEditing(false);
         await fetchRequests();
         showAlert({
           type: "success",
@@ -194,6 +191,7 @@ const TreasuryRequisitionsPage = () => {
           showSecondaryButton: false,
           autoCloseMs: 1800,
         });
+        router.push(pathname);
       } else {
         showAlert({
           type: "error",
@@ -225,8 +223,8 @@ const TreasuryRequisitionsPage = () => {
       current?.requisition_requests[0]?.image_urls ?? current?.image_urls ?? [];
     const status = current?.treasury_status_name || "Pendiente";
     const rejected = normalizeStatus(status).includes("rechaz");
-    const approved = normalizeStatus(status) === "aprobada";
-    const evidenceEditable = editing && !approved;
+    const approved = !isEvidenceEditable(status);
+    const evidenceEditable = editing && isEvidenceEditable(status);
     return (
       <FormsLayout
         title={`Presupuesto de requisición ${current?.requisitionkey ?? ""}`}
@@ -246,13 +244,17 @@ const TreasuryRequisitionsPage = () => {
               <RequisitionEvidence
                 imageUrls={currentUrls}
                 mode="edit"
-                status={rejected ? status : undefined}
-                rejectionComment={rejected ? current.comments : undefined}
+                status={status}
+                comment={current.comments}
                 onImagesChange={setImages}
               />
             ) : (
               <div>
-                <RequisitionEvidence imageUrls={currentUrls} />
+                <RequisitionEvidence
+                  imageUrls={currentUrls}
+                  status={status}
+                  comment={current.comments}
+                />
                 {rejected && !approved ? (
                   <button
                     className="text-blue-60 text-c1 mt-3"

@@ -20,6 +20,8 @@ export interface InvoicesFormProps {
   >;
   /** Hide debtor name field. */
   withoutName?: boolean;
+  /** Hide beneficiary and project fields when the requisition already provides that context. */
+  hideBeneficiaryAndProject?: boolean;
   /** Optional unique form id for multi-instance rendering. */
   formId?: string;
   /** Optional billing images when editing ticket uploads. */

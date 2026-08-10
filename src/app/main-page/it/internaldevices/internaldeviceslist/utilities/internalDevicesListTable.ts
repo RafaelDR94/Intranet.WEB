@@ -42,13 +42,55 @@ export const STATUS_FILTER_OPTIONS: StatusFilterOption[] = [
  * Searchable keys for the internal devices list table.
  */
 export const INTERNAL_DEVICE_SEARCHABLE_KEYS: (keyof InternalDeviceRow)[] = [
-  'display_id',
-  'name',
-  'model',
-  'serial_number',
-  'ip_address',
-  'mac_address',
+  'search_content',
 ]
+
+const isDatabaseIdKey = (key: string): boolean =>
+  key
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .toLowerCase()
+    .split(/[_\-\s]+/)
+    .includes('id')
+
+/**
+ * Flattens the device data into a private, searchable string. Database IDs are
+ * intentionally omitted at every nesting level, while arrays and related
+ * objects contribute their descriptive values.
+ */
+export const buildInternalDeviceSearchContent = (
+  device: InternalDevice,
+): string => {
+  const values: string[] = []
+  const visited = new WeakSet<object>()
+
+  const collect = (value: unknown): void => {
+    if (value == null) return
+
+    if (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    ) {
+      values.push(String(value))
+      return
+    }
+
+    if (typeof value !== 'object' || visited.has(value)) return
+    visited.add(value)
+
+    if (Array.isArray(value)) {
+      value.forEach(collect)
+      return
+    }
+
+    Object.entries(value).forEach(([key, nestedValue]) => {
+      if (!isDatabaseIdKey(key)) collect(nestedValue)
+    })
+  }
+
+  collect(device)
+  return values.join(' ')
+}
 
 export const ASSIGNMENT_FILTER_OPTIONS: DeviceFilterOption[] = [
   { label: 'Todos', value: 'all' },

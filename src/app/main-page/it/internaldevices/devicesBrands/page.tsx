@@ -2,6 +2,7 @@
 
 import { Button } from '@/app/components/Button/Button'
 import { DataTable } from '@/app/components/DataTable/DataTable'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 
 import DeviceBrandForm from './components/DeviceBrandForm/DeviceBrandForm'
 import useDeviceBrandsPage from './hooks/useDeviceBrandsPage'
@@ -9,6 +10,7 @@ import useDeviceBrandsTable from './hooks/useDeviceBrandsTable'
 import type { DeviceBrandRow } from './types'
 
 const DevicesBrandsPage = () => {
+  const { currentPagePermissions } = useAuth()
   const {
     deviceBrands,
     selectedBrand,
@@ -58,11 +60,11 @@ const DevicesBrandsPage = () => {
             enableSelection: false,
           },
         ]}
-        rightContent={
+        rightContent={currentPagePermissions?.createDeviceBrand ? (
           <Button hideIcon onClick={handleOpenCreate}>
             Nueva marca
           </Button>
-        }
+        ) : null}
         textSize={{ mobile: 'text-d3', desktop: 'text-c2' }}
         enableInternalSearch
         searchableKeys={searchableKeys}

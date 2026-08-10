@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { BillingImagesTable } from '@/app/mappings/billingimages/billingimages.types';
 
 const uploadFile = vi.fn().mockResolvedValue('url');
 const showAlert = vi.fn();
@@ -73,7 +74,34 @@ describe('useInvoicesForm', () => {
         pdf: new File(["%PDF-1.4"], "a.pdf", { type: "application/pdf" }),
       });
     });
-    expect(createBillingDocument).toHaveBeenCalled();
+    expect(createBillingDocument).toHaveBeenCalledWith(
+      expect.objectContaining({ billingimages_id: null }),
+    );
+  });
+
+  it('links the created billing document to the selected ticket image', async () => {
+    createBillingDocument.mockResolvedValue({ billing_document_id: '1' });
+    const billingImages = {
+      billing_image_id: 'ticket-image-1',
+      Image: 'https://example.com/ticket.png',
+    } as BillingImagesTable;
+    const { result } = renderHook(() => useInvoicesForm({ billingImages }));
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        requisition: '1',
+        description: 1,
+        category: 1,
+        numnights: 1,
+        numpersons: 1,
+        xml: new File(["<cfdi:Comprobante/>"], "a.xml", { type: "text/xml" }),
+        pdf: new File(["%PDF-1.4"], "a.pdf", { type: "application/pdf" }),
+      });
+    });
+
+    expect(createBillingDocument).toHaveBeenCalledWith(
+      expect.objectContaining({ billingimages_id: 'ticket-image-1' }),
+    );
   });
 
   it('muestra error y no envó­a si el XML estó¡ vacó­o', async () => {

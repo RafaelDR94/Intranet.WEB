@@ -114,6 +114,9 @@ const requisitionSummaryLayout: ResponsiveLayoutMatrix = {
   lg: [[3.05, 3.05, 3.05]],
 };
 
+const OPERATIONS_REQUISITION_REQUESTS_PATH =
+  "/main-page/operations/expenserequisitions/solicitudviaticos/";
+
 /**
  * Encapsulates TravelExpenseRequest store wiring, state and event handlers.
  */
@@ -132,6 +135,7 @@ export const useTravelExpenseRequest = (
   const view = options.viewOverride ?? searchParams.get("view");
   const selectedId = searchParams.get("id");
   const submitRef = useRef<(() => void | Promise<unknown>) | null>(null);
+  const authorizationSubmissionRef = useRef(false);
   const [formReady, setFormReady] = useState(false);
   const [assignedStaffRows, setAssignedStaffRows] = useState(1);
   const [valuesVersion, setValuesVersion] = useState(0);
@@ -158,6 +162,7 @@ export const useTravelExpenseRequest = (
   const [authorizerPopUpOpen, setAuthorizerPopUpOpen] = useState(false);
   const [authorizerSelected, setAuthorizerSelected] = useState("");
   const [authorizerError, setAuthorizerError] = useState<string | null>(null);
+  const [authorizationSent, setAuthorizationSent] = useState(false);
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { hideSpinner, showSpinner } = usePrincipalLoading;
@@ -1148,7 +1153,7 @@ export const useTravelExpenseRequest = (
     router.push(`${pathname}?${params.toString()}`);
   };
   const handleSaveRequisitionProgress = async () => {
-    if (!selectedTravelExpense) return;
+    if (!selectedTravelExpense || authorizationSent) return;
 
     const idTravelExpense = getSelectedTravelExpenseId();
     if (!idTravelExpense) return;
@@ -1181,7 +1186,7 @@ export const useTravelExpenseRequest = (
     });
   };
   const handleSendRequisitionAuthorization = () => {
-    if (!selectedTravelExpense) return;
+    if (!selectedTravelExpense || authorizationSent) return;
 
     setAuthorizerError(null);
     setAuthorizerPopUpOpen(true);
@@ -1194,7 +1199,13 @@ export const useTravelExpenseRequest = (
     setAuthorizerSelected(values[0] ?? "");
   };
   const handleConfirmAuthorizer = async () => {
-    if (!selectedTravelExpense) return;
+    if (
+      !selectedTravelExpense ||
+      authorizationSent ||
+      authorizationSubmissionRef.current
+    ) {
+      return;
+    }
 
     const idTravelExpense = getSelectedTravelExpenseId();
 
@@ -1216,10 +1227,12 @@ export const useTravelExpenseRequest = (
       return;
     }
 
+    authorizationSubmissionRef.current = true;
     showSpinner({ message: "Enviando requisicion a autorizacion..." });
     const progressSaved = await saveCurrentRequisitionProgress();
 
     if (!progressSaved) {
+      authorizationSubmissionRef.current = false;
       hideSpinner();
       showAlert({
         type: "error",
@@ -1246,6 +1259,7 @@ export const useTravelExpenseRequest = (
     hideSpinner();
 
     if (!success) {
+      authorizationSubmissionRef.current = false;
       showAlert({
         type: "error",
         title: "No se pudo enviar",
@@ -1259,6 +1273,7 @@ export const useTravelExpenseRequest = (
       return;
     }
 
+    setAuthorizationSent(true);
     showAlert({
       type: "success",
       title: "Enviada a autorizacion",
@@ -1268,6 +1283,7 @@ export const useTravelExpenseRequest = (
       autoCloseMs: 1800,
     });
     setAuthorizerPopUpOpen(false);
+    router.push(OPERATIONS_REQUISITION_REQUESTS_PATH);
   };
   const handleRejectCommentOpen = () => {
     setRejectCommentOpen(true);
@@ -1623,9 +1639,11 @@ export const useTravelExpenseRequest = (
   const detailStatusKind = getDetailStatusKind(selectedTravelExpense?.status);
   const detailStatusType = normalizeStatusType(selectedTravelExpense?.status);
   const showRejectedDetail = detailStatusKind === "rejected";
-  const requisitionActionsDisabled = isBlockedRequisitionActionStatus(
-    selectedTravelExpense?.status,
-  );
+  const requisitionActionsDisabled =
+    authorizationSent ||
+    isBlockedRequisitionActionStatus(
+      selectedTravelExpense?.status_name || selectedTravelExpense?.status,
+    );
   const isReviewView =
     view === "detail" &&
     (!selectedTravelExpense ||

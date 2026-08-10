@@ -15,6 +15,7 @@ import FingerprintErrorIcon from '@/assets/icons/Identy/fingerprint-error-circle
 import type { ActivatedUserRow } from './types'
 import UserAccountDetail from './components/UserAccountDetail/UserAccountDetail'
 import useActivatedUsersPage from './hooks/useActivatedUsersPage'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 
 type UserFilterValue =
   | 'all'
@@ -40,6 +41,7 @@ const SEARCHABLE_KEYS: (keyof ActivatedUserRow)[] = [
 
 const ActivatedUsersPage = () => {
   const isMobile = useIsMobile()
+  const { currentPagePermissions } = useAuth()
   const {
     filteredRows,
     isDetailOpen,
@@ -118,13 +120,13 @@ const ActivatedUsersPage = () => {
               row={row}
               editLabel="Ver detalle"
               onDetails={() => handleOpenDetails(row)}
-              permissions={{ details: true }}
+              permissions={{ details: Boolean(currentPagePermissions?.viewUserDetails) }}
             />
           </div>
         ),
       },
     ],
-    [handleOpenDetails],
+    [currentPagePermissions?.viewUserDetails, handleOpenDetails],
   )
 
   const columnsMobile = useMemo<ColumnDefinition<ActivatedUserRow>[]>(
@@ -175,13 +177,13 @@ const ActivatedUsersPage = () => {
               row={row}
               editLabel="Ver detalle"
               onDetails={() => handleOpenDetails(row)}
-              permissions={{ details: true }}
+              permissions={{ details: Boolean(currentPagePermissions?.viewUserDetails) }}
             />
           </div>
         ),
       },
     ],
-    [handleOpenDetails],
+    [currentPagePermissions?.viewUserDetails, handleOpenDetails],
   )
 
   return (

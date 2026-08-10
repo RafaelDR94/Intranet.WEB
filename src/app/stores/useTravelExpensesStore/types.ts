@@ -295,6 +295,11 @@ export type TravelExpensesState = {
   treasuryRequisitionRequestsError?: string;
   /** Fetches travel expenses from Billings/TravelExpenses. */
   fetchTravelExpenses: (force?: boolean) => Promise<void> | void;
+  /** Fetches active travel expenses for one employee. */
+  fetchTravelExpensesByEmployee: (
+    idEmployee: string,
+    force?: boolean,
+  ) => Promise<void> | void;
   /** Fetches requisition requests from Billings/RequisitionRequest. */
   fetchRequisitionRequests: () => Promise<void> | void;
   /** Fetches the unfiltered requisition requests for operations. */

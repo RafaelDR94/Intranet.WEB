@@ -84,7 +84,11 @@ const RequisitionRequestPage = () => {
             </div>
           </div>
 
-          <RequisitionEvidence imageUrls={requisitionImageUrls} />
+          <RequisitionEvidence
+            imageUrls={requisitionImageUrls}
+            status={selectedTravelExpense?.accounting_status_name || "Pendiente"}
+            comment={selectedTravelExpense?.comments}
+          />
 
           <section className={styles.detailCard}>
             {selectedTravelExpense ? (

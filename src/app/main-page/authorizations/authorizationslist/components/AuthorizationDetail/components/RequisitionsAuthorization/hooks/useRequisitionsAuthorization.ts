@@ -85,9 +85,9 @@ const useRequisitionsAuthorization = () => {
     searchParams.get('authorization_id') || searchParams.get('id') || undefined
   const requisitionId = searchParams.get('event_id') ?? undefined
   const useAuthorizationDocuments = searchParams.get('documents') === 'authorization'
-  const isOperationsRequisitionListContext = pathname.includes(
-    '/main-page/operations/requisitions/requisitionListPage',
-  )
+  const isOperationsRequisitionListContext =
+    pathname.includes('/main-page/operations/requisitions/requisitionListPage') ||
+    pathname.includes('/main-page/operations/expenserequisitions/beneficiaryhistory')
   const attemptedRef = useRef<string | null>(null)
   const billingAttemptedRef = useRef<string | null>(null)
   const redirectedRef = useRef(false)
@@ -161,6 +161,10 @@ const useRequisitionsAuthorization = () => {
 
   const {
     billingDocuments,
+    montoComprobado,
+    montoAFavorEmpresa,
+    montoAFavorColaborador,
+    hasPerDiemTotals,
     billingLoading,
     billingError,
     fetchBillingDocumentByIdRequisition,
@@ -168,6 +172,10 @@ const useRequisitionsAuthorization = () => {
   } = useBillingDocumentsStore(
     (state) => ({
       billingDocuments: state.billingDocuments,
+      montoComprobado: state.montoComprobado,
+      montoAFavorEmpresa: state.montoAFavorEmpresa,
+      montoAFavorColaborador: state.montoAFavorColaborador,
+      hasPerDiemTotals: state.hasPerDiemTotals,
       billingLoading: state.loading,
       billingError: state.error,
       fetchBillingDocumentByIdRequisition: state.fetchBillingDocumentByIdRequisition,
@@ -323,13 +331,12 @@ const useRequisitionsAuthorization = () => {
   }, [fetchCurrentRequisition, requisitionId, resetCurrentReq])
 
   useEffect(() => {
-    if (useAuthorizationDocuments) return
     if (!requisitionId) return
     if (billingAttemptedRef.current === requisitionId) return
 
     billingAttemptedRef.current = requisitionId
     fetchBillingDocumentByIdRequisition(requisitionId, true)
-  }, [fetchBillingDocumentByIdRequisition, requisitionId, useAuthorizationDocuments])
+  }, [fetchBillingDocumentByIdRequisition, requisitionId])
 
   useEffect(() => {
     if (!useAuthorizationDocuments) return
@@ -416,10 +423,11 @@ const useRequisitionsAuthorization = () => {
 
         if (success) {
           await getAuthorizations(true)
+          if (requisitionId) {
+            await fetchBillingDocumentByIdRequisition(requisitionId, true)
+          }
           if (useAuthorizationDocuments && authorizationId) {
             await getAuthorizationBillingDocuments(authorizationId, true)
-          } else if (requisitionId) {
-            await fetchBillingDocumentByIdRequisition(requisitionId, true)
           }
         }
 
@@ -684,11 +692,21 @@ const useRequisitionsAuthorization = () => {
   )
 
   const requestedAmount = parseMoney(currentRequisition?.amountdeposited)
-  const verifiedAmount = parseMoney(currentRequisition?.provenamount)
+  const verifiedAmount = hasPerDiemTotals
+    ? montoComprobado
+    : parseMoney(currentRequisition?.provenamount)
   const differenceAmount = parseMoney(currentRequisition?.amountdifference)
 
-  const favorEmpresa = differenceAmount > 0 ? differenceAmount : 0
-  const favorColaborador = differenceAmount < 0 ? Math.abs(differenceAmount) : 0
+  const favorEmpresa = hasPerDiemTotals
+    ? montoAFavorEmpresa
+    : differenceAmount > 0
+      ? differenceAmount
+      : 0
+  const favorColaborador = hasPerDiemTotals
+    ? montoAFavorColaborador
+    : differenceAmount < 0
+      ? Math.abs(differenceAmount)
+      : 0
 
   return {
     requisitionId,
@@ -702,8 +720,8 @@ const useRequisitionsAuthorization = () => {
     verificationDate: formatDateSafe(currentRequisition?.date_created),
     requestedAmountLabel: buildAmountLabel(requestedAmount),
     verifiedAmountLabel: buildAmountLabel(verifiedAmount),
-    favorEmpresaLabel: buildAmountLabel(favorEmpresa, true),
-    favorColaboradorLabel: buildAmountLabel(favorColaborador, true),
+    favorEmpresaLabel: buildAmountLabel(favorEmpresa, !hasPerDiemTotals),
+    favorColaboradorLabel: buildAmountLabel(favorColaborador, !hasPerDiemTotals),
     authorizationStatus,
     isPendingStatus,
     isRejectedStatus,

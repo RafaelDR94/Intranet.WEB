@@ -39,7 +39,7 @@ const useHistoryAssignment = ({
   onCreateAssignment,
 }: HistoryAssignmentProps) => {
   const { updateQuery } = useQuery();
-  const { user } = useAuth();
+  const { user, currentPagePermissions } = useAuth();
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -204,6 +204,7 @@ const useHistoryAssignment = ({
   }, [showAlert, unlinkMotive, unlinkStatusId]);
 
   const handleCreateAssignment = useCallback(() => {
+    if (!currentPagePermissions?.createDeviceAssignment) return;
     if (onCreateAssignment) {
       onCreateAssignment();
       return;
@@ -212,6 +213,7 @@ const useHistoryAssignment = ({
   }, [onCreateAssignment, updateQuery]);
 
   const handleConfirmUnlink = useCallback(async () => {
+    if (!currentPagePermissions?.unlinkDeviceAssignment) return;
     if (
       !deviceAssignment?.device_assigment_id ||
       !deviceAssignment.device_id ||
@@ -286,6 +288,7 @@ const useHistoryAssignment = ({
 
   const handleOpenResponsive = useCallback(
     (url?: string | null, title?: string) => {
+      if (!currentPagePermissions?.viewResponsive) return;
       if (!url) {
         showAlert({
           type: "warning",

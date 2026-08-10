@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 
 import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { InternalDevice } from "@/app/mappings/internaldevices/internaldevices.types";
@@ -15,6 +16,7 @@ import type { DeactivatedDeviceRow } from "../types";
  * Handles deactivated devices loading, table projection, and detail actions.
  */
 const useDevicesDeactivated = () => {
+  const { currentPagePermissions } = useAuth();
   const { usePrincipalAlert, usePrincipalLoading } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
   const { showSpinner, hideSpinner } = usePrincipalLoading;
@@ -121,26 +123,29 @@ const useDevicesDeactivated = () => {
 
   const handleOpenDetails = useCallback(
     (row: DeactivatedDeviceRow) => {
+      if (!currentPagePermissions?.viewDeactivatedDeviceDetails) return;
       const device = deactivatedDevices.find(
         (item) => item.device_id === row.id,
       );
       setSelectedDevice(device ?? null);
     },
-    [deactivatedDevices],
+    [currentPagePermissions?.viewDeactivatedDeviceDetails, deactivatedDevices],
   );
 
   const handleReactivate = useCallback((row: DeactivatedDeviceRow) => {
+    if (!currentPagePermissions?.reactivateDevice) return;
     setReactivationDevice(row);
-  }, []);
+  }, [currentPagePermissions?.reactivateDevice]);
 
   const handleCloseReactivationPopup = useCallback(() => {
     setReactivationDevice(null);
   }, []);
 
   const handleConfirmReactivation = useCallback(() => {
+    if (!currentPagePermissions?.reactivateDevice) return;
     if (!reactivationDevice) return;
     void activateDevice(reactivationDevice.id);
-  }, [activateDevice, reactivationDevice]);
+  }, [activateDevice, currentPagePermissions?.reactivateDevice, reactivationDevice]);
 
   const columns = useMemo<ColumnDefinition<DeactivatedDeviceRow>[]>(
     () => [
@@ -201,12 +206,12 @@ const useDevicesDeactivated = () => {
             onDetails={handleOpenDetails}
             onReactivate={handleReactivate}
             reactivateLabel="Reactivar"
-            permissions={{ details: true, renew: true }}
+            permissions={{ details: Boolean(currentPagePermissions?.viewDeactivatedDeviceDetails), renew: Boolean(currentPagePermissions?.reactivateDevice) }}
           />
         ),
       },
     ],
-    [handleOpenDetails, handleReactivate],
+    [currentPagePermissions?.reactivateDevice, currentPagePermissions?.viewDeactivatedDeviceDetails, handleOpenDetails, handleReactivate],
   );
 
   const searchableKeys = useMemo<(keyof DeactivatedDeviceRow)[]>(

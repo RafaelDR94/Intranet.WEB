@@ -58,6 +58,12 @@ vi.mock('@/app/context/FirebaseContext/FirebaseContext', () => ({
   }),
 }))
 
+vi.mock('@/app/context/AuthContext/AuthContext', () => ({
+  useAuth: () => ({
+    currentPagePermissions: { activateUser: true, reactivateUser: true },
+  }),
+}))
+
 vi.mock('@/app/hooks/useQuery/useQuery', () => ({
   __esModule: true,
   default: () => getQueryState(),

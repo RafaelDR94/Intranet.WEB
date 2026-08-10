@@ -1,14 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import { Button } from '@/app/components/Button/Button'
-import { ContextMenu } from '@/app/components/ContextMenu/ContextMenu'
+import ActionMenuCell from '@/app/components/ActionMenuCell/ActionMenuCell'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import type { ColumnDefinition } from '@/app/components/DataTable/types'
 import Label from '@/app/components/Label/Label'
 import { useIsMobile } from '@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery'
 import type { InternalDeviceBrand } from '@/app/mappings/internaldevices/internaldevices.types'
-import DeleteIcon from '@/assets/icons/acciones/trash.svg'
-import EditIcon from '@/assets/icons/Editor/edit-pencil.svg'
-import DotsIcon from '@/assets/icons/navegacion/more-horiz.svg'
 
 import type { DeviceBrandRow, StatusFilterOption, StatusFilterValue } from '../types'
 import {
@@ -41,6 +38,7 @@ type UseDeviceBrandsTableResult = {
 const useDeviceBrandsTable = (
   { brands, onEditBrand, onDeleteBrand }: UseDeviceBrandsTableParams,
 ): UseDeviceBrandsTableResult => {
+  const { currentPagePermissions } = useAuth()
   const isMobile = useIsMobile()
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(
     DEFAULT_STATUS_FILTER,
@@ -104,47 +102,16 @@ const useDeviceBrandsTable = (
         cellClass: 'w-[4%]',
         headerClass: 'w-[4%]',
         render: (row) => (
-          <ContextMenu
-            alignRight
-            autoFlip
-            items={[
-              {
-                label: 'Editar',
-                icon: EditIcon,
-                onClick: () =>
-                  onEditBrand({
-                    device_brand_id: row.device_brand_id,
-                    name: row.name,
-                    description: row.description,
-                    is_active: row.is_active,
-                  }),
-              },
-              {
-                label: 'Desactivar',
-                icon: DeleteIcon,
-                danger: true,
-                onClick: () =>
-                  onDeleteBrand({
-                    device_brand_id: row.device_brand_id,
-                    name: row.name,
-                    description: row.description,
-                    is_active: row.is_active,
-                  }),
-              },
-            ]}
-            trigger={
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={DotsIcon}
-                aria-label="Abrir menu de acciones"
-              />
-            }
+          <ActionMenuCell
+            row={row}
+            onEdit={() => onEditBrand({ device_brand_id: row.device_brand_id, name: row.name, description: row.description, is_active: row.is_active })}
+            onDelete={() => onDeleteBrand({ device_brand_id: row.device_brand_id, name: row.name, description: row.description, is_active: row.is_active })}
+            permissions={{ update: Boolean(currentPagePermissions?.updateDeviceBrand), delete: Boolean(currentPagePermissions?.deleteDeviceBrand) }}
           />
         ),
       },
     ],
-    [onDeleteBrand, onEditBrand],
+    [currentPagePermissions?.deleteDeviceBrand, currentPagePermissions?.updateDeviceBrand, onDeleteBrand, onEditBrand],
   )
 
   const columnsMobile = useMemo<ColumnDefinition<DeviceBrandRow>[]>(
@@ -179,47 +146,16 @@ const useDeviceBrandsTable = (
         cellClass: 'w-1/12',
         headerClass: 'w-1/12',
         render: (row) => (
-          <ContextMenu
-            alignRight
-            autoFlip
-            items={[
-              {
-                label: 'Editar',
-                icon: EditIcon,
-                onClick: () =>
-                  onEditBrand({
-                    device_brand_id: row.device_brand_id,
-                    name: row.name,
-                    description: row.description,
-                    is_active: row.is_active,
-                  }),
-              },
-              {
-                label: 'Desactivar',
-                icon: DeleteIcon,
-                danger: true,
-                onClick: () =>
-                  onDeleteBrand({
-                    device_brand_id: row.device_brand_id,
-                    name: row.name,
-                    description: row.description,
-                    is_active: row.is_active,
-                  }),
-              },
-            ]}
-            trigger={
-              <Button
-                size="xsmall"
-                variant="ghost"
-                icon={DotsIcon}
-                aria-label="Abrir menu de acciones"
-              />
-            }
+          <ActionMenuCell
+            row={row}
+            onEdit={() => onEditBrand({ device_brand_id: row.device_brand_id, name: row.name, description: row.description, is_active: row.is_active })}
+            onDelete={() => onDeleteBrand({ device_brand_id: row.device_brand_id, name: row.name, description: row.description, is_active: row.is_active })}
+            permissions={{ update: Boolean(currentPagePermissions?.updateDeviceBrand), delete: Boolean(currentPagePermissions?.deleteDeviceBrand) }}
           />
         ),
       },
     ],
-    [onDeleteBrand, onEditBrand],
+    [currentPagePermissions?.deleteDeviceBrand, currentPagePermissions?.updateDeviceBrand, onDeleteBrand, onEditBrand],
   )
 
   const columns = isMobile ? columnsMobile : columnsDesktop

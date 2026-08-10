@@ -131,6 +131,7 @@ const RequisitionDetailsTable: React.FC<RequisitionDetailsTableProps> = ({
       {
         key: "xmlUrl" as unknown as keyof BillingDocumentDetailsTable,
         label: "ARCHIVOS",
+        // Acoge XML, PDF e imagen sin invadir la columna de fecha.
         cellClass: "w-1/16 text-left",
         headerClass: "w-1/16 text-left",
         render: (row) => {

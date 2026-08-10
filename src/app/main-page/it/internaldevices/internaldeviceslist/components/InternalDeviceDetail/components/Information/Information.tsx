@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react'
 
 import { Button } from '@/app/components/Button/Button'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import InfoCards from '@/app/components/InfoCards/InfoCards'
 import type { InfoItem } from '@/app/components/InfoCards/types'
 import type { InternalDevice } from '@/app/mappings/internaldevices/internaldevices.types'
@@ -17,6 +18,7 @@ const Information: React.FC<InternalDeviceInformationProps> = ({
   device,
   onEdit,
 }) => {
+  const { currentPagePermissions } = useAuth()
   const cards = useMemo<InfoItem[][]>(
     () => [
       [
@@ -54,7 +56,7 @@ const Information: React.FC<InternalDeviceInformationProps> = ({
         <span className="text-label text-blue-60">
           Asignado a: {device.assigned ? 'Asignado' : 'Sin asignar'}
         </span>
-        <Button
+        {currentPagePermissions?.updateDevice && <Button
           size="small"
           variant="ghost"
           icon={EditIcon}
@@ -62,7 +64,7 @@ const Information: React.FC<InternalDeviceInformationProps> = ({
           onClick={onEdit}
         >
           Editar Información
-        </Button>
+        </Button>}
       </div>
 
       <InfoCards
