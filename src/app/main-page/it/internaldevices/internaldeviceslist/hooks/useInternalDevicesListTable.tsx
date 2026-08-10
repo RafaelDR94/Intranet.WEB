@@ -29,6 +29,7 @@ import {
   matchesAssignmentFilter,
   matchesReviewFilter,
   matchesStatusFilter,
+  buildInternalDeviceSearchContent,
   sortInternalDevicesByCreationDate,
   statusToLabelType,
 } from '../utilities/internalDevicesListTable'
@@ -72,6 +73,7 @@ const useInternalDevicesListTable = ({
         ...device,
         id: device.device_id || String(index + 1),
         display_id: String(index + 1).padStart(3, '0'),
+        search_content: buildInternalDeviceSearchContent(device),
       })),
     [devices],
   )

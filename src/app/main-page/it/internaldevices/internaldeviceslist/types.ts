@@ -6,6 +6,8 @@ import type { InternalDevice } from '@/app/mappings/internaldevices/internaldevi
 export type InternalDeviceRow = InternalDevice & {
   id: string
   display_id: string
+  /** Texto interno con todos los valores permitidos para la búsqueda. */
+  search_content: string
 }
 
 /**
