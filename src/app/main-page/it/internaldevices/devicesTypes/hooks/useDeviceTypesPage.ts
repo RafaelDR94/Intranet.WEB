@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { shallow } from 'zustand/shallow'
 
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import useQuery from '@/app/hooks/useQuery/useQuery'
 import type { InternalDeviceType } from '@/app/mappings/internaldevices/internaldevices.types'
 import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
@@ -12,6 +13,7 @@ import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/us
  * Hook para cargar la tabla y manejar la vista de tipos de dispositivos.
  */
 const useDeviceTypesPage = () => {
+  const { currentPagePermissions } = useAuth()
   const { all, updateQuery } = useQuery()
   const normalizedId = useMemo(() => {
     const raw = all.id
@@ -203,21 +205,24 @@ const useDeviceTypesPage = () => {
   }, [fetchDeviceTypes])
 
   const handleOpenCreate = useCallback(() => {
+    if (!currentPagePermissions?.createDeviceType) return
     updateQuery({ id: null, view: 'new' })
-  }, [updateQuery])
+  }, [currentPagePermissions?.createDeviceType, updateQuery])
 
   const handleOpenEdit = useCallback(
     (deviceType: InternalDeviceType) => {
+      if (!currentPagePermissions?.updateDeviceType) return
       updateQuery({ id: deviceType.device_type_id, view: 'edit' })
     },
-    [updateQuery],
+    [currentPagePermissions?.updateDeviceType, updateQuery],
   )
 
   const handleDeleteType = useCallback(
     async (deviceType: InternalDeviceType) => {
+      if (!currentPagePermissions?.deleteDeviceType) return
       await deleteDeviceType(deviceType.device_type_id)
     },
-    [deleteDeviceType],
+    [currentPagePermissions?.deleteDeviceType, deleteDeviceType],
   )
 
   const handleBackToList = useCallback(() => {

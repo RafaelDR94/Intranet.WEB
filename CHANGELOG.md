@@ -1049,3 +1049,8 @@ Feature:
 
 - Adjustments to the Invoices Form.
   (Katherine Negrete) [347#](https://github.com/DR-Mexico/dr.intranet.web/pull/347#)
+### 1.50.42 Permisos por acción en TI 2026-08-06
+
+Feature:
+
+- Agrega control granular de permisos para las acciones de usuarios y dispositivos internos, conservando rutas y accesos existentes. (Agente IA) [#]()

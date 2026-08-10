@@ -47,6 +47,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
   label,
   placeholder,
   onImage,
+  onImagesChange,
   disabled = false,
   className,
   defaultFacingMode = "environment",
@@ -60,6 +61,8 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
   preview = false,
   previewCoverMode = false,
   multiple = false,
+  galleryLayout = "default",
+  showCamera = true,
   previewWrapperClassName,
   previewImageClassName,
   previewActionsClassName,
@@ -92,6 +95,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     handleImageDragEnd,
   } = useImageUploaderExpanded({
     onImage,
+    onImagesChange,
     accept,
     disabled,
     placeholder,
@@ -109,16 +113,28 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
     disabled && dropzoneDisabledClasses,
     preview && "w-[245px] mx-auto",
     preview && (previewCoverMode ? "h-[290px]" : "h-[218px]"),
+    galleryLayout === "integrated" && (images?.length ?? 0) === 0 && "!w-36",
   );
 
   const { capture: captureLabel, switchCamera, close } = cameraLabels ?? {};
 
   const isPreviewVisible = preview && !!previewUrl && !isChanging;
   const isPreviewCoverMode = isPreviewVisible && previewCoverMode;
+  const isIntegratedGallery = multiple && galleryLayout === "integrated";
+  const galleryImages = images ?? [];
+  const selectedImagesCount = galleryImages.filter(
+    (image) => image.selected !== false,
+  ).length;
 
   return (
     <div
-      className={containerClasses}
+      className={clsx(
+        containerClasses,
+        isIntegratedGallery && galleryImages.length === 0 &&
+          "min-h-[160px] items-center justify-center",
+        isIntegratedGallery && galleryImages.length > 0 &&
+          "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5",
+      )}
       ref={containerRef}
       data-testid={dataTestId}
     >
@@ -128,7 +144,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
         <div
           className={clsx(
             previewWrapperClasses,
-            preview && "w-[245px] mx-auto",
+            preview && "mx-auto w-[245px]",
             isPreviewCoverMode && "h-[290px]",
             isPreviewCoverMode && "border-0",
             previewWrapperClassName,
@@ -150,7 +166,7 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
             <div
               className={clsx(
                 previewActionsClasses,
-                isPreviewCoverMode && "absolute bottom-3 left-0 right-0 mt-0",
+                isPreviewCoverMode && "absolute right-0 bottom-3 left-0 mt-0",
                 previewActionsClassName,
               )}
             >
@@ -174,6 +190,11 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
       ) : (
         <div
           className={dropzoneClasses}
+          style={
+            isIntegratedGallery && galleryImages.length > 0
+              ? { order: 2 }
+              : undefined
+          }
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={(e) => {
@@ -195,17 +216,19 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
             </div>
           )}
 
-          <button
-            type="button"
-            className={cameraButtonClasses}
-            onClick={openCamera}
-            disabled={disabled}
-            aria-label={cameraButtonAriaLabel}
-          >
-            <CameraIcon className={cameraIconClasses} />
-          </button>
+          {showCamera && (
+            <button
+              type="button"
+              className={cameraButtonClasses}
+              onClick={openCamera}
+              disabled={disabled}
+              aria-label={cameraButtonAriaLabel}
+            >
+              <CameraIcon className={cameraIconClasses} />
+            </button>
+          )}
 
-          <span className={separatorClasses}>o</span>
+          {showCamera && <span className={separatorClasses}>o</span>}
           <p className={helperTextClasses}>{displayText}</p>
 
           <input
@@ -236,29 +259,40 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
         </div>
       )}
 
-      <CameraViewer
-        isOpen={isCameraOpen}
-        onClose={closeCamera}
-        onCapture={(file) => {
-          handleCaptureFromCamera(file);
-          if (preview) setIsChanging(false);
-        }}
-        defaultFacingMode={defaultFacingMode}
-        captureButtonLabel={captureLabel ?? "Capturar"}
-        switchButtonLabel={switchCamera ?? "Cambiar camara"}
-        closeButtonLabel={close ?? "Cerrar"}
-      />
+      {showCamera && (
+        <CameraViewer
+          isOpen={isCameraOpen}
+          onClose={closeCamera}
+          onCapture={(file) => {
+            handleCaptureFromCamera(file);
+            if (preview) setIsChanging(false);
+          }}
+          defaultFacingMode={defaultFacingMode}
+          captureButtonLabel={captureLabel ?? "Capturar"}
+          switchButtonLabel={switchCamera ?? "Cambiar camara"}
+          closeButtonLabel={close ?? "Cerrar"}
+        />
+      )}
 
-      {multiple && images.length > 0 && (
-        <div className={galleryWrapper}>
-          <div className={galleryGrid}>
-            {images.map((img) => (
+      {multiple && galleryImages.length > 0 && (
+        <div
+          className={clsx(galleryWrapper, isIntegratedGallery && "!contents")}
+        >
+          <div
+            className={clsx(galleryGrid, isIntegratedGallery && "!contents")}
+          >
+            {galleryImages.map((img, index) => (
               <label
                 key={img.id}
                 className={galleryItem(
                   img.selected !== false,
                   draggingId === img.id,
                 )}
+                style={
+                  isIntegratedGallery
+                    ? { order: index < 4 ? 1 : 3 }
+                    : undefined
+                }
                 draggable={!disabled}
                 onDragStart={() => handleImageDragStart?.(img.id)}
                 onDragOver={(event) =>
@@ -271,7 +305,12 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
                   type="checkbox"
                   checked={img.selected !== false}
                   onChange={() => toggleImage?.(img.id)}
-                  className="sr-only"
+                  className={clsx(
+                    isIntegratedGallery
+                      ? "absolute top-2 right-2 z-10 size-4 cursor-pointer accent-blue-60"
+                      : "sr-only",
+                  )}
+                  aria-label={`Seleccionar ${img.name}`}
                 />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -282,14 +321,19 @@ export const ImageUploaderExpanded: React.FC<ImageUploaderExpandedProps> = ({
               </label>
             ))}
           </div>
-          {images.length > 0 && (
-            <div className="flex justify-end mt-8">
+          {galleryImages.length > 0 && (
+            <div
+              className={clsx(
+                "mt-8 flex justify-end",
+                isIntegratedGallery && "order-4 col-span-full mt-0",
+              )}
+            >
               <Button
                 variant="outline"
                 size="small"
                 hideIcon
                 onClick={clearImages}
-                disabled={disabled}
+                disabled={disabled || selectedImagesCount === 0}
               >
                 Quitar imágenes
               </Button>

@@ -33,7 +33,7 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
   onBack,
 }) => {
   const isMobile = useIsMobile()
-  const { user } = useAuth()
+  const { user, currentPagePermissions } = useAuth()
   const { usePrincipalAlert } = usePrincipal()
   const { showAlert } = usePrincipalAlert
 
@@ -104,6 +104,7 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
   }, [])
 
   const handleSave = useCallback(async () => {
+    if (!currentPagePermissions?.createDeviceReview) return
     if (!device) {
       showAlert({
         type: 'error',

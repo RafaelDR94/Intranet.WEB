@@ -70,6 +70,12 @@ export const getTabsFromPath = (
         path: "/main-page/treasury/treasurypettycash/treasuryrequest",
       },
     ],
+    "treasury/requisitions": [
+      {
+        label: "Listado solicitud de requisici\u00f3n",
+        path: "/main-page/treasury/requisitions",
+      },
+    ],
     "request/vehicleassignament": [
       {
         label: "Prestamo Vehicular",
@@ -187,6 +193,10 @@ export const getTabsFromPath = (
       {
         label: "Solicitud viáticos",
         path: "/main-page/operations/expenserequisitions/travelexpenserequest",
+      },
+      {
+        label: "Estatus Aprobación de requisiciones",
+        path: "/main-page/operations/expenserequisitions/solicitudviaticos",
       },
       {
         label: "Historial beneficiarios",
@@ -781,6 +791,25 @@ export const getTabsFromPath = (
       ) {
         tabs = [...tabs, { label: detailTabLabel, path: detailPath }];
       }
+    }
+  }
+
+  if (
+    first === "operations" &&
+    second === "expenserequisitions" &&
+    third === "beneficiaryhistory" &&
+    id &&
+    labelparam?.toLowerCase().startsWith("archivos")
+  ) {
+    const clean = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+    const filesQs = new URLSearchParams();
+    filesQs.set("id", id);
+    if (idEmployee) filesQs.set("idEmployee", idEmployee);
+    filesQs.set("label", labelparam);
+    const filesPath = `${clean}?${filesQs.toString()}`;
+
+    if (!tabs.some((tab) => tab.path === filesPath || tab.label === labelparam)) {
+      tabs = [...tabs, { label: labelparam, path: filesPath }];
     }
   }
 

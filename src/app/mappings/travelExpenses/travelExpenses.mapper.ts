@@ -9,6 +9,11 @@ const toStringSafe = (value: unknown, fallback = ""): string =>
 const toBooleanSafe = (value: unknown): boolean =>
   typeof value === "boolean" ? value : Boolean(value);
 
+const toStringArraySafe = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+
 const parseCalculationConceptsJson = (
   value: TravelExpenseApi["calculation_concepts_json"],
 ): TravelExpense["calculation_concepts_json"] => {
@@ -112,6 +117,16 @@ const mapRequisitionRequests = (
         status_name: toStringSafe(
           requisition.status_name ?? requisition.statusName,
         ),
+        treasury_status_name: toStringSafe(
+          requisition.treasury_status_name ?? requisition.treasuryStatusName,
+        ),
+        accounting_status_name: toStringSafe(
+          requisition.accounting_status_name ??
+            requisition.accountingStatusName,
+        ),
+        image_urls: toStringArraySafe(
+          requisition.image_urls ?? requisition.imageUrls,
+        ),
         is_active: toBooleanSafe(requisition.is_active ?? requisition.isActive),
         date_created: toStringSafe(
           requisition.date_created ?? requisition.dateCreated,
@@ -148,7 +163,12 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
   return {
     id,
     billingrequisition_id,
-    employee_id: toStringSafe(record.employee_id ?? record.employeeId),
+    employee_id: toStringSafe(
+      record.employee_id ??
+        record.employeeId ??
+        record.id_employee ??
+        record.idEmployee,
+    ),
     employeename: toStringSafe(
       record.employeename ??
         record.employee_name ??
@@ -156,7 +176,12 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
         record.full_name ??
         record.fullName,
     ),
-    applicant_id: toStringSafe(record.applicant_id ?? record.applicantId),
+    applicant_id: toStringSafe(
+      record.applicant_id ??
+        record.applicantId ??
+        record.id_applicant ??
+        record.idApplicant,
+    ),
     id_user: toStringSafe(
       record.id_user ?? record.idUser ?? record.user_id ?? record.userId,
     ),
@@ -193,12 +218,23 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
         record.department_name ??
         record.departmentName,
     ),
-    department_id: toStringSafe(record.department_id ?? record.departmentId),
+    department_id: toStringSafe(
+      record.department_id ??
+        record.departmentId ??
+        record.id_department ??
+        record.idDepartment,
+    ),
     department_name: toStringSafe(
       record.department_name ?? record.departmentName,
     ),
     status_id: toStringSafe(record.status_id),
     status_name: statusName,
+    treasury_status_name: toStringSafe(
+      record.treasury_status_name ?? record.treasuryStatusName,
+    ),
+    accounting_status_name: toStringSafe(
+      record.accounting_status_name ?? record.accountingStatusName,
+    ),
     status_employee_name: statusEmployeeName,
     status,
     requisitionkey: toStringSafe(
@@ -207,6 +243,7 @@ export const TravelExpenseMap = (raw: unknown): TravelExpense => {
         record.requisition_code ??
         record.requisitionCode,
     ),
+    image_urls: toStringArraySafe(record.image_urls ?? record.imageUrls),
     assignmentdate: toStringSafe(
       record.assignmentdate ??
         record.assignmentDate ??

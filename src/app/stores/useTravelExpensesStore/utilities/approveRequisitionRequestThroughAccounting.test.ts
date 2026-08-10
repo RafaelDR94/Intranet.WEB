@@ -32,6 +32,8 @@ const travelExpense = {
   department_name: "",
   status_id: "",
   status_name: "Pendiente",
+  treasury_status_name: "APROBADA",
+  accounting_status_name: "PENDIENTE",
   status: "Pendiente",
   requisitionkey: "REQ-1",
   assignmentdate: "",
@@ -52,7 +54,7 @@ const travelExpense = {
 };
 
 describe("approveRequisitionRequestThroughAccounting", () => {
-  it("calls accounting approval endpoint and marks request as approved", async () => {
+  it("sends the requisition request identifier in the approval endpoint and applies the resulting statuses", async () => {
     putMock.mockResolvedValue({ data: { data: null } });
 
     const state: Partial<TravelExpensesState> = {
@@ -78,12 +80,20 @@ describe("approveRequisitionRequestThroughAccounting", () => {
 
     expect(result).toBe(true);
     expect(putMock).toHaveBeenCalledWith(
-      "/Auth/ApprovethroughAccounting?IdRequisitionRequest=request-1",
+      "/Billings/RequisitionRequests/Accounting/Approve/request-1",
       {},
     );
     expect(state.approving).toBe(false);
     expect(state.successApprove).toBe(true);
-    expect(state.currentRequisitionRequest?.status_name).toBe("Aprobada");
-    expect(state.travelExpenses?.[0]?.status_name).toBe("Aprobada");
+    expect(state.currentRequisitionRequest).toMatchObject({
+      status_name: "FINALIZADA",
+      treasury_status_name: "APROBADA",
+      accounting_status_name: "APROBADA",
+    });
+    expect(state.travelExpenses?.[0]).toMatchObject({
+      status_name: "FINALIZADA",
+      treasury_status_name: "APROBADA",
+      accounting_status_name: "APROBADA",
+    });
   });
 });

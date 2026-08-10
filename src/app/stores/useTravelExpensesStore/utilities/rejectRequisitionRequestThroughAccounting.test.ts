@@ -32,6 +32,8 @@ const travelExpense = {
   department_name: "",
   status_id: "",
   status_name: "Pendiente",
+  treasury_status_name: "APROBADA",
+  accounting_status_name: "PENDIENTE",
   status_employee_name: "",
   status: "Pendiente",
   requisitionkey: "REQ-1",
@@ -62,7 +64,7 @@ const travelExpense = {
 };
 
 describe("rejectRequisitionRequestThroughAccounting", () => {
-  it("calls accounting rejection endpoint and marks request as rejected", async () => {
+  it("sends the rejection comment in the endpoint query and applies the resulting statuses", async () => {
     putMock.mockResolvedValue({ data: { data: null } });
 
     const state: Partial<TravelExpensesState> = {
@@ -87,12 +89,20 @@ describe("rejectRequisitionRequestThroughAccounting", () => {
 
     expect(result).toBe(true);
     expect(putMock).toHaveBeenCalledWith(
-      "/Auth/RejectedByAccounting?IdRequisitionRequest=request-1&comment=No+procede",
+      "/Billings/RequisitionRequests/Accounting/Reject/request-1?comment=No+procede",
       {},
     );
     expect(state.rejecting).toBe(false);
     expect(state.successReject).toBe(true);
-    expect(state.currentRequisitionRequest?.status_name).toBe("Rechazada");
-    expect(state.travelExpenses?.[0]?.status_name).toBe("Rechazada");
+    expect(state.currentRequisitionRequest).toMatchObject({
+      status_name: "TESORERIA",
+      treasury_status_name: "PENDIENTE",
+      accounting_status_name: "RECHAZADA",
+    });
+    expect(state.travelExpenses?.[0]).toMatchObject({
+      status_name: "TESORERIA",
+      treasury_status_name: "PENDIENTE",
+      accounting_status_name: "RECHAZADA",
+    });
   });
 });

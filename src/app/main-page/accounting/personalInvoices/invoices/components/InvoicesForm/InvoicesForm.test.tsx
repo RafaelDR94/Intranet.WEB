@@ -5,6 +5,7 @@ import { describe, it, expect, vi } from 'vitest';
 import InvoicesForm from './InvoicesForm';
 
 import type { ResponsiveLayoutMatrix } from '@/app/components/DynamicForm/types';
+import type { BillingImagesTable } from '@/app/mappings/billingimages/billingimages.types';
 
 const DynamicFormMock = vi.hoisted(() => vi.fn(() => <div>DynamicFormMock</div>));
 const FormsLayoutMock = vi.hoisted(() =>
@@ -37,6 +38,10 @@ vi.mock('@/app/components/DynamicForm/DynamicForm', () => ({
 vi.mock('@/app/components/FormsLayout/FormsLayout', () => ({
   __esModule: true,
   default: FormsLayoutMock,
+}));
+vi.mock('@/assets/icons/acciones/cancel.svg', () => ({
+  __esModule: true,
+  default: () => <svg />,
 }));
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   useAuth: () => ({ currentPagePermissions: { canAddDocuments: true } }),
@@ -100,5 +105,24 @@ describe('InvoicesForm', () => {
       }),
       undefined,
     );
+  });
+
+  it('shows the selected ticket preview beside the externally submitted form', () => {
+    render(
+      <InvoicesForm
+        responsiveLayoutMatrix={matrix}
+        externalSubmitRef={React.createRef()}
+        billingImages={{
+          billing_image_id: 'ticket-1',
+          Image: 'https://example.com/ticket.png',
+        } as BillingImagesTable}
+      />,
+    );
+
+    expect(
+      document.querySelector(
+        '[data-tour="requisitions-invoice-preview"] img[src="https://example.com/ticket.png"]',
+      ),
+    ).toBeInTheDocument();
   });
 });

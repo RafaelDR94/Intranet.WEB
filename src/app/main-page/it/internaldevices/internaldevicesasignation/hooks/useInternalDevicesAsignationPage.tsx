@@ -566,6 +566,7 @@ const useInternalDevicesAsignationPage = () => {
   );
 
   const handleAssign = useCallback(async () => {
+    if (!currentPagePermissions?.createDeviceAssignment) return;
     if (!formValues.device_id || !formValues.employee_id) {
       showAlert({
         type: "warning",
@@ -740,6 +741,7 @@ const useInternalDevicesAsignationPage = () => {
   }, [formValues.employee_id, showAlert]);
 
   const handleOpenCreate = useCallback(() => {
+    if (!currentPagePermissions?.createDeviceAssignment) return;
     updateQuery({ view: "new" });
   }, [updateQuery]);
 
@@ -761,6 +763,7 @@ const useInternalDevicesAsignationPage = () => {
 
   const handleOpenResponsive = useCallback(
     (url?: string | null, title?: string) => {
+      if (!currentPagePermissions?.viewResponsive) return;
       if (!url) {
         showAlert({
           type: "warning",
@@ -795,6 +798,7 @@ const useInternalDevicesAsignationPage = () => {
 
   const handleOpenAssignmentDetails = useCallback(
     (row: InternalDeviceAssignmentRow) => {
+      if (!currentPagePermissions?.viewDeviceAssignmentDetails) return;
       if (row.device_id) {
         updateQuery({
           id: row.device_id,
@@ -963,6 +967,8 @@ const useInternalDevicesAsignationPage = () => {
 
   const handleOpenResponsiveFromRow = useCallback(
     (row: InternalDeviceAssignmentRow) => {
+      if (!row.responsive_url && !currentPagePermissions?.generateMissingResponsive) return;
+      if (row.responsive_url && !currentPagePermissions?.viewResponsive) return;
       if (row.responsive_url) {
         handleOpenResponsive(row.responsive_url, getResponsiveTitle(row));
         return;
@@ -1088,12 +1094,14 @@ const useInternalDevicesAsignationPage = () => {
     : null;
 
   const handleEditInformation = useCallback(() => {
+    if (!currentPagePermissions?.updateAssignedDevice) return;
     const targetId = selectedDevice?.device_id ?? normalizedId;
     if (!targetId) return;
     updateQuery({ id: targetId, view: "edit" });
   }, [normalizedId, selectedDevice, updateQuery]);
 
   const handleCreateReview = useCallback(() => {
+    if (!currentPagePermissions?.createDeviceReview) return;
     const targetId = selectedDevice?.device_id ?? normalizedId;
     if (!targetId) return;
     updateQuery({ id: targetId, view: "review" });

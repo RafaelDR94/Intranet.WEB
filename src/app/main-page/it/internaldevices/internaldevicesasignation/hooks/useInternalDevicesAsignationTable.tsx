@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import ActionMenuCell from "@/app/components/ActionMenuCell/ActionMenuCell";
+import { useAuth } from "@/app/context/AuthContext/AuthContext";
 import type { ColumnDefinition } from "@/app/components/DataTable/types";
 import Label from "@/app/components/Label/Label";
 import type { EmployeeType } from "@/app/mappings/employees/employee.types";
@@ -58,6 +59,7 @@ const useInternalDevicesAsignationTable = ({
   onOpenResponsive,
   onRegenerateResponsive,
 }: UseInternalDevicesAsignationTableParams): UseInternalDevicesAsignationTableResult => {
+  const { currentPagePermissions } = useAuth();
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(
     DEFAULT_STATUS_FILTER,
   );
@@ -208,7 +210,7 @@ const useInternalDevicesAsignationTable = ({
               row={row}
               editLabel="Ver detalle"
               onDetails={() => onOpenDetails(row)}
-              permissions={{ details: true, delete: false, update: false }}
+              permissions={{ details: Boolean(currentPagePermissions?.viewDeviceAssignmentDetails), delete: false, update: false }}
             />
           </div>
         ),
@@ -257,7 +259,7 @@ const useInternalDevicesAsignationTable = ({
               row={row}
               editLabel="Ver detalle"
               onDetails={() => onOpenDetails(row)}
-              permissions={{ details: true, delete: false, update: false }}
+              permissions={{ details: Boolean(currentPagePermissions?.viewDeviceAssignmentDetails), delete: false, update: false }}
             />
           </div>
         ),

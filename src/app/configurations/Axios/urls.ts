@@ -60,12 +60,6 @@ export const AuthorizationApprove =
   process.env.NEXT_PUBLIC_AUTHORIZATION_APPROVE ?? "/Auth/AuthorizationApprove";
 export const AuthorizationReject =
   process.env.NEXT_PUBLIC_AUTHORIZATION_REJECT ?? "/Auth/AuthorizationReject";
-export const AuthorizationApproveThroughAccounting =
-  process.env.NEXT_PUBLIC_AUTHORIZATION_APPROVE_THROUGH_ACCOUNTING ??
-  "/Auth/ApprovethroughAccounting";
-export const AuthorizationRejectedByAccounting =
-  process.env.NEXT_PUBLIC_AUTHORIZATION_REJECTED_BY_ACCOUNTING ??
-  "/Auth/RejectedByAccounting";
 export const AuthorizationChangeAuthorizer =
   process.env.NEXT_PUBLIC_AUTHORIZATION_CHANGE_AUTHORIZER ??
   "/Auth/changeAuthorizer";
@@ -528,6 +522,9 @@ export const BillingPettyCashVoucherHistoryAmount =
 export const BillingTravelExpenses =
   process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES ??
   "/Billings/TravelExpenses";
+export const BillingTravelExpensesByEmployee =
+  process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_BY_EMPLOYEE ??
+  "/Billings/TravelExpenses/Employee";
 export const BillingTravelExpensesReject =
   process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_REJECT ??
   "/Billings/TravelExpenses/Reject";
@@ -561,12 +558,28 @@ export const BillingRequisitionRequestSendAuthorization =
 export const BillingRequisitionRequest =
   process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST ??
   "/Billings/RequisitionRequest";
+export const BillingRequisitionRequestSaveProgress =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_SAVE_PROGRESS ??
+  "/Billings/RequisitionRequest/SaveProgress";
+export const BillingTravelExpensesRequisitionRequestResendAuthorization =
+  process.env
+    .NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_REQUISITION_REQUEST_RESEND_AUTHORIZATION ??
+  "/Billings/TravelExpenses/RequisitionRequest/ResendAuthorization";
+export const BillingRequisitionRequestAccountingApprove =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_ACCOUNTING_APPROVE ??
+  "/Billings/RequisitionRequests/Accounting/Approve";
+export const BillingRequisitionRequestAccountingReject =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_ACCOUNTING_REJECT ??
+  "/Billings/RequisitionRequests/Accounting/Reject";
 export const BillingRequisitionRequestFilter =
   process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_FILTER ??
   "/Billings/RequisitionRequestfilter";
 export const BillingRequisitionRequestById =
   process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_BY_ID ??
   "/Billings/RequisitionRequestById";
+export const BillingRequisitionRequestImages =
+  process.env.NEXT_PUBLIC_BILLINGS_REQUISITION_REQUEST_IMAGES ??
+  "/Billings/RequisitionRequests/TreasuryImages";
 export const BillingTravelExpensesCalculations =
   process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_CALCULATIONS ??
   "/Billings/TravelExpensesCalculations";

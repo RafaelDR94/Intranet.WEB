@@ -41,6 +41,8 @@ export interface UseInvoicesFormProps {
   billingImages?: BillingImagesTable | null;
   /** Skip debtor name field. */
   withoutName?: boolean;
+  /** Hide beneficiary and project fields when the requisition already provides that context. */
+  hideBeneficiaryAndProject?: boolean;
   /** Optional unique form id for multi-instance rendering. */
   formId?: string;
   /** Callback when closing image preview. */

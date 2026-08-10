@@ -116,7 +116,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
   const isMobile = useIsMobile()
   const { usePrincipalAlert } = usePrincipal()
   const { showAlert } = usePrincipalAlert
-  const { user } = useAuth()
+  const { user, currentPagePermissions } = useAuth()
   const isCreate = mode === 'create'
 
   const {
@@ -413,6 +413,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
   }, [])
 
   const handleSave = useCallback(async () => {
+    if (isCreate ? !currentPagePermissions?.createDevice : !currentPagePermissions?.updateDevice) return
     const values = formValuesRef.current
 
     if (isCreate) {

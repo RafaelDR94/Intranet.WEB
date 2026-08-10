@@ -17,6 +17,7 @@ import FingerprintErrorIcon from '@/assets/icons/Identy/fingerprint-error-circle
 import PendingUserActivation from './components/PendingUserActivation/PendingUserActivation'
 import usePendingUsersPage from './hooks/usePendingUsersPage'
 import type { PendingUserRow } from './types'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 
 type PendingUserFilterValue = 'all' | 'fingerprint-active' | 'fingerprint-inactive'
 
@@ -35,6 +36,7 @@ const SEARCHABLE_KEYS: (keyof PendingUserRow)[] = [
 
 const PendingUsersPage = () => {
   const isMobile = useIsMobile()
+  const { currentPagePermissions } = useAuth()
   const {
     assignmentPromptOpen,
     filteredRows,
@@ -121,13 +123,13 @@ const PendingUsersPage = () => {
               row={row}
               editLabel="Activar"
               onEdit={() => handleOpenActivation(row)}
-              permissions={{ update: true }}
+              permissions={{ update: Boolean(currentPagePermissions?.activateUser || currentPagePermissions?.reactivateUser) }}
             />
           </div>
         ),
       },
     ],
-    [handleOpenActivation],
+    [currentPagePermissions?.activateUser, currentPagePermissions?.reactivateUser, handleOpenActivation],
   )
 
   const columnsMobile = useMemo<ColumnDefinition<PendingUserRow>[]>(
@@ -178,13 +180,13 @@ const PendingUsersPage = () => {
               row={row}
               editLabel="Activar"
               onEdit={() => handleOpenActivation(row)}
-              permissions={{ update: true }}
+              permissions={{ update: Boolean(currentPagePermissions?.activateUser || currentPagePermissions?.reactivateUser) }}
             />
           </div>
         ),
       },
     ],
-    [handleOpenActivation],
+    [currentPagePermissions?.activateUser, currentPagePermissions?.reactivateUser, handleOpenActivation],
   )
 
   return (

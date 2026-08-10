@@ -21,6 +21,11 @@ export type RejectRequisitionRequestThroughAccountingPayload = {
   comment: string;
 };
 
+export type UpdateRequisitionRequestImagesPayload = {
+  idRequisitionRequest: string;
+  imageUrls: string[];
+};
+
 /**
  * Payload used to create a travel expense requisition.
  */
@@ -177,6 +182,24 @@ export type SaveTravelExpenseProgressPayload = {
 };
 
 /**
+ * Payload used to save progress for a requisition request.
+ */
+export type SaveRequisitionRequestProgressPayload = {
+  /** Requisition request identifier. */
+  id_billing_requisition_request: string;
+  /** Progress items grouped by visible beneficiary block. */
+  progress_items: SaveTravelExpenseProgressItemPayload[];
+};
+
+/** Payload used to resend a rejected requisition request to authorization. */
+export type ResendRequisitionRequestAuthorizationPayload = {
+  /** Requisition request identifier. */
+  id_billing_requisition_request: string;
+  /** Authorizer employee identifier. */
+  id_authorizer: string;
+};
+
+/**
  * Employee catalog row with phone and card number.
  */
 export type TravelExpenseEmployeeWithCardNumber = {
@@ -196,6 +219,10 @@ export type TravelExpenseEmployeeWithCardNumber = {
 export type TravelExpensesState = {
   /** Active travel expense requisitions. */
   travelExpenses: TravelExpense[];
+  /** Requisition requests displayed in the operations summary. */
+  operationsRequisitionRequests: TravelExpense[];
+  /** Requisition requests displayed in the treasury summary. */
+  treasuryRequisitionRequests: TravelExpense[];
   /** Current requisition request detail from Billings/RequisitionRequestById. */
   currentRequisitionRequest?: TravelExpense;
   /** Employee catalog with card number for travel expenses. */
@@ -204,6 +231,10 @@ export type TravelExpensesState = {
   travelExpenseCalculationConcepts: string[];
   /** GET request flag. */
   loading: boolean;
+  /** GET operations requisition request list flag. */
+  loadingOperationsRequisitionRequests: boolean;
+  /** GET treasury requisition request list flag. */
+  loadingTreasuryRequisitionRequests: boolean;
   /** GET request-by-id flag. */
   loadingRequisitionRequestDetail: boolean;
   /** GET employees with card number flag. */
@@ -220,6 +251,7 @@ export type TravelExpensesState = {
   approving: boolean;
   /** Reject request flag. */
   rejecting: boolean;
+  updatingRequisitionRequestImages: boolean;
   /** Cancel or resend request flag. */
   cancelingOrResending: boolean;
   /** Send requisition request to authorization flag. */
@@ -257,10 +289,23 @@ export type TravelExpensesState = {
   successSaveCalculations: boolean;
   /** Normalized error message from the API layer. */
   error?: string;
+  /** Operations requisition request list error. */
+  operationsRequisitionRequestsError?: string;
+  /** Treasury requisition request list error. */
+  treasuryRequisitionRequestsError?: string;
   /** Fetches travel expenses from Billings/TravelExpenses. */
   fetchTravelExpenses: (force?: boolean) => Promise<void> | void;
+  /** Fetches active travel expenses for one employee. */
+  fetchTravelExpensesByEmployee: (
+    idEmployee: string,
+    force?: boolean,
+  ) => Promise<void> | void;
   /** Fetches requisition requests from Billings/RequisitionRequest. */
-  fetchRequisitionRequests: (force?: boolean) => Promise<void> | void;
+  fetchRequisitionRequests: () => Promise<void> | void;
+  /** Fetches the unfiltered requisition requests for operations. */
+  fetchOperationsRequisitionRequests: () => Promise<void> | void;
+  /** Fetches the requisition requests assigned to Treasury. */
+  fetchTreasuryRequisitionRequests: () => Promise<void> | void;
   /** Fetches one requisition request detail by id. */
   fetchRequisitionRequestById: (id: string) => Promise<TravelExpense | null>;
   /** Fetches employees with phone and card number for travel expenses. */
@@ -281,6 +326,10 @@ export type TravelExpensesState = {
   saveTravelExpenseProgress: (
     payload: SaveTravelExpenseProgressPayload,
   ) => Promise<TravelExpense | null>;
+  /** Saves requisition request draft progress. */
+  saveRequisitionRequestProgress: (
+    payload: SaveRequisitionRequestProgressPayload,
+  ) => Promise<boolean>;
   /** Approves a travel expense requisition. */
   approveTravelExpense: (idTravelExpense: string) => Promise<boolean>;
   /** Approves a requisition request from accounting. */
@@ -295,6 +344,9 @@ export type TravelExpensesState = {
   rejectRequisitionRequestThroughAccounting: (
     payload: RejectRequisitionRequestThroughAccountingPayload,
   ) => Promise<boolean>;
+  updateRequisitionRequestImages: (
+    payload: UpdateRequisitionRequestImagesPayload,
+  ) => Promise<boolean>;
   /** Cancels or resends a travel expense requisition. */
   cancelOrResendTravelExpense: (
     idTravelExpense: string,
@@ -308,6 +360,10 @@ export type TravelExpensesState = {
   sendTravelExpenseAuthorization: (
     idTravelExpense: string,
     idAuthorizer: string,
+  ) => Promise<boolean>;
+  /** Resends a rejected requisition request to authorization. */
+  resendRequisitionRequestAuthorization: (
+    payload: ResendRequisitionRequestAuthorizationPayload,
   ) => Promise<boolean>;
   /** Fetches travel expense calculation rows by requisition request id. */
   fetchTravelExpenseCalculations: (

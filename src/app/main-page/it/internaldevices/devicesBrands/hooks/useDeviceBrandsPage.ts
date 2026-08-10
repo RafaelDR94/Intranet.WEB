@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { shallow } from 'zustand/shallow'
 
 import { usePrincipal } from '@/app/context/PrincipalContext/PrincipalContext'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import useQuery from '@/app/hooks/useQuery/useQuery'
 import type { InternalDeviceBrand } from '@/app/mappings/internaldevices/internaldevices.types'
 import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/useInternalDevicesStore'
@@ -12,6 +13,7 @@ import { useInternalDevicesStore } from '@/app/stores/useInternalDevicesStore/us
  * Hook para cargar la tabla y manejar la vista de marcas de dispositivos.
  */
 const useDeviceBrandsPage = () => {
+  const { currentPagePermissions } = useAuth()
   const { all, updateQuery } = useQuery()
   const normalizedId = useMemo(() => {
     const raw = all.id
@@ -203,21 +205,24 @@ const useDeviceBrandsPage = () => {
   }, [fetchDeviceBrands])
 
   const handleOpenCreate = useCallback(() => {
+    if (!currentPagePermissions?.createDeviceBrand) return
     updateQuery({ id: null, view: 'new' })
-  }, [updateQuery])
+  }, [currentPagePermissions?.createDeviceBrand, updateQuery])
 
   const handleOpenEdit = useCallback(
     (brand: InternalDeviceBrand) => {
+      if (!currentPagePermissions?.updateDeviceBrand) return
       updateQuery({ id: brand.device_brand_id, view: 'edit' })
     },
-    [updateQuery],
+    [currentPagePermissions?.updateDeviceBrand, updateQuery],
   )
 
   const handleDeleteBrand = useCallback(
     async (brand: InternalDeviceBrand) => {
+      if (!currentPagePermissions?.deleteDeviceBrand) return
       await deleteDeviceBrand(brand.device_brand_id)
     },
-    [deleteDeviceBrand],
+    [currentPagePermissions?.deleteDeviceBrand, deleteDeviceBrand],
   )
 
   const handleBackToList = useCallback(() => {

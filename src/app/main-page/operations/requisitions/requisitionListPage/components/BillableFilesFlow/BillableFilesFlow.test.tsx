@@ -7,6 +7,7 @@ import type { BillingImagesTable } from "@/app/mappings/billingimages/billingima
 import BillableFilesFlow from "./BillableFilesFlow";
 
 const useSearchParamsMock = vi.hoisted(() => vi.fn());
+const usePathnameMock = vi.hoisted(() => vi.fn());
 const routerPushMock = vi.hoisted(() => vi.fn());
 const fetchBillingImagesMock = vi.hoisted(() => vi.fn());
 const showAlert = vi.hoisted(() => vi.fn());
@@ -63,7 +64,7 @@ const TicketFormMock = vi.hoisted(() =>
 const TicketsFilesMock = vi.hoisted(() => vi.fn(() => <div>TicketsFilesMock</div>));
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/main-page/operations/requisitions/requisitionListPage",
+  usePathname: () => usePathnameMock(),
   useRouter: () => ({ push: routerPushMock }),
   useSearchParams: () => useSearchParamsMock(),
 }));
@@ -141,6 +142,9 @@ describe("BillableFilesFlow", () => {
     InvoicesFormMock.mockClear();
     TicketFormMock.mockClear();
     TicketsFilesMock.mockClear();
+    usePathnameMock.mockReturnValue(
+      "/main-page/operations/requisitions/requisitionListPage",
+    );
     useSearchParamsMock.mockReturnValue(
       new URLSearchParams(
         "id=1&idEmployee=1&idRequisition=req-1&label=Archivos%20Hector&view=billablefiles",
@@ -148,7 +152,7 @@ describe("BillableFilesFlow", () => {
     );
   });
 
-  it("falls back to invoice section and keeps the ticket selection wiring", () => {
+  it("shows the selected ticket in the invoice form and hides the tickets tab", () => {
     render(
       <BillableFilesFlow
         selectedTicket={selectedTicket}
@@ -175,14 +179,64 @@ describe("BillableFilesFlow", () => {
         externalSubmitRef: expect.anything(),
         submitRequestRef: expect.anything(),
         onValidChange: expect.any(Function),
+        billingImages: selectedTicket,
       }),
       undefined,
     );
+    expect(screen.queryByText("Carga de tickets")).not.toBeInTheDocument();
+    expect(screen.queryByText("+ Agregar factura")).not.toBeInTheDocument();
     expect(TicketsFilesMock).toHaveBeenCalledWith(
       expect.objectContaining({
         eneableSelection: true,
         selectedTicketId: "ticket-1",
       }),
+      undefined,
+    );
+  });
+
+  it("keeps both upload tabs when no ticket is selected", () => {
+    render(
+      <BillableFilesFlow selectedTicket={null} onSelectedTicketChange={vi.fn()} />,
+    );
+
+    expect(screen.getByTestId("breadcrum-invoice")).toBeInTheDocument();
+    expect(screen.getByText("Carga de tickets")).toBeInTheDocument();
+    expect(InvoicesFormMock).toHaveBeenCalledWith(
+      expect.objectContaining({ billingImages: null }),
+      undefined,
+    );
+  });
+
+  it("restores the normal flow when the selected ticket preview is closed", () => {
+    const onSelectedTicketChange = vi.fn();
+    render(
+      <BillableFilesFlow
+        selectedTicket={selectedTicket}
+        onSelectedTicketChange={onSelectedTicketChange}
+      />,
+    );
+
+    const [formId] = Array.from(invoicePropsByFormId.keys());
+    const props = getInvoiceProps(formId);
+    (props.onCloseImage as () => void)();
+
+    expect(onSelectedTicketChange).toHaveBeenCalledWith(null);
+  });
+
+  it("hides beneficiary and project fields for a selected beneficiary requisition", () => {
+    usePathnameMock.mockReturnValue(
+      "/main-page/operations/expenserequisitions/beneficiaryhistory/",
+    );
+
+    render(
+      <BillableFilesFlow
+        selectedTicket={null}
+        onSelectedTicketChange={vi.fn()}
+      />,
+    );
+
+    expect(InvoicesFormMock).toHaveBeenCalledWith(
+      expect.objectContaining({ hideBeneficiaryAndProject: true }),
       undefined,
     );
   });
@@ -196,7 +250,7 @@ describe("BillableFilesFlow", () => {
 
     render(
       <BillableFilesFlow
-        selectedTicket={selectedTicket}
+        selectedTicket={null}
         onSelectedTicketChange={vi.fn()}
       />,
     );
@@ -221,7 +275,7 @@ describe("BillableFilesFlow", () => {
   it("navigates to the ticket section without losing context", () => {
     render(
       <BillableFilesFlow
-        selectedTicket={selectedTicket}
+        selectedTicket={null}
         onSelectedTicketChange={vi.fn()}
       />,
     );
@@ -236,7 +290,7 @@ describe("BillableFilesFlow", () => {
   it("adds another invoice form below the current form", () => {
     render(
       <BillableFilesFlow
-        selectedTicket={selectedTicket}
+        selectedTicket={null}
         onSelectedTicketChange={vi.fn()}
       />,
     );
@@ -262,7 +316,7 @@ describe("BillableFilesFlow", () => {
   it("submits all invoice forms from the single layout button", async () => {
     render(
       <BillableFilesFlow
-        selectedTicket={selectedTicket}
+        selectedTicket={null}
         onSelectedTicketChange={vi.fn()}
       />,
     );
@@ -311,7 +365,7 @@ describe("BillableFilesFlow", () => {
   it("discards an added invoice form and clears its stored fields", () => {
     render(
       <BillableFilesFlow
-        selectedTicket={selectedTicket}
+        selectedTicket={null}
         onSelectedTicketChange={vi.fn()}
       />,
     );
@@ -335,7 +389,7 @@ describe("BillableFilesFlow", () => {
 
     render(
       <BillableFilesFlow
-        selectedTicket={selectedTicket}
+        selectedTicket={null}
         onSelectedTicketChange={vi.fn()}
       />,
     );
@@ -356,7 +410,7 @@ describe("BillableFilesFlow", () => {
 
     render(
       <BillableFilesFlow
-        selectedTicket={selectedTicket}
+        selectedTicket={null}
         onSelectedTicketChange={vi.fn()}
       />,
     );
@@ -377,7 +431,7 @@ describe("BillableFilesFlow", () => {
 
     render(
       <BillableFilesFlow
-        selectedTicket={selectedTicket}
+        selectedTicket={null}
         onSelectedTicketChange={onSelectedTicketChange}
       />,
     );

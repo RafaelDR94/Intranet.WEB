@@ -4,6 +4,7 @@ import React from 'react'
 
 import Avatar from '@/app/components/Avatar/Avatar'
 import { Button } from '@/app/components/Button/Button'
+import { useAuth } from '@/app/context/AuthContext/AuthContext'
 import Label from '@/app/components/Label/Label'
 import MailIcon from '@/assets/icons/Comunicacion/mail.svg'
 import PhoneIcon from '@/assets/icons/Comunicacion/phone.svg'
@@ -20,6 +21,7 @@ type DetailsTabProps = {
 }
 
 const DetailsTab: React.FC<DetailsTabProps> = ({ user, onGoToUpdateUser }) => {
+  const { currentPagePermissions } = useAuth()
   return (
     <div className="min-w-0 space-y-6 pt-3">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
@@ -50,7 +52,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ user, onGoToUpdateUser }) => {
             ) : (
               <FingerprintErrorIcon className="text-alert-red-100" />
             )}
-            <Button
+            {currentPagePermissions?.updateUser && <Button
               variant="ghost"
               size="xsmall"
               hideIcon
@@ -62,7 +64,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ user, onGoToUpdateUser }) => {
               onClick={onGoToUpdateUser}
             >
               Actualizar huella
-            </Button>
+            </Button>}
           </div>
         </div>
       </div>
@@ -116,14 +118,14 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ user, onGoToUpdateUser }) => {
 
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <p className="text-b3 text-gray-90">Rol asignado: {user.roleName}</p>
-          <Button
+          {currentPagePermissions?.updateUser && <Button
             hideIcon
             size="small"
             className="self-start"
             onClick={onGoToUpdateUser}
           >
             Cambiar rol
-          </Button>
+          </Button>}
         </div>
       </div>
 

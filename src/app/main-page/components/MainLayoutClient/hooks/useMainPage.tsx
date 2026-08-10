@@ -26,6 +26,7 @@ export const sidebarRoutes = [
     icon: ServerIcon,
     subroutes: [
       { label: "Caja Chica", path: "/main-page/treasury/treasurypettycash" },
+      { label: "Requisiciones", path: "/main-page/treasury/requisitions" },
     ],
   },
   {
