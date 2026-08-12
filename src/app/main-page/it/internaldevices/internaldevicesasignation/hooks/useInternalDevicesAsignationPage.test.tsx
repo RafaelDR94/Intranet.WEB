@@ -14,10 +14,14 @@ const {
   setEmployeesStoreState,
   getInternalDevicesStoreState,
   setInternalDevicesStoreState,
+  getAuthState,
+  setAuthState,
+  useInternalDevicesAsignationTableMock,
 } = vi.hoisted(() => {
   let queryState: any;
   let employeesStoreState: any;
   let internalDevicesStoreState: any;
+  let authState: any;
 
   return {
     showAlert: vi.fn(),
@@ -36,6 +40,11 @@ const {
     setInternalDevicesStoreState: (value: any) => {
       internalDevicesStoreState = value;
     },
+    getAuthState: () => authState,
+    setAuthState: (value: any) => {
+      authState = value;
+    },
+    useInternalDevicesAsignationTableMock: vi.fn(),
   };
 });
 
@@ -47,9 +56,7 @@ vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
 }));
 
 vi.mock("@/app/context/AuthContext/AuthContext", () => ({
-  useAuth: () => ({
-    user: { idEmployee: "session-employee", fullName: "Usuario actual" },
-  }),
+  useAuth: () => getAuthState(),
 }));
 
 vi.mock("@/app/context/FirebaseContext/FirebaseContext", () => ({
@@ -87,14 +94,14 @@ vi.mock("./useInternalDevicesAsignation", () => ({
 
 vi.mock("./useInternalDevicesAsignationTable", () => ({
   __esModule: true,
-  default: () => ({
+  default: useInternalDevicesAsignationTableMock.mockImplementation(() => ({
     columns: [],
     rows: [],
     searchableKeys: [],
     statusFilter: "all",
     statusFilterOptions: [],
     handleStatusFilterChange: vi.fn(),
-  }),
+  })),
 }));
 
 vi.mock("@/app/utilities/PDF/PDF", () => ({
@@ -122,6 +129,10 @@ vi.mock(
 
 describe("useInternalDevicesAsignationPage", () => {
   beforeEach(() => {
+    setAuthState({
+      user: { idEmployee: "session-employee", fullName: "Usuario actual" },
+      currentPagePermissions: undefined,
+    });
     setQueryState({
       all: {
         view: "new",
@@ -156,6 +167,10 @@ describe("useInternalDevicesAsignationPage", () => {
       createDeviceAssignment: vi.fn().mockResolvedValue(null),
       creatingDeviceAssignment: false,
       successCreateDeviceAssignment: false,
+      updatingDevice: false,
+      creatingDeviceReview: false,
+      successUpdateDevice: false,
+      successCreateDeviceReview: false,
       loadingDevices: false,
       loadingUnassignedDevices: false,
       loadingDeviceStatuses: false,
@@ -170,6 +185,7 @@ describe("useInternalDevicesAsignationPage", () => {
     showSpinner.mockClear();
     hideSpinner.mockClear();
     updateQuery.mockClear();
+    useInternalDevicesAsignationTableMock.mockClear();
   });
 
   it("precarga employee_id cuando employeeId existe en la query y en los empleados activos", () => {
@@ -214,5 +230,86 @@ describe("useInternalDevicesAsignationPage", () => {
         title: "Colaborador no disponible",
       }),
     );
+  });
+
+  it("abre una nueva asignacion cuando el permiso se carga despues del montaje", () => {
+    const { result, rerender } = renderHook(() =>
+      useInternalDevicesAsignationPage(),
+    );
+
+    setAuthState({
+      user: { idEmployee: "session-employee", fullName: "Usuario actual" },
+      currentPagePermissions: { createDeviceAssignment: true },
+    });
+    rerender();
+
+    result.current.handleOpenCreate();
+
+    expect(updateQuery).toHaveBeenCalledWith({ view: "new" });
+  });
+
+  it("abre el detalle cuando el permiso se carga despues del montaje", () => {
+    const { result, rerender } = renderHook(() =>
+      useInternalDevicesAsignationPage(),
+    );
+
+    setAuthState({
+      user: { idEmployee: "session-employee", fullName: "Usuario actual" },
+      currentPagePermissions: { viewDeviceAssignmentDetails: true },
+    });
+    rerender();
+
+    // El callback se entrega a la tabla; la prueba usa el hook directamente
+    // con una fila equivalente a la que recibe la acción "Ver detalle".
+    expect(useInternalDevicesAsignationTableMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        onOpenDetails: expect.any(Function),
+      }),
+    );
+    const lastTableCall = useInternalDevicesAsignationTableMock.mock.calls.at(-1);
+    expect(lastTableCall).toBeDefined();
+    const { onOpenDetails } = lastTableCall![0];
+
+    onOpenDetails({ assignment_id: "assignment-1", device_id: "device-1" });
+
+    expect(updateQuery).toHaveBeenCalledWith({
+      id: "device-1",
+      assignmentId: "assignment-1",
+      view: null,
+    });
+  });
+
+  it("regresa a la tabla tras editar un dispositivo asignado", () => {
+    setQueryState({
+      all: { id: "device-1", assignmentId: "assignment-1", view: "edit" },
+      updateQuery,
+    });
+    setInternalDevicesStoreState({
+      ...getInternalDevicesStoreState(),
+      successUpdateDevice: true,
+    });
+
+    renderHook(() => useInternalDevicesAsignationPage());
+
+    expect(updateQuery).toHaveBeenCalledWith({
+      id: null,
+      assignmentId: null,
+      view: null,
+    });
+  });
+
+  it("regresa al detalle tras crear una revision de un dispositivo asignado", () => {
+    setQueryState({
+      all: { id: "device-1", assignmentId: "assignment-1", view: "review" },
+      updateQuery,
+    });
+    setInternalDevicesStoreState({
+      ...getInternalDevicesStoreState(),
+      successCreateDeviceReview: true,
+    });
+
+    renderHook(() => useInternalDevicesAsignationPage());
+
+    expect(updateQuery).toHaveBeenCalledWith({ view: null });
   });
 });
