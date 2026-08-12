@@ -139,6 +139,10 @@ const useInternalDevicesAsignationPage = () => {
     createDeviceAssignment,
     creatingDeviceAssignment,
     successCreateDeviceAssignment,
+    updatingDevice,
+    creatingDeviceReview,
+    successUpdateDevice,
+    successCreateDeviceReview,
     loadingDevices,
     loadingUnassignedDevices,
     loadingDeviceStatuses,
@@ -161,6 +165,10 @@ const useInternalDevicesAsignationPage = () => {
       createDeviceAssignment: state.createDeviceAssignment,
       creatingDeviceAssignment: state.creatingDeviceAssignment,
       successCreateDeviceAssignment: state.successCreateDeviceAssignment,
+      updatingDevice: state.updatingDevice,
+      creatingDeviceReview: state.creatingDeviceReview,
+      successUpdateDevice: state.successUpdateDevice,
+      successCreateDeviceReview: state.successCreateDeviceReview,
       loadingDevices: state.loadingDevices,
       loadingUnassignedDevices: state.loadingUnassignedDevices,
       loadingDeviceStatuses: state.loadingDeviceStatuses,
@@ -375,6 +383,75 @@ const useInternalDevicesAsignationPage = () => {
     showSpinner,
     successCreateDeviceAssignment,
     updateQuery,
+  ]);
+
+  useEffect(() => {
+    if (!isEditView && !isReviewView) return;
+
+    if (updatingDevice || creatingDeviceReview) {
+      showSpinner({
+        message: updatingDevice
+          ? "Guardando InformaciÃ³n..."
+          : "Guardando revision...",
+      });
+      return;
+    }
+
+    if (error) {
+      showAlert({
+        type: "error",
+        title: "Ocurrio un error",
+        description: error,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1200,
+      });
+    }
+
+    if (successUpdateDevice) {
+      showAlert({
+        type: "info",
+        title: "InformaciÃ³n guardada",
+        description: "El dispositivo fue actualizado correctamente.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1200,
+      });
+      handleRefresh();
+      updateQuery({ id: null, assignmentId: null, view: null });
+    }
+
+    if (successCreateDeviceReview) {
+      showAlert({
+        type: "info",
+        title: "Revision creada",
+        description: "La revision fue creada correctamente.",
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 1200,
+      });
+      updateQuery({ view: null });
+    }
+
+    hideSpinner();
+
+    if (error || successUpdateDevice || successCreateDeviceReview) {
+      resetFlags();
+    }
+  }, [
+    creatingDeviceReview,
+    error,
+    handleRefresh,
+    hideSpinner,
+    isEditView,
+    isReviewView,
+    resetFlags,
+    showAlert,
+    showSpinner,
+    successCreateDeviceReview,
+    successUpdateDevice,
+    updateQuery,
+    updatingDevice,
   ]);
 
   const availableDevices = useMemo(() => {
@@ -716,6 +793,7 @@ const useInternalDevicesAsignationPage = () => {
     userSignature,
     user?.idEmployee,
     selectedDevice,
+    currentPagePermissions?.createDeviceAssignment,
   ]);
 
   const handleSignatureAuthorization = useCallback((authorized: Authorized) => {
@@ -743,7 +821,7 @@ const useInternalDevicesAsignationPage = () => {
   const handleOpenCreate = useCallback(() => {
     if (!currentPagePermissions?.createDeviceAssignment) return;
     updateQuery({ view: "new" });
-  }, [updateQuery]);
+  }, [currentPagePermissions?.createDeviceAssignment, updateQuery]);
 
   const handleBackToList = useCallback(() => {
     updateQuery({ view: null });
@@ -779,7 +857,7 @@ const useInternalDevicesAsignationPage = () => {
       setResponsiveTitle(title ?? "Responsiva de asignacion");
       setResponsiveOpen(true);
     },
-    [showAlert],
+    [currentPagePermissions?.viewResponsive, showAlert],
   );
 
   const deviceById = useMemo(() => {
@@ -808,7 +886,11 @@ const useInternalDevicesAsignationPage = () => {
       }
       void fetchDeviceAssignmentById(row.assignment_id, true);
     },
-    [fetchDeviceAssignmentById, updateQuery],
+    [
+      currentPagePermissions?.viewDeviceAssignmentDetails,
+      fetchDeviceAssignmentById,
+      updateQuery,
+    ],
   );
 
   const generateAndUploadResponsive = useCallback(
@@ -1033,6 +1115,7 @@ const useInternalDevicesAsignationPage = () => {
     },
     [
       currentPagePermissions?.generateMissingResponsive,
+      currentPagePermissions?.viewResponsive,
       generateAndUploadResponsive,
       handleOpenResponsive,
       hideSpinner,
@@ -1098,14 +1181,24 @@ const useInternalDevicesAsignationPage = () => {
     const targetId = selectedDevice?.device_id ?? normalizedId;
     if (!targetId) return;
     updateQuery({ id: targetId, view: "edit" });
-  }, [normalizedId, selectedDevice, updateQuery]);
+  }, [
+    currentPagePermissions?.updateAssignedDevice,
+    normalizedId,
+    selectedDevice,
+    updateQuery,
+  ]);
 
   const handleCreateReview = useCallback(() => {
     if (!currentPagePermissions?.createDeviceReview) return;
     const targetId = selectedDevice?.device_id ?? normalizedId;
     if (!targetId) return;
     updateQuery({ id: targetId, view: "review" });
-  }, [normalizedId, selectedDevice, updateQuery]);
+  }, [
+    currentPagePermissions?.createDeviceReview,
+    normalizedId,
+    selectedDevice,
+    updateQuery,
+  ]);
 
   const selectedDeviceByQuery = useMemo<InternalDevice | null>(() => {
     if (!normalizedId) return null;

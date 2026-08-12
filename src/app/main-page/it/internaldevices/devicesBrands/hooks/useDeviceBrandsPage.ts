@@ -157,6 +157,10 @@ const useDeviceBrandsPage = () => {
 
     hideSpinner()
 
+    if (successCreateDeviceBrand || successUpdateDeviceBrand) {
+      updateQuery({ id: null, view: null })
+    }
+
     if (
       error ||
       successCreateDeviceBrand ||
@@ -183,6 +187,7 @@ const useDeviceBrandsPage = () => {
     successDeleteDeviceBrand,
     successUpdateDeviceBrand,
     updatingDeviceBrand,
+    updateQuery,
   ])
 
   useEffect(() => {
