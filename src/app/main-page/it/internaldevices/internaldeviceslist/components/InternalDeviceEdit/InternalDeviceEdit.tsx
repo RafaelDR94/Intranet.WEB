@@ -462,7 +462,7 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
         return
       }
 
-      const created = await createDevice({
+      await createDevice({
         name: values.name ?? '',
         model: values.model ?? '',
         serial_number: values.serial_number ?? '',
@@ -482,9 +482,6 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
         proyect_id: '',
       })
 
-      if (created) {
-        onBack()
-      }
       return
     }
 
@@ -570,8 +567,8 @@ const InternalDeviceEdit: React.FC<InternalDeviceEditProps> = ({
       return
     }
 
-    void updateDevice(payload)
-  }, [createDevice, device, isCreate, onBack, showAlert, updateDevice, user?.idEnterprise])
+    await updateDevice(payload)
+  }, [createDevice, currentPagePermissions?.createDevice, currentPagePermissions?.updateDevice, device, isCreate, onBack, showAlert, updateDevice, user?.idEnterprise])
 
   if (!device && !isCreate) {
     return (

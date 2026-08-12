@@ -142,17 +142,14 @@ const InternalDeviceReview: React.FC<InternalDeviceReviewProps> = ({
       return
     }
 
-    const result = await createDeviceReview({
+    await createDeviceReview({
       description: formValues.description ?? '',
       device_id: device.device_id,
       employee_id: employeeId,
       status_id: formValues.status_id,
     })
 
-    if (result) {
-      onBack()
-    }
-  }, [createDeviceReview, device, formValues, onBack, showAlert, user?.idEmployee])
+  }, [createDeviceReview, currentPagePermissions?.createDeviceReview, device, formValues, onBack, showAlert, user?.idEmployee])
 
   if (!device) {
     return (

@@ -192,6 +192,18 @@ const useInternalDevicesList = () => {
     }
 
     hideSpinner();
+
+    // Saving a device always returns to the inventory table. Keep this here,
+    // alongside the success flags, so navigation depends on the confirmed API
+    // result rather than on a potentially empty response body.
+    if (successCreateDevice || successUpdateDevice) {
+      updateQuery({ id: null, view: null });
+    }
+
+    if (successCreateDeviceReview) {
+      updateQuery({ view: null });
+    }
+
     if (
       error ||
       successActivateDevice ||
@@ -223,6 +235,7 @@ const useInternalDevicesList = () => {
     successDeleteDevice,
     successUpdateDevice,
     updatingDevice,
+    updateQuery,
   ]);
 
   useEffect(() => {
