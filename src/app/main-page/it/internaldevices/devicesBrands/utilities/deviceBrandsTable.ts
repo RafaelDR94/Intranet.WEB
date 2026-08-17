@@ -26,6 +26,8 @@ export const DEVICE_BRANDS_SEARCHABLE_KEYS: (keyof DeviceBrandRow)[] = [
   'name',
   'description',
   'extract',
+  'status_label',
+  'search_content',
 ]
 
 /**

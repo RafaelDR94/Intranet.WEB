@@ -46,15 +46,31 @@ const useDeviceBrandsTable = (
 
   const rows = useMemo<DeviceBrandRow[]>(
     () =>
-      brands.map((brand, index) => ({
-        id: brand.device_brand_id || String(index + 1),
-        display_id: String(index + 1).padStart(3, '0'),
-        device_brand_id: brand.device_brand_id,
-        name: brand.name ?? '-',
-        description: brand.description ?? '-',
-        extract: brand.name ?? '-',
-        is_active: brand.is_active,
-      })),
+      brands.map((brand, index) => {
+        const displayId = String(index + 1).padStart(3, '0')
+        const name = brand.name ?? '-'
+        const description = brand.description ?? '-'
+        const extract = brand.name ?? '-'
+        const statusLabel = brand.is_active ? 'ACTIVO' : 'INACTIVO'
+
+        return {
+          id: brand.device_brand_id || String(index + 1),
+          display_id: displayId,
+          device_brand_id: brand.device_brand_id,
+          name,
+          description,
+          extract,
+          is_active: brand.is_active,
+          status_label: statusLabel,
+          search_content: [
+            displayId,
+            name,
+            description,
+            extract,
+            statusLabel,
+          ].join(' '),
+        }
+      }),
     [brands],
   )
 

@@ -43,6 +43,17 @@ export const STATUS_FILTER_OPTIONS: StatusFilterOption[] = [
  */
 export const INTERNAL_DEVICE_SEARCHABLE_KEYS: (keyof InternalDeviceRow)[] = [
   'search_content',
+  'display_id',
+  'device_status',
+  'device_type',
+  'device_brand',
+  'model',
+  'serial_number',
+  'name',
+  'status_label',
+  'assignment_label',
+  'review_label',
+  'created_at',
 ]
 
 const isDatabaseIdKey = (key: string): boolean =>
@@ -89,6 +100,10 @@ export const buildInternalDeviceSearchContent = (
   }
 
   collect(device)
+  values.push(device.assigned ? 'ASIGNADO' : 'SIN ASIGNAR')
+  values.push(device.reviewed ? 'REVISADO' : 'SIN REVISION')
+  values.push(device.device_status?.name ?? '')
+  values.push(device.created_at ?? '')
   return values.join(' ')
 }
 

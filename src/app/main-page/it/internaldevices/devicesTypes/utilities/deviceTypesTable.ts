@@ -26,6 +26,8 @@ export const DEVICE_TYPES_SEARCHABLE_KEYS: (keyof DeviceTypeRow)[] = [
   'name',
   'description',
   'extract',
+  'status_label',
+  'search_content',
 ]
 
 /**

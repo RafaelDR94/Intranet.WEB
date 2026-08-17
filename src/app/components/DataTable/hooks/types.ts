@@ -1,28 +1,31 @@
+import type { ColumnDefinition } from "../types"
+
 /**
- * Estructura básica utilizada por el hook para filtrar datos de la tabla
+ * Estructura basica utilizada por el hook para filtrar datos de la tabla.
  */
 export interface Table<T> {
-  /** Conjunto de filas que se evaluarán */
+  /** Conjunto de filas que se evaluaran. */
   data: T[]
+  /** Columnas visibles usadas como fuente adicional de busqueda y fecha. */
+  columns?: ColumnDefinition<T>[]
 }
 
 /**
- * Parámetros aceptados por el hook `useDataTable`
+ * Parametros aceptados por el hook `useDataTable`.
  */
 export interface UseDataTableParams<T extends { id: string | number }> {
-  /** Se ejecuta al cambiar el término de búsqueda */
+  /** Se ejecuta al cambiar el termino de busqueda. */
   onSearchChange?: (
     value: string,
     startDate?: Date | null,
     endDate?: Date | null
   ) => void
-  /** Habilita la búsqueda interna de manera predeterminada */
+  /** Habilita la busqueda interna de manera predeterminada. */
   enableInternalSearch?: boolean
-  /** Llaves consideradas al realizar la búsqueda */
+  /** Llaves consideradas al realizar la busqueda. */
   searchableKeys?: (keyof T)[]
-  /** Campo de fecha o función para obtenerla (string "DD/MM/YYYY" o Date) */
+  /** Campo de fecha o funcion para obtenerla. */
   dateKey?: keyof T | ((row: T) => string | Date | undefined)
-  /** Se ejecuta al cambiar la selección de filas */
+  /** Se ejecuta al cambiar la seleccion de filas. */
   onSelectedChange?: (index: number, rows: T[]) => void
-
 }

@@ -603,13 +603,20 @@ export const InternalDeviceAssignmentMap = (
     date:
       toNullableString(
         record.date ??
+          record.datecreated ??
+          record.date_created ??
           record.created_at ??
           record.createdAt ??
           record.assigned_at ??
           record.assignedAt,
       ) ?? undefined,
     created_at:
-      toNullableString(record.created_at ?? record.createdAt) ?? undefined,
+      toNullableString(
+        record.created_at ??
+          record.createdAt ??
+          record.datecreated ??
+          record.date_created,
+      ) ?? undefined,
   };
 };
 

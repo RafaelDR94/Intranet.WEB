@@ -8,6 +8,9 @@ export type InternalDeviceRow = InternalDevice & {
   display_id: string
   /** Texto interno con todos los valores permitidos para la búsqueda. */
   search_content: string
+  status_label?: string
+  assignment_label?: string
+  review_label?: string
 }
 
 /**

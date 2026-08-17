@@ -5,17 +5,40 @@ import type { PendingUserDetailData, PendingUserRow } from '../types'
 
 const NOT_AVAILABLE = 'No disponible'
 
+const buildPendingUserSearchContent = (
+  row: Omit<PendingUserRow, 'searchContent'>,
+) =>
+  [
+    row.fullname,
+    row.department,
+    row.position,
+    row.employeeNumber,
+    row.fingerprintLabel,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
 export const mapEmployeeSummaryToPendingUserRow = (
   employee: UserEmployeeSummary,
-): PendingUserRow => ({
-  id: employee.employee_id,
-  fullname: employee.fullname,
-  avatarUrl: employee.image_url || undefined,
-  department: employee.department,
-  position: employee.workposition,
-  employeeNumber: employee.employee_number,
-  hasFingerprint: employee.dr_fingerprint,
-})
+): PendingUserRow => {
+  const row: Omit<PendingUserRow, 'searchContent'> = {
+    id: employee.employee_id,
+    fullname: employee.fullname,
+    avatarUrl: employee.image_url || undefined,
+    department: employee.department,
+    position: employee.workposition,
+    employeeNumber: employee.employee_number,
+    hasFingerprint: employee.dr_fingerprint,
+    fingerprintLabel: employee.dr_fingerprint
+      ? 'Con huella activa'
+      : 'Sin huella activa',
+  }
+
+  return {
+    ...row,
+    searchContent: buildPendingUserSearchContent(row),
+  }
+}
 
 export const mapEmployeeSummaryToPendingUserDetailData = (
   employee: UserEmployeeSummary,
@@ -58,41 +81,52 @@ export const mapRolesToPendingRoleOptions = (roles: UserRole[]) =>
 export const mapEmployeeToPendingUserDetailData = (
   employee: EmployeeType,
   summary?: UserEmployeeSummary | null,
-): PendingUserDetailData => ({
-  id: employee.employee_id,
-  fullname: employee.fullname,
-  avatarUrl: employee.image_url || undefined,
-  department: employee.department?.name ?? NOT_AVAILABLE,
-  position:
-    employee.workposition?.name ??
-    employee.workposition_name ??
-    NOT_AVAILABLE,
-  employeeNumber: employee.employee_number,
-  hasFingerprint: summary?.dr_fingerprint ?? false,
-  company: employee.department?.enterprice_name ?? NOT_AVAILABLE,
-  firstName: employee.firstname ?? '',
-  middleName: employee.secondname ?? '',
-  lastName: employee.lastname ?? '',
-  secondLastName: employee.motherlast_name ?? '',
-  managerName: employee.manager_id || NOT_AVAILABLE,
-  departmentLabel: employee.department?.name ?? NOT_AVAILABLE,
-  companyLabel: employee.department?.enterprice_name ?? NOT_AVAILABLE,
-  positionLabel:
-    employee.workposition?.name ??
-    employee.workposition_name ??
-    NOT_AVAILABLE,
-  email: employee.email ?? employee.employee_email ?? '',
-  businessPhone:
-    employee.extension || employee.phone_number || employee.employee_phone || '',
-  userRoleId: '',
-  roleName: '',
-  changePasswordOnNextLogin: true,
-  managerialPermissions: false,
-  deviceType: NOT_AVAILABLE,
-  deviceBrand: NOT_AVAILABLE,
-  deviceModel: NOT_AVAILABLE,
-  deviceStatus: NOT_AVAILABLE,
-  provisionalPassword: '',
-  nip: '',
-  signature: undefined,
-})
+): PendingUserDetailData => {
+  const hasFingerprint = summary?.dr_fingerprint ?? false
+  const row: Omit<PendingUserDetailData, 'searchContent'> = {
+    id: employee.employee_id,
+    fullname: employee.fullname,
+    avatarUrl: employee.image_url || undefined,
+    department: employee.department?.name ?? NOT_AVAILABLE,
+    position:
+      employee.workposition?.name ??
+      employee.workposition_name ??
+      NOT_AVAILABLE,
+    employeeNumber: employee.employee_number,
+    hasFingerprint,
+    fingerprintLabel: hasFingerprint
+      ? 'Con huella activa'
+      : 'Sin huella activa',
+    company: employee.department?.enterprice_name ?? NOT_AVAILABLE,
+    firstName: employee.firstname ?? '',
+    middleName: employee.secondname ?? '',
+    lastName: employee.lastname ?? '',
+    secondLastName: employee.motherlast_name ?? '',
+    managerName: employee.manager_id || NOT_AVAILABLE,
+    departmentLabel: employee.department?.name ?? NOT_AVAILABLE,
+    companyLabel: employee.department?.enterprice_name ?? NOT_AVAILABLE,
+    positionLabel:
+      employee.workposition?.name ??
+      employee.workposition_name ??
+      NOT_AVAILABLE,
+    email: employee.email ?? employee.employee_email ?? '',
+    businessPhone:
+      employee.extension || employee.phone_number || employee.employee_phone || '',
+    userRoleId: '',
+    roleName: '',
+    changePasswordOnNextLogin: true,
+    managerialPermissions: false,
+    deviceType: NOT_AVAILABLE,
+    deviceBrand: NOT_AVAILABLE,
+    deviceModel: NOT_AVAILABLE,
+    deviceStatus: NOT_AVAILABLE,
+    provisionalPassword: '',
+    nip: '',
+    signature: undefined,
+  }
+
+  return {
+    ...row,
+    searchContent: buildPendingUserSearchContent(row),
+  }
+}

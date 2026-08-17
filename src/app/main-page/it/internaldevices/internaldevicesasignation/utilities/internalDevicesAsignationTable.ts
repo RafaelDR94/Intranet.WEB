@@ -31,10 +31,17 @@ export const STATUS_FILTER_OPTIONS: StatusFilterOption[] = [
  */
 export const INTERNAL_DEVICE_ASSIGNATION_SEARCHABLE_KEYS: (keyof InternalDeviceAssignmentRow)[] = [
   'display_id',
+  'status_label',
+  'device_type_label',
+  'device_brand_label',
   'name',
   'model',
   'serial_number',
   'assigned_to',
+  'description',
+  'assignment_state_label',
+  'assignment_date',
+  'search_content',
 ]
 
 /**
