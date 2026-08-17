@@ -1,5 +1,6 @@
 /// Intenta parsear Date | string (ISO, DD/MM/YYYY o DD-MM-YYYY). /
-const ISO_RE =/^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
+const ISO_RE =
+  /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
 
 export function parseDateFlexible(
   input: string | number | Date | null | undefined
@@ -51,10 +52,21 @@ export function parseDateFlexible(
     return new Date(Number(yyyy), Number(mm) - 1, Number(dd), 12, 0, 0, 0);
   }
 
-  // 3) ISO (seguro para usar Date.parse)
-  if (ISO_RE.test(normalized)) {
-    const ts = Date.parse(normalized);
-    if (!Number.isNaN(ts)) return new Date(ts);
+  // 3) ISO. Para filtros de calendario usamos los componentes como fecha local
+  // y evitamos que una zona horaria UTC mueva registros al dia anterior.
+  const iso = normalized.match(ISO_RE);
+  if (iso) {
+    const [, yyyy, mm, dd, hh, mi, ss] = iso;
+    const d = new Date(
+      Number(yyyy),
+      Number(mm) - 1,
+      Number(dd),
+      hh ? Number(hh) : 12,
+      mi ? Number(mi) : 0,
+      ss ? Number(ss) : 0,
+      0,
+    );
+    return Number.isNaN(d.getTime()) ? null : d;
   }
 
   // 4) Como último recurso, evita Date.parse para strings ambiguos

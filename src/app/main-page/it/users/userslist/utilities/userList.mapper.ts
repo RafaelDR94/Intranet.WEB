@@ -11,18 +11,43 @@ import type {
 const NOT_AVAILABLE = 'No disponible'
 const NOT_ASSIGNED = 'Sin asignar'
 
+const buildActivatedUserSearchContent = (
+  row: Omit<ActivatedUserRow, 'searchContent'>,
+) =>
+  [
+    row.fullname,
+    row.department,
+    row.position,
+    row.employeeNumber,
+    row.statusLabel,
+    row.fingerprintLabel,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
 export const mapEmployeeSummaryToActivatedUserRow = (
   employee: UserEmployeeSummary,
-): ActivatedUserRow => ({
-  id: employee.employee_id,
-  fullname: employee.fullname,
-  avatarUrl: employee.image_url || undefined,
-  department: employee.department,
-  position: employee.workposition,
-  employeeNumber: employee.employee_number,
-  isActive: true,
-  hasFingerprint: employee.dr_fingerprint,
-})
+): ActivatedUserRow => {
+  const row: Omit<ActivatedUserRow, 'searchContent'> = {
+    id: employee.employee_id,
+    fullname: employee.fullname,
+    avatarUrl: employee.image_url || undefined,
+    department: employee.department,
+    position: employee.workposition,
+    employeeNumber: employee.employee_number,
+    isActive: true,
+    hasFingerprint: employee.dr_fingerprint,
+    statusLabel: 'Activo',
+    fingerprintLabel: employee.dr_fingerprint
+      ? 'Con huella activa'
+      : 'Sin huella activa',
+  }
+
+  return {
+    ...row,
+    searchContent: buildActivatedUserSearchContent(row),
+  }
+}
 
 export const mapEmployeeSummaryToUserAccountDetailData = (
   employee: UserEmployeeSummary,
@@ -79,7 +104,7 @@ export const mapEmployeeToUserAccountDetailData = (
   const hasFingerprint = employee.dr_fingerprint ?? summary?.dr_fingerprint ?? false
   const userIsActive = effectiveUser?.is_active ?? false
 
-  return {
+  const rowData: Omit<UserAccountDetailData, 'searchContent'> = {
     id: employee.employee_id,
     userId: effectiveUser?.user_id ?? '',
     fullname: employee.fullname,
@@ -92,8 +117,11 @@ export const mapEmployeeToUserAccountDetailData = (
     employeeNumber: employee.employee_number,
     isActive: userIsActive,
     hasFingerprint,
-    company: employee.department?.enterprice_name ?? NOT_AVAILABLE,
     statusLabel: userIsActive ? 'Activo' : 'Desactivado',
+    fingerprintLabel: hasFingerprint
+      ? 'Con huella activa'
+      : 'Sin huella activa',
+    company: employee.department?.enterprice_name ?? NOT_AVAILABLE,
     username: effectiveUser?.username ?? NOT_AVAILABLE,
     userRoleId:
       effectiveUser?.role_id ??
@@ -119,5 +147,10 @@ export const mapEmployeeToUserAccountDetailData = (
       employee.workposition_name ??
       NOT_AVAILABLE,
     assignedDevices,
+  }
+
+  return {
+    ...rowData,
+    searchContent: buildActivatedUserSearchContent(rowData),
   }
 }

@@ -107,17 +107,39 @@ const useDevicesDeactivated = () => {
 
   const rows = useMemo<DeactivatedDeviceRow[]>(
     () =>
-      deactivatedDevices.map((device, index) => ({
-        id: device.device_id || String(index + 1),
-        display_id: String(index + 11).padStart(3, "0"),
-        device: device.device_type?.name ?? "-",
-        brand: device.device_brand?.name ?? "-",
-        model: device.model || "-",
-        serial_number: device.serial_number || "-",
-        name: device.name || "-",
-        conditions: device.device_status?.description || "-",
-        created_at: device.created_at,
-      })),
+      deactivatedDevices.map((device, index) => {
+        const displayId = String(index + 11).padStart(3, "0");
+        const deviceType = device.device_type?.name ?? "-";
+        const brand = device.device_brand?.name ?? "-";
+        const model = device.model || "-";
+        const serialNumber = device.serial_number || "-";
+        const name = device.name || "-";
+        const conditions = device.device_status?.description || "-";
+        const deactivatedAt = device.lowdate ?? device.created_at ?? undefined;
+
+        return {
+          id: device.device_id || String(index + 1),
+          display_id: displayId,
+          device: deviceType,
+          brand,
+          model,
+          serial_number: serialNumber,
+          name,
+          conditions,
+          created_at: device.created_at,
+          deactivated_at: deactivatedAt,
+          search_content: [
+            displayId,
+            deviceType,
+            brand,
+            model,
+            serialNumber,
+            name,
+            conditions,
+            deactivatedAt ?? "",
+          ].join(" "),
+        };
+      }),
     [deactivatedDevices],
   );
 
@@ -215,7 +237,18 @@ const useDevicesDeactivated = () => {
   );
 
   const searchableKeys = useMemo<(keyof DeactivatedDeviceRow)[]>(
-    () => ["device", "brand", "model", "serial_number", "name", "conditions"],
+    () => [
+      "display_id",
+      "device",
+      "brand",
+      "model",
+      "serial_number",
+      "name",
+      "conditions",
+      "created_at",
+      "deactivated_at",
+      "search_content",
+    ],
     [],
   );
 

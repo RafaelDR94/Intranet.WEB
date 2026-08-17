@@ -37,6 +37,9 @@ const SEARCHABLE_KEYS: (keyof ActivatedUserRow)[] = [
   'department',
   'position',
   'employeeNumber',
+  'statusLabel',
+  'fingerprintLabel',
+  'searchContent',
 ]
 
 const ActivatedUsersPage = () => {

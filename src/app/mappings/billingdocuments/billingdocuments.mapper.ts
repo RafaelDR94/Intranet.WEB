@@ -15,6 +15,7 @@ import {
   BillingDocumentFull,
   BillingDocumentNotDeductible,
   CompleteProcessToSAPRequest,
+  CompleteProcessToSAPResponse,
   BillingDocumentCategoryFull,
   BillingDocumentDescriptionFull,
   BillingDocumentJsonSap,
@@ -373,4 +374,27 @@ export const BillingDocumentFullMap = (raw: any): BillingDocumentFull => ({
 
 export const mapToCompleteProcessToSAP = (ids: string[]): CompleteProcessToSAPRequest => {
   return ids;
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+export const mapCompleteProcessToSAPResponse = (raw: unknown): CompleteProcessToSAPResponse => {
+  const source = isRecord(raw) ? raw : {};
+  const documents = Array.isArray(source.documents) ? source.documents : [];
+
+  return {
+    message: toString(source.message),
+    successfulDocuments: Number(source.successfulDocuments ?? 0),
+    failedDocuments: Number(source.failedDocuments ?? 0),
+    documents: documents.map((document) => {
+      const item = isRecord(document) ? document : {};
+
+      return {
+        billingDocumentId: toString(item.billingDocumentId),
+        uuid: toString(item.uuid),
+        errorMessage: toString(item.errorMessage),
+      };
+    }),
+  };
 };

@@ -18,6 +18,13 @@ export type InternalDeviceAssignmentRow = {
   responsive_url?: string | null;
   assigned?: boolean;
   is_active?: boolean;
+  /** Fecha de asignacion usada por el filtro de calendario. */
+  assignment_date?: string;
+  status_label?: string;
+  device_type_label?: string;
+  device_brand_label?: string;
+  assignment_state_label?: string;
+  search_content?: string;
   description?: string;
   delivery_condition?: string;
 };

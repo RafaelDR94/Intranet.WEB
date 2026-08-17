@@ -252,6 +252,19 @@ export type BillingDocumentFull = {
 
 export type CompleteProcessToSAPRequest = string[];
 
+export type CompleteProcessToSAPDocument = {
+  billingDocumentId: string
+  uuid: string
+  errorMessage: string
+}
+
+export type CompleteProcessToSAPResponse = {
+  message: string
+  successfulDocuments: number
+  failedDocuments: number
+  documents: CompleteProcessToSAPDocument[]
+}
+
 export type BillingDocumentJsonSapPut = {
   Id_BillingDocument: string
   jsonsap: string
