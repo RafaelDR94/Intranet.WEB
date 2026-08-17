@@ -46,15 +46,31 @@ const useDeviceTypesTable = (
 
   const rows = useMemo<DeviceTypeRow[]>(
     () =>
-      deviceTypes.map((deviceType, index) => ({
-        id: deviceType.device_type_id || String(index + 1),
-        display_id: String(index + 1).padStart(3, '0'),
-        device_type_id: deviceType.device_type_id,
-        name: deviceType.name ?? '-',
-        description: deviceType.description ?? '-',
-        extract: deviceType.name ?? '-',
-        is_active: deviceType.is_active,
-      })),
+      deviceTypes.map((deviceType, index) => {
+        const displayId = String(index + 1).padStart(3, '0')
+        const name = deviceType.name ?? '-'
+        const description = deviceType.description ?? '-'
+        const extract = deviceType.name ?? '-'
+        const statusLabel = deviceType.is_active ? 'OPTIMO' : 'INACTIVO'
+
+        return {
+          id: deviceType.device_type_id || String(index + 1),
+          display_id: displayId,
+          device_type_id: deviceType.device_type_id,
+          name,
+          description,
+          extract,
+          is_active: deviceType.is_active,
+          status_label: statusLabel,
+          search_content: [
+            displayId,
+            name,
+            description,
+            extract,
+            statusLabel,
+          ].join(' '),
+        }
+      }),
     [deviceTypes],
   )
 

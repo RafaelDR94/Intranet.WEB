@@ -71,6 +71,13 @@ const useInternalDevicesAsignationTable = ({
         const employee = employeeById.get(assignment.employee_id);
         const assigned =
           assignment.assigned ?? Boolean((assignment.employee_id ?? "").trim());
+        const statusLabel = device?.device_status?.name ?? "SIN ESTATUS";
+        const typeLabel = device?.device_type?.name ?? "-";
+        const brandLabel = device?.device_brand?.name ?? "-";
+        const assignedTo = employee?.fullname ?? assignment.employee_id ?? "-";
+        const assignmentStateLabel = assigned ? "ACTIVO" : "INACTIVO";
+        const assignmentDate = assignment.date ?? assignment.created_at ?? undefined;
+        const description = assignment.description ?? "";
         return {
           id: assignment.device_assigment_id || String(index + 1),
           assignment_id: assignment.device_assigment_id || "",
@@ -79,13 +86,31 @@ const useInternalDevicesAsignationTable = ({
           device_status: device?.device_status ?? null,
           device_type: device?.device_type ?? null,
           device_brand: device?.device_brand ?? null,
+          status_label: statusLabel,
+          device_type_label: typeLabel,
+          device_brand_label: brandLabel,
           model: device?.model ?? "",
           serial_number: device?.serial_number ?? "",
           name: device?.name ?? "",
-          assigned_to: employee?.fullname ?? assignment.employee_id ?? "-",
+          assigned_to: assignedTo,
           responsive_url: assignment.responsive_url ?? null,
           assigned,
-          description: assignment.description ?? "",
+          assignment_date: assignmentDate,
+          assignment_state_label: assignmentStateLabel,
+          description,
+          search_content: [
+            String(index + 1).padStart(3, "0"),
+            statusLabel,
+            typeLabel,
+            brandLabel,
+            device?.model ?? "",
+            device?.serial_number ?? "",
+            device?.name ?? "",
+            assignedTo,
+            description,
+            assignmentStateLabel,
+            assignmentDate ?? "",
+          ].join(" "),
         };
       }),
     [deviceAssignments, deviceById, employeeById],

@@ -6,6 +6,8 @@ export type PendingUserRow = {
   position: string
   employeeNumber: string
   hasFingerprint: boolean
+  fingerprintLabel?: string
+  searchContent?: string
   actions?: string
 }
 

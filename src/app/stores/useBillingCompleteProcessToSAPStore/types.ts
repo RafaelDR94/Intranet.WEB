@@ -1,11 +1,11 @@
-import type { CompleteProcessToSAPRequest } from '@/app/mappings/billingdocuments/billingdocuments.types'
+import type { CompleteProcessToSAPResponse } from '@/app/mappings/billingdocuments/billingdocuments.types'
 
 export type BillingCompleteProcessToSAPState = {
   sending: boolean
   success: boolean
   error?: string
-  response?: CompleteProcessToSAPRequest | null
-  completeProcessToSAP: (ids: string[]) => Promise<CompleteProcessToSAPRequest | null>
+  response?: CompleteProcessToSAPResponse | null
+  completeProcessToSAP: (ids: string[]) => Promise<CompleteProcessToSAPResponse | null>
   reset: () => void
   resetFlags: () => void
 }
