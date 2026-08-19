@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from "axios";
+import { normalizeIntranetApiUrl } from "./normalizeIntranetApiUrl";
 
 // Lee el modo desde .env y lo convierte a número (fallback a 1 si no se define)
 const mode: number = parseInt(process.env.NEXT_PUBLIC_MODE || '1', 10);
@@ -22,9 +23,18 @@ function createIntranetClient(mode: number): AxiosInstance {
       throw new Error(`Modo inválido: ${mode}`);
   }
 
-  return axios.create({
+  const client = axios.create({
     baseURL,
   });
+
+  client.interceptors.request.use((config) => {
+    if (config.url) {
+      config.url = normalizeIntranetApiUrl(config.url);
+    }
+    return config;
+  });
+
+  return client;
 }
 
 export const isProduction = () => mode === 1;

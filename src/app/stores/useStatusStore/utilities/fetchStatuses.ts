@@ -1,6 +1,6 @@
 // src/app/stores/useStatusStore/utilities/fetchStatuses.ts
 import { intranetClient } from "@/app/configurations/Axios/Clients";
-import { Statuses, StatusByType } from "@/app/configurations/Axios/urls";
+import { Statuses, StatusById, StatusByType } from "@/app/configurations/Axios/urls";
 import { Status, StatusPost, StatusPut } from "@/app/mappings/status/status.types";
 import { StatusListMap, StatusMap, StatusPostMap, StatusPutMap } from "@/app/mappings/status/status.mapper";
 import type { Set, Get } from "../types";
@@ -29,7 +29,7 @@ export const fetchStatusById = async (
   if (!force && get().current?.id === id) return get().current ?? null;
   set({ loadingById: true, error: undefined, successGetById: false });
   try {
-    const { data } = await intranetClient.get(`${Statuses}/${id}`);
+    const { data } = await intranetClient.get(`${StatusById}/${id}`);
     const parsed = StatusMap(data);
     set({ current: parsed, successGetById: true });
     return parsed;
@@ -116,7 +116,7 @@ export const deleteStatus = async (
   if (get().deleting) return false;
   set({ deleting: true, error: undefined, successDelete: false });
   try {
-    await intranetClient.delete(`${Statuses}/${id}`);
+    await intranetClient.delete(`${StatusById}/${id}`);
     set({
       statuses: get().statuses.filter((s) => s.id !== id),
       current: get().current?.id === id ? undefined : get().current,

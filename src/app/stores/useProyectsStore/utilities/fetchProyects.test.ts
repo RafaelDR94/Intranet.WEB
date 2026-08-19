@@ -28,6 +28,6 @@ describe('fetchProyects util', () => {
 
     await fetchProyects(set, get, true, 'emp-10')
 
-    expect(pGetMock).toHaveBeenCalledWith('/Reports/ProyectsByIdEmployee/emp-10?IsActive=true')
+    expect(pGetMock).toHaveBeenCalledWith('/Reports/Proyects/ByIdEmployee/emp-10?IsActive=true')
   })
 })

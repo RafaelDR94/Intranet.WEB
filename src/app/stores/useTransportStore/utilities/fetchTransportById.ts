@@ -4,7 +4,7 @@ import type { AxiosResponse } from "axios";
 
 import type { GetState, SetState } from "../types";
 
-import { Transport as TransportUrl } from "@/app/configurations/Axios/urls";
+import { TransportById } from "@/app/configurations/Axios/urls";
 import { transportTransformer } from "@/app/mappings/transport/transformers";
 import type { CompleteTransport } from "@/app/mappings/transport/transport.types";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
@@ -31,7 +31,7 @@ export const fetchTransportById = async (
 
   try {
     const getFn = pGet(requireGateway("get"));
-    const res: AxiosResponse = await getFn(`${TransportUrl}/${id}`);
+    const res: AxiosResponse = await getFn(`${TransportById}/${id}`);
     const raw = res.data?.data ?? res.data ?? null;
     const mapped = raw ? transportTransformer.mapCompleteTransport(raw) : null;
 

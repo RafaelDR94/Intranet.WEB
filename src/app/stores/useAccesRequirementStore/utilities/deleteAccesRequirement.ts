@@ -16,7 +16,7 @@ export const deleteAccesRequirement = async (
   set({ deleting: true, successDelete: false, error: undefined });
   try {
     const del = pDelete(requireGateway("del"));
-    await del(`${CustomAccessControlerAccesRequirement}/${encodeURIComponent(id)}`);
+    await del(`${CustomAccessControlerAccesRequirement}/ById/${encodeURIComponent(id)}`);
 
     const current = get().current;
 

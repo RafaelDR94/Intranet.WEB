@@ -1,5 +1,5 @@
-import { act, renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, renderHook } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { TravelExpense } from "@/app/mappings/travelExpenses/travelExpenses.types";
 
@@ -49,11 +49,17 @@ const employeesWithActiveUser = [
   },
 ];
 
+const searchParams = new URLSearchParams();
+
 vi.mock("next/navigation", () => ({
   usePathname: () =>
     "/main-page/operations/expenserequisitions/travelexpenserequest",
   useRouter: () => ({ push: mocks.routerPush }),
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => searchParams,
+}));
+
+vi.mock("@/assets/icons/acciones/cancel.svg", () => ({
+  default: () => <span data-testid="cancel-icon" />,
 }));
 
 vi.mock("@/app/context/PrincipalContext/PrincipalContext", () => ({
@@ -140,6 +146,11 @@ vi.mock("@/app/stores/useTravelExpensesStore/useTravelExpensesStore", () => ({
     { getState: () => ({ error: "" }) },
   ),
 }));
+
+afterEach(() => {
+  cleanup();
+  searchParams.forEach((_, key) => searchParams.delete(key));
+});
 
 const baseValues = {
   responsible: "requester-1",
@@ -284,14 +295,16 @@ describe("useTravelExpenseRequest requisition progress", () => {
   });
 
   it("keeps rejected requisitions actionable according to status_name", () => {
+    const rejectedTravelExpense = {
+      ...selectedTravelExpense,
+      status: "Enviada",
+      status_name: "RECHAZADO",
+    };
+
     const { result } = renderHook(() =>
       useTravelExpenseRequest({
         requisitionRequestId: "request-1",
-        selectedTravelExpenseOverride: {
-          ...selectedTravelExpense,
-          status: "Enviada",
-          status_name: "RECHAZADO",
-        },
+        selectedTravelExpenseOverride: rejectedTravelExpense,
         viewOverride: "requisition",
       }),
     );
