@@ -157,6 +157,10 @@ const useDeviceTypesPage = () => {
 
     hideSpinner()
 
+    if (successCreateDeviceType || successUpdateDeviceType) {
+      updateQuery({ id: null, view: null })
+    }
+
     if (
       error ||
       successCreateDeviceType ||
@@ -183,6 +187,7 @@ const useDeviceTypesPage = () => {
     successDeleteDeviceType,
     successUpdateDeviceType,
     updatingDeviceType,
+    updateQuery,
   ])
 
   useEffect(() => {

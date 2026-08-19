@@ -11,5 +11,7 @@ export type DeactivatedDeviceRow = {
   name: string;
   conditions: string;
   created_at?: string;
+  deactivated_at?: string;
+  search_content?: string;
   actions?: string;
 };

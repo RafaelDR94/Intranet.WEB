@@ -36,7 +36,7 @@ const DevicesDeactivated = () => {
         enableInternalSearch
         searchableKeys={searchableKeys}
         showCalendar
-        dateKey="created_at"
+        dateKey="deactivated_at"
         showFilter
         showRefresh
         showDownloadTable

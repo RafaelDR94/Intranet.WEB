@@ -210,7 +210,7 @@ const useHistoryAssignment = ({
       return;
     }
     updateQuery({ view: "new" });
-  }, [onCreateAssignment, updateQuery]);
+  }, [currentPagePermissions?.createDeviceAssignment, onCreateAssignment, updateQuery]);
 
   const handleConfirmUnlink = useCallback(async () => {
     if (!currentPagePermissions?.unlinkDeviceAssignment) return;
@@ -270,6 +270,7 @@ const useHistoryAssignment = ({
     }
     await fetchDeviceAssignments(true);
   }, [
+    currentPagePermissions?.unlinkDeviceAssignment,
     deleteDeviceAssignment,
     deviceAssignment?.device_assigment_id,
     deviceAssignment?.device_id,
@@ -304,7 +305,7 @@ const useHistoryAssignment = ({
       setResponsiveTitle(title ?? "Responsiva de asignacion");
       setResponsiveOpen(true);
     },
-    [showAlert],
+    [currentPagePermissions?.viewResponsive, showAlert],
   );
 
   const handleCloseResponsive = useCallback(() => {

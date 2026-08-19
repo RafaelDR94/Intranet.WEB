@@ -32,6 +32,8 @@ const SEARCHABLE_KEYS: (keyof PendingUserRow)[] = [
   'department',
   'position',
   'employeeNumber',
+  'fingerprintLabel',
+  'searchContent',
 ]
 
 const PendingUsersPage = () => {

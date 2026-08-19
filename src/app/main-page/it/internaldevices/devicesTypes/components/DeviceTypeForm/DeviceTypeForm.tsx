@@ -158,9 +158,6 @@ const DeviceTypeForm: React.FC<DeviceTypeFormProps> = ({
         await activateDeviceType(created.device_type_id)
       }
 
-      if (created) {
-        onBack()
-      }
       return
     }
 
@@ -186,10 +183,7 @@ const DeviceTypeForm: React.FC<DeviceTypeFormProps> = ({
       await activateDeviceType(deviceType.device_type_id)
     }
 
-    if (updated) {
-      onBack()
-    }
-  }, [activateDeviceType, createDeviceType, deviceType, formValues, isCreate, onBack, showAlert, updateDeviceType])
+  }, [activateDeviceType, createDeviceType, currentPagePermissions?.createDeviceType, currentPagePermissions?.updateDeviceType, deviceType, formValues, isCreate, onBack, showAlert, updateDeviceType])
 
   if (!deviceType && !isCreate) {
     return (

@@ -158,9 +158,6 @@ const DeviceBrandForm: React.FC<DeviceBrandFormProps> = ({
         await activateDeviceBrand(created.device_brand_id)
       }
 
-      if (created) {
-        onBack()
-      }
       return
     }
 
@@ -186,10 +183,7 @@ const DeviceBrandForm: React.FC<DeviceBrandFormProps> = ({
       await activateDeviceBrand(brand.device_brand_id)
     }
 
-    if (updated) {
-      onBack()
-    }
-  }, [activateDeviceBrand, brand, createDeviceBrand, formValues, isCreate, onBack, showAlert, updateDeviceBrand])
+  }, [activateDeviceBrand, brand, createDeviceBrand, currentPagePermissions?.createDeviceBrand, currentPagePermissions?.updateDeviceBrand, formValues, isCreate, onBack, showAlert, updateDeviceBrand])
 
   if (!brand && !isCreate) {
     return (

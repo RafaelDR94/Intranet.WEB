@@ -7,6 +7,9 @@ export type ActivatedUserRow = {
   employeeNumber: string
   isActive: boolean
   hasFingerprint: boolean
+  statusLabel?: string
+  fingerprintLabel?: string
+  searchContent?: string
   actions?: string
 }
 

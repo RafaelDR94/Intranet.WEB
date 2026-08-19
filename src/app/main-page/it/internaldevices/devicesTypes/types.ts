@@ -11,6 +11,8 @@ export type DeviceTypeRow = {
   description: string
   extract: string
   is_active: boolean
+  status_label: string
+  search_content: string
 }
 
 /**

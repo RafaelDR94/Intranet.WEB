@@ -249,6 +249,7 @@ const InternalDevicesAsignationPage = () => {
           textSize={{ mobile: 'text-d3', desktop: 'text-c2' }}
           enableInternalSearch
           searchableKeys={searchableKeys}
+          dateKey="assignment_date"
           showCalendar
           showFilter
           showRefresh
