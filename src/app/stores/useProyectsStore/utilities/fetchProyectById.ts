@@ -2,7 +2,7 @@
 
 import type { Get, Set } from '../types'
 
-import { ReportsProyects } from '@/app/configurations/Axios/urls'
+import { ReportsProyectsById } from '@/app/configurations/Axios/urls'
 import { ProyectMap } from '@/app/mappings/proyects/proyects.mapper'
 import type { Proyect } from '@/app/mappings/proyects/proyects.types'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
@@ -23,7 +23,7 @@ export const fetchProyectById = async (
 
   try {
     const getFn = requireGateway('get')
-    const res = await pGet(getFn)(`${ReportsProyects}/${encodeURIComponent(id)}`)
+    const res = await pGet(getFn)(`${ReportsProyectsById}/${encodeURIComponent(id)}`)
     const raw = res.data?.data ?? res.data
     const proyect = raw ? ProyectMap(raw) : null
 

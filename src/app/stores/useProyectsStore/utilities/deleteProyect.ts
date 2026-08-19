@@ -4,7 +4,7 @@ import type { AxiosResponse } from 'axios'
 
 import type { Set, Get } from '../types'
 
-import { ReportsProyects } from '@/app/configurations/Axios/urls'
+import { ReportsProyectsById } from '@/app/configurations/Axios/urls'
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError'
 import { pDelete } from '@/app/utilities/Http/promisifyIntranet'
 import { requireGateway } from '@/app/utilities/Http/requireGateway'
@@ -21,7 +21,7 @@ export const deleteProyect = async (
 
   try {
     const del = pDelete(requireGateway('del'), [200, 204])
-    const _res: AxiosResponse = await del(`${ReportsProyects}/${id}`)
+    const _res: AxiosResponse = await del(`${ReportsProyectsById}/${id}`)
 
     set((s) => ({
       proyects: s.proyects.filter((p) => p.id !== id),

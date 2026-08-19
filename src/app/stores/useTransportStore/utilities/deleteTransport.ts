@@ -4,7 +4,7 @@ import type { AxiosResponse } from "axios";
 
 import type { SetState, GetState } from "../types";
 
-import { Transport as TransportUrl } from "@/app/configurations/Axios/urls";
+import { TransportById } from "@/app/configurations/Axios/urls";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
 import { pDelete } from "@/app/utilities/Http/promisifyIntranet";
 import { requireGateway } from "@/app/utilities/Http/requireGateway";
@@ -23,7 +23,7 @@ export const deleteTransport = async (
 
   try {
     const del = pDelete(requireGateway("del"), [200, 204]);
-    const _res: AxiosResponse = await del(`${TransportUrl}/${id}`);
+    const _res: AxiosResponse = await del(`${TransportById}/${id}`);
 
     set((state) => ({
       transports: state.transports.filter(

@@ -34,7 +34,7 @@ describe('fetchProyectById util', () => {
 
     const result = await fetchProyectById(set, get, 'proj-1')
 
-    expect(pGetMock).toHaveBeenCalledWith('/Reports/Proyects/proj-1')
+    expect(pGetMock).toHaveBeenCalledWith('/Reports/Proyects/ById/proj-1')
     expect(result).toEqual(state.currentProyect)
     expect(state.loading).toBe(false)
   })

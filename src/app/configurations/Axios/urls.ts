@@ -65,10 +65,10 @@ export const AuthorizationChangeAuthorizer =
   "/Auth/changeAuthorizer";
 export const AuthorizationRequisitionHistory =
   process.env.NEXT_PUBLIC_AUTH_REQUISITION_AUTHORIZATIONS_HISTORY ??
-  "/Auth/RequisitionAuthorizationsHistory";
+  "/Auth/RequisitionAuthorizationsHistory/ByIdRequisition";
 export const AuthorizationBillingDocuments =
   process.env.NEXT_PUBLIC_AUTHORIZATION_BILLING_DOCUMENTS ??
-  "/Auth/AuthorizationBillingDocuments";
+  "/Auth/AuthorizationBillingDocuments/ByIdAuthorization";
 
 export const Enterprises =
   process.env.NEXT_PUBLIC_ENTERPRISES ?? "/Enterprises";
@@ -79,35 +79,37 @@ export const Departments =
 
 export const CustomAccessControler =
   process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLER ??
-  "/CustomsAccessControler/ExternalPersonnel";
+  "/CustomsAccess/ExternalPersonnel";
 export const CustomAccessControlerByEnterprise =
   process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYENTERPRISE ??
-  "/CustomsAccessControler/ExternalPersonnel/ByIdEnterprise";
+  "/CustomsAccess/ExternalPersonnel/ByIdEnterprise";
 export const CustomAccessControlerById =
   process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERBYID ??
-  "/CustomsAccessControler/ExternalPersonnel/ByID";
+  "/CustomsAccess/ExternalPersonnel/ById";
 export const CustomAccessControlerAccesRequirement =
   process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT ||
-  "/CustomsAccessControler/AccessRequirement";
+  "/CustomsAccess/AccessRequirement";
 export const CustomAccessControlerAccesRequirementInternalComments =
   process.env
     .NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT_INTERNALCOMMENTS ||
-  "/CustomsAccessControler/AccessRequirementInternalComments";
+  "/CustomsAccess/AccessRequirementInternalComments";
 export const CustomAccessControlerAccesRequirementExternalComments =
   process.env
     .NEXT_PUBLIC_CUSTOMACCESCONTROLERACCESREQUIRMENT_EXTERNALCOMMENTS ||
-  "/CustomsAccessControler/AccessRequirementExternalComments";
+  "/CustomsAccess/AccessRequirementExternalComments";
 export const CustomAccessControlerTemplate =
   process.env.NEXT_PUBLIC_CUSTOMACCESCONTROLER_TEMPLATE ||
-  "/CustomsAccessControler/Template";
+  "/CustomsAccess/Template";
 export const Persons = process.env.NEXT_PUBLIC_PERSONS ?? "/Persons";
 export const WorkPosition =
   process.env.NEXT_PUBLIC_WORK_POSITION ?? "/Enterprises/WorkPosition";
 export const WorkPositionsByDepartment =
   process.env.NEXT_PUBLIC_WORKPOSITIONS_BY_DEPARTMENT ??
-  "/Enterprises/WorkPositions/ByDepartment";
+  "/Enterprises/WorkPositions/ByIdDepartment";
 
 export const Transport = process.env.NEXT_PUBLIC_TRANSPORT ?? "/Transport";
+export const TransportById =
+  process.env.NEXT_PUBLIC_TRANSPORT_BY_ID ?? "/Transport/Transport/ById";
 export const TransportGetAssigment =
   process.env.NEXT_PUBLIC_TRANSPORT_GET_ASSIGMENT ?? "/Transport/GetAssigment";
 export const CreateAssigment =
@@ -148,7 +150,7 @@ export const TransportVehicleReassignmentApprove =
   "/Transport/VehicleReassignmentApprove";
 export const TransportVehicleReassignmentByEmployee =
   process.env.NEXT_PUBLIC_TRANSPORT_VEHICLE_REASSIGNMENT_BY_EMPLOYEE ??
-  "/Transport/VehicleReassignment/Employee";
+  "/Transport/VehicleReassignment/ByIdEmployee";
 
 export const Employees = process.env.NEXT_PUBLIC_EMPLOYEES ?? "/Employees";
 export const EmployeesById =
@@ -167,12 +169,14 @@ export const EmployeesActiveUsers =
   process.env.NEXT_PUBLIC_EMPLOYEES_ACTIVE_USERS ?? "/Employees/ActiveUsers";
 export const EmployeesDevicesAssigned =
   process.env.NEXT_PUBLIC_EMPLOYEES_DEVICES_ASSIGNED ??
-  "/Employees/DevicesAssigned";
+  "/Employees/DevicesAssigned/ByIdEmployee";
 export const EmployeesEmployeeNumberCard =
   process.env.NEXT_PUBLIC_EMPLOYEES_EMPLOYEE_NUMBER_CARD ??
   "/Employees/EmppLoyeeNumberCard";
 
 export const Statuses = process.env.NEXT_PUBLIC_STATUS ?? "/Status";
+export const StatusById =
+  process.env.NEXT_PUBLIC_STATUS_BY_ID ?? "/Status/Status/ById";
 export const StatusByType =
   process.env.NEXT_PUBLIC_STATUSBYTYPE ?? "/Status/ByType";
 
@@ -217,9 +221,11 @@ export const HMEmployeeTalents =
 
 export const ReportsProyects =
   process.env.NEXT_PUBLIC_REPORTS_PROYECTS ?? "/Reports/Proyects";
+export const ReportsProyectsById =
+  process.env.NEXT_PUBLIC_REPORTS_PROYECTS_BY_ID ?? "/Reports/Proyects/ById";
 export const ReportsProyectsByIdEmployee =
   process.env.NEXT_PUBLIC_REPORTS_PROYECTS_BY_ID_EMPLOYEE ??
-  "/Reports/ProyectsByIdEmployee";
+  "/Reports/Proyects/ByIdEmployee";
 export const ReportsTypesReports =
   process.env.NEXT_PUBLIC_REPORTS_TYPESREPORTS ?? "/Reports/TypesReports";
 export const ReportsCategories =
@@ -235,10 +241,10 @@ export const ReportDeviceExternalById =
   "/Reports/ReportDeviceExternal";
 export const ReportsDevicesByProyectId =
   process.env.NEXT_PUBLIC_REPORTS_DEVICES_BY_PROYECT_ID ??
-  "/Reports/DevicesExternalByProyectId";
+  "/Reports/DevicesExternal/ByProyectId";
 export const ReportsDevicesByLocation =
   process.env.NEXT_PUBLIC_REPORTS_DEVICESBYLOCATION ??
-  "/Reports/DevicesByProyectLocationId";
+  "/Reports/Devices/ByProyectLocationId";
 export const ReportsLocation =
   process.env.NEXT_PUBLIC_REPORTS_LOCATION ?? "/Reports/Location";
 export const LocationProyect =
@@ -251,32 +257,35 @@ export const ReportsLocationProyect =
 export const ReportsGenericEquipment =
   process.env.NEXT_PUBLIC_REPORTS_GENERIC_EQUIPMENT ??
   "/Reports/GenericEquipment";
+export const ReportsGenericEquipmentById =
+  process.env.NEXT_PUBLIC_REPORTS_GENERIC_EQUIPMENT_BY_ID ??
+  "/Reports/GenericEquipment/ById";
 export const ReportsGenericEquipmentByProyectId =
   process.env.NEXT_PUBLIC_REPORTS_GENERIC_EQUIPMENT_BY_PROYECT_ID ??
-  "/Reports/GenericEquipmentByProyectId";
+  "/Reports/GenericEquipment/ByProyectId";
 export const ReportsSuppliers =
   process.env.NEXT_PUBLIC_REPORTS_SUPPLIERS ?? "/Reports/Suppliers";
 export const ReportsSpareParts =
   process.env.NEXT_PUBLIC_REPORTS_SPARE_PARTS ?? "/Reports/SpareParts";
 export const ReportsSparePartsByProyectId =
   process.env.NEXT_PUBLIC_REPORTS_SPARE_PARTS_BY_PROYECT_ID ??
-  "/Reports/SparePartsByProyectId";
+  "/Reports/SpareParts/ByProyectId";
 export const ReportsSparePartsByDeviceId =
   process.env.NEXT_PUBLIC_REPORTS_SPARE_PARTS_BY_DEVICE_ID ??
-  "/Reports/SparePartsByDeviceId";
+  "/Reports/SpareParts/ByDeviceId";
 export const ReportsSparePartsByGenericEquipmentId =
   process.env.NEXT_PUBLIC_REPORTS_SPARE_PARTS_BY_GENERIC_EQUIPMENT_ID ??
-  "/Reports/SparePartsByGenericEquipmentId";
+  "/Reports/SpareParts/ByGenericEquipmentId";
 export const ReportsGenericEquipmentSpareParts =
   process.env.NEXT_PUBLIC_REPORTS_GENERIC_EQUIPMENT_SPARE_PARTS ??
   "/Reports/GenericEquipmentSpareParts";
 export const ReportsAllReports =
   process.env.NEXT_PUBLIC_REPORTS_ALLREPORTS ?? "/Reports/AllReports";
 export const ReportsByID =
-  process.env.NEXT_PUBLIC_REPORTS_BYID ?? "/Reports/ReportsByID";
+  process.env.NEXT_PUBLIC_REPORTS_BYID ?? "/Reports/Report/ById";
 export const ReportsAllReportsByIdProyect =
   process.env.NEXT_PUBLIC_REPORTS_ALLREPORTSBYIDPROYECT ??
-  "/Reports/AllReportsByIdProyect";
+  "/Reports/AllReports/ByIdProyect";
 export const ReportsReportsDevices =
   process.env.NEXT_PUBLIC_REPORTS_REPORTDEVICES ?? "/Reports/ReportDevices";
 export const Reports = process.env.NEXT_PUBLIC_REPORTS ?? "/Reports";
@@ -327,7 +336,7 @@ export const DeviceAssigmentById =
   "/Assets/DeviceAssignment/ById";
 export const DeviceAssignmentHistoryByDeviceId =
   process.env.NEXT_PUBLIC_DEVICE_ASSIGNMENT_HISTORY_BY_DEVICE_ID ??
-  "/Assets/DeviceAssignment/History";
+  "/Assets/DeviceAssignment/History/ByIdDevice";
 export const DeviceAssignmentResponsiveUrl =
   process.env.NEXT_PUBLIC_DEVICE_ASSIGNMENT_RESPONSIVE_URL ??
   "/Assets/DeviceAssignment/ResponsiveUrl";
@@ -420,7 +429,7 @@ export const BillingDocumentById =
   "/Billings/BillingDocument/ById";
 export const BillingDocumentsPendingByEmployee =
   process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTS_PENDING_BY_EMPLOYEE ??
-  "/Billings/BillingDocumentsPendingByEmployee";
+  "/Billings/BillingDocuments/Pending/ByIdEmployee";
 export const BillingAllDocumentByIdEmployee =
   process.env.NEXT_PUBLIC_BILLINGS_BILLING_ALL_DOCUMENT_BY_ID_EMPLOYEE ??
   "/Billings/BillingAllDocumentByIdEmployee";
@@ -429,7 +438,7 @@ export const BillingAllDocumentByIdRequisition =
   "/Billings/BillingAllDocumentByIdRequisition";
 export const BillingImagesPendingByEmployee =
   process.env.NEXT_PUBLIC_BILLINGS_BILLINGIMAGES_PENDING_BY_EMPLOYEE ??
-  "/Billings/BillingImagesPendingByEmployee";
+  "/Billings/BillingImages/Pending/ByIdEmployee";
 export const BillingDocumentByIdIdRequisition =
   process.env.NEXT_PUBLIC_BILLINGS_BILLINGDOCUMENTBYIDREQUISITION ||
   "/Billings/BillingDocument/ByIdRequisition";
@@ -524,7 +533,7 @@ export const BillingTravelExpenses =
   "/Billings/TravelExpenses";
 export const BillingTravelExpensesByEmployee =
   process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_BY_EMPLOYEE ??
-  "/Billings/TravelExpenses/Employee";
+  "/Billings/TravelExpenses/ByIdEmployee";
 export const BillingTravelExpensesReject =
   process.env.NEXT_PUBLIC_BILLINGS_TRAVEL_EXPENSES_REJECT ??
   "/Billings/TravelExpenses/Reject";
