@@ -23,7 +23,7 @@ export const fetchAccesRequirementById = async (
   set({ loadingById: true, successGetById: false, error: undefined });
   try {
     const res = await pGet(requireGateway("get"))(
-      `${CustomAccessControlerAccesRequirement}/${encodeURIComponent(id)}`
+      `${CustomAccessControlerAccesRequirement}/ById/${encodeURIComponent(id)}`
     );
     const raw = res.data?.data ?? res.data ?? null;
     const mapped = raw ? mapAccesRequirement(raw) : null;

@@ -3,7 +3,7 @@ import type {
   SetProyectInventoryState as Set,
 } from "../types";
 
-import { ReportsGenericEquipment } from "@/app/configurations/Axios/urls";
+import { ReportsGenericEquipmentById } from "@/app/configurations/Axios/urls";
 import { mapGenericEquipment } from "@/app/mappings/inventory/inventory.mapper";
 import type { GenericEquipment } from "@/app/mappings/inventory/inventory.types";
 import { normalizeApiError } from "@/app/utilities/Http/normalizeApiError";
@@ -29,7 +29,7 @@ export const fetchGenericEquipmentById = async (
 
   try {
     const getFn = requireGateway("get");
-    const res = await pGet(getFn)(`${ReportsGenericEquipment}/${id}`);
+    const res = await pGet(getFn)(`${ReportsGenericEquipmentById}/${id}`);
     const raw = res.data?.data ?? res.data;
     const currentGenericEquipment = raw ? mapGenericEquipment(raw) : null;
 
