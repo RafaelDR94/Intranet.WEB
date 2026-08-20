@@ -1,3 +1,9 @@
+### 1.50.43 Activación y reactivación de usuarios de TI 2026-08-20
+
+Fix:
+
+- Permite corregir el correo inválido de un usuario existente antes de reactivarlo, confirma explícitamente las activaciones y reactivaciones, y conserva el flujo de asignación de dispositivos. Incluye cobertura de pruebas para estos escenarios. (Agente IA) [#]()
+
 ### 1.50.41 Build de solicitud de requisiciones 2026-07-21
 
 Fix:

@@ -12,6 +12,7 @@ import { useUsersStore } from '@/app/stores/useUsersStore/useUsersStore'
 
 import type {
   PendingUserActivationPayload,
+  PendingUserActivationMode,
   PendingUserDetailData,
   PendingUserRow,
 } from '../types'
@@ -22,7 +23,26 @@ import {
   mapRolesToPendingRoleOptions,
 } from '../utilities/pendingUsers.mapper'
 
-type PendingUserFilterValue = 'all' | 'fingerprint-active' | 'fingerprint-inactive'
+type PendingUserFilterValue =
+  | 'all'
+  | 'fingerprint-active'
+  | 'fingerprint-inactive'
+type ReactivationUser = {
+  userId: string
+  username: string
+  roleId?: string | null
+}
+
+type ActivationConfirmation = {
+  mode: PendingUserActivationMode
+  payload: PendingUserActivationPayload
+  reactivationUser?: ReactivationUser
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const isValidUserEmail = (value: unknown) =>
+  EMAIL_PATTERN.test(String(value ?? '').trim())
 
 const matchesFilter = (row: PendingUserRow, filter: PendingUserFilterValue) => {
   switch (filter) {
@@ -51,10 +71,7 @@ const getImageUrl = (value: unknown): string | null => {
 
   if (Array.isArray(value)) {
     const firstImage = value[0] as { url?: unknown } | undefined
-    if (
-      typeof firstImage?.url === 'string' &&
-      firstImage.url.trim()
-    ) {
+    if (typeof firstImage?.url === 'string' && firstImage.url.trim()) {
       return firstImage.url.trim()
     }
   }
@@ -78,21 +95,28 @@ const usePendingUsersPage = () => {
   const { showSpinner, hideSpinner } = usePrincipalLoading
   const [selectedFilter, setSelectedFilter] =
     useState<PendingUserFilterValue>('all')
-  const [assignmentPromptEmployeeId, setAssignmentPromptEmployeeId] =
-    useState<string | null>(null)
-  const [reactivationPromptUser, setReactivationPromptUser] = useState<{
-    employeeId: string
-    userId: string
-  } | null>(null)
+  const [assignmentPromptEmployeeId, setAssignmentPromptEmployeeId] = useState<
+    string | null
+  >(null)
+  const [reactivationPromptUser, setReactivationPromptUser] =
+    useState<ReactivationUser | null>(null)
+  const [activationMode, setActivationMode] =
+    useState<PendingUserActivationMode>('create')
+  const [repairReactivationUser, setRepairReactivationUser] =
+    useState<ReactivationUser | null>(null)
+  const [activationConfirmation, setActivationConfirmation] =
+    useState<ActivationConfirmation | null>(null)
 
   const {
     employeesWithoutActiveUser,
     roles,
     createUser,
+    updateUser,
     fetchEmployeesWithoutActiveUser,
     fetchEmployeesWithActiveUser,
     fetchRoles,
     creating,
+    updating: updatingUser,
     toggleActive,
     togglingActive,
     loadingWithoutActiveUser,
@@ -105,10 +129,12 @@ const usePendingUsersPage = () => {
       employeesWithoutActiveUser: state.employeesWithoutActiveUser,
       roles: state.roles,
       createUser: state.createUser,
+      updateUser: state.updateUser,
       fetchEmployeesWithoutActiveUser: state.fetchEmployeesWithoutActiveUser,
       fetchEmployeesWithActiveUser: state.fetchEmployeesWithActiveUser,
       fetchRoles: state.fetchRoles,
       creating: state.creating,
+      updating: state.updating,
       toggleActive: state.toggleActive,
       togglingActive: state.togglingActive,
       loadingWithoutActiveUser: state.loadingWithoutActiveUser,
@@ -166,6 +192,11 @@ const usePendingUsersPage = () => {
       return
     }
 
+    if (updatingUser) {
+      showSpinner({ message: 'Actualizando correo del usuario...' })
+      return
+    }
+
     if (togglingActive) {
       showSpinner({ message: 'Reactivando cuenta...' })
       return
@@ -201,6 +232,7 @@ const usePendingUsersPage = () => {
     loadingWithoutActiveUser,
     showSpinner,
     togglingActive,
+    updatingUser,
   ])
 
   useEffect(() => {
@@ -254,9 +286,9 @@ const usePendingUsersPage = () => {
   const selectedSummary = useMemo(
     () =>
       selectedUserId
-        ? employeesWithoutActiveUser.find(
+        ? (employeesWithoutActiveUser.find(
             (item) => item.employee_id === selectedUserId,
-          ) ?? null
+          ) ?? null)
         : null,
     [employeesWithoutActiveUser, selectedUserId],
   )
@@ -294,28 +326,55 @@ const usePendingUsersPage = () => {
 
   const handleOpenActivation = useCallback(
     async (row: PendingUserRow) => {
-      if (!currentPagePermissions?.activateUser && !currentPagePermissions?.reactivateUser) return
+      if (
+        !currentPagePermissions?.activateUser &&
+        !currentPagePermissions?.reactivateUser
+      )
+        return
       const employee = await fetchEmployeeById(row.id, true)
       const existingUser = employee?.user
 
       if (existingUser?.user_id) {
         if (!currentPagePermissions?.reactivateUser) return
-        setReactivationPromptUser({
-          employeeId: row.id,
+        const reactivationUser = {
           userId: existingUser.user_id,
+          username: existingUser.username,
+          roleId: existingUser.role_id ?? existingUser.role?.id,
+        }
+
+        if (isValidUserEmail(existingUser.username)) {
+          setReactivationPromptUser(reactivationUser)
+          return
+        }
+
+        setActivationMode('repair-reactivation')
+        setRepairReactivationUser(reactivationUser)
+        updateQuery({
+          id: row.id,
+          label: 'Corregir correo del usuario',
         })
         return
       }
 
+      setActivationMode('create')
+      setRepairReactivationUser(null)
       updateQuery({
         id: row.id,
         label: 'Activar Empleado',
       })
     },
-    [currentPagePermissions?.activateUser, currentPagePermissions?.reactivateUser, fetchEmployeeById, updateQuery],
+    [
+      currentPagePermissions?.activateUser,
+      currentPagePermissions?.reactivateUser,
+      fetchEmployeeById,
+      updateQuery,
+    ],
   )
 
   const handleCloseActivation = useCallback(() => {
+    setActivationMode('create')
+    setRepairReactivationUser(null)
+    setActivationConfirmation(null)
     updateQuery({ id: null, label: null })
   }, [updateQuery])
 
@@ -325,6 +384,10 @@ const usePendingUsersPage = () => {
 
   const handleCloseReactivationPrompt = useCallback(() => {
     setReactivationPromptUser(null)
+  }, [])
+
+  const handleCloseActivationConfirmation = useCallback(() => {
+    setActivationConfirmation(null)
   }, [])
 
   const handleSkipDeviceAssignment = useCallback(() => {
@@ -371,6 +434,20 @@ const usePendingUsersPage = () => {
       return
     }
 
+    if (!isValidUserEmail(reactivationPromptUser.username)) {
+      showAlert({
+        type: 'warning',
+        title: 'Correo de usuario requerido',
+        description:
+          'Captura un correo válido para el usuario antes de reactivar su cuenta.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2200,
+      })
+      handleCloseReactivationPrompt()
+      return
+    }
+
     const success = await toggleActive({
       id: reactivationPromptUser.userId,
       isActive: true,
@@ -411,11 +488,165 @@ const usePendingUsersPage = () => {
     fetchEmployeesWithoutActiveUser,
     handleCloseReactivationPrompt,
     reactivationPromptUser?.userId,
+    reactivationPromptUser?.username,
     showAlert,
     toggleActive,
   ])
 
   const handleActivateUser = useCallback(
+    (payload: PendingUserActivationPayload) => {
+      const username = String(payload.email ?? '').trim()
+
+      if (!isValidUserEmail(username)) {
+        showAlert({
+          type: 'warning',
+          title: 'Correo de usuario requerido',
+          description:
+            'Captura un correo electrónico válido antes de activar la cuenta.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 2200,
+        })
+        return
+      }
+
+      if (activationMode === 'repair-reactivation') {
+        if (!currentPagePermissions?.reactivateUser || !repairReactivationUser)
+          return
+
+        setActivationConfirmation({
+          mode: 'repair-reactivation',
+          payload,
+          reactivationUser: repairReactivationUser,
+        })
+        return
+      }
+
+      if (!currentPagePermissions?.activateUser || !selectedUser) return
+
+      const password = String(payload.provisionalPassword ?? '')
+      const roleId = String(payload.userRoleId ?? '').trim()
+      if (!password || !roleId) {
+        showAlert({
+          type: 'warning',
+          title: 'Información incompleta',
+          description:
+            'Completa los campos obligatorios antes de activar la cuenta.',
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          autoCloseMs: 1800,
+        })
+        return
+      }
+
+      setActivationConfirmation({ mode: 'create', payload })
+    },
+    [
+      activationMode,
+      currentPagePermissions?.activateUser,
+      currentPagePermissions?.reactivateUser,
+      repairReactivationUser,
+      selectedUser,
+      showAlert,
+    ],
+  )
+
+  const handleConfirmActivation = useCallback(async () => {
+    if (!activationConfirmation || creating || updatingUser || togglingActive)
+      return
+
+    const { mode, payload, reactivationUser } = activationConfirmation
+    const username = String(payload.email ?? '').trim()
+    if (!isValidUserEmail(username)) return
+
+    if (mode === 'create') {
+      await performCreateActivation(payload)
+      return
+    }
+
+    if (!currentPagePermissions?.reactivateUser || !reactivationUser?.userId)
+      return
+
+    const roleId = String(reactivationUser.roleId ?? '').trim()
+    if (!roleId) {
+      showAlert({
+        type: 'error',
+        title: 'No fue posible actualizar el correo',
+        description:
+          'La cuenta no tiene un rol asociado y no puede actualizarse antes de reactivarla.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2200,
+      })
+      return
+    }
+
+    const updatedUser = await updateUser({
+      userId: reactivationUser.userId,
+      username,
+      roleId,
+    })
+    if (!updatedUser) {
+      showAlert({
+        type: 'error',
+        title: 'No fue posible actualizar el correo',
+        description:
+          useUsersStore.getState().error ??
+          'El correo del usuario no se actualizó; la cuenta no fue reactivada.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2200,
+      })
+      return
+    }
+
+    const reactivated = await toggleActive({
+      id: reactivationUser.userId,
+      isActive: true,
+    })
+    if (!reactivated) {
+      showAlert({
+        type: 'error',
+        title: 'Error al reactivar usuario',
+        description:
+          useUsersStore.getState().error ??
+          'El correo se actualizó, pero no fue posible reactivar la cuenta.',
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        autoCloseMs: 2200,
+      })
+      return
+    }
+
+    await Promise.all([
+      fetchEmployeesWithoutActiveUser(true),
+      fetchEmployeesWithActiveUser(true),
+    ])
+    handleCloseActivation()
+    showAlert({
+      type: 'success',
+      title: 'Usuario reactivado',
+      description:
+        'El correo se actualizó y la cuenta se reactivó correctamente.',
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      autoCloseMs: 1800,
+    })
+  }, [
+    activationConfirmation,
+    creating,
+    currentPagePermissions?.reactivateUser,
+    fetchEmployeesWithActiveUser,
+    fetchEmployeesWithoutActiveUser,
+    handleCloseActivation,
+    showAlert,
+    toggleActive,
+    togglingActive,
+    updateUser,
+    updatingUser,
+  ])
+
+  const performCreateActivation = useCallback(
     async (payload: PendingUserActivationPayload) => {
       if (!currentPagePermissions?.activateUser) return
       if (!selectedUser) {
@@ -437,7 +668,7 @@ const usePendingUsersPage = () => {
       const phoneNumber = String(payload.businessPhone ?? '').trim()
       const signature = String(payload.signature ?? '')
 
-      if (!username || !password || !roleId) {
+      if (!isValidUserEmail(username) || !password || !roleId) {
         showAlert({
           type: 'warning',
           title: 'Información incompleta',
@@ -452,9 +683,7 @@ const usePendingUsersPage = () => {
 
       try {
         let imageUrl =
-          getImageUrl(payload.profileImage) ??
-          selectedUser.avatarUrl ??
-          ''
+          getImageUrl(payload.profileImage) ?? selectedUser.avatarUrl ?? ''
 
         const selectedImage = getImageFile(payload.profileImage)
         if (selectedImage) {
@@ -517,6 +746,7 @@ const usePendingUsersPage = () => {
           fetchEmployeesWithoutActiveUser(true),
           fetchEmployeesWithActiveUser(true),
         ])
+        setActivationConfirmation(null)
         setAssignmentPromptEmployeeId(selectedUser.id)
         resetUserFlags()
       } catch (error) {
@@ -550,6 +780,9 @@ const usePendingUsersPage = () => {
   )
 
   return {
+    activationConfirmation,
+    activationConfirmationOpen: Boolean(activationConfirmation),
+    activationMode,
     assignmentPromptEmployeeId,
     assignmentPromptOpen: Boolean(assignmentPromptEmployeeId),
     filteredRows,
@@ -559,10 +792,12 @@ const usePendingUsersPage = () => {
     selectedFilter,
     selectedUser,
     handleActivateUser,
+    handleCloseActivationConfirmation,
     handleCloseActivation,
     handleCloseAssignmentPrompt,
     handleCloseReactivationPrompt,
     handleConfirmReactivation,
+    handleConfirmActivation,
     handleFilterChange,
     handleGoToDeviceAssignment,
     handleOpenActivation,
