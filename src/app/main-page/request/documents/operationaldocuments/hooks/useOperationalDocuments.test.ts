@@ -7,6 +7,9 @@ const fetchMock = vi.fn((): Promise<void> => Promise.resolve())
 const fetchByUserMock = vi.fn((): Promise<void> => Promise.resolve())
 const deleteMock = vi.fn()
 let pathnameMock = '/main-page/request/documents/operationaldocuments'
+let currentPagePermissionsMock: Record<string, boolean> = {}
+let documentsRoutePermissionsMock: Record<string, boolean> = {}
+let userMock: { idUser?: string } = { idUser: 'user-1' }
 
 const documents: ManagementDocument[] = [
   {
@@ -98,7 +101,10 @@ vi.mock('@/app/stores/useDocumentsStore/useDocumentsStore', () => ({
 
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   useAuth: () => ({
-    user: { idUser: 'user-1' },
+    user: userMock,
+    currentPagePermissions: currentPagePermissionsMock,
+    getRoutePermissions: (route: string) =>
+      route === '/main-page/request/documents' ? documentsRoutePermissionsMock : {},
   }),
 }))
 
@@ -111,6 +117,9 @@ import { useOperationalDocuments } from './useOperationalDocuments'
 describe('useOperationalDocuments hook', () => {
   beforeEach(() => {
     pathnameMock = '/main-page/request/documents/operationaldocuments'
+    currentPagePermissionsMock = {}
+    documentsRoutePermissionsMock = {}
+    userMock = { idUser: 'user-1' }
     fetchMock.mockClear()
     fetchByUserMock.mockClear()
     deleteMock.mockClear()
@@ -150,6 +159,48 @@ describe('useOperationalDocuments hook', () => {
 
     expect(fetchByUserMock).toHaveBeenCalledTimes(1)
     expect(fetchByUserMock).toHaveBeenCalledWith('user-1', true)
+  })
+
+  it('uses the global documents endpoint when getAlldocuments is enabled', async () => {
+    documentsRoutePermissionsMock = { getAlldocuments: true }
+
+    const { result } = renderHook(() => useOperationalDocuments())
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(true)
+    })
+    expect(fetchByUserMock).not.toHaveBeenCalled()
+
+    await act(async () => {
+      await result.current.refresh()
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchByUserMock).not.toHaveBeenCalled()
+  })
+
+  it('ignores getAlldocuments outside the parent documents route', async () => {
+    currentPagePermissionsMock = { getAlldocuments: true }
+
+    renderHook(() => useOperationalDocuments())
+
+    await waitFor(() => {
+      expect(fetchByUserMock).toHaveBeenCalledWith('user-1', true)
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('never uses the global endpoint without getAlldocuments, even when the user id is unavailable', async () => {
+    userMock = {}
+
+    const { result } = renderHook(() => useOperationalDocuments())
+
+    await act(async () => {
+      await result.current.refresh()
+    })
+
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(fetchByUserMock).not.toHaveBeenCalled()
   })
 
   it('does not fetch operational documents while another documents tab is active', async () => {

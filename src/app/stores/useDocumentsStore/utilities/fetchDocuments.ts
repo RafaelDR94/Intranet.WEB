@@ -37,10 +37,12 @@ export const fetchDocuments = async (
 
     const mapped: ManagementDocument[] = mapManagementDocuments(toArray(payload))
     const managementDocuments = mapped.filter((doc) => doc.management)
+    const operationalDocuments = mapped.filter((doc) => !doc.management)
 
     set({
       documents: mapped,
       managementDocuments,
+      operationalDocuments,
       loading: false,
       successGet: true,
     })

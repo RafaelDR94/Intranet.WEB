@@ -170,10 +170,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
       if (tabPath.includes("/main-page/request/documents/operationaldocuments")) {
         if (user?.idUser) {
           void fetchDocumentsByUser(user.idUser, true);
-          return;
         }
-
-        void fetchDocuments(true);
       }
     },
     [fetchDocuments, fetchDocumentsByUser, user?.idUser],
