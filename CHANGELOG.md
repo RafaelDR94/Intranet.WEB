@@ -1,3 +1,22 @@
+### 1.50.44 Permission-based operational document retrieval 2026-08-20
+
+Why is change necessary?
+
+- Operational document requests needed to use the current user's endpoint unless the `getAlldocuments` permission is explicitly enabled.
+- The global documents endpoint could be requested as a fallback while the user identifier was unavailable.
+
+Where were the changes made?
+
+- `src/app/main-page/request/documents/operationaldocuments/hooks/useOperationalDocuments.ts`
+- `src/app/main-page/components/MainLayoutClient/components/MainTabs/MainTabs.tsx`
+- `src/app/stores/useDocumentsStore/utilities/fetchDocuments.ts`
+- Tests for the operational documents hook, main tabs, and documents store.
+- `package.json` and `package-lock.json`.
+
+Does it affect other systems?
+
+- No API contracts were changed. The existing `GET /Documents` and `GET /Documents/ByUser/{idUser}` endpoints are selected according to the route permission.
+
 ### 1.50.43 Activación y reactivación de usuarios de TI 2026-08-20
 
 Fix:
