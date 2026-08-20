@@ -19,9 +19,15 @@ import usePendingUsersPage from './hooks/usePendingUsersPage'
 import type { PendingUserRow } from './types'
 import { useAuth } from '@/app/context/AuthContext/AuthContext'
 
-type PendingUserFilterValue = 'all' | 'fingerprint-active' | 'fingerprint-inactive'
+type PendingUserFilterValue =
+  | 'all'
+  | 'fingerprint-active'
+  | 'fingerprint-inactive'
 
-const FILTER_OPTIONS: DataTableFilterOption<PendingUserRow, PendingUserFilterValue>[] = [
+const FILTER_OPTIONS: DataTableFilterOption<
+  PendingUserRow,
+  PendingUserFilterValue
+>[] = [
   { label: 'Todos', value: 'all' },
   { label: 'Con huella activa', value: 'fingerprint-active' },
   { label: 'Sin huella activa', value: 'fingerprint-inactive' },
@@ -40,6 +46,9 @@ const PendingUsersPage = () => {
   const isMobile = useIsMobile()
   const { currentPagePermissions } = useAuth()
   const {
+    activationConfirmation,
+    activationConfirmationOpen,
+    activationMode,
     assignmentPromptOpen,
     filteredRows,
     isActivationOpen,
@@ -48,9 +57,11 @@ const PendingUsersPage = () => {
     selectedFilter,
     selectedUser,
     handleActivateUser,
+    handleCloseActivationConfirmation,
     handleCloseActivation,
     handleCloseReactivationPrompt,
     handleConfirmReactivation,
+    handleConfirmActivation,
     handleFilterChange,
     handleGoToDeviceAssignment,
     handleOpenActivation,
@@ -125,13 +136,22 @@ const PendingUsersPage = () => {
               row={row}
               editLabel="Activar"
               onEdit={() => handleOpenActivation(row)}
-              permissions={{ update: Boolean(currentPagePermissions?.activateUser || currentPagePermissions?.reactivateUser) }}
+              permissions={{
+                update: Boolean(
+                  currentPagePermissions?.activateUser ||
+                    currentPagePermissions?.reactivateUser,
+                ),
+              }}
             />
           </div>
         ),
       },
     ],
-    [currentPagePermissions?.activateUser, currentPagePermissions?.reactivateUser, handleOpenActivation],
+    [
+      currentPagePermissions?.activateUser,
+      currentPagePermissions?.reactivateUser,
+      handleOpenActivation,
+    ],
   )
 
   const columnsMobile = useMemo<ColumnDefinition<PendingUserRow>[]>(
@@ -151,7 +171,7 @@ const PendingUsersPage = () => {
             />
             <div className="min-w-0">
               <p className="truncate">{row.fullname}</p>
-              <p className="truncate text-d4 text-gray-70">{row.department}</p>
+              <p className="text-d4 text-gray-70 truncate">{row.department}</p>
             </div>
           </div>
         ),
@@ -182,13 +202,22 @@ const PendingUsersPage = () => {
               row={row}
               editLabel="Activar"
               onEdit={() => handleOpenActivation(row)}
-              permissions={{ update: Boolean(currentPagePermissions?.activateUser || currentPagePermissions?.reactivateUser) }}
+              permissions={{
+                update: Boolean(
+                  currentPagePermissions?.activateUser ||
+                    currentPagePermissions?.reactivateUser,
+                ),
+              }}
             />
           </div>
         ),
       },
     ],
-    [currentPagePermissions?.activateUser, currentPagePermissions?.reactivateUser, handleOpenActivation],
+    [
+      currentPagePermissions?.activateUser,
+      currentPagePermissions?.reactivateUser,
+      handleOpenActivation,
+    ],
   )
 
   return (
@@ -196,6 +225,7 @@ const PendingUsersPage = () => {
       {isActivationOpen ? (
         <PendingUserActivation
           user={selectedUser}
+          mode={activationMode}
           roleOptions={roleOptions}
           onActivate={handleActivateUser}
           onClose={handleCloseActivation}
@@ -229,6 +259,30 @@ const PendingUsersPage = () => {
       )}
 
       <PopUp
+        open={activationConfirmationOpen}
+        onClose={handleCloseActivationConfirmation}
+        title={
+          activationConfirmation?.mode === 'repair-reactivation'
+            ? 'Actualizar correo y reactivar usuario'
+            : 'Activar usuario'
+        }
+        content={
+          activationConfirmation?.mode === 'repair-reactivation'
+            ? `¿Estás seguro de actualizar el correo y reactivar a ${selectedUser?.fullname ?? 'este usuario'}?`
+            : `¿Estás seguro de activar a ${selectedUser?.fullname ?? 'este usuario'}?`
+        }
+        showPrimaryButton
+        showSecondaryButton
+        primaryButtonText={
+          activationConfirmation?.mode === 'repair-reactivation'
+            ? 'Sí, actualizar y reactivar'
+            : 'Sí, activar'
+        }
+        secondaryButtonText="Cancelar"
+        onPrimaryButtonClick={handleConfirmActivation}
+        onSecondaryButtonClick={handleCloseActivationConfirmation}
+      />
+      <PopUp
         open={assignmentPromptOpen}
         onClose={handleSkipDeviceAssignment}
         title="Asignación de dispositivo"
@@ -244,10 +298,10 @@ const PendingUsersPage = () => {
         open={reactivationPromptOpen}
         onClose={handleCloseReactivationPrompt}
         title="Re-activar usuario"
-        content="Este empleado ya cuenta con un usuario. ¿Deseas re-activarlo?"
+        content="Este empleado ya cuenta con un usuario. ¿Estás seguro de reactivarlo?"
         showPrimaryButton
         showSecondaryButton
-        primaryButtonText="Si, re-activar"
+        primaryButtonText="Si, reactivar"
         secondaryButtonText="Cancelar"
         onPrimaryButtonClick={handleConfirmReactivation}
         onSecondaryButtonClick={handleCloseReactivationPrompt}

@@ -31,20 +31,30 @@ export const useOperationalDocuments = () => {
     successDeleteDocument: state.successDeleteDocument,
   }))
 
-  const { user } = useAuth()
+  const { user, getRoutePermissions } = useAuth()
   const pathname = usePathname()
   const isOperationalDocumentsRoute = pathname?.includes('/documents/operationaldocuments')
+  const documentsRoutePermissions = getRoutePermissions?.('/main-page/request/documents')
+  const canGetAllDocuments = documentsRoutePermissions?.getAlldocuments === true
 
   useEffect(() => {
     if (!isOperationalDocumentsRoute) return
 
-    if (user?.idUser) {
-      void fetchDocumentsByUser(user.idUser, true)
+    if (canGetAllDocuments) {
+      void fetchDocuments(true)
       return
     }
 
-    void fetchDocuments(true)
-  }, [fetchDocuments, fetchDocumentsByUser, isOperationalDocumentsRoute, user?.idUser])
+    if (user?.idUser) {
+      void fetchDocumentsByUser(user.idUser, true)
+    }
+  }, [
+    canGetAllDocuments,
+    fetchDocuments,
+    fetchDocumentsByUser,
+    isOperationalDocumentsRoute,
+    user?.idUser,
+  ])
 
   const rows: ManagementDocumentTableRow[] = useMemo(
     () => mapOperationalDocumentsToTableRows(operationalDocuments),
@@ -59,7 +69,12 @@ export const useOperationalDocuments = () => {
     deletingDocument,
     successDeleteDocument,
     deleteDocument,
-    refresh: () => (user?.idUser ? fetchDocumentsByUser(user.idUser, true) : fetchDocuments(true)),
+    refresh: () =>
+      canGetAllDocuments
+        ? fetchDocuments(true)
+        : user?.idUser
+          ? fetchDocumentsByUser(user.idUser, true)
+          : Promise.resolve(),
   }
 }
 

@@ -14,6 +14,7 @@ import SignaturePad from '@/app/components/SignaturePAD/SignaturePAD'
 import type {
   ActivationTabId,
   PendingUserActivationPayload,
+  PendingUserActivationMode,
   PendingUserDetailData,
 } from '../../types'
 
@@ -41,6 +42,7 @@ const ROLE_OPTIONS = [
 
 type PendingUserActivationProps = {
   user: PendingUserDetailData | null
+  mode: PendingUserActivationMode
   roleOptions: { label: string; value: string }[]
   onActivate: (payload: PendingUserActivationPayload) => void | Promise<void>
   onClose: () => void
@@ -63,133 +65,149 @@ const getEmployeeFields = (
   user: PendingUserDetailData,
   roleOptions: { label: string; value: string }[],
   initialImage?: InitialFile,
+  mode: PendingUserActivationMode = 'create',
 ): FieldModel[] => [
-  {
-    type: 'imageUploaderExpanded',
-    name: 'profileImage',
-    label: 'Imagen',
-    value: null,
-    initialFile: initialImage,
-    preview: true,
-    previewCoverMode: true,
-    buttonLabel: 'Subir imagen',
-    accept: 'image/*',
-    className: '!min-h-[290px] !w-full',
-  },
-  {
-    type: 'input',
-    name: 'employeeNumber',
-    label: 'No. de empleado',
-    value: user.employeeNumber,
-    disabled: true,
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'input',
-    name: 'firstName',
-    label: 'Primer Nombre*',
-    value: user.firstName,
-    disabled: true,
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'input',
-    name: 'middleName',
-    label: 'Segundo Nombre',
-    value: user.middleName,
-    disabled: true,
-  },
-  {
-    type: 'input',
-    name: 'lastName',
-    label: 'Primer Apellido*',
-    value: user.lastName,
-    disabled: true,
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'input',
-    name: 'secondLastName',
-    label: 'Segundo Apellido',
-    value: user.secondLastName,
-    disabled: true,
-  },
-  {
-    type: 'select',
-    name: 'departmentLabel',
-    label: 'Departamentos*',
-    value: user.departmentLabel,
-    options: [{ label: user.departmentLabel, value: user.departmentLabel }],
-    disabled: true,
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'select',
-    name: 'companyLabel',
-    label: 'Empresa*',
-    value: user.companyLabel,
-    options: [{ label: user.companyLabel, value: user.companyLabel }],
-    disabled: true,
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'input',
-    name: 'positionLabel',
-    label: 'Puesto*',
-    value: user.positionLabel,
-    disabled: true,
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'input',
-    name: 'email',
-    label: 'Correo Electrónico*',
-    value: user.email,
-    validations: [{ type: 'required' }, { type: 'email' }],
-  },
-  {
-    type: 'input',
-    name: 'businessPhone',
-    label: 'Teléfono*',
-    value: user.businessPhone,
-  },
-  {
-    type: 'select',
-    name: 'userRoleId',
-    label: 'Seleccionar rol de usuario',
-    value: user.userRoleId,
-    options: roleOptions.length > 0 ? roleOptions : ROLE_OPTIONS,
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'checkbox',
-    name: 'managerialPermissions',
-    label: 'Permisos gerenciales',
-    value: user.managerialPermissions,
-    className: 'gap-4 [&>span]:text-b1 [&>span]:text-green-90',
-  },
-  {
-    type: 'password',
-    name: 'provisionalPassword',
-    label: 'Contraseña provisional*',
-    value: user.provisionalPassword,
-    validations: [{ type: 'required' }],
-  },
-  {
-    type: 'toggle',
-    name: 'changePasswordOnNextLogin',
-    label: 'Solicitar cambio de contraseña en el siguiente acceso',
-    value: user.changePasswordOnNextLogin,
-    className:
-      'items-start gap-4 [&>span]:max-w-[290px] [&>span]:text-b1 [&>span]:leading-8 [&>span]:text-green-90',
-  },
-  {
-    type: 'toggle',
-    name: 'hasFingerprint',
-    label: 'Captura dactilar',
-    value: user.hasFingerprint,
-    className: 'items-center gap-4 [&>span]:text-b1 [&>span]:text-green-90',
-  },
+  ...((mode === 'repair-reactivation'
+    ? [
+        {
+          type: 'input' as const,
+          name: 'email',
+          label: 'Correo Electrónico*',
+          value: user.email,
+          validations: [{ type: 'required' }, { type: 'email' }],
+        },
+      ]
+    : [
+        {
+          type: 'imageUploaderExpanded',
+          name: 'profileImage',
+          label: 'Imagen',
+          value: null,
+          initialFile: initialImage,
+          preview: true,
+          previewCoverMode: true,
+          buttonLabel: 'Subir imagen',
+          accept: 'image/*',
+          className: '!min-h-[290px] !w-full',
+        },
+        {
+          type: 'input',
+          name: 'employeeNumber',
+          label: 'No. de empleado',
+          value: user.employeeNumber,
+          disabled: true,
+          validations: [{ type: 'required' }],
+        },
+        {
+          type: 'input',
+          name: 'firstName',
+          label: 'Primer Nombre*',
+          value: user.firstName,
+          disabled: true,
+          validations: [{ type: 'required' }],
+        },
+        {
+          type: 'input',
+          name: 'middleName',
+          label: 'Segundo Nombre',
+          value: user.middleName,
+          disabled: true,
+        },
+        {
+          type: 'input',
+          name: 'lastName',
+          label: 'Primer Apellido*',
+          value: user.lastName,
+          disabled: true,
+          validations: [{ type: 'required' }],
+        },
+        {
+          type: 'input',
+          name: 'secondLastName',
+          label: 'Segundo Apellido',
+          value: user.secondLastName,
+          disabled: true,
+        },
+        {
+          type: 'select',
+          name: 'departmentLabel',
+          label: 'Departamentos*',
+          value: user.departmentLabel,
+          options: [
+            { label: user.departmentLabel, value: user.departmentLabel },
+          ],
+          disabled: true,
+          validations: [{ type: 'required' }],
+        },
+        {
+          type: 'select',
+          name: 'companyLabel',
+          label: 'Empresa*',
+          value: user.companyLabel,
+          options: [{ label: user.companyLabel, value: user.companyLabel }],
+          disabled: true,
+          validations: [{ type: 'required' }],
+        },
+        {
+          type: 'input',
+          name: 'positionLabel',
+          label: 'Puesto*',
+          value: user.positionLabel,
+          disabled: true,
+          validations: [{ type: 'required' }],
+        },
+        {
+          type: 'input',
+          name: 'email',
+          label: 'Correo Electrónico*',
+          value: user.email,
+          validations: [{ type: 'required' }, { type: 'email' }],
+        },
+        {
+          type: 'input',
+          name: 'businessPhone',
+          label: 'Teléfono*',
+          value: user.businessPhone,
+        },
+        {
+          type: 'select',
+          name: 'userRoleId',
+          label: 'Seleccionar rol de usuario',
+          value: user.userRoleId,
+          options: roleOptions.length > 0 ? roleOptions : ROLE_OPTIONS,
+          validations: [{ type: 'required' }],
+        },
+        {
+          type: 'checkbox',
+          name: 'managerialPermissions',
+          label: 'Permisos gerenciales',
+          value: user.managerialPermissions,
+          className: 'gap-4 [&>span]:text-b1 [&>span]:text-green-90',
+        },
+        {
+          type: 'password',
+          name: 'provisionalPassword',
+          label: 'Contraseña provisional*',
+          value: user.provisionalPassword,
+          validations: [{ type: 'required' }],
+        },
+        {
+          type: 'toggle',
+          name: 'changePasswordOnNextLogin',
+          label: 'Solicitar cambio de contraseña en el siguiente acceso',
+          value: user.changePasswordOnNextLogin,
+          className:
+            'items-start gap-4 [&>span]:max-w-[290px] [&>span]:text-b1 [&>span]:leading-8 [&>span]:text-green-90',
+        },
+        {
+          type: 'toggle',
+          name: 'hasFingerprint',
+          label: 'Captura dactilar',
+          value: user.hasFingerprint,
+          className:
+            'items-center gap-4 [&>span]:text-b1 [&>span]:text-green-90',
+        },
+      ]) satisfies FieldModel[]),
 ]
 
 const SignatureDraftCard = ({
@@ -225,7 +243,7 @@ const SignatureDraftCard = ({
         onClick={onOpenPad}
         variant="solid"
         hideIcon
-        className="h-8 px-6 text-c3 min-w-[110px]"
+        className="text-c3 h-8 min-w-[110px] px-6"
       >
         {signature ? 'Actualizar Firma' : 'Crear Firma'}
       </Button>
@@ -235,6 +253,7 @@ const SignatureDraftCard = ({
 
 const PendingUserActivation: React.FC<PendingUserActivationProps> = ({
   user,
+  mode,
   roleOptions,
   onActivate,
   onClose,
@@ -264,8 +283,9 @@ const PendingUserActivation: React.FC<PendingUserActivationProps> = ({
   }, [user?.avatarUrl, user?.fullname])
 
   const employeeFields = useMemo(
-    () => (user ? getEmployeeFields(user, roleOptions, initialImage) : []),
-    [initialImage, roleOptions, user],
+    () =>
+      user ? getEmployeeFields(user, roleOptions, initialImage, mode) : [],
+    [initialImage, mode, roleOptions, user],
   )
 
   const currentStepIndex = TAB_ORDER.indexOf(activeStep)
@@ -351,21 +371,37 @@ const PendingUserActivation: React.FC<PendingUserActivationProps> = ({
     <>
       {!user ? (
         <FormsLayout
-          title="Activar Empleado"
-          primaryLabel="Activar cuenta"
+          title={
+            mode === 'repair-reactivation'
+              ? 'Corregir correo del usuario'
+              : 'Activar Empleado'
+          }
+          primaryLabel={
+            mode === 'repair-reactivation'
+              ? 'Actualizar correo y reactivar'
+              : 'Activar cuenta'
+          }
           showPrimaryButton={false}
           showSecondaryButton
           onSecondaryClick={onClose}
           enableCollapse={false}
         >
-          <div className="w-full text-center text-gray-70">
+          <div className="text-gray-70 w-full text-center">
             Selecciona un usuario para activar su cuenta.
           </div>
         </FormsLayout>
       ) : (
         <FormsLayout
-          title="Activar Empleado"
-          primaryLabel="Activar cuenta"
+          title={
+            mode === 'repair-reactivation'
+              ? 'Corregir correo del usuario'
+              : 'Activar Empleado'
+          }
+          primaryLabel={
+            mode === 'repair-reactivation'
+              ? 'Actualizar correo y reactivar'
+              : 'Activar cuenta'
+          }
           showSecondaryButton
           onSecondaryClick={onClose}
           secondaryLabel="Cancelar"
@@ -381,56 +417,68 @@ const PendingUserActivation: React.FC<PendingUserActivationProps> = ({
           enableCollapse={false}
         >
           <div className="w-full space-y-6">
-            <Breadcrumbs
-              activeId={activeStep}
-              onActiveChange={(id) => setActiveStep(id as ActivationTabId)}
-              ariaLabel="Secciones de activación"
-              dataTestId="it-users-pending-breadcrumbs"
-            >
-              <Breadcrumbs.Item
-                id="employee"
-                label={TAB_LABELS.employee}
-                renderContent={employeeContent}
-              />
-              <Breadcrumbs.Item
-                id="signature"
-                label={TAB_LABELS.signature}
-                renderContent={signatureContent}
-              />
-            </Breadcrumbs>
-
-            <div className="flex items-center justify-between pt-5">
-              <Button
-                type="button"
-                variant="outline"
-                hideIcon
-                onClick={handlePreviousStep}
-                disabled={!canGoBack}
-              >
-                Regresar
-              </Button>
-
-              {canGoNext ? (
-                <Button
-                  type="button"
-                  hideIcon
-                  onClick={handleNextStep}
-                  disabled={activeStep === 'employee' && !employeeFormValid}
-                >
-                  Siguiente
-                </Button>
-              ) : (
-                <p className="text-right text-label text-gray-70">
-                  La firma es opcional para activar la cuenta.
+            {mode === 'repair-reactivation' ? (
+              <>
+                <p className="text-b1 text-gray-70">
+                  Captura un correo válido para actualizar el usuario antes de
+                  reactivar su cuenta.
                 </p>
-              )}
-            </div>
+                {employeeContent}
+              </>
+            ) : (
+              <>
+                <Breadcrumbs
+                  activeId={activeStep}
+                  onActiveChange={(id) => setActiveStep(id as ActivationTabId)}
+                  ariaLabel="Secciones de activación"
+                  dataTestId="it-users-pending-breadcrumbs"
+                >
+                  <Breadcrumbs.Item
+                    id="employee"
+                    label={TAB_LABELS.employee}
+                    renderContent={employeeContent}
+                  />
+                  <Breadcrumbs.Item
+                    id="signature"
+                    label={TAB_LABELS.signature}
+                    renderContent={signatureContent}
+                  />
+                </Breadcrumbs>
+
+                <div className="flex items-center justify-between pt-5">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    hideIcon
+                    onClick={handlePreviousStep}
+                    disabled={!canGoBack}
+                  >
+                    Regresar
+                  </Button>
+
+                  {canGoNext ? (
+                    <Button
+                      type="button"
+                      hideIcon
+                      onClick={handleNextStep}
+                      disabled={activeStep === 'employee' && !employeeFormValid}
+                    >
+                      Siguiente
+                    </Button>
+                  ) : (
+                    <p className="text-label text-gray-70 text-right">
+                      La firma es opcional para activar la cuenta.
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </FormsLayout>
       )}
 
       {signaturePadOpen && (
-        <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-gray-90/70 p-4 backdrop-blur-sm">
+        <div className="bg-gray-90/70 fixed inset-0 z-[10001] flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="mx-auto w-full max-w-4xl">
             <SignaturePad
               onSignatureSave={(signature) => {

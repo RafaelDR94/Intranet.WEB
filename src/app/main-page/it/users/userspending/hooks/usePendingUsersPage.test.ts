@@ -125,13 +125,17 @@ describe('usePendingUsersPage', () => {
           employee_id: payload.employeeId,
         }
       }),
+      updateUser: vi.fn().mockResolvedValue({
+        user_id: 'user-9',
+        username: 'updated@example.com',
+      }),
       toggleActive: vi.fn().mockResolvedValue(true),
       fetchEmployeesWithoutActiveUser: vi.fn().mockResolvedValue([]),
       fetchEmployeesWithActiveUser: vi.fn().mockResolvedValue([]),
       fetchRoles: vi.fn().mockResolvedValue([]),
       creating: false,
-      togglingActive: false,
       updating: false,
+      togglingActive: false,
       loadingWithoutActiveUser: false,
       loadingWithActiveUser: false,
       loadingRoles: false,
@@ -195,6 +199,13 @@ describe('usePendingUsersPage', () => {
       })
     })
 
+    expect(result.current.activationConfirmationOpen).toBe(true)
+    expect(getUsersStoreState().createUser).not.toHaveBeenCalled()
+
+    await act(async () => {
+      await result.current.handleConfirmActivation()
+    })
+
     expect(getUsersStoreState().createUser).toHaveBeenCalledWith({
       username: 'negreteaakathy@gmail.com',
       imageUrl: 'https://cdn.example.com/avatar.jpg',
@@ -210,9 +221,7 @@ describe('usePendingUsersPage', () => {
 
     expect(
       getUsersStoreState().fetchEmployeesWithoutActiveUser,
-    ).toHaveBeenCalledWith(
-      true,
-    )
+    ).toHaveBeenCalledWith(true)
     expect(
       getUsersStoreState().fetchEmployeesWithActiveUser,
     ).toHaveBeenCalledWith(true)
@@ -231,6 +240,8 @@ describe('usePendingUsersPage', () => {
       ...getEmployeesStoreState().employee,
       user: {
         user_id: 'user-9',
+        username: 'user-9@example.com',
+        role_id: 'role-1',
         is_active: false,
       },
     })
@@ -263,6 +274,8 @@ describe('usePendingUsersPage', () => {
       ...getEmployeesStoreState().employee,
       user: {
         user_id: 'user-9',
+        username: 'user-9@example.com',
+        role_id: 'role-1',
         is_active: false,
       },
     })
@@ -303,6 +316,117 @@ describe('usePendingUsersPage', () => {
     )
   })
 
+  it('corrige el correo del usuario antes de reactivar una cuenta sin username válido', async () => {
+    setQueryState({ all: {}, updateQuery })
+    getEmployeesStoreState().fetchEmployeeById.mockResolvedValueOnce({
+      ...getEmployeesStoreState().employee,
+      user: {
+        user_id: 'user-9',
+        username: '',
+        role_id: 'role-1',
+        is_active: false,
+      },
+    })
+
+    const { result } = renderHook(() => usePendingUsersPage())
+
+    await act(async () => {
+      await result.current.handleOpenActivation({
+        id: 'emp-1',
+        fullname: 'Katherine Negrete',
+        department: 'TI',
+        position: 'Desarrolladora',
+        employeeNumber: '40017',
+        hasFingerprint: true,
+      })
+    })
+
+    expect(result.current.activationMode).toBe('repair-reactivation')
+
+    act(() => {
+      result.current.handleActivateUser({
+        userId: 'emp-1',
+        profileImage: null,
+        email: 'updated@example.com',
+        businessPhone: '',
+        userRoleId: '',
+        managerialPermissions: false,
+        provisionalPassword: '',
+        changePasswordOnNextLogin: false,
+        hasFingerprint: false,
+        signature: '',
+      })
+    })
+
+    expect(result.current.activationConfirmationOpen).toBe(true)
+    expect(getUsersStoreState().updateUser).not.toHaveBeenCalled()
+
+    await act(async () => {
+      await result.current.handleConfirmActivation()
+    })
+
+    expect(getUsersStoreState().updateUser).toHaveBeenCalledWith({
+      userId: 'user-9',
+      username: 'updated@example.com',
+      roleId: 'role-1',
+    })
+    expect(getUsersStoreState().toggleActive).toHaveBeenCalledWith({
+      id: 'user-9',
+      isActive: true,
+    })
+  })
+
+  it('no reactiva si la actualización del correo falla', async () => {
+    setQueryState({ all: {}, updateQuery })
+    getUsersStoreState().updateUser.mockResolvedValueOnce(null)
+    getEmployeesStoreState().fetchEmployeeById.mockResolvedValueOnce({
+      ...getEmployeesStoreState().employee,
+      user: {
+        user_id: 'user-9',
+        username: 'sin-correo',
+        role_id: 'role-1',
+        is_active: false,
+      },
+    })
+
+    const { result } = renderHook(() => usePendingUsersPage())
+
+    await act(async () => {
+      await result.current.handleOpenActivation({
+        id: 'emp-1',
+        fullname: 'Katherine Negrete',
+        department: 'TI',
+        position: 'Desarrolladora',
+        employeeNumber: '40017',
+        hasFingerprint: true,
+      })
+    })
+
+    act(() => {
+      result.current.handleActivateUser({
+        userId: 'emp-1',
+        profileImage: null,
+        email: 'updated@example.com',
+        businessPhone: '',
+        userRoleId: '',
+        managerialPermissions: false,
+        provisionalPassword: '',
+        changePasswordOnNextLogin: false,
+        hasFingerprint: false,
+        signature: '',
+      })
+    })
+
+    await act(async () => {
+      await result.current.handleConfirmActivation()
+    })
+
+    expect(getUsersStoreState().toggleActive).not.toHaveBeenCalled()
+    expect(showAlert).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'No fue posible actualizar el correo' }),
+    )
+  })
+
   it('cierra la activacion y muestra exito cuando se omite la asignacion', async () => {
     const { result } = renderHook(() => usePendingUsersPage())
 
@@ -319,6 +443,10 @@ describe('usePendingUsersPage', () => {
         hasFingerprint: true,
         signature: 'data:image/png;base64,signature',
       })
+    })
+
+    await act(async () => {
+      await result.current.handleConfirmActivation()
     })
 
     act(() => {
@@ -351,6 +479,10 @@ describe('usePendingUsersPage', () => {
         hasFingerprint: true,
         signature: 'data:image/png;base64,signature',
       })
+    })
+
+    await act(async () => {
+      await result.current.handleConfirmActivation()
     })
 
     act(() => {
@@ -413,6 +545,10 @@ describe('usePendingUsersPage', () => {
         hasFingerprint: true,
         signature: '',
       })
+    })
+
+    await act(async () => {
+      await result.current.handleConfirmActivation()
     })
 
     expect(getUsersStoreState().createUser).toHaveBeenCalledWith(

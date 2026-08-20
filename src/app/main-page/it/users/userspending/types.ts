@@ -50,4 +50,6 @@ export type PendingUserActivationPayload = {
   signature: string
 }
 
+export type PendingUserActivationMode = 'create' | 'repair-reactivation'
+
 export type ActivationTabId = 'employee' | 'signature'

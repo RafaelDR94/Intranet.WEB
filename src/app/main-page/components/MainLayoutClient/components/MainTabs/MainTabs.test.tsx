@@ -31,10 +31,11 @@ vi.mock('next/navigation', () => ({
 
 const fetchDocumentsMock = vi.fn()
 const fetchDocumentsByUserMock = vi.fn()
+let userMock: { idUser?: string } = { idUser: 'user-1' }
 
 vi.mock('@/app/context/AuthContext/AuthContext', () => ({
   useAuth: () => ({
-    user: { idUser: 'user-1' },
+    user: userMock,
   }),
 }))
 
@@ -63,6 +64,7 @@ describe('MainTabs', () => {
   beforeEach(() => {
     mockQS = '';
     mockIsMobile = false;
+    userMock = { idUser: 'user-1' }
     fetchDocumentsMock.mockClear();
     fetchDocumentsByUserMock.mockClear();
   });
@@ -177,4 +179,26 @@ describe('MainTabs', () => {
     expect(fetchDocumentsByUserMock).toHaveBeenCalledWith('user-1', true);
     expect(fetchDocumentsMock).not.toHaveBeenCalled();
   });
+
+  it('does not fetch all documents when the user id is unavailable', () => {
+    userMock = {}
+
+    render(
+      <MainTabs
+        tabs={[
+          {
+            label: 'Documentos Operativos',
+            path: '/main-page/request/documents/operationaldocuments',
+          },
+        ]}
+        pathname="/main-page/request/documents/managementdocuments"
+        validPermissionsbyroute={() => true}
+      />,
+    )
+
+    fireEvent.click(screen.getByTestId('tab:/main-page/request/documents/operationaldocuments'))
+
+    expect(fetchDocumentsByUserMock).not.toHaveBeenCalled()
+    expect(fetchDocumentsMock).not.toHaveBeenCalled()
+  })
 });
