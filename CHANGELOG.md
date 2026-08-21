@@ -1,3 +1,22 @@
+### 1.50.45 Correction to the organizational chart search engine and modifications to documents 2026-08-21
+
+Why is this necessary?
+
+- To perform searches correctly within the organizational chart
+- To display areas by company when registering operational documents
+
+Where were changes made?
+
+- CheckBoxList.tsx
+- types.ts
+-OrganizationChartGeneralDirectoryView.tsx
+- useDocumentRegistry.ts
+- employee.utils.ts
+
+Does it affect other systems?
+- No, it does not affect them.
+
+
 ### 1.50.44 Permission-based operational document retrieval 2026-08-20
 
 Why is change necessary?

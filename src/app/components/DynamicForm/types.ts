@@ -2,7 +2,10 @@
 import type { FC, SVGProps } from 'react';
 
 import type { ControlLevelProps } from '../ControlLevel/types';
-import type { CheckBoxListOption } from '../CheckBoxList/types';
+import type {
+  CheckBoxListOption,
+  CheckBoxListOptionGroup,
+} from '../CheckBoxList/types';
 import type { LabelPosition } from '../CheckBox/types';
 import type { InitialFile } from '../FileUploader/types';
 import type { SelectedImage } from '../ImageUploaderExpanded/types';
@@ -42,6 +45,8 @@ export type CheckBoxListFieldProps = {
   showSelectAll?: boolean;
   /** Define el número de columnas en las que se distribuyen las opciones */
   columns?: number;
+  /** Agrupa las opciones en secciones visuales */
+  optionGroups?: CheckBoxListOptionGroup[];
 };
 
 /** Estados visuales para campos y helper texts. */

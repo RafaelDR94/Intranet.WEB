@@ -94,5 +94,36 @@ describe("CheckBoxList", () => {
       );
     });
   });
+
+  it("renderiza opciones agrupadas y conserva seleccionar todo", () => {
+    const handleChange = vi.fn();
+
+    render(
+      <CheckBoxList
+        title="Areas"
+        options={sampleOptions}
+        optionGroups={[
+          {
+            label: "Empresa 1",
+            options: [sampleOptions[0], sampleOptions[1]],
+          },
+          {
+            label: "Empresa 2",
+            options: [sampleOptions[2]],
+          },
+        ]}
+        onChange={handleChange}
+        showSelectAll
+        columns={2}
+      />,
+    );
+
+    expect(screen.getByText("Empresa 1")).toBeInTheDocument();
+    expect(screen.getByText("Empresa 2")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Seleccionar todo"));
+
+    expect(handleChange).toHaveBeenLastCalledWith(["card", "fuel", "tag"]);
+  });
 });
 

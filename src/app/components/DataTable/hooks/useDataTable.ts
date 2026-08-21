@@ -81,6 +81,7 @@ const getSearchableTexts = <T,>(
 ): string[] => {
   const values: string[] = [];
   const rowRecord = row as Record<PropertyKey, unknown>;
+  const hasExplicitSearchKeys = Boolean(searchableKeys?.length);
   const selectedKeys = new Set<keyof T>([
     ...getColumnKeys(columns),
     ...(searchableKeys ?? []),
@@ -96,7 +97,9 @@ const getSearchableTexts = <T,>(
       values.push(reactNodeToText(column.render?.(row) ?? ""));
     });
 
-  collectSearchValues(row, values);
+  if (!hasExplicitSearchKeys) {
+    collectSearchValues(row, values);
+  }
 
   const joinedSelectedValues = Array.from(selectedKeys)
     .map((key) => rowRecord[key as PropertyKey])

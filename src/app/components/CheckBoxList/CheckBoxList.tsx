@@ -8,6 +8,7 @@ import useCheckBoxList from "./hooks/useCheckBoxList";
 const CheckBoxList: React.FC<CheckBoxListProps> = ({
   title,
   options,
+  optionGroups,
   value,
   defaultValue,
   onChange,
@@ -20,15 +21,24 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
   showSelectAll = false,
   columns = 1, // prop para definir columnas
 }) => {
+  const hasGroups = Boolean(optionGroups?.length);
+  const effectiveOptions = React.useMemo(
+    () =>
+      hasGroups
+        ? (optionGroups ?? []).flatMap((group) => group.options)
+        : options,
+    [hasGroups, optionGroups, options],
+  );
+
   const { handleToggle, selection, setSelection } = useCheckBoxList({
-    options,
+    options: effectiveOptions,
     value,
     defaultValue,
     onChange,
     disabled,
   });
 
-  const selectableValues = options
+  const selectableValues = effectiveOptions
     .filter((option) => !option.disabled)
     .map((option) => option.value);
 
@@ -88,17 +98,38 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
           gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
         }}
       >
-        {options.map((option) => (
-          <Checkbox
-            key={option.value}
-            checked={selection.includes(option.value)}
-            onChange={() => handleToggle(option)}
-            label={option.label}
-            disabled={disabled || option.disabled}
-            labelPosition={labelPosition}
-            className="w-full"
-          />
-        ))}
+        {hasGroups
+          ? optionGroups?.map((group) => (
+              <div key={group.label} className="flex min-w-0 flex-col gap-2">
+                <h4 className="text-b2 text-green-80 font-medium">
+                  {group.label}
+                </h4>
+                <div className="flex flex-col gap-2">
+                  {group.options.map((option) => (
+                    <Checkbox
+                      key={option.value}
+                      checked={selection.includes(option.value)}
+                      onChange={() => handleToggle(option)}
+                      label={option.label}
+                      disabled={disabled || option.disabled}
+                      labelPosition={labelPosition}
+                      className="w-full"
+                    />
+                  ))}
+                </div>
+              </div>
+            ))
+          : options.map((option) => (
+              <Checkbox
+                key={option.value}
+                checked={selection.includes(option.value)}
+                onChange={() => handleToggle(option)}
+                label={option.label}
+                disabled={disabled || option.disabled}
+                labelPosition={labelPosition}
+                className="w-full"
+              />
+            ))}
       </div>
     </section>
   );

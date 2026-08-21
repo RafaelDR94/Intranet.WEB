@@ -121,6 +121,12 @@ const departments = [
     enterprise_id: 'ent-1',
     enterprice_name: 'Empresa 1',
   },
+  {
+    department_id: 'dept-3',
+    name: 'Radiología',
+    enterprise_id: 'ent-2',
+    enterprice_name: 'Empresa 2',
+  },
 ]
 
 vi.mock('@/app/stores/useDepartmentsStore/useDepartmentsStore', () => ({
@@ -182,10 +188,21 @@ describe('useDocumentRegistry hook', () => {
     expect(destinationAreaField?.options).toEqual([
       { label: 'Administración', value: 'dept-1' },
       { label: 'Operaciones', value: 'dept-2' },
+      { label: 'Radiología', value: 'dept-3' },
     ])
     expect(toolsChecklistField?.options).toEqual([
       { label: 'Administración', value: 'dept-1' },
       { label: 'Operaciones', value: 'dept-2' },
+      { label: 'Radiología', value: 'dept-3' },
+    ])
+    expect(
+      toolsChecklistField?.checkboxListProps?.optionGroups?.map((group) => ({
+        label: group.label,
+        values: group.options.map((option) => option.value),
+      })),
+    ).toEqual([
+      { label: 'Empresa 1', values: ['dept-1', 'dept-2'] },
+      { label: 'Empresa 2', values: ['dept-3'] },
     ])
     expect(toolsChecklistField?.value).toEqual([])
   })
