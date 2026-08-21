@@ -43,7 +43,7 @@ describe("fetchWorkpositionsByDepartment", () => {
     const result = await fetchWorkpositionsByDepartment("dep-1", set, get, false);
 
     expect(pGetMock).toHaveBeenCalledWith(
-      "/Enterprises/WorkPositions/ByDepartment/dep-1"
+      "/Enterprises/WorkPositions/ByIdDepartment/dep-1"
     );
     expect(result).toEqual([{ workposition_id: "wp-1", name: "Developer" }]);
     expect(set).toHaveBeenCalledWith(

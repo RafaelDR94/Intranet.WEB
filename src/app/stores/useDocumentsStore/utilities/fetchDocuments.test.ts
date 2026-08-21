@@ -90,6 +90,25 @@ describe('fetchDocuments', () => {
     expect(state.documents?.[0]?.name).toBe('Bruno')
   })
 
+  it('classifies operational and management documents returned by the global endpoint', async () => {
+    getRequestMock.mockResolvedValue({
+      data: {
+        data: [
+          sampleDocument,
+          { ...sampleDocument, document_id: 'operational-1', management: false },
+        ],
+      },
+    })
+
+    const { state, set, get } = createState()
+
+    await fetchDocuments(set, get)
+
+    expect(getRequestMock).toHaveBeenCalledWith('/Documents')
+    expect(state.managementDocuments).toHaveLength(1)
+    expect(state.operationalDocuments).toHaveLength(1)
+  })
+
   it('sets error when request fails', async () => {
     requireGatewayMock.mockReturnValue(async () => { throw new Error('fail') })
     getRequestMock.mockImplementation(async () => { throw new Error('fail') })

@@ -7,7 +7,7 @@ import type {
   SetProyectInventoryState as Set,
 } from '../types';
 
-import { ReportsGenericEquipment } from '@/app/configurations/Axios/urls';
+import { ReportsGenericEquipmentById } from '@/app/configurations/Axios/urls';
 import { normalizeApiError } from '@/app/utilities/Http/normalizeApiError';
 import { pDelete } from '@/app/utilities/Http/promisifyIntranet';
 import { requireGateway } from '@/app/utilities/Http/requireGateway';
@@ -21,7 +21,7 @@ export const deleteGenericEquipment = async (
 
   try {
     const del = pDelete(requireGateway('del'), [200, 204]);
-    const _res: AxiosResponse = await del(`${ReportsGenericEquipment}/${id}`);
+    const _res: AxiosResponse = await del(`${ReportsGenericEquipmentById}/${id}`);
 
     set((state) => ({
       genericEquipments: state.genericEquipments.filter((item) => item.id !== id),

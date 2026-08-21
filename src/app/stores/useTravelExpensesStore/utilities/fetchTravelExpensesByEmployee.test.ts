@@ -33,7 +33,7 @@ describe("fetchTravelExpensesByEmployee util", () => {
     await fetchTravelExpensesByEmployee(set, get, "employee-1", true);
 
     expect(getMock).toHaveBeenCalledWith(
-      "/Billings/TravelExpenses/Employee/employee-1?active=true",
+      "/Billings/TravelExpenses/ByIdEmployee/employee-1?active=true",
     );
     expect(state.successGet).toBe(true);
   });

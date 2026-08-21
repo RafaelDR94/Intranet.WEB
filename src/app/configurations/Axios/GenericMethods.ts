@@ -1,4 +1,5 @@
 import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import { normalizeIntranetApiUrl } from "./normalizeIntranetApiUrl";
 
 export type CallbackFunction = (response: AxiosResponse) => void;
 
@@ -19,17 +20,18 @@ const request = async (
   additionalConfig: AxiosRequestConfig = {},
 ) => {
   const config = { ...getDefaultConfig(token), ...additionalConfig };
+  const normalizedUrl = normalizeIntranetApiUrl(url);
   let response: AxiosResponse;
   try {
     if (method === "delete") {
       response = await client.delete(
-        url,
+        normalizedUrl,
         data === undefined ? config : { ...config, data },
       );
     } else if (method === "get") {
-      response = await client[method](url, config);
+      response = await client[method](normalizedUrl, config);
     } else {
-      response = await client[method](url, data, config);
+      response = await client[method](normalizedUrl, data, config);
     }
     callback(response);
   } catch (error: any) {

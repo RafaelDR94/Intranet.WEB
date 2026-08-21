@@ -202,7 +202,7 @@ describe('useTransportStore utilities (actions)', () => {
     const res = await fetchVehicleReassignmentsByEmployee('E1', set, get)
 
     expect(res?.[0]?.vehicleassignments_id).toBe('A1')
-    expect(getSpy).toHaveBeenCalledWith('/Transport/VehicleReassignment/Employee/E1')
+    expect(getSpy).toHaveBeenCalledWith('/Transport/VehicleReassignment/ByIdEmployee/E1')
     expect(state.loadingVehicleReassignmentsByEmployee).toBe(false)
     expect(state.successGetVehicleReassignmentsByEmployee).toBe(true)
     expect(state.vehicleReassignmentsByEmployee.length).toBe(1)

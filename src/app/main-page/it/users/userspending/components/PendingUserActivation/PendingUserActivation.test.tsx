@@ -77,14 +77,12 @@ vi.mock('@/app/components/FormsLayout/FormsLayout', () => ({
   }: any) => (
     <div>
       {children}
-      <button
-        type="button"
-        disabled={primaryDisabled}
-        onClick={onPrimaryClick}
-      >
+      <button type="button" disabled={primaryDisabled} onClick={onPrimaryClick}>
         {primaryLabel}
       </button>
-      {showSecondaryButton ? <button type="button">{secondaryLabel}</button> : null}
+      {showSecondaryButton ? (
+        <button type="button">{secondaryLabel}</button>
+      ) : null}
     </div>
   ),
 }))
@@ -145,6 +143,7 @@ describe('PendingUserActivation', () => {
     render(
       <PendingUserActivation
         user={user}
+        mode="create"
         roleOptions={[{ label: 'Administrador', value: 'role-1' }]}
         onActivate={onActivate}
         onClose={vi.fn()}
@@ -175,6 +174,7 @@ describe('PendingUserActivation', () => {
     render(
       <PendingUserActivation
         user={user}
+        mode="create"
         roleOptions={[{ label: 'Administrador', value: 'role-1' }]}
         onActivate={onActivate}
         onClose={vi.fn()}
@@ -186,5 +186,24 @@ describe('PendingUserActivation', () => {
     expect(
       screen.getByText('La firma es opcional para activar la cuenta.'),
     ).toBeInTheDocument()
+  })
+
+  it('solicita únicamente el correo al reparar una reactivación', () => {
+    render(
+      <PendingUserActivation
+        user={user}
+        mode="repair-reactivation"
+        roleOptions={[{ label: 'Administrador', value: 'role-1' }]}
+        onActivate={onActivate}
+        onClose={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByTestId('field-email')).toBeInTheDocument()
+    expect(screen.queryByTestId('field-profileImage')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('field-userRoleId')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Actualizar correo y reactivar' }),
+    ).toBeEnabled()
   })
 })
