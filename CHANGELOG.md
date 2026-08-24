@@ -1,3 +1,18 @@
+### 1.50.46 Fix in Reports API 2026-08-24
+
+FIX: 
+
+Why is this necessary?
+- Added / to correctly send the request
+
+Where were changes made?
+- .env
+
+Does it affect other systems?
+- No, it doesnt affect them.
+
+(Katherine Negrete A) [#487](https://github.com/DR-Mexico/dr.intranet.web/pull/487)
+
 ### 1.50.45 Correction to the organizational chart search engine and modifications to documents 2026-08-21
 
 Why is this necessary?
