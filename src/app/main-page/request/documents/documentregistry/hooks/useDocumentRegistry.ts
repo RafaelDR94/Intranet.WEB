@@ -6,6 +6,7 @@ import type {
   FieldModel,
   ResponsiveLayoutMatrix,
 } from "@/app/components/DynamicForm/types";
+import type { CheckBoxListOptionGroup } from "@/app/components/CheckBoxList/types";
 import { Documents as DocumentsUrl } from "@/app/configurations/Axios/urls";
 import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
 import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
@@ -21,6 +22,7 @@ import { useDepartmentsStore } from "@/app/stores/useDepartmentsStore/useDepartm
 import { useDocumentTypesStore } from "@/app/stores/useDocumentTypesStore/useDocumentTypesStore";
 import { useDocumentsStore } from "@/app/stores/useDocumentsStore/useDocumentsStore";
 import { useIsMobile } from "@/app/components/DataTable/components/DataTableLayout/hooks/useMediaQuery";
+import type { DepartmentType } from "@/app/mappings/department/department.types";
 
 const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
   sm: [[10], [10], [10], [10], [10], [10], [10]],
@@ -34,15 +36,89 @@ const responsiveLayoutMatrix: ResponsiveLayoutMatrix = {
 };
 
 const DOCUMENTS_STORAGE_PREFIX = "HumanResources/DocumentRegistry/";
+
+type DepartmentOption = {
+  label: string;
+  value: string;
+  enterpriseName: string;
+};
+
+const getDepartmentEnterpriseName = (department: DepartmentType): string => {
+  const directEnterpriseName = department.enterprice_name?.trim();
+  if (directEnterpriseName) return directEnterpriseName;
+
+  const relatedEnterpriseName = department.enterprises
+    ?.map((enterprise) => enterprise.name.trim())
+    .find(Boolean);
+
+  return relatedEnterpriseName || "Sin empresa";
+};
+
+const mapDepartmentsToOptions = (
+  departments: DepartmentType[],
+): DepartmentOption[] => {
+  const uniqueDepartments = new Map<string, DepartmentOption>();
+
+  departments.forEach((department) => {
+    const rawId = department?.department_id;
+    const rawName = department?.name;
+
+    if (typeof rawId !== "string" || typeof rawName !== "string") {
+      return;
+    }
+
+    const departmentId = rawId.trim();
+    const departmentName = rawName.trim();
+
+    if (!departmentId || !departmentName || uniqueDepartments.has(departmentId)) {
+      return;
+    }
+
+    uniqueDepartments.set(departmentId, {
+      label: departmentName,
+      value: departmentId,
+      enterpriseName: getDepartmentEnterpriseName(department),
+    });
+  });
+
+  return Array.from(uniqueDepartments.values()).sort((a, b) =>
+    a.label.localeCompare(b.label, "es", { sensitivity: "base" }),
+  );
+};
+
+const groupDepartmentOptionsByEnterprise = (
+  options: DepartmentOption[],
+): CheckBoxListOptionGroup[] => {
+  const groups = new Map<string, { label: string; value: string }[]>();
+
+  options.forEach(({ enterpriseName, label, value }) => {
+    const groupOptions = groups.get(enterpriseName) ?? [];
+    groupOptions.push({ label, value });
+    groups.set(enterpriseName, groupOptions);
+  });
+
+  return Array.from(groups.entries())
+    .map(([label, groupOptions]) => ({
+      label,
+      options: groupOptions.sort((a, b) =>
+        a.label.localeCompare(b.label, "es", { sensitivity: "base" }),
+      ),
+    }))
+    .sort((a, b) =>
+      a.label.localeCompare(b.label, "es", { sensitivity: "base" }),
+    );
+};
+
 const createDocumentRegistryFields = (
   documentTypeOptions: { label: string; value: string }[],
   documentTypesLoading: boolean,
   destinationAreaOptions: { label: string; value: string }[],
   destinationAreasLoading: boolean,
   areasChecklistOptions: { label: string; value: string }[],
+  areaChecklistGroups: CheckBoxListOptionGroup[],
   documentRoute: string,
   documentFileLabel: string,
-   isMobile: boolean,
+  isMobile: boolean,
 ): FieldModel[] => [
   {
     type: "file",
@@ -133,7 +209,8 @@ const createDocumentRegistryFields = (
     checkboxListProps: {
       labelPosition: "right",
       showSelectAll: true,
-      columns: isMobile ? 1 : 3,
+      columns: isMobile ? 2 : 4,
+      optionGroups: areaChecklistGroups,
     },
   },
 ];
@@ -377,34 +454,24 @@ const useDocumentRegistry = (documentId?: string) => {
     [activeDocumentTypes],
   );
 
-  const destinationAreaOptions = useMemo(() => {
-    const uniqueDepartments = new Map<string, { label: string; value: string }>();
+  const departmentOptions = useMemo(
+    () => mapDepartmentsToOptions(departments),
+    [departments],
+  );
 
-    departments.forEach((department) => {
-      const rawId = department?.department_id;
-      const rawName = department?.name;
+  const destinationAreaOptions = useMemo(
+    () =>
+      departmentOptions.map(({ label, value }) => ({
+        label,
+        value,
+      })),
+    [departmentOptions],
+  );
 
-      if (typeof rawId !== "string" || typeof rawName !== "string") {
-        return;
-      }
-
-      const departmentId = rawId.trim();
-      const departmentName = rawName.trim();
-
-      if (!departmentId || !departmentName || uniqueDepartments.has(departmentId)) {
-        return;
-      }
-
-      uniqueDepartments.set(departmentId, {
-        label: departmentName,
-        value: departmentId,
-      });
-    });
-
-    return Array.from(uniqueDepartments.values()).sort((a, b) =>
-      a.label.localeCompare(b.label, "es", { sensitivity: "base" }),
-    );
-  }, [departments]);
+  const areaChecklistGroups = useMemo(
+    () => groupDepartmentOptionsByEnterprise(departmentOptions),
+    [departmentOptions],
+  );
 
   const existingDocument = useMemo(() => {
     if (!documentId) return undefined;
@@ -559,6 +626,7 @@ const uploadDocumentFile = useCallback(
       destinationAreaOptions,
       destinationAreasLoading,
       destinationAreaOptions,
+      areaChecklistGroups,
       documentRouteForField,
       documentLabelForField,
       isMobile,
@@ -570,10 +638,12 @@ const uploadDocumentFile = useCallback(
     );
   }, [
     destinationAreaOptions,
+    areaChecklistGroups,
     destinationAreasLoading,
     documentTypeOptions,
     documentTypesLoading,
     existingDocument,
+    isMobile,
     shouldPrefillFromDocument,
     uploadedFileLabel,
     uploadedRoute,
@@ -727,6 +797,10 @@ const uploadDocumentFile = useCallback(
       areas: {
         title: "Seleccione las áreas a las que aplica",
         options: destinationAreaOptions.map((option) => ({ ...option })),
+        groups: areaChecklistGroups.map((group) => ({
+          label: group.label,
+          options: group.options.map((option) => ({ ...option })),
+        })),
       },
     },
   };

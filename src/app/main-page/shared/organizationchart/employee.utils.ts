@@ -110,6 +110,8 @@ export const getOrganizationChartEmployeeDetails = (
       employee.employee_number ||
       employee.employee ||
       organizationChartEmptyValue,
+    department: 
+      employee.department?.name || organizationChartEmptyValue,
   };
 };
 

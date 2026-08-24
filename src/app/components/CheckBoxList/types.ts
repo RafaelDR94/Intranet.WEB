@@ -7,11 +7,20 @@ export type CheckBoxListOption = {
   disabled?: boolean;
 };
 
+export type CheckBoxListOptionGroup = {
+  /** Titulo visible del grupo de opciones */
+  label: string;
+  /** Opciones que pertenecen al grupo */
+  options: CheckBoxListOption[];
+};
+
 export type CheckBoxListProps = {
   /** Título que se muestra en la parte superior de la lista */
   title: string;
   /** Opciones a renderizar */
   options: CheckBoxListOption[];
+  /** Grupos opcionales para renderizar las opciones por secciones */
+  optionGroups?: CheckBoxListOptionGroup[];
   /** Valores seleccionados en modo controlado */
   value?: string[];
   /** Valores iniciales en modo no controlado */

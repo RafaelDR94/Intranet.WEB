@@ -158,7 +158,7 @@ const OrganizationChartGeneralDirectoryView = ({
       position: employee.workposition?.name ?? organizationChartEmptyValue,
       phone_number: employee.phone_number || organizationChartEmptyValue,
       email: employee.email || organizationChartEmptyValue,
-      department: employee.department?.name ?? organizationChartEmptyValue,
+      department: employee.department?.name || organizationChartEmptyValue,
       image_url: employee.image_url,
       employee,
     }));

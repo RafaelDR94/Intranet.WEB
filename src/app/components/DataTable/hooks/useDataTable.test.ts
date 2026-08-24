@@ -97,6 +97,34 @@ describe('useDataTable date filtering', () => {
     ).toEqual(['rendered'])
   })
 
+  it('limits internal search to searchableKeys when they are provided', () => {
+    const { result } = renderHook(() =>
+      useDataTable<Row>({ searchableKeys: ['nombre'] }),
+    )
+
+    act(() => {
+      result.current.handleSearchChange('rh')
+    })
+
+    expect(
+      result.current.getFilteredData(
+        table(
+          [
+            {
+              id: 'hidden-match',
+              nombre: 'Bruno Mendoza',
+              employee: { fullName: 'Responsable RH' },
+            },
+            { id: 'visible-match', nombre: 'RH Corporativo' },
+          ],
+          {
+            columns: [{ key: 'nombre', label: 'Nombre' }],
+          },
+        ),
+      ).map((row) => row.id),
+    ).toEqual(['visible-match'])
+  })
+
   it('detects date columns when dateKey is not provided', () => {
     const { result } = renderHook(() => useDataTable<Row>({}))
 

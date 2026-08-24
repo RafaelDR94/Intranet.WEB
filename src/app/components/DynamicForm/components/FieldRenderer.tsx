@@ -276,6 +276,7 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             optionsClassName={field.checkboxListProps?.listClassName}
             showSelectAll={field.checkboxListProps?.showSelectAll}
             columns={field.checkboxListProps?.columns}
+            optionGroups={field.checkboxListProps?.optionGroups}
           />
           {helperText && (
             <span className={helperClasses(variant as InputVariant)}>
