@@ -4,6 +4,14 @@ export const AuthValidate =
 export const AuthFirebaseConfiguration =
   process.env.NEXT_PUBLIC_AUTHFIREBASECONFIGURATION ??
   "/Auth/FirebaseConfiguration";
+/** Token de corta duración para autenticar la sesión del backend en Firebase. */
+export const AuthFirebaseToken =
+  process.env.NEXT_PUBLIC_AUTH_FIREBASE_TOKEN ?? "/Auth/FirebaseToken";
+/**
+ * El backend actual no ha publicado todavía un contrato de logout. Al definir
+ * esta variable se invoca con POST antes de limpiar la sesión local.
+ */
+export const AuthLogout = process.env.NEXT_PUBLIC_AUTH_LOGOUT;
 export const AuthChangeNIP =
   process.env.NEXT_PUBLIC_AUTHCHANGENIP ?? "/Auth/ChangeNIP";
 export const AuthChangePassword =

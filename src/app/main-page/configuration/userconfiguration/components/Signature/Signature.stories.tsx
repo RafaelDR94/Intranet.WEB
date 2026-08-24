@@ -44,7 +44,6 @@ const firebaseMock: UseFirebasereturn = {
     closeNotificacion: () => undefined,
   },
   permissionsChanged: { state: false, newPermissions: "" },
-  firebaseLogginFail: false,
 };
 
 const StoryContainer: React.FC<StoryArgs> = ({ theme, employeeId, signatureUrl }) => {

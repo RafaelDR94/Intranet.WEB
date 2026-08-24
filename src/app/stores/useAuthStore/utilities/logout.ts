@@ -5,9 +5,21 @@ import { setInterceptor } from './interceptor'
 
 import type { User } from '@/app/context/AuthContext/types'
 import { logoutUser } from '@/app/context/AuthContext/utilities/AuthService'
+import { logoutBackendSession } from '@/app/services/auth/FirebaseSessionService'
 
 export const logout = async (set: Set): Promise<void> => {
-  await logoutUser()
+  try {
+    await logoutBackendSession()
+  } catch (error) {
+    // El logout de Firebase y la limpieza local no pueden depender del backend.
+    console.error('No se pudo cerrar la sesión remota del backend:', error)
+  }
+
+  try {
+    await logoutUser()
+  } catch (error) {
+    console.error('No se pudo limpiar la sesión local:', error)
+  }
   const REMEMBER_EMAIL_KEY = 'drs.remember.email'
   const REMEMBER_PASS_KEY = 'drs.remember.password'
   const REMEMBER_FLAG_KEY = 'drs.remember.flag'
@@ -17,7 +29,7 @@ export const logout = async (set: Set): Promise<void> => {
   const firebaseToken = localStorage.getItem('firebaseTokenDoc')
   const deviceId = localStorage.getItem('deviceIdDoc')
   const tutorialProgress = localStorage.getItem('tutorialProgress:v1')
-  set({ user: null, token: null })
+  set({ user: null, token: null, firebaseSessionStatus: 'idle' })
   setInterceptor(null)
   localStorage.clear()
   if (firebaseToken) localStorage.setItem('firebaseTokenDoc', firebaseToken)

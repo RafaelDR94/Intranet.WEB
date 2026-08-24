@@ -18,6 +18,7 @@ import AuthSplitLayout from "@/app/login/components/AuthSplitLayout";
 import { useRecoverPasswordFlow } from "@/app/login/context/RecoverPasswordFlowContext";
 import { loginStyles } from "@/app/login/styles";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+import { useFirebase } from "@/app/context/FirebaseContext/FirebaseContext";
 import MailOpenedIcon from "@/assets/icons/Comunicacion/mail-opened.svg";
 import SmartphoneIcon from "@/assets/icons/Devices/smartphone-device.svg";
 import ArrowLeftIcon from "@/assets/icons/navegacion/arrow-left.svg";
@@ -47,6 +48,7 @@ const viewStyles = {
 
 const RecoverEmailClient = () => {
   const router = useRouter();
+  const { waitForFirebaseReady } = useFirebase();
   const {
     email,
     recoverChannels,
@@ -249,6 +251,22 @@ const RecoverEmailClient = () => {
 
       clearRecoverPasswordState();
       const currentUser = useAuthStore.getState().user;
+      if (!currentUser?.token) {
+        setLocalError("El backend no devolvió una sesión válida.");
+        return;
+      }
+
+      try {
+        await (waitForFirebaseReady?.(currentUser.token) ?? Promise.resolve());
+      } catch (firebaseError) {
+        setLocalError(
+          firebaseError instanceof Error
+            ? firebaseError.message
+            : "No se pudo iniciar la sesión de Firebase.",
+        );
+        return;
+      }
+
       if (currentUser?.changePassword === true) {
         router.push("/login/recover-password/recovery-new-password/");
       } else {

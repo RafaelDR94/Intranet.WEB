@@ -19,7 +19,13 @@ export const PermissionAgent: React.FC<PermissionAgentProps> = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const { validPermissionsbyroute, user, hasExpired, hydrated /*, authLoading? */ } = useAuth();
+  const {
+    validPermissionsbyroute,
+    user,
+    hasExpired,
+    hydrated,
+    firebaseSessionStatus = 'ready',
+  } = useAuth();
   const { usePrincipalAlert } = usePrincipal();
   const { showAlert } = usePrincipalAlert;
 
@@ -35,7 +41,7 @@ export const PermissionAgent: React.FC<PermissionAgentProps> = ({
   // Si tu contexto expone authLoading, úsalo aquí:
   // const authLoading = useAuthLoadingFromContext;
   // Para no romper, inferimos "loading" mientras el store no haya terminado de hidratarse
-  const authLoading = !hydrated;
+  const authLoading = !hydrated || (Boolean(user) && firebaseSessionStatus !== 'ready');
 
   const [checking, setChecking] = useState(true);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
