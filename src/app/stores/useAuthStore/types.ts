@@ -6,7 +6,7 @@ import type {
   AuthChallengeVerifyResponse,
 } from '@/app/mappings/auth/auth.types'
 import type { UserMfaByIdResponse, UserPasskeyResponse } from '@/app/mappings/users/user.types'
-import type { User, LoginCredentials } from '@/app/context/AuthContext/types'
+import type { User, LoginCredentials, FirebaseSessionStatus } from '@/app/context/AuthContext/types'
 
 export interface AuthValidatePayload {
   "idemployee": string, "password": string
@@ -100,6 +100,8 @@ export interface AuthState {
   remeberMe: boolean
   /** Modo offline habilitado */
   offlineMode: boolean
+  /** Estado de la sesión Firebase asociada a la sesión del backend. */
+  firebaseSessionStatus: FirebaseSessionStatus
   loading: boolean
   changingSignature: boolean
   changingMFA: boolean
@@ -153,6 +155,7 @@ export interface AuthState {
   handleRemeberMe: (rememberme: boolean) => void
   handleForgetUser: () => Promise<void>
   handleOfflineMode: (offline: boolean) => void
+  setFirebaseSessionStatus: (status: FirebaseSessionStatus) => void
   authValidate: (payload: AuthValidatePayload) => Promise<void>
   changePassword: (payload: ChangePasswordPayload) => Promise<void>
   recoverPassword: (payload: RecoverPasswordPayload) => Promise<RecoverPasswordResponse | null>

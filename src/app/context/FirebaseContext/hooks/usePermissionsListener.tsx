@@ -1,47 +1,32 @@
-import { ref, onValue, off, Database } from "firebase/database";
-import { useState, useEffect, useRef } from "react";
+import { ref, onValue, Database } from "firebase/database";
+import { useEffect, useState } from "react";
 
+/**
+ * Mantiene una única suscripción al árbol de permisos del UID autenticado en
+ * Firebase. `null` significa que aún no existe una sesión Firebase lista.
+ */
 export function usePermissionsListener(
-    database: Database | null,
-    userId: string
-): {
-    state: boolean;
-    newPermissions: string;
-} 
-{
-    const [permissionsChanged, setPermissionsChanged] = useState({ state: false, newPermissions: "" });
-    const prevPermissionsRef = useRef<any>(null);
-    useEffect(() => {
-        if (!database || !userId) return;
-        const path = `Permissions/Users/${userId.toUpperCase()}/Permissions`;
-        const permissionsRef = ref(database, path);
-        let firstLoad = true;
+  database: Database | null,
+  firebaseUid: string | null,
+): string | null {
+  const [permissions, setPermissions] = useState<string | null>(null);
 
-        // Suscribimos el listener
-        const unsubscribe = onValue(permissionsRef, (snapshot) => {
-            const newPermissions = snapshot.exists() ? snapshot.val() : null;
-    
-            if (firstLoad) {
-                // En la primera carga sólo guardamos el valor
-                prevPermissionsRef.current = newPermissions;
-                firstLoad = false;
-            } else {
-                // Comparamos con el valor previo
-                const prev = prevPermissionsRef.current;
-                const changed = JSON.stringify(prev) !== JSON.stringify(newPermissions);
-                if (changed) {
-                    prevPermissionsRef.current = newPermissions;
-                    setPermissionsChanged({ state: true, newPermissions: JSON.stringify(newPermissions) });
-                    setTimeout(() => { setPermissionsChanged({ state: false, newPermissions: "" }) }, 1000)
-                }
-            }
-        });
-        // Cleanup: desuscribimos al desmontar o cambiar userId/database
-        return () => {
-            unsubscribe();
-            off(permissionsRef);
-        };
-    }, [database, userId]);
+  useEffect(() => {
+    setPermissions(null);
 
-    return permissionsChanged;
+    if (!database || !firebaseUid) return;
+
+    const permissionsRef = ref(database, `permissionsByUid/${firebaseUid}`);
+    const unsubscribe = onValue(permissionsRef, (snapshot) => {
+      // Un nodo ausente equivale a no tener permisos: comportamiento seguro.
+      const nextPermissions = JSON.stringify(snapshot.exists() ? snapshot.val() : {});
+      setPermissions((previous) =>
+        previous === nextPermissions ? previous : nextPermissions,
+      );
+    });
+
+    return unsubscribe;
+  }, [database, firebaseUid]);
+
+  return permissions;
 }

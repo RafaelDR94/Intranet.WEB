@@ -6,7 +6,8 @@ import {
   User,
   getAuth,
   onAuthStateChanged,
-  signInWithEmailAndPassword,
+  signInWithCustomToken,
+  signOut,
 } from "firebase/auth";
 import { Database, getDatabase } from "firebase/database";
 import { Messaging, getMessaging } from "firebase/messaging";
@@ -46,6 +47,7 @@ import Uselogs from "./hooks/uselogs";
 import { UseFirebasereturn } from "./types";
 
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+import { fetchFirebaseCustomToken } from "@/app/services/auth/FirebaseSessionService";
 
 export const FirebaseContext = createContext<UseFirebasereturn | undefined>(
   undefined,
@@ -59,14 +61,22 @@ const getNavigatorMetadata = () => ({
 });
 
 export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
-  const hasFirebaseauth = useRef(false);
   const previousUserIdRef = useRef<string | null>(null);
+  const firebaseReadyTokenRef = useRef<string | null>(null);
+  const firebaseFailedTokenRef = useRef<string | null>(null);
+  const firebaseWaitersRef = useRef(
+    new Map<string, Array<{ resolve: () => void; reject: (reason: Error) => void }>>(),
+  );
   const [app, setApp] = useState<FirebaseApp | null>(null);
   const [auth, setAuth] = useState<Auth | null>(null);
   const [storage, setStorage] = useState<FirebaseStorage | null>(null);
   const [database, setDatabase] = useState<Database | null>(null);
   const [messaging, setMessaging] = useState<Messaging | null>(null);
-  const [firebaseLogginFail, setFirebaseLogginFail] = useState(false);
+  const [firebaseSessionStatus, setFirebaseSessionStatus] = useState<
+    "idle" | "authenticating" | "ready" | "error"
+  >("idle");
+  const [firebaseSessionError, setFirebaseSessionError] = useState("");
+  const [firebaseUid, setFirebaseUid] = useState<string | null>(null);
   const [firebaseConfiguration, setFirebaseConfiguration] = useState<any | null>(
     null,
   );
@@ -74,14 +84,46 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   const firebaserealtime = useFirebaseRealtimeHelper(database);
   const firebaseMessaging = useFirebaseMessagingHelper(messaging);
   const { user, setHasExpired, offlineMode } = useAuth();
-  const permissionsChanged = usePermissionsListener(database, user?.idUser || "");
-  const state = useAuthStore();
+  const permissions = usePermissionsListener(database, firebaseUid);
+  const updateUserPermissions = useAuthStore((state) => state.updateUserPermissions);
+  const setAuthFirebaseSessionStatus = useAuthStore(
+    (state) => state.setFirebaseSessionStatus,
+  );
+  const permissionsChanged = {
+    state: permissions !== null,
+    newPermissions: permissions ?? "",
+  };
 
   useEffect(() => {
-    if (permissionsChanged.state) {
-      state.updateUserPermissions(permissionsChanged.newPermissions);
+    if (permissions !== null && firebaseSessionStatus === "ready") {
+      void updateUserPermissions(permissions);
     }
-  }, [permissionsChanged, state]);
+  }, [firebaseSessionStatus, permissions, updateUserPermissions]);
+
+  const settleFirebaseWaiters = useCallback(
+    (backendToken: string, error?: Error) => {
+      const waiters = firebaseWaitersRef.current.get(backendToken) ?? [];
+      firebaseWaitersRef.current.delete(backendToken);
+      waiters.forEach(({ resolve, reject }) => (error ? reject(error) : resolve()));
+    },
+    [],
+  );
+
+  const waitForFirebaseReady = useCallback(
+    (backendToken: string): Promise<void> => {
+      if (firebaseReadyTokenRef.current === backendToken) return Promise.resolve();
+      if (firebaseFailedTokenRef.current === backendToken) {
+        return Promise.reject(new Error("No se pudo iniciar la sesión de Firebase."));
+      }
+
+      return new Promise((resolve, reject) => {
+        const waiters = firebaseWaitersRef.current.get(backendToken) ?? [];
+        waiters.push({ resolve, reject });
+        firebaseWaitersRef.current.set(backendToken, waiters);
+      });
+    },
+    [],
+  );
 
   const resolveNotificationPermission = useCallback(
     async (): Promise<NotificationPermissionState> => {
@@ -236,7 +278,98 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   );
 
   useEffect(() => {
-    if (!auth || !user?.idUser || !firebaserealtime || !firebaseMessaging) {
+    const backendToken = user?.token;
+    let cancelled = false;
+
+    const clearFirebaseSession = async () => {
+      firebaseReadyTokenRef.current = null;
+      firebaseFailedTokenRef.current = null;
+      setFirebaseUid(null);
+      setFirebaseSessionError("");
+      setAuthFirebaseSessionStatus("idle");
+      setFirebaseSessionStatus("idle");
+
+      if (auth?.currentUser) {
+        try {
+          await signOut(auth);
+        } catch (error) {
+          console.error("No se pudo cerrar la sesión Firebase:", error);
+        }
+      }
+    };
+
+    if (!auth || !backendToken) {
+      void clearFirebaseSession();
+      return;
+    }
+
+    if (firebaseReadyTokenRef.current === backendToken) return;
+
+    const authenticate = async () => {
+      firebaseFailedTokenRef.current = null;
+      setFirebaseUid(null);
+      setFirebaseSessionError("");
+      setAuthFirebaseSessionStatus("authenticating");
+      setFirebaseSessionStatus("authenticating");
+
+      try {
+        const customToken = await fetchFirebaseCustomToken(backendToken);
+        const credential = await signInWithCustomToken(auth, customToken);
+
+        if (!credential.user.uid) {
+          throw new Error("Firebase no devolvió un UID de usuario.");
+        }
+
+        if (cancelled) {
+          await signOut(auth);
+          return;
+        }
+
+        firebaseReadyTokenRef.current = backendToken;
+        setFirebaseUid(credential.user.uid);
+        setAuthFirebaseSessionStatus("ready");
+        setFirebaseSessionStatus("ready");
+        settleFirebaseWaiters(backendToken);
+      } catch (error) {
+        const sessionError =
+          error instanceof Error
+            ? error
+            : new Error("No se pudo iniciar la sesión de Firebase.");
+
+        if (cancelled) return;
+
+        firebaseFailedTokenRef.current = backendToken;
+        setFirebaseUid(null);
+        setFirebaseSessionError(sessionError.message);
+        setAuthFirebaseSessionStatus("error");
+        setFirebaseSessionStatus("error");
+        settleFirebaseWaiters(backendToken, sessionError);
+
+        try {
+          await signOut(auth);
+        } catch (signOutError) {
+          console.error("No se pudo cerrar la sesión Firebase tras un error:", signOutError);
+        }
+
+        // Fail closed: elimina la sesión backend/local; el logout remoto es opcional por entorno.
+        void useAuthStore.getState().logout();
+      }
+    };
+
+    void authenticate();
+    return () => {
+      cancelled = true;
+    };
+  }, [auth, settleFirebaseWaiters, setAuthFirebaseSessionStatus, user?.token]);
+
+  useEffect(() => {
+    if (
+      !auth ||
+      firebaseSessionStatus !== "ready" ||
+      !user?.idUser ||
+      !firebaserealtime ||
+      !firebaseMessaging
+    ) {
       return;
     }
 
@@ -255,6 +388,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   }, [
     auth,
     firebaseMessaging,
+    firebaseSessionStatus,
     firebaserealtime,
     registerNotificationDevice,
     syncNotificationPreferences,
@@ -272,26 +406,6 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   }, [cleanupNotificationDevice, user?.idUser]);
 
   Uselogs({ firebaserealtime, database, user, setHasExpired, offlineMode });
-
-  const authenticateWithEmailAndPassword = async (
-    email: string,
-    password: string,
-  ) => {
-    if (!auth) return;
-
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      setFirebaseLogginFail(true);
-      console.error("Error al autenticar con email y contraseña:", error);
-      throw error;
-    }
-  };
-
-  const authenticateWithEmailAndPasswordCb = useCallback(
-    authenticateWithEmailAndPassword,
-    [auth],
-  );
 
   const GetFirebaseConfigurations = async (attempt = 1) => {
     if (attempt) {
@@ -313,16 +427,12 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
   };
 
-  const GetFirebaseConfigurationsCb = useCallback(GetFirebaseConfigurations, []);
-
   useEffect(() => {
-    setTimeout(GetFirebaseConfigurationsCb, 1000);
-  }, [
-    GetFirebaseConfigurationsCb,
-    firebaseConfiguration,
-    offlineMode,
-    user?.token,
-  ]);
+    const timeout = setTimeout(() => {
+      void GetFirebaseConfigurations();
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, []);
 
   useEffect(() => {
     if (firebaseConfiguration && !app) {
@@ -339,21 +449,16 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [app]);
 
-  useEffect(() => {
-    if (auth && user?.userName && !hasFirebaseauth.current) {
-      void authenticateWithEmailAndPasswordCb(user.userName, "Dr123qwe");
-      hasFirebaseauth.current = true;
-    }
-  }, [auth, authenticateWithEmailAndPasswordCb, user]);
-
   return (
     <FirebaseContext.Provider
       value={{
-        firebaseLogginFail,
         firebasestorage,
         firebaserealtime,
         permissionsChanged,
         firebaseMessaging,
+        firebaseSessionStatus,
+        firebaseSessionError,
+        waitForFirebaseReady,
       }}
     >
       {children}

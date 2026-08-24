@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FieldModel } from "../../components/DynamicForm/types";
 import { useRecoverPasswordFlow } from "../context/RecoverPasswordFlowContext";
 import { useAuth } from "../../context/AuthContext/AuthContext";
+import { useFirebase } from "../../context/FirebaseContext/FirebaseContext";
 import { saveUser } from "@/app/context/AuthContext/utilities/AuthService";
 import type { RecoverPasswordResponse } from "@/app/mappings/auth/auth.types";
 import { fetchAuthenticationMethods } from "@/app/services/auth/AuthenticationMethodsService";
@@ -110,6 +111,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
   const routerFromHook = useRouter();
   const router = routerOverride ?? routerFromHook;
   const { login, logout } = useAuth();
+  const { waitForFirebaseReady } = useFirebase();
   const { clearFlow, setLookupData, setVerificationChallenge } =
     useRecoverPasswordFlow();
   const fetchRecoverChannels = useAuthStore(
@@ -343,6 +345,12 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
     try {
       await login(currentLoginValues);
 
+      const currentUser = useAuthStore.getState().user;
+      if (!currentUser?.token) {
+        throw new Error("El backend no devolvió una sesión válida.");
+      }
+      await (waitForFirebaseReady?.(currentUser.token) ?? Promise.resolve());
+
       if (rememberStatus) {
         persistRemember(true, currentLoginValues.email, currentLoginValues.password);
         setRememberedPassword(currentLoginValues.password);
@@ -351,7 +359,6 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
         setRememberedPassword("");
       }
 
-      const currentUser = useAuthStore.getState().user;
       if (currentUser?.changePassword === true) {
         router.push("/login/recover-password/recovery-new-password/");
       } else {
@@ -502,6 +509,7 @@ const useLogin = (routerOverride?: ReturnType<typeof useRouter>): UseLogin => {
         successLogin: true,
       });
       setInterceptor(normalizedUser.token);
+      await (waitForFirebaseReady?.(normalizedUser.token) ?? Promise.resolve());
       router.push("/main-page");
     } catch (error: unknown) {
       setFailMessage(

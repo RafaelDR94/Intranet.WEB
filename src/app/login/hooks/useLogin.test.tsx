@@ -17,8 +17,9 @@ const mockSetVerificationChallenge = vi.fn();
 const mockFetchAuthenticationMethods = vi.fn();
 const mockIsPasskeySupported = vi.fn(async () => true);
 const mockPasskeyLoginWithPasskey = vi.fn();
+const mockWaitForFirebaseReady = vi.fn();
 const mockAuthStoreState = {
-  user: null as { changePassword?: boolean } | null,
+  user: null as { changePassword?: boolean; token?: string } | null,
 };
 
 vi.mock("next/navigation", () => ({
@@ -27,6 +28,10 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("../../context/AuthContext/AuthContext", () => ({
   useAuth: () => ({ login: mockLogin, logout: mockLogout, UpdateUser: mockUpdateUser }),
+}));
+
+vi.mock("../../context/FirebaseContext/FirebaseContext", () => ({
+  useFirebase: () => ({ waitForFirebaseReady: mockWaitForFirebaseReady }),
 }));
 
 vi.mock("@/app/services/auth/AuthenticationMethodsService", () => ({
@@ -106,6 +111,7 @@ describe("useLogin hook", () => {
     mockRecoverPassword.mockResolvedValue(null);
     mockFetchAuthenticationMethods.mockResolvedValue([]);
     mockIsPasskeySupported.mockResolvedValue(true);
+    mockWaitForFirebaseReady.mockResolvedValue(undefined);
     mockAuthStoreState.user = null;
   });
 
@@ -223,6 +229,7 @@ describe("useLogin hook", () => {
 
   it("login exitoso usa el correo resuelto y redirige a main-page", async () => {
     mockLogin.mockResolvedValueOnce({});
+    mockAuthStoreState.user = { token: "backend-token" };
 
     const { result } = renderHook(() => useLogin({ push: pushMock } as any));
 

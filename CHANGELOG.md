@@ -1,4 +1,4 @@
-### 1.50.46 Fix in Reports API 2026-08-24
+### 1.50.47 Fix in Reports API 2026-08-24
 
 FIX: 
 
@@ -13,6 +13,25 @@ Does it affect other systems?
 
 (Katherine Negrete A) [#487](https://github.com/DR-Mexico/dr.intranet.web/pull/487)
 
+### 1.50.46 Firebase Custom Token authentication and real-time permissions 2026-08-24
+
+Why is change necessary?
+
+- Firebase was authenticated with a shared email/password credential instead of the authenticated backend session.
+- Permission changes needed to update the current user's interface in real time without reloading the application.
+
+Where were the changes made?
+
+- Added the authenticated POST /Auth/FirebaseToken client, including the backend Bearer token and response validation.
+- Replaced Firebase email/password authentication with signInWithCustomToken after password, MFA, and passkey login flows.
+- Added Firebase session readiness gating for protected routes and a per-user /permissionsByUid/{uid} real-time listener.
+- Updated logout to clean up backend, Firebase, listeners, and local session state safely.
+- Added tests for the Firebase token client and permission listener.
+
+Does it affect other systems?
+
+- Requires the backend to expose POST /Auth/FirebaseToken and return a valid Firebase Custom Token for the authenticated backend user.
+- No Firebase password is stored or used by the frontend.
 ### 1.50.45 Correction to the organizational chart search engine and modifications to documents 2026-08-21
 
 Why is this necessary?
@@ -30,6 +49,8 @@ Where were changes made?
 
 Does it affect other systems?
 - No, it does not affect them.
+
+
 
 
 ### 1.50.44 Permission-based operational document retrieval 2026-08-20

@@ -6,6 +6,8 @@ export interface LoginCredentials {
   password: string;
 }
 
+export type FirebaseSessionStatus = "idle" | "authenticating" | "ready" | "error";
+
 /**
  * Representa un usuario del sistema.
  */
@@ -63,6 +65,7 @@ export interface AuthContextType {
   hasExpired: boolean;
   remeberMe: boolean;
   offlineMode: boolean;
+  firebaseSessionStatus: FirebaseSessionStatus;
   currentPagePermissions: any;
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
