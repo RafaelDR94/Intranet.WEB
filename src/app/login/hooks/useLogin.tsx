@@ -18,7 +18,7 @@ import {
 } from "../../context/AuthContext/utilities/AuthService";
 
 const loginInputClassName =
-  "h-12 rounded-xl border-[1.5px] border-gray-40 bg-transparent px-3 py-3 text-sm leading-5 text-white placeholder:text-white/40 hover:border-white/80 focus:border-green-40 focus:bg-transparent";
+  "h-12 rounded-xl border-[1.5px] border-gray-40 bg-white-100/10 px-3 py-3 text-sm leading-5 text-white placeholder:text-white/50 hover:border-white/80 focus:border-green-40 focus:bg-white-100/15";
 
 const baseLoginFields: FieldModel[] = [
   {

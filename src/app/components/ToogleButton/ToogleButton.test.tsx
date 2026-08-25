@@ -15,8 +15,8 @@ describe('ToggleButton component', () => {
     expect(checkbox).toHaveAttribute('aria-checked', 'false')
 
     const wrapperDiv = checkbox.parentElement as HTMLElement
-    // estado unchecked usa bg-gray-10
-    expect(wrapperDiv).toHaveClass('bg-gray-20')
+    // estado unchecked usa bg-gray-30
+    expect(wrapperDiv).toHaveClass('bg-gray-30')
     // el handle está al inicio
     const handleSpan = wrapperDiv.querySelector('span')!
     expect(handleSpan).toHaveClass('translate-x-0')
@@ -31,10 +31,10 @@ describe('ToggleButton component', () => {
     expect(checkbox).toHaveAttribute('aria-checked', 'true')
 
     const wrapperDiv = checkbox.parentElement as HTMLElement
-    // estado checked usa bg-green-90
-    expect(wrapperDiv).toHaveClass('bg-green-90')
+    // estado checked usa bg-green-80
+    expect(wrapperDiv).toHaveClass('bg-green-80')
     const handleSpan = wrapperDiv.querySelector('span')!
-    expect(handleSpan).toHaveClass('translate-x-[12px]')
+    expect(handleSpan).toHaveClass('translate-x-4.5')
   })
 
   it('llama a onChange al hacer click sobre el checkbox', () => {

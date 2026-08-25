@@ -10,7 +10,7 @@ import {
 } from "@/app/services/passkeys/deviceName";
 import { isPasskeySupported } from "@/app/services/passkeys/PasskeyService";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
-import LogoGc from "@/assets/images/LogosCG/LogoGC.jpeg";
+import LogoGc from "@/assets/images/LogosCG/LogoGC.png";
 
 const PASSKEY_PROMPT_SESSION_KEY = "home-announcements-passkey-prompt-dismissed";
 
@@ -126,55 +126,79 @@ const Announcements = () => {
   return (
     <div style={{ ["--topbar-h" as never]: "130px" }}>
       <section className="relative w-full">
-        <div className="fixed inset-0 -z-10">
-          <Image
-            src="/images/DR_IntranetBackground_Bienvenida-01.png"
-            alt="Background"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-
         <div
           className="
-            mx-auto grid
-            h-[calc(100vh-var(--topbar-h,0px))]
-            supports-[height:100svh]:h-[calc(100svh-var(--topbar-h,0px))]
-            max-w-[1020px]
-            grid-rows-[1fr_auto]
-            px-4
-            pb-[calc(24px+env(safe-area-inset-bottom))]
-            overflow-y-auto md:overflow-y-clip
+            mx-auto flex flex-col items-center justify-center
+            min-h-[calc(100vh-var(--topbar-h,0px))]
+            supports-[height:100svh]:min-h-[calc(100svh-var(--topbar-h,0px))]
+            px-4 sm:px-6 lg:px-8 py-12
+            relative
+            overflow-y-auto overflow-x-hidden
           "
         >
-          <div className="flex flex-col items-center justify-center py-8 text-center md:py-0">
-            <div className="relative mb-5 h-[92px] w-[160px] sm:h-[110px] sm:w-[190px] md:h-[128px] md:w-[220px]">
-              <Image
-                src={LogoGc}
-                alt="Grupo Cantabria"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-
-            <h1 className="font-display text-h3 leading-[0.98] tracking-[-0.01em] text-blue-90 sm:text-h2 md:text-h1">
-              BIENVENIDO A LA INTRANET
-            </h1>
-
-            <p className="mt-4 max-w-[860px] font-sans text-b2 font-semibold text-blue-50 sm:mt-5 sm:text-s1">
-              Un nuevo espacio donde podras acceder a Información, herramientas y recursos clave.
-            </p>
-
-            <p className="mt-3 font-sans text-c1 font-medium text-blue-50 sm:mt-4 sm:text-b2">
-              Este es tu espacio. Disfrutalo.
-            </p>
+          {/* Animated Background Glow */}
+          <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 flex items-center justify-center">
+            {/* Cyan glow */}
+            <div className="absolute w-[90vw] h-[90vw] max-w-[800px] max-h-[800px] rounded-full bg-[#2F9BB5]/30 blur-[100px] md:blur-[150px] dark:bg-[#2F9BB5]/20 translate-x-1/3 -translate-y-1/4 animate-pulse [animation-duration:10s]" />
+            {/* Darker Blue glow */}
+            <div className="absolute w-[80vw] h-[80vw] max-w-[700px] max-h-[700px] rounded-full bg-[#0E506D]/30 blur-[100px] md:blur-[150px] dark:bg-[#0E506D]/40 -translate-x-1/3 translate-y-1/4 animate-pulse [animation-duration:7s] [animation-delay:1s]" />
+            {/* Teal/Light glow */}
+            <div className="absolute w-[70vw] h-[70vw] max-w-[600px] max-h-[600px] rounded-full bg-[#5E8EA2]/30 blur-[100px] md:blur-[150px] dark:bg-[#5E8EA2]/20 animate-pulse [animation-duration:8s] [animation-delay:2s]" />
           </div>
 
-          <p className="max-w-[1020px] self-start ps-2 font-sans text-c2 text-blue-50 sm:ps-6 sm:text-c1">
-            *Seguimos trabajando constantemente para mejorar y ampliar las funcionalidades, con el objetivo de que cada vez sea mas util y practica para todos.
-          </p>
+          {/* Glassmorphism Card */}
+          <div className="relative w-full max-w-4xl mx-auto rounded-[32px] sm:rounded-[48px] bg-white-100/40 dark:bg-[#0B141A]/30 backdrop-blur-3xl border border-white-100/50 dark:border-[#FFFFFF]/10 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.3)] overflow-hidden">
+            
+            {/* Inner subtle glow for the card */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white-100/40 to-transparent dark:from-[#FFFFFF]/5 dark:to-transparent pointer-events-none" />
+            
+            <div className="relative px-6 py-12 sm:px-16 sm:py-20 md:py-24 flex flex-col items-center text-center">
+              <div className="relative mb-10 group">
+                {/* Logo glow effect that intensifies on hover */}
+                <div className="absolute inset-0 rounded-full bg-[#2F9BB5]/20 dark:bg-[#2F9BB5]/10 blur-[40px] md:blur-[60px] transition-all duration-700 group-hover:bg-[#2F9BB5]/40 group-hover:scale-125" />
+                
+                <div className="relative h-[100px] w-[180px] sm:h-[130px] sm:w-[240px] md:h-[150px] md:w-[260px] transform transition-transform duration-700 group-hover:scale-105">
+                  <Image
+                    src={LogoGc}
+                    alt="Grupo Cantabria"
+                    fill
+                    className="object-contain drop-shadow-2xl"
+                    priority
+                  />
+                </div>
+              </div>
+
+              <h1 className="relative font-display text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#0E506D] to-[#2F9BB5] dark:from-[#FFFFFF] dark:to-[#8ACDE0] drop-shadow-sm mb-6">
+                BIENVENIDO A LA INTRANET
+              </h1>
+
+              <p className="relative max-w-[700px] font-sans text-lg sm:text-xl font-medium text-[#124A64]/80 dark:text-[#FFFFFF]/80 mb-8 leading-relaxed">
+                Un nuevo espacio digital diseñado para ti. Accede rápidamente a toda la 
+                <span className="text-[#0E506D] dark:text-[#FFFFFF] font-semibold"> información, herramientas y recursos clave </span> 
+                que necesitas en tu día a día.
+              </p>
+
+              {/* Decorative Features Section */}
+              <div className="relative flex justify-center gap-4 sm:gap-6 mt-4 w-full flex-wrap">
+                {['Información Centralizada', 'Herramientas Útiles', 'Recursos Clave'].map((feature, i) => (
+                  <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white-100/50 dark:bg-[#FFFFFF]/5 border border-white-100/60 dark:border-[#FFFFFF]/10 shadow-sm backdrop-blur-md hover:bg-white-100/80 dark:hover:bg-[#FFFFFF]/20 transition-colors">
+                    <div className="w-2 h-2 rounded-full bg-[#2F9BB5]" />
+                    <span className="text-sm font-medium text-[#124A64] dark:text-[#FFFFFF]/90">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Footer inside card */}
+            <div className="relative border-t border-white-100/40 dark:border-[#FFFFFF]/10 px-6 py-6 sm:px-16 bg-white-100/30 dark:bg-[#0B141A]/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+              <p className="font-sans text-sm sm:text-base font-semibold text-[#124A64]/90 dark:text-[#FFFFFF]/90">
+                Este es tu espacio. ¡Disfrútalo!
+              </p>
+              <p className="font-sans text-xs sm:text-sm text-[#124A64]/60 dark:text-[#FFFFFF]/50 max-w-sm">
+                *Seguimos trabajando para mejorar y ampliar las funcionalidades.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

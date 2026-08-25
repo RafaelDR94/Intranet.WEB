@@ -1,1 +1,1 @@
-export const containerDataTableContent ="flex flex-col bg-white-100 pr-3 pl-3 pb-3 mt-3 rounded-md"
+export const containerDataTableContent = "flex flex-col bg-white-100 p-4 mt-3 rounded-2xl border border-gray-20 shadow-sm transition-all overflow-hidden"

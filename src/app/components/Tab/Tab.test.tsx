@@ -32,7 +32,7 @@ describe('Tab component', () => {
   it('applies selected styles when selected is true', () => {
     render(<Tab label="Selected" selected />);
     const button = screen.getByRole('button');
-    expect(button.className).toContain('bg-green-100');
+    expect(button.className).toContain('bg-green-80');
     expect(button.className).toContain('text-white-100');
   });
 

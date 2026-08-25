@@ -6,9 +6,9 @@ import { DataTableGroup } from "../types";
 
 import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
 import { ColumnDef, SheetInput, exportExcelPro } from "@/app/utilities/Excel/ExportExcel";
-import { newDocument, Table, FullDocument ,CreatePDF} from "@/app/utilities/PDF/PDF";
+import { newDocument, Table, FullDocument, CreatePDF } from "@/app/utilities/PDF/PDF";
 import { urlToBase64 } from "@/app/utilities/PicturesHelper/PictureHelper";
-import Logo from "@/assets/images/LogosCG/LogoGC.jpeg";
+import Logo from "@/assets/images/LogosCG/LogoGC.png";
 type Column = { key: string; label: string; invisible?: boolean };
 
 const toPdfColumns = (

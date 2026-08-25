@@ -33,7 +33,7 @@ describe('Input component', () => {
       <Input label="Campo" inputSize="md" />
     )
     let input = screen.getByRole('textbox')
-    expect(input).toHaveClass('text-sm', 'py-2')
+    expect(input).toHaveClass('text-sm')
 
     rerender(
       <Input label="Campo" inputSize="lg" />
@@ -47,13 +47,13 @@ describe('Input component', () => {
       <Input label="A" variant="default" placeholder="p" />
     )
     let input = screen.getByPlaceholderText('p')
-    expect(input).toHaveClass('border-gray-70', 'placeholder-gray-70')
+    expect(input).toHaveClass('border-gray-30', 'placeholder-gray-50')
 
     rerender(
       <Input label="A" variant="filled" placeholder="p" />
     )
     input = screen.getByPlaceholderText('p')
-    expect(input).toHaveClass('border-gray-70', 'placeholder-gray-70')
+    expect(input).toHaveClass('border-gray-30', 'placeholder-gray-50')
   })
 
   it('deshabilita el input y aplica clases de disabled', () => {
@@ -66,7 +66,7 @@ describe('Input component', () => {
     )
     const input = screen.getByPlaceholderText('p')
     expect(input).toBeDisabled()
-    expect(input).toHaveClass('cursor-not-allowed', 'bg-gray-20')
+    expect(input).toHaveClass('cursor-not-allowed')
   })
 
   it('llama a onChange al modificar su valor', () => {
@@ -131,7 +131,7 @@ describe('Input component (extras)', () => {
     render(<Input as="textarea" label="Detalle" placeholder="Detalle" />)
     const el = screen.getByPlaceholderText('Detalle')
     // textareaClasses añade estas utilidades
-    expect(el).toHaveClass('min-h-20')
+    expect(el).toHaveClass('min-h-24')
     expect(el).toHaveClass('overflow-y-auto')
     expect(el).toHaveClass('resize-none')
   })

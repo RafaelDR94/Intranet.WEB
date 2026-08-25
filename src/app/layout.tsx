@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Montserrat } from 'next/font/google'
+import { Montserrat, Plus_Jakarta_Sans, Outfit } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
 
@@ -11,10 +11,22 @@ import FirebaseProviderClient from './context/FirebaseContext/FirebaseProviderCl
 import { PrincipalProvider } from './context/PrincipalContext/PrincipalContext'
 import ThemeInitializer from './context/PrincipalContext/utilities/ThemeInitializer'
 
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-plus-jakarta',
+})
+
 const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-montserrat',
+})
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-outfit',
 })
 
 const nulshock = localFont({
@@ -86,7 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           y usando el archivo correspondiente (dimensiones invertidas).
         */}
       </head>
-      <body className={`${montserrat.variable} ${nulshock.variable} h-screen overflow-hidden`}>
+      <body className={`${plusJakartaSans.variable} ${montserrat.variable} ${nulshock.variable} ${outfit.variable} h-screen overflow-hidden`}>
         <GeneralErrorBundary>
           <PrincipalProvider>
             <AuthProvider>

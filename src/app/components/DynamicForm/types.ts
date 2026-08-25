@@ -220,4 +220,6 @@ export interface DynamicFormProps {
   marginButton?: string
   formClassName?: string
   rowClassName?: string
+  containerClassName?: string
+  plain?: boolean
 }

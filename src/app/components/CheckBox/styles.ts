@@ -10,16 +10,16 @@ export const layoutMap = {
 
 export function checkboxClasses({ checked, indeterminate, disabled }: Pick<CheckboxProps, 'checked' | 'indeterminate' | 'disabled'>): string {
   return clsx(
-    'w-5 h-5 rounded border border-green-90 border-2 flex items-center justify-center transition-colors duration-200 peer',
+    'w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 peer shadow-2xs',
     {
-      'border-gray-30 bg-gray-10 cursor-not-allowed': disabled,
-      'border-green-90 bg-green-90': (checked || indeterminate) && !disabled,
-      'border-green-90 bg-white-100 hover:border-green-90 hover:bg-green-10 focus:ring-2 focus:ring-offset-2 focus:ring-green-60': !checked && !indeterminate && !disabled,
+      'border-gray-20 bg-gray-10 cursor-not-allowed shadow-none': disabled,
+      'border-green-80 bg-green-80 text-white-100': (checked || indeterminate) && !disabled,
+      'border-gray-40 bg-white-100 hover:border-green-80 hover:bg-green-10/20 focus:ring-2 focus:ring-offset-2 focus:ring-green-60/30': !checked && !indeterminate && !disabled,
     }
   )
 }
 
-export const indicatorClass = 'w-3 h-0.5 rounded-sm bg-current'
-export const checkmarkClass = 'fill-white text-white'
-export const labelTextBase = 'text-b3 text-green-90 select-none'
-export const labelTextDisabled = 'text-green-90'
+export const indicatorClass = 'w-3 h-0.5 rounded-full bg-current'
+export const checkmarkClass = 'fill-white-100 text-white-100'
+export const labelTextBase = 'text-b3 font-medium text-gray-90 select-none tracking-wide'
+export const labelTextDisabled = 'text-gray-40 select-none'

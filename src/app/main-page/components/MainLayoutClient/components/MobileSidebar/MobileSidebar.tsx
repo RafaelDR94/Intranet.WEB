@@ -19,7 +19,7 @@ import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';
 import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
 import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
 import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
-import LogoGc from '@/assets/images/LogosCG/LogoGC.jpeg';
+import LogoGc from '@/assets/images/LogosCG/LogoGC.png';
 import ConfigurationLogo from '@/assets/icons/System/System/settings.svg';
 
 
@@ -58,18 +58,17 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
         role="dialog"
         aria-modal="true"
         aria-label="Menú principal"
-        className={`fixed inset-0 h-dvh w-screen bg-[#04283A] text-white shadow-xl
+        className={`fixed inset-0 h-dvh w-screen bg-[#071927] text-white shadow-2xl backdrop-blur-2xl
               transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}
               flex flex-col overflow-y-auto pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3">
-          <Image src={LogoGc} alt="Grupo Cantabria Logo" width={110} height={110} priority />
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+          <Image src={LogoGc} alt="Grupo Cantabria Logo" width={120} height={120} priority className="object-contain filter drop-shadow" />
           <button
-
             data-testid="mobile-closesidebar"
             onClick={onClose}
-            className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
+            className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all duration-150 active:scale-95"
             aria-label="Cerrar menú"
             type="button"
           >
@@ -80,7 +79,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
         </div>
 
         {/* Navegación */}
-        <nav className="px-2 overflow-y-auto flex-1" data-tour="sidebar-nav">
+        <nav className="px-3 py-4 overflow-y-auto flex-1 space-y-1.5" data-tour="sidebar-nav">
           {routes
             .filter(r => (!r.subroutes ? validPermissionsbyroute(r.path) : r.subroutes!.some(s => validPermissionsbyroute(s.path))))
             .map(route => {
@@ -96,29 +95,33 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                     key={route.path}
                     href={route.path}
                     onClick={onClose}
-                    className={`flex items-center gap-3 px-3 h-11 rounded-md mb-1 ${active ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                    className={`flex items-center gap-3 px-3.5 h-11 rounded-xl transition-all duration-200 ${active
+                        ? 'bg-gradient-to-r from-blue-500/25 to-blue-600/10 text-white font-bold border-l-4 border-blue-400 shadow-sm'
+                        : 'text-white/70 hover:text-white hover:bg-white/10 font-semibold'
+                      }`}
                   >
-                    <Icon />
-                    <span className="text-[15px] font-medium">{route.label}</span>
+                    <Icon className="w-5 h-5" />
+                    <span className="text-[15px]">{route.label}</span>
                   </Link>
                 );
               }
 
               return (
-                <div key={route.path} className="mb-1"    data-testid={`mobile:${route.path}`}>
+                <div key={route.path} className="mb-1" data-testid={`mobile:${route.path}`}>
                   <button
                     onClick={() => setExpanded(open ? null : route.path)}
-                    className="w-full flex items-center justify-between px-3 h-11 rounded-md hover:bg-white/5"
+                    className={`w-full flex items-center justify-between px-3.5 h-11 rounded-xl transition-all duration-200 ${open ? 'bg-white/10 text-white font-bold' : 'text-white/70 hover:text-white hover:bg-white/5 font-semibold'
+                      }`}
                     aria-expanded={open}
                     type="button"
                   >
                     <span className="flex items-center gap-3">
-                      <Icon />
-                      <span className="text-[15px] font-semibold">{route.label}</span>
+                      <Icon className="w-5 h-5" />
+                      <span className="text-[15px]">{route.label}</span>
                     </span>
-                    {open ? <ArrowDownIcon aria-hidden /> : <ArrowRightIcon aria-hidden />}
+                    {open ? <ArrowDownIcon aria-hidden className="w-4 h-4 text-white/60" /> : <ArrowRightIcon aria-hidden className="w-4 h-4 text-white/60" />}
                   </button>
-                  <div className={`${open ? 'block' : 'hidden'} pl-7`}>
+                  <div className={`${open ? 'block' : 'hidden'} pl-4 ml-2 border-l border-white/10 mt-1 space-y-1`}>
                     {route.subroutes!
                       .filter(s => validPermissionsbyroute(s.path))
                       .map(s => {
@@ -129,9 +132,12 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                             key={s.path}
                             href={s.path}
                             onClick={onClose}
-                            className={`flex items-center gap-2 px-3 h-10 rounded-md mb-1 ${active ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                            className={`flex items-center gap-2.5 px-3 h-10 rounded-lg text-b3 transition-all duration-150 ${active
+                                ? 'bg-blue-500/20 text-blue-300 font-bold border-l-2 border-blue-400'
+                                : 'text-white/70 hover:text-white hover:bg-white/10 font-medium'
+                              }`}
                           >
-                            <SubArrowIcon aria-hidden />
+                            <SubArrowIcon aria-hidden className="w-3.5 h-3.5 opacity-60" />
                             <span className="text-[14px]">{s.label}</span>
                           </Link>
                         );
@@ -143,17 +149,18 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
         </nav>
 
         {/* Footer */}
-        <div className="px-4 py-4 border-t border-white/10">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
+        <div className="px-4 py-4 border-t border-white/10 flex flex-col gap-3">
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 shadow-sm backdrop-blur-md">
+            <div className="flex items-center gap-3 min-w-0">
               <PersonalAvatar size="xs" dataTestId="avatar-mobile" />
-              <div>
-                <p className="text-sm font-medium truncate max-w-[140px]">{userFullName ?? ''}</p>
+              <div className="min-w-0">
+                <p className="text-sm font-bold truncate max-w-[130px]">{userFullName ?? ''}</p>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-blue-300/80">Online</span>
               </div>
             </div>
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <WifiIcon aria-hidden />
+            <div className="flex flex-col gap-1.5 pl-2 border-l border-white/10">
+              <div className="flex items-center gap-1.5" title="Modo Offline">
+                <WifiIcon aria-hidden className="w-4 h-4 text-white/70" />
                 <ToggleButton
                   checked={!offlineMode}
                   onChange={(checked) => onToggleOffline(!checked)}
@@ -161,8 +168,8 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                   dataTour="offline-toggle"
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <ThemeIcon aria-hidden />
+              <div className="flex items-center gap-1.5" title="Tema Claro / Oscuro">
+                <ThemeIcon aria-hidden className="w-4 h-4 text-white/70" />
                 <ToggleButton
                   checked={theme === 'dark'}
                   onChange={toggleTheme}
@@ -174,24 +181,24 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
             </div>
           </div>
 
-          <div className="mt-4 space-y-2">
+          <div className="space-y-1">
             <Link
               href="/main-page/configuration"
               onClick={onClose}
-              className="flex items-center gap-2 h-10 px-2 rounded hover:bg-white/5"
+              className="flex items-center gap-2.5 h-10 px-3 rounded-xl text-b3 font-medium text-white/70 hover:text-white hover:bg-white/10 transition-colors"
               data-tour="configuration-button"
             >
-              <ConfigurationLogo /> <span>Configuración</span>
+              <ConfigurationLogo className="w-4 h-4 opacity-80" /> <span>Configuración</span>
             </Link>
             <Link
               href="https://drsecurity.atlassian.net/servicedesk/customer/portals"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 h-10 px-2 rounded hover:bg-white/5"
+              className="flex items-center gap-2.5 h-10 px-3 rounded-xl text-b3 font-medium text-white/70 hover:text-white hover:bg-white/10 transition-colors"
               data-testid="help-link"
               data-tour="sidebar-help-link"
             >
-              <HelpIcon /> <span>Ayuda</span>
+              <HelpIcon className="w-4 h-4 opacity-80" /> <span>Ayuda</span>
             </Link>
             <button
               data-testid="sidebar-mobile-logout"
@@ -199,11 +206,11 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                 await logout();
                 window.location.href = '/';
               }}
-              className="flex items-center gap-2 h-10 px-2 rounded hover:bg-white/5 w-full text-left"
+              className="flex items-center gap-2.5 h-10 px-3 rounded-xl text-b3 font-medium text-white/70 hover:text-white hover:bg-rose-500/20 hover:text-rose-300 w-full text-left transition-colors"
               type="button"
               data-tour="logout-button"
             >
-              <LogoutIcon /> <span>Cerrar Sesión</span>
+              <LogoutIcon className="w-4 h-4 opacity-80" /> <span>Cerrar Sesión</span>
             </button>
           </div>
         </div>

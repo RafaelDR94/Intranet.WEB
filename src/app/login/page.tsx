@@ -17,27 +17,27 @@ const mfaViewStyles = {
   wrapper: "mx-auto flex w-full max-w-[382px] flex-col gap-6",
   introText: "text-sm leading-6 text-white/80",
   methods: "space-y-4",
-  methodsLabel: "text-xs font-medium leading-4 text-white/70",
+  methodsLabel: "text-xs font-medium leading-4 text-white/80",
   optionButton:
     "flex w-full items-start gap-4 rounded-[20px] border px-5 py-6 text-left transition",
-  optionSelected: "border-white bg-[#163c4b]",
+  optionSelected: "border-white bg-white-100/15",
   optionIdle: "border-white/35 bg-transparent hover:border-white/70",
   optionDisabled: "cursor-not-allowed opacity-60",
   radioOuter:
     "mt-1 flex size-8 shrink-0 items-center justify-center rounded-full border-2",
   radioOuterSelected:
-    "border-[#2a8c97] bg-[rgba(42,140,151,0.08)] shadow-[0_0_0_1px_rgba(42,140,151,0.15)]",
-  radioOuterIdle: "border-[#2a8c97]",
-  radioInner: "size-4 rounded-full bg-[#2a8c97] transition",
+    "border-[#58becc] bg-[rgba(88,190,204,0.1)] shadow-[0_0_0_1px_rgba(88,190,204,0.2)]",
+  radioOuterIdle: "border-[#58becc]",
+  radioInner: "size-4 rounded-full bg-[#58becc] transition",
   iconWrap:
     "mt-0.5 flex size-10 shrink-0 items-center justify-center overflow-visible text-white",
   icon: "size-8 shrink-0 overflow-visible",
   optionContent: "flex min-w-0 flex-col gap-1",
   optionTitle:
     "text-[15px] font-medium leading-5 text-white sm:text-base sm:leading-6",
-  optionDescription: "text-sm leading-5 text-[#8ac6e6]",
+  optionDescription: "text-sm leading-5 text-[#58becc]",
   submitButton:
-    "mt-2 flex h-12 w-full items-center justify-center rounded-xl bg-[#59c2b8] px-5 text-[16px] font-semibold leading-[29px] text-white transition hover:bg-[#67cfc5] disabled:cursor-not-allowed disabled:bg-[#295f68]",
+    "mt-2 flex h-12 w-full items-center justify-center rounded-xl bg-green-80 px-5 text-[16px] font-semibold leading-[29px] text-white-100 transition hover:bg-green-70 disabled:cursor-not-allowed disabled:bg-gray-40/40",
   linkWrap: "flex justify-center pt-2",
 } as const;
 
@@ -76,12 +76,12 @@ const LoginPage = () => {
       header={
         <div className={loginStyles.header}>
           <h1 className={loginStyles.title}>
-            {isMfaStep ? "Código de verificación" : "Bienvenido de vuelta"}
+            {isMfaStep ? "Código de verificación" : "Portal Corporativo"}
           </h1>
           <p className={loginStyles.subtitle}>
             {isMfaStep
               ? "Te enviaremos un código de verificación"
-              : "Ingresa a la intranet"}
+              : "Accede a tu espacio de trabajo en Grupo Cantabria"}
           </p>
         </div>
       }
@@ -268,6 +268,7 @@ const LoginPage = () => {
               submitLabel="Iniciar sesión"
               loading={isLoading}
               dataTestId="login"
+              plain
             >
               <div className={loginStyles.rememberContainer}>
                 <Checkbox

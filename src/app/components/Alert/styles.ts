@@ -2,7 +2,7 @@ import clsx from 'clsx'
 
 import { AlertType, AlertVariant } from './types'
 
-const baseContainer = 'rounded-lg p-4 flex flex-col gap-3 shadow-sm w-[300px] md:w-[400px]'
+const baseContainer = 'rounded-2xl p-4.5 flex flex-col gap-3 shadow-md border border-gray-20/60 w-full transition-all'
 const headerLayout = 'flex items-start gap-3'
 const iconContainer = 'w-5 h-5 shrink-0'
 const textContainer = 'flex-1'
@@ -15,38 +15,38 @@ type StyleMap = Record<AlertType, Record<AlertVariant, string>>
 export const bgColorMap: StyleMap = {
   default: {
     filled: 'bg-blue-90 text-white-100',
-    subtle: 'bg-turquoise-20 border border-turquoise-100',
+    subtle: 'bg-turquoise-10 border border-turquoise-80 text-black-100',
   },
   success: {
     filled: 'bg-alert-green-100 text-white-100',
-    subtle: 'bg-alert-green-10 text-blue-100 border border-alert-green-100',
+    subtle: 'bg-alert-green-10 border border-alert-green-100 text-black-100',
   },
   info: {
     filled: 'bg-alert-blue-100 text-white-100',
-    subtle: 'bg-blue-10 text-blue-100 border border-alert-blue-100',
+    subtle: 'bg-alert-blue-10 border border-alert-blue-100 text-black-100',
   },
   warning: {
     filled: 'bg-alert-yellow-100 text-white-100',
-    subtle: 'bg-alert-yellow-10 text-blue-100 border border-alert-yellow-100',
+    subtle: 'bg-alert-yellow-10 border border-alert-yellow-100 text-black-100',
   },
   error: {
     filled: 'bg-alert-red-100 text-white-100',
-    subtle: 'bg-alert-red-10 text-blue-100 border border-alert-red-100',
+    subtle: 'bg-alert-red-10 border border-alert-red-100 text-black-100',
   },
   notification: {
     filled: 'bg-alert-blue-100 text-white-100',
-    subtle: 'bg-blue-10 text-blue-100 border border-alert-blue-100',
+    subtle: 'bg-alert-blue-10 border border-alert-blue-100 text-black-100',
   },
 }
 
 export const iconColorMap: StyleMap = {
   default: {
     filled: 'text-white-100',
-    subtle: 'text-turquoise-100',
+    subtle: 'text-turquoise-80',
   },
   success: {
     filled: 'text-white-100',
-    subtle: 'text-alert-green-100',
+    subtle: 'text-green-80',
   },
   info: {
     filled: 'text-white-100',
@@ -66,31 +66,57 @@ export const iconColorMap: StyleMap = {
   },
 }
 
-export const titleColorMap: StyleMap = iconColorMap
+export const titleColorMap: StyleMap = {
+  default: {
+    filled: 'text-white-100',
+    subtle: 'text-turquoise-90',
+  },
+  success: {
+    filled: 'text-white-100',
+    subtle: 'text-green-90',
+  },
+  info: {
+    filled: 'text-white-100',
+    subtle: 'text-blue-90',
+  },
+  warning: {
+    filled: 'text-white-100',
+    subtle: 'text-black-100',
+  },
+  error: {
+    filled: 'text-white-100',
+    subtle: 'text-black-100',
+  },
+  notification: {
+    filled: 'text-white-100',
+    subtle: 'text-blue-90',
+  },
+}
+
 export const textColorMap: StyleMap = {
   default: {
     filled: 'text-white-80',
-    subtle: 'text-turquoise-100',
+    subtle: 'text-black-100',
   },
   success: {
     filled: 'text-white-80',
-    subtle: 'text-alert-green-100',
+    subtle: 'text-black-100',
   },
   info: {
     filled: 'text-white-80',
-    subtle: 'text-alert-blue-100',
+    subtle: 'text-black-100',
   },
   warning: {
     filled: 'text-white-80',
-    subtle: 'text-alert-yellow-100',
+    subtle: 'text-black-100',
   },
   error: {
     filled: 'text-white-80',
-    subtle: 'text-alert-red-100',
+    subtle: 'text-black-100',
   },
   notification: {
     filled: 'text-white-80',
-    subtle: 'text-alert-blue-100',
+    subtle: 'text-black-100',
   },
 }
 

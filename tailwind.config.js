@@ -17,7 +17,10 @@ module.exports = {
         800: "0px 12px 24px rgba(0, 0, 0, 0.18)",
       },
       borderRadius: {
-        lg: "0.75rem", // p.e. radio de los botones grandes
+        "3xl": "1.5rem",
+        "2xl": "1rem",
+        xl: "0.75rem",
+        lg: "0.625rem",
         md: "0.5rem",
         sm: "0.375rem",
         xs: "0.25rem",
@@ -35,12 +38,21 @@ module.exports = {
         "btn-xs-y": "0.25rem",
       },
       fontFamily: {
-        sans: ["var(--font-montserrat)", "sans-serif"],
-        display: [
-          "var(--font-nulshock)",
+        sans: [
+          "var(--font-plus-jakarta)",
           "var(--font-montserrat)",
           "sans-serif",
         ],
+        display: [
+          "var(--font-nulshock)",
+          "var(--font-plus-jakarta)",
+          "var(--font-montserrat)",
+          "sans-serif",
+        ],
+        outfit: [
+          "var(--font-outfit)",
+          "sans-serif",
+        ]
       },
       fontWeight: {
         regular: 400,

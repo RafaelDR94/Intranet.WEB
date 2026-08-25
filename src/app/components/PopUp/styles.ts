@@ -1,10 +1,10 @@
 export const popUpStyles = {
   backdrop:
-    "fixed inset-0 bg-black-20/40 bg-opacity-100 z-[30000] flex items-center justify-center",
+    "fixed inset-0 bg-black-100/50 backdrop-blur-sm z-[30000] flex items-center justify-center p-4 transition-all duration-200",
   container:
-    "flex w-[350px] p-5 flex-col rounded-[12px] border border-gray-30 bg-gray-10",
-  closeButton: "flex flex-row-reverse",
-  title: "text-green-100 text-center font-semibold text-s2 leading-7",
-  content: "text-gray-70 text-center font-regular text-b1 mt-2 mb-5",
-  buttonWrapper: "mt-4 flex justify-evenly",
+    "flex w-full max-w-[400px] p-6 flex-col rounded-2xl border border-gray-20 bg-white-100 shadow-2xl transition-all",
+  closeButton: "flex flex-row-reverse mb-1",
+  title: "text-gray-90 text-center font-bold text-s1 leading-7 tracking-tight",
+  content: "text-gray-70 text-center font-normal text-b3 mt-2 mb-6 leading-relaxed",
+  buttonWrapper: "mt-2 flex items-center justify-center gap-3 w-full",
 };

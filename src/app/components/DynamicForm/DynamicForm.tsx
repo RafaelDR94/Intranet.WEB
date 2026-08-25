@@ -130,6 +130,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   marginButton,
   formClassName,
   rowClassName,
+  containerClassName,
+  plain = false,
 }) => {
   const { initialValues, validationSchema, cleanValues, resolveVariant } =
     useDynamicForm(fields, valuesVersion, valuesVersionActive);
@@ -157,7 +159,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   }, [layoutMatrix, responsiveLayoutMatrix, current]);
 
   return (
-    <div className={dynamicFormStyles.container} data-testid={dataTestId}>
+    <div
+      className={clsx(
+        plain ? dynamicFormStyles.containerPlain : dynamicFormStyles.container,
+        containerClassName
+      )}
+      data-testid={dataTestId}
+    >
       {title && <h2 className={dynamicFormStyles.heading}>{title}</h2>}
       {loadingFormInfo && (
         <div className={dynamicFormStyles.loadingInfo}>
@@ -295,7 +303,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
               {children}
 
-              <div className={dynamicFormStyles.actions}>
+              <div className={plain ? dynamicFormStyles.actionsPlain : dynamicFormStyles.actions}>
                 {showSecondaryButtonIf?.(values) && onSecondaryButtonClick && (
                   <Button
                     variant="outline"

@@ -3,7 +3,8 @@
 @import "driver.js/dist/driver.css";
 
 :root {
-  --font-montserrat: 'Montserrat', sans-serif;
+  --font-plus-jakarta: 'Plus Jakarta Sans', sans-serif;
+  --font-montserrat: 'Plus Jakarta Sans', 'Montserrat', sans-serif;
   --font-nulshock: 'Nulshock', sans-serif;
 }
 
@@ -70,38 +71,38 @@ body {
   --color-white-20:  #FFFFFF;
   --color-white-10:  #FFFFFF;
 
-  --color-blue-100: #0A1F2E;
-  --color-blue-90:  #0F2E44;
-  --color-blue-80:  #163F5C;
-  --color-blue-70:  #1E5478;
-  --color-blue-60:  #2C6E97;
-  --color-blue-50:  #3E86B0;
-  --color-blue-40:  #6BA6C6;
-  --color-blue-30:  #97C1D9;
-  --color-blue-20:  #BBD7E7;
-  --color-blue-10:  #DCEBF3;
+  --color-blue-100: #041826;
+  --color-blue-90:  #06263D;
+  --color-blue-80:  #0A3A5C;
+  --color-blue-70:  #0F5486;
+  --color-blue-60:  #1372B0;
+  --color-blue-50:  #1893D6;
+  --color-blue-40:  #33ACEB;
+  --color-blue-30:  #6EC5F1;
+  --color-blue-20:  #A6DCF6;
+  --color-blue-10:  #D6EFFB;
 
-  --color-green-100: #13363B;
-  --color-green-90:  #1B4E54;
-  --color-green-80:  #23666D;
-  --color-green-70:  #2C7F87;
-  --color-green-60:  #3897A0;
-  --color-green-50:  #4BAAB2;
-  --color-green-40:  #6FBFC5;
-  --color-green-30:  #98D3D7;
-  --color-green-20:  #BEE4E6;
-  --color-green-10:  #DFF3F4;
+  --color-green-100: #052B2E;
+  --color-green-90:  #08403F;
+  --color-green-80:  #0C5C56;
+  --color-green-70:  #0F7A6E;
+  --color-green-60:  #139A85;
+  --color-green-50:  #1FBC9C;
+  --color-green-40:  #4CD3B4;
+  --color-green-30:  #82E2CC;
+  --color-green-20:  #B3EFE0;
+  --color-green-10:  #DFF9F1;
 
-  --color-turquoise-100: #1C6E7E;
-  --color-turquoise-90:  #248293;
-  --color-turquoise-80:  #2E97A8;
-  --color-turquoise-70:  #3EACBC;
-  --color-turquoise-60:  #58BECC;
-  --color-turquoise-50:  #7BCEDA;
-  --color-turquoise-40:  #9CDBE4;
-  --color-turquoise-30:  #BAE6ED;
-  --color-turquoise-20:  #D2F0F4;
-  --color-turquoise-10:  #E9F8FA;
+  --color-turquoise-100: #024959;
+  --color-turquoise-90:  #036277;
+  --color-turquoise-80:  #047C94;
+  --color-turquoise-70:  #0599B5;
+  --color-turquoise-60:  #17B8D4;
+  --color-turquoise-50:  #3ED0E8;
+  --color-turquoise-40:  #6EDEF0;
+  --color-turquoise-30:  #9BEAF6;
+  --color-turquoise-20:  #C4F3FA;
+  --color-turquoise-10:  #E6FBFD;
 
   --color-gray-100: #444545;
   --color-gray-90:  #555555;
@@ -169,38 +170,38 @@ body {
   --color-black-20:  #FFFFFF;
   --color-black-10:  #FFFFFF;
 
-  --color-blue-100: #0A1F2E;
-  --color-blue-90:  #0F2E44;
-  --color-blue-80:  #3E86B0;
-  --color-blue-70:  #4E93BB;
-  --color-blue-60:  #427FA8;
-  --color-blue-50:  #366C93;
-  --color-blue-40:  #2C5B7D;
-  --color-blue-30:  #234A68;
-  --color-blue-20:  #1A3852;
-  --color-blue-10:  #132A3D;
+  --color-blue-100: #041826;
+  --color-blue-90:  #06263D;
+  --color-blue-80:  #1893D6;
+  --color-blue-70:  #33ACEB;
+  --color-blue-60:  #1C99D8;
+  --color-blue-50:  #157FB8;
+  --color-blue-40:  #106797;
+  --color-blue-30:  #0C5079;
+  --color-blue-20:  #093B5A;
+  --color-blue-10:  #062940;
 
-  --color-green-100: #9FCED2;
-  --color-green-90:  #6FBFC5;
-  --color-green-80:  #4BAAB2;
-  --color-green-70:  #3897A0;
-  --color-green-60:  #2C7F87;
-  --color-green-50:  #23666D;
-  --color-green-40:  #1B4E54;
-  --color-green-30:  #163F44;
-  --color-green-20:  #13363B;
-  --color-green-10:  #0E282C;
+  --color-green-100: #A0EBD6;
+  --color-green-90:  #4CD3B4;
+  --color-green-80:  #1FBC9C;
+  --color-green-70:  #139A85;
+  --color-green-60:  #0F7A6E;
+  --color-green-50:  #0C5C56;
+  --color-green-40:  #08403F;
+  --color-green-30:  #073331;
+  --color-green-20:  #052B2E;
+  --color-green-10:  #04201F;
 
-  --color-turquoise-100: #9CDBE4;
-  --color-turquoise-90:  #7BCEDA;
-  --color-turquoise-80:  #58BECC;
-  --color-turquoise-70:  #3EACBC;
-  --color-turquoise-60:  #2E97A8;
-  --color-turquoise-50:  #248293;
-  --color-turquoise-40:  #1C6E7E;
-  --color-turquoise-30:  #175C6A;
-  --color-turquoise-20:  #124A55;
-  --color-turquoise-10:  #0D3941;
+  --color-turquoise-100: #A6ECF7;
+  --color-turquoise-90:  #6EDEF0;
+  --color-turquoise-80:  #3ED0E8;
+  --color-turquoise-70:  #17B8D4;
+  --color-turquoise-60:  #0599B5;
+  --color-turquoise-50:  #047C94;
+  --color-turquoise-40:  #036277;
+  --color-turquoise-30:  #024F60;
+  --color-turquoise-20:  #023C49;
+  --color-turquoise-10:  #012C36;
 
   --color-gray-100: #DCDCDC;
   --color-gray-90:  #C5C5C5;
@@ -247,7 +248,7 @@ body {
 body {
   background-color: var(--color-gray-10);
   color: var(--color-foreground);
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: var(--font-plus-jakarta), var(--font-montserrat), sans-serif;
   height: 100vh;
   /* overflow: hidden; */
 }

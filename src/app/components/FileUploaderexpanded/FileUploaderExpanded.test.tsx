@@ -49,7 +49,7 @@ describe('FileUploaderExpanded', () => {
     setup();
     const dropzone = screen.getByText(/Arrastra o selecciona/i).parentElement!;
     fireEvent.dragOver(dropzone);
-    expect(dropzone.className).toMatch(/bg-blue-10/);
+    expect(dropzone.className).toMatch(/bg-green-10/);
     fireEvent.dragLeave(dropzone);
     expect(dropzone.className).toMatch(/bg-white-100/);
   });

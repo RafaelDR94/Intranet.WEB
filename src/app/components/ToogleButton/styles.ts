@@ -1,23 +1,24 @@
 
 
 // Contenedor principal
-export const containerBase = 'flex items-center space-x-2 group'
+export const containerBase = 'flex items-center space-x-2.5 group select-none'
 export const containerReverse = 'flex-row-reverse space-x-reverse'
-export const containerDisabled = 'cursor-not-allowed'
+export const containerDisabled = 'cursor-not-allowed opacity-60'
 export const containerPointer = 'cursor-pointer'
 
 // Pista (track)
 export const trackBase =
-  'w-[28px] h-4 rounded-full transition-colors duration-300 relative'
+  'w-10 h-5.5 rounded-full transition-all duration-200 relative p-0.5 shadow-2xs flex items-center'
 export const trackDisabled = 'bg-gray-20'
-export const trackChecked = 'bg-green-90 group-hover:bg-green-60'
-export const trackUnchecked = 'bg-gray-20 group-hover:bg-gray-30'
+export const trackChecked = 'bg-green-80 group-hover:bg-green-90'
+export const trackUnchecked = 'bg-gray-30 group-hover:bg-gray-40'
 
 // Pulgar (thumb)
 export const thumbBase =
-  'absolute top-0.5 left-0.5 w-3 h-3 rounded-full shadow-md transition-transform duration-300 bg-white-100'
-export const thumbChecked = 'translate-x-[12px]'
+  'block w-4.5 h-4.5 rounded-full shadow-sm transition-transform duration-200 bg-white'
+export const thumbChecked = 'translate-x-4.5'
 export const thumbUnchecked = 'translate-x-0'
 
 // Etiqueta
-export const labelBase = 'text-green-90'
+export const labelBase = 'text-b3 font-medium text-gray-90 tracking-wide'
+

@@ -18,9 +18,9 @@ const recoverPasswordIntroStyles = {
   panel: "mx-auto flex w-full max-w-[382px] flex-col gap-6",
   introText: "text-sm leading-6 text-white/80",
   submitSpacing:
-    "[&_button[type='submit']]:mt-1 [&_button[type='submit']]:bg-[#295b6b] [&_button[type='submit']]:hover:bg-[#2f6879]",
+    "[&_button[type='submit']]:mt-1 [&_button[type='submit']]:bg-green-80 [&_button[type='submit']]:text-white-100 [&_button[type='submit']]:hover:bg-green-70",
   backLink:
-    "inline-flex items-center justify-center gap-2 self-center px-3 py-2 text-[12px] font-medium leading-4 text-[#66f3ec] transition hover:text-[#8cf7f1]",
+    "inline-flex items-center justify-center gap-2 self-center px-3 py-2 text-[12px] font-medium leading-4 text-[#58becc] transition hover:text-[#88d6e2]",
   backIcon: "size-4 shrink-0 text-inherit",
 } as const;
 
@@ -47,7 +47,7 @@ const RecoverPasswordPage = () => {
         value: email,
         validations: [{ type: "required" }, { type: "email" }],
         className:
-          "h-12 rounded-xl border-[1.5px] border-gray-40 bg-transparent px-3 py-3 text-sm leading-5 text-white placeholder:text-white/40 hover:border-white/80 focus:border-green-40 focus:bg-transparent",
+          "h-12 rounded-xl border-[1.5px] border-gray-40 bg-white-100/10 px-3 py-3 text-sm leading-5 text-white placeholder:text-white/50 hover:border-white/80 focus:border-green-40 focus:bg-white-100/15",
       },
     ],
     [email],
@@ -105,9 +105,9 @@ const RecoverPasswordPage = () => {
     <AuthSplitLayout
       header={
         <div className={loginStyles.header}>
-          <h1 className={loginStyles.title}>Recuperar contraseña</h1>
+          <h1 className={loginStyles.title}>¿Olvidaste tu contraseña?</h1>
           <p className={loginStyles.subtitle}>
-            Te enviaremos un código de verificación
+            Recupera tu acceso al Portal Corporativo
           </p>
         </div>
       }
@@ -129,6 +129,7 @@ const RecoverPasswordPage = () => {
             dataTestId="recover-password-intro"
             valuesVersion={email ? 1 : 0}
             valuesVersionActive
+            plain
           >
             {submitError && (
               <Alert

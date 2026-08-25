@@ -5,9 +5,9 @@ export const recoverNewPasswordStyles = {
   inputGroup: "flex flex-col gap-2",
   inputLabel: "text-[12px] font-medium leading-4 text-white/80",
   inputShell:
-    "flex h-12 items-center gap-3 rounded-xl border-[1.5px] border-[#afafaf] bg-transparent px-3 text-white transition focus-within:border-white/90",
+    "flex h-12 items-center gap-3 rounded-xl border-[1.5px] border-gray-40 bg-white-100/10 px-3 text-white transition focus-within:border-white/90",
   input:
-    "h-full flex-1 bg-transparent text-[14px] leading-5 text-white placeholder:text-[#767676] outline-none",
+    "h-full flex-1 bg-transparent text-[14px] leading-5 text-white placeholder:text-white/50 outline-none",
   inputToggle:
     "inline-flex size-6 items-center justify-center text-white/65 transition hover:text-white",
   requirements:
@@ -24,9 +24,9 @@ export const recoverNewPasswordStyles = {
   requirementValidIcon: "text-[#71f58e]",
   requirementInvalidIcon: "text-[#ff6363]",
   submitButton:
-    "flex h-12 w-full items-center justify-center rounded-xl px-5 text-[16px] font-semibold leading-[29px] text-white transition disabled:cursor-not-allowed",
-  submitEnabled: "bg-[#33959f] hover:bg-[#3ba5b0]",
-  submitDisabled: "bg-[#1b4653]",
+    "flex h-12 w-full items-center justify-center rounded-xl px-5 text-[16px] font-semibold leading-[29px] text-white-100 transition disabled:cursor-not-allowed",
+  submitEnabled: "bg-green-80 hover:bg-green-70",
+  submitDisabled: "bg-gray-40/30 text-white/40",
   successPanel:
     "mx-auto flex w-full max-w-[446px] flex-col items-center gap-5 rounded-[14px] px-4 py-5 text-center shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)] sm:gap-[23px] sm:px-6 sm:py-6",
   successIconWrap:

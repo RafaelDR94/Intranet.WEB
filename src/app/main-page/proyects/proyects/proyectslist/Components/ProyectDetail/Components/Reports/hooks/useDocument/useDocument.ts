@@ -17,7 +17,7 @@ import { getUsablePageHeight } from "@/app/utilities/PDF/layout";
 import { Table, SingleElement, DataChartElement, ImageElement, newDocument } from "@/app/utilities/PDF/types";
 import { urlToBase64 } from "@/app/utilities/PicturesHelper/PictureHelper";
 import { resolveImageWithFallback } from "@/app/utilities/PicturesHelper/recoverRemoteImage";
-import Logo from "@/assets/images/LogosCG/LogoGC.jpeg";
+import Logo from "@/assets/images/LogosCG/LogoGC.png";
 
 const sanitizeText = (value: unknown, fallback = "No disponible") => {
     if (value === null || value === undefined) return fallback;
