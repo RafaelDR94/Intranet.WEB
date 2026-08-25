@@ -29,4 +29,6 @@ export type FilterProps = {
   onChange?: (value: string) => void;
   /** Independent, mutually exclusive sections in the same menu. */
   groups?: FilterGroup[];
+  /** Aligns the menu to the right edge of the trigger (expands left). Defaults to false for Filter. */
+  alignRight?: boolean;
 };

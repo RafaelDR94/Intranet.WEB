@@ -17,6 +17,7 @@ const Filter: React.FC<FilterProps> = ({
   defaultValue = null,
   onChange,
   groups,
+  alignRight = false,
 }) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const isControlled = selectedValue !== undefined;
@@ -110,6 +111,7 @@ const Filter: React.FC<FilterProps> = ({
         isOpen={menuOpen}
         setIsOpen={setMenuOpen}
         autoFlip={false}
+        alignRight={alignRight}
       />
     </div>
   );
