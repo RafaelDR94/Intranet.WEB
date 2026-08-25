@@ -8,7 +8,7 @@ import { usePrincipal } from "@/app/context/PrincipalContext/PrincipalContext";
 import type { FieldModel, ResponsiveLayoutMatrix } from "@/app/components/DynamicForm/types";
 import useAccessRequestStore from "@/app/stores/useAccesRequestStore/useAccesRequestStore";
 import type { Tools } from "@/app/mappings/accesrequest/accesrequest.types";
-import DRLogo from "@/assets/images/LogosDR/DRLogoOficial.png";
+import DRLogo from "@/assets/images/LogosCG/LogoGC.jpeg";
 import type { StaticImageData } from "next/image";
 
 const TOOL_KEYS: Array<keyof Tools> = [

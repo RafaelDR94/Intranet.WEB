@@ -18,7 +18,7 @@ import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';
 import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
 import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
 import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
-import LogoDr from '@/assets/images/LogosDR/DReDIT.png';
+import LogoGc from '@/assets/images/LogosCG/LogoGC.jpeg';
 import ConfigurationLogo from '@/assets/icons/System/System/settings.svg'
 import { useRouter } from 'next/navigation';
 
@@ -39,7 +39,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
   return (
     <aside className={sidebar} data-testid="sidebar">
       <div className={logoContainer}>
-        <Image src={LogoDr} alt="DR Security Logo" width={150} height={150} />
+        <Image src={LogoGc} alt="Grupo Cantabria Logo" width={150} height={150} />
       </div>
       <nav className={nav} data-testid="sidebar-nav" data-tour="sidebar-nav">
         {routes

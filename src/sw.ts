@@ -168,8 +168,8 @@ messaging.onBackgroundMessage((payload: any) => {
 
   const options = {
     body: notification.body ?? 'Tienes una nueva notificaci??n',
-    icon:  '/images/DR_Logo.svg', // ??? tu ??cono personalizado
-    badge: '/images/DR_Logo.svg',                             // opcional: ??cono peque??o
+    icon:  '/images/GC_Logo.jpeg', // ??? tu ??cono personalizado
+    badge: '/images/GC_Logo.jpeg',                             // opcional: ??cono peque??o
     image: notification.image ?? undefined,                     // opcional: imagen visible
     data: {
       url: payload?.data?.event_url ?? payload?.data?.click_action ?? '/', // para redirigir al hacer clic

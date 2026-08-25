@@ -1,7 +1,7 @@
 {
-  "name": "Intranet DR",
-  "short_name": "Intranet DR",
-  "description": "Esta es la intranet de DR",
+  "name": "Intranet GC",
+  "short_name": "Intranet GC",
+  "description": "Esta es la intranet de Grupo Cantabria",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

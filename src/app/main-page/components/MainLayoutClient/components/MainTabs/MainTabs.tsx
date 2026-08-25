@@ -18,7 +18,7 @@ import TutorialCenterModal from "@/components/help/TutorialCenterModal";
 import MenuIcon from "@/assets/icons/acciones/menu.svg";
 import Bell from "@/assets/icons/Comunicacion/bell.svg";
 import BellNotification from "@/assets/icons/Comunicacion/bell-notification.svg";
-import LogoDr from "@/assets/images/LogosDR/DReDIT.png";
+import LogoGc from "@/assets/images/LogosCG/LogoGC.jpeg";
 
 /**
  * Top navigation tabs for MainLayout. Highlights active tab based on current path and `id` query.
@@ -235,7 +235,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({
   const MobileTopbar = (
     <div className="lg:hidden sticky top-0 z-[45] h-[78px] bg-[#04283A] text-white flex items-center justify-between px-4">
       <div>
-        <Image src={LogoDr} alt="DR Security TopBar" width={90} height={55} />
+        <Image src={LogoGc} alt="Grupo Cantabria TopBar" width={90} height={55} />
       </div>
       <div className="flex items-center">
         <div className="mr-3">{isMobile ? MobileHeaderActions : null}</div>

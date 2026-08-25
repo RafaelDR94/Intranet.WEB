@@ -7,7 +7,7 @@ import GeneralErrorBundary from './components/GeneralErrorBundary/GeneralErrorBu
 import IntranetGatewayInit from './components/IntranetGatewayInit/IntranetGatewatInit'
 import ServiceWorkerRegister from './components/ServiceWorkerRegister/ServiceWorkerRegister'
 import { AuthProvider } from './context/AuthContext/AuthContext'
-import { FirebaseProvider } from './context/FirebaseContext/FirebaseContext'
+import FirebaseProviderClient from './context/FirebaseContext/FirebaseProviderClient'
 import { PrincipalProvider } from './context/PrincipalContext/PrincipalContext'
 import ThemeInitializer from './context/PrincipalContext/utilities/ThemeInitializer'
 
@@ -24,8 +24,8 @@ const nulshock = localFont({
 
 /** iOS + PWA via Metadata API */
 export const metadata: Metadata = {
-  title: 'Intranet DR',
-  description: 'Esta es la intranet de DR',
+  title: 'Intranet GC',
+  description: 'Esta es la intranet de Grupo Cantabria',
   manifest: '/manifest.webmanifest',
   icons: {
     // Usa solo lo que SÍ tienes en /public/icons
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Intranet DR',
+    title: 'Intranet GC',
   },
   other: {
     "mobile-web-app-capable": "yes",
@@ -90,14 +90,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <GeneralErrorBundary>
           <PrincipalProvider>
             <AuthProvider>
-              <FirebaseProvider>
+              <FirebaseProviderClient>
                 <ThemeInitializer />
                 <ServiceWorkerRegister />
                 <IntranetGatewayInit />
 
                 {children}
 
-              </FirebaseProvider>
+              </FirebaseProviderClient>
             </AuthProvider>
           </PrincipalProvider>
         </GeneralErrorBundary>

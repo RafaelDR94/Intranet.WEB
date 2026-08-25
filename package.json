@@ -22,9 +22,9 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "deploy:storybook": "npm run build-storybook && firebase deploy --only hosting:drintranettecnicdocumentation",
-    "deploy:app": "npm run build && firebase deploy --only hosting:intranetdr",
+    "deploy:app": "npm run build && ",
     "deploy:stagging": "npm run build && firebase deploy --only hosting:stagginsite",
-    "deploy:preview": "npm run build  && firebase hosting:channel:deploy localbranch --only intranetdr",
+    "deploy:preview": "npm run build  && firebase hosting:channel:deploy localbranch --only intranet-bd878",
     "deploy:e2e:report": "playwright test --reporter=html && firebase deploy --only hosting:intranetdr-testing"
   },
   "dependencies": {

@@ -10,7 +10,7 @@ import {
 } from "@/app/services/passkeys/deviceName";
 import { isPasskeySupported } from "@/app/services/passkeys/PasskeyService";
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
-import LogoDr from "@/assets/images/LogosDR/DReDIT.png";
+import LogoGc from "@/assets/images/LogosCG/LogoGC.jpeg";
 
 const PASSKEY_PROMPT_SESSION_KEY = "home-announcements-passkey-prompt-dismissed";
 
@@ -151,8 +151,8 @@ const Announcements = () => {
           <div className="flex flex-col items-center justify-center py-8 text-center md:py-0">
             <div className="relative mb-5 h-[92px] w-[160px] sm:h-[110px] sm:w-[190px] md:h-[128px] md:w-[220px]">
               <Image
-                src={LogoDr}
-                alt="DR Security"
+                src={LogoGc}
+                alt="Grupo Cantabria"
                 fill
                 className="object-contain"
                 priority

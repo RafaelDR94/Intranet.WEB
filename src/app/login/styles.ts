@@ -1,7 +1,7 @@
 export const loginStyles = {
   page: "flex min-h-screen flex-col bg-white md:flex-row",
   formContainer:
-    "relative flex min-h-screen w-full items-center justify-center bg-blue-100 px-4 py-8 text-white shadow-[6px_0px_7.5px_0_rgba(0,0,0,0.2),5px_2px_7.9px_0_rgba(0,0,0,0.15)] sm:px-6 sm:py-10 md:max-w-[524px] md:px-16 md:py-[120px]",
+    "relative flex w-full flex-1 items-center justify-center bg-blue-100 px-4 py-8 text-white shadow-[6px_0px_7.5px_0_rgba(0,0,0,0.2),5px_2px_7.9px_0_rgba(0,0,0,0.15)] sm:px-6 sm:py-10 md:min-h-screen md:max-w-[524px] md:px-16 md:py-[120px]",
   formWrapper: "mx-auto flex w-full max-w-[448px] flex-col gap-6 sm:gap-8",
   header: "flex flex-col gap-2 text-center",
   title:
@@ -58,6 +58,4 @@ export const loginStyles = {
   supportContainer:
     "mt-4 border-t border-white/70 pt-4 text-center text-[12px] font-medium leading-4 text-white",
   supportLink: "text-[#6cb6e0] transition-colors hover:text-[#93caea]",
-  logoContainer: "relative hidden flex-1 overflow-hidden bg-white md:block",
-  logo: "object-cover object-center",
 } as const;

@@ -6,7 +6,9 @@ import {
   User,
   getAuth,
   onAuthStateChanged,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- ver nota TEMPORAL más abajo, no eliminar
   signInWithCustomToken,
+  signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
 import { Database, getDatabase } from "firebase/database";
@@ -47,6 +49,7 @@ import Uselogs from "./hooks/uselogs";
 import { UseFirebasereturn } from "./types";
 
 import { useAuthStore } from "@/app/stores/useAuthStore/useAuthStore";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- ver nota TEMPORAL más abajo, no eliminar
 import { fetchFirebaseCustomToken } from "@/app/services/auth/FirebaseSessionService";
 
 export const FirebaseContext = createContext<UseFirebasereturn | undefined>(
@@ -313,8 +316,15 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
       setFirebaseSessionStatus("authenticating");
 
       try {
-        const customToken = await fetchFirebaseCustomToken(backendToken);
-        const credential = await signInWithCustomToken(auth, customToken);
+        // TEMPORAL: autenticación por email/contraseña en lugar de customToken.
+        // No eliminar el flujo de customToken; solo está desactivado temporalmente.
+        // const customToken = await fetchFirebaseCustomToken(backendToken);
+        // const credential = await signInWithCustomToken(auth, customToken);
+        const credential = await signInWithEmailAndPassword(
+          auth,
+          user?.userName ?? "",
+          "Dr123qwe",
+        );
 
         if (!credential.user.uid) {
           throw new Error("Firebase no devolvió un UID de usuario.");

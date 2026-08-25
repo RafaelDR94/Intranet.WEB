@@ -19,7 +19,7 @@ import ArrowDownIcon from '@/assets/icons/navegacion/nav-arrow-down.svg';
 import ArrowRightIcon from '@/assets/icons/navegacion/nav-arrow-right.svg';
 import WifiIcon from '@/assets/icons/Connectivity/wifi.svg';
 import ThemeIcon from '@/assets/icons/System/System/darkmode.svg';
-import LogoDr from '@/assets/images/LogosDR/DReDIT.png';
+import LogoGc from '@/assets/images/LogosCG/LogoGC.jpeg';
 import ConfigurationLogo from '@/assets/icons/System/System/settings.svg';
 
 
@@ -64,7 +64,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3">
-          <Image src={LogoDr} alt="DR Security Logo" width={110} height={110} priority />
+          <Image src={LogoGc} alt="Grupo Cantabria Logo" width={110} height={110} priority />
           <button
 
             data-testid="mobile-closesidebar"

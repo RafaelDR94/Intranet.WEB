@@ -8,7 +8,7 @@ import { currentDate } from "@/app/utilities/DatesHelper/Dateshelper";
 import { ColumnDef, SheetInput, exportExcelPro } from "@/app/utilities/Excel/ExportExcel";
 import { newDocument, Table, FullDocument ,CreatePDF} from "@/app/utilities/PDF/PDF";
 import { urlToBase64 } from "@/app/utilities/PicturesHelper/PictureHelper";
-import Logo from "@/assets/images/LogosDR/DRLogoOficial.png";
+import Logo from "@/assets/images/LogosCG/LogoGC.jpeg";
 type Column = { key: string; label: string; invisible?: boolean };
 
 const toPdfColumns = (

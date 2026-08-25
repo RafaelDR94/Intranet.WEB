@@ -26,7 +26,7 @@ vi.mock('@/app/context/AuthContext/utilities/AuthService', () => ({
 // 🔁 Mocks de recursos
 
 vi.mock('@/assets/icons/navegacion/home.svg', () => ({ default: () => <svg data-testid="home-icon" /> }));
-vi.mock('@/assets/images/LogosDR/DReDIT.png', () => ({ default: 'logo.png' }));
+vi.mock('@/assets/images/LogosCG/LogoGC.jpeg', () => ({ default: 'logo.png' }));
 vi.mock('@/assets/icons/navegacion/long-arrow-down-right.svg', () => ({ default: () => <svg /> }));
 vi.mock('@/assets/icons/navegacion/nav-arrow-right.svg', () => ({ default: () => <svg /> }));
 vi.mock('@/assets/icons/navegacion/nav-arrow-down.svg', () => ({ default: () => <svg /> }));

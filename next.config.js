@@ -41,6 +41,8 @@ const withPWA = require("next-pwa")({
 const nextConfig = {
   experimental: {
     useLightningcss: false,
+    workerThreads: false,
+    cpus: 1,
   },
   reactStrictMode: true,
   output: "export",
